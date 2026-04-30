@@ -63,6 +63,13 @@
 
 - 1인 작업 단계에서는 env.ts 자체가 source of truth. 팀 합류 또는 첫 외부 contributor 시점에 .env.example 별도 작성 (.env\*는 Write/Bash 차단되므로 Jayden 직접 1회 cp 필요)
 
+### 디자인 작업 (병렬 진행 가능, 코드와 별개)
+
+- 도구: [Claude Design](https://claude.ai/design) (Anthropic Labs)
+- 가이드: `docs/DESIGN-PLAN.md` v1.0 — Phase 1 총 23페이지 (P0 14 / P1 9), 디자인 시스템 v3.0 베이스
+- Jayden 작업 → Prototype 공유 → frontend-dev 에이전트가 shadcn/ui + Tailwind 코드로 변환
+- 결정 대기: brand 색상(파랑/코랄), 첫 작업 시작점(시스템 vs 페이지)
+
 ## 차단 요소
 
 - 없음
