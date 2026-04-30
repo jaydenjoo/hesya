@@ -10,7 +10,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@hesya/auth": "workspace:*",
+    "@hesya/database": "workspace:*",
     "@supabase/supabase-js": "^2.105.1",
+    "better-auth": "^1.6.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.14.0",

@@ -6,12 +6,12 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **S-4 DB Schema v0001 완료 (11 tables on hesya-prod). 다음은 S-5 (RLS) 진입 대기**
+- **Task**: **S-18 Better Auth + Google OAuth 완료. 다음은 S-5 (RLS) 진입 대기**
 - **상태**: 진행중
-- **작업 브랜치**: `chore/s-4-db-schema-v0001` (main 머지 대기)
+- **작업 브랜치**: `chore/s-18-better-auth` (main 머지 대기)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
-## 누적 완료 내역 (2026-04-30)
+## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
 
 ### 학습·검토
 
@@ -32,7 +32,7 @@
 - ✅ **Step 5** PROGRESS.md 최종 갱신 + learnings.md에 L-001 기록 — commit `ced4f1f`
 - ✅ **Step 6** main 머지 (`38c3808`, --no-ff) + GitHub push (jaydenjoo/hesya)
 - ✅ **TDD Guard 영구 정리** `.claude/hooks/tdd-guard-filtered.sh` 도입, setup·config 파일 allowlist — commit `d7bb096` → main `2e08dc7`
-- ✅ **S-3 Supabase Pro 활성화 + 환경변수** — commit `71cc65b` (브랜치 `chore/s-3-supabase-env`, main 머지 대기)
+- ✅ **S-3 Supabase Pro 활성화 + 환경변수** — commit `71cc65b` (브랜치 `chore/s-3-supabase-env`, main 머지 완료)
   - Jayden 외부 작업: hesya-prod 프로젝트 Singapore → Seoul 이전, Pro 결제 활성화
   - apps/web/.env.local에 4개 키 입력 (URL/anon/service_role/DATABASE_URL)
   - env.ts Zod 스키마에서 Supabase 4개 필드 활성화
@@ -41,31 +41,41 @@
   - @supabase/supabase-js 설치
   - tdd-guard filter 보강: stdin JSON 파싱 + env.ts·layout.tsx allowlist 추가
   - 빌드 검증: `Environments: .env.local` 인식, Zod parse 통과, 정적 페이지 4개 정상
-- ✅ **S-4 DB Schema v0001** — 브랜치 `chore/s-4-db-schema-v0001` (main 머지 대기)
+- ✅ **S-4 DB Schema v0001** — main 머지 완료 (`87af54e`)
   - PRD § 7 의 11개 테이블 (stores·store_verifications·staff·services·customers·messages·bookings·payments·reviews·aftercare_messages·store_reports)을 Drizzle ORM 스키마로 정의
-  - packages/database 의존성 추가: drizzle-orm 0.45 / drizzle-kit 0.31 / postgres 3.4 / dotenv / tsx
-  - drizzle.config.ts (절대경로 + ../../apps/web/.env.local dotenv 로드), tsconfig.json, src/client.ts(`createDbClient`), src/schema/{11파일} + index.ts
-  - migrations/0000_first_molten_man.sql 생성 (11 tables / 13 FKs / 3 CHECK)
-  - **Supabase MCP `apply_migration`로 hesya-prod (Seoul, Pro)에 적용** → `list_tables` 11개 확인 (RLS 전부 비활성, S-5 예정)
+  - packages/database 의존성: drizzle-orm 0.45 / drizzle-kit 0.31 / postgres 3.4 / dotenv / tsx
+  - drizzle.config.ts, tsconfig.json, src/client.ts(`createDbClient`), src/schema/{11파일} + index.ts
+  - migrations/0000_first_molten_man.sql (11 tables / 13 FKs / 3 CHECK)
+  - **Supabase MCP `apply_migration`로 hesya-prod (Seoul, Pro)에 적용** → `list_tables` 11개 확인
   - TDD Guard 필터 확장: `packages/*/src/schema/*.ts`, `packages/*/src/client.ts` allowlist (L-005)
   - Q1~Q5 권장안 모두 적용: Better Auth 별도(S-18) / SQL CHECK / ON DELETE NO ACTION / hesya-prod 직접 / 인덱스 PK+FK만
-  - 빌드 검증: tsc clean / drizzle-kit generate clean / Supabase apply success / next build clean (1.4s, 4 static pages)
+- ✅ **S-18 Better Auth + Google OAuth + 자체 가입** — 브랜치 `chore/s-18-better-auth` (main 머지 대기)
+  - **Step 0** Jayden 외부 작업: Google Cloud OAuth 2.0 Client ID 발급 (hesya-prod 프로젝트, redirect URI `http://localhost:4200/api/auth/callback/google`, 테스트 사용자 hidream72@gmail.com 등록), `.env.local`에 BETTER_AUTH_URL/SECRET + GOOGLE_CLIENT_ID/SECRET 4개 키 추가
+  - **Step 1** packages/auth: better-auth 1.6.9 + @hesya/database workspace dep, `createAuth({db,secret,baseURL,google})` 팩토리 + `createAuthClient` re-export, `usePlural:true`(PG 예약어 `user` 회피) + `advanced.database.generateId:"uuid"`(L-008)
+  - **Step 2** DB 마이그레이션 `0001_watery_ezekiel_stane.sql`: 4개 테이블 (users·sessions·accounts·verifications), uuid+defaultRandom, timestamp withTimezone, ON DELETE CASCADE (인증 도메인 표준 — 비즈니스 도메인 NO ACTION과 의도적 분리), Supabase apply → `list_tables` 15/15
+  - **Step 3** apps/web 통합: env.ts 4개 키 활성화, `lib/auth.ts`(createAuth + db 주입), `app/api/auth/[...all]/route.ts`(toNextJsHandler), apps/web에 better-auth direct dep 명시화
+  - **Step 4** 검증: tsc clean / build clean / DB 연결 OK (Shared Pooler IPv4) / sign-in/social 200 OK / **실 OAuth flow 통과** → users·accounts·sessions·verifications 각 1 row 생성 (Supabase MCP `execute_sql` 검증)
+  - 결정 변경: D1 (a) Better Auth CLI 자동 → **(b) 수동 작성**으로 변경 (createAuth 팩토리 패턴이라 CLI 정적 분석 깨짐 + 다른 11 tables와 일관성)
+  - TDD Guard 필터 확장: `packages/auth/src/index.ts`, `apps/*/src/lib/auth.ts`, `apps/*/src/app/api/auth/*`, `apps/*/src/app/sign-in/page.tsx`, `packages/*/src/schema/*/*.ts`(nested) allowlist
+  - 외부 작업 결과 발견: Supabase 직접 host(IPv6 only) → Shared Pooler 토글 ON으로 IPv4 호환 (L-007)
+  - 검증용 임시 페이지: `apps/web/src/app/sign-in/page.tsx` ("use client" + authClient.signIn.social) — 향후 실제 sign-in 페이지가 들어오면 덮어씀
 
 ### 변경 통계
 
-- 9+ commits (snapshot → D1 → D3·D3p → save → monorepo → docs → tdd filter → S-3 → S-4) / 약 80 files
+- 11+ commits (snapshot → ... → S-3 → S-4 → S-18) / 약 90 files
 - husky·gitleaks·lint-staged·prettier 모두 자동 통과
-- 빌드 검증: `pnpm -r list` 7개 / `tsc --noEmit` clean / `next build` 경고 0건 + .env.local 인식 / Supabase 11 tables ACTIVE
+- 빌드 검증: tsc clean / next build 1.7s / dev sign-in/social 200 OK / Supabase 15 tables ACTIVE / OAuth flow E2E 통과
 
 ## 다음 세션 할 일
 
-### S-4 후속 — chore/s-4-db-schema-v0001 브랜치 main 머지 + push (Jayden 명시 승인 시)
+### S-18 후속 — chore/s-18-better-auth 브랜치 main 머지 + push (Jayden 명시 승인 시)
 
 ### Day 0 본 Setup 계속
 
-- **S-5** RLS 정책 v0001 (11 테이블 모두 RLS enable + 매장/고객/운영자 분리 정책, 4h)
-- **S-18** Better Auth + Google OAuth (packages/auth로 이전, Drizzle 어댑터 0001 → 0002 마이그레이션, 5h)
+- **S-5** RLS 정책 v0001 (15 테이블 모두 RLS enable + 매장/고객/운영자 분리 정책 + auth.uid() 매핑, 4h) ← 다음 우선
 - **S-6** Zod + TypeScript 타입 (shared-types에서 schema → 입력/출력 타입 export, 4h)
+- **S-19** 멀티테넌시 store_owners 조인 테이블 (Better Auth users.id ↔ stores.id 매핑, 4h)
+- **S-20** Cloudflare R2 외부 백업 cron (6h)
 
 ### .env.example 작성 (보류 항목)
 
@@ -89,8 +99,9 @@
 - 2026-04-30 18:00~18:30 — Step 4 모노레포 재구조화 + Step 5 문서화 (commit `51c4149`)
 - 2026-04-30 18:30~19:00 — Step 6 main 머지 + GitHub push (`38c3808`) + TDD Guard 영구 필터 도입 (`2e08dc7`)
 - 2026-04-30 20:00~21:30 — S-3 Supabase Pro Seoul 이전 + 환경변수 활성화 + 빌드 검증 통과 (`71cc65b`)
-- 2026-04-30 22:00~23:30 — S-4 DB Schema v0001 (Drizzle 11 tables + Supabase apply + TDD filter 확장) — 브랜치 `chore/s-4-db-schema-v0001`
+- 2026-04-30 22:00~23:30 — S-4 DB Schema v0001 (Drizzle 11 tables + Supabase apply + TDD filter 확장) — `chore/s-4-db-schema-v0001` → main `87af54e`
+- 2026-04-30 ~ 2026-05-01 — S-18 Better Auth + Google OAuth (5단계 OAR 사이클, 약 4h, 실 OAuth flow E2E 통과) — 브랜치 `chore/s-18-better-auth`
 
 ## 마지막 업데이트
 
-- 2026-04-30 (S-4 완료, S-5 진입 가능)
+- 2026-05-01 (S-18 완료, S-5 진입 가능)
