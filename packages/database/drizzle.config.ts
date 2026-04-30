@@ -14,8 +14,11 @@ if (!process.env.DATABASE_URL) {
 
 export default defineConfig({
   dialect: "postgresql",
-  schema: resolve(__dirname, "./src/schema/index.ts"),
-  out: resolve(__dirname, "./migrations"),
+  // Relative paths only — drizzle-kit 0.31.x prepends './' even to absolute paths,
+  // creating malformed './/Volumes/...' lookups. Always invoke via
+  // `pnpm --filter @hesya/database db:generate` so cwd is the package root.
+  schema: "./src/schema/index.ts",
+  out: "./migrations",
   dbCredentials: { url: process.env.DATABASE_URL },
   strict: true,
   verbose: true,

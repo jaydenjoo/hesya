@@ -217,3 +217,73 @@
 **연관**: apps/web/.env.local (gitignored), .gitleaks.toml, S-3
 
 ---
+
+### [2026-05-01] L-007 — Supabase 직접 host는 IPv6 only — Mac/한국 ISP는 Shared Pooler 토글 ON 필수 (S-18)
+
+**증상**: Better Auth가 OAuth flow 시작 시 `verifications` INSERT를 시도 → `Error: getaddrinfo ENOTFOUND db.bnlyzlfsxtjpzzydjjuv.supabase.co`. 단, Supabase MCP `apply_migration`은 같은 프로젝트에 정상 동작했음 (Supabase API 경유).
+
+**원인**: Supabase는 2024년부터 직접 endpoint(`db.{ref}.supabase.co`)를 **IPv6 only**로 변경. Pro 플랜에서도 Direct/Dedicated Pooler 둘 다 IPv6 only가 기본. Mac + 한국 KT/LG/SKT 가정용 회선은 IPv6 라우팅 미지원 → DNS resolve 실패. 우리는 Step 2까지 Supabase API(MCP)로만 DB 접근했어서 처음 local에서 직접 PG 연결을 시도한 S-18 검증 단계에서 폭발.
+
+**해결**: Supabase 대시보드 → 상단 `Connect` 버튼 → 모달에서 **Use IPv4 connection (Shared Pooler) 토글 ON** → Connection string 라벨이 `DEDICATED POOLER` → `SHARED POOLER`로 바뀌고 host가 `aws-{N}-{region}.pooler.supabase.com:6543`으로 변경됨. `.env.local` `DATABASE_URL` 통째 교체. `prepare: false` (이미 `packages/database/src/client.ts`에 설정됨)이 Transaction Pooler와 정확히 매칭.
+
+**규칙** ⭐:
+
+1. **Supabase 신규 프로젝트는 처음부터 Shared Pooler URL을 `DATABASE_URL`로 사용한다.** Direct/Dedicated Pooler는 IPv4 add-on($4/월)이 없으면 Mac dev에서 동작 안 함. 대시보드의 `Connect` 모달에서 `Use IPv4 connection (Shared Pooler)` 토글이 ON인지 매번 확인.
+2. **Transaction Pooler(포트 6543) + `prepare: false`** 조합이 Drizzle + Better Auth와 호환. Session Pooler(5432)도 동작하지만 Transaction이 stateless에 더 적합.
+3. **Supabase MCP가 정상 → 코드도 정상이라 가정 금지.** MCP는 Supabase API 경유, local PG 연결은 다른 경로. 둘 다 따로 검증해야 한다.
+4. **host의 `aws-{N}` 숫자는 인스턴스마다 다르다.** AI가 안내하는 예시 값(예: `aws-0-`)을 그대로 쓰지 말고 본인 대시보드 화면값을 복사한다.
+
+**확인 방법**:
+
+- 자동: dev 서버 시작 후 `curl -s -i -X POST -H "Content-Type: application/json" -d '{"provider":"google"}' http://localhost:4200/api/auth/sign-in/social | head -1` 가 `200 OK`이면 OK. `500` + 로그에 `ENOTFOUND`이면 Pooler 미적용.
+- 인간 리뷰: `.env.local`의 `DATABASE_URL` host에 `pooler.supabase.com` 포함되어 있는지. `db.{ref}.supabase.co`이면 미적용.
+
+**연관**: apps/web/.env.local (DATABASE_URL), packages/database/src/client.ts (`prepare: false`), S-18
+
+---
+
+### [2026-05-01] L-008 — Better Auth는 기본 ID로 32자 nanoid 생성 — uuid 컬럼은 `advanced.database.generateId: "uuid"` 명시 필수 (S-18)
+
+**증상**: OAuth flow 시작 시 `verifications` INSERT가 `PostgresError: invalid input syntax for type uuid: "GxcVzh1Pbctv9FIjkgao5MB40xgvUcgi"` 22P02로 거부됨. Better Auth가 ID로 32자 nanoid 문자열을 보내는데 우리 schema는 `uuid` 컬럼이라 Postgres가 캐스팅 실패.
+
+**원인**: Better Auth의 기본 ID 전략은 `crypto-random` 32자 nanoid (URL-safe). 한편 우리 hesya 11 tables는 컨벤션상 `uuid("id").primaryKey().defaultRandom()`이고, 일관성 위해 Better Auth 4 tables도 같은 패턴으로 만들었다. Better Auth는 INSERT 시 자체 생성한 nanoid를 명시적으로 보내므로 PG default `gen_random_uuid()`가 동작할 기회가 없고, 보낸 값이 uuid 형식이 아니라 거부됨.
+
+**해결**: `betterAuth({...})`에 `advanced: { database: { generateId: "uuid" } }` 한 줄 추가. Better Auth가 `crypto.randomUUID()`로 RFC 4122 형식을 생성해 보내므로 우리 uuid 컬럼과 호환. 다른 옵션 (`generateId: false`로 PG default에 위임 / `generateId: () => crypto.randomUUID()` 커스텀)도 가능하지만 `"uuid"` 키워드가 가장 명시적.
+
+**규칙** ⭐:
+
+1. **Better Auth + Drizzle PostgreSQL에서 schema id가 `uuid`이면 반드시 `advanced.database.generateId: "uuid"` 옵션을 켠다.** Better Auth 1.4부터 추가된 표준 옵션. 안 켜면 첫 OAuth 시도부터 폭발.
+2. **schema id 타입을 도메인별로 통일한다.** Better Auth만 `text` nanoid로 두고 나머지는 uuid로 가는 mixed 패턴은 미래 매핑(예: customers.user_id FK)에서 비용. uuid로 통일.
+3. **Better Auth 옵션 변경은 dev 서버 hot reload만으로는 안 잡힐 수 있다.** packages/auth 내부 변경 후 dev 서버 kill+재시작이 가장 안전.
+
+**확인 방법**:
+
+- 자동: `SELECT id FROM users LIMIT 1;` 결과의 길이가 36(uuid: `xxxxxxxx-xxxx-...`)인지 32(nanoid)인지로 즉시 판별.
+- 인간 리뷰: `packages/auth/src/index.ts`에 `advanced.database.generateId` 옵션이 있는지 PR 단계에서 확인.
+
+**연관**: packages/auth/src/index.ts, packages/database/src/schema/auth/\*.ts, S-18
+
+---
+
+### [2026-05-01] L-009 — drizzle-kit 0.31.x는 `out`·`schema`에 절대경로를 받으면 `./` prefix를 붙여 잘못된 경로 생성 (L-006 보강, S-18)
+
+**증상**: `pnpm --filter @hesya/database db:generate` 실행 시 `Error: ENOENT: no such file or directory, open './/Volumes/jayden-ssd/projects/hesya/packages/database/migrations/meta/0000_snapshot.json'`. 경로 앞에 `.//`(점-슬래시-슬래시)가 보이며, 절대경로 앞에 `./`가 한 번 더 prefix되어 잘못된 경로가 됨.
+
+**원인**: drizzle-kit 0.31.10 내부에서 `out`/`schema` 인자를 cwd-relative로 가정하고 무조건 `./`를 prepend함. L-006에서 cwd 누수 문제로 절대경로를 권장했었는데, drizzle-kit에 한해서는 절대경로가 오히려 깨진다. `pnpm --filter @hesya/database`로 호출하면 cwd가 패키지 루트로 강제되므로 상대경로가 안전하다.
+
+**해결**: `drizzle.config.ts`에서 `schema`, `out`을 `resolve(__dirname, ...)` → 상대경로 (`"./src/schema/index.ts"`, `"./migrations"`)로 변경. 컨벤션상 항상 `pnpm --filter @hesya/database db:generate`로 호출 → cwd가 packages/database 루트로 강제 → 상대경로가 절대경로처럼 동작.
+
+**규칙** ⭐:
+
+1. **drizzle-kit (0.31.x 기준) 의 `out`/`schema`는 상대경로를 사용한다.** 절대경로는 prefix 버그로 깨짐. L-006의 절대경로 일반 권장은 drizzle-kit에 한해 무효.
+2. **drizzle-kit은 항상 `pnpm --filter @hesya/database db:generate`로 호출한다.** 다른 cwd에서 호출 금지. (필요 시 npm script alias로 강제)
+3. **drizzle-kit 0.32+로 업그레이드 시 이 버그가 고쳐졌는지 release notes 확인 후 절대경로 복귀 가능 여부 재평가**.
+
+**확인 방법**:
+
+- 자동: `pnpm --filter @hesya/database db:generate`가 `[✓] Your SQL migration file ➜ migrations/...sql` 메시지로 끝나면 OK. `ENOENT`이면 경로 문제 재발.
+- 인간 리뷰: `drizzle.config.ts`에 `resolve(__dirname, ...)` 패턴이 다시 들어오면 차단.
+
+**연관**: packages/database/drizzle.config.ts, L-006 (cwd 누수, 일부 무효화), S-4·S-18
+
+---

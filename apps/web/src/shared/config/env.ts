@@ -36,11 +36,11 @@ const envSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20), // 서버 전용 — 절대 클라이언트 노출 금지
   DATABASE_URL: z.string().startsWith("postgres"), // PostgreSQL connection string
 
-  // ─── Better Auth (S-18에서 활성화) ───
-  // BETTER_AUTH_SECRET: z.string().min(32),
-  // BETTER_AUTH_URL: z.url(),
-  // GOOGLE_CLIENT_ID: z.string().min(1),
-  // GOOGLE_CLIENT_SECRET: z.string().min(1),
+  // ─── Better Auth (S-18 활성화) ───
+  BETTER_AUTH_SECRET: z.string().min(32),
+  BETTER_AUTH_URL: z.url(),
+  GOOGLE_CLIENT_ID: z.string().min(1),
+  GOOGLE_CLIENT_SECRET: z.string().min(1),
 
   // ─── AI/외부 (사용 시 주석 해제) ───
   // ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-"),

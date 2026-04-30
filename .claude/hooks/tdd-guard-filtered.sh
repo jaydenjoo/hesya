@@ -56,7 +56,16 @@ case "$path" in
   # See docs/learnings.md L-003. Schemas mirror PRD § 7; verification = drizzle-kit
   # generate (syntax) + Supabase apply_migration (runtime) + list_tables (deploy).
   */packages/*/src/schema/*.ts) exit 0 ;;
+  */packages/*/src/schema/*/*.ts) exit 0 ;;
   */packages/*/src/client.ts) exit 0 ;;
+
+  # Better Auth wiring — factory + handler routes (declarative integration)
+  # See docs/learnings.md (S-18). Verification = build + runtime OAuth flow,
+  # not unit tests on the wrapper that just forwards to betterAuth().
+  */packages/auth/src/index.ts) exit 0 ;;
+  */apps/*/src/lib/auth.ts|*/apps/*/lib/auth.ts) exit 0 ;;
+  */apps/*/src/app/api/auth/*) exit 0 ;;
+  */apps/*/src/app/sign-in/page.tsx) exit 0 ;;
 
   # environment variable schemas (Zod declarations, not business logic)
   */shared/config/env.ts|*/config/env.ts|*/src/env.ts) exit 0 ;;

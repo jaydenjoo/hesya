@@ -1,4 +1,5 @@
 export * from "./aftercare-messages";
+export * from "./auth";
 export * from "./bookings";
 export * from "./customers";
 export * from "./messages";
