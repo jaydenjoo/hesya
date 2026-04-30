@@ -6,6 +6,7 @@ import {
   Playfair_Display,
 } from "next/font/google";
 import "./globals.css";
+import "@/shared/config/env"; // env Zod 검증 트리거 (Next runtime, .env.local 로드 후 evaluate)
 import { cn } from "@/lib/utils";
 
 const playfairDisplayHeading = Playfair_Display({

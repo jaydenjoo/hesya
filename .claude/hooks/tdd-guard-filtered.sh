@@ -6,13 +6,20 @@
 # as "implementation needing a failing test", which is wrong for framework configs,
 # package manifests, gitkeep placeholders, etc. This wrapper limits TDD enforcement
 # to actual business logic.
+#
+# Claude Code passes the tool input as JSON on stdin. We parse tool_input.file_path
+# with jq, match against the allowlist, and either short-circuit (exit 0) or
+# forward the original stdin to the real tdd-guard CLI.
 
 set -euo pipefail
 
-path="${CLAUDE_TOOL_PATH:-${CLAUDE_TOOL_INPUT_file_path:-}}"
+input=$(cat)
+path=$(printf '%s' "$input" | jq -r '.tool_input.file_path // empty' 2>/dev/null || true)
 
+# Fall through to tdd-guard if we cannot determine the path.
 if [[ -z "$path" ]]; then
-  exec tdd-guard
+  printf '%s' "$input" | tdd-guard
+  exit $?
 fi
 
 case "$path" in
@@ -44,8 +51,14 @@ case "$path" in
 
   # SQL migrations / schema (use db-engineer + manual review, not TDD)
   */migrations/*|*.sql|*/db/schema/*) exit 0 ;;
+
+  # environment variable schemas (Zod declarations, not business logic)
+  */shared/config/env.ts|*/config/env.ts|*/src/env.ts) exit 0 ;;
+
+  # next.js root layout — wiring point for env validation, not business logic
+  */src/app/layout.tsx|*/src/app/layout.ts) exit 0 ;;
 esac
 
-# Anything else (features/, lib/, packages/*/src/*.ts business code, etc.)
-# is subject to TDD enforcement.
-exec tdd-guard
+# Business code path — delegate to the real tdd-guard CLI with original stdin.
+printf '%s' "$input" | tdd-guard
+exit $?
