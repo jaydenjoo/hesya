@@ -1,0 +1,28 @@
+# gitleaks 시크릿 누출 차단 룰 (v10)
+# 설치: brew install gitleaks
+# 실행: gitleaks detect --no-git
+title = "Vibe Coding Project Gitleaks Config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "supabase-service-role"
+description = "Supabase Service Role Key"
+regex = '''eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+'''
+keywords = ["supabase", "service_role"]
+
+[[rules]]
+id = "anthropic-api-key"
+description = "Anthropic API Key"
+regex = '''sk-ant-[a-zA-Z0-9_-]{40,}'''
+keywords = ["anthropic", "claude"]
+
+[allowlist]
+description = "false positives"
+paths = [
+  '''node_modules''',
+  '''\.next''',
+  '''pnpm-lock\.yaml''',
+  '''package-lock\.json''',
+]

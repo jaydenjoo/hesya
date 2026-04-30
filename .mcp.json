@@ -1,0 +1,24 @@
+{
+  "//": "프로젝트별 MCP 서버 자동 연결 — Claude Code가 자동 인식",
+  "//설명": "사용 안 할 항목은 주석 처리 또는 삭제 (// 키 무시됨)",
+  "mcpServers": {
+    "context7": {
+      "//": "라이브러리 최신 문서 자동 조회 (Next.js/Tailwind/React 등)",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
+    "//supabase": {
+      "//": "Supabase 사용 시 주석 해제 — DB/Auth/Storage 직접 조작",
+      "command": "npx",
+      "args": ["-y", "@supabase/mcp-server-supabase"],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "your_token_here"
+      }
+    },
+    "//playwright": {
+      "//": "E2E 테스트 자동화 — Playwright MCP",
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+  }
+}

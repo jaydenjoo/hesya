@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+# 1. 시크릿 누출 검사 (gitleaks)
+if command -v gitleaks > /dev/null 2>&1; then
+  echo "🔍 gitleaks 시크릿 검사 중..."
+  gitleaks protect --staged --redact || {
+    echo "⛔ 시크릿 누출 발견! commit 차단됨."
+    echo "   .gitleaks.toml의 allowlist에 추가하거나 .env로 분리하세요."
+    exit 1
+  }
+else
+  echo "⚠️  gitleaks 미설치 — 시크릿 검사 건너뜀 (brew install gitleaks 권장)"
+fi
+
+# 2. 변경 파일만 lint + format
+pnpm exec lint-staged
