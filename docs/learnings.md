@@ -141,6 +141,55 @@
 
 ---
 
+### [2026-04-30] L-005 — TDD Guard에서 Drizzle schema·DB client는 spec/wiring으로 보고 allowlist에 추가
+
+**증상**: packages/database/src/schema/\*.ts 11개 + client.ts 작성 시 TDD Guard hook이 11회 차단 — "Premature implementation violation, write a failing test first".
+
+**원인**: tdd-guard CLI는 모든 Edit/Write를 "구현"으로 간주한다. 그러나 Drizzle schema 파일은 PRD § 7 을 받아쓴 **선언적 인프라**이고, 검증 수단도 별개로 존재한다 — `drizzle-kit generate`(구문) + Supabase `apply_migration`(런타임) + `list_tables`(배포). Unit test 추가는 가치가 낮고 schema 변경 시마다 테스트 보일러플레이트가 누적되는 부작용이 큼.
+
+**해결**: `.claude/hooks/tdd-guard-filtered.sh` 의 case glob에 두 패턴 추가 — `*/packages/*/src/schema/*.ts`, `*/packages/*/src/client.ts`. SQL/migrations 섹션 바로 옆에 배치하여 의도(선언적 인프라) 일관성 유지. L-002의 env.ts·layout.tsx allowlist 패턴 확장.
+
+**규칙** ⭐:
+
+1. 새 패키지에서 schema 파일을 만들 때, 별도 설정 없이 위 패턴이 자동 매칭된다 (`packages/<name>/src/schema/<table>.ts`). 깊은 폴더 (예: `schema/auth/sessions.ts`)가 필요하면 패턴을 `*/packages/*/src/schema/**/*.ts`로 확장한다.
+2. **schema 검증은 코드 테스트가 아니라 PRD 일치도 + drizzle-kit generate + DB list_tables**로 한다. 비즈니스 로직(repository, query 함수)에는 TDD를 그대로 적용한다.
+3. `client.ts`(DB 진입점)도 wiring point — 비즈니스 로직 X. allowlist 통과는 의도된 결정이다.
+
+**확인 방법**:
+
+- 자동: hook이 다음 schema 파일에서도 통과하면 OK
+- 인간 리뷰: PR 단계에서 schema 파일에 try/catch / 조건 분기 / 비즈니스 규칙이 들어가는지 확인 → 들어가면 별도 함수로 분리
+
+---
+
+### [2026-04-30] L-006 — drizzle-kit out 경로는 절대화해야 한다 (cwd 의존성 + Bash tool cwd 영구성)
+
+**증상**: `pnpm --filter @hesya/database db:generate` 실행 후 마이그레이션 SQL이 `packages/database/migrations/`가 아닌 **레포 루트 `migrations/`**에 떨어졌다. 또한 같은 세션에서 `cd packages/database && ...` 명령 이후 cwd가 영구적으로 packages/database로 바뀌어 있었고, 그 상태에서 `mv migrations/* packages/database/migrations/`를 실행하니 `packages/database/packages/database/migrations/` 이중 경로가 만들어졌다.
+
+**원인 (2가지)**:
+
+1. **drizzle.config.ts 의 `out: "./migrations"`** 가 cwd-relative — `pnpm --filter`가 패키지 cwd에서 실행해야 하지만 일부 도구 호출 컨텍스트(또는 Bash tool cwd 누수)에서는 레포 루트 cwd를 그대로 들고 있어 SQL이 엉뚱한 곳으로 떨어진다.
+2. **Claude Code의 Bash tool은 cwd를 명령 간 영구 보존**한다. `cd X` 한 번이 그 다음 모든 명령 cwd에 영향. 처음에 실패한 cd처럼 보여도 실제로는 적용된 경우가 있다.
+
+**해결**:
+
+1. `drizzle.config.ts` 에서 `schema`, `out` 모두 `resolve(__dirname, ...)`로 절대화 → cwd 무관 동작 보장.
+2. Bash 명령은 가능한 **절대 경로 사용** + `cd`는 같은 명령 내(`&&`) 일회성으로만 사용. 세션 중간에 cwd 의심되면 `pwd`로 즉시 확인.
+3. `mv /절대/원본/* /절대/대상/`이 안전. 상대 경로 mv는 cwd 의존이 강해 이중 경로 사고가 잘 난다.
+
+**규칙** ⭐:
+
+1. 빌드/생성 도구의 출력 경로(`out`, `outDir`, `outputPath`)는 모두 **`resolve(__dirname, …)` 또는 `path.join`로 절대화**한다.
+2. Claude Code 세션에서 디렉토리 변경이 필요하면 같은 명령 내 `cd X && Y`로만 사용하고, 별도 명령에서는 절대 경로 사용을 기본으로 한다.
+3. `mv`/`rm`/`cp` 같은 파일시스템 조작 명령은 항상 절대 경로 인자만 사용한다. 단축형이 한 번이라도 어긋나면 회복 비용이 크다.
+
+**확인 방법**:
+
+- 자동: drizzle.config.ts 에 상대 경로 `out`이 다시 들어오면 lint/CI에서 잡기는 어려움. 인간 리뷰가 현실적.
+- 인간 리뷰: 새 패키지 추가 시 `*.config.ts` 의 경로 인자를 점검한다.
+
+---
+
 ### [2026-04-30] L-004 — Claude Code의 .env\* 파일 보호: Read·Write·Bash 모두 차단
 
 **증상**: `.env.local` 파일에 대해 `Read` 도구는 "File is in a directory that is denied", `Write`는 "denied by your permission settings", `Bash`로 `cat > .env.example`이나 `grep "..." .env.local` 모두 권한 거부됐다. `.env.example`(점 시작) 작성도 동일하게 차단됐다.

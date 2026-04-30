@@ -6,9 +6,9 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **Step 0~6 + S-3 완료. 다음은 S-4 (DB Schema v0001) 또는 S-5 (RLS) 진입 대기**
+- **Task**: **S-4 DB Schema v0001 완료 (11 tables on hesya-prod). 다음은 S-5 (RLS) 진입 대기**
 - **상태**: 진행중
-- **작업 브랜치**: `chore/s-3-supabase-env` (main 머지 대기)
+- **작업 브랜치**: `chore/s-4-db-schema-v0001` (main 머지 대기)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 누적 완료 내역 (2026-04-30)
@@ -41,23 +41,31 @@
   - @supabase/supabase-js 설치
   - tdd-guard filter 보강: stdin JSON 파싱 + env.ts·layout.tsx allowlist 추가
   - 빌드 검증: `Environments: .env.local` 인식, Zod parse 통과, 정적 페이지 4개 정상
+- ✅ **S-4 DB Schema v0001** — 브랜치 `chore/s-4-db-schema-v0001` (main 머지 대기)
+  - PRD § 7 의 11개 테이블 (stores·store_verifications·staff·services·customers·messages·bookings·payments·reviews·aftercare_messages·store_reports)을 Drizzle ORM 스키마로 정의
+  - packages/database 의존성 추가: drizzle-orm 0.45 / drizzle-kit 0.31 / postgres 3.4 / dotenv / tsx
+  - drizzle.config.ts (절대경로 + ../../apps/web/.env.local dotenv 로드), tsconfig.json, src/client.ts(`createDbClient`), src/schema/{11파일} + index.ts
+  - migrations/0000_first_molten_man.sql 생성 (11 tables / 13 FKs / 3 CHECK)
+  - **Supabase MCP `apply_migration`로 hesya-prod (Seoul, Pro)에 적용** → `list_tables` 11개 확인 (RLS 전부 비활성, S-5 예정)
+  - TDD Guard 필터 확장: `packages/*/src/schema/*.ts`, `packages/*/src/client.ts` allowlist (L-005)
+  - Q1~Q5 권장안 모두 적용: Better Auth 별도(S-18) / SQL CHECK / ON DELETE NO ACTION / hesya-prod 직접 / 인덱스 PK+FK만
+  - 빌드 검증: tsc clean / drizzle-kit generate clean / Supabase apply success / next build clean (1.4s, 4 static pages)
 
 ### 변경 통계
 
-- 8+ commits (snapshot → D1 → D3·D3p → save → monorepo → docs → tdd filter → S-3) / 약 65 files
+- 9+ commits (snapshot → D1 → D3·D3p → save → monorepo → docs → tdd filter → S-3 → S-4) / 약 80 files
 - husky·gitleaks·lint-staged·prettier 모두 자동 통과
-- 빌드 검증: `pnpm -r list` 7개 / `tsc --noEmit` clean / `next build` 경고 0건 + .env.local 인식
+- 빌드 검증: `pnpm -r list` 7개 / `tsc --noEmit` clean / `next build` 경고 0건 + .env.local 인식 / Supabase 11 tables ACTIVE
 
 ## 다음 세션 할 일
 
-### S-3 후속 — chore/s-3-supabase-env 브랜치 main 머지 + push (Jayden 명시 승인 시)
+### S-4 후속 — chore/s-4-db-schema-v0001 브랜치 main 머지 + push (Jayden 명시 승인 시)
 
 ### Day 0 본 Setup 계속
 
-- **S-4** DB Schema v0001 (PRD § 7 기준 9개 테이블, packages/database로 이전, 4h)
-- **S-5** RLS 정책 v0001 (4h)
-- **S-18** Better Auth + Google OAuth (packages/auth로 이전, 5h)
-- **S-6** Zod + TypeScript 타입 (shared-types) (4h)
+- **S-5** RLS 정책 v0001 (11 테이블 모두 RLS enable + 매장/고객/운영자 분리 정책, 4h)
+- **S-18** Better Auth + Google OAuth (packages/auth로 이전, Drizzle 어댑터 0001 → 0002 마이그레이션, 5h)
+- **S-6** Zod + TypeScript 타입 (shared-types에서 schema → 입력/출력 타입 export, 4h)
 
 ### .env.example 작성 (보류 항목)
 
@@ -81,7 +89,8 @@
 - 2026-04-30 18:00~18:30 — Step 4 모노레포 재구조화 + Step 5 문서화 (commit `51c4149`)
 - 2026-04-30 18:30~19:00 — Step 6 main 머지 + GitHub push (`38c3808`) + TDD Guard 영구 필터 도입 (`2e08dc7`)
 - 2026-04-30 20:00~21:30 — S-3 Supabase Pro Seoul 이전 + 환경변수 활성화 + 빌드 검증 통과 (`71cc65b`)
+- 2026-04-30 22:00~23:30 — S-4 DB Schema v0001 (Drizzle 11 tables + Supabase apply + TDD filter 확장) — 브랜치 `chore/s-4-db-schema-v0001`
 
 ## 마지막 업데이트
 
-- 2026-04-30 (S-3 완료, S-4 진입 가능)
+- 2026-04-30 (S-4 완료, S-5 진입 가능)
