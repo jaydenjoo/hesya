@@ -116,3 +116,55 @@
 **연관**: PROGRESS.md 2026-04-30 Step 4.5·4.8, `.claude/settings.json` PreToolUse hook
 
 ---
+
+### [2026-04-30] L-003 — Next 16에서 env Zod 검증을 빌드·dev 시작 시점에 트리거하는 wiring
+
+**증상 / 상황**: env.ts에 Zod 스키마(`envSchema.parse(process.env)`)를 정의했지만, 이 모듈을 어디서도 import하지 않으면 빌드/dev 시 evaluate되지 않아 환경변수 누락이 런타임까지 묵인됐다. 처음에는 `next.config.ts`에서 `import "./src/shared/config/env"`로 시도했으나 빌드가 즉시 실패했다.
+
+**원인**: Next.js는 **`next.config.ts` 평가 후에** `.env.local`을 `process.env`에 로드한다. 따라서 next.config.ts에서 env.ts를 import하면 Zod parse 시점에 변수들이 모두 `undefined` 상태이고 검증이 무조건 실패한다.
+
+**해결**: env.ts import를 `apps/web/src/app/layout.tsx`(Next runtime entry, `.env.local` 로드 **후** evaluate)로 옮겼다. 이 파일은 모든 페이지의 root이므로 빌드와 dev 서버 시작 모두에서 env.ts가 정확히 한 번 평가되어 누락·오타가 즉시 빌드 실패로 이어진다.
+
+**규칙** ⭐:
+
+1. **Zod env 스키마는 next.config.ts에서 import 금지.** 그 시점엔 .env.local이 아직 process.env에 없다. 무조건 `undefined`로 실패한다.
+2. **Zod env 스키마는 layout.tsx(또는 가장 root에 있는 server entry)에서 1회 import한다.** Next runtime이 .env.local을 로드한 직후 evaluate되어 부팅 시점 검증이 보장된다.
+3. **TDD Guard filter에 `*/src/app/layout.tsx`와 `*/shared/config/env.ts`를 allowlist에 등록한다.** 둘 다 wiring/declarative이지 비즈니스 로직이 아니므로 TDD 적용 대상이 아니다 (L-002의 연장).
+4. **dev 포트를 표준 3000에서 변경할 때는 두 곳을 동기화한다.** `apps/web/package.json`의 `dev`/`start` 스크립트(`-p 4200`)와 `env.ts`의 `NEXT_PUBLIC_APP_URL` default 모두. 이후 BETTER_AUTH_URL, OAuth callback URL 등 외부 등록 항목도 같은 포트로 맞춰야 한다.
+
+**확인 방법**:
+
+- 자동: `pnpm --filter @hesya/web build`가 `Environments: .env.local` 라인을 출력하는지 + ZodError 없이 통과하는지. 변수 1개를 일부러 비우고 빌드하면 정확히 그 키 이름으로 실패해야 한다.
+- 인간 리뷰: 새 env 변수 추가 시 env.ts Zod 스키마와 .env.local 둘 다 갱신했는지 PR 리뷰에서 확인.
+
+**연관**: apps/web/src/app/layout.tsx, apps/web/src/shared/config/env.ts, apps/web/package.json scripts, .claude/hooks/tdd-guard-filtered.sh allowlist, S-3 (PROGRESS 2026-04-30)
+
+---
+
+### [2026-04-30] L-004 — Claude Code의 .env\* 파일 보호: Read·Write·Bash 모두 차단
+
+**증상**: `.env.local` 파일에 대해 `Read` 도구는 "File is in a directory that is denied", `Write`는 "denied by your permission settings", `Bash`로 `cat > .env.example`이나 `grep "..." .env.local` 모두 권한 거부됐다. `.env.example`(점 시작) 작성도 동일하게 차단됐다.
+
+**원인**: Claude Code의 글로벌 보안 정책은 `.env*` 패턴을 시크릿 파일로 간주해 모든 도구 접근을 차단한다. `.gitleaks.toml`이나 settings.json의 permission allowlist도 이를 우회하지 않는다. 의도한 보안 기본값(secret leak 방지)이며 회피하지 않는 것이 옳다.
+
+**해결**:
+
+1. .env.local 자체는 **Jayden 직접 작성 + 직접 검증** (variable name list grep는 본인 터미널에서)
+2. .env.example는 표준 관례지만 1인 작업 단계에서는 env.ts의 Zod 스키마가 충분한 source of truth이므로 보류
+3. 변수명 점검은 Jayden 터미널에서 `grep -E "^KEY1=|^KEY2=" apps/web/.env.local | sed 's/=.*$/=<설정됨>/'` 같은 비파괴 명령으로 수행 (값 노출 없음)
+
+**규칙** ⭐:
+
+1. **AI에게 .env\* 파일을 Read·Write·Bash로 다루게 하지 않는다.** 보안 차단은 의도된 기본값이고 우회 시도 자체가 안티패턴이다.
+2. **.env.local 같은 시크릿 파일은 Jayden이 직접 작성하고 변경한다.** AI는 변수명 목록·placeholder만 안내한다.
+3. **변수명 검증은 비파괴 명령(grep + sed redact)으로 Jayden 터미널에서 1회 실행하고 결과만 공유**한다. 절대 값 자체를 채팅에 붙여넣지 않는다.
+4. **.env.example가 필요하면 Jayden이 `cp` 또는 빈 파일을 직접 만든 뒤 그 안에서 placeholder만 채우는 방식**을 사용한다.
+
+**확인 방법**:
+
+- 자동: gitleaks pre-commit hook이 .env\* 파일에 대한 commit을 차단한다(.gitignore와 별개의 안전망).
+- 인간 리뷰: PR 단계에서 .env.local·secret 키가 git history 어디에도 들어가지 않았는지 확인 (`git log -p -- '*.env*'`).
+
+**연관**: apps/web/.env.local (gitignored), .gitleaks.toml, S-3
+
+---
