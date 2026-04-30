@@ -52,6 +52,12 @@ case "$path" in
   # SQL migrations / schema (use db-engineer + manual review, not TDD)
   */migrations/*|*.sql|*/db/schema/*) exit 0 ;;
 
+  # monorepo packages — Drizzle schema files & DB client entry (declarative infra)
+  # See docs/learnings.md L-003. Schemas mirror PRD § 7; verification = drizzle-kit
+  # generate (syntax) + Supabase apply_migration (runtime) + list_tables (deploy).
+  */packages/*/src/schema/*.ts) exit 0 ;;
+  */packages/*/src/client.ts) exit 0 ;;
+
   # environment variable schemas (Zod declarations, not business logic)
   */shared/config/env.ts|*/config/env.ts|*/src/env.ts) exit 0 ;;
 
