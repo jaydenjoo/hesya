@@ -40,7 +40,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "tdd-guard"
+            "command": "bash .claude/hooks/tdd-guard-filtered.sh"
           }
         ]
       }
