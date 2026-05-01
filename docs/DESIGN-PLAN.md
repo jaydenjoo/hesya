@@ -102,65 +102,113 @@
 
 ---
 
-## 4. 디자인 시스템 토큰 — v3.0 베이스
+## 4. 디자인 시스템 토큰 — v4.1 글로벌 + 핸드오프 v1.0 확정
 
-> 글로벌 가이드 `~/.claude/skills/design-system.md` v3.0을 그대로 따르되, Hesya brand 색상은 별도 결정.
+> 글로벌 가이드 `~/.claude/skills/design-system.md` v4.1을 base로 하고, Hesya 고유 결정은 **핸드오프 v1.0 (2026-05-01 수령, `docs/design/handoff/tokens.css`)** 으로 확정.
 
-### 색상 (Hesya 미정 → 결정 필요)
+### 4.1 색상 — 확정 (Peach + Amber + Navy)
 
 ```css
-/* 기본 팔레트 — design-system.md v3.0 그대로 */
+/* 핸드오프 v1.0 tokens.css 발췌 — 단일 진실 소스 */
+
+/* Brand — Peach scale + Amber accent + Navy text */
+--hesya-peach-50: #fdf8f1; /* 페이지 기본 배경 (body) */
+--hesya-peach-100: #f8e9d9; /* 카드·섹션 배경 */
+--hesya-peach-200: #f5ddc8; /* hover·강조 표면 */
+--hesya-amber-500: #e8a97a; /* primary brand color */
+--hesya-amber-600: #d88b5b; /* primary hover */
+--hesya-navy-900: #1a2238; /* 본문 텍스트 (대비 ≥ 4.5:1) */
+
+/* Trust 레이어 ⭐ Hesya 고유 — PRD § 6 K-Verified 시각 시스템 */
+--trust-rose: #e8c4d6; /* 매장 트러스트 보조 */
+--share-glow: #f8d7c8; /* SNS 공유 액션 강조 */
+--kverified-gold: #d4af37; /* 한국 정부 검증(KYC 통과) 매장 골드 뱃지 */
+
+/* Semantic */
+--semantic-success: #2a9d5c;
+--semantic-warning: #e8a117;
+--semantic-danger: #dc3545;
+--semantic-info: #5b9bd5;
+
+/* Neutrals */
 --gray-50: #fafbfc;
 --gray-100: #f1f3f5;
---gray-200: #e2e6ea;
 --gray-300: #adb5bd;
 --gray-500: #6c757d;
 --gray-700: #3d4551;
 --gray-800: #2b3038;
 --gray-900: #1a1e24;
---success: #2a9d5c;
---warning: #e8a117;
---error: #dc3545;
-
-/* Hesya brand — 결정 필요 ⏳ */
-/* 옵션 A (기본 파랑):    --brand:#2b7cff; --brand-hover:#1a5bc4; */
-/* 옵션 B (따뜻한 코랄):  --brand:#ff8a65; --brand-hover:#e85d75; */
-/* 옵션 C (살구/그라디언트): 추후 디자인 단계에 결정 */
 ```
 
-> **권장**: Hesya는 미용·환대 업종이라 차가운 파랑보다 **따뜻한 코랄/살구톤**이 정체성에 더 맞을 가능성. 최종 결정은 디자인 시스템 Prototype 첫 단계에서 시각 비교 후.
+> **결정 근거 (2026-05-01)**: § 4 권장안(따뜻한 코랄/살구톤)을 채택. Peach/Amber 조합은 미용·환대 업종 정체성에 부합 + 외국인 관광객의 따뜻한 환대감 전달. Navy 900 텍스트는 본문 대비 7:1 확보 (WCAG 2.2 AAA 가능 영역).
 
-### 폰트 (그대로 사용)
+### 4.2 폰트 — 확정
 
 ```css
---font-body: "Pretendard", -apple-system, sans-serif; /* 본문 — 한국어 우수 */
---font-display: "DM Sans", "Pretendard", sans-serif; /* 제목 */
---font-mono: "JetBrains Mono", monospace; /* 코드/숫자 */
+--font-display:
+  "Fraunces", "Pretendard Variable", "Pretendard", ui-serif, Georgia, serif;
+--font-body-en:
+  "Source Sans 3", "Pretendard Variable", "Pretendard", ui-sans-serif,
+  system-ui, sans-serif;
+--font-body-kr:
+  "Pretendard Variable", "Pretendard", "Source Sans 3", ui-sans-serif,
+  sans-serif;
+--font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 ```
 
-### 공간·모서리·그림자 (그대로 사용)
+> **결정 근거**: Fraunces(editorial serif, variable axis 풍부) + Source Sans 3(영문 본문) + Pretendard Variable(한글 본문). 모두 글로벌 v4.1 허용 리스트 안. 한글 본문은 `word-break: keep-all` + `line-height: 1.8` (글로벌 A2.2 준수).
 
-| 토큰       | 값                                                               |
-| ---------- | ---------------------------------------------------------------- |
-| **space**  | 4 / 8 / 12 / 16 / 20 / 24 / 32 / 40 / 48 / 64 / 80 px            |
-| **radius** | 8 (버튼) / 12 (입력) / 16 (카드) / 20 (큰 카드) / 24 (섹션) px   |
-| **shadow** | 2레이어 조합 필수 (가까운 그림자 + 먼 그림자) — 프로 느낌의 핵심 |
+### 4.3 공간·모서리·그림자 — 확정
 
-### 공용 컴포넌트 (디자인 시스템 첫 산출물 12개)
+| 토큰       | 값                                                                                                                     |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **space**  | 4 / 8 / 12 / 16 / 20 / 24 / 32 / 40 / 48 / 64 / 80 px (글로벌 v4.1 base grid)                                          |
+| **radius** | 8 / 12 / 16 / 20 / 24 / 9999 (sm/md/lg/xl/2xl/full)                                                                    |
+| **shadow** | `--shadow-{0,1,2,3,4}` 5단계 — 모두 2-layer composite (가까운 + 먼). `none / 1px+3px / 2px+12px / 4px+32px / 8px+64px` |
+
+### 4.4 모션 — 확정
+
+```css
+--duration-fast: 120ms; /* 글로벌 150ms보다 sharp */
+--duration-normal: 220ms;
+--duration-slow: 420ms;
+--easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+--easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+/* prefers-reduced-motion: reduce → 0ms 강제 (글로벌 A3.4 준수) */
+```
+
+### 4.5 공용 컴포넌트 (디자인 시스템 첫 산출물 — 14개로 확장)
+
+핸드오프 v1.0에서 **AI Flow + iOS Frame** 추가됨:
 
 ```
-1. Button       — primary / secondary / ghost / destructive
-2. Card         — 매장 / 시술 / 예약 / KPI
-3. Input        — 텍스트 / 텍스트영역
-4. Select       — 단일 / 다중
-5. DatePicker   — 캘린더 + 시간 슬롯
-6. Modal        — 중앙 확인용
-7. Sheet        — 모바일 슬라이드업, 사이드 패널
-8. Toast        — 성공 / 경고 / 에러 / 정보
-9. Badge        — 상태 라벨 (운영중, NEW, Beta 등)
-10. Avatar      — 매장 로고 / 직원 / 고객
-11. Tabs        — 콘텐츠 분리
-12. Navigation  — 헤더 / 사이드바 / 모바일 탭바
+1.  Button       — primary / secondary / ghost / destructive
+2.  Card         — 매장 / 시술 / 예약 / KPI (K-Verified 골드 뱃지 변형 포함)
+3.  Input        — 텍스트 / 텍스트영역
+4.  Select       — 단일 / 다중
+5.  DatePicker   — 캘린더 + 시간 슬롯
+6.  Modal        — 중앙 확인용
+7.  Sheet        — 모바일 슬라이드업, 사이드 패널
+8.  Toast        — 성공 / 경고 / 에러 / 정보
+9.  Badge        — 상태 라벨 + ⭐ K-Verified 골드 (kverified-gold)
+10. Avatar       — 매장 로고 / 직원 / 고객
+11. Tabs         — 콘텐츠 분리
+12. Navigation   — 헤더 / 사이드바 / 모바일 탭바
+13. AiFlow       ⭐ — AI 통역·응답 흐름 시각화 (Inbox·Chat·Photo Analysis 가로질러 사용)
+14. IosFrame     ⭐ — PWA 모바일 미리보기 (개발 시 iOS Safe Area + status bar 시뮬레이션)
+```
+
+> 13·14 구현 위치: `packages/shared-ui/src/`. 핸드오프 `ai-flow-app.jsx` / `ios-frame.jsx` 시각만 매칭하고 React 19 + Tailwind v4로 재작성 (handoff README 원칙).
+
+### 4.6 핸드오프 → 코드 매핑 위치
+
+```
+docs/design/handoff/                 ← 시각 진실 소스 (HTML 프로토타입)
+├── tokens.css                        → apps/web/src/app/globals.css  (@theme 매핑)
+├── components.css                    → packages/shared-ui/src/*       (컴포넌트별 분해)
+├── *.css (페이지별)                   → apps/web/src/app/<route>/page.module.css 또는 Tailwind
+└── *.jsx (40개)                      → 시각 참조 전용. 그대로 import 금지.
 ```
 
 ---

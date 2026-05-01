@@ -560,6 +560,33 @@ hesya/
 > 별도 산정됩니다. 매장 100곳 시점 종합 월 비용(고정 + AI 변동비)은
 > 약 386만 원이며, 단계별 상세는 [DECISIONS.md § 2.1](./DECISIONS.md#21-단계별-월-비용)을 참조하세요.
 
+### 6.5 UX 트러스트 시스템 — K-Verified (2026-05-01 추가) ⭐
+
+**목적**: 외국인 관광객이 한국 미용실을 처음 방문할 때 가장 큰 불안 = "이 매장이 합법인가, 안전한가?". Hesya는 이를 **시각 시스템 단일 키**로 해결한다 — 한국 정부 검증(NTS 사업자 등록 + LOCALDATA 미용업 등록 + KYC 매뉴얼 검수)을 모두 통과한 매장에 **K-Verified 골드 뱃지**(`#D4AF37`)를 부여하고, 외국인이 보는 모든 진입점(검색 결과 카드·매장 상세·예약 확인·결제 영수증)에 일관되게 노출한다.
+
+**3단 트러스트 레이어** (디자인 핸드오프 v1.0 `tokens.css`):
+
+| 토큰               | 색상      | 용도                                                                                   |
+| ------------------ | --------- | -------------------------------------------------------------------------------------- |
+| `--kverified-gold` | `#D4AF37` | KYC 통과 매장 골드 뱃지 (`stores.verification_status IN ('auto_approved','approved')`) |
+| `--trust-rose`     | `#E8C4D6` | 매장 트러스트 보조 (리뷰 ≥ 4.5★, 응답률 ≥ 90% 등)                                      |
+| `--share-glow`     | `#F8D7C8` | SNS 공유 액션 강조 (외국인 바이럴 유도, § 11 SEO와 연계)                               |
+
+**구현 룰**:
+
+1. K-Verified 골드 뱃지는 **검증 통과 매장만** 노출. `pending` / `manual_review` / `rejected` 상태는 뱃지 없음
+2. 골드는 **단일 강조색** — 페이지당 K-Verified 뱃지 외 다른 위치에 `kverified-gold` 사용 금지 (희소성 = 신뢰)
+3. 외국인 시야 첫 1초 안에 보이는 위치 = 검색 결과 매장 카드 우상단, 매장 상세 헤더 좌측 상호명 옆
+4. 마이크로카피: 영문 "Korea Government Verified" / 한글 "정부 검증 매장" — 골드 뱃지 hover/tap 시 모달로 상세 (NTS 검증일·LOCALDATA 등록일·검수자) 노출
+5. **운영자 페이지에는 골드 뱃지 사용 금지** — 운영자에겐 `verification_status` raw 값을 그대로 표시. 골드는 외국인 사용자 전용 트러스트 시그널
+
+**연관**:
+
+- DB: `stores.verification_status` (§ 7), `store_verifications` 테이블 (§ 7)
+- 디자인 토큰: [`docs/design/handoff/tokens.css`](./design/handoff/tokens.css)
+- 디자인 페이지: `Hesya Customer Landing.html`, `Hesya Store Detail.html`, `Hesya Booking Confirmation.html` (P0)
+- KYC 워크플로우: Epic 9 (E9-1 ~ E9-13)
+
 ---
 
 ## 7. Data Model (DB Schema)

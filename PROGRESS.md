@@ -6,9 +6,9 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **S-20 (R2 외부 백업) 코드 작성 완료. Jayden 외부 작업 + 첫 실행 검증 대기**
+- **Task**: **S-20 (R2 외부 백업) Jayden 외부 작업 대기 + 디자인 핸드오프 v1.0 통합 (병렬)**
 - **상태**: 진행중
-- **작업 브랜치**: `chore/s-20-r2-backup` (main 머지 대기 — Jayden 외부 작업 후 첫 실행 검증)
+- **작업 브랜치**: `chore/design-handoff-v1` (디자인 통합 작업) / S-20은 main 머지 완료, Jayden 외부 작업 대기
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
@@ -78,6 +78,21 @@
   - **package.json `main`/`types`/`exports` 명시** (L-013): 누락 시 deps 등록만으로는 Turbopack 모듈 해석 실패 → `Module not found`. `./src/index.ts` 진입점 명시 후 build clean.
   - 검증: `pnpm --filter @hesya/shared-types type-check` clean / `pnpm --filter @hesya/web build` clean / Zod parse smoke 4종(정상·name누락·enum오류·타입호환) 통과 / `/api/auth/sign-in/social` 200 OK 회귀 / Supabase 16 테이블 rls_enabled=true 유지
   - TDD Guard 필터 확장: `packages/shared-types/src/*.ts` allowlist (스키마와 동일하게 declarative 미러링 — verification = tsc + build + parse smoke)
+- ✅ **디자인 핸드오프 v1.0 통합** — 브랜치 `chore/design-handoff-v1`
+  - 출처: Jayden이 [Claude Design](https://claude.ai/design)에서 제작한 24개 HTML 페이지 + tokens.css + 40 JSX 시각 참조 (총 80 files / 1.3MB) — `hesya.zip` (`hesya-handoff.zip`은 Anthropic README만 추가된 동일 내용, 80/80 hash 일치 확인)
+  - 자산 위치: `docs/design/handoff/` (HANDOFF-README.md + INDEX.md + 80 원본 파일)
+  - 페이지 매핑: 23 product page (DESIGN-PLAN 23개와 page-for-page 일치) + 1 디자인 시스템 가이드 = 24
+  - **확정 결정 (보류 → 채택)**:
+    - **Brand 색상**: § 4 권장안(따뜻한 코랄/살구) 채택. Peach 50/100/200 + Amber 500/600 + Navy 900
+    - **폰트**: Fraunces (display) + Source Sans 3 (en body) + Pretendard Variable (kr body) + JetBrains Mono — 모두 글로벌 v4.1 허용 리스트 안
+    - **Motion**: fast 120 / normal 220 / slow 420 ms (글로벌보다 sharp)
+  - **신규 컨셉 추가**:
+    - **K-Verified 골드 트러스트 시스템** — `--kverified-gold #D4AF37` + `--trust-rose` + `--share-glow` 3단 레이어. PRD § 6.5 신규 섹션 추가 (외국인 트러스트 핵심 UX, KYC 통과 매장 단일 강조)
+    - **AiFlow 컴포넌트** — Inbox·Chat·Photo Analysis 가로지르는 AI 응답 흐름 시각화. `packages/shared-ui/src/AiFlow.tsx` 구현 예정
+    - **IosFrame 컴포넌트** — PWA 모바일 미리보기. `packages/shared-ui/src/IosFrame.tsx` 구현 예정 (개발 시 iOS Safe Area + status bar 시뮬레이션)
+  - **공용 컴포넌트 12개 → 14개로 확장** (DESIGN-PLAN § 4.5)
+  - 갱신 문서: PRD § 6.5 (K-Verified 시스템), DESIGN-PLAN § 4 (토큰 확정 + 핸드오프 매핑 위치), docs/design/handoff/INDEX.md (페이지 인덱스 + 코드 매핑 가이드)
+  - 구현 원칙 (handoff README): "Match the visual output; **don't copy the prototype's internal structure**" — JSX 그대로 import 금지, Next.js 16.2 + Tailwind v4 + shadcn/ui로 재작성
 - 🟡 **S-20 Cloudflare R2 외부 백업 cron** — 브랜치 `chore/s-20-r2-backup` (Jayden 외부 작업 + 첫 실행 검증 대기)
   - **결정 변경 (DECISIONS § 1.13 정정)**: "Supabase Edge Function cron" → **GitHub Actions cron**. Edge Function = Deno runtime이라 pg_dump 바이너리 호출 불가능. GitHub Actions는 Ubuntu runner + PGDG `postgresql-client-17` 정확 매칭 + Secrets 안전 보관 + 무료 + 실패 시 GitHub UI 이메일 알림.
   - 산출물: `.github/workflows/weekly-backup.yml` (cron `0 18 * * 6` = Sat 18:00 UTC = Sun 03:00 KST + workflow_dispatch), `scripts/backup-verify.sh` (gzip + SQL 헤더 + 16 테이블 자동 검증), `scripts/backup-restore-test.sh` (분기별 수동 Docker PG 17 복원 테스트)
@@ -145,8 +160,9 @@
 - 2026-05-01 — S-19 store_owners 조인 테이블 (옵션 A: 의존성 우선 순서) — `chore/s-19-store-owners` → main `35eea9c`
 - 2026-05-01 — S-5 RLS v0001 (16 테이블 default deny + Server Action 강제 + Better Auth 회귀 OK) — `chore/s-5-rls-v0001` → main `b6ed6d1`
 - 2026-05-01 — S-6 shared-types 12 도메인 (drizzle-zod 호환 충돌 → 수동 Zod + Drizzle inferred 타입 분리) — `chore/s-6-shared-types` → main `0c31ff6`
-- 2026-05-01 — S-20 R2 weekly backup workflow + verify/restore scripts (DECISIONS § 1.13 정정: Edge Function → GitHub Actions) — `chore/s-20-r2-backup` (외부 작업 + 첫 실행 검증 대기)
+- 2026-05-01 — S-20 R2 weekly backup workflow + verify/restore scripts (DECISIONS § 1.13 정정: Edge Function → GitHub Actions) — `chore/s-20-r2-backup` → main `d0ab61f`
+- 2026-05-01 — 디자인 핸드오프 v1.0 통합 (24 HTML + tokens.css + JSX 참조 1.3MB) + 브랜드/폰트/Motion 확정 + K-Verified 골드 시스템 신설 — `chore/design-handoff-v1` (머지 대기)
 
 ## 마지막 업데이트
 
-- 2026-05-01 (S-20 코드 작성 완료, Jayden 외부 작업 + 첫 실행 검증 대기)
+- 2026-05-01 (디자인 핸드오프 v1.0 통합 완료, S-20은 Jayden 외부 작업 대기)

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Hesya Admin · 운영자 로그인</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="admin-login.css">
+</head>
+<body>
+<div class="al-shell" data-screen-label="01 Admin Login">
+
+  <!-- LEFT — institutional brand panel -->
+  <aside class="al-brand">
+    <div class="al-brand-top">
+      <div class="al-brand-mark">
+        <div class="h">H</div>
+        <div class="name">Hesya</div>
+      </div>
+      <div class="al-brand-pill">ADMIN · INTERNAL</div>
+    </div>
+
+    <div class="al-brand-mid">
+      <div class="al-brand-tag">OPERATIONS CONSOLE · v2.6</div>
+      <div class="al-brand-title">
+        Hesya
+        <span class="console">Admin</span>
+      </div>
+      <div class="al-brand-subline">
+        <em>운영자 콘솔 —</em> 매장 검증, 정산, 분쟁 처리, AI 비용·약관 모니터링
+      </div>
+
+      <div class="al-brand-stats">
+        <div class="al-stat">
+          <div class="v">1,284</div>
+          <div class="l">활성 매장</div>
+        </div>
+        <div class="al-stat">
+          <div class="v">12</div>
+          <div class="l">검토 대기</div>
+        </div>
+        <div class="al-stat">
+          <div class="v">₩142M</div>
+          <div class="l">금주 정산</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="al-brand-foot">
+      <div class="al-amber-rule"></div>
+      <div class="al-build">
+        <span>v2.6.4</span>
+        <span class="sep">·</span>
+        <span>ko-KR</span>
+        <span class="sep">·</span>
+        <span>region: ap-northeast-2</span>
+        <span class="sep">·</span>
+        <span class="dot pulse"></span>
+        <span>healthy</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT — login form -->
+  <main class="al-form-pane">
+
+    <div class="al-form-top">
+      <div class="al-region">
+        <span class="dot"></span>
+        <span>SEOUL · ap-northeast-2 · operational</span>
+      </div>
+      <a class="al-help-link" href="#">SSO 복구 →</a>
+    </div>
+
+    <div class="al-form-body">
+      <form class="al-form" onsubmit="event.preventDefault();">
+
+        <div class="al-form-h">
+          <div class="al-form-eyebrow">SECURE ACCESS</div>
+          <h1 class="al-form-title">운영자 로그인</h1>
+          <p class="al-form-subtitle">회사 이메일과 2FA 인증으로 로그인합니다.</p>
+        </div>
+
+        <div class="al-field">
+          <div class="al-field-label">
+            <span>회사 이메일</span>
+            <span class="hint">@hesya.com 도메인만 허용</span>
+          </div>
+          <div class="al-input-wrap al-input-with-icon">
+            <span class="ic">✉</span>
+            <input class="al-input" type="email" placeholder="name@hesya.com" autocomplete="username" value="park.jm@hesya.com"/>
+          </div>
+        </div>
+
+        <div class="al-field">
+          <div class="al-field-label">
+            <span>비밀번호</span>
+          </div>
+          <div class="al-input-wrap al-input-with-icon">
+            <span class="ic">🔒</span>
+            <input class="al-input" type="password" placeholder="••••••••••••" autocomplete="current-password" value="••••••••••••"/>
+          </div>
+        </div>
+
+        <div class="al-field">
+          <div class="al-field-label">
+            <span>2FA 일회용 코드</span>
+            <span class="hint">Authenticator 앱 · 6자리</span>
+          </div>
+          <div class="al-otp-row">
+            <input class="al-input mono" type="text" inputmode="numeric" maxlength="6" placeholder="● ● ● ● ● ●" value="284 715"/>
+            <button type="button" class="al-yubi" title="Yubikey로 로그인">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <rect x="3" y="6" width="14" height="9" rx="1.5" stroke="#1A2238" stroke-width="1.5"/>
+                <circle cx="13.5" cy="10.5" r="1.5" stroke="#1A2238" stroke-width="1.5"/>
+                <path d="M3 9h7" stroke="#1A2238" stroke-width="1.5"/>
+                <path d="M3 12h5" stroke="#1A2238" stroke-width="1.5"/>
+              </svg>
+              <span class="al-yubi-tip"></span>
+            </button>
+          </div>
+          <div class="al-yubi-cta">
+            <span>Yubikey 5 NFC 감지됨 · USB-C</span>
+            <a href="#">대신 키로 로그인 →</a>
+          </div>
+        </div>
+
+        <button class="al-submit" type="submit">
+          <span class="lock">🔐</span>
+          <span>안전 로그인</span>
+        </button>
+
+        <div class="al-audit">
+          <span class="ic">📜</span>
+          <div class="body">
+            <strong>모든 로그인은 감사 로그에 기록됩니다.</strong>
+            본인 외 세션은 즉시 보안팀에 보고하세요.
+            <span class="meta">last login · 2026-04-30 14:23 KST · 220.85.×.× · Seoul · Chrome 134 / macOS</span>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="al-form-foot">
+      <div class="al-badges">
+        <span class="al-badge ok">
+          <span class="dot"></span>
+          <span class="ic">🔒</span>
+          <span>HARDWARE 2FA</span>
+        </span>
+        <span class="sep" style="width:1px;height:12px;background:var(--gray-100);"></span>
+        <span class="al-badge">
+          <span class="ic">📋</span>
+          <span>ISMS-P CERTIFIED</span>
+        </span>
+        <span class="sep" style="width:1px;height:12px;background:var(--gray-100);"></span>
+        <span class="al-badge">
+          <span class="ic">🛡</span>
+          <span>K-PIPA</span>
+        </span>
+        <span class="sep" style="width:1px;height:12px;background:var(--gray-100);"></span>
+        <span class="al-badge">
+          <span class="ic">📜</span>
+          <span>GDPR · SCC</span>
+        </span>
+      </div>
+      <div class="al-foot-meta">
+        <span>본 콘솔은 Hesya 임직원 전용입니다. 무단 접근은 형사처벌 대상.</span>
+        <span class="copy">© 2026 Hesya, Inc.</span>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>
