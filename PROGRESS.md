@@ -141,7 +141,7 @@
   - **CI debug 2 cycle**: (1) run #2 build fail — turbo strict env mode가 child process로 env 차단 (L-024). 해결: `turbo.json` build task에 `env: [9 keys]` allowlist 추가. (2) run #3 build/type-check/lint 통과했으나 gitleaks 403 — workflow permissions block 누락 (L-025). 해결: `permissions: contents: read, pull-requests: read` 명시.
   - 검증 G1~G5 ✅: yaml syntax OK / `env -i pnpm install --frozen-lockfile + type-check 6/6 + lint + build` 모두 isolated dummy env로 통과 / **CI run #3 green** ([actions/runs/25217747596](https://github.com/jaydenjoo/hesya/actions/runs/25217747596))
   - **새 교훈 2건**: L-024 (turbo strict env mode → task별 env allowlist 명시 필수), L-025 (workflow permissions block — third-party action PR API 접근 시 명시 부여)
-  - **Jayden 외부 작업 (Task 머지 후 1분)**: GitHub repo Settings → Branches → Branch protection rules → main → "Require status checks to pass before merging" + `validate` 체크 선택. CI green을 main 머지 강제 게이트로 활성화.
+  - **Branch Protection ✅ 적용 완료** (Jayden public 전환 후 Claude `gh api` PUT): main 브랜치, `required_status_checks: {strict: true, contexts: ["validate"]}`, enforce_admins: false (응급 우회 여지), required_pull_request_reviews: null (1인 작업), allow_force_pushes/deletions/linear_history: false (--no-ff 머지 컨벤션 유지). free tier private에서는 Branch Protection·Ruleset API 둘 다 차단(403)이라 public 전환이 전제조건.
 - ✅ **S-9 next-intl 6개 언어 라우팅** — main 머지 완료 (`6513204`)
   - **Jayden 승인 4건** (2026-05-01): D1 6언어(ko/en/ja/zh-CN/zh-TW/vi, PLAN 따름) / D2 default `en` (외국인 1차 사용자) / D3 `localePrefix: 'always'` (SEO C+ 핵심) / D4 A안 최소(Common.signIn 1키만)
   - **packages/translations 활성화**: `package.json` main/types/exports 명시 (L-013), `src/index.ts` (LOCALES 상수 + Locale 타입 + DEFAULT_LOCALE + LOCALE_LABELS), `messages/{en,ko,ja,zh-CN,zh-TW,vi}.json` 6개 (각각 Common.signIn 1키), `tsconfig.json`
