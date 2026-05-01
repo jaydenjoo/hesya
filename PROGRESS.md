@@ -183,8 +183,10 @@
 - 2026-05-01 — S-20 R2 weekly backup workflow + verify/restore scripts (DECISIONS § 1.13 정정: Edge Function → GitHub Actions) — `chore/s-20-r2-backup` → main `d0ab61f`
 - 2026-05-01 — 디자인 핸드오프 v1.0 통합 (24 HTML + tokens.css + JSX 참조 1.3MB) + 브랜드/폰트/Motion 확정 + K-Verified 골드 시스템 신설 — `chore/design-handoff-v1` → main `1f1272e`
 - 2026-05-01 — S-20 PG 버전 미스매치 fix (PGDG postgresql-17 PATH prepend) + 첫 백업 + 복구 테스트 통과 → S-20 완전 클로즈 — `fix/s-20-pg-dump-path-17` → main `79f1dad`
-- 2026-05-01 — Phase 1A 디자인 시스템 (Hesya 토큰 + Fraunces·Source Sans 3·Pretendard self-host + shadcn 12 + AiFlow/IosFrame stub + KVerifiedBadge + /design-system) — `chore/phase-1a-design-system` (Jayden 시각 회귀 검토 대기)
+- 2026-05-01 — Phase 1A 디자인 시스템 인프라 (Hesya 토큰 + Fraunces·Source Sans 3·Pretendard self-host + shadcn 12 + AiFlow/IosFrame stub + KVerifiedBadge) — `chore/phase-1a-design-system` commit `56169e1`
+- 2026-05-01 — Phase 1A 1:1 재현 Section 1~4 (Hero · Color · Type · Space + JumpBar + footer, 핸드오프 components.css·tokens.css 그대로 import) — `chore/phase-1a-design-system` commit `d5ae666`
+- 2026-05-01 — L-017 추가 (디자인 1:1 재현 견적 보정 룰: CSS 라인·jsx 인터랙션·자산 직접 측정 필수)
 
 ## 마지막 업데이트
 
-- 2026-05-01 (Phase 1A 코드 통합 완료, /design-system 시각 회귀 검토 대기)
+- 2026-05-01 (Phase 1A 1:1 재현 4/10 섹션 완료. Jayden 시각 회귀 검토 → 통과 시 다음 세션 Section 5~10 진행, 약 8~12h 잔여)
