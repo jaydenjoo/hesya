@@ -5,11 +5,12 @@ import type { ReactNode } from "react";
 
 import { Icon } from "./_icons";
 import { Section5 } from "./_section-5";
+import { Section10 } from "./_section-10";
 
 // Handoff v1.0 1:1 reproduction of docs/design/handoff/Hesya Design System.html
 // Sources: app-1.jsx (Hero + Sections 2–4), app-2.jsx (Section 5),
-// app-3.jsx (Sections 6–9), components.css for the visual layer.
-// Section 10 lands in a follow-up commit.
+// app-3.jsx (Sections 6–9), app-4.jsx (Section 10 — Female lens),
+// components.css for the visual layer.
 
 const brandColors = [
   {
@@ -1258,6 +1259,7 @@ export default function DesignSystemPage() {
       <Section7 />
       <Section8 />
       <Section9 />
+      <Section10 />
       <footer className="ds-footer">
         <div className="page">
           <div className="caption">
