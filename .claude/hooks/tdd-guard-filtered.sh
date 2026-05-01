@@ -98,6 +98,13 @@ case "$path" in
   # OpenTelemetry init, etc. Pure wiring; verification = build + boot success.
   */apps/*/src/instrumentation.ts) exit 0 ;;
 
+  # Sentry config + browser instrumentation (S-10) — pure SDK init wiring,
+  # not business logic. Verification = build + production runtime event delivery
+  # to Sentry dashboard, not unit tests on Sentry.init() arguments.
+  */apps/*/sentry.server.config.ts) exit 0 ;;
+  */apps/*/sentry.edge.config.ts) exit 0 ;;
+  */apps/*/src/instrumentation-client.ts) exit 0 ;;
+
   # next-intl wiring (S-9) — routing config, getRequestConfig, navigation helpers,
   # and the Next.js 16 proxy.ts middleware. Pure framework integration; verification =
   # build + dev server returning 200 on each locale URL, not unit tests on re-exports.

@@ -42,10 +42,14 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
 
+  // ─── 운영 관측 (S-10 활성화) ───
+  SENTRY_DSN: z.url(),
+  NEXT_PUBLIC_SENTRY_DSN: z.url(),
+  NEXT_PUBLIC_POSTHOG_KEY: z.string().startsWith("phc_"),
+  NEXT_PUBLIC_POSTHOG_HOST: z.url(),
+
   // ─── AI/외부 (사용 시 주석 해제) ───
   // ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-"),
-  // SENTRY_DSN: z.url(),
-  // NEXT_PUBLIC_POSTHOG_KEY: z.string().startsWith("phc_"),
 });
 
 /**

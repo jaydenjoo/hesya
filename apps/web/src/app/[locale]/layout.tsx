@@ -1,10 +1,13 @@
 import { LOCALES, type Locale } from "@hesya/translations";
+import { PostHogPageView, PostHogProvider } from "@posthog/next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Fraunces, JetBrains_Mono, Source_Sans_3 } from "next/font/google";
+import { Suspense } from "react";
 import "../globals.css";
+import { env } from "@/shared/config/env";
 import { routing } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
@@ -63,7 +66,18 @@ export default async function LocaleLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <PostHogProvider
+          apiKey={env.NEXT_PUBLIC_POSTHOG_KEY}
+          clientOptions={{
+            api_host: env.NEXT_PUBLIC_POSTHOG_HOST,
+            respect_dnt: true,
+          }}
+        >
+          <Suspense fallback={null}>
+            <PostHogPageView />
+          </Suspense>
+          <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        </PostHogProvider>
       </body>
     </html>
   );
