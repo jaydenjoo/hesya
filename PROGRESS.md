@@ -6,9 +6,9 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **S-20 (R2 외부 백업) ✅ 완전 클로즈 — 첫 백업 + 복구 테스트 모두 통과. 다음 Task 선택 대기**
+- **Task**: **Phase 1A 디자인 시스템 코드 통합 완료. Jayden 시각 회귀 검토 + 머지 대기**
 - **상태**: 진행중
-- **작업 브랜치**: `main` (모든 작업 머지·push 완료)
+- **작업 브랜치**: `chore/phase-1a-design-system` (검증 후 main 머지 예정)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
@@ -93,6 +93,16 @@
   - **공용 컴포넌트 12개 → 14개로 확장** (DESIGN-PLAN § 4.5)
   - 갱신 문서: PRD § 6.5 (K-Verified 시스템), DESIGN-PLAN § 4 (토큰 확정 + 핸드오프 매핑 위치), docs/design/handoff/INDEX.md (페이지 인덱스 + 코드 매핑 가이드)
   - 구현 원칙 (handoff README): "Match the visual output; **don't copy the prototype's internal structure**" — JSX 그대로 import 금지, Next.js 16.2 + Tailwind v4 + shadcn/ui로 재작성
+- 🟡 **Phase 1A 디자인 시스템 구현** — 브랜치 `chore/phase-1a-design-system` (Jayden 시각 회귀 검토 대기)
+  - **토큰 매핑**: `apps/web/src/app/globals.css` 전면 교체. shadcn 변수 → Hesya 매핑(primary=amber-500, secondary=peach-100, muted=peach-200, destructive=#DC3545 유지) + Hesya 고유 토큰(peach 3단/amber 2단/navy-900) + Trust 레이어(kverified-gold/trust-rose/share-glow) + radius 5단(8/12/16/20/24px) + 한글 helper(`.kr` + `:lang(ko)` word-break: keep-all + line-height 1.8). dark mode 보류(Phase 1 범위 밖).
+  - **폰트 교체**: Geist/Playfair → **Fraunces (display) + Source Sans 3 (body en) + JetBrains Mono** (next/font/google) + **Pretendard Variable self-host** (`pretendard` npm 패키지 import). CDN 차단 환경(중국 등) 외국인 사용자 한글 fallback 위험 제거.
+  - **shadcn 12개 컴포넌트 설치**: button/card/input/select/calendar/dialog/sheet/sonner/badge/avatar/tabs/navigation-menu — `apps/web/src/components/ui/`에 자동 생성. 모두 Hesya 토큰 자동 적용.
+  - **packages/shared-ui 셋업**: `package.json` main/types/exports 명시 (L-013), tsconfig.json, **AiFlow.tsx + IosFrame.tsx stub** + index.ts. AiFlow는 Inbox·Chat·Photo Analysis가 공유하는 AI 흐름 (E1-7 진입 시 본격 구현), IosFrame은 PWA 데스크톱 미리보기 (개발 전용).
+  - **K-Verified Badge** (`apps/web/src/components/trust/KVerifiedBadge.tsx`): PRD § 6.5 시각 트러스트 시스템. 골드 별 아이콘 + "Korea Government Verified" / "정부 검증 매장" 라벨. caller 책임으로 `verification_status` 게이팅.
+  - **`/design-system` 카탈로그 페이지** (`apps/web/src/app/design-system/page.tsx`): 6 섹션(Color/Typography/Radius/Components/Trust System/Shared UI). 14개 컴포넌트 한 화면에 노출 → 시각 회귀 1회 검증.
+  - **TDD Guard 필터 확장**: `packages/shared-ui/src/*.{ts,tsx}`, `apps/*/src/app/design-system/page.tsx`, `apps/*/src/app/globals.css`, `apps/*/src/components/{ui,trust}/*.tsx` allowlist (선언적 mirroring + visual regression verification, 같은 rationale로 schema·shared-types와 동일).
+  - 검증: `pnpm --filter @hesya/shared-ui type-check` clean / `pnpm --filter @hesya/web build` clean / `/sign-in` 200 OK / `/design-system` 200 OK (○ Static prerendered) / `/api/auth/sign-in/social` 200 OK 회귀 / Supabase 16/16 RLS 유지
+  - **Jayden 검토 단계 (다음)**: dev 서버 → `localhost:4200/design-system` 방문 → 6 섹션 시각 확인 → shadcn 컴포넌트가 Hesya amber/peach 색으로 렌더링되는지, 한글 본문이 Pretendard로 렌더링되는지 → 어긋난 부분 있으면 재매핑
 - ✅ **S-20 Cloudflare R2 외부 백업 cron** — main 머지 완료 (`d0ab61f` + 후속 fix `79f1dad`)
   - 코드 산출물: `.github/workflows/weekly-backup.yml` (cron `0 18 * * 6` + workflow_dispatch), `scripts/backup-verify.sh`, `scripts/backup-restore-test.sh`
   - **PG 버전 미스매치 fix** (L-016): Ubuntu 24.04 runner의 default PG client는 16.13인데 Supabase는 17.6 → 첫 실행 fail. PGDG로 17 install은 했지만 default symlink가 16을 가리켜 PATH 우선순위에서 16이 먼저. 해결: `echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"`로 17 binary 경로를 PATH 앞에 prepend. fix commit `636c11c` → main `79f1dad`
@@ -170,7 +180,8 @@
 - 2026-05-01 — S-20 R2 weekly backup workflow + verify/restore scripts (DECISIONS § 1.13 정정: Edge Function → GitHub Actions) — `chore/s-20-r2-backup` → main `d0ab61f`
 - 2026-05-01 — 디자인 핸드오프 v1.0 통합 (24 HTML + tokens.css + JSX 참조 1.3MB) + 브랜드/폰트/Motion 확정 + K-Verified 골드 시스템 신설 — `chore/design-handoff-v1` → main `1f1272e`
 - 2026-05-01 — S-20 PG 버전 미스매치 fix (PGDG postgresql-17 PATH prepend) + 첫 백업 + 복구 테스트 통과 → S-20 완전 클로즈 — `fix/s-20-pg-dump-path-17` → main `79f1dad`
+- 2026-05-01 — Phase 1A 디자인 시스템 (Hesya 토큰 + Fraunces·Source Sans 3·Pretendard self-host + shadcn 12 + AiFlow/IosFrame stub + KVerifiedBadge + /design-system) — `chore/phase-1a-design-system` (Jayden 시각 회귀 검토 대기)
 
 ## 마지막 업데이트
 
-- 2026-05-01 (S-20 완전 클로즈, 다음 Task 선택 대기)
+- 2026-05-01 (Phase 1A 코드 통합 완료, /design-system 시각 회귀 검토 대기)

@@ -65,6 +65,20 @@ case "$path" in
   */packages/shared-types/src/*.ts) exit 0 ;;
   */packages/shared-types/src/index.ts) exit 0 ;;
 
+  # shared-ui — design-system primitives (AiFlow, IosFrame, etc.).
+  # Visual mirroring of handoff v1.0 components. Verification =
+  # tsc --noEmit + apps/web build + visual regression on /design-system page.
+  */packages/shared-ui/src/*.tsx) exit 0 ;;
+  */packages/shared-ui/src/*.ts) exit 0 ;;
+
+  # apps/web design-system catalog page + globals.css token mapping +
+  # K-Verified Badge primitive. Visual catalog of handoff v1.0,
+  # verified by build + visual review (Phase 1A).
+  */apps/*/src/app/design-system/page.tsx) exit 0 ;;
+  */apps/*/src/app/globals.css) exit 0 ;;
+  */apps/*/src/components/trust/*.tsx) exit 0 ;;
+  */apps/*/src/components/ui/*.tsx) exit 0 ;;
+
   # Better Auth wiring — factory + handler routes (declarative integration)
   # See docs/learnings.md (S-18). Verification = build + runtime OAuth flow,
   # not unit tests on the wrapper that just forwards to betterAuth().
