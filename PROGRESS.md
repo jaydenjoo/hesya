@@ -6,9 +6,9 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **S-18 Better Auth + Google OAuth 완료. 다음은 S-5 (RLS) 진입 대기**
+- **Task**: **S-19 + S-5 완료 (옵션 A 순서). 다음은 S-6 (Zod 타입) 진입 대기**
 - **상태**: 진행중
-- **작업 브랜치**: `chore/s-18-better-auth` (main 머지 대기)
+- **작업 브랜치**: `main` (S-18·S-19·S-5 모두 머지 완료, push 대기)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
@@ -59,23 +59,42 @@
   - TDD Guard 필터 확장: `packages/auth/src/index.ts`, `apps/*/src/lib/auth.ts`, `apps/*/src/app/api/auth/*`, `apps/*/src/app/sign-in/page.tsx`, `packages/*/src/schema/*/*.ts`(nested) allowlist
   - 외부 작업 결과 발견: Supabase 직접 host(IPv6 only) → Shared Pooler 토글 ON으로 IPv4 호환 (L-007)
   - 검증용 임시 페이지: `apps/web/src/app/sign-in/page.tsx` ("use client" + authClient.signIn.social) — 향후 실제 sign-in 페이지가 들어오면 덮어씀
+- ✅ **S-19 멀티테넌시 store_owners 조인 테이블** — main 머지 완료 (`35eea9c`)
+  - 옵션 A 결정: PLAN 표 순서(S-5→...→S-19) 대신 의존성 우선 순서(S-19→S-5) 채택. RLS 매장 운영자 정책의 전제조건이 store_owners이기 때문.
+  - schema/store-owners.ts: composite PK (user_id, store_id) + role CHECK ('owner','manager') + created_at
+  - FK 정책: user_id → users(id) **ON DELETE CASCADE** (auth 도메인 표준), store_id → stores(id) **NO ACTION** (비즈니스 도메인 표준)
+  - migrations/0002_outstanding_naoko.sql Supabase apply → list_tables 16개 (auth 4 + business 11 + store_owners 1)
+  - customers.user_id FK는 추가 안 함 (외국 고객은 비회원, external_id+channel로 식별 — DECISIONS § 1.2 + PRD § 1)
+- ✅ **S-5 RLS v0001** — main 머지 완료 (`b6ed6d1`)
+  - 16 테이블 모두 ENABLE ROW LEVEL SECURITY (정책 0개 = default deny)
+  - 전략: anon/authenticated 차단 + service_role(BYPASSRLS)만 접근 = Server Action 패턴 강제
+  - migrations/0003_rls_v0001.sql + manual journal/snapshot entry (drizzle-kit는 RLS 무지)
+  - 3중 검증: list_tables rls_enabled=true / get_advisors INFO×16 (의도) / SET ROLE anon SELECT 0 row / service_role baseline 1 row / `/api/auth/sign-in/social` 200 OK 회귀 OK
+  - v0002+ 후속 (이번 범위 밖): Better Auth↔Supabase JWT 브리지 + StoreOwner/Designer/Staff 매장별 정책 + Admin 정책
 
 ### 변경 통계
 
-- 11+ commits (snapshot → ... → S-3 → S-4 → S-18) / 약 90 files
+- 13+ commits (snapshot → ... → S-3 → S-4 → S-18 → S-19 → S-5) / 약 95 files
 - husky·gitleaks·lint-staged·prettier 모두 자동 통과
-- 빌드 검증: tsc clean / next build 1.7s / dev sign-in/social 200 OK / Supabase 15 tables ACTIVE / OAuth flow E2E 통과
+- 빌드 검증: tsc clean / next build / dev sign-in/social 200 OK / Supabase 16 tables RLS ACTIVE / OAuth flow E2E 통과
 
 ## 다음 세션 할 일
 
-### S-18 후속 — chore/s-18-better-auth 브랜치 main 머지 + push (Jayden 명시 승인 시)
+### main push (Jayden 명시 승인 시) — S-18·S-19·S-5 3개 머지가 origin 보다 앞서 있음
 
 ### Day 0 본 Setup 계속
 
-- **S-5** RLS 정책 v0001 (15 테이블 모두 RLS enable + 매장/고객/운영자 분리 정책 + auth.uid() 매핑, 4h) ← 다음 우선
-- **S-6** Zod + TypeScript 타입 (shared-types에서 schema → 입력/출력 타입 export, 4h)
-- **S-19** 멀티테넌시 store_owners 조인 테이블 (Better Auth users.id ↔ stores.id 매핑, 4h)
+- **S-6** Zod + TypeScript 타입 (shared-types에서 schema → 입력/출력 타입 export, 4h) ← 다음 우선
 - **S-20** Cloudflare R2 외부 백업 cron (6h)
+- **S-21** Tiptap 에디터 컴포넌트 (6h)
+- **S-22** PWA Service Worker + Web Push (6h)
+
+### RLS v0002+ (Phase 1 본 기능 시작 전 또는 동반)
+
+- Better Auth ↔ Supabase JWT 브리지 (auth.uid() = users.id 매핑)
+- StoreOwner/Designer/Staff 매장별 정책 (store_owners 조인)
+- Admin 전용 정책 (KYC, 분쟁, 차단)
+- Customer Storage RLS (DECISIONS § 1.6 표 기준)
 
 ### .env.example 작성 (보류 항목)
 
@@ -100,8 +119,10 @@
 - 2026-04-30 18:30~19:00 — Step 6 main 머지 + GitHub push (`38c3808`) + TDD Guard 영구 필터 도입 (`2e08dc7`)
 - 2026-04-30 20:00~21:30 — S-3 Supabase Pro Seoul 이전 + 환경변수 활성화 + 빌드 검증 통과 (`71cc65b`)
 - 2026-04-30 22:00~23:30 — S-4 DB Schema v0001 (Drizzle 11 tables + Supabase apply + TDD filter 확장) — `chore/s-4-db-schema-v0001` → main `87af54e`
-- 2026-04-30 ~ 2026-05-01 — S-18 Better Auth + Google OAuth (5단계 OAR 사이클, 약 4h, 실 OAuth flow E2E 통과) — 브랜치 `chore/s-18-better-auth`
+- 2026-04-30 ~ 2026-05-01 — S-18 Better Auth + Google OAuth (5단계 OAR 사이클, 약 4h, 실 OAuth flow E2E 통과) — `chore/s-18-better-auth` → main `93356a5`
+- 2026-05-01 — S-19 store_owners 조인 테이블 (옵션 A: 의존성 우선 순서) — `chore/s-19-store-owners` → main `35eea9c`
+- 2026-05-01 — S-5 RLS v0001 (16 테이블 default deny + Server Action 강제 + Better Auth 회귀 OK) — `chore/s-5-rls-v0001` → main `b6ed6d1`
 
 ## 마지막 업데이트
 
-- 2026-05-01 (S-18 완료, S-5 진입 가능)
+- 2026-05-01 (S-19 + S-5 완료, S-6 진입 가능, push 대기)

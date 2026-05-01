@@ -287,3 +287,65 @@
 **연관**: packages/database/drizzle.config.ts, L-006 (cwd 누수, 일부 무효화), S-4·S-18
 
 ---
+
+### [2026-05-01] L-010 — drizzle-kit이 RLS·정책·트리거를 추적하지 않음 → manual journal entry + snapshot 복사 패턴 (S-5)
+
+**증상 / 상황**: S-5에서 16 테이블에 `ALTER TABLE x ENABLE ROW LEVEL SECURITY`를 적용해야 했지만 Drizzle ORM 0.45.x / drizzle-kit 0.31.x는 RLS·정책·트리거·VIEW 등 "schema 외 PG 객체"를 모델링하지 않는다. `db:generate`는 `No schema changes, nothing to migrate`만 출력. SQL을 수동 작성하면 drizzle-kit journal과 어긋나서 다음 generate 시 마이그레이션 번호 충돌 위험.
+
+**원인**: drizzle-kit은 ORM schema (테이블·컬럼·FK·인덱스·CHECK)만 인식한다. RLS는 PG의 별도 메타데이터 (`pg_class.relrowsecurity`, `pg_policy`)에 저장되며, drizzle-kit snapshot에 포함되지 않는다. 따라서 RLS만 변경하는 마이그레이션은 drizzle-kit이 감지·생성·기록하지 못한다. journal에 entry가 없으면 다음 generate가 같은 번호(예: 0003)를 재사용해 SQL이 덮어써진다.
+
+**해결 (이번 세션 패턴)**:
+
+1. SQL 파일 수동 작성: `packages/database/migrations/0003_rls_v0001.sql` (16 ALTER TABLE)
+2. `migrations/meta/_journal.json`에 entry 수동 추가:
+   ```json
+   { "idx": 3, "version": "7", "when": <Date.now()>, "tag": "0003_rls_v0001", "breakpoints": true }
+   ```
+3. `migrations/meta/0003_snapshot.json`을 0002에서 cp (schema 변경 없음), 단 **`id`는 새 UUID로 갱신**하고 **`prevId`는 0002의 id로 변경** (snapshot chain 보존). UUID 충돌 시 다음 generate가 깨진다.
+4. Supabase MCP `apply_migration`으로 hesya-prod에 적용
+5. **검증 sanity check**: `pnpm --filter @hesya/database db:generate`가 `No schema changes, nothing to migrate` 출력 → manual entry가 정상 통합됐다는 신호. 만약 다음 idx로 generate가 시작되면 chain이 깨진 것.
+
+**규칙** ⭐:
+
+1. **Drizzle 외 PG 객체 (RLS/정책/트리거/VIEW/FUNCTION)는 같은 `migrations/` 폴더에 raw SQL로 두되, `_journal.json`에 entry를 수동 추가하고 `meta/<idx>_snapshot.json`을 직전 snapshot에서 복사 + id/prevId 재발급한다.** 별도 폴더 분리는 다음 generate 시 번호 추정 깨짐 위험이 더 크다.
+2. **Snapshot chain 보존**: `id`는 신규 UUID (`crypto.randomUUID()`), `prevId`는 이전 snapshot의 `id`. 단순 cp는 동일 id 충돌을 만든다.
+3. **수동 entry 후 반드시 sanity check**: `db:generate` → `No schema changes, nothing to migrate` 출력이 통합 정상 신호.
+4. **drizzle-kit 0.32+ 또는 후속 메이저 버전에서 RLS native 지원이 추가되면 위 패턴 폐기 검토**. release notes 확인.
+
+**확인 방법**:
+
+- 자동: 다음 schema 변경 generate가 `0004` 번호로 시작하는지. `0003`으로 다시 시작하면 entry 누락.
+- 인간 리뷰: PR 단계에서 새 manual SQL 추가 시 (1) journal entry (2) snapshot copy + id rotation (3) sanity check 출력 — 3가지를 PR description에 명시했는지 확인.
+
+**연관**: packages/database/migrations/0003_rls_v0001.sql, migrations/meta/\_journal.json, migrations/meta/0003_snapshot.json, S-5
+
+---
+
+### [2026-05-01] L-011 — RLS v0001 = default deny + service_role(BYPASSRLS) Server Action 강제 패턴 (S-5)
+
+**증상 / 상황**: S-5 RLS 정책 v0001을 작성할 때 두 가지 옵션이 있었다 — (a) Better Auth↔Supabase JWT 브리지 + `auth.uid()` 매핑으로 풍부한 per-role policy / (b) RLS enable + 정책 0개 = default deny + service_role만 접근. (a)는 4h 안에 안전하게 못 끝낸다 (Better Auth는 Supabase Auth가 아니라 자체 JWT, custom claim wiring 필요).
+
+**원인 / 결정 근거**: 우리 Phase 1 사용 패턴이 "SSR + Server Action만, 클라이언트 직접 supabase-js 없음"이라 service_role(BYPASSRLS)이 모든 데이터 접근의 단일 경로다. 이 경우 RLS 정책의 실효성은 **방어선** — Server Action 우회 시도(예: 노출된 anon key로 직접 PostgREST 호출)에 대한 안전망. Default deny가 가장 안전한 1차 방어. 풍부한 per-role policy는 v0002+에서 client-side query가 도입되거나 Better Auth↔Supabase 브리지가 필요해질 때 추가.
+
+**해결 (S-5 v0001 범위)**:
+
+- 16 테이블 모두 `ENABLE ROW LEVEL SECURITY` (정책 0개)
+- service_role은 PG의 BYPASSRLS 권한으로 자동 우회 → Server Action 정상 동작
+- 우리 `DATABASE_URL`은 Shared Pooler `postgres` user (BYPASSRLS) → Better Auth direct connection도 정상 (회귀 검증 200 OK)
+- `get_advisors security` → 16건 INFO `rls_enabled_no_policy` 출력 = **의도된 결과**, 보안 자세는 "Disabled in Public" WARN보다 강화됨
+
+**규칙** ⭐:
+
+1. **신규 PG 테이블 추가 시 무조건 같은 마이그레이션에서 `ENABLE ROW LEVEL SECURITY`를 적용한다.** 한 테이블이라도 RLS off면 기본값 = 모든 anon/authenticated 접근 허용 = 유출 위험.
+2. **v0001 default deny + Server Action 패턴은 Phase 1 동안 유지**. 클라이언트 직접 supabase-js 호출 패턴이 도입되는 순간 (예: realtime subscription, browser SELECT) 즉시 v0002 per-role policy로 보강.
+3. **`DATABASE_URL`이 BYPASSRLS role(postgres)인지 매번 확인**. 만약 anon/authenticated role로 연결되면 Better Auth INSERT 자체가 차단되어 인증이 깨진다. L-007 Shared Pooler URL이 자동으로 postgres user를 부여한다.
+4. **`get_advisors security`의 `rls_enabled_no_policy` INFO 16건은 의도된 상태**. 커뮤니티 가이드는 "정책 추가 권장"으로 안내하지만, default deny 전략에서는 정책 0개가 최강 방어다. 다만 v0002+에서 client-side query가 들어오면 즉시 정책 추가.
+
+**확인 방법**:
+
+- 자동: dev 서버 시작 후 `/api/auth/sign-in/social` 200 OK 회귀 (BYPASSRLS 작동 증거). `BEGIN; SET LOCAL ROLE anon; SELECT count(*) FROM stores; ROLLBACK;` 결과 0 row (default deny 작동 증거).
+- 인간 리뷰: 새 테이블 추가 PR에서 같은 마이그레이션에 RLS enable이 포함됐는지. `get_advisors security`에 `rls_disabled_in_public` WARN이 0건인지.
+
+**연관**: packages/database/migrations/0003_rls_v0001.sql, S-5, L-007 (Shared Pooler postgres role)
+
+---
