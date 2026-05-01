@@ -6,9 +6,9 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **S-20 (R2 외부 백업) Jayden 외부 작업 대기 + 디자인 핸드오프 v1.0 통합 (병렬)**
+- **Task**: **S-20 (R2 외부 백업) ✅ 완전 클로즈 — 첫 백업 + 복구 테스트 모두 통과. 다음 Task 선택 대기**
 - **상태**: 진행중
-- **작업 브랜치**: `chore/design-handoff-v1` (디자인 통합 작업) / S-20은 main 머지 완료, Jayden 외부 작업 대기
+- **작업 브랜치**: `main` (모든 작업 머지·push 완료)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
@@ -93,7 +93,13 @@
   - **공용 컴포넌트 12개 → 14개로 확장** (DESIGN-PLAN § 4.5)
   - 갱신 문서: PRD § 6.5 (K-Verified 시스템), DESIGN-PLAN § 4 (토큰 확정 + 핸드오프 매핑 위치), docs/design/handoff/INDEX.md (페이지 인덱스 + 코드 매핑 가이드)
   - 구현 원칙 (handoff README): "Match the visual output; **don't copy the prototype's internal structure**" — JSX 그대로 import 금지, Next.js 16.2 + Tailwind v4 + shadcn/ui로 재작성
-- 🟡 **S-20 Cloudflare R2 외부 백업 cron** — 브랜치 `chore/s-20-r2-backup` (Jayden 외부 작업 + 첫 실행 검증 대기)
+- ✅ **S-20 Cloudflare R2 외부 백업 cron** — main 머지 완료 (`d0ab61f` + 후속 fix `79f1dad`)
+  - 코드 산출물: `.github/workflows/weekly-backup.yml` (cron `0 18 * * 6` + workflow_dispatch), `scripts/backup-verify.sh`, `scripts/backup-restore-test.sh`
+  - **PG 버전 미스매치 fix** (L-016): Ubuntu 24.04 runner의 default PG client는 16.13인데 Supabase는 17.6 → 첫 실행 fail. PGDG로 17 install은 했지만 default symlink가 16을 가리켜 PATH 우선순위에서 16이 먼저. 해결: `echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"`로 17 binary 경로를 PATH 앞에 prepend. fix commit `636c11c` → main `79f1dad`
+  - Jayden 외부 작업 완료: Cloudflare R2 활성화 + `hesya-backups` 버킷 + 90일 lifecycle rule + Account API 토큰(Object Read & Write, hesya-backups 한정) + Supabase Session pooler URL 확보 + GitHub Secrets 5개 등록
+  - **첫 실행 (workflow_dispatch) ✅ Success**: 46초 완료, `backup-2026-05-01.sql.gz` 8KB R2 업로드, 16/16 tables verified
+  - **복구 테스트 ✅ 통과**: 로컬 Docker PG 17 컨테이너 → restore → 16 테이블 모두 존재, Better Auth row count 정확히 일치 (accounts 1 / sessions 1 / users 1 / verifications 4), 비즈니스 12 테이블 0 row (아직 데이터 입력 전, 정상)
+  - 자동 schedule: 다음 일요일 2026-05-03 03:00 KST부터 주간 자동 실행. 추가 작업 없음
   - **결정 변경 (DECISIONS § 1.13 정정)**: "Supabase Edge Function cron" → **GitHub Actions cron**. Edge Function = Deno runtime이라 pg_dump 바이너리 호출 불가능. GitHub Actions는 Ubuntu runner + PGDG `postgresql-client-17` 정확 매칭 + Secrets 안전 보관 + 무료 + 실패 시 GitHub UI 이메일 알림.
   - 산출물: `.github/workflows/weekly-backup.yml` (cron `0 18 * * 6` = Sat 18:00 UTC = Sun 03:00 KST + workflow_dispatch), `scripts/backup-verify.sh` (gzip + SQL 헤더 + 16 테이블 자동 검증), `scripts/backup-restore-test.sh` (분기별 수동 Docker PG 17 복원 테스트)
   - 자동 검증 단계: pg_dump → gzip -9 → backup-verify.sh → aws s3 cp R2 (S3 호환 endpoint)
@@ -116,15 +122,16 @@
 
 ## 다음 세션 할 일
 
-### S-20 클로즈 (Jayden 외부 작업 완료 후)
+### S-20 후속 (자동, 추가 작업 없음)
 
-- 위 7단계 외부 작업 완료 → 첫 실행 검증 → main 머지 → push
-- 다음 일요일 03:00 KST 자동 실행 확인 (사후 1주)
+- 다음 일요일 2026-05-03 03:00 KST 자동 schedule cron 실행 → GitHub Actions UI에서 ✓ 확인 (Jayden, 1주 후 1분)
+- 분기별 (2026-08-01 경) `bash scripts/backup-restore-test.sh` 1회 (Jayden, 5분)
 
-### Day 0 본 Setup 계속
+### Day 0 본 Setup 계속 (다음 Task 선택)
 
 - **S-21** Tiptap 에디터 컴포넌트 (6h)
 - **S-22** PWA Service Worker + Web Push (6h)
+- **Phase 1A** 디자인 시스템 구현 (tokens.css → globals.css + shadcn 14개) — 디자인 핸드오프 v1.0 통합됐으니 진입 가능
 
 ### RLS v0002+ (Phase 1 본 기능 시작 전 또는 동반)
 
@@ -161,8 +168,9 @@
 - 2026-05-01 — S-5 RLS v0001 (16 테이블 default deny + Server Action 강제 + Better Auth 회귀 OK) — `chore/s-5-rls-v0001` → main `b6ed6d1`
 - 2026-05-01 — S-6 shared-types 12 도메인 (drizzle-zod 호환 충돌 → 수동 Zod + Drizzle inferred 타입 분리) — `chore/s-6-shared-types` → main `0c31ff6`
 - 2026-05-01 — S-20 R2 weekly backup workflow + verify/restore scripts (DECISIONS § 1.13 정정: Edge Function → GitHub Actions) — `chore/s-20-r2-backup` → main `d0ab61f`
-- 2026-05-01 — 디자인 핸드오프 v1.0 통합 (24 HTML + tokens.css + JSX 참조 1.3MB) + 브랜드/폰트/Motion 확정 + K-Verified 골드 시스템 신설 — `chore/design-handoff-v1` (머지 대기)
+- 2026-05-01 — 디자인 핸드오프 v1.0 통합 (24 HTML + tokens.css + JSX 참조 1.3MB) + 브랜드/폰트/Motion 확정 + K-Verified 골드 시스템 신설 — `chore/design-handoff-v1` → main `1f1272e`
+- 2026-05-01 — S-20 PG 버전 미스매치 fix (PGDG postgresql-17 PATH prepend) + 첫 백업 + 복구 테스트 통과 → S-20 완전 클로즈 — `fix/s-20-pg-dump-path-17` → main `79f1dad`
 
 ## 마지막 업데이트
 
-- 2026-05-01 (디자인 핸드오프 v1.0 통합 완료, S-20은 Jayden 외부 작업 대기)
+- 2026-05-01 (S-20 완전 클로즈, 다음 Task 선택 대기)

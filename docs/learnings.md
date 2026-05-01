@@ -533,3 +533,50 @@ GitHub Actions는 (1) Ubuntu runner에 PGDG로 정확 PG 17 client 설치 가능
 - 인간 리뷰: 새 페이지 구현 PR에서 (1) `docs/design/handoff/Hesya <Page>.html`이 존재하는지 (2) tokens.css 토큰을 그대로 사용했는지 (custom 컬러/폰트 도입 시 차단) (3) JSX 직접 import 시도가 없는지 점검.
 
 **연관**: docs/design/handoff/, docs/PRD.md § 6.5, docs/DESIGN-PLAN.md § 4, ~/.claude/skills/design-system.md v4.1 (글로벌 헌장 baseline)
+
+### [2026-05-01] L-016 — Ubuntu 24.04 GitHub runner의 PG client default가 16 → PGDG 17 install만으로는 PATH 우선순위 깨짐 (S-20 fix)
+
+**증상 / 상황**: S-20 첫 production 실행 시 pg_dump가 다음 에러로 fail.
+
+```
+pg_dump: error: aborting because of server version mismatch
+pg_dump: detail: server version: 17.6; pg_dump version: 16.13 (Ubuntu 16.13-1.pgdg24.04+1)
+```
+
+backup 파일은 20 bytes (빈 gzip header만) → verify에서 SQL 헤더 못 찾고 fail. PG 17 server는 pg_dump 17 client만 받음 (cross-version dump 거부).
+
+**원인**: GitHub Actions Ubuntu 24.04 runner는 `postgresql-client-16` (16.13)을 default로 미리 설치해둠. 우리 workflow가 `apt-get install postgresql-client-17`로 17을 추가 설치해도, **`/usr/bin/pg_dump` symlink는 여전히 16을 가리킴** (Ubuntu의 `update-alternatives` 우선순위가 더 높음). 17 binary는 `/usr/lib/postgresql/17/bin/pg_dump`에 있지만 PATH 후순위라 호출이 안 됨. 결과: pg_dump 호출 = 16 binary 호출 = PG 17 server 거부 = 빈 stream 출력.
+
+GitHub Actions의 default shell은 `bash --noprofile --norc -e -o pipefail`이라 pg_dump fail이면 step도 fail이어야 하는데, 실제로는 step이 통과했다 → pg_dump가 stderr에 에러를 찍고 exit code는 0으로 끝났을 가능성 (또는 pipefail이 어떤 경로로 우회). 어쨌든 결과적으로 빈 dump가 verify까지 흘러갔다.
+
+**해결**:
+
+```yaml
+- name: Install postgresql-client-17 (PGDG)
+  run: |
+    # ... PGDG repo 추가 + apt install postgresql-client-17 ...
+
+    # Ubuntu 24.04 ships postgresql-client-16 by default; prepend the
+    # PGDG-installed 17 binary path so PG-17-only pg_dump is used
+    # against Supabase server 17.6 (avoids 16↔17 version mismatch).
+    echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+    /usr/lib/postgresql/17/bin/pg_dump --version
+```
+
+`$GITHUB_PATH`에 경로를 append하면 **다음 step부터** PATH 앞에 prepend됨 (GitHub Actions의 environment file 메커니즘). 같은 step의 마지막 라인에서 explicit path로 `pg_dump --version`을 호출해 install 직후에도 17 동작 검증.
+
+수정 후 첫 실행: ✅ Success 46s / backup 8KB / 16/16 tables verified / R2 업로드 OK / Docker PG 17 복원 테스트 통과.
+
+**규칙** ⭐:
+
+1. **Ubuntu runner에서 특정 PG client 버전이 필요한 모든 cron/CI 작업은 `$GITHUB_PATH`로 PGDG 경로를 PATH에 prepend한다**. PGDG install만으로는 부족 — Ubuntu의 default symlink가 우선이라 install이 무용지물 됨.
+2. **explicit path 백업 호출**도 함께 둔다. `/usr/lib/postgresql/<ver>/bin/<tool>`로 install 직후 version 출력 → install이 정상 됐는지 즉시 검증. PATH 변경이 다음 step에만 적용되는 GitHub Actions 특성상, 같은 step에서 도구를 쓰려면 explicit path가 필요.
+3. **PG client는 server 버전과 정확히 일치해야 한다**. PG 17 server ↔ pg_dump 17 client. Cross-version dump (예: 17 server를 16으로 dump)는 PG 13+에서 거부되며, 빈 출력 + stderr 에러 + exit 0이라는 silent fail 패턴으로 나타남 (위험).
+4. **Supabase의 PG 메이저 업그레이드 시 workflow도 동기 갱신**. 현재 17.6 → 향후 18.x 업그레이드되면 `postgresql-client-17` → `postgresql-client-18`로 교체 + path 갱신. Supabase upgrade 알림 메일 받으면 이 workflow도 같이 PR.
+
+**확인 방법**:
+
+- 자동: workflow의 "Install postgresql-client-17 (PGDG)" step 마지막 줄에서 `pg_dump (PostgreSQL) 17.x` 출력 확인. 16.x이면 PATH 우선순위가 안 바뀐 것.
+- 인간 리뷰: PGDG 사용 PR에서 (1) `$GITHUB_PATH`에 경로 prepend 있는지 (2) explicit path 호출이 install verification에 있는지 점검.
+
+**연관**: .github/workflows/weekly-backup.yml, S-20, [PostgreSQL Apt Repository 위키](https://wiki.postgresql.org/wiki/Apt), [GitHub Actions environment files](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-system-path)
