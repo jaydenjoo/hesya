@@ -3,9 +3,11 @@ import "@/styles/handoff/components.css";
 
 import type { ReactNode } from "react";
 
+import { Section5 } from "./_section-5";
+
 // Handoff v1.0 1:1 reproduction of docs/design/handoff/Hesya Design System.html
-// Sources: app-1.jsx (Hero, Section 2-4), components.css for the visual layer.
-// Sections 5–10 land in follow-up commits on this branch.
+// Sources: app-1.jsx (Hero + Sections 2–4), app-2.jsx (Section 5),
+// components.css for the visual layer. Sections 6–10 land in follow-up commits.
 
 const brandColors = [
   {
@@ -365,7 +367,7 @@ function Hero() {
               <strong>2026</strong> · April 30
             </span>
             <span>
-              <strong>10 sections</strong> · 1 system
+              <strong>9 sections</strong> · 1 system
             </span>
           </div>
         </div>
@@ -799,6 +801,7 @@ export default function DesignSystemPage() {
       <Section2 />
       <Section3 />
       <Section4 />
+      <Section5 />
       <footer className="ds-footer">
         <div className="page">
           <div className="caption">

@@ -93,7 +93,7 @@
   - **공용 컴포넌트 12개 → 14개로 확장** (DESIGN-PLAN § 4.5)
   - 갱신 문서: PRD § 6.5 (K-Verified 시스템), DESIGN-PLAN § 4 (토큰 확정 + 핸드오프 매핑 위치), docs/design/handoff/INDEX.md (페이지 인덱스 + 코드 매핑 가이드)
   - 구현 원칙 (handoff README): "Match the visual output; **don't copy the prototype's internal structure**" — JSX 그대로 import 금지, Next.js 16.2 + Tailwind v4 + shadcn/ui로 재작성
-- 🟡 **Phase 1A 디자인 시스템 구현** — 브랜치 `chore/phase-1a-design-system` (1:1 재현 진행 중, 4/10 섹션 완료)
+- 🟡 **Phase 1A 디자인 시스템 구현** — 브랜치 `chore/phase-1a-design-system` (1:1 재현 진행 중, 5/10 섹션 완료)
   - **방향 변경 (2026-05-01)**: 처음 단순 코드 검증 카탈로그(6 섹션)로 만들었으나 Jayden이 핸드오프 HTML과 시각 비교 후 "1:1 재현" 결정. 4원칙 1번에 따라 시간 재추정 (3~5h → 13~16h) 후 옵션 A2 채택.
   - **1:1 재현 전략**: 핸드오프 components.css·tokens.css를 `apps/web/src/styles/handoff/`로 복사 + page.tsx를 핸드오프 jsx 구조 그대로 React 19로 포팅 + 클래스명 유지. 시각 100% 일치 보장.
   - **Section 1~4 완료 (이번 세션)**: Hero(156px italic wordmark + ㅎ→H morph SVG + 5 lang tags + meta), Section 2 Color(brand 6 + semantic 4 + neutrals 6 + dark mode 6, swatch grid + hex chip), Section 3 Type(typeRows 6 + bodyRows 4 + Mono + Korean rules 4 callouts), Section 4 Space(spacing scale 13 + radius 6 + shadow 5 + motion 4) + JumpBar nav + footer. build clean.
@@ -105,7 +105,12 @@
   - **`/design-system` 카탈로그 페이지** (`apps/web/src/app/design-system/page.tsx`): 6 섹션(Color/Typography/Radius/Components/Trust System/Shared UI). 14개 컴포넌트 한 화면에 노출 → 시각 회귀 1회 검증.
   - **TDD Guard 필터 확장**: `packages/shared-ui/src/*.{ts,tsx}`, `apps/*/src/app/design-system/page.tsx`, `apps/*/src/app/globals.css`, `apps/*/src/components/{ui,trust}/*.tsx` allowlist (선언적 mirroring + visual regression verification, 같은 rationale로 schema·shared-types와 동일).
   - 검증: `pnpm --filter @hesya/shared-ui type-check` clean / `pnpm --filter @hesya/web build` clean / `/sign-in` 200 OK / `/design-system` 200 OK (○ Static prerendered) / `/api/auth/sign-in/social` 200 OK 회귀 / Supabase 16/16 RLS 유지
-  - **Jayden 검토 단계 (다음)**: dev 서버 → `localhost:4200/design-system` 방문 → 6 섹션 시각 확인 → shadcn 컴포넌트가 Hesya amber/peach 색으로 렌더링되는지, 한글 본문이 Pretendard로 렌더링되는지 → 어긋난 부분 있으면 재매핑
+  - **Section 5 완료 (이번 세션)**: 12개 컴포넌트 블록 (Button 5×4 matrix, Card plain/accent/photo/KPI 4종, Input 7가지 상태, Select single/multi/searchable, Datepicker 캘린더+슬롯 인터랙션, Modal, Sheet 모바일+데스크톱, Toast 4종, Badge 5 row, Avatar 4 row, Tabs 5개 언어, Navigation 데스크톱 헤더+사이드바+모바일 탭바). 핸드오프 app-2.jsx 1:1 포팅.
+  - **분리 전략**: page.tsx는 server component 유지(Section 1~4 정적 prerender) + `_section-5.tsx` ('use client') + `_icons.tsx` (lucide-style 36+ 아이콘 객체) 별도. /design-system 여전히 ○ Static prerendered (build 결과).
+  - **회귀 fix**: Hero `hero-meta`의 "10 sections" → 핸드오프 원본대로 "9 sections" 복원 (1:1 재현 정합성).
+  - **TDD Guard 필터 확장**: `*/apps/*/src/app/design-system/page.tsx` → `*/apps/*/src/app/design-system/*.tsx`로 와일드카드 (page.tsx + \_icons.tsx + 향후 \_section-N.tsx 모두 declarative mirroring of handoff jsx, verification = build + 시각 회귀).
+  - 검증: `tsc --noEmit` clean / `next build` clean (○ Static prerendered) / `/design-system` 200 OK 128KB / component-block × 12, matrix-row × 25, nav-side-item × 14 모두 렌더 / `/api/auth/sign-in/social` 200 OK 회귀
+  - **Jayden 검토 단계 (다음)**: dev 서버 → `localhost:4200/design-system` 방문 → 5/10 섹션 시각 확인. Section 6~10 (Icons, Imagery, Grid, A11y, Female lens) 다음 세션 약 7~10h 잔여.
 - ✅ **S-20 Cloudflare R2 외부 백업 cron** — main 머지 완료 (`d0ab61f` + 후속 fix `79f1dad`)
   - 코드 산출물: `.github/workflows/weekly-backup.yml` (cron `0 18 * * 6` + workflow_dispatch), `scripts/backup-verify.sh`, `scripts/backup-restore-test.sh`
   - **PG 버전 미스매치 fix** (L-016): Ubuntu 24.04 runner의 default PG client는 16.13인데 Supabase는 17.6 → 첫 실행 fail. PGDG로 17 install은 했지만 default symlink가 16을 가리켜 PATH 우선순위에서 16이 먼저. 해결: `echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"`로 17 binary 경로를 PATH 앞에 prepend. fix commit `636c11c` → main `79f1dad`
@@ -186,7 +191,8 @@
 - 2026-05-01 — Phase 1A 디자인 시스템 인프라 (Hesya 토큰 + Fraunces·Source Sans 3·Pretendard self-host + shadcn 12 + AiFlow/IosFrame stub + KVerifiedBadge) — `chore/phase-1a-design-system` commit `56169e1`
 - 2026-05-01 — Phase 1A 1:1 재현 Section 1~4 (Hero · Color · Type · Space + JumpBar + footer, 핸드오프 components.css·tokens.css 그대로 import) — `chore/phase-1a-design-system` commit `d5ae666`
 - 2026-05-01 — L-017 추가 (디자인 1:1 재현 견적 보정 룰: CSS 라인·jsx 인터랙션·자산 직접 측정 필수)
+- 2026-05-01 — Phase 1A 1:1 재현 Section 5 (12개 컴포넌트 블록, app-2.jsx 1:1 포팅, \_icons + \_section-5 분리, page.tsx server 유지, ○ Static prerender 유지, Hero 9 sections fix) — `chore/phase-1a-design-system`
 
 ## 마지막 업데이트
 
-- 2026-05-01 (Phase 1A 1:1 재현 4/10 섹션 완료. Jayden 시각 회귀 검토 → 통과 시 다음 세션 Section 5~10 진행, 약 8~12h 잔여)
+- 2026-05-01 (Phase 1A 1:1 재현 5/10 섹션 완료. Section 5 12 컴포넌트 블록 인터랙션 포함. 다음 세션 Section 6~10 진행, 약 7~10h 잔여)

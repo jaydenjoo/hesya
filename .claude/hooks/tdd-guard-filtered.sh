@@ -71,10 +71,11 @@ case "$path" in
   */packages/shared-ui/src/*.tsx) exit 0 ;;
   */packages/shared-ui/src/*.ts) exit 0 ;;
 
-  # apps/web design-system catalog page + globals.css token mapping +
-  # K-Verified Badge primitive. Visual catalog of handoff v1.0,
+  # apps/web design-system catalog page + co-located client modules +
+  # globals.css token mapping + K-Verified Badge primitive.
+  # Visual catalog of handoff v1.0 (page.tsx server, _icons/_section-N client),
   # verified by build + visual review (Phase 1A).
-  */apps/*/src/app/design-system/page.tsx) exit 0 ;;
+  */apps/*/src/app/design-system/*.tsx) exit 0 ;;
   */apps/*/src/app/globals.css) exit 0 ;;
   */apps/*/src/components/trust/*.tsx) exit 0 ;;
   */apps/*/src/components/ui/*.tsx) exit 0 ;;
