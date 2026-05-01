@@ -6,9 +6,9 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **Phase 1A 디자인 시스템 코드 통합 완료. Jayden 시각 회귀 검토 + 머지 대기**
+- **Task**: **Phase 1A 5/10 main 머지 완료 (Hero/Color/Type/Space/Components). Section 6~10 다음 세션**
 - **상태**: 진행중
-- **작업 브랜치**: `chore/phase-1a-design-system` (검증 후 main 머지 예정)
+- **작업 브랜치**: `main` (Phase 1A 5/10 머지 `3a7a62c`. 다음 세션 새 브랜치 `chore/phase-1a-section-6-10` 시작)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
@@ -93,7 +93,7 @@
   - **공용 컴포넌트 12개 → 14개로 확장** (DESIGN-PLAN § 4.5)
   - 갱신 문서: PRD § 6.5 (K-Verified 시스템), DESIGN-PLAN § 4 (토큰 확정 + 핸드오프 매핑 위치), docs/design/handoff/INDEX.md (페이지 인덱스 + 코드 매핑 가이드)
   - 구현 원칙 (handoff README): "Match the visual output; **don't copy the prototype's internal structure**" — JSX 그대로 import 금지, Next.js 16.2 + Tailwind v4 + shadcn/ui로 재작성
-- 🟡 **Phase 1A 디자인 시스템 구현** — 브랜치 `chore/phase-1a-design-system` (1:1 재현 진행 중, 5/10 섹션 완료)
+- 🟡 **Phase 1A 디자인 시스템 구현** — main 머지 완료 (5/10 섹션, `3a7a62c`). Section 6~10 다음 세션
   - **방향 변경 (2026-05-01)**: 처음 단순 코드 검증 카탈로그(6 섹션)로 만들었으나 Jayden이 핸드오프 HTML과 시각 비교 후 "1:1 재현" 결정. 4원칙 1번에 따라 시간 재추정 (3~5h → 13~16h) 후 옵션 A2 채택.
   - **1:1 재현 전략**: 핸드오프 components.css·tokens.css를 `apps/web/src/styles/handoff/`로 복사 + page.tsx를 핸드오프 jsx 구조 그대로 React 19로 포팅 + 클래스명 유지. 시각 100% 일치 보장.
   - **Section 1~4 완료 (이번 세션)**: Hero(156px italic wordmark + ㅎ→H morph SVG + 5 lang tags + meta), Section 2 Color(brand 6 + semantic 4 + neutrals 6 + dark mode 6, swatch grid + hex chip), Section 3 Type(typeRows 6 + bodyRows 4 + Mono + Korean rules 4 callouts), Section 4 Space(spacing scale 13 + radius 6 + shadow 5 + motion 4) + JumpBar nav + footer. build clean.
@@ -110,7 +110,9 @@
   - **회귀 fix**: Hero `hero-meta`의 "10 sections" → 핸드오프 원본대로 "9 sections" 복원 (1:1 재현 정합성).
   - **TDD Guard 필터 확장**: `*/apps/*/src/app/design-system/page.tsx` → `*/apps/*/src/app/design-system/*.tsx`로 와일드카드 (page.tsx + \_icons.tsx + 향후 \_section-N.tsx 모두 declarative mirroring of handoff jsx, verification = build + 시각 회귀).
   - 검증: `tsc --noEmit` clean / `next build` clean (○ Static prerendered) / `/design-system` 200 OK 128KB / component-block × 12, matrix-row × 25, nav-side-item × 14 모두 렌더 / `/api/auth/sign-in/social` 200 OK 회귀
-  - **Jayden 검토 단계 (다음)**: dev 서버 → `localhost:4200/design-system` 방문 → 5/10 섹션 시각 확인. Section 6~10 (Icons, Imagery, Grid, A11y, Female lens) 다음 세션 약 7~10h 잔여.
+  - **Playwright 자동 검증 ✅ 통과** (이번 세션): Tabs 한국어→English→日本語 본문 정확 갱신 / Datepicker 14→22 + 11:30 슬롯 + full×4 disabled×2 정상 / Select Single open→items 4→네일선택→자동닫힘 / Select Multi-chip stopPropagation OK / Field input focused+filled 클래스 / JumpBar #s5 클릭 scrollY 0→8007.5 viewport 도달 / 콘솔 에러 0건 / 핸드오프 HTML 동일 뷰포트 비교 시각 일치
+  - **main 머지 완료**: `git merge --no-ff chore/phase-1a-design-system → 3a7a62c`, push origin main + chore 브랜치 보존. .gitignore에 `.playwright-mcp/`, `/design-system-full.png`, `/handoff-original-full.png`, `/s5-*.png` 추가 (시각 회귀 검증 산출물 자동 무시).
+  - **Section 6~10 다음 세션 (약 7~10h)**: Icons (app-3.jsx 36+ icon 카탈로그) / Imagery / Grid (8-12 col) / A11y (WCAG 2.2 AA 체크리스트) / Female lens (UGC card + BeforeAfter, app-4.jsx 65 className 5 인터랙션). 새 브랜치 `chore/phase-1a-section-6-10` 시작 권장.
 - ✅ **S-20 Cloudflare R2 외부 백업 cron** — main 머지 완료 (`d0ab61f` + 후속 fix `79f1dad`)
   - 코드 산출물: `.github/workflows/weekly-backup.yml` (cron `0 18 * * 6` + workflow_dispatch), `scripts/backup-verify.sh`, `scripts/backup-restore-test.sh`
   - **PG 버전 미스매치 fix** (L-016): Ubuntu 24.04 runner의 default PG client는 16.13인데 Supabase는 17.6 → 첫 실행 fail. PGDG로 17 install은 했지만 default symlink가 16을 가리켜 PATH 우선순위에서 16이 먼저. 해결: `echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"`로 17 binary 경로를 PATH 앞에 prepend. fix commit `636c11c` → main `79f1dad`
@@ -191,8 +193,9 @@
 - 2026-05-01 — Phase 1A 디자인 시스템 인프라 (Hesya 토큰 + Fraunces·Source Sans 3·Pretendard self-host + shadcn 12 + AiFlow/IosFrame stub + KVerifiedBadge) — `chore/phase-1a-design-system` commit `56169e1`
 - 2026-05-01 — Phase 1A 1:1 재현 Section 1~4 (Hero · Color · Type · Space + JumpBar + footer, 핸드오프 components.css·tokens.css 그대로 import) — `chore/phase-1a-design-system` commit `d5ae666`
 - 2026-05-01 — L-017 추가 (디자인 1:1 재현 견적 보정 룰: CSS 라인·jsx 인터랙션·자산 직접 측정 필수)
-- 2026-05-01 — Phase 1A 1:1 재현 Section 5 (12개 컴포넌트 블록, app-2.jsx 1:1 포팅, \_icons + \_section-5 분리, page.tsx server 유지, ○ Static prerender 유지, Hero 9 sections fix) — `chore/phase-1a-design-system`
+- 2026-05-01 — Phase 1A 1:1 재현 Section 5 (12개 컴포넌트 블록, app-2.jsx 1:1 포팅, \_icons + \_section-5 분리, page.tsx server 유지, ○ Static prerender 유지, Hero 9 sections fix) — `chore/phase-1a-design-system` commit `5e820d3`
+- 2026-05-01 — Phase 1A 5/10 Playwright 자동 검증 (Tabs/Datepicker/Select/Field/JumpBar 모두 핸드오프 동일 인터랙션, 콘솔 에러 0) + main 머지 `3a7a62c` + GitHub push origin/main
 
 ## 마지막 업데이트
 
-- 2026-05-01 (Phase 1A 1:1 재현 5/10 섹션 완료. Section 5 12 컴포넌트 블록 인터랙션 포함. 다음 세션 Section 6~10 진행, 약 7~10h 잔여)
+- 2026-05-01 (Phase 1A 5/10 main 머지 완료 `3a7a62c`. Playwright 자동 회귀 통과. 다음 세션 새 브랜치 `chore/phase-1a-section-6-10` 시작 — Section 6~10 약 7~10h)
