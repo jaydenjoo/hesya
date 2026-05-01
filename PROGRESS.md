@@ -6,9 +6,9 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **S-11 GitHub Actions CI — PR #1 CI green. main 머지 대기**
+- **Task**: **S-10 Sentry + PostHog 운영 관측 — 코드 검증 PASS, Jayden 키 발급 대기**
 - **상태**: 진행중
-- **작업 브랜치**: `chore/s-11-github-actions-ci` (PR #1, main 머지 대기)
+- **작업 브랜치**: `chore/s-10-sentry-posthog` (PR open + main 머지 예정)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
@@ -133,7 +133,19 @@
     6. GitHub Actions UI → `Weekly DB Backup to R2` workflow → `Run workflow` (workflow_dispatch) → 성공 확인 + R2 콘솔에 `backup-YYYY-MM-DD.sql.gz` 도착 확인
     7. (1회) 로컬 `bash scripts/backup-restore-test.sh ./backup-YYYY-MM-DD.sql.gz` 실행 → 16 테이블 row count 확인
   - 다음 일요일 자동 실행 후 GitHub Actions UI에서 success 확인하면 PROGRESS 클로즈
-- ✅ **S-11 GitHub Actions CI** — 브랜치 `chore/s-11-github-actions-ci` ([PR #1](https://github.com/jaydenjoo/hesya/pull/1), main 머지 대기)
+- 🟡 **S-10 Sentry + PostHog 운영 관측** — 브랜치 `chore/s-10-sentry-posthog` (PR open + main 머지 예정)
+  - **Jayden 승인 4건**: D1 Cloud + EU region / D2 source map upload 제외 (SS-1~3 시점) / D3 직접 PostHog URL (reverse proxy 미사용) / D4 Sentry session replay only on error 10%
+  - **env 4개 키 활성화**: `SENTRY_DSN` (z.url), `NEXT_PUBLIC_SENTRY_DSN` (z.url), `NEXT_PUBLIC_POSTHOG_KEY` (z.string startsWith "phc\_"), `NEXT_PUBLIC_POSTHOG_HOST` (z.url) — env.ts Zod schema + turbo.json build.env allowlist (L-024) + .github/workflows/ci.yml dummy 4개 모두 동기화
+  - **Sentry @sentry/nextjs 10.51**: `instrumentation.ts` register()에서 NEXT_RUNTIME 분기로 `sentry.{server,edge}.config.ts` 동적 import + `Sentry.captureRequestError` export. `instrumentation-client.ts`에 client init + `replayIntegration()` (replaysSessionSampleRate 0, replaysOnErrorSampleRate 0.1) + `Sentry.captureRouterTransitionStart` export. 모두 `enabled: process.env.NODE_ENV === "production"` (dev 노이즈 차단). `withSentryConfig` 로 next.config.ts wrap (createNextIntlPlugin 결과 위에).
+  - **PostHog @posthog/next 0.1**: official Next.js wrapper (2024+ 출시). `[locale]/layout.tsx` 의 `<body>` 안에 `PostHogProvider` (NextIntlClientProvider 바깥) + `<Suspense fallback={null}><PostHogPageView /></Suspense>` 자동 페이지뷰. clientOptions: `api_host` (env), `respect_dnt: true` (DNT header 존중).
+  - **TDD Guard 필터 확장**: `*/apps/*/sentry.{server,edge}.config.ts`, `*/apps/*/src/instrumentation-client.ts` allowlist (declarative SDK init wiring, 검증 = build + production runtime event delivery)
+  - 검증: G1 type-check clean ✅ / G2 build clean (21 static pages 유지) ✅ / G3 dev 6 locale 200 OK + `/` → 307 → `/en` redirect ✅ / G7 Supabase 16/16 RLS active ✅
+  - **Jayden 외부 작업 (병렬 진행)**:
+    1. Sentry 가입(또는 기존 organization 그대로) → New Project → Platform: Next.js → name: `hesya` → DSN 복사
+    2. PostHog 가입 → Region: EU → New Project → name: `hesya` → API key (phc\_...) + Host (`https://eu.i.posthog.com`) 복사
+    3. `.env.local` 에 4개 키 입력 — `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN` (=동일 값), `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`
+  - **G4·G5·G6 후속 회귀 (Jayden 키 입력 후 5분)**: dev `/api/auth/sign-in/social` 200 OK 회귀 / Sentry dashboard에 임시 throw 1회 강제 → 이벤트 수신 확인 / PostHog dashboard에 pageview 1건 확인. 통과 시 PROGRESS S-10 ✅ 클로즈
+- ✅ **S-11 GitHub Actions CI** — main 머지 완료 (`ffaadbc` + branch protection `b351d35`)
   - **Jayden 승인 3건**: D1 dummy env inline / D2 test placeholder (vitest 미도입) / D3 concurrency cancel-in-progress
   - **재작성 대상**: 기존 `.github/workflows/ci.yml` 은 init-project.sh v10.0의 broken stub이었음 (pnpm 9 vs 10.28.2, tsc 직접, --max-warnings turbo 비호환, env 7개 누락 → 매 main push 5번 fail 누적)
   - **새 ci.yml**: `pnpm/action-setup@v4` (packageManager auto-detect) + `actions/setup-node@v4 with node-version-file: .nvmrc + cache: pnpm` + concurrency cancel-in-progress + `permissions: contents: read + pull-requests: read` (L-025) + dummy env 9개 inline + `pnpm -r type-check` / `pnpm lint` / `pnpm build` / gitleaks-action@v2 + test placeholder
@@ -174,8 +186,8 @@ Jayden 승인 (2026-05-01): T2 안전 경로 채택. 의존성·가치 우선순
 
 1. ~~**S-9 next-intl 5개 언어** (3h)~~ — ✅ 완료 (6언어 ko/en/ja/zh-CN/zh-TW/vi, default `en`, prefix `always`)
 2. ~~**S-11 GitHub Actions CI** (3h)~~ — ✅ 완료 (PR #1 CI green, dummy env inline, turbo env allowlist, workflow permissions)
-3. **S-21 Tiptap 에디터** (6h, 다음 세션) — Epic 1 인박스 답변 작성에 사용
-4. **S-10 Sentry + PostHog** (2h) — 운영 관측, 배포 전
+3. ~~**S-10 Sentry + PostHog** (2h)~~ — 🟡 코드 PASS, Jayden 키 입력 후 G4·G5·G6 회귀로 클로즈
+4. **S-21 Tiptap 에디터** (6h, 다음 세션) — Epic 1 인박스 답변 작성에 사용
 5. **SS-1~3 Staging** (8h) — Vercel Preview + Supabase staging 분리
 6. **Epic 9 매장 KYC 자동 검증** 진입 (60h) — 본 기능 첫 단추 (의존성 그래프상 Epic 4·12 모두 후속)
 
@@ -231,8 +243,10 @@ Jayden 승인 (2026-05-01): T2 안전 경로 채택. 의존성·가치 우선순
 - 2026-05-01 — 새 핸드오프 zip 검증 (prettier 정규화 후 tokens/components/app-1~4/Hesya Design System.html 모두 IDENTICAL → 새 핸드오프 = 기존 + minify, 의미 변경 0)
 - 2026-05-01 — Phase 1A 10/10 main 머지 완료 (`445c7cd`, 3 commits) + GitHub push origin/main + L-021 추가 (use client는 client API 실제 사용 모듈에만)
 - 2026-05-01 — S-9 next-intl 6개 언어 라우팅 (Jayden 4 결정 승인: 6언어/en default/always prefix/A안 최소) + middleware → proxy.ts (L-022) + root layout 제거하고 [locale]/layout.tsx 가 root + instrumentation.ts로 env wiring 격상 (L-023) — `chore/s-9-next-intl-locales` → main `6513204`
-- 2026-05-01 — S-11 GitHub Actions CI (Jayden 3 결정 승인: dummy env / test placeholder / concurrency) + broken init-stub 재작성 + .nvmrc node 22 + L-024 turbo strict env allowlist + L-025 workflow permissions block + CI run #3 green — `chore/s-11-github-actions-ci` ([PR #1](https://github.com/jaydenjoo/hesya/pull/1))
+- 2026-05-01 — S-11 GitHub Actions CI (Jayden 3 결정 승인: dummy env / test placeholder / concurrency) + broken init-stub 재작성 + .nvmrc node 22 + L-024 turbo strict env allowlist + L-025 workflow permissions block + CI run #3 green — `chore/s-11-github-actions-ci` → main `ffaadbc`
+- 2026-05-01 — Branch Protection 적용 (Jayden public 전환 + Claude `gh api` PUT): main strict status check `validate`, enforce_admins false, --no-ff merge 컨벤션 유지 — `chore/s-11-branch-protection` → main `b351d35`
+- 2026-05-02 — S-10 Sentry + PostHog 운영 관측 (Jayden 4 결정 승인: Cloud + EU / source map 제외 / 직접 URL / replay on error 10%) + @sentry/nextjs 10.51 + @posthog/next 0.1 + Zod 4개 키 활성화 + turbo build.env 동기화 + CI dummy 동기화 — `chore/s-10-sentry-posthog` (PR + main 머지 예정)
 
 ## 마지막 업데이트
 
-- 2026-05-01 (S-11 CI #3 green PR #1, main 머지 대기. 다음 세션 S-21 Tiptap 에디터 약 6h)
+- 2026-05-02 (S-10 코드 PASS, Jayden 키 입력 후 G4·G5·G6 회귀로 클로즈. 다음 세션 S-21 Tiptap 에디터 약 6h)
