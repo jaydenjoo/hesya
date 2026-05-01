@@ -1,7 +1,8 @@
-"use client";
-
 // 1:1 reproduction of docs/design/handoff/app-1.jsx Icon{} (lucide-style 24px stroke=1.5).
 // Kept as-is so Section 5/9/10 paths match the handoff pixel-for-pixel.
+// Pure stateless SVG factory — no client APIs, so server components (Section 6)
+// can index Icon[k] directly. _section-5.tsx (client) imports this freely
+// because server→client imports are always allowed.
 
 import type { CSSProperties, ReactNode } from "react";
 
