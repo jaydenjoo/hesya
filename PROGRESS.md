@@ -6,9 +6,9 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **S-19 + S-5 완료 (옵션 A 순서). 다음은 S-6 (Zod 타입) 진입 대기**
+- **Task**: **S-6 (Zod + TS 타입) 완료. 다음은 S-20 (R2 백업) / S-21 (Tiptap) / S-22 (PWA) 중 선택 대기**
 - **상태**: 진행중
-- **작업 브랜치**: `main` (S-18·S-19·S-5 모두 머지 완료, push 대기)
+- **작업 브랜치**: `chore/s-6-shared-types` (main 머지·push 대기)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
@@ -71,21 +71,25 @@
   - migrations/0003_rls_v0001.sql + manual journal/snapshot entry (drizzle-kit는 RLS 무지)
   - 3중 검증: list_tables rls_enabled=true / get_advisors INFO×16 (의도) / SET ROLE anon SELECT 0 row / service_role baseline 1 row / `/api/auth/sign-in/social` 200 OK 회귀 OK
   - v0002+ 후속 (이번 범위 밖): Better Auth↔Supabase JWT 브리지 + StoreOwner/Designer/Staff 매장별 정책 + Admin 정책
+- ✅ **S-6 Zod + TypeScript 타입** — 브랜치 `chore/s-6-shared-types` (main 머지 대기)
+  - 12개 비즈니스 도메인 파일 작성 (stores·store-verifications·store-owners·staff·services·customers·messages·bookings·payments·reviews·aftercare-messages·store-reports). Auth 4 테이블은 Better Auth 자체 타입 사용으로 제외.
+  - **호환 충돌 발견 → 옵션 3 채택** (L-012): drizzle-zod 0.8.3 peer는 `drizzle-orm >=0.36.0` 선언이지만 실제 타입 시그니처가 0.45.2와 충돌(`Property 'config' is protected`). drizzle-orm `latest=0.45.2`이고 `/zod` subpath는 1.0 RC만에 있어 메이저 업이 RC stage 진입 = 자해. → drizzle-zod 외부 패키지 제거, 수동 `z.object({...})` + Drizzle `$inferSelect`/`$inferInsert` 분리.
+  - 매핑 컨벤션: nullable+default → `nullish()` (Insert) / `nullable()` (Select). enum CHECK 4종은 `as const` 배열 + `z.enum()` (`STORE_CATEGORIES` 9, `STORE_VERIFICATION_STATUSES` 4, `STORE_OWNER_ROLES` 2, `MESSAGE_DIRECTIONS` 2). uuid → `z.string().uuid()`, numeric → `z.string()` (drizzle 기본), date → `z.string()`, timestamp → `z.date()`, jsonb/array → `z.unknown()` / `z.string().array()`.
+  - **package.json `main`/`types`/`exports` 명시** (L-013): 누락 시 deps 등록만으로는 Turbopack 모듈 해석 실패 → `Module not found`. `./src/index.ts` 진입점 명시 후 build clean.
+  - 검증: `pnpm --filter @hesya/shared-types type-check` clean / `pnpm --filter @hesya/web build` clean / Zod parse smoke 4종(정상·name누락·enum오류·타입호환) 통과 / `/api/auth/sign-in/social` 200 OK 회귀 / Supabase 16 테이블 rls_enabled=true 유지
+  - TDD Guard 필터 확장: `packages/shared-types/src/*.ts` allowlist (스키마와 동일하게 declarative 미러링 — verification = tsc + build + parse smoke)
 
 ### 변경 통계
 
-- 13+ commits (snapshot → ... → S-3 → S-4 → S-18 → S-19 → S-5) / 약 95 files
+- 14+ commits (snapshot → ... → S-3 → S-4 → S-18 → S-19 → S-5 → S-6) / 약 110 files
 - husky·gitleaks·lint-staged·prettier 모두 자동 통과
-- 빌드 검증: tsc clean / next build / dev sign-in/social 200 OK / Supabase 16 tables RLS ACTIVE / OAuth flow E2E 통과
+- 빌드 검증: tsc clean / next build / dev sign-in/social 200 OK / Supabase 16 tables RLS ACTIVE / OAuth flow E2E 통과 / Zod parse smoke 4/4
 
 ## 다음 세션 할 일
 
-### main push (Jayden 명시 승인 시) — S-18·S-19·S-5 3개 머지가 origin 보다 앞서 있음
-
 ### Day 0 본 Setup 계속
 
-- **S-6** Zod + TypeScript 타입 (shared-types에서 schema → 입력/출력 타입 export, 4h) ← 다음 우선
-- **S-20** Cloudflare R2 외부 백업 cron (6h)
+- **S-20** Cloudflare R2 외부 백업 cron (6h) ← 다음 우선 후보
 - **S-21** Tiptap 에디터 컴포넌트 (6h)
 - **S-22** PWA Service Worker + Web Push (6h)
 
@@ -122,7 +126,8 @@
 - 2026-04-30 ~ 2026-05-01 — S-18 Better Auth + Google OAuth (5단계 OAR 사이클, 약 4h, 실 OAuth flow E2E 통과) — `chore/s-18-better-auth` → main `93356a5`
 - 2026-05-01 — S-19 store_owners 조인 테이블 (옵션 A: 의존성 우선 순서) — `chore/s-19-store-owners` → main `35eea9c`
 - 2026-05-01 — S-5 RLS v0001 (16 테이블 default deny + Server Action 강제 + Better Auth 회귀 OK) — `chore/s-5-rls-v0001` → main `b6ed6d1`
+- 2026-05-01 — S-6 shared-types 12 도메인 (drizzle-zod 호환 충돌 → 수동 Zod + Drizzle inferred 타입 분리) — `chore/s-6-shared-types` (머지 대기)
 
 ## 마지막 업데이트
 
-- 2026-05-01 (S-19 + S-5 완료, S-6 진입 가능, push 대기)
+- 2026-05-01 (S-6 완료, 다음 S-20/S-21/S-22 중 선택 대기)

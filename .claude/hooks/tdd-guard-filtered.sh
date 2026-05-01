@@ -59,6 +59,12 @@ case "$path" in
   */packages/*/src/schema/*/*.ts) exit 0 ;;
   */packages/*/src/client.ts) exit 0 ;;
 
+  # shared-types — drizzle-zod auto-generated schemas + inferred TS types.
+  # Pure declarative re-exports of Drizzle schema (S-6). Verification =
+  # tsc --noEmit + apps/web build + Zod parse smoke. Same rationale as schema/*.ts.
+  */packages/shared-types/src/*.ts) exit 0 ;;
+  */packages/shared-types/src/index.ts) exit 0 ;;
+
   # Better Auth wiring — factory + handler routes (declarative integration)
   # See docs/learnings.md (S-18). Verification = build + runtime OAuth flow,
   # not unit tests on the wrapper that just forwards to betterAuth().
