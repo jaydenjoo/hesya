@@ -6,9 +6,9 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **Phase 1A 5/10 main 머지 완료 (Hero/Color/Type/Space/Components). Section 6~10 다음 세션**
+- **Task**: **Phase 1A 10/10 main 머지 완료 (`445c7cd`). 다음 세션 S-9 next-intl 시작**
 - **상태**: 진행중
-- **작업 브랜치**: `main` (Phase 1A 5/10 머지 `3a7a62c`. 다음 세션 새 브랜치 `chore/phase-1a-section-6-10` 시작)
+- **작업 브랜치**: `main` (Phase 1A 10/10 머지 `445c7cd`. 다음 세션 새 브랜치 `chore/s-9-next-intl-locales` 시작)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
@@ -147,11 +147,20 @@
 - 다음 일요일 2026-05-03 03:00 KST 자동 schedule cron 실행 → GitHub Actions UI에서 ✓ 확인 (Jayden, 1주 후 1분)
 - 분기별 (2026-08-01 경) `bash scripts/backup-restore-test.sh` 1회 (Jayden, 5분)
 
-### Day 0 본 Setup 계속 (다음 Task 선택)
+### 권장 진행 순서 (Phase 1A 후 Setup 마무리 → 본 기능)
 
-- **S-21** Tiptap 에디터 컴포넌트 (6h)
-- **S-22** PWA Service Worker + Web Push (6h)
-- **Phase 1A** 디자인 시스템 구현 (tokens.css → globals.css + shadcn 14개) — 디자인 핸드오프 v1.0 통합됐으니 진입 가능
+Jayden 승인 (2026-05-01): T2 안전 경로 채택. 의존성·가치 우선순위.
+
+1. **S-9 next-intl 5개 언어** (3h, 다음 세션) — Epic 1·3·9 모두 전제. ko/en/ja/zh-CN/vi 라우팅
+2. **S-11 GitHub Actions CI** (3h) — 매 PR tsc+lint+build+test 자동 검증
+3. **S-21 Tiptap 에디터** (6h) — Epic 1 인박스 답변 작성에 사용
+4. **S-10 Sentry + PostHog** (2h) — 운영 관측, 배포 전
+5. **SS-1~3 Staging** (8h) — Vercel Preview + Supabase staging 분리
+6. **Epic 9 매장 KYC 자동 검증** 진입 (60h) — 본 기능 첫 단추 (의존성 그래프상 Epic 4·12 모두 후속)
+
+### S-22 PWA SW (Phase 1.5 시점, 후순위)
+
+- Epic 5 대면 통역 (Phase 1.5)에 필요 → Day 46~ 시점에 진행 (지금 X)
 
 ### RLS v0002+ (Phase 1 본 기능 시작 전 또는 동반)
 
@@ -195,7 +204,12 @@
 - 2026-05-01 — L-017 추가 (디자인 1:1 재현 견적 보정 룰: CSS 라인·jsx 인터랙션·자산 직접 측정 필수)
 - 2026-05-01 — Phase 1A 1:1 재현 Section 5 (12개 컴포넌트 블록, app-2.jsx 1:1 포팅, \_icons + \_section-5 분리, page.tsx server 유지, ○ Static prerender 유지, Hero 9 sections fix) — `chore/phase-1a-design-system` commit `5e820d3`
 - 2026-05-01 — Phase 1A 5/10 Playwright 자동 검증 (Tabs/Datepicker/Select/Field/JumpBar 모두 핸드오프 동일 인터랙션, 콘솔 에러 0) + main 머지 `3a7a62c` + GitHub push origin/main
+- 2026-05-01 — Phase 1A Section 6+7 (icons + imagery, app-3.jsx 1:1, \_icons.tsx 'use client' 제거 → server prerender 가능) — `chore/phase-1a-section-6-10` commit `f38c10d`
+- 2026-05-01 — Phase 1A Section 8+9 (grid + a11y, app-3.jsx 1:1, breakpoints/12-col/4-col/bento + WCAG 2.2 AA 7개 체크리스트) — commit `9c36ef0`
+- 2026-05-01 — Phase 1A Section 10 (female lens, app-4.jsx 1:1, \_section-10.tsx client 8 sub-sections + BeforeAfter 자동 sweep + drag) — commit `19a2b91`
+- 2026-05-01 — 새 핸드오프 zip 검증 (prettier 정규화 후 tokens/components/app-1~4/Hesya Design System.html 모두 IDENTICAL → 새 핸드오프 = 기존 + minify, 의미 변경 0)
+- 2026-05-01 — Phase 1A 10/10 main 머지 완료 (`445c7cd`, 3 commits) + GitHub push origin/main + L-021 추가 (use client는 client API 실제 사용 모듈에만)
 
 ## 마지막 업데이트
 
-- 2026-05-01 (Phase 1A 5/10 main 머지 완료 `3a7a62c`. Playwright 자동 회귀 통과. 다음 세션 새 브랜치 `chore/phase-1a-section-6-10` 시작 — Section 6~10 약 7~10h)
+- 2026-05-01 (Phase 1A 10/10 main 머지 완료 `445c7cd`. 디자인 시스템 1:1 재현 종료. 다음 세션 새 브랜치 `chore/s-9-next-intl-locales` — S-9 next-intl 5개 언어 라우팅 약 3h)
