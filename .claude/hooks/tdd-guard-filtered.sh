@@ -93,6 +93,28 @@ case "$path" in
 
   # next.js root layout — wiring point for env validation, not business logic
   */src/app/layout.tsx|*/src/app/layout.ts) exit 0 ;;
+
+  # next.js instrumentation hook — server boot entry point for env Zod parse,
+  # OpenTelemetry init, etc. Pure wiring; verification = build + boot success.
+  */apps/*/src/instrumentation.ts) exit 0 ;;
+
+  # next-intl wiring (S-9) — routing config, getRequestConfig, navigation helpers,
+  # and the Next.js 16 proxy.ts middleware. Pure framework integration; verification =
+  # build + dev server returning 200 on each locale URL, not unit tests on re-exports.
+  */apps/*/src/i18n/*.ts) exit 0 ;;
+  */apps/*/proxy.ts|*/apps/*/middleware.ts) exit 0 ;;
+
+  # [locale] dynamic segment — layout shells and locale-scoped pages.
+  # Server/client wiring around NextIntlClientProvider; same rationale as root layout.
+  */apps/*/src/app/\[locale\]/layout.tsx) exit 0 ;;
+  */apps/*/src/app/\[locale\]/page.tsx) exit 0 ;;
+  */apps/*/src/app/\[locale\]/sign-in/page.tsx) exit 0 ;;
+  */apps/*/src/app/\[locale\]/design-system/*.tsx) exit 0 ;;
+
+  # @hesya/translations — locale constants + UI message JSON files (i18n data,
+  # not business logic). Verification = tsc + build + curl 200 OK per locale URL.
+  */packages/translations/src/*.ts) exit 0 ;;
+  */packages/translations/messages/*.json) exit 0 ;;
 esac
 
 # Business code path — delegate to the real tdd-guard CLI with original stdin.

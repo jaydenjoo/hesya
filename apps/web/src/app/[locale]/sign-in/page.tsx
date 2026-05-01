@@ -1,10 +1,13 @@
 "use client";
 
 import { createAuthClient } from "@hesya/auth/client";
+import { useTranslations } from "next-intl";
 
 const authClient = createAuthClient();
 
 export default function SignInPage() {
+  const t = useTranslations("Common");
+
   return (
     <main className="mx-auto max-w-md p-8">
       <h1 className="mb-6 text-2xl font-semibold">
@@ -23,7 +26,7 @@ export default function SignInPage() {
         }
         className="w-full rounded border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50"
       >
-        Google로 로그인
+        {t("signIn")}
       </button>
     </main>
   );

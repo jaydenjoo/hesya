@@ -6,9 +6,9 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **Phase 1A 10/10 main 머지 완료 (`445c7cd`). 다음 세션 S-9 next-intl 시작**
+- **Task**: **S-9 next-intl 6개 언어 라우팅 — 검증 PASS. 머지 대기**
 - **상태**: 진행중
-- **작업 브랜치**: `main` (Phase 1A 10/10 머지 `445c7cd`. 다음 세션 새 브랜치 `chore/s-9-next-intl-locales` 시작)
+- **작업 브랜치**: `chore/s-9-next-intl-locales` (main 머지 대기)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
@@ -133,6 +133,18 @@
     6. GitHub Actions UI → `Weekly DB Backup to R2` workflow → `Run workflow` (workflow_dispatch) → 성공 확인 + R2 콘솔에 `backup-YYYY-MM-DD.sql.gz` 도착 확인
     7. (1회) 로컬 `bash scripts/backup-restore-test.sh ./backup-YYYY-MM-DD.sql.gz` 실행 → 16 테이블 row count 확인
   - 다음 일요일 자동 실행 후 GitHub Actions UI에서 success 확인하면 PROGRESS 클로즈
+- 🟡 **S-9 next-intl 6개 언어 라우팅** — 브랜치 `chore/s-9-next-intl-locales` (main 머지 대기)
+  - **Jayden 승인 4건** (2026-05-01): D1 6언어(ko/en/ja/zh-CN/zh-TW/vi, PLAN 따름) / D2 default `en` (외국인 1차 사용자) / D3 `localePrefix: 'always'` (SEO C+ 핵심) / D4 A안 최소(Common.signIn 1키만)
+  - **packages/translations 활성화**: `package.json` main/types/exports 명시 (L-013), `src/index.ts` (LOCALES 상수 + Locale 타입 + DEFAULT_LOCALE + LOCALE_LABELS), `messages/{en,ko,ja,zh-CN,zh-TW,vi}.json` 6개 (각각 Common.signIn 1키), `tsconfig.json`
+  - **apps/web 통합**: `next-intl@4.11.0` 설치 + `@hesya/translations` workspace dep 추가 + `next.config.ts` 에 `createNextIntlPlugin("./src/i18n/request.ts")` wrap + `src/i18n/{routing,request,navigation}.ts` 생성 (defineRouting + getRequestConfig + createNavigation)
+  - **`proxy.ts` 표준 채택** (L-022): 처음 `middleware.ts`로 시작했으나 Next 16.2 build에서 deprecation 경고 발견 → `proxy.ts`로 즉시 rename. 빌드 결과 `ƒ Proxy (Middleware)` 라벨로 확인.
+  - **라우트 `[locale]/` 이동** (`git mv` 히스토리 보존): `app/page.tsx` + `app/sign-in/` + `app/design-system/` → `app/[locale]/` 하위. `app/api/` 는 i18n 무관하므로 그대로 유지.
+  - **`[locale]/layout.tsx` 가 root 역할** (L-023): root `app/layout.tsx` 삭제 (`git rm`), `[locale]/layout.tsx`가 `<html lang={locale}><body><NextIntlClientProvider>` 책임 + `setRequestLocale(locale)` + `generateStaticParams()` (LOCALES.map). hasLocale 가드 후 notFound() 패턴.
+  - **env wiring → `instrumentation.ts`로 격상** (L-003 → L-023): 기존 root `layout.tsx`의 `import "@/shared/config/env"`를 `apps/web/src/instrumentation.ts`의 `register()` dynamic import로 이전. server boot 1회 실행, page+api 모든 라우트 진입 전 평가.
+  - **sign-in 번역**: `useTranslations('Common')` → `t('signIn')`. 6개 locale 별 정확한 카피 ("Sign in with Google" / "Google로 로그인" / "Googleでログイン" / "使用 Google 登录" / "使用 Google 登入" / "Đăng nhập bằng Google").
+  - **TDD Guard 필터 확장**: `*/apps/*/src/i18n/*.ts`, `*/apps/*/proxy.ts|*/apps/*/middleware.ts`, `*/apps/*/src/app/[locale]/{layout.tsx,page.tsx,sign-in/page.tsx,design-system/*.tsx}`, `*/packages/translations/src/*.ts`, `*/packages/translations/messages/*.json`, `*/apps/*/src/instrumentation.ts` allowlist (모두 declarative wiring + i18n data, 검증 = build + curl 200 OK per locale).
+  - 검증 G1~G5 ✅: `pnpm --filter @hesya/translations type-check` clean / `pnpm --filter @hesya/web build` clean (21 static pages = 6 locales × 3 routes + 3 base, deprecation 0건) / `/` → 307 redirect → `/en` (default + always) / 6 locale 홈 200 / 6 sign-in 200 + locale별 정확한 button text / `/api/auth/sign-in/social` 200 OK 회귀 / Supabase 16/16 tables RLS active 유지
+  - **새 교훈 2건**: L-022 (Next 16 middleware → proxy 컨벤션), L-023 ([locale]/layout.tsx가 root 역할 + instrumentation.ts로 env wiring 격상)
 
 ### 변경 통계
 
@@ -151,8 +163,8 @@
 
 Jayden 승인 (2026-05-01): T2 안전 경로 채택. 의존성·가치 우선순위.
 
-1. **S-9 next-intl 5개 언어** (3h, 다음 세션) — Epic 1·3·9 모두 전제. ko/en/ja/zh-CN/vi 라우팅
-2. **S-11 GitHub Actions CI** (3h) — 매 PR tsc+lint+build+test 자동 검증
+1. ~~**S-9 next-intl 5개 언어** (3h)~~ — ✅ 완료 (6언어 ko/en/ja/zh-CN/zh-TW/vi, default `en`, prefix `always`)
+2. **S-11 GitHub Actions CI** (3h, 다음 세션) — 매 PR tsc+lint+build+test 자동 검증
 3. **S-21 Tiptap 에디터** (6h) — Epic 1 인박스 답변 작성에 사용
 4. **S-10 Sentry + PostHog** (2h) — 운영 관측, 배포 전
 5. **SS-1~3 Staging** (8h) — Vercel Preview + Supabase staging 분리
@@ -209,7 +221,8 @@ Jayden 승인 (2026-05-01): T2 안전 경로 채택. 의존성·가치 우선순
 - 2026-05-01 — Phase 1A Section 10 (female lens, app-4.jsx 1:1, \_section-10.tsx client 8 sub-sections + BeforeAfter 자동 sweep + drag) — commit `19a2b91`
 - 2026-05-01 — 새 핸드오프 zip 검증 (prettier 정규화 후 tokens/components/app-1~4/Hesya Design System.html 모두 IDENTICAL → 새 핸드오프 = 기존 + minify, 의미 변경 0)
 - 2026-05-01 — Phase 1A 10/10 main 머지 완료 (`445c7cd`, 3 commits) + GitHub push origin/main + L-021 추가 (use client는 client API 실제 사용 모듈에만)
+- 2026-05-01 — S-9 next-intl 6개 언어 라우팅 (Jayden 4 결정 승인: 6언어/en default/always prefix/A안 최소) + middleware → proxy.ts (L-022) + root layout 제거하고 [locale]/layout.tsx 가 root + instrumentation.ts로 env wiring 격상 (L-023) + G1~G5 검증 PASS — `chore/s-9-next-intl-locales` (main 머지 대기)
 
 ## 마지막 업데이트
 
-- 2026-05-01 (Phase 1A 10/10 main 머지 완료 `445c7cd`. 디자인 시스템 1:1 재현 종료. 다음 세션 새 브랜치 `chore/s-9-next-intl-locales` — S-9 next-intl 5개 언어 라우팅 약 3h)
+- 2026-05-01 (S-9 next-intl 6언어 검증 PASS, main 머지 대기. 다음 세션 S-11 GitHub Actions CI 약 3h)
