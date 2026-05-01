@@ -3,11 +3,13 @@ import "@/styles/handoff/components.css";
 
 import type { ReactNode } from "react";
 
+import { Icon } from "./_icons";
 import { Section5 } from "./_section-5";
 
 // Handoff v1.0 1:1 reproduction of docs/design/handoff/Hesya Design System.html
 // Sources: app-1.jsx (Hero + Sections 2–4), app-2.jsx (Section 5),
-// components.css for the visual layer. Sections 6–10 land in follow-up commits.
+// app-3.jsx (Sections 6–9), components.css for the visual layer.
+// Sections 8–10 land in follow-up commits.
 
 const brandColors = [
   {
@@ -766,6 +768,223 @@ function Section4() {
   );
 }
 
+// --- SECTION 6 — ICONOGRAPHY (handoff app-3.jsx) -----------------------
+const section6IconList = [
+  "search",
+  "message",
+  "calendar",
+  "card",
+  "qr",
+  "camera",
+  "languages",
+  "scissors",
+  "sparkles",
+  "shield",
+  "store",
+  "bell",
+  "user",
+  "chevR",
+  "arrowUR",
+  "image",
+  "alert",
+  "check",
+  "x",
+  "filter",
+  "more",
+  "globe",
+  "pin",
+  "star",
+] as const;
+
+const section6Labels: Record<(typeof section6IconList)[number], string> = {
+  search: "search",
+  message: "message-circle",
+  calendar: "calendar",
+  card: "credit-card",
+  qr: "qr-code",
+  camera: "camera",
+  languages: "languages",
+  scissors: "scissors",
+  sparkles: "sparkles",
+  shield: "shield-check",
+  store: "store",
+  bell: "bell",
+  user: "user",
+  chevR: "chevron-right",
+  arrowUR: "arrow-up-right",
+  image: "image",
+  alert: "alert-triangle",
+  check: "check-circle",
+  x: "x",
+  filter: "filter",
+  more: "more-horizontal",
+  globe: "globe",
+  pin: "map-pin",
+  star: "star",
+};
+
+function Section6() {
+  return (
+    <section className="ds-section" id="s6">
+      <div className="page">
+        <SectionHead
+          num="06"
+          eyebrow="Iconography"
+          title={
+            <>
+              Lucide, <em>set quietly</em>.
+            </>
+          }
+          desc="Stroke 1.5 default · 2 for emphasis. Color inherits. No filled icons. No emoji in product UI."
+        />
+        <div className="icon-grid">
+          {section6IconList.map((k) => {
+            const Ic = Icon[k];
+            return (
+              <div className="icon-cell" key={k}>
+                <Ic size={24} sw={1.5} />
+                <span className="name">{section6Labels[k]}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// --- SECTION 7 — IMAGERY (handoff app-3.jsx) ---------------------------
+function Section7() {
+  return (
+    <section className="ds-section" id="s7">
+      <div className="page">
+        <SectionHead
+          num="07"
+          eyebrow="Imagery & Illustration"
+          title={
+            <>
+              Editorial warmth, <em>not stock smiles</em>.
+            </>
+          }
+          desc="Salon photography is warm-toned editorial. Empty states are hand-drawn ink. Avoid the uncanny."
+        />
+
+        <div className="sub-label">Salon photography · warm-cream filter</div>
+        <div className="img-row">
+          <div
+            className="salon-photo"
+            style={{
+              background:
+                "linear-gradient(135deg, #F5DDC8 0%, #D88B5B 60%, #1A2238 130%)",
+            }}
+          />
+          <div
+            className="salon-photo"
+            style={{
+              background:
+                "radial-gradient(circle at 30% 30%, #F8E9D9, #E8A97A 60%, #3D4551)",
+            }}
+          />
+          <div
+            className="salon-photo"
+            style={{
+              background:
+                "linear-gradient(160deg, #FDF8F1 0%, #F5DDC8 40%, #D88B5B 100%)",
+            }}
+          />
+        </div>
+
+        <div className="sub-label" style={{ marginTop: 64 }}>
+          Empty states · ink + amber
+        </div>
+        <div className="empty-row">
+          <div className="empty-card">
+            <svg width="120" height="80" viewBox="0 0 120 80" fill="none">
+              <rect
+                x="20"
+                y="22"
+                width="80"
+                height="48"
+                rx="4"
+                stroke="#1A2238"
+                strokeWidth="1.5"
+              />
+              <path d="M20 36h80" stroke="#1A2238" strokeWidth="1.5" />
+              <path d="M34 22v-6M86 22v-6" stroke="#E8A97A" strokeWidth="2" />
+              <circle
+                cx="60"
+                cy="54"
+                r="10"
+                fill="none"
+                stroke="#E8A97A"
+                strokeWidth="1.5"
+                strokeDasharray="2 3"
+              />
+            </svg>
+            <h5>No bookings yet</h5>
+            <p className="kr">아직 예약이 없어요. 첫 손님을 기다리는 중.</p>
+          </div>
+          <div className="empty-card">
+            <svg width="120" height="80" viewBox="0 0 120 80" fill="none">
+              <rect
+                x="30"
+                y="14"
+                width="60"
+                height="52"
+                rx="4"
+                stroke="#1A2238"
+                strokeWidth="1.5"
+              />
+              <circle cx="60" cy="36" r="6" stroke="#E8A97A" strokeWidth="2" />
+              <path
+                d="m54 30 12 12M66 30 54 42"
+                stroke="#E8A97A"
+                strokeWidth="2"
+              />
+              <path
+                d="M40 56h40"
+                stroke="#1A2238"
+                strokeWidth="1.5"
+                strokeDasharray="2 3"
+              />
+              <path d="m100 20 4 4 4-4" stroke="#E8A97A" strokeWidth="2" />
+              <path d="M104 24v-8" stroke="#E8A97A" strokeWidth="2" />
+            </svg>
+            <h5>AI is analyzing your photo</h5>
+            <p className="kr">사진을 분석하고 있어요…</p>
+          </div>
+          <div className="empty-card">
+            <svg width="120" height="80" viewBox="0 0 120 80" fill="none">
+              <path
+                d="M30 30c0-6 5-12 14-12h12c9 0 14 6 14 12v14c0 6-5 12-14 12h-4l-8 6v-6h-2c-9 0-14-6-14-12z"
+                stroke="#1A2238"
+                strokeWidth="1.5"
+              />
+              <circle cx="46" cy="36" r="1.5" fill="#E8A97A" />
+              <circle cx="56" cy="36" r="1.5" fill="#E8A97A" />
+              <circle cx="66" cy="36" r="1.5" fill="#E8A97A" />
+              <path
+                d="M86 26c4 4 4 14 0 18"
+                stroke="#E8A97A"
+                strokeWidth="1.5"
+                strokeDasharray="2 3"
+              />
+            </svg>
+            <h5>Inbox is quiet</h5>
+            <p className="kr">받은 메시지가 없어요. 평화로운 오후입니다.</p>
+          </div>
+        </div>
+
+        <div className="donts">
+          <b>Avoid:</b> clip-art beauty mannequins · generic stock-smile
+          portraits · AI-generated uncanny faces · glitter stickers · cute
+          mascots · &quot;✨AI Powered✨&quot; badges anywhere.
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function JumpBar() {
   const items = [
     { num: "01", label: "Brand", href: "#s1" },
@@ -802,6 +1021,8 @@ export default function DesignSystemPage() {
       <Section3 />
       <Section4 />
       <Section5 />
+      <Section6 />
+      <Section7 />
       <footer className="ds-footer">
         <div className="page">
           <div className="caption">

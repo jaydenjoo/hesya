@@ -51,4 +51,4 @@ next-env.d.ts
 .playwright-mcp/
 /design-system-full.png
 /handoff-original-full.png
-/s5-*.png
+/s[0-9]*.png
