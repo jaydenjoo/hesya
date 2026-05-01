@@ -9,7 +9,7 @@ import { Section5 } from "./_section-5";
 // Handoff v1.0 1:1 reproduction of docs/design/handoff/Hesya Design System.html
 // Sources: app-1.jsx (Hero + Sections 2–4), app-2.jsx (Section 5),
 // app-3.jsx (Sections 6–9), components.css for the visual layer.
-// Sections 8–10 land in follow-up commits.
+// Section 10 lands in a follow-up commit.
 
 const brandColors = [
   {
@@ -985,6 +985,239 @@ function Section7() {
   );
 }
 
+// --- SECTION 8 — GRID (handoff app-3.jsx) ------------------------------
+const breakpoints: ReadonlyArray<readonly [string, string, string]> = [
+  ["--bp-sm", "640", "large phone"],
+  ["--bp-md", "768", "tablet · in-salon translator"],
+  ["--bp-lg", "1024", "small laptop"],
+  ["--bp-xl", "1280", "store dashboard"],
+  ["--bp-2xl", "1536", "admin dashboards"],
+];
+
+function Section8() {
+  return (
+    <section className="ds-section" id="s8">
+      <div className="page">
+        <SectionHead
+          num="08"
+          eyebrow="Layout & Breakpoints"
+          title={
+            <>
+              A grid that <em>holds the room</em>.
+            </>
+          }
+          desc="12-col on desktop, 4-col on mobile. Bento layout reserved for dashboards only."
+        />
+
+        <div className="sub-label">Breakpoints</div>
+        <div className="bp-grid">
+          {breakpoints.map(([n, p, l]) => (
+            <div className="bp-cell" key={n}>
+              <div className="nm">{n}</div>
+              <div className="px mono">
+                {p}
+                <span style={{ fontSize: 13, color: "var(--gray-500)" }}>
+                  px
+                </span>
+              </div>
+              <div className="lbl">{l}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="sub-label" style={{ marginTop: 32 }}>
+          Desktop · 12 col · 24 gutter · 80 outer margin
+        </div>
+        <div className="grid-demo">
+          <div className="grid-12">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div className="col" key={i} />
+            ))}
+          </div>
+        </div>
+
+        <div className="sub-label" style={{ marginTop: 32 }}>
+          Mobile · 4 col · 16 gutter · 16 outer margin
+        </div>
+        <div className="grid-demo" style={{ maxWidth: 380 }}>
+          <div className="grid-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div className="col" key={i} />
+            ))}
+          </div>
+        </div>
+
+        <div className="sub-label" style={{ marginTop: 32 }}>
+          Bento — dashboards only
+        </div>
+        <div className="grid-demo">
+          <div className="bento">
+            <div className="tile span-8">
+              <h5>Today&apos;s bookings</h5>
+              <div className="v mono">17</div>
+              <div
+                style={{
+                  height: 80,
+                  marginTop: 16,
+                  background:
+                    "linear-gradient(180deg, rgba(232,169,122,0.20), transparent)",
+                  borderRadius: 8,
+                  position: "relative",
+                }}
+              >
+                <svg
+                  width="100%"
+                  height="80"
+                  viewBox="0 0 400 80"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d="M0 60 L50 50 L100 55 L150 30 L200 35 L250 20 L300 28 L350 12 L400 18"
+                    stroke="#E8A97A"
+                    strokeWidth="2"
+                    fill="none"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div className="tile span-4">
+              <h5>Settlement</h5>
+              <div className="v mono">₩ 4.82M</div>
+              <div
+                className="caption"
+                style={{ color: "var(--semantic-success)", marginTop: 8 }}
+              >
+                ▲ 12.4%
+              </div>
+            </div>
+            <div className="tile span-6">
+              <h5>Top services</h5>
+              <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 13,
+                  }}
+                >
+                  <span>Korean Layered Cut</span>
+                  <span className="mono">42</span>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 13,
+                  }}
+                >
+                  <span>Glass Skin Makeup</span>
+                  <span className="mono">28</span>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 13,
+                  }}
+                >
+                  <span>Personal Color</span>
+                  <span className="mono">19</span>
+                </div>
+              </div>
+            </div>
+            <div className="tile span-6">
+              <h5>Inbox · pending</h5>
+              <div
+                style={{ marginTop: 12, display: "grid", gap: 8, fontSize: 13 }}
+              >
+                <div className="kr">🇯🇵 Sakura · 5월 4일 14시 가능할까요?</div>
+                <div className="kr">🇨🇳 Mei · 想預約週六下午…</div>
+                <div className="kr">🇻🇳 Linh · Còn slot ngày mai không?</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// --- SECTION 9 — A11Y (handoff app-3.jsx) ------------------------------
+function Section9() {
+  return (
+    <section className="ds-section" id="s9">
+      <div className="page">
+        <SectionHead
+          num="09"
+          eyebrow="Accessibility"
+          title={
+            <>
+              The system <em>makes way</em> for everyone.
+            </>
+          }
+          desc="WCAG 2.2 AA · Apple HIG · prefers-reduced-motion · prefers-color-scheme dark · focus-visible everywhere."
+        />
+        <div className="a11y-panel">
+          <h3>Accessibility checklist for every Hesya screen.</h3>
+          <ul>
+            <li>
+              <span className="check">✓</span>
+              <span>
+                All text/background pairs meet <b>≥ 4.5:1 contrast</b> (WCAG 2.2
+                AA). Body on cream is verified at 8.2:1.
+              </span>
+            </li>
+            <li>
+              <span className="check">✓</span>
+              <span>
+                Touch targets <b>≥ 44×44px</b> (Apple HIG) and{" "}
+                <b>≥ 24×24px CSS box</b> (WCAG 2.2 success criterion 2.5.8).
+              </span>
+            </li>
+            <li>
+              <span className="check">✓</span>
+              <span>
+                All interactive elements have a visible{" "}
+                <span className="focus-demo">:focus-visible</span> ring —
+                amber-500, 2px outline, 2px offset.
+              </span>
+            </li>
+            <li>
+              <span className="check">✓</span>
+              <span>
+                All form fields have associated <code>&lt;label&gt;</code>{" "}
+                elements — never placeholder-only.
+              </span>
+            </li>
+            <li>
+              <span className="check">✓</span>
+              <span>
+                <code>prefers-reduced-motion: reduce</code> is respected
+                globally; all durations collapse to 0.
+              </span>
+            </li>
+            <li>
+              <span className="check">✓</span>
+              <span>
+                <code>prefers-color-scheme: dark</code> activates the full dark
+                companion theme from Section 02.
+              </span>
+            </li>
+            <li>
+              <span className="check">✓</span>
+              <span>
+                Korean text never receives{" "}
+                <code>text-transform: uppercase</code> or{" "}
+                <code>letter-spacing &gt; 0.02em</code>.
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function JumpBar() {
   const items = [
     { num: "01", label: "Brand", href: "#s1" },
@@ -1023,6 +1256,8 @@ export default function DesignSystemPage() {
       <Section5 />
       <Section6 />
       <Section7 />
+      <Section8 />
+      <Section9 />
       <footer className="ds-footer">
         <div className="page">
           <div className="caption">
