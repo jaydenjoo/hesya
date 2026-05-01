@@ -494,3 +494,42 @@ GitHub Actions는 (1) Ubuntu runner에 PGDG로 정확 PG 17 client 설치 가능
 - 인간 리뷰: 새 cron 인프라 PR에서 (1) Edge Function 사용 시도 안 했는지 (2) Session mode pooler URL 사용했는지 (3) Secrets 노출 위험 없는지 (run log에서 DATABASE_URL이 echo되지 않는지) 점검.
 
 **연관**: .github/workflows/weekly-backup.yml, scripts/backup-verify.sh, scripts/backup-restore-test.sh, docs/DECISIONS.md § 1.13, S-20, L-007 (IPv4/IPv6 + Shared Pooler)
+
+### [2026-05-01] L-015 — Claude Design 핸드오프는 `*.zip` 그대로 정식 source, JSX는 시각 참조 전용 (디자인 핸드오프 v1.0)
+
+**증상 / 상황**: Jayden이 [claude.ai/design](https://claude.ai/design)에서 24개 페이지 디자인을 제작한 후 두 ZIP을 동시에 첨부 — `hesya.zip` (1.3MB, 80 files)과 `hesya-handoff.zip` (1.3MB, 81 files). 처음에 어느 쪽이 정식 source인지 헷갈렸다. 둘 다 풀어서 hash 비교한 결과 **80/80 파일 byte-identical**, `hesya-handoff.zip`은 메타 README 1개만 추가된 wrapper. Jayden이 명시: "정식 source = `hesya.zip`".
+
+**원인 / 결정 근거**: Claude Design의 export는 두 형태 — (1) raw 디자인 자산 ZIP (project files만) (2) handoff bundle (raw + Anthropic 표준 README). 둘 다 같은 자산이지만 handoff bundle은 다른 코딩 에이전트에 넘길 때를 가정한 메타 패키지. 한 사용자(Jayden) 워크플로우에서는 raw ZIP이 single source of truth.
+
+**handoff README 핵심 원칙** (`docs/design/handoff/HANDOFF-README.md`):
+
+1. "The design medium is HTML/CSS/JS — these are prototypes, **not production code**"
+2. "Match the visual output; **don't copy the prototype's internal structure** unless it happens to fit"
+3. "Don't render these files in a browser or take screenshots unless the user asks you to"
+4. **시각 (HTML 렌더링 결과)만 매칭**, 코드 구조는 target codebase 컨벤션을 따름
+
+→ Hesya는 Next.js 16.2 + Tailwind v4 + shadcn/ui 환경. 핸드오프 JSX 40개를 그대로 import 금지. tokens.css의 토큰 값만 `apps/web/src/app/globals.css`에 1:1 매핑하고, HTML/CSS는 시각 ground truth로 두고, 컴포넌트는 우리 스택으로 재작성.
+
+**해결 (이번 세션 패턴)**:
+
+1. 두 ZIP unzip → md5 hash 비교 → 80/80 일치 확인 (handoff = raw + README만)
+2. `docs/design/handoff/`에 raw 자산 80 files 그대로 저장 + HANDOFF-README.md (Anthropic 원문) 보존
+3. `docs/design/handoff/INDEX.md` 신규 작성 — 24 HTML ↔ DESIGN-PLAN 23 페이지 ↔ 디자인 시스템 1 가이드 매핑 + 토큰 → 코드 위치 가이드
+4. `tokens.css`에서 보류 결정(브랜드 색·폰트)을 발견 → DESIGN-PLAN § 4 갱신 (확정값 반영) + PRD § 6.5 신규 섹션 (K-Verified 골드 시스템)
+5. JSX 파일은 보존하되 INDEX.md에 "시각 참조 전용, import 금지" 명시
+
+**규칙** ⭐:
+
+1. **Claude Design 핸드오프 수령 시 두 ZIP을 모두 받았으면 hash 비교**. 동일하면 raw ZIP을 정식 source로 두고, handoff README만 보존. 다르면 둘 다 보존하고 차이 분석.
+2. **`docs/design/handoff/` 디렉터리는 immutable 시각 ground truth**. 디자인 갱신 시 새 버전(`docs/design/handoff/v2/`) 디렉터리 추가, 기존 v1은 보존. PRD/DESIGN-PLAN은 어떤 버전을 따르는지 명시.
+3. **JSX 파일은 시각 참조 전용**. Next.js 컨벤션과 충돌하므로 직접 import 금지. INDEX.md 같은 매핑 가이드를 만들어 구현자가 "이 페이지는 어느 라우트에 어떤 컴포넌트로 갈지" 즉시 파악 가능하게.
+4. **tokens.css는 단일 진실 소스**. 코드의 globals.css에 `@theme` 또는 `@layer base`로 1:1 매핑. tokens.css 값을 임의로 수정 금지 — 디자인이 갱신되면 핸드오프 새 버전을 받아 교체.
+5. **브랜드 결정이 보류였던 항목은 핸드오프 수령 시점에 확정으로 전환**. PRD/DESIGN-PLAN의 "결정 필요 ⏳" 마커가 남아있으면 그 자리에서 확정값으로 갱신. 기록되지 않으면 다음 세션이 또 보류로 가정.
+6. **신규 시각 컨셉이 핸드오프에 등장하면 PRD에 1단락 추가**. 이번 케이스 K-Verified 골드 트러스트 시스템은 외국인 사용자에게 가장 큰 진입 장벽(매장 합법성 불안)을 시각으로 1초 안에 해소하는 핵심 UX였다. 토큰만 받고 PRD에 안 적으면 구현 시점에 의도가 사라진다.
+
+**확인 방법**:
+
+- 자동: `find docs/design/handoff -type f | wc -l` = 핸드오프 수령 시점 file count + 2 (INDEX.md + HANDOFF-README.md). 새 파일 추가 시 INDEX.md 갱신 누락 검출.
+- 인간 리뷰: 새 페이지 구현 PR에서 (1) `docs/design/handoff/Hesya <Page>.html`이 존재하는지 (2) tokens.css 토큰을 그대로 사용했는지 (custom 컬러/폰트 도입 시 차단) (3) JSX 직접 import 시도가 없는지 점검.
+
+**연관**: docs/design/handoff/, docs/PRD.md § 6.5, docs/DESIGN-PLAN.md § 4, ~/.claude/skills/design-system.md v4.1 (글로벌 헌장 baseline)
