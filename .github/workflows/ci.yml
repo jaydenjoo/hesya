@@ -6,43 +6,58 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      # CI build dummy values — schema validation only (no real connection).
+      # See PROGRESS.md S-11 / learnings L-024. Vercel preview/prod uses real secrets.
+      NEXT_PUBLIC_APP_URL: http://localhost:4200
+      NEXT_PUBLIC_SUPABASE_URL: https://x.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy_anon_key_for_ci_build_xxxxxxx
+      SUPABASE_SERVICE_ROLE_KEY: dummy_service_role_for_ci_build_xxxx
+      DATABASE_URL: postgres://x:x@x.pooler.supabase.com:6543/postgres
+      BETTER_AUTH_SECRET: ci_dummy_secret_minimum_32_chars_long_xxx
+      BETTER_AUTH_URL: http://localhost:4200
+      GOOGLE_CLIENT_ID: ci-dummy-google-client-id
+      GOOGLE_CLIENT_SECRET: ci-dummy-google-client-secret
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: pnpm
 
       - name: Install
         run: pnpm install --frozen-lockfile
 
       - name: Type Check
-        run: pnpm tsc --noEmit
+        run: pnpm -r type-check
 
       - name: Lint
-        run: pnpm lint --max-warnings 0
+        run: pnpm lint
 
       - name: Build
         run: pnpm build
-        env:
-          NEXT_PUBLIC_APP_URL: http://localhost:3000
 
-      - name: Gitleaks (시크릿 검사)
+      - name: Gitleaks (secret scan)
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 선택: 테스트
+      # Test job — placeholder, activate after vitest is introduced.
+      # See PROGRESS.md "S-11 후속". Currently no test framework installed.
       # - name: Test
-      #   run: pnpm test
+      #   run: pnpm -r test
