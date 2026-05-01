@@ -46,3 +46,9 @@ next-env.d.ts
 
 # claude code tooling caches
 .claude/tdd-guard/
+
+# playwright MCP one-off verification artifacts (visual regression scratch space)
+.playwright-mcp/
+/design-system-full.png
+/handoff-original-full.png
+/s5-*.png

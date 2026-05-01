@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -8,8 +9,24 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-mono);
   --font-heading: var(--font-heading);
+  --font-kr: var(--font-kr);
+
+  /* Hesya brand tokens — exposed to Tailwind utilities */
+  --color-hesya-peach-50: var(--hesya-peach-50);
+  --color-hesya-peach-100: var(--hesya-peach-100);
+  --color-hesya-peach-200: var(--hesya-peach-200);
+  --color-hesya-amber-500: var(--hesya-amber-500);
+  --color-hesya-amber-600: var(--hesya-amber-600);
+  --color-hesya-navy-900: var(--hesya-navy-900);
+
+  /* Trust layer — PRD § 6.5 K-Verified visual trust system */
+  --color-kverified-gold: var(--kverified-gold);
+  --color-trust-rose: var(--trust-rose);
+  --color-share-glow: var(--share-glow);
+
+  /* shadcn semantic tokens (mapped to Hesya values below) */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,82 +56,94 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Radius — handoff v1.0 sm/md/lg/xl/2xl */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+  --radius-4xl: 40px;
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.147 0.004 49.3);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.147 0.004 49.3);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.147 0.004 49.3);
-  --primary: oklch(0.214 0.009 43.1);
-  --primary-foreground: oklch(0.986 0.002 67.8);
-  --secondary: oklch(0.96 0.002 17.2);
-  --secondary-foreground: oklch(0.214 0.009 43.1);
-  --muted: oklch(0.96 0.002 17.2);
-  --muted-foreground: oklch(0.547 0.021 43.1);
-  --accent: oklch(0.96 0.002 17.2);
-  --accent-foreground: oklch(0.214 0.009 43.1);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0.005 34.3);
-  --input: oklch(0.922 0.005 34.3);
-  --ring: oklch(0.714 0.014 41.2);
-  --chart-1: oklch(0.868 0.007 39.5);
-  --chart-2: oklch(0.547 0.021 43.1);
-  --chart-3: oklch(0.438 0.017 39.3);
-  --chart-4: oklch(0.367 0.016 35.7);
-  --chart-5: oklch(0.268 0.011 36.5);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.986 0.002 67.8);
-  --sidebar-foreground: oklch(0.147 0.004 49.3);
-  --sidebar-primary: oklch(0.214 0.009 43.1);
-  --sidebar-primary-foreground: oklch(0.986 0.002 67.8);
-  --sidebar-accent: oklch(0.96 0.002 17.2);
-  --sidebar-accent-foreground: oklch(0.214 0.009 43.1);
-  --sidebar-border: oklch(0.922 0.005 34.3);
-  --sidebar-ring: oklch(0.714 0.014 41.2);
-}
+  /* === Hesya brand tokens (handoff v1.0 tokens.css) ============ */
+  --hesya-peach-50: #fdf8f1;
+  --hesya-peach-100: #f8e9d9;
+  --hesya-peach-200: #f5ddc8;
+  --hesya-amber-500: #e8a97a;
+  --hesya-amber-600: #d88b5b;
+  --hesya-navy-900: #1a2238;
 
-.dark {
-  --background: oklch(0.147 0.004 49.3);
-  --foreground: oklch(0.986 0.002 67.8);
-  --card: oklch(0.214 0.009 43.1);
-  --card-foreground: oklch(0.986 0.002 67.8);
-  --popover: oklch(0.214 0.009 43.1);
-  --popover-foreground: oklch(0.986 0.002 67.8);
-  --primary: oklch(0.922 0.005 34.3);
-  --primary-foreground: oklch(0.214 0.009 43.1);
-  --secondary: oklch(0.268 0.011 36.5);
-  --secondary-foreground: oklch(0.986 0.002 67.8);
-  --muted: oklch(0.268 0.011 36.5);
-  --muted-foreground: oklch(0.714 0.014 41.2);
-  --accent: oklch(0.268 0.011 36.5);
-  --accent-foreground: oklch(0.986 0.002 67.8);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.547 0.021 43.1);
-  --chart-1: oklch(0.868 0.007 39.5);
-  --chart-2: oklch(0.547 0.021 43.1);
-  --chart-3: oklch(0.438 0.017 39.3);
-  --chart-4: oklch(0.367 0.016 35.7);
-  --chart-5: oklch(0.268 0.011 36.5);
-  --sidebar: oklch(0.214 0.009 43.1);
-  --sidebar-foreground: oklch(0.986 0.002 67.8);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.986 0.002 67.8);
-  --sidebar-accent: oklch(0.268 0.011 36.5);
-  --sidebar-accent-foreground: oklch(0.986 0.002 67.8);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.547 0.021 43.1);
+  /* Trust layer — PRD § 6.5 */
+  --kverified-gold: #d4af37;
+  --trust-rose: #e8c4d6;
+  --share-glow: #f8d7c8;
+
+  /* === Type stacks ============================================ */
+  --font-heading:
+    "Fraunces Variable", "Pretendard Variable", ui-serif, Georgia, serif;
+  --font-sans:
+    "Source Sans 3 Variable", "Pretendard Variable", ui-sans-serif, system-ui,
+    sans-serif;
+  --font-kr:
+    "Pretendard Variable", "Source Sans 3 Variable", ui-sans-serif, sans-serif;
+  --font-mono:
+    "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* === shadcn semantic mapping → Hesya palette ================ */
+  /* Surfaces */
+  --background: oklch(0.978 0.018 79); /* peach-50 */
+  --foreground: oklch(0.21 0.043 268); /* navy-900 */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.043 268);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.043 268);
+
+  /* Primary = amber-500 / hover = amber-600 */
+  --primary: oklch(0.766 0.114 60); /* amber-500 */
+  --primary-foreground: oklch(0.978 0.018 79); /* peach-50 on amber */
+
+  /* Secondary = peach-100 (subtle warm surface) */
+  --secondary: oklch(0.95 0.043 73); /* peach-100 */
+  --secondary-foreground: oklch(0.21 0.043 268);
+
+  /* Muted = peach-200 (warmer than gray-100) */
+  --muted: oklch(0.928 0.05 71); /* peach-200 */
+  --muted-foreground: oklch(0.452 0.027 264); /* gray-500 */
+
+  /* Accent = amber-500 subtle (same as primary, used for hover/highlight bg) */
+  --accent: oklch(0.95 0.043 73);
+  --accent-foreground: oklch(0.21 0.043 268);
+
+  /* Destructive = semantic-danger #DC3545 */
+  --destructive: oklch(0.598 0.222 27);
+
+  /* Borders + inputs = warm neutral, not gray */
+  --border: oklch(0.872 0.025 70); /* between peach-200 and gray-100 */
+  --input: oklch(0.928 0.022 70);
+  --ring: oklch(0.766 0.114 60); /* amber-500, focus ring */
+
+  /* Charts — analytics dashboard uses the peach/amber/navy progression */
+  --chart-1: oklch(0.766 0.114 60); /* amber-500 */
+  --chart-2: oklch(0.69 0.13 38); /* amber-600 darker */
+  --chart-3: oklch(0.55 0.11 30); /* terracotta */
+  --chart-4: oklch(0.4 0.06 250); /* navy lighter */
+  --chart-5: oklch(0.21 0.043 268); /* navy-900 */
+
+  /* Sidebar (Store Dashboard / Admin) */
+  --sidebar: oklch(0.978 0.018 79);
+  --sidebar-foreground: oklch(0.21 0.043 268);
+  --sidebar-primary: oklch(0.766 0.114 60);
+  --sidebar-primary-foreground: oklch(0.978 0.018 79);
+  --sidebar-accent: oklch(0.95 0.043 73);
+  --sidebar-accent-foreground: oklch(0.21 0.043 268);
+  --sidebar-border: oklch(0.872 0.025 70);
+  --sidebar-ring: oklch(0.766 0.114 60);
+
+  /* Radius base — Tailwind --radius-* uses literal px above */
+  --radius: 16px;
 }
 
 @layer base {
@@ -123,8 +152,38 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    line-height: 1.625;
+    letter-spacing: 0.01em;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   html {
     @apply font-sans;
+  }
+  /* Korean text helpers — see global design-system.md A2 */
+  .kr,
+  :lang(ko) {
+    font-family: var(--font-kr);
+    word-break: keep-all;
+    line-height: 1.8;
+    letter-spacing: 0;
+  }
+  /* Display headings use Fraunces */
+  h1,
+  h2,
+  h3,
+  .display {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
   }
 }
