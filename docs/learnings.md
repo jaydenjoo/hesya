@@ -349,3 +349,102 @@
 **연관**: packages/database/migrations/0003_rls_v0001.sql, S-5, L-007 (Shared Pooler postgres role)
 
 ---
+
+### [2026-05-01] L-012 — drizzle-zod 0.8.x ↔ drizzle-orm 0.45.2 internal 타입 충돌 → 수동 Zod + Drizzle inferred 타입 분리 패턴 (S-6)
+
+**증상 / 상황**: S-6에서 shared-types 패키지에 `drizzle-zod` 외부 패키지를 깔고 `createInsertSchema(stores)`를 호출하자 `tsc`가 즉시 거부. 에러: `Argument of type 'PgTableWithColumns<...>' is not assignable to parameter of type 'Table<TableConfig<Column<any, object, object>>>'` + `Property 'config' is protected but type 'Column<T, ...>' is not a class derived from 'Column<T, ...>'.` 후자는 동일 `Column` 클래스가 두 곳에서 import되어 인스턴스가 달라졌을 때 나오는 시그니처지만, `pnpm why drizzle-orm -r`로 확인 시 모든 워크스페이스가 단일 `drizzle-orm@0.45.2`를 link 중이었다 (중복 X).
+
+**원인**: drizzle-zod 0.8.3의 peer 선언은 `drizzle-orm: >=0.36.0` (즉 0.45.2 OK라고 주장)지만, **실제 컴파일 타임 타입 시그니처는 drizzle-orm `1.0.0-beta`/`rc` 라인의 redesigned column system을 가정**한다. 공식 docs (`/drizzle-team/drizzle-orm-docs`)도 `import { createInsertSchema } from 'drizzle-orm/zod'`를 안내 — 즉 `/zod`는 외부 패키지가 아니라 **drizzle-orm 1.0+ 내장 subpath**. 하지만 `npm view drizzle-orm@latest` = **0.45.2** (1.0은 RC stage). 외부 drizzle-zod 0.8.x는 사실상 1.0 RC 전용 패키지.
+
+**해결**: 옵션 3 채택 — 외부 drizzle-zod 제거, 수동 Zod 4 + Drizzle 자체 inferred 타입 분리.
+
+```ts
+// shared-types/src/stores.ts — 패턴
+import { stores } from "@hesya/database/schema";
+import { z } from "zod";
+
+export const STORE_CATEGORIES = ["hair_general", ...] as const;
+
+export const storeInsertSchema = z.object({
+  id: z.string().uuid().optional(),       // defaultRandom() → optional
+  name: z.string(),                        // notNull
+  category: z.enum(STORE_CATEGORIES).nullish(),  // nullable+CHECK
+  createdAt: z.date().nullish(),           // nullable+default
+});
+
+export const storeSelectSchema = z.object({
+  id: z.string().uuid(),                   // PK = required
+  category: z.enum(STORE_CATEGORIES).nullable(),
+  // ...
+});
+
+// Drizzle core가 직접 추론 — drizzle-orm 단일 의존, 호환 안전
+export type Store = typeof stores.$inferSelect;
+export type NewStore = typeof stores.$inferInsert;
+```
+
+매핑 컨벤션:
+
+| Drizzle 컬럼                                  | Zod (Insert)                       | Zod (Select)                                       |
+| --------------------------------------------- | ---------------------------------- | -------------------------------------------------- |
+| `uuid().primaryKey().defaultRandom()`         | `z.string().uuid().optional()`     | `z.string().uuid()`                                |
+| `text().notNull()`                            | `z.string()`                       | `z.string()`                                       |
+| `text()` (nullable)                           | `z.string().nullish()`             | `z.string().nullable()`                            |
+| `text().array().default([...])`               | `z.string().array().nullish()`     | `z.string().array().nullable()`                    |
+| `integer().notNull()`                         | `z.number().int()`                 | `z.number().int()`                                 |
+| `integer().default(0)`                        | `z.number().int().nullish()`       | `z.number().int().nullable()`                      |
+| `numeric()`                                   | `z.string().nullish()`             | `z.string().nullable()` (drizzle 기본 string 매핑) |
+| `boolean().default(false)`                    | `z.boolean().nullish()`            | `z.boolean().nullable()`                           |
+| `timestamp({withTimezone:true}).defaultNow()` | `z.date().nullish()`               | `z.date().nullable()`                              |
+| `date()` (PG date, YYYY-MM-DD)                | `z.string().nullish()`             | `z.string().nullable()`                            |
+| `jsonb()`                                     | `z.unknown().nullish()`            | `z.unknown().nullable()`                           |
+| CHECK enum 컬럼                               | `z.enum([...] as const).nullish()` | `z.enum(...).nullable()`                           |
+
+**규칙** ⭐:
+
+1. **drizzle-orm 0.45.x 라인에서는 외부 drizzle-zod 패키지 사용 금지**. peer 선언이 호환을 약속해도 실제 타입 시그니처는 1.0 RC 가정. 수동 Zod + Drizzle 자체 inferred 타입(`$inferSelect`/`$inferInsert`) 분리가 안전 경로.
+2. **drizzle-orm 1.0 GA가 stable로 release되면** 외부 drizzle-zod 제거하고 `import { createInsertSchema } from 'drizzle-orm/zod'` 내장 subpath로 swap. 그 시점까지 수동 작성 부담은 받아들인다.
+3. **Drizzle inferred 타입 (`typeof table.$inferSelect/$inferInsert`)은 어떤 drizzle-orm 버전에서도 안전**. 컬럼 추가/삭제 시 자동 갱신. Zod 스키마는 수동 동기화 필요 → 컬럼 추가 PR에 두 곳(Drizzle schema + shared-types Zod) 갱신을 체크리스트로 명시.
+4. **enum CHECK 제약은 반드시 `as const` 배열 + `z.enum()`로 미러링**. `z.string()`만 두면 DB CHECK 위반을 런타임 INSERT까지 가서야 발견.
+
+**확인 방법**:
+
+- 자동: `pnpm --filter @hesya/shared-types type-check` clean. 새 컬럼 추가 시 Drizzle 타입은 자동 갱신되지만 Zod 스키마는 수동이라 빠뜨리면 `z.object({}).parse(data)`에서 unknown 컬럼이 strip 되지 않고 통과 → 의도와 다름. 강제 검출하려면 `z.object().strict()` 검토 가능.
+- 인간 리뷰: PR에 새 Drizzle 컬럼이 들어왔는데 `packages/shared-types/src/<도메인>.ts`에 매핑 추가가 없으면 차단.
+
+**연관**: packages/shared-types/src/\*.ts 12개 파일, S-6, drizzle-orm 1.0 GA 시점에 swap 검토 필요
+
+---
+
+### [2026-05-01] L-013 — 모노레포 workspace 패키지는 `main`/`types`/`exports` 누락 시 Turbopack이 모듈 해석 실패 (S-6)
+
+**증상 / 상황**: S-6에서 `packages/shared-types`를 작성한 후 `pnpm --filter @hesya/web add @hesya/shared-types@workspace:*`로 deps 등록 → `pnpm --filter @hesya/web build` 실행 시 `Module not found: Can't resolve '@hesya/shared-types'` 에러. 그런데 deps 등록 자체는 성공이고 `node_modules/@hesya/shared-types`도 link 되어 있다.
+
+**원인**: workspace 패키지 `package.json`에 진입점 필드(`main`/`types`/`exports`)가 없으면 Node.js/Turbopack 모두 import 경로를 어디로 보내야 할지 모른다. pnpm은 link만 만들고 그 너머 진입점 해석은 번들러 책임. `@hesya/database`는 `"main": "./src/client.ts"`, `"exports": { ".": "./src/client.ts", "./schema": "./src/schema/index.ts" }`가 있어서 동작했지만 `shared-types`는 누락 상태로 시작했다.
+
+**해결**: `package.json`에 추가:
+
+```json
+{
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
+```
+
+추가 후 `pnpm install` 재실행 → Turbopack build clean.
+
+**규칙** ⭐:
+
+1. **모노레포 workspace 패키지 신설 시 `package.json`에 진입점 3종(`main`, `types`, `exports`)을 같은 커밋에 포함한다**. 패키지 추가는 골격만 만들고 실제 entry 추가를 미루면 첫 import 시점에 build가 깨진다.
+2. **TypeScript 직접 export 컨벤션 유지** (`./src/index.ts`를 그대로 가리킴). 빌드 산출물(`dist/`) 없이 워크스페이스 내부에서만 쓰이므로 trans-package 컴파일 단계 불필요. apps/web의 Turbopack/Next.js가 TS source를 그대로 읽고 번들링한다 (`@hesya/database` 패턴 일치).
+3. **`exports` map은 최소 `"."` 1개 필수**. subpath export가 필요할 때만 `"./schema": "..."` 등 추가 (database 패키지 패턴).
+
+**확인 방법**:
+
+- 자동: 신규 workspace 패키지 추가 후 즉시 `pnpm --filter @hesya/<consumer> build`로 import 가능 여부 검증 (현재 stub import 1줄 추가했다가 build 후 제거 패턴).
+- 인간 리뷰: 새 workspace 패키지 PR에서 `package.json`에 `main`/`types`/`exports` 3종이 모두 있는지 확인.
+
+**연관**: packages/shared-types/package.json, S-6, 향후 packages/shared-ui·packages/translations 골격 채울 때 동일 패턴 적용

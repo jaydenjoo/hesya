@@ -12,6 +12,7 @@
   "dependencies": {
     "@hesya/auth": "workspace:*",
     "@hesya/database": "workspace:*",
+    "@hesya/shared-types": "workspace:*",
     "@supabase/supabase-js": "^2.105.1",
     "better-auth": "^1.6.9",
     "class-variance-authority": "^0.7.1",
