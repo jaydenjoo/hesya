@@ -6,9 +6,9 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **S-9 next-intl 6개 언어 라우팅 — 검증 PASS. 머지 대기**
+- **Task**: **S-11 GitHub Actions CI — PR #1 CI green. main 머지 대기**
 - **상태**: 진행중
-- **작업 브랜치**: `chore/s-9-next-intl-locales` (main 머지 대기)
+- **작업 브랜치**: `chore/s-11-github-actions-ci` (PR #1, main 머지 대기)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
@@ -133,7 +133,16 @@
     6. GitHub Actions UI → `Weekly DB Backup to R2` workflow → `Run workflow` (workflow_dispatch) → 성공 확인 + R2 콘솔에 `backup-YYYY-MM-DD.sql.gz` 도착 확인
     7. (1회) 로컬 `bash scripts/backup-restore-test.sh ./backup-YYYY-MM-DD.sql.gz` 실행 → 16 테이블 row count 확인
   - 다음 일요일 자동 실행 후 GitHub Actions UI에서 success 확인하면 PROGRESS 클로즈
-- 🟡 **S-9 next-intl 6개 언어 라우팅** — 브랜치 `chore/s-9-next-intl-locales` (main 머지 대기)
+- ✅ **S-11 GitHub Actions CI** — 브랜치 `chore/s-11-github-actions-ci` ([PR #1](https://github.com/jaydenjoo/hesya/pull/1), main 머지 대기)
+  - **Jayden 승인 3건**: D1 dummy env inline / D2 test placeholder (vitest 미도입) / D3 concurrency cancel-in-progress
+  - **재작성 대상**: 기존 `.github/workflows/ci.yml` 은 init-project.sh v10.0의 broken stub이었음 (pnpm 9 vs 10.28.2, tsc 직접, --max-warnings turbo 비호환, env 7개 누락 → 매 main push 5번 fail 누적)
+  - **새 ci.yml**: `pnpm/action-setup@v4` (packageManager auto-detect) + `actions/setup-node@v4 with node-version-file: .nvmrc + cache: pnpm` + concurrency cancel-in-progress + `permissions: contents: read + pull-requests: read` (L-025) + dummy env 9개 inline + `pnpm -r type-check` / `pnpm lint` / `pnpm build` / gitleaks-action@v2 + test placeholder
+  - **`.nvmrc` 신설** (Node 22 LTS pin) — CI/local 일관성, 외부 컨트리뷰터 onboarding effort 감소
+  - **CI debug 2 cycle**: (1) run #2 build fail — turbo strict env mode가 child process로 env 차단 (L-024). 해결: `turbo.json` build task에 `env: [9 keys]` allowlist 추가. (2) run #3 build/type-check/lint 통과했으나 gitleaks 403 — workflow permissions block 누락 (L-025). 해결: `permissions: contents: read, pull-requests: read` 명시.
+  - 검증 G1~G5 ✅: yaml syntax OK / `env -i pnpm install --frozen-lockfile + type-check 6/6 + lint + build` 모두 isolated dummy env로 통과 / **CI run #3 green** ([actions/runs/25217747596](https://github.com/jaydenjoo/hesya/actions/runs/25217747596))
+  - **새 교훈 2건**: L-024 (turbo strict env mode → task별 env allowlist 명시 필수), L-025 (workflow permissions block — third-party action PR API 접근 시 명시 부여)
+  - **Jayden 외부 작업 (Task 머지 후 1분)**: GitHub repo Settings → Branches → Branch protection rules → main → "Require status checks to pass before merging" + `validate` 체크 선택. CI green을 main 머지 강제 게이트로 활성화.
+- ✅ **S-9 next-intl 6개 언어 라우팅** — main 머지 완료 (`6513204`)
   - **Jayden 승인 4건** (2026-05-01): D1 6언어(ko/en/ja/zh-CN/zh-TW/vi, PLAN 따름) / D2 default `en` (외국인 1차 사용자) / D3 `localePrefix: 'always'` (SEO C+ 핵심) / D4 A안 최소(Common.signIn 1키만)
   - **packages/translations 활성화**: `package.json` main/types/exports 명시 (L-013), `src/index.ts` (LOCALES 상수 + Locale 타입 + DEFAULT_LOCALE + LOCALE_LABELS), `messages/{en,ko,ja,zh-CN,zh-TW,vi}.json` 6개 (각각 Common.signIn 1키), `tsconfig.json`
   - **apps/web 통합**: `next-intl@4.11.0` 설치 + `@hesya/translations` workspace dep 추가 + `next.config.ts` 에 `createNextIntlPlugin("./src/i18n/request.ts")` wrap + `src/i18n/{routing,request,navigation}.ts` 생성 (defineRouting + getRequestConfig + createNavigation)
@@ -164,8 +173,8 @@
 Jayden 승인 (2026-05-01): T2 안전 경로 채택. 의존성·가치 우선순위.
 
 1. ~~**S-9 next-intl 5개 언어** (3h)~~ — ✅ 완료 (6언어 ko/en/ja/zh-CN/zh-TW/vi, default `en`, prefix `always`)
-2. **S-11 GitHub Actions CI** (3h, 다음 세션) — 매 PR tsc+lint+build+test 자동 검증
-3. **S-21 Tiptap 에디터** (6h) — Epic 1 인박스 답변 작성에 사용
+2. ~~**S-11 GitHub Actions CI** (3h)~~ — ✅ 완료 (PR #1 CI green, dummy env inline, turbo env allowlist, workflow permissions)
+3. **S-21 Tiptap 에디터** (6h, 다음 세션) — Epic 1 인박스 답변 작성에 사용
 4. **S-10 Sentry + PostHog** (2h) — 운영 관측, 배포 전
 5. **SS-1~3 Staging** (8h) — Vercel Preview + Supabase staging 분리
 6. **Epic 9 매장 KYC 자동 검증** 진입 (60h) — 본 기능 첫 단추 (의존성 그래프상 Epic 4·12 모두 후속)
@@ -221,8 +230,9 @@ Jayden 승인 (2026-05-01): T2 안전 경로 채택. 의존성·가치 우선순
 - 2026-05-01 — Phase 1A Section 10 (female lens, app-4.jsx 1:1, \_section-10.tsx client 8 sub-sections + BeforeAfter 자동 sweep + drag) — commit `19a2b91`
 - 2026-05-01 — 새 핸드오프 zip 검증 (prettier 정규화 후 tokens/components/app-1~4/Hesya Design System.html 모두 IDENTICAL → 새 핸드오프 = 기존 + minify, 의미 변경 0)
 - 2026-05-01 — Phase 1A 10/10 main 머지 완료 (`445c7cd`, 3 commits) + GitHub push origin/main + L-021 추가 (use client는 client API 실제 사용 모듈에만)
-- 2026-05-01 — S-9 next-intl 6개 언어 라우팅 (Jayden 4 결정 승인: 6언어/en default/always prefix/A안 최소) + middleware → proxy.ts (L-022) + root layout 제거하고 [locale]/layout.tsx 가 root + instrumentation.ts로 env wiring 격상 (L-023) + G1~G5 검증 PASS — `chore/s-9-next-intl-locales` (main 머지 대기)
+- 2026-05-01 — S-9 next-intl 6개 언어 라우팅 (Jayden 4 결정 승인: 6언어/en default/always prefix/A안 최소) + middleware → proxy.ts (L-022) + root layout 제거하고 [locale]/layout.tsx 가 root + instrumentation.ts로 env wiring 격상 (L-023) — `chore/s-9-next-intl-locales` → main `6513204`
+- 2026-05-01 — S-11 GitHub Actions CI (Jayden 3 결정 승인: dummy env / test placeholder / concurrency) + broken init-stub 재작성 + .nvmrc node 22 + L-024 turbo strict env allowlist + L-025 workflow permissions block + CI run #3 green — `chore/s-11-github-actions-ci` ([PR #1](https://github.com/jaydenjoo/hesya/pull/1))
 
 ## 마지막 업데이트
 
-- 2026-05-01 (S-9 next-intl 6언어 검증 PASS, main 머지 대기. 다음 세션 S-11 GitHub Actions CI 약 3h)
+- 2026-05-01 (S-11 CI #3 green PR #1, main 머지 대기. 다음 세션 S-21 Tiptap 에디터 약 6h)

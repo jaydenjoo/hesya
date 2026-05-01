@@ -801,4 +801,100 @@ env Zod parse는 별도 wiring이 필요 — Next 13.4부터 표준인 `instrume
 
 **연관**: apps/web/src/app/[locale]/layout.tsx, apps/web/src/instrumentation.ts, packages/translations/src/index.ts (LOCALES export), L-003 (env wiring 패턴 — 이번에 instrumentation으로 격상), S-9
 
+---
+
+### [2026-05-01] L-024 — Turbo strict env mode: task별 `env` allowlist 명시 안 하면 CI에서만 child process로 env 전달 안 됨 (S-11)
+
+**증상**: GitHub Actions CI에서 `pnpm build` 실행 시 build 단계가 `ZodError: NEXT_PUBLIC_SUPABASE_URL: Invalid input: expected string, received undefined` 외 6개 키 모두 undefined로 fail. workflow `jobs.validate.env:` block에 9개 키를 명시했고, 같은 dummy 값으로 로컬 `env -i pnpm build`는 통과. 즉 환경변수 자체는 setup 됐지만 turbo가 child process(`@hesya/web build`)로 전달 안 함.
+
+**원인**: Turbo 2.x default는 strict env mode. `turbo.json` 의 task 정의에 `env: [...]` 또는 `passThroughEnv: [...]` 명시가 없으면 부모 프로세스의 환경변수가 자식(`next build`)에 inherit되지 않는다. 보안상 cache reproducibility 보장을 위한 의도된 동작 — 명시되지 않은 변수가 cache hash에 영향 주는 걸 막음. 로컬에서 통과했던 이유는 `.env.local`이 next.js dev/build 시 자동으로 `process.env`에 머지되어 turbo의 parent env 차단을 우회했기 때문. CI runner에는 `.env.local`이 없으니 차단이 그대로 발현.
+
+**해결**: `turbo.json` 의 `tasks.build` 에 `env: [...]` allowlist 9개 추가:
+
+```json
+"build": {
+  "dependsOn": ["^build"],
+  "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+  "env": [
+    "NODE_ENV",
+    "NEXT_PUBLIC_APP_URL",
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "DATABASE_URL",
+    "BETTER_AUTH_SECRET",
+    "BETTER_AUTH_URL",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET"
+  ]
+}
+```
+
+**규칙** ⭐:
+
+1. **모노레포 turbo 도입 시 첫 build task에서 `env: [...]` allowlist를 명시한다.** Zod required env가 1개라도 있으면 무조건. 명시 안 해도 로컬은 통과하므로 CI에서 첫 발화하는 함정.
+
+2. **`env` vs `passThroughEnv` 선택 기준**:
+   - `env`: 변수 값이 build 결과물에 영향 (`NEXT_PUBLIC_*`는 bundle inline, server-only 변수는 instrumentation/server component 내부에서 평가). cache hash에 포함 → 변경 시 cache invalidate 정확. **prefer this**.
+   - `passThroughEnv`: 변수 값이 build 결과물에 영향 X, runtime만 영향. cache hash에 포함 X. local CI debug 같은 일회성 변수에만.
+   - 우리는 모두 build 결과에 영향 (Zod parse 시점이 build) → `env` 사용.
+
+3. **새 env를 `apps/web/src/shared/config/env.ts` 의 Zod schema에 추가하면 같은 PR에서 `turbo.json` build.env에도 추가**한다. 둘이 source of truth 두 군데로 분리되어 있어 수동 동기화. 안 맞추면 CI에서 첫 PR에서 폭발.
+
+**확인 방법**:
+
+- 자동: CI workflow에서 `pnpm build` 단계가 ZodError로 실패하면 turbo env allowlist 누락 신호. Zod 에러 메시지의 `path`를 그대로 turbo.json env에 추가.
+- 인간 리뷰: PR 단계에서 `apps/*/src/shared/config/env.ts` 의 Zod schema 변경이 있으면 `turbo.json` build.env 동기화 여부 확인.
+
+**연관**: turbo.json (build.env), apps/web/src/shared/config/env.ts (Zod schema), .github/workflows/ci.yml (CI dummy env), S-3·S-18·S-9 (env 추가 history), S-11
+
+---
+
+### [2026-05-01] L-025 — GitHub Actions workflow `permissions` block: third-party action이 PR API 호출 시 명시 권한 부여 (S-11)
+
+**증상**: gitleaks-action@v2가 CI에서 403 에러로 실패. 로그:
+
+```
+HttpError: Resource not accessible by integration
+url: 'https://api.github.com/repos/jaydenjoo/hesya/pulls/1/commits',
+authorization: 'token [REDACTED]'
+status: '403'
+```
+
+build/type-check/lint 모두 통과 후 secret scan 단계에서만 실패. 동일 GITHUB_TOKEN으로 checkout은 성공했는데 PR commits API는 거부.
+
+**원인**: 2023년 이후 GitHub repo의 default GITHUB_TOKEN 권한 정책이 강화됨 — 새 repo는 default `permissions: read-all`이 아니라 일부 endpoint만 허용된 minimal set. workflow 파일에서 `permissions:` block을 명시하지 않으면 fallback default가 적용되는데, repo Settings → Actions → Workflow permissions가 "Read repository contents and packages permissions"이면 `pull-requests` API 접근 차단. gitleaks-action은 PR diff scan 위해 `/pulls/{N}/commits`를 호출하므로 이 차단에 걸림.
+
+**해결**: workflow root에 `permissions:` block 추가 (least privilege 원칙):
+
+```yaml
+permissions:
+  contents: read
+  pull-requests: read
+```
+
+`contents: read` 는 checkout 위해, `pull-requests: read` 는 gitleaks PR diff scan 위해. 다른 권한은 부여 X.
+
+**규칙** ⭐:
+
+1. **workflow마다 root에 `permissions:` block을 명시한다**. default에 의존하지 말 것 — repo 설정·org 정책에 따라 달라지고, 잠재적 third-party action이 추가될 때마다 묵시적으로 깨질 수 있다.
+
+2. **least privilege**: 필요한 권한만. 모르면 `contents: read`만 두고 시작. 403 발생하면 에러 메시지의 endpoint를 보고 정확히 필요한 권한만 추가.
+
+3. **PR API 호출하는 action 알리미** (가장 흔한 케이스):
+   - `gitleaks/gitleaks-action`, `actions/dependency-review-action`, `peter-evans/find-comment` 등 → `pull-requests: read`
+   - `actions/labeler`, `peter-evans/create-or-update-comment` → `pull-requests: write`
+   - issue 댓글 → `issues: write`
+
+4. **fork PR에서는 secrets 접근 X + `pull-requests`도 read-only 강제**. 보안 정책. 우리 dummy env는 fork PR에서도 동작하지만 GITHUB_TOKEN 기반 PR API 호출은 fork에서 부분 제한될 수 있음 (gitleaks는 fork에서도 동작 보장).
+
+**확인 방법**:
+
+- 자동: CI 로그에 `Resource not accessible by integration` 또는 `403` 검색 → 100% permissions 누락 신호.
+- 인간 리뷰: 새 workflow PR에서 `permissions:` block 존재 여부 확인. 없으면 거부하고 명시 요구.
+
+**연관**: .github/workflows/ci.yml (permissions block), .github/workflows/weekly-backup.yml (R2 백업도 동일 패턴 — 단 push trigger라 PR API 안 씀), S-11
+
+---
+
 **연관**: apps/web/src/app/design-system/\_icons.tsx, L-018 (page.tsx server prerender 패턴), Next.js 16 'use client' 규칙, Phase 1A Section 6 commit `f38c10d`
