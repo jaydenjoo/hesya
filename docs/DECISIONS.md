@@ -330,21 +330,29 @@ apps/web/app/(admin)/
 
 ---
 
-### 1.13 DB 백업 (#13 보안) — 단계별 (변경 없음) ⭐
+### 1.13 DB 백업 (#13 보안) — 단계별 (S-20에서 실행 환경 정정) ⭐
 
 **Day 0**: R2 외부 주간 백업 (+$0~3/월, +6h)
 **매장 50~100곳**: PITR 28일 추가 (+$100/월)
 
-**구현 방식 (Day 0)**:
+**구현 방식 (Day 0, S-20에서 확정)**:
 
 ```
-Supabase Edge Function cron (매주 일요일 03:00 KST)
-1. pg_dump → backup-{YYYY-MM-DD}.sql.gz
-2. Cloudflare R2 업로드 (S3 호환 API)
-3. 90일 보관 (R2 무료 한도 안에서)
-4. Slack/Discord 알림
-5. 월 1회 복구 테스트
+GitHub Actions cron (Sat 18:00 UTC = Sun 03:00 KST)
+1. PGDG apt 저장소에서 postgresql-client-17 설치
+2. pg_dump --schema=public --no-owner --no-privileges → gzip -9
+   → backup-{YYYY-MM-DD}.sql.gz
+3. backup-verify.sh: gzip + SQL 헤더 + 16 테이블 존재 자동 검증
+4. aws s3 cp → Cloudflare R2 (S3 호환 endpoint)
+5. R2 lifecycle rule이 90일 후 자동 삭제 (cron 단순화)
+6. 분기별 1회 backup-restore-test.sh 수동 복원 검증 (로컬 Docker PG 17)
 ```
+
+**왜 Edge Function 아닌 GitHub Actions?** Supabase Edge Function은 Deno
+runtime이라 pg_dump 바이너리 호출 불가. GitHub Actions는 Ubuntu runner에
+PGDG 패키지로 정확한 PG 17 client 설치 가능 + Secrets 안전 보관 + 무료 +
+실패 시 GitHub UI 이메일 알림. Slack/Discord 통합은 Phase 1 후반 모니터링
+Task에서 도입 (4원칙 2번 minimum scope).
 
 ---
 
@@ -501,7 +509,7 @@ Week 5 (Day 29~35) — Epic 12 완료 + SEO·a11y 마무리 + 베타 5곳 배포
 2. ⏳ DEVELOPMENT-PLAN v1.0 + PATCH v1.1 + 본 v1.1 변경 사항을 v1.2 통합본으로 합치기
 3. ⏳ Day 0 Setup 22 Task 시작 (D3 결정 후)
 4. ⏳ Better Auth 공식 문서 사전 학습 (Lead 3~4h)
-5. ⏳ R2 버킷 생성 + Cloudflare 계정 셋업 (Day 0 사전 준비)
+5. ⏳ R2 버킷 생성 + Cloudflare 계정 셋업 (Day 0 사전 준비) — S-20에서 실행
 
 ### 6.3 Phase 1.5/2 재평가 트리거
 

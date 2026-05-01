@@ -448,3 +448,49 @@ export type NewStore = typeof stores.$inferInsert;
 - 인간 리뷰: 새 workspace 패키지 PR에서 `package.json`에 `main`/`types`/`exports` 3종이 모두 있는지 확인.
 
 **연관**: packages/shared-types/package.json, S-6, 향후 packages/shared-ui·packages/translations 골격 채울 때 동일 패턴 적용
+
+### [2026-05-01] L-014 — Supabase Edge Function은 pg_dump 백업에 부적합 → GitHub Actions cron이 표준 경로 (S-20)
+
+**증상 / 상황**: S-20 시작 시점 DECISIONS § 1.13은 "Supabase Edge Function cron으로 매주 일요일 pg_dump → R2"를 가정했다. 실제 구현 진입 시 Edge Function = Deno runtime이라 `pg_dump` 바이너리 호출이 불가능하다는 제약이 드러났다. Deno에서 외부 binary 실행 = `Deno.Command()`인데 Edge Function 환경에는 PG client 바이너리가 설치되어 있지 않고 사용자가 install 권한도 없다. 대안으로 `postgres-js`로 raw SELECT 후 SQL 직렬화도 검토했지만, `pg_dump`이 처리하는 시퀀스·CHECK·인덱스·FK 의존순서·escape를 직접 재현 = 200~300줄 + 테스트 위험.
+
+**원인**: Edge Function의 설계 목표는 짧은(< 400s) Deno 워크로드 (요청 응답·webhook). pg_dump처럼 OS-level binary가 필요한 데이터베이스 운영 작업은 Edge Function의 design space 밖. DECISIONS 작성 시점에 이 제약을 검증 안 했다.
+
+**해결 (옵션 4 채택, S-20 본 구현)**: GitHub Actions cron으로 전환.
+
+```yaml
+# .github/workflows/weekly-backup.yml 핵심
+on:
+  schedule:
+    - cron: "0 18 * * 6" # Sat 18:00 UTC = Sun 03:00 KST
+  workflow_dispatch:
+jobs:
+  backup:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install postgresql-client-17 (PGDG)
+        run: |
+          # apt.postgresql.org PGDG repo 추가 → postgres-17 client 정확 매칭
+      - name: pg_dump → gzip
+        run: pg_dump --schema=public --no-owner --no-privileges "$DATABASE_URL" | gzip -9 > backup.sql.gz
+      - name: Verify (gzip + SQL header + 16 tables)
+        run: bash scripts/backup-verify.sh backup.sql.gz
+      - name: Upload to R2 (S3-compatible)
+        run: aws s3 cp backup.sql.gz s3://$R2_BUCKET/ --endpoint-url $R2_ENDPOINT
+```
+
+GitHub Actions는 (1) Ubuntu runner에 PGDG로 정확 PG 17 client 설치 가능 (2) Secrets로 DATABASE_URL/R2 키 안전 보관 (3) public repo 무료 (4) 실패 시 GitHub UI 이메일 자동 알림 (5) workflow_dispatch로 수동 dry-run 가능. Slack/Discord 알림은 Phase 1 후반 모니터링 Task에서 통합 (4원칙 2번 minimum scope).
+
+**규칙** ⭐:
+
+1. **Supabase Edge Function은 pg_dump·OS binary·시스템 운영 작업에 사용 금지**. Edge Function 적합 영역 = 짧은 HTTP 요청 응답, webhook 변환, AI API proxy, RLS friendly query gateway. DB 백업·DDL migration·OS 의존 도구는 GitHub Actions / Vercel cron / 별도 worker 인프라로 보낸다.
+2. **DB 연결 모드 선택: pg_dump는 Session mode (port 5432) 필수**. Transaction pooler (6543)는 multi-statement transaction을 보장하지 않아 pg_dump 중간에 깨진다. Direct host는 IPv6 only (L-007)라 GitHub Actions runner(IPv4)에서 못 붙는다 → Shared Pooler "Session" 모드가 유일한 정답.
+3. **Daily/weekly DB 운영 cron은 GitHub Actions가 default 선택지**. Vercel cron은 Function execution time 제한(60s Hobby / 900s Pro)으로 큰 dump에 부적합. n8n/Elest.io는 비용 발생. GitHub Actions는 무료 + version control 가능 + diff에 기록.
+4. **DECISIONS의 인프라 가정은 implementation Task 시작 시점에 1차 검증**. PRD/DECISIONS 작성 시 도구 제약을 깊이 파지 않은 가정이 있을 수 있다. Task 1단계 (계획) 시 즉시 "이 도구가 정말 이 일을 할 수 있나?" 확인 → 안 되면 결정 변경 + DECISIONS 정정 (이번 케이스).
+
+**확인 방법**:
+
+- 자동: workflow_dispatch 첫 실행 → R2 객체 생성 + backup-verify.sh "16/16 tables verified" 출력. 다음 schedule 트리거(Sat 18:00 UTC) 자동 실행 success.
+- 인간 리뷰: 새 cron 인프라 PR에서 (1) Edge Function 사용 시도 안 했는지 (2) Session mode pooler URL 사용했는지 (3) Secrets 노출 위험 없는지 (run log에서 DATABASE_URL이 echo되지 않는지) 점검.
+
+**연관**: .github/workflows/weekly-backup.yml, scripts/backup-verify.sh, scripts/backup-restore-test.sh, docs/DECISIONS.md § 1.13, S-20, L-007 (IPv4/IPv6 + Shared Pooler)

@@ -1,0 +1,64 @@
+name: Weekly DB Backup to R2
+
+# Sat 18:00 UTC = Sun 03:00 KST (UTC+9)
+# Also allows manual workflow_dispatch for first-run verification + ad-hoc backups.
+on:
+  schedule:
+    - cron: "0 18 * * 6"
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install postgresql-client-17 (PGDG)
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+            https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            > /etc/apt/sources.list.d/pgdg.list'
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17
+          pg_dump --version
+
+      - name: Run pg_dump
+        env:
+          DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+        run: |
+          DATE=$(date -u +"%Y-%m-%d")
+          OUT="backup-${DATE}.sql.gz"
+          pg_dump \
+            --schema=public \
+            --no-owner \
+            --no-privileges \
+            "$DATABASE_URL" \
+          | gzip -9 > "$OUT"
+          ls -lh "$OUT"
+          echo "BACKUP_FILE=$OUT" >> "$GITHUB_ENV"
+
+      - name: Verify backup integrity (gzip + SQL header + 16 tables)
+        run: bash scripts/backup-verify.sh "$BACKUP_FILE"
+
+      - name: Upload to Cloudflare R2 (S3-compatible)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+        run: |
+          aws s3 cp "$BACKUP_FILE" "s3://$R2_BUCKET/$BACKUP_FILE" \
+            --endpoint-url "$R2_ENDPOINT"
+          aws s3 ls "s3://$R2_BUCKET/$BACKUP_FILE" \
+            --endpoint-url "$R2_ENDPOINT"
+
+      - name: Summary
+        run: |
+          echo "### Weekly Backup ✓" >> "$GITHUB_STEP_SUMMARY"
+          echo "- File: \`$BACKUP_FILE\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Size: $(du -h "$BACKUP_FILE" | cut -f1)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Bucket: \`${{ secrets.R2_BUCKET }}\`" >> "$GITHUB_STEP_SUMMARY"
