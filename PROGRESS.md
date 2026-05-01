@@ -6,9 +6,9 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **S-6 (Zod + TS 타입) 완료. 다음은 S-20 (R2 백업) / S-21 (Tiptap) / S-22 (PWA) 중 선택 대기**
+- **Task**: **S-20 (R2 외부 백업) 코드 작성 완료. Jayden 외부 작업 + 첫 실행 검증 대기**
 - **상태**: 진행중
-- **작업 브랜치**: `chore/s-6-shared-types` (main 머지·push 대기)
+- **작업 브랜치**: `chore/s-20-r2-backup` (main 머지 대기 — Jayden 외부 작업 후 첫 실행 검증)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
@@ -78,18 +78,36 @@
   - **package.json `main`/`types`/`exports` 명시** (L-013): 누락 시 deps 등록만으로는 Turbopack 모듈 해석 실패 → `Module not found`. `./src/index.ts` 진입점 명시 후 build clean.
   - 검증: `pnpm --filter @hesya/shared-types type-check` clean / `pnpm --filter @hesya/web build` clean / Zod parse smoke 4종(정상·name누락·enum오류·타입호환) 통과 / `/api/auth/sign-in/social` 200 OK 회귀 / Supabase 16 테이블 rls_enabled=true 유지
   - TDD Guard 필터 확장: `packages/shared-types/src/*.ts` allowlist (스키마와 동일하게 declarative 미러링 — verification = tsc + build + parse smoke)
+- 🟡 **S-20 Cloudflare R2 외부 백업 cron** — 브랜치 `chore/s-20-r2-backup` (Jayden 외부 작업 + 첫 실행 검증 대기)
+  - **결정 변경 (DECISIONS § 1.13 정정)**: "Supabase Edge Function cron" → **GitHub Actions cron**. Edge Function = Deno runtime이라 pg_dump 바이너리 호출 불가능. GitHub Actions는 Ubuntu runner + PGDG `postgresql-client-17` 정확 매칭 + Secrets 안전 보관 + 무료 + 실패 시 GitHub UI 이메일 알림.
+  - 산출물: `.github/workflows/weekly-backup.yml` (cron `0 18 * * 6` = Sat 18:00 UTC = Sun 03:00 KST + workflow_dispatch), `scripts/backup-verify.sh` (gzip + SQL 헤더 + 16 테이블 자동 검증), `scripts/backup-restore-test.sh` (분기별 수동 Docker PG 17 복원 테스트)
+  - 자동 검증 단계: pg_dump → gzip -9 → backup-verify.sh → aws s3 cp R2 (S3 호환 endpoint)
+  - backup-verify.sh sanity 5/5 통과: 파일 누락 / 깨진 gzip / SQL 헤더 누락 / 15 테이블 누락 / 16 테이블 통과 케이스
+  - **Jayden 외부 작업 (Task 머지 전 선행 필수)**:
+    1. Cloudflare 계정 → R2 활성화 → 버킷 `hesya-backups` 생성
+    2. R2 → "Manage API tokens" → S3 호환 토큰 발급 (Object Read & Write, `hesya-backups` 한정)
+    3. Supabase 대시보드 → Database → Connection String → **Session mode (port 5432)** URL 복사 (Transaction mode 6543은 pg_dump fail)
+    4. GitHub repo `jaydenjoo/hesya` → Settings → Secrets 5개: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`(=`hesya-backups`), `BACKUP_DATABASE_URL`(Session pooler URL)
+    5. R2 버킷 → Lifecycle rules → "Delete after 90 days"
+    6. GitHub Actions UI → `Weekly DB Backup to R2` workflow → `Run workflow` (workflow_dispatch) → 성공 확인 + R2 콘솔에 `backup-YYYY-MM-DD.sql.gz` 도착 확인
+    7. (1회) 로컬 `bash scripts/backup-restore-test.sh ./backup-YYYY-MM-DD.sql.gz` 실행 → 16 테이블 row count 확인
+  - 다음 일요일 자동 실행 후 GitHub Actions UI에서 success 확인하면 PROGRESS 클로즈
 
 ### 변경 통계
 
-- 14+ commits (snapshot → ... → S-3 → S-4 → S-18 → S-19 → S-5 → S-6) / 약 110 files
+- 15+ commits (snapshot → ... → S-3 → S-4 → S-18 → S-19 → S-5 → S-6 → S-20) / 약 115 files
 - husky·gitleaks·lint-staged·prettier 모두 자동 통과
-- 빌드 검증: tsc clean / next build / dev sign-in/social 200 OK / Supabase 16 tables RLS ACTIVE / OAuth flow E2E 통과 / Zod parse smoke 4/4
+- 빌드 검증: tsc clean / next build / dev sign-in/social 200 OK / Supabase 16 tables RLS ACTIVE / OAuth flow E2E 통과 / Zod parse smoke 4/4 / backup-verify sanity 5/5
 
 ## 다음 세션 할 일
 
+### S-20 클로즈 (Jayden 외부 작업 완료 후)
+
+- 위 7단계 외부 작업 완료 → 첫 실행 검증 → main 머지 → push
+- 다음 일요일 03:00 KST 자동 실행 확인 (사후 1주)
+
 ### Day 0 본 Setup 계속
 
-- **S-20** Cloudflare R2 외부 백업 cron (6h) ← 다음 우선 후보
 - **S-21** Tiptap 에디터 컴포넌트 (6h)
 - **S-22** PWA Service Worker + Web Push (6h)
 
@@ -126,8 +144,9 @@
 - 2026-04-30 ~ 2026-05-01 — S-18 Better Auth + Google OAuth (5단계 OAR 사이클, 약 4h, 실 OAuth flow E2E 통과) — `chore/s-18-better-auth` → main `93356a5`
 - 2026-05-01 — S-19 store_owners 조인 테이블 (옵션 A: 의존성 우선 순서) — `chore/s-19-store-owners` → main `35eea9c`
 - 2026-05-01 — S-5 RLS v0001 (16 테이블 default deny + Server Action 강제 + Better Auth 회귀 OK) — `chore/s-5-rls-v0001` → main `b6ed6d1`
-- 2026-05-01 — S-6 shared-types 12 도메인 (drizzle-zod 호환 충돌 → 수동 Zod + Drizzle inferred 타입 분리) — `chore/s-6-shared-types` (머지 대기)
+- 2026-05-01 — S-6 shared-types 12 도메인 (drizzle-zod 호환 충돌 → 수동 Zod + Drizzle inferred 타입 분리) — `chore/s-6-shared-types` → main `0c31ff6`
+- 2026-05-01 — S-20 R2 weekly backup workflow + verify/restore scripts (DECISIONS § 1.13 정정: Edge Function → GitHub Actions) — `chore/s-20-r2-backup` (외부 작업 + 첫 실행 검증 대기)
 
 ## 마지막 업데이트
 
-- 2026-05-01 (S-6 완료, 다음 S-20/S-21/S-22 중 선택 대기)
+- 2026-05-01 (S-20 코드 작성 완료, Jayden 외부 작업 + 첫 실행 검증 대기)
