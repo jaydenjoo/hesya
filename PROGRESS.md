@@ -93,7 +93,10 @@
   - **공용 컴포넌트 12개 → 14개로 확장** (DESIGN-PLAN § 4.5)
   - 갱신 문서: PRD § 6.5 (K-Verified 시스템), DESIGN-PLAN § 4 (토큰 확정 + 핸드오프 매핑 위치), docs/design/handoff/INDEX.md (페이지 인덱스 + 코드 매핑 가이드)
   - 구현 원칙 (handoff README): "Match the visual output; **don't copy the prototype's internal structure**" — JSX 그대로 import 금지, Next.js 16.2 + Tailwind v4 + shadcn/ui로 재작성
-- 🟡 **Phase 1A 디자인 시스템 구현** — 브랜치 `chore/phase-1a-design-system` (Jayden 시각 회귀 검토 대기)
+- 🟡 **Phase 1A 디자인 시스템 구현** — 브랜치 `chore/phase-1a-design-system` (1:1 재현 진행 중, 4/10 섹션 완료)
+  - **방향 변경 (2026-05-01)**: 처음 단순 코드 검증 카탈로그(6 섹션)로 만들었으나 Jayden이 핸드오프 HTML과 시각 비교 후 "1:1 재현" 결정. 4원칙 1번에 따라 시간 재추정 (3~5h → 13~16h) 후 옵션 A2 채택.
+  - **1:1 재현 전략**: 핸드오프 components.css·tokens.css를 `apps/web/src/styles/handoff/`로 복사 + page.tsx를 핸드오프 jsx 구조 그대로 React 19로 포팅 + 클래스명 유지. 시각 100% 일치 보장.
+  - **Section 1~4 완료 (이번 세션)**: Hero(156px italic wordmark + ㅎ→H morph SVG + 5 lang tags + meta), Section 2 Color(brand 6 + semantic 4 + neutrals 6 + dark mode 6, swatch grid + hex chip), Section 3 Type(typeRows 6 + bodyRows 4 + Mono + Korean rules 4 callouts), Section 4 Space(spacing scale 13 + radius 6 + shadow 5 + motion 4) + JumpBar nav + footer. build clean.
   - **토큰 매핑**: `apps/web/src/app/globals.css` 전면 교체. shadcn 변수 → Hesya 매핑(primary=amber-500, secondary=peach-100, muted=peach-200, destructive=#DC3545 유지) + Hesya 고유 토큰(peach 3단/amber 2단/navy-900) + Trust 레이어(kverified-gold/trust-rose/share-glow) + radius 5단(8/12/16/20/24px) + 한글 helper(`.kr` + `:lang(ko)` word-break: keep-all + line-height 1.8). dark mode 보류(Phase 1 범위 밖).
   - **폰트 교체**: Geist/Playfair → **Fraunces (display) + Source Sans 3 (body en) + JetBrains Mono** (next/font/google) + **Pretendard Variable self-host** (`pretendard` npm 패키지 import). CDN 차단 환경(중국 등) 외국인 사용자 한글 fallback 위험 제거.
   - **shadcn 12개 컴포넌트 설치**: button/card/input/select/calendar/dialog/sheet/sonner/badge/avatar/tabs/navigation-menu — `apps/web/src/components/ui/`에 자동 생성. 모두 Hesya 토큰 자동 적용.
