@@ -6,8 +6,8 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **S-12 Vercel 첫 prod 배포 — ✅ 완료 + SS-2 (Vercel Preview 절반) 자동 동작 확인**
-- **상태**: 다음 task 선정 대기 (SS-1 Supabase staging은 Day 30 / Epic 9 KYC 시작 가능)
+- **Task**: **Epic 9 매장 KYC 자동 검증 — Spec/Design ✅ 완료 (D1~D8 8건 결정), E9-1 Jayden 외부 작업 진행 중 (인증키 발급 대기)**
+- **상태**: 다음 세션 = E9-2 국세청 사업자등록 진위확인 API (4h, 한 세션 종결). 인증키 도착 후 즉시 진입 가능.
 - **작업 브랜치**: `main` (S-21 + S-12까지 머지 완료)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
@@ -209,6 +209,32 @@
     - ⏸ **SS-2 나머지** "Staging DB 자동 연결" + **SS-1** Supabase staging 프로젝트: Day 30 시점 (+$25/월) — DECISIONS § 1.12 정합성
     - ⏸ **SS-3** GitHub Actions deploy: Vercel Git integration이 main → prod 자동 처리 중. 별도 워크플로우 미필요. Day 30 SS-1 추가 시 재평가
   - **새 교훈 2건**: L-027 (Vercel CLI 50.x quirks — env preview/pull/cwd 동작 차이), L-028 (env별 변수 분리: BETTER_AUTH_URL, NEXT_PUBLIC_APP_URL은 환경별 다른 값 필수)
+- 🟡 **Epic 9 매장 KYC 자동 검증 — Spec/Design ✅ 완료 (D1~D8 8건 결정 일괄 승인)**
+  - **5단계 검증 게이트 구조 (PRD § 5.4 + § 7 store_verifications + Epic 9 E9-1~E9-13 60h)**:
+    1. **Step 1** 국세청 사업자등록 진위확인 (1초, E9-2)
+    2. **Step 2** 미용업 영업신고 매칭 — 퍼지 매칭 (E9-3)
+    3. **Step 3** 카테고리 자동 분류 — 9 카테고리 (E9-4)
+    4. **Step 4** 약관 자기신고 + Claude Opus 4.7 Vision OCR (E9-5, E9-6)
+    5. **Step 5** 위험 키워드 자동 차단 50+ blacklist (E9-7)
+    6. → 80% 자동 승인 / 20% 매뉴얼 검토 큐 (Epic 12로 통합 — D1)
+  - **Jayden 일괄 승인 D1~D8** (모두 권장안 그대로):
+    - **D1**: KYC 매뉴얼 검토 큐는 **Epic 12 (관리자 패널)로 통합** — E9-8(6h) 시간을 E12-2(8h)에 흡수. 운영자 플로우는 Epic 12 한 곳에 집중.
+    - **D2**: 환경변수 이름 = `KOREA_NTS_API_KEY` (국세청), `KOREA_LOCALDATA_API_KEY` (지방행정인허가, 변수명은 코드 가독성 위해 LOCALDATA 그대로 유지). env.ts Zod 스키마 + Vercel Production+Preview 양쪽 등록.
+    - **D3**: API 호출 방식 = **Server Action** — Phase 1 일관성 (Better Auth session 검증 + RLS service_role 패턴 동일).
+    - **D4 (보강)**: LOCALDATA 매칭 = **매일 OpenAPI 페이지네이션 → DB 캐싱**. 원래 "dump 다운로드" 였는데 LOCALDATA(localdata.go.kr) 2026-04-16 폐쇄 + data.go.kr 통합 (`행정안전부_생활_미용업 조회서비스` ID 15154918, 국가중점데이터)으로 dump 미제공 → 매일 cron으로 1만 호출 한도 안에서 페이지네이션 후 우리 DB의 `localdata_cache` 신규 테이블에 upsert. 매장 가입 시점엔 PG trigram 퍼지 매칭으로 즉시 응답.
+    - **D5**: OCR 이미지 저장 = **Supabase Storage 단독** (DECISIONS § 1.6 결정 그대로, KYC 영업신고증은 Admin·StoreOwner 본인만 / 30일 후 원본 삭제). RLS 정책은 v0002에서 추가.
+    - **D6**: 5단계 실행 순서 = **직렬** — UX 진행률 표시 + 단계 n 실패 시 즉시 stop으로 외부 API quota 절약 + debug 용이성.
+    - **D7**: 자동 승인 임계값 = **보수 시작** (높은 임계 → 매뉴얼 큐로 안전하게 보냄). 구체값(LOCALDATA trigram ≥0.7 / OCR confidence ≥0.85 등)은 E9-3·E9-6 구현 시 결정. Phase 1.5에서 데이터 보고 조정.
+    - **D8**: 첫 코드 진입 sub-task = **E9-1 (Jayden API 신청, 외부 작업 — 진행 중) + E9-2 (국세청 API 4h, 코드)**. E9-1 외부 작업 동안 E9-2 코드 작성 가능.
+  - **E9-1 Jayden 외부 작업 진행 중 (인증키 발급 대기 ~3h~1일)**:
+    - data.go.kr 회원가입 1회
+    - 두 API 활용신청 완료 (자동승인): [국세청\_사업자등록정보 진위확인](https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15081808), [행정안전부*생활*미용업 조회서비스](https://www.data.go.kr/data/15154918/openapi.do)
+    - 활용목적 입력: "외국인 관광객 대상 미용 매장 정보 검증 서비스(Hesya) 개발. 매장 가입 시 사업자등록번호 진위 확인 + 미용업 영업신고 매칭으로 합법 매장만 외국인에게 노출하는 KYC 자동화."
+    - 호출 한도: NTS 1일 100만건 / 미용업 1일 1만건 (운영계정 신청 시 증가 가능)
+    - 응답 형식: JSON+XML 둘 다 가능
+    - 인증키 도착 후 Jayden이 `.env.local` (L-004로 Claude 차단) + Vercel Production+Preview 양쪽 등록
+  - **D4 보강의 의미 (LOCALDATA → data.go.kr 통합)**: 데이터 source가 단일 도메인(data.go.kr)으로 일원화 → 회원가입 1회만으로 NTS+미용업 두 API 모두 신청 가능. 데이터 항목·매칭 로직은 큰 변경 없으나 호출 패턴이 dump→OpenAPI 페이지네이션으로 바뀌어 E9-3 (8h) 견적에 cron+페이지네이션 1~2h 추가 예상.
+  - **다음 세션 entry point (E9-2 4h, 한 세션 종결)**: env.ts에 NTS 키 활성화 → packages/shared-types에 NTS 응답 Zod → apps/web/src/lib/kyc/nts-client.ts (Server-only fetch + 재시도) → Server Action `verifyBusinessNumber` (`store_verifications` Step 1 INSERT) → 검증용 임시 페이지 `/admin/kyc-test` → G1~G6 검증 → 머지. 의존성 만족: env.ts 패턴 (S-3) / store_verifications (S-4) / Better Auth (S-18) / RLS service_role (S-5).
 
 ### 변경 통계
 
@@ -234,7 +260,15 @@ Jayden 승인 (2026-05-01): T2 안전 경로 채택. 의존성·가치 우선순
 5. ~~**S-12 Vercel 첫 prod 배포** (2h)~~ — ✅ 완료 (Jayden dashboard 생성 + Claude 검증 + OAuth redirect_uri 정정)
 6. ~~**SS-2 (절반) Vercel Preview**~~ — ✅ Git integration 자동 동작 (코드 추가 0)
 7. **SS-1 Supabase staging + SS-2 나머지 + SS-3** — Day 30 시점 (+$25/월), Epic 9 시작 시 시점 재평가
-8. **Epic 9 매장 KYC 자동 검증** 진입 (60h) — 본 기능 첫 단추 (의존성 그래프상 Epic 4·12 모두 후속)
+8. 🟡 **Epic 9 매장 KYC 자동 검증** — Spec/Design ✅ 완료 (D1~D8 8건 결정), E9-1 외부 작업 진행 중
+   - **다음 세션 1순위**: **E9-2 국세청 사업자등록 진위확인 API (4h)** — 한 세션 종결. 인증키 도착 후 즉시 진입 가능.
+   - 후순위: E9-3 (LOCALDATA 매칭 8h+1~2h) → E9-4 (카테고리 6h) → E9-5 (자기신고 4h) → E9-6 (OCR 6h) → E9-7 (키워드 4h) → E9-9~E9-13. 매뉴얼 큐 E9-8은 Epic 12 E12-2로 통합 (D1).
+
+### Epic 9 시작 차단 요소 (Jayden 외부 작업, 인증키 발급 대기 ~3h~1일)
+
+- ⏳ data.go.kr 활용신청 2건 자동승인 후 인증키 발급
+- ⏳ Jayden이 `.env.local` (직접 입력, L-004) + Vercel Production+Preview 양쪽 환경변수 등록 (`KOREA_NTS_API_KEY`, `KOREA_LOCALDATA_API_KEY`)
+- 등록 완료되면 Claude E9-2 코드 진입 즉시 가능
 
 ### S-22 PWA SW (Phase 1.5 시점, 후순위)
 
@@ -297,7 +331,8 @@ Jayden 승인 (2026-05-01): T2 안전 경로 채택. 의존성·가치 우선순
 - 2026-05-02 — PostHog dashboard 미표시 진단: 서버 측 정상 (Playwright ACK 검증 완료), dashboard ETL은 PostHog SaaS 비동기 파이프라인 (무료 tier 5~60분 지연) → 우리 코드 합격 기준과 무관, S-10 클로즈
 - 2026-05-02 — S-21 Tiptap 에디터 (Jayden 4 결정 권장안 그대로 승인 + D2 보강: StarterKit v3 Link 번들로 extension-link 제거) + 위치 변경 (계획: /design-system 카탈로그 → 구현: /design-system/editor sub-route, 핸드오프 1:1 fidelity 보존) + Playwright 한글 IME 자동 검증 통과 — `chore/s-21-tiptap-editor` `bfaeba9` → main 머지 `d4ce6a3`
 - 2026-05-02 — S-12 Vercel 첫 prod 배포 (DEVELOPMENT-PLAN 누락 task 발견 후 보강) + B 옵션 채택 (Day 30까지 Prod-only + Vercel Preview $0, SS-1 Supabase staging은 Day 30 시점) + Jayden hesya-web 프로젝트 dashboard 생성 + 환경변수 13개 입력 + Claude 검증 (10 routes 200 / 콘솔 0) + 🔴 OAuth redirect_uri = localhost 진단 → BETTER_AUTH_URL/NEXT_PUBLIC_APP_URL prod URL로 정정 (Jayden dashboard 재입력 + 재배포) → redirect_uri prod URL 확인 통과 + Google Cloud Console redirect URI 등록 완료. **🚨 Claude 실수 인지**: `vercel deploy --cwd /repo/root` 잘못 실행으로 `hesya` 신규 프로젝트 자동 생성 → 즉시 인지 후 `vercel project rm hesya` 정리. 새 교훈 L-027 (Vercel CLI 50.x quirks), L-028 (env별 BETTER_AUTH_URL/NEXT_PUBLIC_APP_URL 분리) 기록 — empty commits `41f5b72`, `fe44e3a` 으로 트리거 (auto-deploy 검증)
+- 2026-05-02 — Epic 9 매장 KYC 자동 검증 Spec/Design 진입 (코드 X) + Jayden D1~D8 8건 일괄 권장안 승인 (KYC 큐 Epic 12 통합 / `KOREA_NTS_API_KEY`+`KOREA_LOCALDATA_API_KEY` / Server Action / data.go.kr 페이지네이션 캐싱 / Supabase Storage / 직렬 5단계 / 보수 임계값 / 첫 코드 = E9-2 4h) + LOCALDATA(localdata.go.kr) 2026-04-16 폐쇄 + data.go.kr 통합 사실 발견 (Jayden 캡처) → D4 보강 (dump→OpenAPI 페이지네이션) + E9-1 외부 작업 가이드 정정 → Jayden 2 API 활용신청 완료 (data.go.kr 회원가입 1회 + 국세청 진위확인 + 행정안전부*생활*미용업 조회서비스 ID 15154918) + 인증키 발급 대기. 다음 세션 entry = E9-2 국세청 API 통합 (4h, 한 세션 종결)
 
 ## 마지막 업데이트
 
-- 2026-05-02 (S-21 + S-12 ✅ 완료. Prod URL https://hesya-web.vercel.app 가동. 다음: SS-1 Day 30 / Epic 9 매장 KYC 60h 중 Jayden 선택)
+- 2026-05-02 (S-21 + S-12 ✅ + Epic 9 Spec/Design D1~D8 ✅ 완료. Prod URL https://hesya-web.vercel.app 가동. **다음 세션 entry = E9-2 국세청 사업자등록 진위확인 API 4h** — 인증키 발급 대기 후 즉시 진입 가능)
