@@ -1,8 +1,11 @@
 import * as Sentry from "@sentry/nextjs";
-import { env } from "@/shared/config/env";
 
+// Client bundle: only NEXT_PUBLIC_* env are available at runtime.
+// Importing the full env schema here would parse server-only required vars
+// (DATABASE_URL, SUPABASE_SERVICE_ROLE_KEY, BETTER_AUTH_SECRET, ...) as
+// undefined → ZodError in the browser console. See learnings L-026.
 Sentry.init({
-  dsn: env.NEXT_PUBLIC_SENTRY_DSN,
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   enabled: process.env.NODE_ENV === "production",
   sendDefaultPii: false,
   tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
