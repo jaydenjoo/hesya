@@ -60,6 +60,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Test
+        run: pnpm -r test
+
       - name: Build
         run: pnpm build
 
@@ -67,8 +70,3 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Test job — placeholder, activate after vitest is introduced.
-      # See PROGRESS.md "S-11 후속". Currently no test framework installed.
-      # - name: Test
-      #   run: pnpm -r test
