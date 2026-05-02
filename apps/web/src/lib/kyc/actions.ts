@@ -10,9 +10,15 @@
 
 import { headers } from "next/headers";
 import { storeVerifications, createDbClient } from "@hesya/database";
-import { ntsValidateBusinessSchema, NTS_VALID_OK } from "@hesya/shared-types";
+import {
+  localdataSearchInputSchema,
+  ntsValidateBusinessSchema,
+  NTS_VALID_OK,
+  type LocaldataItem,
+} from "@hesya/shared-types";
 import { auth } from "@/lib/auth";
 import { env } from "@/shared/config/env";
+import { LocaldataApiError, searchBeautyShops } from "./localdata-client";
 import { NtsApiError, validateBusinessNumber } from "./nts-client";
 
 const db = createDbClient(env.DATABASE_URL);
@@ -102,4 +108,69 @@ export async function verifyBusinessNumber(
     ntsTaxType: ntsData.status?.tax_type ?? null,
     verificationId: row.id,
   };
+}
+
+/**
+ * Epic 9 § Step 2 — LOCALDATA 미용업 영업신고 조회 Server Action (skeleton).
+ *
+ * 사업자번호 직접 검색은 미지원이라 사업장명(LIKE) + 도로명주소(LIKE)로 후보 조회.
+ * 이번 단계는 검색 결과 list 반환만 — 퍼지 매칭과 store_verifications.localdata_*
+ * INSERT는 다음 분해 단계.
+ */
+export type SearchLocaldataResult =
+  | {
+      ok: true;
+      items: LocaldataItem[];
+      totalCount: number | null;
+      pageNo: number | null;
+      numOfRows: number | null;
+    }
+  | {
+      ok: false;
+      error: "unauthorized" | "invalid_input" | "localdata_api_error";
+      message: string;
+    };
+
+export async function searchLocaldataBeautyShops(
+  rawInput: unknown,
+): Promise<SearchLocaldataResult> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) {
+    return {
+      ok: false,
+      error: "unauthorized",
+      message: "로그인이 필요합니다",
+    };
+  }
+
+  const parsed = localdataSearchInputSchema.safeParse(rawInput);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "invalid_input",
+      message: parsed.error.issues
+        .map((i) => `${i.path.join(".")}: ${i.message}`)
+        .join("; "),
+    };
+  }
+
+  try {
+    const result = await searchBeautyShops(parsed.data);
+    return {
+      ok: true,
+      items: result.items,
+      totalCount: result.totalCount ?? null,
+      pageNo: result.pageNo ?? null,
+      numOfRows: result.numOfRows ?? null,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      error: "localdata_api_error",
+      message:
+        err instanceof LocaldataApiError
+          ? err.message
+          : "LOCALDATA API 호출 중 알 수 없는 오류",
+    };
+  }
 }

@@ -131,6 +131,9 @@ case "$path" in
   */apps/*/src/lib/kyc/*.ts) exit 0 ;;
   */apps/*/src/app/admin/kyc-test/*.tsx) exit 0 ;;
   */apps/*/src/app/admin/kyc-test/*.ts) exit 0 ;;
+  # L-030: next-intl으로 admin 페이지가 [locale] 안으로 이동 → glob 패턴도 함께 보강.
+  */apps/*/src/app/\[locale\]/admin/kyc-test/*.tsx) exit 0 ;;
+  */apps/*/src/app/\[locale\]/admin/kyc-test/*.ts) exit 0 ;;
 esac
 
 # Business code path — delegate to the real tdd-guard CLI with original stdin.
