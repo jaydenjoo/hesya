@@ -29,6 +29,15 @@ case "$path" in
   *commitlint.config.*|*lint-staged.config.*|*prettier.config.*) exit 0 ;;
   *vitest.config.*|*jest.config.*|*playwright.config.*) exit 0 ;;
 
+  # vitest setup files (test bootstrap, not implementation)
+  *vitest.setup.*|*jest.setup.*|*test.setup.*|*tests/setup.*) exit 0 ;;
+
+  # test files themselves — TDD guard exists to ensure tests precede implementation,
+  # not to block creation of test files. *.test.ts(x) and *.spec.ts(x) are always allowed.
+  *.test.ts|*.test.tsx|*.test.js|*.test.jsx|*.test.mjs) exit 0 ;;
+  *.spec.ts|*.spec.tsx|*.spec.js|*.spec.jsx|*.spec.mjs) exit 0 ;;
+  */__tests__/*) exit 0 ;;
+
   # package manifests / lockfiles / workspace
   */package.json|*pnpm-workspace.yaml|*turbo.json|*nx.json) exit 0 ;;
   *pnpm-lock.yaml|*package-lock.json|*yarn.lock|*bun.lockb) exit 0 ;;
@@ -131,6 +140,9 @@ case "$path" in
   */apps/*/src/lib/kyc/*.ts) exit 0 ;;
   */apps/*/src/app/admin/kyc-test/*.tsx) exit 0 ;;
   */apps/*/src/app/admin/kyc-test/*.ts) exit 0 ;;
+  # L-030: next-intl으로 admin 페이지가 [locale] 안으로 이동 → glob 패턴도 함께 보강.
+  */apps/*/src/app/\[locale\]/admin/kyc-test/*.tsx) exit 0 ;;
+  */apps/*/src/app/\[locale\]/admin/kyc-test/*.ts) exit 0 ;;
 esac
 
 # Business code path — delegate to the real tdd-guard CLI with original stdin.

@@ -56,9 +56,14 @@ async function postWithRetry(
     });
 
     if (!res.ok) {
+      // 외부 응답 본문은 클라이언트로 노출하지 않음 (서버 IP·내부 경로 누출 방지).
+      // 디버깅 필요 시 서버 로그(Sentry/Vercel)에서 확인.
       const text = await res.text().catch(() => "");
+      console.warn(
+        `[nts-client] HTTP ${res.status} body: ${text.slice(0, 500)}`,
+      );
       throw new NtsApiError(
-        `NTS API ${res.status}: ${text.slice(0, 200)}`,
+        `NTS API HTTP ${res.status}`,
         undefined,
         res.status,
       );
