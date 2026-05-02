@@ -6,9 +6,9 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **S-10 Sentry + PostHog 운영 관측 — ✅ 코드 PASS + 클라이언트 leak fix + main 머지 완료**
-- **상태**: 다음 task 선정 대기 (S-21 Tiptap / SS-1~3 Staging / Epic 9 KYC 중 택1)
-- **작업 브랜치**: `main` (S-10 모든 PR 머지 완료)
+- **Task**: **S-21 Tiptap 에디터 컴포넌트 — ✅ main 머지 완료 (`d4ce6a3`)**
+- **상태**: 다음 task 선정 대기 (SS-1~3 Staging / Epic 9 KYC 중 택1)
+- **작업 브랜치**: `main` (S-21까지 모두 머지 완료)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
@@ -166,6 +166,22 @@
   - **TDD Guard 필터 확장**: `*/apps/*/src/i18n/*.ts`, `*/apps/*/proxy.ts|*/apps/*/middleware.ts`, `*/apps/*/src/app/[locale]/{layout.tsx,page.tsx,sign-in/page.tsx,design-system/*.tsx}`, `*/packages/translations/src/*.ts`, `*/packages/translations/messages/*.json`, `*/apps/*/src/instrumentation.ts` allowlist (모두 declarative wiring + i18n data, 검증 = build + curl 200 OK per locale).
   - 검증 G1~G5 ✅: `pnpm --filter @hesya/translations type-check` clean / `pnpm --filter @hesya/web build` clean (21 static pages = 6 locales × 3 routes + 3 base, deprecation 0건) / `/` → 307 redirect → `/en` (default + always) / 6 locale 홈 200 / 6 sign-in 200 + locale별 정확한 button text / `/api/auth/sign-in/social` 200 OK 회귀 / Supabase 16/16 tables RLS active 유지
   - **새 교훈 2건**: L-022 (Next 16 middleware → proxy 컨벤션), L-023 ([locale]/layout.tsx가 root 역할 + instrumentation.ts로 env wiring 격상)
+- ✅ **S-21 Tiptap 에디터 컴포넌트** — main 머지 완료 (`d4ce6a3`)
+  - **Jayden 승인 4건**: D1 위치 = `packages/shared-ui/src/Editor.tsx` (workspace 재사용) / D2 extensions = 최소(StarterKit + Placeholder + Link) / D3 출력 = ProseMirror JSON via onChange / D4 한글 IME = Jayden 수동 (실제로는 Playwright pressSequentially로 자동 통과)
+  - **결정 변경 (D2 보강)**: 설치 후 `node_modules/.../starter-kit/dist/index.d.ts`에서 StarterKit v3가 LinkOptions·Link extension을 이미 번들링한다는 사실 발견 → 별도 `@tiptap/extension-link` 제거. 총 deps 4개 → 3개 (`@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-placeholder`).
+  - **Editor 컴포넌트** (`packages/shared-ui/src/Editor.tsx`, ~200줄): props (`initialContent`, `onChange`, `placeholder`, `className`, `editorClassName`), `useEditor` + StarterKit + Placeholder, **`immediatelyRender: false`** (Tiptap v3 공식 SSR hydration mismatch 방지). 9버튼 inline toolbar (B / I / H1 / H2 / H3 / • / 1. / " / ↗) — `aria-pressed` 토글 + `data-active` 속성으로 isActive 상태 시각화. Link는 `window.prompt`로 URL 입력 (shadcn dialog 의존성 도입 회피, 4원칙 2번).
+  - **위치 결정 변경 (계획 → 구현)**: 처음 "/design-system 카탈로그에 Editor 섹션 추가" 계획이었으나, 현재 `/design-system`이 Phase 1A 핸드오프 1:1 재현(10 섹션 lock-in)이라 fidelity 보존 위해 **`/design-system/editor` sub-route**로 분리. JumpBar·hero meta·기존 Section 1~10 모두 무수정.
+  - **Editor preview page** (`apps/web/src/app/[locale]/design-system/editor/page.tsx`, ~190줄): `'use client'` 4 variants (Empty / With placeholder / Pre-filled English / Pre-filled Korean). 각 variant 아래 `<details>` 펼치기로 onChange JSON 출력 시각화 (char count + 전체 JSON 트리).
+  - **TDD Guard filter**: 기존 `*/apps/*/src/app/\[locale\]/design-system/*.tsx` 패턴이 nested route(`design-system/editor/page.tsx`)도 자동 매칭 — bash case의 `*`는 `/`를 포함해서 매칭. 추가 필터 불필요. shared-ui Editor.tsx도 기존 `*/packages/shared-ui/src/*.tsx` 커버.
+  - **검증 G1~G6 모두 PASS**:
+    - G1 `pnpm -r type-check` → 6/6 packages clean
+    - G2 `pnpm --filter @hesya/web build` → clean, **27 static pages** (이전 21 + 6 locales × 1 신규 design-system/editor route)
+    - G3 dev curl `/en/design-system/editor` → 200 OK
+    - G3 Playwright Bold/BulletList 토글 → `aria-pressed` 정확 갱신, JSON char count 627→648→696 변화 확인 (state reactivity OK)
+    - G4 한글 IME 자동 검증 → `pressSequentially("안녕하세요 매장 소개입니다. 받침 ㄲ ㅆ 이중모음 ㅢ ㅟ 정상 동작.")` → DOM textContent 완전 일치, JSON 즉시 갱신(123 chars), 이중자음·이중모음 모두 정상. Variant 4 prefilled Korean 접근성 스냅샷도 한글 글자 깨짐 0건.
+    - G5 `/api/auth/sign-in/social` 200 OK 회귀
+    - G6 console errors 0건 (warnings 0건)
+  - **시간 실측**: PRD 견적 6h vs 실제 ~2.5h (D2 최소 옵션 + sub-route 단일 파일 + 자동 검증 빠름)
 
 ### 변경 통계
 
@@ -187,7 +203,7 @@ Jayden 승인 (2026-05-01): T2 안전 경로 채택. 의존성·가치 우선순
 1. ~~**S-9 next-intl 5개 언어** (3h)~~ — ✅ 완료 (6언어 ko/en/ja/zh-CN/zh-TW/vi, default `en`, prefix `always`)
 2. ~~**S-11 GitHub Actions CI** (3h)~~ — ✅ 완료 (PR #1 CI green, dummy env inline, turbo env allowlist, workflow permissions)
 3. ~~**S-10 Sentry + PostHog** (2h)~~ — ✅ 완료 (코드 PASS + 클라이언트 leak fix L-026 + main 머지)
-4. **S-21 Tiptap 에디터** (6h, 다음 세션 후보) — Epic 1 인박스 답변 작성에 사용
+4. ~~**S-21 Tiptap 에디터** (6h)~~ — ✅ 완료 (StarterKit + Placeholder + 한글 IME 통과, /design-system/editor sub-route)
 5. **SS-1~3 Staging** (8h, 다음 세션 후보) — Vercel Preview + Supabase staging 분리
 6. **Epic 9 매장 KYC 자동 검증** 진입 (60h) — 본 기능 첫 단추 (의존성 그래프상 Epic 4·12 모두 후속)
 
@@ -250,7 +266,8 @@ Jayden 승인 (2026-05-01): T2 안전 경로 채택. 의존성·가치 우선순
 - 2026-05-02 — 🔴 client bundle env leak fix (L-026): `instrumentation-client.ts` + `[locale]/layout.tsx`에서 envSchema 전체 import 제거 → process.env.NEXT*PUBLIC*\* 직접 접근으로 교체. ZodError 4건 → 0건. fix `868d8a5` → main `246bfd6`
 - 2026-05-02 — Playwright MCP (microsoft/playwright-mcp) 자동 브라우저 검증: 5 locale 콘솔 0 errors / token 100% 일치 / PostHog 서버 ACK `{"status":"Ok"}` 200 OK 확인 → S-10 모든 검증 게이트 PASS
 - 2026-05-02 — PostHog dashboard 미표시 진단: 서버 측 정상 (Playwright ACK 검증 완료), dashboard ETL은 PostHog SaaS 비동기 파이프라인 (무료 tier 5~60분 지연) → 우리 코드 합격 기준과 무관, S-10 클로즈
+- 2026-05-02 — S-21 Tiptap 에디터 (Jayden 4 결정 권장안 그대로 승인 + D2 보강: StarterKit v3 Link 번들로 extension-link 제거) + 위치 변경 (계획: /design-system 카탈로그 → 구현: /design-system/editor sub-route, 핸드오프 1:1 fidelity 보존) + Playwright 한글 IME 자동 검증 통과 — `chore/s-21-tiptap-editor` `bfaeba9` → main 머지 `d4ce6a3`
 
 ## 마지막 업데이트
 
-- 2026-05-02 (S-10 ✅ 완료, L-026 client bundle env leak 교훈 추가. 다음 세션 후보: S-21 Tiptap 에디터 6h / SS-1~3 Staging 8h / Epic 9 매장 KYC 60h 중 Jayden 선택)
+- 2026-05-02 (S-21 ✅ 완료. 다음 세션 후보: SS-1~3 Staging 8h / Epic 9 매장 KYC 60h 중 Jayden 선택)
