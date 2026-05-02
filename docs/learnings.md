@@ -980,3 +980,78 @@ fix commit `868d8a5` → main `246bfd6` (PR #4). Playwright 자동 검증으로 
 - 인간 리뷰: client 모듈에서 `import { env } from "@/shared/config/env"` 패턴 검색 → 발견 시 즉시 process.env 직접 접근으로 교체.
 
 **연관**: apps/web/src/instrumentation-client.ts, apps/web/src/app/[locale]/layout.tsx, apps/web/src/shared/config/env.ts (envSchema), L-003 (env Zod parse 트리거 패턴), L-023 (instrumentation.ts로 env wiring 격상), S-10, PR #4 fix `868d8a5` → main `246bfd6`
+
+---
+
+### [2026-05-02] L-027 — Vercel CLI 50.x quirks: cwd 미연결 → 새 프로젝트 자동 생성 / preview env 입력 동작 차이 / pull은 encrypted 미표시
+
+**증상 / 상황**: S-12 진단 중 다음 3가지 CLI 동작 차이를 만남.
+
+1. `vercel deploy --prod --cwd /repo/root` (linked dir이 `apps/web`인데 repo root 지정) → CLI가 "이 cwd는 어떤 프로젝트와도 연결되지 않음 → 폴더명으로 새 프로젝트 자동 생성" 동작 → `hesya` 신규 프로젝트가 의도치 않게 생성됨.
+2. `vercel env add KEY production --value V --yes` → 정상 동작 (production OK). 동일 form `vercel env add KEY preview --value V --yes` → CLI가 hint 메시지를 다시 출력하며 입력 거부. `--git-branch`, `--non-interactive`, 위치 인자 변경 모두 시도해도 동일.
+3. `vercel env pull --environment production` → encrypted env vars(secret 등록된 값들)는 plaintext 대신 빈 string("")으로 표시. CLI로 직접 add한 값은 plaintext로 보임. 즉 dashboard 입력값과 CLI 입력값의 표시 동작이 다름.
+
+**원인**:
+
+1. Vercel CLI 50.x의 자동 프로젝트 생성 로직 — `--cwd` 위치에 `.vercel/project.json`이 없으면 폴더명으로 자동 생성. 이 동작은 명시적 안내 없이 진행되며 stdout만으로 알아채기 어려움.
+2. CLI 50.32.3 의 `vercel env add KEY preview` 비대화 모드 버그 — `--value` 플래그를 인식 못하고 hint를 다시 출력. (나중에 fix될 가능성 있음)
+3. Vercel 보안 정책 — encrypted secrets는 CLI로 평문 노출 안 함. 단 CLI add-via-flag로 들어간 값은 plaintext 가능 (Jayden dashboard input vs Claude `vercel env add` 일치 여부 검증을 어렵게 만듦).
+
+**해결**:
+
+1. **`vercel deploy` 또는 `vercel link` 명령은 항상 `.vercel/project.json` 이 있는 dir에서 실행한다.** `--cwd` 사용 시 그 cwd가 linked dir인지 확인. 또는 `vercel link --yes --project NAME` 로 명시 link.
+2. **Preview env vars는 dashboard에서 입력한다.** CLI bug 우회까지 시간 들이지 말고 dashboard로 5분 내 끝낼 일을 길게 끌지 않음.
+3. **encrypted env 검증은 실제 deployment의 동작으로 한다.** `vercel env pull`이 빈 string 반환해도 실제 환경에 값이 있을 수 있음. 동작 검증(curl, Playwright, build success)이 source of truth.
+
+**규칙** ⭐:
+
+1. `vercel deploy --prod`/`vercel link` 등 모든 vercel CLI 작업은 **반드시** linked dir(`<프로젝트>/apps/web` 등 `.vercel/` 있는 dir)에서 실행한다. 새 프로젝트 자동 생성 함정 회피.
+2. 모노레포에서 `vercel link`는 **각 앱 디렉토리**에서 실행 (`apps/web/.vercel/`, `apps/admin/.vercel/`). 레포 루트엔 `.vercel/` 만들지 말 것.
+3. Preview env vars 입력은 **Vercel Dashboard 우선**. CLI 50.x 의 preview add는 buggy.
+4. `vercel env pull` 결과로 secret 값 비어있다고 판단하지 말 것. 실제 deploy 동작으로 검증 — `curl`로 OAuth response의 redirect_uri 같은 derived field가 정상인지 확인하는 게 더 정확.
+5. `vercel project ls` 를 의심스러운 작업 후 즉시 한 번 실행하여 의도치 않은 프로젝트 생성 즉시 발견 + 정리.
+
+**확인 방법**:
+
+- 자동: PR 단계에서 `gh secret list` 와 `vercel env ls` 의 cardinality 비교. 일치하지 않으면 환경변수 누락 가능성.
+- 인간 리뷰: Vercel CLI 작업 후 `vercel project ls` 출력에 unexpected 프로젝트가 있는지 즉시 확인.
+
+**연관**: S-12 Vercel 첫 prod 배포, PROGRESS.md 2026-05-02 항목, .vercel/project.json (apps/web 한정), DECISIONS § 1.12 (Day 0~30 Prod-only)
+
+---
+
+### [2026-05-02] L-028 — Better Auth/Next 환경별 변수 분리: BETTER_AUTH_URL · NEXT_PUBLIC_APP_URL은 dev/prod 다른 값
+
+**증상 / 상황**: S-12 첫 prod 배포 후 sign-in 페이지에서 Google 버튼 클릭 시 OAuth flow 실패 예상. 진단해보니 `/api/auth/sign-in/social` POST 응답의 `url` 필드를 디코드한 redirect_uri가 `http://localhost:4200/api/auth/callback/google` — prod 도메인이 아니라 localhost로 가고 있었음.
+
+**원인**: Vercel 환경변수 입력 시 `.env.local` 파일을 Production·Preview 둘 다에 그대로 복사. `.env.local`은 dev 환경용이라 `BETTER_AUTH_URL=http://localhost:4200`, `NEXT_PUBLIC_APP_URL=http://localhost:4200`이 들어 있다. Better Auth는 baseURL을 그대로 받아 callback URL을 derive하기 때문에 prod 환경에서도 localhost로 redirect → Google이 callback URL mismatch 또는 외부 도메인 거부로 OAuth flow 실패.
+
+**해결**:
+
+1. Vercel Dashboard → Project → Settings → Environment Variables 에서 `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL` 두 변수만 Production+Preview를 prod URL(`https://hesya-web.vercel.app`)로 update.
+2. 재배포 트리거 (Vercel은 env 변경 시 자동 재배포 안 함 — git push 또는 dashboard Redeploy로 수동 트리거 필요. Vercel은 `--force` 또는 새 commit이 있어야 새 build).
+3. Google Cloud Console → OAuth 2.0 Client → Authorized redirect URIs 에 prod callback URL 추가. localhost callback도 dev 위해 유지 — 즉 redirect URIs 두 개 등록.
+4. 검증: `curl -X POST /api/auth/sign-in/social ` 응답 url의 redirect_uri가 prod URL인지.
+
+**규칙** ⭐:
+
+1. **`.env.local`은 dev 전용.** Vercel 등 prod에 input할 때 그대로 복사하지 말고, **환경별로 다른 값**을 가진 변수 목록을 식별 → 각 환경의 prod URL/secret으로 변경.
+2. 환경별 분리 필수 변수 (Hesya 기준):
+   - `BETTER_AUTH_URL` — Better Auth baseURL (callback URL derive)
+   - `NEXT_PUBLIC_APP_URL` — 클라이언트 앱 origin
+   - 동일한 값이면 안 되는 secret이 또 있으면 추가
+3. Google Cloud Console (또는 다른 OAuth provider)의 redirect URIs는 **dev + prod 둘 다 등록**. dev 작업과 prod 동작 모두 가능해야 함.
+4. **prod 배포 후 OAuth 검증은 brower flow가 아닌 `curl` API 응답으로 1차 검증**. `/api/auth/sign-in/social` response의 URL 디코드해 redirect_uri 확인 — 빠르고 정확. 실 OAuth flow는 그 다음.
+5. `.env.example` 작성 시 환경별로 다른 변수에 명시적 주석:
+   ```
+   # ⚠️ 환경별로 다른 값 (dev: localhost, prod: prod domain)
+   BETTER_AUTH_URL=
+   NEXT_PUBLIC_APP_URL=
+   ```
+
+**확인 방법**:
+
+- 자동: 첫 prod deploy 후 `curl -X POST <prod>/api/auth/sign-in/social -d '{"provider":"google","callbackURL":"/"}'` → response의 `url` query string에서 `redirect_uri` 디코드 → prod URL이어야 PASS. localhost 또는 다른 도메인이면 BETTER_AUTH_URL 잘못 set.
+- 인간 리뷰: PR/배포 후 Vercel env vars 11개 + 환경별 다른 값 2개 (BETTER_AUTH_URL, NEXT_PUBLIC_APP_URL) 명시적으로 prod URL인지 dashboard에서 확인.
+
+**연관**: S-12 Vercel 첫 prod 배포, S-18 Better Auth + Google OAuth, apps/web/.env.local (dev), Vercel project hesya-web env settings, Google Cloud Console OAuth Client redirect URIs, PROGRESS.md 2026-05-02 S-12 항목

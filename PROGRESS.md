@@ -6,9 +6,10 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **S-21 Tiptap 에디터 컴포넌트 — ✅ main 머지 완료 (`d4ce6a3`)**
-- **상태**: 다음 task 선정 대기 (SS-1~3 Staging / Epic 9 KYC 중 택1)
-- **작업 브랜치**: `main` (S-21까지 모두 머지 완료)
+- **Task**: **S-12 Vercel 첫 prod 배포 — ✅ 완료 + SS-2 (Vercel Preview 절반) 자동 동작 확인**
+- **상태**: 다음 task 선정 대기 (SS-1 Supabase staging은 Day 30 / Epic 9 KYC 시작 가능)
+- **작업 브랜치**: `main` (S-21 + S-12까지 머지 완료)
+- **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
@@ -183,11 +184,37 @@
     - G6 console errors 0건 (warnings 0건)
   - **시간 실측**: PRD 견적 6h vs 실제 ~2.5h (D2 최소 옵션 + sub-route 단일 파일 + 자동 검증 빠름)
 
+- ✅ **S-12 Vercel 첫 prod 배포 — main 머지 완료** + SS-2 (Vercel Preview 절반) 자동 동작 확인
+  - **DEVELOPMENT-PLAN의 누락 task 발견 후 보강**: S-12 (2h) 가 PROGRESS에 미기록 상태였음. SS-1~3 진입 전 필수 선행이라 우선 처리.
+  - **B 옵션 채택** (DECISIONS § 1.12 정합성): Day 0~30 = Prod-only + Vercel Preview ($0). SS-1 (Supabase staging, +$25/월)은 Day 30에 추가. 지금 진행 = S-12 + SS-2 무료 부분만.
+  - **Vercel 프로젝트 `hesya-web`**: Jayden이 dashboard에서 직접 생성 (Root Directory `apps/web`, Framework Next.js 자동 감지, pnpm 10.28.2). Prod URL `https://hesya-web.vercel.app`.
+  - **환경변수 13개 등록 (production + preview 양쪽)**: Supabase 5종 / Better Auth secret + URL / Google OAuth 2종 / Anthropic / Sentry server+browser / PostHog 2종 / NODE_ENV. 첫 입력은 Jayden dashboard 수동.
+  - **🔴 OAuth redirect_uri 환경별 분리 이슈 발견 + 정정** (L-027 신규 교훈): `BETTER_AUTH_URL`과 `NEXT_PUBLIC_APP_URL`을 `.env.local`(localhost)에서 그대로 prod에 복사하면 OAuth callback이 localhost로 redirect되어 prod에서 OAuth flow 실패. Jayden dashboard에서 두 변수만 prod URL로 update + 재배포 → `redirect_uri = https://hesya-web.vercel.app/api/auth/callback/google` 정상 확인 (curl + Better Auth response.url 디코드).
+  - **Google Cloud Console redirect URI 추가 (Jayden 외부 작업)**: 기존 `http://localhost:4200/api/auth/callback/google` 에 더해 `https://hesya-web.vercel.app/api/auth/callback/google` 추가. 두 URI 모두 등록 상태가 dev/prod 양쪽 OAuth 동작에 필요.
+  - **🚨 Claude 실수 + 즉시 정리 (L-028 신규 교훈)**: 진단 중 `vercel deploy --prod --cwd /repo/root` 명령에서 cwd가 linked dir(`apps/web`)이 아닌 repo root였던 탓에 Vercel CLI가 "이 cwd는 어떤 프로젝트와도 unlink 상태 → 폴더명으로 새 프로젝트 자동 생성" 동작을 트리거 → `hesya` 신규 프로젝트가 자동 생성됨. 즉시 인지 후 `vercel project rm hesya` 로 삭제. Jayden hesya-web 프로젝트는 영향 없음 (deployment 11분 전 Ready 그대로 유효).
+  - **Vercel CLI 50.32.3 quirks (L-027 정리)**:
+    - `vercel env add KEY preview --value V --yes` 미동작 — production은 같은 form 정상. CLI 50.x bug. 해결: dashboard 수동 입력 (Vercel CLI bug fix 또는 다른 form 발견 전까지)
+    - `vercel env pull --environment production` → encrypted secrets는 빈 string("")으로 표시. Jayden dashboard 입력값이 정확히 들어갔는지 CLI로 검증 불가, 단 CLI로 직접 add한 값은 plaintext로 보임.
+    - `vercel deploy --prod --cwd <unlinked-dir>` → 새 프로젝트 자동 생성. **항상 linked dir에서 실행 또는 git push로 GitHub integration 사용**.
+  - **검증 모두 통과**:
+    - `vercel project ls` → `hesya-web` 1개 (정리 후)
+    - 10 routes (`/`, `/{en,ko,ja,zh-CN,zh-TW,vi}`, `/en/sign-in`, `/en/design-system`, `/en/design-system/editor`) → 모두 200 OK
+    - `/api/auth/sign-in/social` POST → 200 OK + `redirect_uri` prod URL
+    - 3 페이지 Playwright 콘솔 → 0 errors / 0 warnings
+    - root `/` → 307 → `/en` (next-intl `localePrefix:'always'` prod 정상)
+    - S-21 Editor preview SSR/CSR hydration prod 정상
+  - **SS-1~3 진행 현황**:
+    - ✅ **S-12** Vercel 첫 prod 배포 완료
+    - ✅ **SS-2 (절반)** Vercel Preview Deploy: Vercel Git integration 기본 활성화, PR 생성 시 자동 Preview URL (코드 추가 0)
+    - ⏸ **SS-2 나머지** "Staging DB 자동 연결" + **SS-1** Supabase staging 프로젝트: Day 30 시점 (+$25/월) — DECISIONS § 1.12 정합성
+    - ⏸ **SS-3** GitHub Actions deploy: Vercel Git integration이 main → prod 자동 처리 중. 별도 워크플로우 미필요. Day 30 SS-1 추가 시 재평가
+  - **새 교훈 2건**: L-027 (Vercel CLI 50.x quirks — env preview/pull/cwd 동작 차이), L-028 (env별 변수 분리: BETTER_AUTH_URL, NEXT_PUBLIC_APP_URL은 환경별 다른 값 필수)
+
 ### 변경 통계
 
-- 15+ commits (snapshot → ... → S-3 → S-4 → S-18 → S-19 → S-5 → S-6 → S-20) / 약 115 files
+- 17+ commits (snapshot → ... → S-21 → S-12) / 약 120 files
 - husky·gitleaks·lint-staged·prettier 모두 자동 통과
-- 빌드 검증: tsc clean / next build / dev sign-in/social 200 OK / Supabase 16 tables RLS ACTIVE / OAuth flow E2E 통과 / Zod parse smoke 4/4 / backup-verify sanity 5/5
+- 빌드 검증: tsc clean / next build / dev+prod sign-in/social 200 OK / Supabase 16 tables RLS ACTIVE / OAuth flow E2E 통과 (dev) / OAuth redirect_uri prod URL 검증 (prod) / Zod parse smoke 4/4 / backup-verify sanity 5/5
 
 ## 다음 세션 할 일
 
@@ -204,8 +231,10 @@ Jayden 승인 (2026-05-01): T2 안전 경로 채택. 의존성·가치 우선순
 2. ~~**S-11 GitHub Actions CI** (3h)~~ — ✅ 완료 (PR #1 CI green, dummy env inline, turbo env allowlist, workflow permissions)
 3. ~~**S-10 Sentry + PostHog** (2h)~~ — ✅ 완료 (코드 PASS + 클라이언트 leak fix L-026 + main 머지)
 4. ~~**S-21 Tiptap 에디터** (6h)~~ — ✅ 완료 (StarterKit + Placeholder + 한글 IME 통과, /design-system/editor sub-route)
-5. **SS-1~3 Staging** (8h, 다음 세션 후보) — Vercel Preview + Supabase staging 분리
-6. **Epic 9 매장 KYC 자동 검증** 진입 (60h) — 본 기능 첫 단추 (의존성 그래프상 Epic 4·12 모두 후속)
+5. ~~**S-12 Vercel 첫 prod 배포** (2h)~~ — ✅ 완료 (Jayden dashboard 생성 + Claude 검증 + OAuth redirect_uri 정정)
+6. ~~**SS-2 (절반) Vercel Preview**~~ — ✅ Git integration 자동 동작 (코드 추가 0)
+7. **SS-1 Supabase staging + SS-2 나머지 + SS-3** — Day 30 시점 (+$25/월), Epic 9 시작 시 시점 재평가
+8. **Epic 9 매장 KYC 자동 검증** 진입 (60h) — 본 기능 첫 단추 (의존성 그래프상 Epic 4·12 모두 후속)
 
 ### S-22 PWA SW (Phase 1.5 시점, 후순위)
 
@@ -267,7 +296,8 @@ Jayden 승인 (2026-05-01): T2 안전 경로 채택. 의존성·가치 우선순
 - 2026-05-02 — Playwright MCP (microsoft/playwright-mcp) 자동 브라우저 검증: 5 locale 콘솔 0 errors / token 100% 일치 / PostHog 서버 ACK `{"status":"Ok"}` 200 OK 확인 → S-10 모든 검증 게이트 PASS
 - 2026-05-02 — PostHog dashboard 미표시 진단: 서버 측 정상 (Playwright ACK 검증 완료), dashboard ETL은 PostHog SaaS 비동기 파이프라인 (무료 tier 5~60분 지연) → 우리 코드 합격 기준과 무관, S-10 클로즈
 - 2026-05-02 — S-21 Tiptap 에디터 (Jayden 4 결정 권장안 그대로 승인 + D2 보강: StarterKit v3 Link 번들로 extension-link 제거) + 위치 변경 (계획: /design-system 카탈로그 → 구현: /design-system/editor sub-route, 핸드오프 1:1 fidelity 보존) + Playwright 한글 IME 자동 검증 통과 — `chore/s-21-tiptap-editor` `bfaeba9` → main 머지 `d4ce6a3`
+- 2026-05-02 — S-12 Vercel 첫 prod 배포 (DEVELOPMENT-PLAN 누락 task 발견 후 보강) + B 옵션 채택 (Day 30까지 Prod-only + Vercel Preview $0, SS-1 Supabase staging은 Day 30 시점) + Jayden hesya-web 프로젝트 dashboard 생성 + 환경변수 13개 입력 + Claude 검증 (10 routes 200 / 콘솔 0) + 🔴 OAuth redirect_uri = localhost 진단 → BETTER_AUTH_URL/NEXT_PUBLIC_APP_URL prod URL로 정정 (Jayden dashboard 재입력 + 재배포) → redirect_uri prod URL 확인 통과 + Google Cloud Console redirect URI 등록 완료. **🚨 Claude 실수 인지**: `vercel deploy --cwd /repo/root` 잘못 실행으로 `hesya` 신규 프로젝트 자동 생성 → 즉시 인지 후 `vercel project rm hesya` 정리. 새 교훈 L-027 (Vercel CLI 50.x quirks), L-028 (env별 BETTER_AUTH_URL/NEXT_PUBLIC_APP_URL 분리) 기록 — empty commits `41f5b72`, `fe44e3a` 으로 트리거 (auto-deploy 검증)
 
 ## 마지막 업데이트
 
-- 2026-05-02 (S-21 ✅ 완료. 다음 세션 후보: SS-1~3 Staging 8h / Epic 9 매장 KYC 60h 중 Jayden 선택)
+- 2026-05-02 (S-21 + S-12 ✅ 완료. Prod URL https://hesya-web.vercel.app 가동. 다음: SS-1 Day 30 / Epic 9 매장 KYC 60h 중 Jayden 선택)
