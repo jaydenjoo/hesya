@@ -7,7 +7,6 @@ import type { Metadata } from "next";
 import { Fraunces, JetBrains_Mono, Source_Sans_3 } from "next/font/google";
 import { Suspense } from "react";
 import "../globals.css";
-import { env } from "@/shared/config/env";
 import { routing } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
@@ -67,9 +66,9 @@ export default async function LocaleLayout({
     >
       <body className="min-h-full flex flex-col">
         <PostHogProvider
-          apiKey={env.NEXT_PUBLIC_POSTHOG_KEY}
+          apiKey={process.env.NEXT_PUBLIC_POSTHOG_KEY}
           clientOptions={{
-            api_host: env.NEXT_PUBLIC_POSTHOG_HOST,
+            api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
             respect_dnt: true,
           }}
         >
