@@ -48,6 +48,10 @@ const envSchema = z.object({
   NEXT_PUBLIC_POSTHOG_KEY: z.string().startsWith("phc_"),
   NEXT_PUBLIC_POSTHOG_HOST: z.url(),
 
+  // ─── Epic 9 KYC (data.go.kr Decoding 인증키, server-only) ───
+  KOREA_NTS_API_KEY: z.string().min(20),
+  KOREA_LOCALDATA_API_KEY: z.string().min(20),
+
   // ─── AI/외부 (사용 시 주석 해제) ───
   // ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-"),
 });
