@@ -1055,3 +1055,30 @@ fix commit `868d8a5` → main `246bfd6` (PR #4). Playwright 자동 검증으로 
 - 인간 리뷰: PR/배포 후 Vercel env vars 11개 + 환경별 다른 값 2개 (BETTER_AUTH_URL, NEXT_PUBLIC_APP_URL) 명시적으로 prod URL인지 dashboard에서 확인.
 
 **연관**: S-12 Vercel 첫 prod 배포, S-18 Better Auth + Google OAuth, apps/web/.env.local (dev), Vercel project hesya-web env settings, Google Cloud Console OAuth Client redirect URIs, PROGRESS.md 2026-05-02 S-12 항목
+
+### [2026-05-02] L-029 — 공공데이터포털 OpenAPI 명세 v1.1과 실 응답 메타 필드 차이 (NTS 진위확인)
+
+**증상 / 상황**: E9-2 국세청 사업자등록 진위확인 API (`/api/nts-businessman/v1/validate`) 통합 시, Swagger 공식 명세 v1.1 (2024-05-31)에는 정상 200 응답이 `{ status_code, request_cnt, valid_cnt, data[] }`로 명시되어 있어 strict하게 schema 작성. 첫 호출에서 `match_cnt: z.number()` (검색 추측 — 실은 `/status` 전용) ZodError. 메타 필드 모두 optional 풀어 재시도 → `valid_cnt: z.number()` 다시 ZodError. 즉 실 응답에 명세상 strict 메타 필드(`request_cnt`, `valid_cnt`)가 일부 누락됨.
+
+**원인**: data.go.kr OpenAPI 명세는 v1.1 release note 기준 정확하지만 실 응답이 케이스별로 메타 필드가 누락될 수 있음 (운영계정 vs 개발계정 차이, 케이스별 가변, 또는 명세 stale 가능성). 어느 쪽이든 외부 API 통합에서 명세를 strict 신뢰하면 첫 호출부터 실패.
+
+**해결**:
+
+1. **비즈니스 핵심 필드만 strict** — 우리 코드에서 실제 사용하는 필드(`data[]`, `data[].b_no`, `data[].valid`, `data[].status.b_stt`, `data[].status.tax_type`)는 strict. 메타 필드는 optional + `.passthrough()`.
+2. **명세를 reference로만 신뢰**. 실 응답을 G3 (실 호출 검증) + G6 (DB INSERT 검증)으로 source of truth 확보.
+3. **첫 호출 시 schema 풀어두고 호출 후 실 응답 형식 보고 정밀화**. Phase 1.5 시점에 50건 이상 데이터 보고 추가 정밀화.
+
+**규칙** ⭐:
+
+1. 외부 공공 OpenAPI 통합 시 schema 작성 순서: (a) 비즈니스 핵심 필드 strict + 메타 필드 optional + `.passthrough()` → (b) 첫 호출로 실 응답 검증 → (c) 실 응답 형식 확정 후 메타 필드 strict 복원 가능. **순서 거꾸로 하면 첫 호출부터 ZodError로 시간 낭비.**
+2. **명세 v1.x release note ≠ 실 응답.** v1.1 (2024-05-31)에 명시된 응답 필드가 실제로 항상 오는 건 아님. 명세 stale 또는 케이스 가변 가정.
+3. data.go.kr Swagger UI에서 본 "Example Value" 또는 "Model"은 ideal case 한 케이스만. 4xx/5xx 에러 응답은 `{ status_code }`만 오므로 schema 검증 도달 X (HTTP status로 fetch 단계에서 throw).
+4. NTS API specifically — `/validate` 응답은 `valid_cnt`, `/status` 응답은 `match_cnt`. 두 endpoint 응답 메타 필드 다름. 헷갈리지 말 것.
+5. 응답이 `valid: "02"` (불일치) 케이스에서는 `data[].status` 객체 자체가 없음 → `?? null` 처리 필수. 명세상 status는 일치(`valid: "01"`) 케이스에서만 보장.
+
+**확인 방법**:
+
+- 자동: Server Action 호출 시 NtsApiError 메시지에 ZodError 포함 → 어떤 필드 빗나갔는지 즉시 식별. Supabase MCP `execute_sql`로 store_verifications.nts_validation_result 채워졌는지 확인 = INSERT 동작 검증.
+- 인간 리뷰: 새 외부 OpenAPI 통합 PR review 시 schema strict 필드가 비즈니스 사용 필드인지 메타 필드인지 분류. 메타 필드 strict 발견하면 optional + passthrough로 변경 권장.
+
+**연관**: E9-2 NTS 진위확인, L-027 (Vercel encrypted env 검증은 실제 동작이 source of truth — 같은 정신), packages/shared-types/src/kyc-nts.ts, apps/web/src/lib/kyc/nts-client.ts, packages/shared-types/src/kyc-nts.ts ntsValidateResponseSchema 주석, Epic 9 § Step 1, Epic 9 D7 (자동 승인 임계값 Phase 1.5 정밀화)

@@ -6,9 +6,9 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **Epic 9 매장 KYC 자동 검증 — Spec/Design ✅ 완료 (D1~D8 8건 결정), E9-1 Jayden 외부 작업 진행 중 (인증키 발급 대기)**
-- **상태**: 다음 세션 = E9-2 국세청 사업자등록 진위확인 API (4h, 한 세션 종결). 인증키 도착 후 즉시 진입 가능.
-- **작업 브랜치**: `main` (S-21 + S-12까지 머지 완료)
+- **Task**: **Epic 9 매장 KYC 자동 검증 — E9-2 국세청 진위확인 ✅ 완료 (PR 대기 머지 클릭)**
+- **상태**: 다음 세션 = E9-3 행정안전부 미용업 영업신고 매칭 (8h + cron 페이지네이션 1~2h, LOCALDATA → data.go.kr 통합 D4 보강분 포함). data.go.kr 미용업 인증키 이미 등록 완료 (`KOREA_LOCALDATA_API_KEY`).
+- **작업 브랜치**: `chore/e9-2-nts-validate` (E9-2 작업 후 main 머지 대기)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
@@ -235,6 +235,23 @@
     - 인증키 도착 후 Jayden이 `.env.local` (L-004로 Claude 차단) + Vercel Production+Preview 양쪽 등록
   - **D4 보강의 의미 (LOCALDATA → data.go.kr 통합)**: 데이터 source가 단일 도메인(data.go.kr)으로 일원화 → 회원가입 1회만으로 NTS+미용업 두 API 모두 신청 가능. 데이터 항목·매칭 로직은 큰 변경 없으나 호출 패턴이 dump→OpenAPI 페이지네이션으로 바뀌어 E9-3 (8h) 견적에 cron+페이지네이션 1~2h 추가 예상.
   - **다음 세션 entry point (E9-2 4h, 한 세션 종결)**: env.ts에 NTS 키 활성화 → packages/shared-types에 NTS 응답 Zod → apps/web/src/lib/kyc/nts-client.ts (Server-only fetch + 재시도) → Server Action `verifyBusinessNumber` (`store_verifications` Step 1 INSERT) → 검증용 임시 페이지 `/admin/kyc-test` → G1~G6 검증 → 머지. 의존성 만족: env.ts 패턴 (S-3) / store_verifications (S-4) / Better Auth (S-18) / RLS service_role (S-5).
+- ✅ **E9-2 국세청 사업자등록 진위확인 API (4h, 한 세션 종결)** — 브랜치 `chore/e9-2-nts-validate` (main 머지 대기)
+  - **Step 1** Jayden 외부 작업: data.go.kr 인증키 2건 발급 (NTS + 미용업, Decoding 인증키) + `.env.local`·Vercel Production/Preview 양쪽 등록
+  - **Step 2** env.ts에 `KOREA_NTS_API_KEY` + `KOREA_LOCALDATA_API_KEY` Zod 필드 활성화 (server-only)
+  - **Step 3** `packages/shared-types/src/kyc-nts.ts` — Swagger 명세 v1.1 (2024-05-31) 학습 후 39개 필드 1:1 매핑. 비즈니스 핵심(`data[].b_no`, `data[].valid`, `data[].status.b_stt`, `data[].status.tax_type`)만 strict, 메타 필드(`request_cnt`/`valid_cnt`/`match_cnt`)는 optional + `.passthrough()` (L-029)
+  - **Step 4** `apps/web/src/lib/kyc/nts-client.ts` — `server-only` + `fetch` POST + 5xx 3회 재시도 (200/400/800ms backoff) + 4xx 즉시 throw + Zod parse + `URLSearchParams`로 Decoding key 자동 인코딩
+  - **Step 5** `apps/web/src/lib/kyc/actions.ts` Server Action `verifyBusinessNumber` — Better Auth session 검증 → Zod 입력 검증 → NTS validate 호출 → `valid` 코드 매핑 (`"01"` → `valid_match` / 그 외 → `valid_mismatch`) → `store_verifications` INSERT (`storeId` null = 가입 전 KYC 가능)
+  - **Step 6** 검증용 임시 페이지 `apps/web/src/app/[locale]/admin/kyc-test/page.tsx` — form (사업자번호+개업일자+대표자명) + `useTransition` + 결과 카드 (진위 일치/불일치/오류 분기)
+  - **TDD Guard allowlist 확장**: `apps/web/src/lib/kyc/*.ts` + `apps/web/src/app/admin/kyc-test/*.tsx` (L-005 패턴 — 외부 API thin wrapper + Server Action은 mock-heavy, 단위 테스트 가치 낮음. 검증 = G3 실 호출 + G4 Zod parse + G5 auth gate + G6 DB INSERT)
+  - **Path 보정**: 처음 `app/admin/kyc-test/`로 만들었다가 root layout 부재로 `Missing <html> and <body>` runtime error → `app/[locale]/admin/kyc-test/`로 이동 + `proxy.ts` matcher 원상복구. URL = `/ko/admin/kyc-test`.
+  - **G1~G6 검증**:
+    - G1 tsc clean (shared-types + web) ✅
+    - G2 `next build` clean ✅
+    - G3 dev 실 호출 — 삼성전자 1248100998 + 이재용 + 19690113 → `valid: "02"` (불일치) 정상 응답. status 객체 없음 → b_stt/tax_type null. 사업자번호는 정확하지만 대표자/개업일자가 NTS 등록 시점 정보와 다른 의도된 결과 ✅
+    - G4 Zod parse — passthrough schema 통과 (실 응답에 `request_cnt`/`valid_cnt` 누락) ✅
+    - G5 auth gate — actions.ts 14-18행 코드 검토 (S-18 동일 패턴) ✅
+    - G6 Supabase MCP `execute_sql` (project `bnlyzlfsxtjpzzydjjuv` hesya-prod) → store_verifications 3 row INSERT 검증, 모든 컬럼 정확 매핑 (business_number/representative_name/start_date/nts_validation_result=valid_mismatch/nts_status=null/nts_tax_type=null) ✅
+  - **명세 학습 정직성**: 처음엔 `data.go.kr/iim/api/selectAPIAcountView.do` redirect로 인증키 가이드 못 봐서 검색 결과로 추측. 응답 메타 필드 `match_cnt` 추측 빗나감. Jayden이 직접 Swagger 본문 (publicDataPk=15081808 + Models 섹션) 붙여넣어 확보 → 명세 v1.1과 우리 코드 39 필드 1:1 매핑 검증 + b_adr 1개 누락 발견하여 추가 → 학습 100% 반영. 명세와 실 응답 메타 필드 차이는 L-029 기록.
 
 ### 변경 통계
 
@@ -260,15 +277,9 @@ Jayden 승인 (2026-05-01): T2 안전 경로 채택. 의존성·가치 우선순
 5. ~~**S-12 Vercel 첫 prod 배포** (2h)~~ — ✅ 완료 (Jayden dashboard 생성 + Claude 검증 + OAuth redirect_uri 정정)
 6. ~~**SS-2 (절반) Vercel Preview**~~ — ✅ Git integration 자동 동작 (코드 추가 0)
 7. **SS-1 Supabase staging + SS-2 나머지 + SS-3** — Day 30 시점 (+$25/월), Epic 9 시작 시 시점 재평가
-8. 🟡 **Epic 9 매장 KYC 자동 검증** — Spec/Design ✅ 완료 (D1~D8 8건 결정), E9-1 외부 작업 진행 중
-   - **다음 세션 1순위**: **E9-2 국세청 사업자등록 진위확인 API (4h)** — 한 세션 종결. 인증키 도착 후 즉시 진입 가능.
-   - 후순위: E9-3 (LOCALDATA 매칭 8h+1~2h) → E9-4 (카테고리 6h) → E9-5 (자기신고 4h) → E9-6 (OCR 6h) → E9-7 (키워드 4h) → E9-9~E9-13. 매뉴얼 큐 E9-8은 Epic 12 E12-2로 통합 (D1).
-
-### Epic 9 시작 차단 요소 (Jayden 외부 작업, 인증키 발급 대기 ~3h~1일)
-
-- ⏳ data.go.kr 활용신청 2건 자동승인 후 인증키 발급
-- ⏳ Jayden이 `.env.local` (직접 입력, L-004) + Vercel Production+Preview 양쪽 환경변수 등록 (`KOREA_NTS_API_KEY`, `KOREA_LOCALDATA_API_KEY`)
-- 등록 완료되면 Claude E9-2 코드 진입 즉시 가능
+8. 🟡 **Epic 9 매장 KYC 자동 검증** — Spec/Design ✅ 완료 + **E9-2 ✅ 완료 (PR 머지 대기)**
+   - **다음 세션 1순위**: **E9-3 행정안전부 미용업 영업신고 매칭 (8h + cron 페이지네이션 1~2h)** — D4 보강분 (LOCALDATA → data.go.kr 통합) 포함. data.go.kr 미용업 인증키 (`KOREA_LOCALDATA_API_KEY`) 이미 등록 완료, 즉시 진입 가능.
+   - 후순위: E9-4 (카테고리 6h) → E9-5 (자기신고 4h) → E9-6 (OCR 6h) → E9-7 (키워드 4h) → E9-9~E9-13. 매뉴얼 큐 E9-8은 Epic 12 E12-2로 통합 (D1).
 
 ### S-22 PWA SW (Phase 1.5 시점, 후순위)
 

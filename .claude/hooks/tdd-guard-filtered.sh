@@ -122,6 +122,15 @@ case "$path" in
   # not business logic). Verification = tsc + build + curl 200 OK per locale URL.
   */packages/translations/src/*.ts) exit 0 ;;
   */packages/translations/messages/*.json) exit 0 ;;
+
+  # Epic 9 KYC — external API thin wrappers (NTS / LOCALDATA / OCR) + Server Actions
+  # that compose them with auth gate + Drizzle insert. Mock-heavy (3 deps), low unit
+  # test value. Verification = G3 실 호출 (data.go.kr) + G4 Zod parse smoke + G5 auth
+  # gate + G6 store_verifications INSERT (Supabase MCP execute_sql). Pure functions
+  # (valid 코드 매핑 등) extracted later get individual TDD.
+  */apps/*/src/lib/kyc/*.ts) exit 0 ;;
+  */apps/*/src/app/admin/kyc-test/*.tsx) exit 0 ;;
+  */apps/*/src/app/admin/kyc-test/*.ts) exit 0 ;;
 esac
 
 # Business code path — delegate to the real tdd-guard CLI with original stdin.

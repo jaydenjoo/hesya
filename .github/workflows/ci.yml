@@ -34,6 +34,9 @@ jobs:
       NEXT_PUBLIC_SENTRY_DSN: https://x@x.ingest.sentry.io/0
       NEXT_PUBLIC_POSTHOG_KEY: phc_dummy_for_ci_build
       NEXT_PUBLIC_POSTHOG_HOST: https://eu.i.posthog.com
+      # Epic 9 KYC (E9-2~E9-13) — data.go.kr Decoding 인증키 (CI dummy, min 20 chars)
+      KOREA_NTS_API_KEY: ci_dummy_korea_nts_key_xxxxxxxxxxxxxx
+      KOREA_LOCALDATA_API_KEY: ci_dummy_korea_localdata_key_xxxxxxxx
     steps:
       - uses: actions/checkout@v4
         with:
