@@ -898,3 +898,85 @@ permissions:
 ---
 
 **연관**: apps/web/src/app/design-system/\_icons.tsx, L-018 (page.tsx server prerender 패턴), Next.js 16 'use client' 규칙, Phase 1A Section 6 commit `f38c10d`
+
+---
+
+### [2026-05-02] L-026 — client bundle에서 envSchema 전체 import 금지: server-only 변수가 undefined로 parse → ZodError 폭발 (S-10)
+
+**증상**: S-10 Sentry+PostHog 통합 후 dev 서버 부팅은 정상이나 브라우저 `/en` 접속 시 console에 ZodError 4건 일제히 발생:
+
+```
+ZodError: [
+  { path: ["NEXT_PUBLIC_SUPABASE_URL"], message: "Required" },
+  { path: ["SUPABASE_SERVICE_ROLE_KEY"], message: "Required" },
+  { path: ["DATABASE_URL"], message: "Required" },
+  { path: ["BETTER_AUTH_SECRET"], message: "Required" }
+]
+```
+
+서버 측은 정상 동작 (DATABASE_URL 파싱 OK, OAuth 200 OK, RLS 16/16) — 오직 client bundle만 실패. 매 페이지 로드마다 4건 × 2모듈 = 8건 누적.
+
+**원인**: Next.js 15.3+ 에서 `src/instrumentation-client.ts`는 **client bundle**로 자동 번들링된다 (server `instrumentation.ts`와 짝). S-10 코드에서 두 파일이 envSchema 전체를 import 하고 있었다:
+
+```ts
+// ❌ apps/web/src/instrumentation-client.ts
+import { env } from "@/shared/config/env";  // envSchema 전체 parse
+Sentry.init({ dsn: env.SENTRY_DSN, ... });
+
+// ❌ apps/web/src/app/[locale]/layout.tsx (서버 컴포넌트지만 client provider wrap)
+import { env } from "@/shared/config/env";
+<PostHogProvider apiKey={env.NEXT_PUBLIC_POSTHOG_KEY} ...>
+```
+
+문제는 **Next.js Webpack의 client bundle 트리쉐이킹은 모듈 단위라서, `env.NEXT_PUBLIC_FOO`만 써도 envSchema 전체 모듈 코드가 client에 같이 번들된다**는 것. 그러면 client runtime에서 `envSchema.parse(process.env)` 가 실행되는데:
+
+- 브라우저 `process.env`는 빌드 시점에 inline된 `NEXT_PUBLIC_*` 만 포함
+- `DATABASE_URL`, `BETTER_AUTH_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SUPABASE_URL`(이 케이스는 .env.local 에 미입력) 모두 undefined
+- envSchema가 required로 선언했으니 → ZodError throw
+
+[locale]/layout.tsx 는 server component지만 PostHogProvider 가 client 경계라 경계 안쪽 `env.X` 참조가 client bundle로 끌려간다.
+
+**해결**: 두 파일에서 envSchema import 제거 + `process.env.NEXT_PUBLIC_*` 직접 접근으로 교체.
+
+```ts
+// ✅ apps/web/src/instrumentation-client.ts
+import * as Sentry from "@sentry/nextjs";
+// envSchema import 금지 — client bundle에서 server-only 변수 undefined → ZodError
+Sentry.init({
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  enabled: process.env.NODE_ENV === "production",
+  ...
+});
+
+// ✅ apps/web/src/app/[locale]/layout.tsx
+<PostHogProvider
+  apiKey={process.env.NEXT_PUBLIC_POSTHOG_KEY}
+  clientOptions={{ api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST, ... }}
+>
+```
+
+fix commit `868d8a5` → main `246bfd6` (PR #4). Playwright 자동 검증으로 콘솔 0 errors 확인.
+
+**규칙**:
+
+1. **`instrumentation-client.ts`, 'use client' 모듈, client provider wrapper(PostHogProvider 등)에서는 envSchema import 절대 금지**. `process.env.NEXT_PUBLIC_*`를 직접 참조한다.
+
+2. **envSchema import 허용 위치 (server-only)**:
+   - `instrumentation.ts` (`register()` 내부 dynamic import, server boot)
+   - `lib/auth.ts` (server)
+   - `app/api/**/*.ts` (server route handler)
+   - `sentry.{server,edge}.config.ts` (server/edge runtime)
+   - server actions (`'use server'`)
+
+3. **판별 기준**: 파일 최상단에 `'use client'`가 있거나, 파일 이름에 `-client`가 포함되거나, server component이지만 client provider를 자식으로 가지면 → client bundle로 흘러들 가능성. 그 경계 안에서는 `process.env.NEXT_PUBLIC_*` 만.
+
+4. **NEXT*PUBLIC*\* 키도 client에서는 envSchema 거치지 말 것**. server에서는 envSchema가 명시·검증·타입 안전을 다 보장하지만 client는 빌드 시점에 inline된 string literal만 존재 → 런타임 검증이 부적절. 필요하면 caller 측에서 별도로 `if (!process.env.NEXT_PUBLIC_X) throw ...` 가드.
+
+5. **envSchema 파일 자체에 client/server 분리도 가능** (advanced): `env.client.ts` (NEXT*PUBLIC*만) + `env.server.ts` (전체) 두 파일로 분리하고 client 측은 `env.client.ts`만 import. 단 1인 작업 단계에서는 oversize라서 process.env 직접 접근 패턴이면 충분.
+
+**확인 방법**:
+
+- 자동: 브라우저 DevTools Console에 `ZodError` 또는 `Required` 메시지 → client bundle env leak 100% 신호. Playwright 검증 시 `console.messages`에 errors filter.
+- 인간 리뷰: client 모듈에서 `import { env } from "@/shared/config/env"` 패턴 검색 → 발견 시 즉시 process.env 직접 접근으로 교체.
+
+**연관**: apps/web/src/instrumentation-client.ts, apps/web/src/app/[locale]/layout.tsx, apps/web/src/shared/config/env.ts (envSchema), L-003 (env Zod parse 트리거 패턴), L-023 (instrumentation.ts로 env wiring 격상), S-10, PR #4 fix `868d8a5` → main `246bfd6`
