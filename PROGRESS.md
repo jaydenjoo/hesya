@@ -6,11 +6,60 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **Epic 9 매장 KYC 자동 검증 — E9-2 국세청 진위확인 ✅ 완료 (PR 대기 머지 클릭)**
-- **상태**: 다음 세션 = E9-3 행정안전부 미용업 영업신고 매칭 (8h + cron 페이지네이션 1~2h, LOCALDATA → data.go.kr 통합 D4 보강분 포함). data.go.kr 미용업 인증키 이미 등록 완료 (`KOREA_LOCALDATA_API_KEY`).
-- **작업 브랜치**: `chore/e9-2-nts-validate` (E9-2 작업 후 main 머지 대기)
+- **Task**: **E9-3 옵션 A (LOCALDATA 미용업 클라이언트 + Server Action skeleton) ✅ main 머지 + TDD 인프라 + 보안 보강 통합 완료** (PR #6 squash `8861de5`, PR #7은 PR #6에 흡수되어 close)
+- **상태**: 다음 세션 = **E9-3 분해 2단계** (퍼지 매칭 + `store_verifications.localdata_*` INSERT + cron 페이지네이션, 6~8h). 매뉴얼 검토 큐 fallback / LIKE 와일드카드 escape는 별도 후속.
+- **작업 브랜치**: `main` (이번 세션 마무리, 다음 세션은 새 브랜치 `chore/e9-3-fuzzy-match`)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
+
+## 이번 세션 완료 (2026-05-02)
+
+### E9-3 옵션 A — LOCALDATA 미용업 검색 클라이언트 + Server Action skeleton (PR #6 → main `8861de5`)
+
+- **데이터셋 확정**: 행정안전부*생활*미용업 조회서비스 (data.go.kr `1741000/beauty_salons/info`, 활용기간 2026-05-02 ~ 2028-05-02, 일일 10,000회). LOCALDATA 사이트 2026-04-16 폐쇄 → data.go.kr 통합 후속.
+- **사업자번호 직접 검색 미지원 발견** → 옵션 A 가정 보정 (사업장명 LIKE + 도로명주소 LIKE)
+- 4파일 신규/수정: `packages/shared-types/src/kyc-localdata.ts`, `apps/web/src/lib/kyc/localdata-client.ts`, `apps/web/src/lib/kyc/actions.ts`(Server Action 추가), `apps/web/src/app/[locale]/admin/kyc-test/page.tsx`(NTS/LOCALDATA 두 섹션)
+- 응답 envelope 가변성 흡수: `localdataItemsSchema = z.union([array, {item: array}])` + `extractLocaldataItems` 헬퍼 (L-029)
+- 실 호출 검증: "청담" totalCount=736 / 가짜 매장명 빈배열 / "청담"+"강남구" 191건 / Zod PARSE_OK / 응답 스키마 보정 0건
+- TDD guard hook glob 패턴 보강: `[locale]/admin/kyc-test/*` (L-030 후속)
+- L-031 5곳 점검 통과 (env.ts/.env.local/ci.yml/turbo.json/Vercel)
+
+### TDD 인프라 셋업 + 보안 보강 (PR #7 → PR #6에 통합 흡수)
+
+- **vitest 4.1.5 + @vitejs/plugin-react 6 + @testing-library/{react,jest-dom,user-event} + jsdom 29 + tdd-guard-vitest 0.2** 설치
+- `vitest.config.ts` (jsdom env, Vite 7 native tsconfigPaths, globals: false, **VitestReporter** 등록 — L-032)
+- `vitest.setup.ts` (jest-dom matchers + afterEach cleanup)
+- 샘플 테스트 1: `apps/web/src/lib/kyc/nts-schema.test.ts` (3 cases — passthrough envelope 회귀 방어)
+- 샘플 테스트 2 (보안 fix와 함께): `apps/web/src/shared/lib/admin-guard.test.ts` (5 cases TDD 정공법 — L-033 점진 RED→GREEN 패턴)
+- TDD guard hook 면제 패턴 보강: `*.test.ts(x)` / `*.spec.ts(x)` / `__tests__/*` / `*.setup.*`
+- CI workflow에 `pnpm -r test` 단계 활성화 (Lint 다음)
+
+### 코드 리뷰 결과 P0/P1 보강
+
+4개 에이전트 병렬 리뷰(code-reviewer / security-reviewer / senior-engineer / consistency-reviewer) → security-reviewer **환각 발견 (L-034)**: `requireAdmin()` stub 상태인데 "동작 중" 가정. 차선책으로 ADMIN_EMAILS 화이트리스트 채택.
+
+- **P0-1 admin 가드**: `apps/web/src/shared/lib/admin-guard.ts` 신규 (Better Auth session + ADMIN_EMAILS 화이트리스트, role-based 도입 전 임시). KYC 두 Server Action(verifyBusinessNumber, searchLocaldataBeautyShops)에 적용.
+- **P0-2 rate limit**: `checkRateLimit('kyc:${userId}', 60s/20회)` 적용 — data.go.kr 일일 10,000회 한도 보호 (in-memory 한계 인지).
+- **P1-3 외부 API 에러 본문 클라이언트 노출 차단**: `localdata-client.ts` + `nts-client.ts` 양쪽 — 본문은 `console.warn`으로 서버 로그만, 클라이언트엔 `HTTP {status}` 일반화.
+- **P1-6 totalCount null 통일**: `SearchBeautyShopsResult.totalCount/pageNo/numOfRows`를 `number | null`로 (undefined 혼재 제거).
+- **P1-8 헤더 multi-line** + **P1-10 이중 Zod parse 제거** (NTS 패턴 미러링 + 단일 책임 경계).
+
+### 학습 3건 추가
+
+- **L-032 tdd-guard-vitest reporter 누락 함정** — vitest 단독으로는 RED 인식 X, 별도 패키지 + `{ projectRoot }` 객체 옵션 필수
+- **L-033 점진 TDD 강제 패턴** — `it.skip` 1개씩 enable + minimal step 반복 (5 RED + 5 풀 구현 동시 거부)
+- **L-034 코드 리뷰 에이전트 환각 검증** — 권장 적용 전 인용 함수 본문 Read로 stub 여부 확인 필수
+
+## 다음 세션 할 일
+
+1. **E9-3 분해 2단계** — 퍼지 매칭(사업장명 정규화 + 주소 표준화 + Levenshtein) + `store_verifications.localdata_matched/business_type/status` INSERT + cron 페이지네이션 (6~8h, 새 브랜치 `chore/e9-3-fuzzy-match`)
+2. (선택) E9-3 후속 P1: `store_verifications.status` 컬럼 추가 마이그레이션 (P1-5, 미완성 KYC 레코드 신뢰성)
+3. (선택) `localdataSearchResponseSchema` shared-types 노출 면적 축소 (senior P2)
+4. (선택) `actions.ts` 분할 시점은 Step 3(OCR) 추가 전 예약
+
+## 차단 요소
+
+- 없음 (PR #6 main 머지 완료, 모든 CI/Vercel green, ADMIN_EMAILS 5곳 갱신 완료)
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
 

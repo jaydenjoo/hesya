@@ -1134,3 +1134,101 @@ fix commit `868d8a5` → main `246bfd6` (PR #4). Playwright 자동 검증으로 
 - 인간 리뷰: env.ts에 strict 필드 추가했을 때 5곳 모두 갱신했는지 mental checklist.
 
 **연관**: L-004 (.env.local Claude 차단), L-024 (turbo strict env allowlist), L-026 (client bundle env leak fix), L-028 (Vercel env별 prod/dev 분리), S-3 (Supabase 4 키), S-10 (Sentry+PostHog 4 키), S-18 (Better Auth 4 키), E9-2 (KOREA 2 키 — 이번 발견 사례), 향후 E9-3/E9-6/E9-7 동일 패턴
+
+---
+
+### [2026-05-02] L-032 — tdd-guard reporter 패키지 누락 함정 (vitest+RTL만 깔면 hook이 RED 인식 못 함)
+
+**증상 / 상황**: 테스트 인프라(vitest+RTL+jsdom) 셋업 후 admin-guard.ts 작성 시도 → tdd-guard hook이 "Premature implementation: write a failing test first"로 차단. 그러나 admin-guard.test.ts는 이미 작성·실행돼 import error로 실패하는 상태. test.json이 `.claude/tdd-guard/data/`에 미생성. hook은 evidence 없음으로 판정.
+
+**원인**: `tdd-guard` CLI는 vitest 결과를 `.claude/tdd-guard/data/test.json`에서 읽어 RED/GREEN 상태를 판단함. 이 파일은 vitest 자체가 아니라 **별도 reporter 패키지 `tdd-guard-vitest`**가 작성. vitest 단독 설치만으로는 결과 미기록 → hook은 영구 차단 모드. 추가로 reporter constructor 시그니처가 `new VitestReporter({ projectRoot })` 객체 옵션이라, string 인자(`new VitestReporter(root)`)로 전달 시 `options.projectRoot`가 undefined → FileStorage 잘못된 경로 (CWD 기반 `apps/web/.claude/`)에 기록 → 모노레포 root에서 hook이 못 찾음.
+
+**해결**:
+
+1. `pnpm --filter @hesya/web add -D tdd-guard-vitest` 설치
+2. `vitest.config.ts`에 명시 등록:
+   ```ts
+   import path from "node:path";
+   import { VitestReporter } from "tdd-guard-vitest";
+   const projectRoot = path.resolve(__dirname, "../..");
+   // ...
+   reporters: ["default", new VitestReporter({ projectRoot })],
+   ```
+3. 등록 후 첫 실행 → `.claude/tdd-guard/data/test.json` 생성 확인 → hook이 RED 인식.
+
+**규칙** ⭐:
+
+1. **TDD 인프라 셋업 PR에는 vitest+RTL+jsdom만이 아니라 `tdd-guard-vitest`도 필수.** 셋 다 한 commit에 묶어야 hook이 즉시 동작.
+2. reporter는 **객체 옵션 전달** — `{ projectRoot }`. string 인자 X.
+3. 모노레포에서 `projectRoot`는 `path.resolve(__dirname, "../..")`로 명시 (CWD 기반 default가 잘못된 위치에 쓸 위험).
+4. 첫 검증: 테스트 1회 실행 후 `ls .claude/tdd-guard/data/test.json` 확인. 없으면 reporter 미동작.
+5. `apps/web/.claude/`처럼 잘못된 위치에 디렉토리 생성되면 즉시 삭제 (gitignore 패턴 `.claude/tdd-guard/`로 root만 무시되니 다른 위치에 생기면 stage 위험).
+
+**확인 방법**:
+
+- 자동: vitest config에 `tdd-guard-vitest` import + reporter 등록 grep. 누락 시 PR review 차단.
+- 인간 리뷰: 새 TDD 인프라 PR에서 `pnpm test` 1회 실행 후 `.claude/tdd-guard/data/test.json` 파일 존재 확인.
+
+**연관**: PR #6 fix commit (security 보강 시 발견), L-002 (tdd-guard CLI 동작 원리), `apps/web/vitest.config.ts`, `tdd-guard-vitest@0.2.0` (npm), 향후 packages/\* vitest 셋업 시 동일 패턴
+
+---
+
+### [2026-05-02] L-033 — 점진 TDD 강제: 5 RED → 1 풀 구현 거부, .skip 1개씩 enable + minimal step 반복
+
+**증상 / 상황**: admin-guard.test.ts에 5 cases를 한 번에 RED로 작성 후 admin-guard.ts 풀 구현 4번 연속 시도 → tdd-guard hook이 모두 "Over-implementation violation: implement only what's needed for ONE failing test"로 차단. minimal stub(`return { ok: false, error: "unauthorized", message: "..." }`)도 거부 ("multi-cases at once").
+
+**원인**: tdd-guard CLI는 strict TDD Red-Green-Refactor 사이클 강제 — "**한 번에 한 테스트 RED → 그 테스트만 통과시키는 minimal 구현**". 5 RED 동시 + 5 cases 한 번에 풀 구현은 over-implementation으로 판정. hook이 보는 evidence = "지금 실패하는 테스트 1개를 통과시키는 데 필요한 minimal 코드".
+
+**해결 — 점진 TDD 패턴** ⭐:
+
+1. 테스트 5 cases를 모두 작성하되 **첫 1개 외 4개는 `it.skip(...)`** 처리
+2. 첫 케이스만 enable 상태로 RED → minimal 구현 (해당 케이스만 통과하는 최소 코드) → GREEN
+3. 두 번째 `.skip` 해제 → RED → 추가 minimal 구현 → GREEN
+4. 5번 반복
+
+소요 시간: 5 cases × ~3분 ≈ 15분 (단순 모듈 기준). hook이 막힐 때마다 더 minimal로 후퇴하지 말고 **테스트를 하나씩 enable**하는 것이 빠른 길.
+
+**규칙**:
+
+1. 새 모듈 TDD 시작 시 (a) 모든 케이스를 한 번에 RED로 작성하지 말고 (b) `it.skip`으로 1개씩 enable하며 점진. 또는 (c) 테스트 1건 작성 → 구현 → GREEN → 다음 테스트 1건 추가 패턴.
+2. minimal step의 표준 시작점: `export function X() {}` (빈 함수) → "Cannot read 'ok' of undefined" → `return { ok: false }` → "expected 'unauthorized'" → `return { ok: false, error: "unauthorized" }` → 다음 케이스.
+3. 풀 구현이 "당연히" 보일 때도 hook이 거부함 — TDD가 단계적 점진을 가르치는 것 자체가 가치 (refactor 단계에서 type alias·JSDoc 등 보강).
+4. Refactor 단계(모든 GREEN 후)에서도 hook이 막을 수 있음 — 그땐 Edit으로 부분 수정 시도 (Write 전체 재작성보다 통과 가능성 높음).
+
+**확인 방법**:
+
+- 자동: 새 _.test.ts PR에서 `it(` count > 1 + 같은 commit에 _.ts 풀 구현이 같이 있으면 review 차단.
+- 인간 리뷰: TDD commit history가 "1 test add + 1 minimal impl" 단위로 짜였는지 확인.
+
+**연관**: L-032 (tdd-guard reporter), `apps/web/src/shared/lib/admin-guard.{ts,test.ts}`, PR #6 fix commit, Karpathy 4원칙 4번 (검증 가능 목표) — 점진 TDD가 정확한 운영 형태
+
+---
+
+### [2026-05-02] L-034 — 코드 리뷰 에이전트 환각 검증 — security-reviewer가 stub 함수를 "동작 중"으로 가정
+
+**증상 / 상황**: 4개 에이전트 병렬 코드 리뷰 후 security-reviewer가 P0(머지 차단)으로 분류한 권장 해결책: "`requireAdmin()` 적용 (5분)". 그러나 실제 `auth-guard.ts`는 stub 상태로 `throw new UnauthorizedError("auth-guard.ts에 실제 인증 로직 구현 필요")`만 함. 호출 시 항상 throw → 사실상 미동작. 이 가정 위에 1.5h 작업을 시작했다면 잘못된 방향.
+
+**원인**: security-reviewer 에이전트가 파일·함수명을 보고 "존재한다 = 동작한다"고 가정. 함수 본문(stub TODO 주석)까지 read하지 않음. 비슷하게 `rate-limit.ts`도 in-memory 한계가 있는데 production 안전 수준으로 권장됨.
+
+**해결**:
+
+1. 리뷰 결과 받은 직후 OAR 보고 — "이 권장의 전제(`requireAdmin()`이 동작함)가 깨짐" 명시
+2. 차선책 옵션 3개(NODE_ENV 가드 / ADMIN_EMAILS 화이트리스트 / 둘 조합) 제시 후 Jayden 결정
+3. 결과: ADMIN_EMAILS 화이트리스트 + TDD 정공법으로 admin-guard.ts 신규 작성 (auth-guard.ts는 그대로 두고 책임 분리, Karpathy 3번)
+
+**규칙** ⭐:
+
+1. **AI 리뷰 결과 적용 전 검증 3단계 필수**:
+   - (a) 인용된 파일·함수가 실제 존재하는지 (`ls`/`grep`)
+   - (b) stub/TODO 상태인지 (함수 본문 Read)
+   - (c) production-ready 인지 (의존성·side effect·alternative storage 등)
+2. AI는 "함수가 있다"와 "함수가 동작한다"를 혼동할 수 있음. **시그니처 ≠ 구현**. 특히 named import가 type-only라 컴파일 통과해도 runtime은 별개.
+3. 리뷰 권장의 **시간 추정도 검증**: "5분에 끝남" 추정이 stub 가정 위에 만들어졌다면 실제는 별 Epic 작업급 (1~2일)일 수 있음.
+4. CLAUDE.md "AI 응답 검증 3원칙" 적용 — 추측 금지, 코드 캡처(Read) 먼저, 확신등급 표시.
+
+**확인 방법**:
+
+- 자동: 리뷰 결과 적용 PR에서 권장에 인용된 함수/모듈을 grep. 본문에 `throw new` / `TODO` / `not implemented` 패턴 발견 시 review 차단.
+- 인간 리뷰: 리뷰 결과 보고 직후 "이 함수 정말 동작하는지 본문 Read로 확인했나?" 자체 점검.
+
+**연관**: PR #6 코드 리뷰(4 에이전트 병렬), `apps/web/src/shared/lib/{auth-guard.ts (stub), admin-guard.ts (실 구현), rate-limit.ts (in-memory)}`, CLAUDE.md "AI 응답 검증 규칙" 섹션, L-031 정신 (5곳 동기화 같은 함정)
