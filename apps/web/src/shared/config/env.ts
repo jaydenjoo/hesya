@@ -52,6 +52,12 @@ const envSchema = z.object({
   KOREA_NTS_API_KEY: z.string().min(20),
   KOREA_LOCALDATA_API_KEY: z.string().min(20),
 
+  // ─── Admin 화이트리스트 (검증 페이지·KYC Server Action 접근 제어) ───
+  // Better Auth user 테이블에 role 컬럼이 도입되기 전 임시 가드 (Epic 12 admin
+  // panel 도입 시 role-based로 교체). 콤마 구분 이메일 목록.
+  // 예: "jayden@example.com,ops@example.com"
+  ADMIN_EMAILS: z.string().min(3),
+
   // ─── AI/외부 (사용 시 주석 해제) ───
   // ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-"),
 });

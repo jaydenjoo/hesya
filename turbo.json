@@ -21,7 +21,8 @@
         "NEXT_PUBLIC_POSTHOG_KEY",
         "NEXT_PUBLIC_POSTHOG_HOST",
         "KOREA_NTS_API_KEY",
-        "KOREA_LOCALDATA_API_KEY"
+        "KOREA_LOCALDATA_API_KEY",
+        "ADMIN_EMAILS"
       ]
     },
     "dev": {

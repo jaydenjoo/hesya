@@ -13,7 +13,6 @@
 import "server-only";
 import {
   extractLocaldataItems,
-  localdataSearchInputSchema,
   localdataSearchResponseSchema,
   type LocaldataItem,
   type LocaldataSearchInput,
@@ -46,15 +45,22 @@ async function getWithRetry(url: string, attempt = 1): Promise<unknown> {
   try {
     const res = await fetch(url, {
       method: "GET",
-      headers: { Accept: "application/json" },
+      headers: {
+        Accept: "application/json",
+      },
       signal: controller.signal,
       cache: "no-store",
     });
 
     if (!res.ok) {
+      // 외부 응답 본문은 클라이언트로 노출하지 않음 (서버 IP·내부 경로 누출 방지).
+      // 디버깅 필요 시 서버 로그(Sentry/Vercel)에서 확인.
       const text = await res.text().catch(() => "");
+      console.warn(
+        `[localdata-client] HTTP ${res.status} body: ${text.slice(0, 500)}`,
+      );
       throw new LocaldataApiError(
-        `LOCALDATA API ${res.status}: ${text.slice(0, 200)}`,
+        `LOCALDATA API HTTP ${res.status}`,
         undefined,
         res.status,
       );
@@ -86,16 +92,18 @@ async function getWithRetry(url: string, attempt = 1): Promise<unknown> {
 
 export interface SearchBeautyShopsResult {
   items: LocaldataItem[];
-  totalCount?: number;
-  pageNo?: number;
-  numOfRows?: number;
+  totalCount: number | null;
+  pageNo: number | null;
+  numOfRows: number | null;
 }
 
+/**
+ * 호출자(Server Action)가 이미 Zod 검증된 LocaldataSearchInput을 전달한다고 가정.
+ * 이중 검증 없음 — 단일 책임 경계는 Server Action에 둔다.
+ */
 export async function searchBeautyShops(
-  rawInput: LocaldataSearchInput,
+  input: LocaldataSearchInput,
 ): Promise<SearchBeautyShopsResult> {
-  const input = localdataSearchInputSchema.parse(rawInput);
-
   const params = new URLSearchParams({
     serviceKey: env.KOREA_LOCALDATA_API_KEY,
     pageNo: String(input.pageNo),
@@ -119,8 +127,8 @@ export async function searchBeautyShops(
 
   return {
     items: extractLocaldataItems(parsed.data),
-    totalCount: parsed.data.response?.body?.totalCount,
-    pageNo: parsed.data.response?.body?.pageNo,
-    numOfRows: parsed.data.response?.body?.numOfRows,
+    totalCount: parsed.data.response?.body?.totalCount ?? null,
+    pageNo: parsed.data.response?.body?.pageNo ?? null,
+    numOfRows: parsed.data.response?.body?.numOfRows ?? null,
   };
 }

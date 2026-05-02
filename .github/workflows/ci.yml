@@ -37,6 +37,8 @@ jobs:
       # Epic 9 KYC (E9-2~E9-13) — data.go.kr Decoding 인증키 (CI dummy, min 20 chars)
       KOREA_NTS_API_KEY: ci_dummy_korea_nts_key_xxxxxxxxxxxxxx
       KOREA_LOCALDATA_API_KEY: ci_dummy_korea_localdata_key_xxxxxxxx
+      # Admin 화이트리스트 — 검증 페이지·KYC Server Action 접근 제어
+      ADMIN_EMAILS: ci-dummy-admin@example.com
     steps:
       - uses: actions/checkout@v4
         with:

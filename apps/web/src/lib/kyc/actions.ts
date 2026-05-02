@@ -1,14 +1,18 @@
 /**
- * Epic 9 § Step 1 — 사업자등록 진위확인 Server Action.
+ * Epic 9 § Step 1·2 — KYC Server Actions (NTS 진위확인 + LOCALDATA 검색).
  *
- * 흐름: Better Auth session 검증 → Zod 입력 검증 → NTS API 호출
- *      → valid 코드 매핑 → store_verifications INSERT (storeId null).
+ * 인가 체인: requireAdminEmail (admin 화이트리스트) → checkRateLimit (60s/20회)
+ *           → Zod 입력 검증 → 외부 API 호출 → 결과 union 반환.
  *
- * 결과는 union 타입 — 호출자가 ok 분기로 명확히 처리. throw 안 함.
+ * - admin 가드: ADMIN_EMAILS env 화이트리스트 (Epic 12 admin panel 도입 시
+ *   role-based로 admin-guard.ts만 교체).
+ * - rate limit: data.go.kr 일일 10,000회 한도 보호. in-memory store
+ *   (Vercel serverless에서 인스턴스 분리 한계 있음, 부분 방어).
+ * - 결과 union: 호출자가 ok 분기로 처리, throw 안 함.
+ * - 에러 메시지: 외부 응답 본문은 서버 로그로만, 클라이언트엔 일반화된 메시지.
  */
 "use server";
 
-import { headers } from "next/headers";
 import { storeVerifications, createDbClient } from "@hesya/database";
 import {
   localdataSearchInputSchema,
@@ -16,12 +20,15 @@ import {
   NTS_VALID_OK,
   type LocaldataItem,
 } from "@hesya/shared-types";
-import { auth } from "@/lib/auth";
+import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { checkRateLimit, RateLimitError } from "@/shared/lib/rate-limit";
 import { env } from "@/shared/config/env";
 import { LocaldataApiError, searchBeautyShops } from "./localdata-client";
 import { NtsApiError, validateBusinessNumber } from "./nts-client";
 
 const db = createDbClient(env.DATABASE_URL);
+
+const RATE_LIMIT = { max: 20, windowSec: 60 } as const;
 
 export type VerifyBusinessNumberResult =
   | {
@@ -34,20 +41,31 @@ export type VerifyBusinessNumberResult =
     }
   | {
       ok: false;
-      error: "unauthorized" | "invalid_input" | "nts_api_error" | "internal";
+      error:
+        | "unauthorized"
+        | "forbidden"
+        | "rate_limited"
+        | "invalid_input"
+        | "nts_api_error"
+        | "internal";
       message: string;
     };
 
 export async function verifyBusinessNumber(
   rawInput: unknown,
 ): Promise<VerifyBusinessNumberResult> {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) {
-    return {
-      ok: false,
-      error: "unauthorized",
-      message: "로그인이 필요합니다",
-    };
+  const guard = await requireAdminEmail();
+  if (!guard.ok) {
+    return { ok: false, error: guard.error, message: guard.message };
+  }
+
+  try {
+    await checkRateLimit(`kyc:${guard.userId}`, RATE_LIMIT);
+  } catch (err) {
+    if (err instanceof RateLimitError) {
+      return { ok: false, error: "rate_limited", message: err.message };
+    }
+    throw err;
   }
 
   const parsed = ntsValidateBusinessSchema.safeParse(rawInput);
@@ -70,7 +88,7 @@ export async function verifyBusinessNumber(
       error: "nts_api_error",
       message:
         err instanceof NtsApiError
-          ? err.message
+          ? `NTS API 오류 (HTTP ${err.statusCode ?? "unknown"})`
           : "NTS API 호출 중 알 수 없는 오류",
     };
   }
@@ -111,11 +129,8 @@ export async function verifyBusinessNumber(
 }
 
 /**
- * Epic 9 § Step 2 — LOCALDATA 미용업 영업신고 조회 Server Action (skeleton).
- *
- * 사업자번호 직접 검색은 미지원이라 사업장명(LIKE) + 도로명주소(LIKE)로 후보 조회.
- * 이번 단계는 검색 결과 list 반환만 — 퍼지 매칭과 store_verifications.localdata_*
- * INSERT는 다음 분해 단계.
+ * LOCALDATA 미용업 영업신고 조회 (skeleton). 사업자번호 직접 검색 미지원이라
+ * 사업장명·도로명주소 LIKE로 후보 조회. 매칭/DB 저장은 다음 분해 단계.
  */
 export type SearchLocaldataResult =
   | {
@@ -127,20 +142,30 @@ export type SearchLocaldataResult =
     }
   | {
       ok: false;
-      error: "unauthorized" | "invalid_input" | "localdata_api_error";
+      error:
+        | "unauthorized"
+        | "forbidden"
+        | "rate_limited"
+        | "invalid_input"
+        | "localdata_api_error";
       message: string;
     };
 
 export async function searchLocaldataBeautyShops(
   rawInput: unknown,
 ): Promise<SearchLocaldataResult> {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) {
-    return {
-      ok: false,
-      error: "unauthorized",
-      message: "로그인이 필요합니다",
-    };
+  const guard = await requireAdminEmail();
+  if (!guard.ok) {
+    return { ok: false, error: guard.error, message: guard.message };
+  }
+
+  try {
+    await checkRateLimit(`kyc:${guard.userId}`, RATE_LIMIT);
+  } catch (err) {
+    if (err instanceof RateLimitError) {
+      return { ok: false, error: "rate_limited", message: err.message };
+    }
+    throw err;
   }
 
   const parsed = localdataSearchInputSchema.safeParse(rawInput);
@@ -159,9 +184,9 @@ export async function searchLocaldataBeautyShops(
     return {
       ok: true,
       items: result.items,
-      totalCount: result.totalCount ?? null,
-      pageNo: result.pageNo ?? null,
-      numOfRows: result.numOfRows ?? null,
+      totalCount: result.totalCount,
+      pageNo: result.pageNo,
+      numOfRows: result.numOfRows,
     };
   } catch (err) {
     return {
@@ -169,7 +194,7 @@ export async function searchLocaldataBeautyShops(
       error: "localdata_api_error",
       message:
         err instanceof LocaldataApiError
-          ? err.message
+          ? `LOCALDATA API 오류 (HTTP ${err.statusCode ?? "unknown"})`
           : "LOCALDATA API 호출 중 알 수 없는 오류",
     };
   }
