@@ -1082,3 +1082,55 @@ fix commit `868d8a5` → main `246bfd6` (PR #4). Playwright 자동 검증으로 
 - 인간 리뷰: 새 외부 OpenAPI 통합 PR review 시 schema strict 필드가 비즈니스 사용 필드인지 메타 필드인지 분류. 메타 필드 strict 발견하면 optional + passthrough로 변경 권장.
 
 **연관**: E9-2 NTS 진위확인, L-027 (Vercel encrypted env 검증은 실제 동작이 source of truth — 같은 정신), packages/shared-types/src/kyc-nts.ts, apps/web/src/lib/kyc/nts-client.ts, packages/shared-types/src/kyc-nts.ts ntsValidateResponseSchema 주석, Epic 9 § Step 1, Epic 9 D7 (자동 승인 임계값 Phase 1.5 정밀화)
+
+### [2026-05-02] L-030 — next-intl 프로젝트에서 [locale] 밖 페이지 만들면 root layout 부재로 runtime error
+
+**증상 / 상황**: E9-2 검증용 임시 페이지를 `app/admin/kyc-test/page.tsx`로 만들었더니 dev에서 `Missing <html> and <body> tags in the root layout` Next.js Runtime Error. `/admin/kyc-test`는 next-intl middleware가 `/en/admin/kyc-test`로 redirect → 그쪽엔 페이지 없음 → 404. matcher에서 `admin` exclude하면 redirect는 멈추지만 root layout 부재로 error 그대로.
+
+**원인**: 이 프로젝트엔 `app/layout.tsx` (root)가 없고 `<html>`/`<body>`는 `app/[locale]/layout.tsx`에만 있음 (next-intl + setRequestLocale 패턴, S-9). `[locale]` 밖에 만든 페이지는 root layout이 없는 상태로 렌더 → Next.js 16 룰 위반.
+
+**해결**: `app/[locale]/admin/kyc-test/page.tsx`로 이동 + matcher 원상복구. URL = `/ko/admin/kyc-test` (admin은 한국어 고정 운영자 페이지면 `ko` locale 하나만 사용).
+
+**규칙** ⭐:
+
+1. **i18n 프로젝트에서 새 페이지는 항상 `[locale]` 안에 만든다.** admin / internal tool / API 디버깅 페이지도 예외 없음.
+2. matcher exclude (`(?!api|admin|...)`)로 우회하지 말 것 — exclude 자체는 동작하지만 root layout 부재 함정에 빠짐. matcher exclude는 next-intl SSG 분기를 우회하려는 용도이지 layout 우회용이 아님.
+3. 한국어 고정 internal page도 `[locale]/...` 안에 두고 URL은 `/ko/...`로 사용. Epic 12 Admin Panel 시작 시 동일 패턴.
+
+**확인 방법**:
+
+- 자동: 새 페이지 추가 PR에서 `app/(?!\[locale\])` 경로의 `page.tsx` 발견 시 review 차단 권장.
+- 인간 리뷰: 새 페이지 만든 후 dev server에서 해당 URL 200 확인 + Next.js Runtime Error 콘솔 없는지 1회 검증.
+
+**연관**: S-9 next-intl 6개 언어, L-022 (middleware → proxy.ts), apps/web/src/app/[locale]/layout.tsx, apps/web/src/proxy.ts, E9-2 검증 페이지, Epic 12 Admin Panel (향후 동일 패턴 적용)
+
+---
+
+### [2026-05-02] L-031 — 새 환경변수 추가 시 5곳 동기 갱신 체크리스트 (env.ts ↔ ci.yml ↔ turbo.json ↔ Vercel ↔ .env.local)
+
+**증상 / 상황**: E9-2에서 env.ts에 `KOREA_NTS_API_KEY`/`KOREA_LOCALDATA_API_KEY` 활성화 + .env.local + Vercel 등록은 했지만 ci.yml + turbo.json 동시 갱신 누락 → PR #5 GitHub Actions CI 빌드 시 ZodError 4건 → fail. fix commit 1개 추가로 해결되었지만 **매 외부 API 추가마다 동일 함정 반복 가능** (E9-3, E9-5, E9-6, E9-7 등 곧 4번 이상).
+
+**원인**: 환경변수 추가 = 5개 다른 시스템 동기 갱신 필요 — env.ts (런타임 strict) / .env.local (dev) / ci.yml (CI build) / turbo.json (turbo strict env allowlist, L-024) / Vercel Dashboard Production+Preview (prod/preview build, L-028). 어느 한 곳 누락하면 해당 환경에서 build/run fail. 다섯 곳을 분산 변경하다 한 곳 잊기 쉬움.
+
+**해결 — 5곳 체크리스트** ⭐:
+
+| #   | 위치                                                | 책임                         | 갱신 내용                                                                  |
+| --- | --------------------------------------------------- | ---------------------------- | -------------------------------------------------------------------------- |
+| 1   | `apps/web/.env.local`                               | Jayden (L-004로 Claude 차단) | 실제 키 값                                                                 |
+| 2   | `apps/web/src/shared/config/env.ts`                 | Claude                       | Zod 필드 추가 (`z.string().min(N)` 등)                                     |
+| 3   | `.github/workflows/ci.yml` `env:` 섹션              | Claude                       | CI dummy 값 (Zod min length 충족, 실제 호출 X)                             |
+| 4   | `turbo.json` `tasks.build.env` 배열                 | Claude                       | 환경변수 이름 추가 (turbo strict allowlist, L-024)                         |
+| 5   | Vercel Dashboard → Settings → Environment Variables | Jayden (L-028)               | Production + Preview 양쪽 체크. dev URL ≠ prod URL인 변수는 환경별 다른 값 |
+
+**규칙**:
+
+1. 새 환경변수 PR은 **위 5곳 변경 모두 포함**. 한 곳이라도 누락하면 review 차단.
+2. PR diff에 `env.ts` 변경 있을 때 `ci.yml` + `turbo.json` 동시 변경 없으면 자동 fail (CI 또는 manual review).
+3. server-only 변수는 `NEXT_PUBLIC_` 접두사 X. 클라이언트 노출 위험 변수는 절대 client component에 import 금지 (L-026).
+
+**확인 방법**:
+
+- 자동: PR diff에서 `env.ts` 변경 detect → `ci.yml`/`turbo.json` 동시 변경 grep. 누락 시 PR comment.
+- 인간 리뷰: env.ts에 strict 필드 추가했을 때 5곳 모두 갱신했는지 mental checklist.
+
+**연관**: L-004 (.env.local Claude 차단), L-024 (turbo strict env allowlist), L-026 (client bundle env leak fix), L-028 (Vercel env별 prod/dev 분리), S-3 (Supabase 4 키), S-10 (Sentry+PostHog 4 키), S-18 (Better Auth 4 키), E9-2 (KOREA 2 키 — 이번 발견 사례), 향후 E9-3/E9-6/E9-7 동일 패턴
