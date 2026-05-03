@@ -12,11 +12,11 @@
  */
 import "server-only";
 import {
-  extractLocaldataItems,
-  localdataSearchResponseSchema,
-  type LocaldataItem,
+  parseLocaldataResponse,
   type LocaldataSearchInput,
+  type ParsedLocaldataResponse,
 } from "@hesya/shared-types";
+import { z } from "zod";
 import { env } from "@/shared/config/env";
 
 const LOCALDATA_BASE_URL = "https://apis.data.go.kr/1741000/beauty_salons/info";
@@ -90,20 +90,13 @@ async function getWithRetry(url: string, attempt = 1): Promise<unknown> {
   }
 }
 
-export interface SearchBeautyShopsResult {
-  items: LocaldataItem[];
-  totalCount: number | null;
-  pageNo: number | null;
-  numOfRows: number | null;
-}
-
 /**
  * 호출자(Server Action)가 이미 Zod 검증된 LocaldataSearchInput을 전달한다고 가정.
  * 이중 검증 없음 — 단일 책임 경계는 Server Action에 둔다.
  */
 export async function searchBeautyShops(
   input: LocaldataSearchInput,
-): Promise<SearchBeautyShopsResult> {
+): Promise<ParsedLocaldataResponse> {
   const params = new URLSearchParams({
     serviceKey: env.KOREA_LOCALDATA_API_KEY,
     pageNo: String(input.pageNo),
@@ -117,18 +110,15 @@ export async function searchBeautyShops(
 
   const url = `${LOCALDATA_BASE_URL}?${params.toString()}`;
   const raw = await getWithRetry(url);
-  const parsed = localdataSearchResponseSchema.safeParse(raw);
-  if (!parsed.success) {
-    throw new LocaldataApiError(
-      `LOCALDATA 응답 스키마 불일치: ${parsed.error.message}`,
-      parsed.error,
-    );
+  try {
+    return parseLocaldataResponse(raw);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      throw new LocaldataApiError(
+        `LOCALDATA 응답 스키마 불일치: ${err.message}`,
+        err,
+      );
+    }
+    throw err;
   }
-
-  return {
-    items: extractLocaldataItems(parsed.data),
-    totalCount: parsed.data.response?.body?.totalCount ?? null,
-    pageNo: parsed.data.response?.body?.pageNo ?? null,
-    numOfRows: parsed.data.response?.body?.numOfRows ?? null,
-  };
 }

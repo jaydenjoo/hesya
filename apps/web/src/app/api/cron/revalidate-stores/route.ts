@@ -16,6 +16,9 @@
  *
  * 호출자가 아닌 외부 webhook이라 Server Action이 아닌 Route Handler 사용
  * (DECISIONS § 1.9). Server Action은 form-action 흐름에 묶여 외부 호출 어려움.
+ *
+ * P2: LOCALDATA 호출은 searchBeautyShops()로 일원화 — retry/timeout/abort/
+ * LocaldataApiError 분류 무료. envelope schema 직접 import 제거.
  */
 import { NextResponse } from "next/server";
 import {
@@ -26,17 +29,14 @@ import {
   lte,
   storeVerifications,
 } from "@hesya/database";
-import {
-  extractLocaldataItems,
-  localdataSearchResponseSchema,
-  type LocaldataItem,
-} from "@hesya/shared-types";
+import type { LocaldataItem } from "@hesya/shared-types";
 import { env } from "@/shared/config/env";
 import { computeMatchScore } from "@/lib/kyc/match-score";
+import { searchBeautyShops } from "@/lib/kyc/localdata-client";
 
-const LOCALDATA_ENDPOINT = "https://apis.data.go.kr/1741000/beauty_salons/info";
 const PAGE_SIZE = 50;
 const REVALIDATION_INTERVAL_MS = 90 * 24 * 60 * 60 * 1000; // 분기별
+const CRON_SEARCH_NUM_OF_ROWS = 20;
 
 const db = createDbClient(env.DATABASE_URL);
 
@@ -47,24 +47,6 @@ interface RevalidationStat {
   errors: number;
 }
 
-async function fetchLocaldataCandidates(bplcNm: string, roadNmAddr: string) {
-  const params = new URLSearchParams({
-    serviceKey: env.KOREA_LOCALDATA_API_KEY,
-    pageNo: "1",
-    numOfRows: "20",
-    returnType: "json",
-    "cond[BPLC_NM::LIKE]": bplcNm,
-    "cond[ROAD_NM_ADDR::LIKE]": roadNmAddr,
-  });
-  const res = await fetch(`${LOCALDATA_ENDPOINT}?${params.toString()}`, {
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error(`LOCALDATA HTTP ${res.status}`);
-  const json = (await res.json()) as unknown;
-  const parsed = localdataSearchResponseSchema.parse(json);
-  return extractLocaldataItems(parsed);
-}
-
 async function revalidateOne(row: {
   id: string;
   localdataBplcNm: string;
@@ -72,10 +54,12 @@ async function revalidateOne(row: {
   localdataStatus: string | null;
 }): Promise<"changed" | "unchanged" | "manual_review" | "error"> {
   try {
-    const items = await fetchLocaldataCandidates(
-      row.localdataBplcNm,
-      row.localdataRoadNmAddr,
-    );
+    const { items } = await searchBeautyShops({
+      bplcNm: row.localdataBplcNm,
+      roadNmAddr: row.localdataRoadNmAddr,
+      pageNo: 1,
+      numOfRows: CRON_SEARCH_NUM_OF_ROWS,
+    });
     if (items.length === 0) {
       // 후보 0건 — 매장이 LOCALDATA에서 사라짐 → 매뉴얼 검토
       await db
