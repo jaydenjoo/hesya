@@ -34,6 +34,7 @@ import { env } from "@/shared/config/env";
 import { computeMatchScore } from "@/lib/kyc/match-score";
 import { searchBeautyShops } from "@/lib/kyc/localdata-client";
 import { sendKycNotification } from "@/lib/notifications/kyc-result";
+import { logKycEvent, createDrizzleAuditRepo } from "@/lib/kyc/audit-log";
 
 // E9-9: cron은 admin 가드 없음 → ADMIN_EMAILS 첫 항목(운영팀)으로 알림 발송.
 // Epic 12 매장 owner 가드 도입 시 row.storeId → store_owners 조인 → 매장 사장
@@ -47,6 +48,7 @@ const REVALIDATION_INTERVAL_MS = 90 * 24 * 60 * 60 * 1000; // 분기별
 const CRON_SEARCH_NUM_OF_ROWS = 20;
 
 const db = createDbClient(env.DATABASE_URL);
+const auditRepo = createDrizzleAuditRepo(db);
 
 interface RevalidationStat {
   total: number;
@@ -81,12 +83,31 @@ async function revalidateOne(row: {
           updatedAt: new Date(),
         })
         .where(eq(storeVerifications.id, row.id));
+      // E9-12: cron 재검증 결과 + status_change 감사 로그 (actor=NULL — 자동 트리거)
+      await logKycEvent({
+        repo: auditRepo,
+        verificationId: row.id,
+        eventType: "cron_revalidate",
+        eventData: { candidatesCount: 0, reason },
+      });
+      await logKycEvent({
+        repo: auditRepo,
+        verificationId: row.id,
+        eventType: "status_change",
+        eventData: { to: "manual_review", reason },
+      });
       await sendKycNotification({
         to: getOpsEmail(),
         kind: "manual_review_queued",
         locale: "ko",
         storeName: row.localdataBplcNm,
         reason,
+      });
+      await logKycEvent({
+        repo: auditRepo,
+        verificationId: row.id,
+        eventType: "notification_sent",
+        eventData: { kind: "manual_review_queued", to: getOpsEmail() },
       });
       return "manual_review";
     }
@@ -131,7 +152,26 @@ async function revalidateOne(row: {
       })
       .where(eq(storeVerifications.id, row.id));
 
+    // E9-12: cron 재검증 결과 감사 로그 (actor=NULL)
+    await logKycEvent({
+      repo: auditRepo,
+      verificationId: row.id,
+      eventType: "cron_revalidate",
+      eventData: {
+        candidatesCount: items.length,
+        bestTotalScore,
+        newStatus,
+        statusChanged,
+        needsManualReview,
+      },
+    });
     if (needsManualReview) {
+      await logKycEvent({
+        repo: auditRepo,
+        verificationId: row.id,
+        eventType: "status_change",
+        eventData: { to: "manual_review", reason: rejectionReason },
+      });
       await sendKycNotification({
         to: getOpsEmail(),
         kind: "manual_review_queued",
@@ -139,7 +179,21 @@ async function revalidateOne(row: {
         storeName: row.localdataBplcNm,
         reason: rejectionReason ?? undefined,
       });
+      await logKycEvent({
+        repo: auditRepo,
+        verificationId: row.id,
+        eventType: "notification_sent",
+        eventData: { kind: "manual_review_queued", to: getOpsEmail() },
+      });
       return "manual_review";
+    }
+    if (statusChanged) {
+      await logKycEvent({
+        repo: auditRepo,
+        verificationId: row.id,
+        eventType: "status_change",
+        eventData: { to: "auto_approved", reason: "재검증 영업 상태 변경" },
+      });
     }
     return statusChanged ? "changed" : "unchanged";
   } catch (err) {
