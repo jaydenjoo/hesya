@@ -61,6 +61,11 @@ case "$path" in
   # SQL migrations / schema (use db-engineer + manual review, not TDD)
   */migrations/*|*.sql|*/db/schema/*) exit 0 ;;
 
+  # 일회용 검증/통합 스크립트 — 실 외부 API + 실 DB 호출하는 production-adjacent
+  # 도구. unit test로 격리 불가 (실 동작이 source of truth — L-027 정신).
+  # 같은 비즈니스 로직은 별도 unit test로 cover. 명명 규칙: scripts/verify-*.ts.
+  */scripts/verify-*.ts|*/scripts/integration-*.ts) exit 0 ;;
+
   # monorepo packages — Drizzle schema files & DB client entry (declarative infra)
   # See docs/learnings.md L-003. Schemas mirror PRD § 7; verification = drizzle-kit
   # generate (syntax) + Supabase apply_migration (runtime) + list_tables (deploy).
