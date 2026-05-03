@@ -1,6 +1,7 @@
 export * from "./aftercare-messages";
 export * from "./bookings";
 export * from "./customers";
+export * from "./kyc-keywords";
 export * from "./kyc-localdata";
 export * from "./kyc-verification-logs";
 export * from "./kyc-match";

@@ -31,6 +31,7 @@ import { computeMatchScore } from "./match-score";
 import { normalizeBusinessName } from "./normalize-business-name";
 import { sendKycNotification } from "@/lib/notifications/kyc-result";
 import { logKycEvent, createDrizzleAuditRepo } from "./audit-log";
+import { scanForDangerKeywords } from "./keyword-scan";
 
 const db = createDbClient(env.DATABASE_URL);
 const auditRepo = createDrizzleAuditRepo(db);
@@ -271,6 +272,9 @@ export type MatchStoreToLocaldataResult =
       candidate: LocaldataItem | null;
       candidatesCount: number;
       verificationId: string;
+      keywordScanPassed: boolean;
+      flaggedKeywords: string[];
+      finalApproved: boolean;
     }
   | {
       ok: false;
@@ -376,6 +380,17 @@ export async function matchStoreToLocaldata(
 
   const matched = bestScore?.matched ?? false;
 
+  // E9-7 위험 키워드 검사: 매장 입력 bplcNm + LOCALDATA matched 후보 BPLC_NM
+  // 둘 다. PRD § Not Doing 카테고리(마사지·스파·한방·의료기기·성인) 포함 시
+  // manual_review로 강등.
+  const keywordScan = scanForDangerKeywords([
+    parsed.data.bplcNm,
+    bestCandidate?.BPLC_NM,
+  ]);
+
+  // 매칭 통과 + 키워드 통과 → auto_approved. 둘 중 하나만 fail → manual_review.
+  const finalApproved = matched && keywordScan.passed;
+
   await db
     .update(storeVerifications)
     .set({
@@ -385,8 +400,12 @@ export async function matchStoreToLocaldata(
       // E9-10 cron 재검증 시 LOCALDATA에 다시 검색하기 위해 키 저장
       localdataBplcNm: bestCandidate?.BPLC_NM ?? null,
       localdataRoadNmAddr: bestCandidate?.ROAD_NM_ADDR ?? null,
+      // E9-7 위험 키워드 검사 결과 (PRD § 7 컬럼 활용)
+      keywordScanPassed: keywordScan.passed,
+      flaggedKeywords:
+        keywordScan.flagged.length > 0 ? keywordScan.flagged : null,
       // 다음 재검증 예약: 분기별(90일) — D7 결정, Phase 1.5에서 정밀화 예약
-      nextRevalidationDue: matched
+      nextRevalidationDue: finalApproved
         ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
         : null,
       lastRevalidationAt: new Date(),
@@ -394,7 +413,7 @@ export async function matchStoreToLocaldata(
     })
     .where(eq(storeVerifications.id, parsed.data.verificationId));
 
-  // E9-12: LOCALDATA 매칭 결과 + status_change 감사 로그
+  // E9-12: LOCALDATA 매칭 결과 + keyword_scan + status_change 감사 로그
   await logKycEvent({
     repo: auditRepo,
     verificationId: parsed.data.verificationId,
@@ -419,27 +438,47 @@ export async function matchStoreToLocaldata(
   await logKycEvent({
     repo: auditRepo,
     verificationId: parsed.data.verificationId,
-    eventType: "status_change",
+    eventType: "keyword_scan",
     eventData: {
-      to: matched ? "auto_approved" : "manual_review",
-      reason: matched
-        ? "LOCALDATA 매칭 통과"
-        : `LOCALDATA 매칭 점수 ${bestScore?.totalScore.toFixed(3) ?? "0.000"} < 0.85`,
+      passed: keywordScan.passed,
+      flagged: keywordScan.flagged,
+      checkedTexts: [parsed.data.bplcNm, bestCandidate?.BPLC_NM ?? null],
     },
     actorUserId: guard.userId,
   });
 
-  // E9-9: matched=true면 자동 승인 알림, false면 매뉴얼 검토 큐 알림.
+  // 결정 사유: 매칭 fail or 키워드 fail (둘 다 fail 시 둘 다 표기)
+  const failReasons: string[] = [];
+  if (!matched) {
+    failReasons.push(
+      `LOCALDATA 매칭 점수 ${bestScore?.totalScore.toFixed(3) ?? "0.000"} < 0.85`,
+    );
+  }
+  if (!keywordScan.passed) {
+    failReasons.push(`위험 키워드 감지: ${keywordScan.flagged.join(", ")}`);
+  }
+  await logKycEvent({
+    repo: auditRepo,
+    verificationId: parsed.data.verificationId,
+    eventType: "status_change",
+    eventData: {
+      to: finalApproved ? "auto_approved" : "manual_review",
+      reason: finalApproved
+        ? "LOCALDATA 매칭 + 키워드 검사 통과"
+        : failReasons.join("; "),
+    },
+    actorUserId: guard.userId,
+  });
+
+  // E9-9: 알림 — 통과 시 auto_approved, 키워드 또는 매칭 fail 시 manual_review_queued.
   // 수신자는 admin email — Epic 12 매장 owner 가드 도입 시 자연 교체.
-  const notifyKind = matched ? "auto_approved" : "manual_review_queued";
+  const notifyKind = finalApproved ? "auto_approved" : "manual_review_queued";
   await sendKycNotification({
     to: guard.email,
     kind: notifyKind,
     locale: "ko",
     storeName: parsed.data.bplcNm,
-    reason: matched
-      ? undefined
-      : `LOCALDATA 매칭 점수 ${bestScore?.totalScore.toFixed(3) ?? "0.000"} < 0.85`,
+    reason: finalApproved ? undefined : failReasons.join("; "),
   });
   await logKycEvent({
     repo: auditRepo,
@@ -456,5 +495,8 @@ export async function matchStoreToLocaldata(
     candidate: bestCandidate,
     candidatesCount: searchResult.items.length,
     verificationId: parsed.data.verificationId,
+    keywordScanPassed: keywordScan.passed,
+    flaggedKeywords: keywordScan.flagged,
+    finalApproved,
   };
 }

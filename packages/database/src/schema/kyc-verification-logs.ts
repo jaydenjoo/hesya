@@ -45,7 +45,7 @@ export const kycVerificationLogs = pgTable(
   (table) => [
     check(
       "kyc_verification_logs_event_type_check",
-      sql`${table.eventType} IN ('nts_check','localdata_match','status_change','cron_revalidate','notification_sent')`,
+      sql`${table.eventType} IN ('nts_check','localdata_match','status_change','cron_revalidate','notification_sent','keyword_scan')`,
     ),
     index("kyc_verification_logs_verification_id_idx").on(table.verificationId),
     index("kyc_verification_logs_event_type_idx").on(table.eventType),
