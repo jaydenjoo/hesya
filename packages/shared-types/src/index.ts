@@ -11,6 +11,7 @@ export * from "./payments";
 export * from "./reviews";
 export * from "./services";
 export * from "./staff";
+export * from "./store-categories";
 export * from "./store-owners";
 export * from "./store-reports";
 export * from "./store-verifications";

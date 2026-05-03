@@ -44,6 +44,8 @@ jobs:
       # E9-9 KYC 결과 알림 (Resend Free, dummy: re_ prefix + 유효 email format)
       RESEND_API_KEY: re_ci_dummy_resend_api_key
       RESEND_FROM_EMAIL: ci-dummy@resend.dev
+      # E9-4 카테고리 자동 분류 (Anthropic Sonnet 4.6, dummy: sk-ant- prefix)
+      ANTHROPIC_API_KEY: sk-ant-ci-dummy-anthropic-api-key-xxxxxxxx
     steps:
       - uses: actions/checkout@v4
         with:

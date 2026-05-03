@@ -70,8 +70,10 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().startsWith("re_"),
   RESEND_FROM_EMAIL: z.email(),
 
-  // ─── AI/외부 (사용 시 주석 해제) ───
-  // ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-"),
+  // ─── E9-4 카테고리 자동 분류 (Anthropic Sonnet 4.6) ───
+  // console.anthropic.com에서 발급한 API key (`sk-ant-...`).
+  // 분류 1회당 ~$0.003 (input ~500 tokens + output ~100 tokens, Sonnet 4.6).
+  ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-"),
 });
 
 /**

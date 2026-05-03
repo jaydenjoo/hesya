@@ -28,6 +28,9 @@ importers:
 
   apps/web:
     dependencies:
+      "@anthropic-ai/sdk":
+        specifier: ^0.92.0
+        version: 0.92.0(zod@4.4.1)
       "@hesya/auth":
         specifier: workspace:*
         version: link:../../packages/auth

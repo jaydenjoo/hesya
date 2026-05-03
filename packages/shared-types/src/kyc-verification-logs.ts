@@ -14,6 +14,7 @@ export const KYC_LOG_EVENT_TYPES = [
   "notification_sent",
   "keyword_scan",
   "self_declaration",
+  "category_classify",
 ] as const;
 export type KycLogEventType = (typeof KYC_LOG_EVENT_TYPES)[number];
 

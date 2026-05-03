@@ -25,7 +25,8 @@
         "ADMIN_EMAILS",
         "CRON_SECRET",
         "RESEND_API_KEY",
-        "RESEND_FROM_EMAIL"
+        "RESEND_FROM_EMAIL",
+        "ANTHROPIC_API_KEY"
       ]
     },
     "dev": {
