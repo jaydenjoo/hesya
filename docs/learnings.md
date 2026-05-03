@@ -1305,3 +1305,32 @@ const items = extractLocaldataItems(parsed);
 - 인간 리뷰: 외부 서비스 CLI 명령 실행 전 (a) `--yes` 플래그 적합성 (b) link 메타파일 stale 여부 (c) 명령이 새 리소스 만들 가능성 — 3 mental check.
 
 **연관**: `.vercel/project.json` (이번 사건 — stale link), Vercel CLI `vercel deploy --yes` (이번 함정 명령), `feedback_no_unauthorized_resource_creation.md` (memory feedback), CLAUDE.md "Executing actions with care" + "AI 응답 검증 3원칙", L-034 (AI 환각 검증 정신 — CLI 경고도 검증 대상), 향후 Supabase/GitHub/AWS CLI 동일 패턴
+
+---
+
+### [2026-05-03] L-037 — enum NOT NULL CHECK 도입 전 모든 set 호출처 grep으로 사전 검증
+
+**증상 / 상황**: E9-3 후속 P1 (`store_verifications.verification_status` NOT NULL + 4-enum CHECK) 마이그레이션 v0005 작성 중 plan 검증 단계에서 발견 — cron route `revalidate-stores/route.ts` line 119가 `verificationStatus: needsManualReview ? "manual_review" : "approved"` set 중. 그런데 PRD § 7 + stores 테이블 CHECK constraint는 `auto_approved`만 허용 (`approved` 값은 schema에 없음). 마이그레이션을 그대로 적용하면 cron이 다음 실행에서 CHECK 위반으로 INSERT/UPDATE 깨짐.
+
+**원인**: enum 값을 PRD에서 정의하고 stores 테이블에는 적용했지만 store_verifications에는 안 했던 나머지(P1-5의 본질 문제). cron route는 stores 테이블 패턴을 따르지 않고 자체 reasoning(`approved` ≠ `manual_review`)으로 set. 단위 테스트/통합 테스트로는 잡히지 않음 — 실 cron은 분기별 1회 실행이고 그 사이엔 enum 충돌이 잠재.
+
+**해결**:
+
+1. v0005 적용 전 **사전 정정 commit 1건 분리**: cron route `"approved"` → `"auto_approved"` (10분).
+2. 그 다음 v0005 마이그레이션 (NOT NULL + DEFAULT 'pending' + 4-enum CHECK) 적용.
+3. 두 commit 의미적으로 분리해서 revert 안전성 확보.
+
+**규칙** ⭐:
+
+1. **새 enum CHECK constraint 도입 전 모든 SET/INSERT 호출처 grep 필수**: `grep -rn "verificationStatus.*=\|verificationStatus:\s*[\"']" apps/ packages/ --include="*.ts" --include="*.tsx"`. 매 호출처가 enum 안 값을 쓰는지 확인. 모르는 값을 쓰면 사전 정정.
+2. **사전 정정과 enum 추가는 별 commit으로**: enum CHECK 적용 commit과 호출처 정정 commit이 같은 commit이면 revert 시 한쪽만 되돌리기 어려움. enum 적용 → 호출처 정정 순서가 아니라 **호출처 정정 → enum 적용** 순서가 안전 (호출처 정정 먼저 main 머지하면 prod cron이 즉시 정합 상태).
+3. **PRD/stores 테이블 같은 source-of-truth가 있으면 grep 비교 필수**: PRD § 7 enum vs stores CHECK vs 신규 테이블 CHECK가 모두 같은 4개인지 확인. PRD 다른 섹션(예: § 6.5)에 모순 표기 발견 시 별 PR로 정리.
+4. **drizzle-kit generate는 NULL → DEFAULT 채움 UPDATE를 자동 생성 못 함**. 마이그레이션 SQL을 수동으로 열어서 `ALTER COLUMN SET NOT NULL` 직전에 `UPDATE table SET col = '<default>' WHERE col IS NULL` 추가 필수. 안 그러면 dev/CI/preview 환경에서 NULL row가 있을 때 마이그레이션 실패.
+5. cron/webhook/Edge Function 등 **간헐적 실행 코드는 단위 테스트 회귀로 안 잡힘**. enum 변경 시 grep + 코드 리뷰 + plan 단계 검증으로만 잡힘.
+
+**확인 방법**:
+
+- 자동: enum CHECK 추가 마이그레이션 PR에서 grep으로 enum 값 set 호출처 자동 비교 (CI step 추가 가능). 일치 안 하면 빌드 fail.
+- 인간 리뷰: plan 단계에서 새 enum/CHECK constraint 도입 시 "이 enum 안 값을 쓰는 모든 호출처 grep 결과" 첨부 필수. 호출처가 1개라도 enum 밖 값 쓰면 사전 정정 commit 분리.
+
+**연관**: PR #9 commit 1 (`12a24cd` cron `'approved' → 'auto_approved'` 사전 정정), commit 2 (`4f78e68` v0005 NOT NULL + CHECK), PRD § 7 line 619 (source of truth), packages/database/src/schema/stores.ts (4-enum CHECK 패턴 미러), L-031 (5곳 동기화 정신과 동일 — schema source-of-truth ↔ 호출처 모두 sync).
