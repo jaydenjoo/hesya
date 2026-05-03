@@ -5,16 +5,25 @@
 ## 현재 위치
 
 - **Phase**: Phase 1 진행 중
-- **Epic**: Epic 9 매장 KYC 자동 검증 시스템 (대부분 완료, 2개 잔여)
-- **Task**: **E9-4 카테고리 자동 분류 ✅ 구현 완료** ([apps#16](https://github.com/jaydenjoo/hesya/pull/16) — Anthropic Sonnet 4.6, 76 tests green, CI all pass) — 머지 승인 대기 중.
-- **상태**: Phase 1 Epic 9 활발 진행. **세션 P.M.+ = 5개 sub-task 머지** (E9-9/E9-12/E9-7/E9-5/E9-11). E9-4 PR 머지 대기. 잔여 = E9-13 (4h, 거절 알림 다국어+TTS) / E9-6 (6h, OCR Vision).
-- **작업 브랜치**: 다음 sub-task 시작 시 chore/e9-13 또는 chore/e9-6 새로 생성
+- **Epic**: Epic 9 매장 KYC 자동 검증 시스템 (**11/12 완료**, 잔여 1개)
+- **Task**: **E9-13 거절 알림 actionable + KYC 페이지 AAA ✅ 머지 완료** ([apps#17](https://github.com/jaydenjoo/hesya/pull/17) → main `7185d45`, 87 tests green, validate 1m53s ✅).
+- **상태**: 이번 세션 (2026-05-03 P.M.++) **2개 PR 머지** — E9-4 (PR #16) + E9-13 (PR #17). Epic 9 잔여 = **E9-6 (OCR Vision, 6h) 1개만**.
+- **작업 브랜치**: 다음 sub-task 시작 시 `chore/e9-6` 새로 생성
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
-## 이번 세션 완료 (2026-05-03 P.M.+ — Epic 9 잔여 5개 sub-task 통과)
+## 이번 세션 완료 (2026-05-03 P.M.++ — E9-4 + E9-13 머지)
 
-### E9-4 카테고리 자동 분류 (PR [apps#16](https://github.com/jaydenjoo/hesya/pull/16) — 머지 대기, CI all pass)
+### E9-13 거절 알림 actionable + KYC 페이지 AAA (PR [apps#17](https://github.com/jaydenjoo/hesya/pull/17) → main `7185d45`)
+
+- **DECISIONS § 1.11 정합 해석** — DEVELOPMENT-PLAN "음성 안내" ↔ DECISIONS "Phase 1엔 텍스트만 (TTS는 모듈 4 Phase 1.5 통합)" 모순을 plan 단계에서 발견 → 옵션 A (actionable + AAA) 선택.
+- **`feat(notify)`** — `BuildInput.reason: string` → `RejectionDetail { summary; retryUrl?; faqUrl? }`. 6 locale × 3 kind 본문에 actionable retry/help URL 라인 (auto_rejected_nts에만 의미, 다른 kind는 graceful 생략). `formatRejectionLines` + `formatSummaryLine` 헬퍼 추출. 호출처 4곳 마이그레이션 (actions.ts:160 `auto_rejected_nts` URL placeholder, actions.ts:488 + cron route 2곳 summary only).
+- **`feat(a11y)`** — `<SkipLink>` (WCAG 2.4.1 Level A, sr-only → focus-visible). `<main id="main" tabIndex={-1}>` SkipLink 점프 타겟. `<LiveResult>` 헬퍼 (role="status" + aria-live="polite" + aria-atomic="true") — 5 섹션 SR 자동 announcement. `text-gray-500/600` (4.3~5.7:1) → `text-gray-700` (≥7:1, AAA WCAG 1.4.6).
+- **`docs`** — DEVELOPMENT-PLAN.md:241 라벨 정정 ("음성 안내" → "actionable + AAA, TTS는 모듈 4 통합").
+- **가정** (placeholder, 향후 자연 교체) — retryUrl/faqUrl은 `${NEXT_PUBLIC_APP_URL}/ko/...` placeholder. Epic 12 onboarding + Epic 11 FAQ 도입 시 시그니처 변경 없이 교체. locale 호출처 모두 `"ko"` 하드코딩 유지 (4원칙 3번 외과적 변경) — store profile에 locale 컬럼 도입 시 자연 교체.
+- **검증**: 87 tests green (76 base + 8 actionable rejection × 6 locale + 3 SkipLink RTL) / type-check / lint / Vercel Preview / validate 1m53s ✅
+
+### E9-4 카테고리 자동 분류 (PR [apps#16](https://github.com/jaydenjoo/hesya/pull/16) → main `0abc5b5`)
 
 - **Anthropic Sonnet 4.6 통합 첫 사례**. 9개 카테고리(미용업 5종 가/나/다/라/마 + 자유업 4종 퍼스널컬러/메이크업클래스/한복/K팝) 자동 분류.
 - **결정 포인트 자체 검증 10개 모두 채택**: 100% LLM (LOCALDATA OPN_ATMY_GRP_CD hybrid는 1.5에서) / @anthropic-ai/sdk 직접 / Sonnet 4.6 / confidence 0.85 / 자체 status 변경 X / kyc-test Step 5 통합 등.
