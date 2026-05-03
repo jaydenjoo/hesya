@@ -6,11 +6,31 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **E9-3 옵션 A (LOCALDATA 미용업 클라이언트 + Server Action skeleton) ✅ main 머지 + TDD 인프라 + 보안 보강 통합 완료** (PR #6 squash `8861de5`, PR #7은 PR #6에 흡수되어 close)
-- **상태**: 다음 세션 = **E9-3 분해 2단계** (퍼지 매칭 + `store_verifications.localdata_*` INSERT + cron 페이지네이션, 6~8h). 매뉴얼 검토 큐 fallback / LIKE 와일드카드 escape는 별도 후속.
-- **작업 브랜치**: `main` (이번 세션 마무리, 다음 세션은 새 브랜치 `chore/e9-3-fuzzy-match`)
+- **Task**: **E9-3 분해 2단계 — 퍼지 매칭 코어 4 모듈 (TDD) ✅ 브랜치 작업 중** (`chore/e9-3-fuzzy-match`, 5 commit, 26 tests green). main 머지는 **옵션 B** 선택 — 다음 세션 Server Action 통합 후 한 PR로 묶을 예정.
+- **상태**: 다음 세션 = **Server Action 통합** (`actions.ts`에서 verifyBusinessNumber → searchLocaldataBeautyShops → computeMatchScore → store_verifications INSERT/UPDATE) + cron 페이지네이션 + 매뉴얼 검토 큐 fallback. 같은 브랜치 이어서 작업 후 PR.
+- **작업 브랜치**: `chore/e9-3-fuzzy-match` (origin push 완료, 보존)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
+
+## 이번 세션 완료 (2026-05-03)
+
+### E9-3 분해 2단계 — 퍼지 매칭 코어 4 모듈 (TDD) on `chore/e9-3-fuzzy-match`
+
+NTS 응답(사업자명·주소)과 LOCALDATA 응답(사업장명·도로명주소)을 비교해 "같은 매장인지" 판단하는 점수화. 4 commit, 5 commit (리뷰 권장 반영 1 commit 포함).
+
+- **신규 4 모듈** (apps/web/src/lib/kyc/, 모두 순수 함수):
+  - `normalize-business-name.ts` (5 cases) — 공백/법인접미사(`(주)`,`㈜`,`주식회사`)/대소문자 정규화
+  - `normalize-address.ts` (5 cases) — 공백/시·도 약칭/번지 정규화. 신·구 행정구역명 동일 약칭 (전라북도/강원도/전라남도 + 특별자치도 신표기)
+  - `levenshtein.ts` (3 cases) — O(m+n) 공간 편집거리 + 유사도(0~1). `Array.from()`로 surrogate pair 안전
+  - `match-score.ts` (5 cases) — 가중평균 (이름 0.6 + 주소 0.4), 임계값 `MATCH_THRESHOLD=0.85` export. D7 기준 Phase 1.5에서 50건+ 데이터로 정밀화 예약
+- **점진 TDD (L-033) 안정 적용**: `.skip` 1개씩 enable + minimal step. tdd-guard hook 차단 0건. case 2/3 모순 회귀 1건 즉시 case 입력 분리로 해결
+- **3 에이전트 병렬 리뷰** (code-reviewer / senior-engineer / consistency-reviewer): 머지 차단 0, Important 권장 2건(전라북도/강원도 누락 + null 혼합 케이스 spec) 즉시 반영. consistency 19/20 일치
+- **L-034 환각 검증 적용**: 권장 적용 전 인용 모듈/regex 본문 Read로 검증. senior가 "5번지 trailing 공백" 우려를 self-correct (오탐). 환각 0건
+- **검증 게이트**: 6 test files / 26 tests green, TypeScript strict 통과, prettier+eslint hook 자동 정리
+
+### 미처리 (의도적 다음 세션 이월)
+
+- `MatchScoreInput`/`MatchScoreResult`를 `packages/shared-types`로 이동 (consistency #1) — Server Action 통합 시점에 같이 처리
 
 ## 이번 세션 완료 (2026-05-02)
 
@@ -52,14 +72,20 @@
 
 ## 다음 세션 할 일
 
-1. **E9-3 분해 2단계** — 퍼지 매칭(사업장명 정규화 + 주소 표준화 + Levenshtein) + `store_verifications.localdata_matched/business_type/status` INSERT + cron 페이지네이션 (6~8h, 새 브랜치 `chore/e9-3-fuzzy-match`)
-2. (선택) E9-3 후속 P1: `store_verifications.status` 컬럼 추가 마이그레이션 (P1-5, 미완성 KYC 레코드 신뢰성)
-3. (선택) `localdataSearchResponseSchema` shared-types 노출 면적 축소 (senior P2)
-4. (선택) `actions.ts` 분할 시점은 Step 3(OCR) 추가 전 예약
+1. **E9-3 분해 3단계 — Server Action 통합** (같은 브랜치 `chore/e9-3-fuzzy-match` 이어서, ~3h)
+   - `actions.ts`에 `verifyAndMatchStore` 흐름: NTS validate → LOCALDATA search → `computeMatchScore` 가중평균 → `store_verifications.localdata_matched/business_type/status` INSERT/UPDATE
+   - `MatchScoreInput`/`MatchScoreResult`를 `packages/shared-types`로 이동 (리뷰 consistency #1 후속)
+   - 호출자에서 정규화 후 빈 문자열 검증 (양쪽 null → matched=true 회피, 리뷰 spec 명시)
+2. **cron 페이지네이션** — LOCALDATA 일괄 검증 (~2h, 같은 PR 또는 분리 PR 결정)
+3. **매뉴얼 검토 큐 fallback** — `matched=false` 케이스 admin queue (~1h)
+4. 통합 후 한 PR로 묶어 main 머지 (옵션 B)
+5. (선택) E9-3 후속 P1: `store_verifications.status` 컬럼 추가 마이그레이션 (P1-5)
+6. (선택) `localdataSearchResponseSchema` shared-types 노출 면적 축소 (senior P2)
+7. (선택) LIKE 와일드카드 escape (PR #6 review 후속)
 
 ## 차단 요소
 
-- 없음 (PR #6 main 머지 완료, 모든 CI/Vercel green, ADMIN_EMAILS 5곳 갱신 완료)
+- 없음 (이번 세션 5 commit on 브랜치, 26 tests green, TypeScript strict 통과)
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
 
