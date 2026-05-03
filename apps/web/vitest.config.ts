@@ -20,6 +20,11 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     tsconfigPaths: true,
+    alias: {
+      // `server-only`는 Next.js runtime이 client bundle에서 import 시 throw하는
+      // 가드 패키지. 단위 테스트에는 의미 X (jsdom = test runner). no-op stub.
+      "server-only": path.resolve(__dirname, "./vitest.server-only-stub.ts"),
+    },
   },
   test: {
     environment: "jsdom",

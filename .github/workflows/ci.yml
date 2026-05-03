@@ -41,6 +41,9 @@ jobs:
       ADMIN_EMAILS: ci-dummy-admin@example.com
       # E9-10 cron 자동 재검증 (Vercel Cron Authorization Bearer 검증, min 32 chars)
       CRON_SECRET: ci_dummy_cron_secret_xxxxxxxxxxxxxxxxxxxxxxxx
+      # E9-9 KYC 결과 알림 (Resend Free, dummy: re_ prefix + 유효 email format)
+      RESEND_API_KEY: re_ci_dummy_resend_api_key
+      RESEND_FROM_EMAIL: ci-dummy@resend.dev
     steps:
       - uses: actions/checkout@v4
         with:
