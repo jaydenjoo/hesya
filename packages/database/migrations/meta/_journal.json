@@ -29,6 +29,13 @@
       "when": 1777613465448,
       "tag": "0003_rls_v0001",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1777781747282,
+      "tag": "0004_dark_big_bertha",
+      "breakpoints": true
     }
   ]
 }

@@ -6,11 +6,56 @@
 
 - **Phase**: Setup (Spec / Design / Impl / Review)
 - **Epic**: Day 0 Setup
-- **Task**: **E9-3 옵션 A (LOCALDATA 미용업 클라이언트 + Server Action skeleton) ✅ main 머지 + TDD 인프라 + 보안 보강 통합 완료** (PR #6 squash `8861de5`, PR #7은 PR #6에 흡수되어 close)
-- **상태**: 다음 세션 = **E9-3 분해 2단계** (퍼지 매칭 + `store_verifications.localdata_*` INSERT + cron 페이지네이션, 6~8h). 매뉴얼 검토 큐 fallback / LIKE 와일드카드 escape는 별도 후속.
-- **작업 브랜치**: `main` (이번 세션 마무리, 다음 세션은 새 브랜치 `chore/e9-3-fuzzy-match`)
+- **Task**: **E9-3 옵션 A 완성 + E9-10 cron 자동 재검증 ✅ 브랜치 작업 중** (`chore/e9-3-fuzzy-match`, 16 commit, 26 tests green, 실 LOCALDATA + DB UPDATE 검증 통과). E9-8 매뉴얼 큐는 Epic 12 admin panel 시점으로 분리. main 머지는 옵션 B 선택 — Jayden의 .env.local + Vercel CRON_SECRET 5곳 갱신 후 PR.
+- **상태**: 차단 — Jayden 외부 작업 (CRON_SECRET 5곳 동기화 중 .env.local + Vercel Dashboard 2곳). 완료 후 빌드 검증 + PR.
+- **작업 브랜치**: `chore/e9-3-fuzzy-match` (origin push 완료, 보존)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
+
+## 이번 세션 완료 (2026-05-03)
+
+### E9-10 분기별 자동 재검증 cron (옵션 B 후속, commit `0b3910b` + `1b59cc7`)
+
+- **DB 마이그레이션 v0004** (Supabase apply_migration): `store_verifications`에 `localdata_bplc_nm`, `localdata_road_nm_addr` 컬럼 — NTS는 b_no/p_nm만 줘서 LOCALDATA 재검색 키워드로 부족. 매칭 시점에 최고점 후보의 사업장명·도로명주소 저장 → cron이 이걸로 재검색
+- **`matchStoreToLocaldata` 개정**: UPDATE에 4개 추가 (`localdataBplcNm`, `localdataRoadNmAddr`, `nextRevalidationDue=90일후|null`, `lastRevalidationAt=now`)
+- **`/api/cron/revalidate-stores` Route Handler** 신규: Authorization Bearer CRON_SECRET 검증 → `next_revalidation_due ≤ NOW()` row 50건씩 페이지네이션 → 저장된 LOCALDATA 키워드 재검색 → 폐업(03) or 매칭<0.85 시 `verification_status='manual_review'` (E9-8 큐가 처리, SLA 7일)
+- **Vercel Cron**: `vercel.json` 신규, schedule `0 18 1 */3 *` (UTC 매 3개월 1일 18:00 = KST 03:00)
+- **L-031 5곳 동기화**: env.ts (`CRON_SECRET min 32`) ✅ / turbo.json ✅ / ci.yml dummy ✅ / **.env.local 🟡 (Jayden)** / **Vercel Dashboard Production+Preview 🟡 (Jayden)**
+- **TDD guard hook allowlist 확장**: `api/cron/*/route.ts` + `api/webhooks/*/route.ts` (Server Action과 같은 카테고리 — 통합 검증으로 cover, helper 분리는 추상화 부담)
+- **`@hesya/database` re-export 확장**: `and`/`isNotNull`/`lte` (drizzle-orm 직접 의존 회피)
+
+### E9-3 분해 3단계 — Server Action 통합 + UI + 실 호출 검증 on `chore/e9-3-fuzzy-match`
+
+- **A. 타입 shared-types 이동** (commit `69f5769`) — `MatchScoreInput`/`MatchScoreResult`/`MATCH_THRESHOLD`를 `packages/shared-types/src/kyc-match.ts`로 (리뷰 consistency #1 후속). `match-score.ts`는 import만 변경, 가중치 0.6/0.4는 도메인 단일이라 모듈 내 유지
+- **B. `matchStoreToLocaldata` Server Action** (commit `006ea20`) — 통합 흐름:
+  - admin 가드 + rate limit + Zod 검증 + 빈 입력 가드(리뷰 spec)
+  - verificationId 존재 확인 → searchBeautyShops 후보 50건 → 각 후보 computeMatchScore → 최고점 선택 → `store_verifications` UPDATE (`localdataMatched/businessType/status`)
+  - `@hesya/database`에 `eq` operator re-export (apps/web가 drizzle-orm 직접 의존 회피)
+- **C. /admin/kyc-test Step 3 섹션** (commit `a05e371`) — verificationId + 사업장명 + 도로명주소 입력 → 결과 (matched, scores, 후보 정보) 표시
+- **실 호출 검증** (commit `69327f5` + hook `7e76e34`) — 일회용 스크립트 `apps/web/scripts/verify-e9-3-match.ts`로 인증 우회 + 실 LOCALDATA API + 실 DB UPDATE:
+  - 결과: '청담'+'강남구' → 50건/totalCount=191 (PR #6 일치). 최고점 후보 "청담" @ 강남구. nameScore=1.000 / addressScore=0.088 / totalScore=0.635 / matched=false (임계값 0.85 보수적 작동)
+  - DB UPDATE 검증: `localdataMatched=false`, `localdataBusinessType="3220000"`, `localdataStatus="01"` (영업중)
+  - **L-035 발견**: `server-only` 가드가 Node.js 스크립트에서 throw → `localdata-client` 대신 `shared-types`의 Zod schema + `extractLocaldataItems` 직접 사용
+  - **production cond[FIELD::LIKE] 패턴** vs 검증 스크립트 `BPLC_NM` 직접의 1건 즉시 발견·수정 (totalCount 451954 → 191 정상화)
+- **TDD guard hook 확장** (commit `7e76e34`) — `scripts/verify-*.ts` + `scripts/integration-*.ts` allowlist 추가
+
+### E9-3 분해 2단계 — 퍼지 매칭 코어 4 모듈 (TDD) on `chore/e9-3-fuzzy-match`
+
+NTS 응답(사업자명·주소)과 LOCALDATA 응답(사업장명·도로명주소)을 비교해 "같은 매장인지" 판단하는 점수화. 4 commit, 5 commit (리뷰 권장 반영 1 commit 포함).
+
+- **신규 4 모듈** (apps/web/src/lib/kyc/, 모두 순수 함수):
+  - `normalize-business-name.ts` (5 cases) — 공백/법인접미사(`(주)`,`㈜`,`주식회사`)/대소문자 정규화
+  - `normalize-address.ts` (5 cases) — 공백/시·도 약칭/번지 정규화. 신·구 행정구역명 동일 약칭 (전라북도/강원도/전라남도 + 특별자치도 신표기)
+  - `levenshtein.ts` (3 cases) — O(m+n) 공간 편집거리 + 유사도(0~1). `Array.from()`로 surrogate pair 안전
+  - `match-score.ts` (5 cases) — 가중평균 (이름 0.6 + 주소 0.4), 임계값 `MATCH_THRESHOLD=0.85` export. D7 기준 Phase 1.5에서 50건+ 데이터로 정밀화 예약
+- **점진 TDD (L-033) 안정 적용**: `.skip` 1개씩 enable + minimal step. tdd-guard hook 차단 0건. case 2/3 모순 회귀 1건 즉시 case 입력 분리로 해결
+- **3 에이전트 병렬 리뷰** (code-reviewer / senior-engineer / consistency-reviewer): 머지 차단 0, Important 권장 2건(전라북도/강원도 누락 + null 혼합 케이스 spec) 즉시 반영. consistency 19/20 일치
+- **L-034 환각 검증 적용**: 권장 적용 전 인용 모듈/regex 본문 Read로 검증. senior가 "5번지 trailing 공백" 우려를 self-correct (오탐). 환각 0건
+- **검증 게이트**: 6 test files / 26 tests green, TypeScript strict 통과, prettier+eslint hook 자동 정리
+
+### 미처리 (의도적 다음 세션 이월)
+
+- `MatchScoreInput`/`MatchScoreResult`를 `packages/shared-types`로 이동 (consistency #1) — Server Action 통합 시점에 같이 처리
 
 ## 이번 세션 완료 (2026-05-02)
 
@@ -52,14 +97,19 @@
 
 ## 다음 세션 할 일
 
-1. **E9-3 분해 2단계** — 퍼지 매칭(사업장명 정규화 + 주소 표준화 + Levenshtein) + `store_verifications.localdata_matched/business_type/status` INSERT + cron 페이지네이션 (6~8h, 새 브랜치 `chore/e9-3-fuzzy-match`)
-2. (선택) E9-3 후속 P1: `store_verifications.status` 컬럼 추가 마이그레이션 (P1-5, 미완성 KYC 레코드 신뢰성)
-3. (선택) `localdataSearchResponseSchema` shared-types 노출 면적 축소 (senior P2)
-4. (선택) `actions.ts` 분할 시점은 Step 3(OCR) 추가 전 예약
+1. **Jayden 외부 작업 (차단)** —
+   - **(A) `apps/web/.env.local`에 `CRON_SECRET` 추가** — 32자 이상. 생성: `openssl rand -base64 32` 또는 `openssl rand -hex 32`
+   - **(B) Vercel Dashboard → hesya-web → Settings → Environment Variables**: `CRON_SECRET` 키 (Production + Preview 양쪽). 같은 값을 (A)와 (B)에 동일하게 입력
+2. **빌드 검증** — Jayden 작업 후 `pnpm --filter @hesya/web build` 통과 확인 (현재 ZodError로 차단 중)
+3. **PR + main 머지** (옵션 B) — E9-3 옵션 A 완성 + E9-10 cron 통합 PR
+4. **E9-8 매뉴얼 검토 큐 UI** — Epic 12 admin panel 시점으로 분리 (별도 Task)
+5. (선택) E9-3 후속 P1: `store_verifications.status` 컬럼 추가 마이그레이션 (P1-5)
+6. (선택) `localdataSearchResponseSchema` shared-types 노출 면적 축소 (senior P2)
+7. (선택) LIKE 와일드카드 escape (PR #6 review 후속)
 
 ## 차단 요소
 
-- 없음 (PR #6 main 머지 완료, 모든 CI/Vercel green, ADMIN_EMAILS 5곳 갱신 완료)
+- 없음 (이번 세션 5 commit on 브랜치, 26 tests green, TypeScript strict 통과)
 
 ## 누적 완료 내역 (2026-04-30 ~ 2026-05-01)
 

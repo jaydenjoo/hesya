@@ -8,8 +8,10 @@
 
 import { useState, useTransition, type FormEvent } from "react";
 import {
+  matchStoreToLocaldata,
   searchLocaldataBeautyShops,
   verifyBusinessNumber,
+  type MatchStoreToLocaldataResult,
   type SearchLocaldataResult,
   type VerifyBusinessNumberResult,
 } from "@/lib/kyc/actions";
@@ -28,6 +30,8 @@ export default function KycTestPage() {
       <NtsSection />
       <hr className="border-gray-200" />
       <LocaldataSection />
+      <hr className="border-gray-200" />
+      <MatchSection />
     </main>
   );
 }
@@ -215,6 +219,128 @@ function Row({ k, v }: { k: string; v: string }) {
       <dt className="w-32 font-medium">{k}</dt>
       <dd className="break-all font-mono">{v}</dd>
     </div>
+  );
+}
+
+function MatchSection() {
+  const [verificationId, setVerificationId] = useState("");
+  const [bplcNm, setBplcNm] = useState("");
+  const [roadNmAddr, setRoadNmAddr] = useState("");
+  const [result, setResult] = useState<MatchStoreToLocaldataResult | null>(
+    null,
+  );
+  const [isPending, startTransition] = useTransition();
+
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    setResult(null);
+    startTransition(async () => {
+      const res = await matchStoreToLocaldata({
+        verificationId: verificationId.trim(),
+        bplcNm: bplcNm.trim(),
+        roadNmAddr: roadNmAddr.trim() || undefined,
+      });
+      setResult(res);
+    });
+  };
+
+  return (
+    <section className="space-y-4">
+      <h2 className="text-lg font-semibold">
+        Step 3 — 통합 매칭 (NTS verificationId + LOCALDATA 후보 매칭)
+      </h2>
+      <p className="text-xs text-gray-500">
+        Step 1 결과의 verification ID에 LOCALDATA 후보를 검색·매칭하여
+        store_verifications 행을 갱신. 사업장명·주소를 정규화 후 가중평균(이름
+        0.6 + 주소 0.4) 점수가 0.85 이상이면 matched=true.
+      </p>
+      <form onSubmit={onSubmit} className="space-y-4">
+        <Field label="verification ID (Step 1 결과에서 복사)">
+          <input
+            type="text"
+            value={verificationId}
+            onChange={(e) => setVerificationId(e.target.value)}
+            placeholder="예: 0c1d2e3f-..."
+            required
+            className="w-full rounded border px-3 py-2 font-mono text-sm"
+          />
+        </Field>
+        <Field label="사업장명 (검색 + 매칭 입력)">
+          <input
+            type="text"
+            value={bplcNm}
+            onChange={(e) => setBplcNm(e.target.value)}
+            placeholder="예: 청담살롱"
+            required
+            className="w-full rounded border px-3 py-2"
+          />
+        </Field>
+        <Field label="도로명주소 (선택, 동명 변별 권장)">
+          <input
+            type="text"
+            value={roadNmAddr}
+            onChange={(e) => setRoadNmAddr(e.target.value)}
+            placeholder="예: 강남구 청담동"
+            className="w-full rounded border px-3 py-2"
+          />
+        </Field>
+        <button
+          type="submit"
+          disabled={isPending}
+          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+        >
+          {isPending ? "매칭 중..." : "매칭"}
+        </button>
+      </form>
+      {result && <MatchResultBlock result={result} />}
+    </section>
+  );
+}
+
+function MatchResultBlock({ result }: { result: MatchStoreToLocaldataResult }) {
+  if (!result.ok) {
+    return (
+      <section className="space-y-2 rounded border bg-red-50 p-4">
+        <h2 className="font-semibold">실패: {result.error}</h2>
+        <p className="text-sm">{result.message}</p>
+      </section>
+    );
+  }
+
+  const bg = result.matched ? "bg-green-50" : "bg-yellow-50";
+  return (
+    <section className={`space-y-3 rounded border p-4 ${bg}`}>
+      <h2 className="font-semibold">
+        {result.matched ? "매칭 성공" : "매칭 실패 (임계값 미만)"} — 후보{" "}
+        {result.candidatesCount}건
+      </h2>
+      {result.bestScore && (
+        <dl className="space-y-1 text-sm">
+          <Row k="이름 점수" v={result.bestScore.nameScore.toFixed(3)} />
+          <Row k="주소 점수" v={result.bestScore.addressScore.toFixed(3)} />
+          <Row k="종합 점수" v={result.bestScore.totalScore.toFixed(3)} />
+          <Row k="matched" v={String(result.bestScore.matched)} />
+        </dl>
+      )}
+      {result.candidate && (
+        <div className="space-y-1 rounded border bg-white p-3 text-sm">
+          <div className="font-medium">
+            {result.candidate.BPLC_NM ?? "(이름 미기재)"}
+          </div>
+          <div className="text-xs text-gray-600">
+            {result.candidate.ROAD_NM_ADDR ?? "(주소 미기재)"}
+          </div>
+          <div className="flex gap-3 text-xs text-gray-500">
+            <span>업종 그룹: {result.candidate.OPN_ATMY_GRP_CD ?? "-"}</span>
+            <span>영업상태: {result.candidate.SALS_STTS_CD ?? "-"}</span>
+          </div>
+        </div>
+      )}
+      <div className="text-xs text-gray-500">
+        verification ID:{" "}
+        <span className="font-mono">{result.verificationId}</span>
+      </div>
+    </section>
   );
 }
 

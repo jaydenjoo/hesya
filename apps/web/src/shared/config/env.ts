@@ -58,6 +58,11 @@ const envSchema = z.object({
   // 예: "jayden@example.com,ops@example.com"
   ADMIN_EMAILS: z.string().min(3),
 
+  // ─── E9-10 cron 자동 재검증 ───
+  // Vercel Cron이 호출 시 Authorization: Bearer ${CRON_SECRET} 헤더 검증.
+  // 외부에서 임의로 cron endpoint 호출 차단. openssl rand -base64 32로 생성.
+  CRON_SECRET: z.string().min(32),
+
   // ─── AI/외부 (사용 시 주석 해제) ───
   // ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-"),
 });

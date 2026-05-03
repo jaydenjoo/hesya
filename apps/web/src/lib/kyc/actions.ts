@@ -13,18 +13,22 @@
  */
 "use server";
 
-import { storeVerifications, createDbClient } from "@hesya/database";
+import { storeVerifications, createDbClient, eq } from "@hesya/database";
 import {
   localdataSearchInputSchema,
   ntsValidateBusinessSchema,
   NTS_VALID_OK,
   type LocaldataItem,
+  type MatchScoreResult,
 } from "@hesya/shared-types";
+import { z } from "zod";
 import { requireAdminEmail } from "@/shared/lib/admin-guard";
 import { checkRateLimit, RateLimitError } from "@/shared/lib/rate-limit";
 import { env } from "@/shared/config/env";
 import { LocaldataApiError, searchBeautyShops } from "./localdata-client";
 import { NtsApiError, validateBusinessNumber } from "./nts-client";
+import { computeMatchScore } from "./match-score";
+import { normalizeBusinessName } from "./normalize-business-name";
 
 const db = createDbClient(env.DATABASE_URL);
 
@@ -198,4 +202,166 @@ export async function searchLocaldataBeautyShops(
           : "LOCALDATA API 호출 중 알 수 없는 오류",
     };
   }
+}
+
+/**
+ * Epic 9 § Step 1·2 통합 — verifyBusinessNumber 결과(verificationId)에 대해
+ * LOCALDATA 후보 검색 + 퍼지 매칭 + store_verifications UPDATE.
+ *
+ * 흐름:
+ *   1. admin 가드 + rate limit
+ *   2. Zod 입력 검증 (verificationId UUID + bplcNm + roadNmAddr)
+ *   3. 빈 입력 가드 (정규화 후 사업장명 빈 문자열이면 invalid_input —
+ *      MatchScoreInput 양쪽 null이면 matched=true 회피)
+ *   4. searchBeautyShops 호출 → 후보 N개
+ *   5. 각 후보에 computeMatchScore → 최고 점수 선택
+ *   6. UPDATE store_verifications SET localdata_matched/business_type/status
+ *
+ * 후보 0건도 정상 흐름 — matched=false + bestScore=0으로 반환.
+ */
+const matchStoreInputSchema = z.object({
+  verificationId: z.string().uuid("verificationId는 UUID"),
+  bplcNm: z.string().trim().min(1, "사업장명 필수"),
+  roadNmAddr: z.string().trim().optional(),
+});
+
+export type MatchStoreToLocaldataResult =
+  | {
+      ok: true;
+      matched: boolean;
+      bestScore: MatchScoreResult | null;
+      candidate: LocaldataItem | null;
+      candidatesCount: number;
+      verificationId: string;
+    }
+  | {
+      ok: false;
+      error:
+        | "unauthorized"
+        | "forbidden"
+        | "rate_limited"
+        | "invalid_input"
+        | "localdata_api_error"
+        | "verification_not_found"
+        | "internal";
+      message: string;
+    };
+
+export async function matchStoreToLocaldata(
+  rawInput: unknown,
+): Promise<MatchStoreToLocaldataResult> {
+  const guard = await requireAdminEmail();
+  if (!guard.ok) {
+    return { ok: false, error: guard.error, message: guard.message };
+  }
+
+  try {
+    await checkRateLimit(`kyc:${guard.userId}`, RATE_LIMIT);
+  } catch (err) {
+    if (err instanceof RateLimitError) {
+      return { ok: false, error: "rate_limited", message: err.message };
+    }
+    throw err;
+  }
+
+  const parsed = matchStoreInputSchema.safeParse(rawInput);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "invalid_input",
+      message: parsed.error.issues
+        .map((i) => `${i.path.join(".")}: ${i.message}`)
+        .join("; "),
+    };
+  }
+
+  // 빈 입력 가드 — 리뷰 spec (computeMatchScore가 양쪽 null이면 matched=true
+  // 반환하는 동작을 호출자 레벨에서 차단)
+  if (normalizeBusinessName(parsed.data.bplcNm) === "") {
+    return {
+      ok: false,
+      error: "invalid_input",
+      message: "사업장명 정규화 후 빈 문자열",
+    };
+  }
+
+  // verificationId 존재 확인 (UPDATE 대상 row 사전 검증)
+  const existing = await db
+    .select({ id: storeVerifications.id })
+    .from(storeVerifications)
+    .where(eq(storeVerifications.id, parsed.data.verificationId))
+    .limit(1);
+
+  if (existing.length === 0) {
+    return {
+      ok: false,
+      error: "verification_not_found",
+      message: `verificationId ${parsed.data.verificationId} 없음`,
+    };
+  }
+
+  let searchResult;
+  try {
+    searchResult = await searchBeautyShops({
+      bplcNm: parsed.data.bplcNm,
+      roadNmAddr: parsed.data.roadNmAddr,
+      pageNo: 1,
+      numOfRows: 50,
+    });
+  } catch (err) {
+    return {
+      ok: false,
+      error: "localdata_api_error",
+      message:
+        err instanceof LocaldataApiError
+          ? `LOCALDATA API 오류 (HTTP ${err.statusCode ?? "unknown"})`
+          : "LOCALDATA API 호출 중 알 수 없는 오류",
+    };
+  }
+
+  // 각 후보에 매칭 점수 계산, 최고점 선택
+  let bestScore: MatchScoreResult | null = null;
+  let bestCandidate: LocaldataItem | null = null;
+
+  for (const item of searchResult.items) {
+    const score = computeMatchScore({
+      ntsName: parsed.data.bplcNm,
+      ntsAddress: parsed.data.roadNmAddr,
+      localdataName: item.BPLC_NM,
+      localdataAddress: item.ROAD_NM_ADDR,
+    });
+    if (!bestScore || score.totalScore > bestScore.totalScore) {
+      bestScore = score;
+      bestCandidate = item;
+    }
+  }
+
+  const matched = bestScore?.matched ?? false;
+
+  await db
+    .update(storeVerifications)
+    .set({
+      localdataMatched: matched,
+      localdataBusinessType: bestCandidate?.OPN_ATMY_GRP_CD ?? null,
+      localdataStatus: bestCandidate?.SALS_STTS_CD ?? null,
+      // E9-10 cron 재검증 시 LOCALDATA에 다시 검색하기 위해 키 저장
+      localdataBplcNm: bestCandidate?.BPLC_NM ?? null,
+      localdataRoadNmAddr: bestCandidate?.ROAD_NM_ADDR ?? null,
+      // 다음 재검증 예약: 분기별(90일) — D7 결정, Phase 1.5에서 정밀화 예약
+      nextRevalidationDue: matched
+        ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+        : null,
+      lastRevalidationAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(eq(storeVerifications.id, parsed.data.verificationId));
+
+  return {
+    ok: true,
+    matched,
+    bestScore,
+    candidate: bestCandidate,
+    candidatesCount: searchResult.items.length,
+    verificationId: parsed.data.verificationId,
+  };
 }

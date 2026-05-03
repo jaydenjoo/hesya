@@ -24,6 +24,12 @@ export const storeVerifications = pgTable("store_verifications", {
   localdataMatched: boolean("localdata_matched").default(false),
   localdataBusinessType: text("localdata_business_type"),
   localdataStatus: text("localdata_status"),
+  // E9-10 분기별 재검증 cron이 LOCALDATA에 다시 검색할 때 필요. 첫 매칭 시
+  // 가장 비슷한 후보의 사업장명·도로명주소를 저장 (NTS는 b_no/p_nm만 줘서
+  // LOCALDATA 검색 키워드로 부족). cron이 이 두 컬럼으로 재검색 → 영업 상태
+  // 변경 감지.
+  localdataBplcNm: text("localdata_bplc_nm"),
+  localdataRoadNmAddr: text("localdata_road_nm_addr"),
 
   categoryClassified: text("category_classified"),
   categoryConfidence: numeric("category_confidence"),
