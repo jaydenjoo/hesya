@@ -5,20 +5,25 @@
 ## 현재 위치
 
 - **Phase**: Phase 1 진행 중
-- **Epic**: Epic 9 매장 KYC 자동 검증 시스템 (**11/12 완료**, 잔여 1개)
-- **Task**: **E9-13 거절 알림 actionable + KYC 페이지 AAA ✅ 머지 완료** ([apps#17](https://github.com/jaydenjoo/hesya/pull/17) → main `7185d45`, 87 tests green, validate 1m53s ✅).
-- **상태**: 이번 세션 (2026-05-03 P.M.++) **2개 PR 머지** — E9-4 (PR #16) + E9-13 (PR #17). Epic 9 잔여 = **E9-6 (OCR Vision, 6h) 1개만**.
-- **작업 브랜치**: 다음 sub-task 시작 시 `chore/e9-6` 새로 생성
+- **Epic**: Epic 9 매장 KYC 자동 검증 시스템 — **🎉 12/12 100% 완료**
+- **Task**: **E9-6 영업신고증 OCR (Anthropic Opus 4.7 Vision) ✅ 머지 완료** ([apps#18](https://github.com/jaydenjoo/hesya/pull/18) → main `97283cc`, 94 tests green, validate 1m56s ✅, Vercel preview ✅).
+- **상태**: Epic 9 12 sub-task 모두 main 머지 완료. **다음 Epic 결정 단계**.
+- **작업 브랜치**: (다음 Epic 시작 시 새 브랜치 생성)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
-## 다음 세션 할 일 (E9-6 OCR Vision, 6h, 마지막 sub-task)
+## 다음 세션 할 일 (Epic 결정 + 마이그레이션 v0010 prod 적용)
 
-1. **Plan 작성** — PRD § 5.4 **Step 4-2** (영업신고증 사진 → Vision API → 사업자번호·대표자명·주소·개업일자 자동 추출 → NTS/LOCALDATA 매칭에 자동 입력) + **PRD §509 모델 매트릭스 + §1028 시간 견적** (Claude Opus 4.7 Vision 2,576px, 6h) 정합 검증 ✅. (이전 인용 오류: § 5.4 Step 3 = 카테고리 분류 = E9-4에서 완료 / DECISIONS § 1.5 = 알림 시스템 챕터 → 정정)
-2. **모델 결정** — Opus 4.7 Vision (PRD §509 기결정, ~$0.015/장, task_budget 활용). `anthropic-category-repo.ts` factory 패턴 재사용 → `anthropic-vision-repo.ts`.
-3. **TDD 순서** — `lib/kyc/ocr-extractor.{ts,test.ts}` (Repo + 5 cases mock) → Anthropic Vision factory → Server Action → kyc-test 페이지 **Step 4-2** 통합 → 마이그레이션 (`ocr_extract` event_type 추가, `packages/database/src/schema/kyc-verification-logs.ts` §27 주석 명시).
-4. **6h = 2 세션 분할 권장** — 첫 세션 plan + TDD helper + factory, 두 번째 세션 Server Action + UI + 검증. 또는 한 세션에 풀 사이클 가능 시 진행.
-5. **Epic 9 100% 완료 후** — Epic 1 (다국어 인박스) 또는 Epic 2 (결제 통합 🔴) 또는 Epic 12 (관리자 패널) 시작 결정 필요.
+1. **마이그레이션 v0010 Prod 적용** — `kyc_verification_logs` CHECK 제약에 `'ocr_extract'` 추가 ([0010_round_metal_master.sql](packages/database/migrations/0010_round_metal_master.sql)). Supabase Studio 또는 `supabase db push`로 prod DB 반영.
+2. **E9-6 manual smoke test (선택)** — `/admin/kyc-test` Step 6에서 실제 영업신고증 사진 1장 업로드 → 4필드 자동 추출 정확도 확인. Phase 1.5 임계값 조정 데이터 수집 시작.
+3. **다음 Epic 결정 (3 옵션)**:
+   - **Epic 1 다국어 통합 인박스 (~50h)** — 5채널 + Sonnet 4.6 RAG + Opus 4.7 Vision. Phase 1 핵심 사용자 가치.
+   - **Epic 2 결제 통합 (~60h, 🔴 보안)** — 토스페이먼츠 + 정산. 매출 직결, Jayden 직접 검증 필수.
+   - **Epic 12 관리자 패널 (~60h)** — 8종 운영자 플로우. KYC 매뉴얼 큐(E9-8 흡수) + 운영 효율.
+4. **Epic 9 → Epic 결정 trade-off 핵심**:
+   - Epic 1 = 사용자 가치 즉시 (외국인 매장 사장이 가입 후 다음 만나는 화면)
+   - Epic 2 = 매출 발생 가능 시점 (β-test 매장 결제 흐름 실제 가동)
+   - Epic 12 = 내부 운영 효율 (KYC 자동 검증 결과 admin이 매뉴얼 검토하는 큐 — 매장 100곳 미만에선 Jayden 1인 처리 가능)
 
 ## 차단 요소
 
@@ -26,8 +31,22 @@
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-03 P.M.++ (E9-13 머지 후 세션 종료)
+- 날짜: 2026-05-03 P.M.+++ (E9-6 머지 → Epic 9 100% 완료, /save 세션 종료)
 - 다음 세션 시작 시 `/start` 스킬이 이 파일 읽고 자동 보고
+
+## 이번 세션 완료 (2026-05-03 P.M.+++ — E9-6 머지, Epic 9 100% 완료)
+
+### E9-6 영업신고증 OCR 추출 (PR [apps#18](https://github.com/jaydenjoo/hesya/pull/18) → main `97283cc`)
+
+- **목표**: PRD § 5.4 Step 4-2 — 영업신고증 사진 → Anthropic Opus 4.7 Vision → 4개 필드(사업자번호·대표자명·주소·개업일자) + confidence 자동 추출. ≥ 0.85 → autoExtracted, 미만 → manual_review.
+- **신규 모듈**: `lib/kyc/ocr-extractor.{ts,test.ts}` (helper + Repo + 7 mock cases) / `lib/llm/anthropic-vision-repo.ts` (Opus 4.7 factory, E9-4 패턴 복사) / shared-types `kyc-ocr.ts` (OcrExtractResult schema + OCR_CONFIDENCE_THRESHOLD 0.85).
+- **Server Action**: `extractOcrFromLicenseAction` (admin 가드 + rate limit + Zod + 4MB base64 검증 + Repo 주입 + storeVerifications UPDATE + audit log).
+- **마이그레이션 v0010**: `kyc_verification_logs` CHECK 제약에 `'ocr_extract'` 추가 (event_type 9종으로 확장).
+- **UI**: `/admin/kyc-test` **Step 6** 추가 (File input + 3MB 클라이언트 검증 + FileReader → base64 + 4필드 표시 + autoExtracted 뱃지). E9-13 AAA 패턴 그대로 (LiveResult role=status, Field/Row 재사용).
+- **정정**: PROGRESS.md 인용 오류 수정 — PRD § 5.4 Step 3 (=E9-4) → Step 4-2 / DECISIONS § 1.5 (=알림) → PRD §509 + §1028. 모델 결정 = Opus 4.7 (PRD §509 기결정).
+- **검증**: tsc clean / lint clean / 94 tests green (이전 87 + 신규 7) / Vercel preview ✅ / validate 1m56s ✅.
+- **만들지 않은 것 (Not Doing)**: Storage 통합 (DECISIONS § 1.6 본 가입 플로우 + Phase 1.5 cron 별도 task) / Storage RLS / 30일 자동 삭제 cron / Vision thinking budget (Phase 1.5 정확도 보고 결정) / 매장 owner guard (Epic 12).
+- **교훈 기록**: L-040 (Write 도구 cwd 오작동 — 절대경로 강제 필요).
 
 ## 이번 세션 완료 (2026-05-03 P.M.++ — E9-4 + E9-13 머지)
 

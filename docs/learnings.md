@@ -1405,3 +1405,31 @@ const items = extractLocaldataItems(parsed);
 - 인간 리뷰: plan 단계에서 항상 "관련 spec/DECISIONS/PRD 섹션을 같은 plan에서 cross-reference 했는가?" 자체 점검. cross-ref 결과 모순이면 옵션 제시.
 
 **연관**: E9-13 plan 단계 모순 발견 (PR [apps#17](https://github.com/jaydenjoo/hesya/pull/17) 본문 "스펙 모순 해소" 섹션 + commit `9ba1789` docs 정정 분리), L-031 (5곳 동기화 함정 정신), L-037 (enum source-of-truth ↔ 호출처 sync), L-038 (사전 grep 검증), CLAUDE.md 4원칙 1번 (Surface Assumptions).
+
+---
+
+### [2026-05-03] L-040 — Write 도구 cwd 오작동: 절대경로 누락 시 잘못된 위치에 파일 생성 (apps/web/apps/web/...)
+
+**증상**: E9-6 작업 중 `Write` 도구로 `apps/web/src/lib/kyc/ocr-extractor.ts` 작성. 도구 응답은 "File created successfully at: apps/web/src/lib/kyc/ocr-extractor.ts" 로 정상 출력. 그러나 vitest가 `Failed to resolve import "./ocr-extractor"` 로 실패. 실제 파일 위치 확인 시 `/Volumes/jayden-ssd/projects/hesya/apps/web/apps/web/src/lib/kyc/ocr-extractor.ts` (apps/web가 두 번 중첩된 잘못된 위치).
+
+**원인**: `Bash` 명령에 `cd apps/web && pnpm test ...` 같은 호출이 한 번 있었고, 그 결과 cwd가 `/Volumes/jayden-ssd/projects/hesya/apps/web/apps/web` (이미 apps/web에 있는데 또 cd) 비정상 상태로 남음 (다른 zsh 함수 또는 shell 부작용). 그 직후 `Write` 도구에 상대경로처럼 보이는 `apps/web/src/lib/kyc/ocr-extractor.ts`를 적었더니, 도구가 cwd 기준으로 해석되어 `cwd + apps/web/src/...` 로 이동 → `apps/web/apps/web/...` 생성. **Write 도구 명세는 "absolute path required"이지만 첫 호출 때 잘못된 형태가 그대로 통과하여 잘못된 파일 생성됨**.
+
+**해결**:
+
+1. `find`로 잘못된 위치 파일 발견 → `mv`로 정확한 위치(`/Volumes/jayden-ssd/projects/hesya/apps/web/src/lib/kyc/ocr-extractor.ts`)로 이동.
+2. `rmdir`로 빈 중첩 디렉토리(`apps/web/apps/web/src/lib/kyc` → `apps/web/apps`까지) 5단계 정리.
+3. 이후 모든 `Write` 호출은 항상 **`/Volumes/jayden-ssd/projects/hesya/...` 절대경로** 사용 강제.
+
+**규칙** ⭐:
+
+1. **`Write` 도구는 항상 절대경로(`/Volumes/jayden-ssd/projects/hesya/...`)로 호출**. 상대경로처럼 보이는 형태(`apps/web/src/...`)도 cwd 변경 시 잘못 해석될 수 있어 위험. CLAUDE.md 글로벌 룰에 이미 "Write 도구는 absolute path 요구" 명시되어 있음 — 무시하면 이번 같은 사고.
+2. **`Bash`에서 `cd`를 자제하고, `pnpm --filter @hesya/web ...` 같은 workspace-aware 명령어 우선 사용**. cd로 인해 후속 도구 호출의 cwd가 오염될 수 있음.
+3. **`Write` 직후 같은 파일에 의존하는 명령어를 실행하면 즉시 검증 실패가 드러남** (이번엔 vitest가 import 실패로 알려줌). 따라서 RED → GREEN TDD 사이클이 cwd 사고를 빠르게 잡아냄. 단순 Write만 연속하면 늦게 발견됨.
+4. **Write 응답 메시지("File created successfully at: ...")는 도구가 해석한 경로를 그대로 출력 — 실제 디스크 경로가 의도한 곳인지 보장 X**. 이상 의심 시 `find /Volumes/jayden-ssd/projects/hesya -name "<filename>"`으로 실제 위치 즉시 확인.
+
+**확인 방법**:
+
+- 자동: hook으로 `Write` 입력 path가 `/Volumes/jayden-ssd/projects/hesya/`로 시작하는지 검증 가능 (절대경로 강제). 위반 시 차단.
+- 인간 리뷰: 새 파일 생성 직후 `git status`에 untracked가 의도한 위치인지 1초 확인.
+
+**연관**: CLAUDE.md 글로벌 룰 "Write 도구는 absolute path 요구" 명시, E9-6 PR [apps#18](https://github.com/jaydenjoo/hesya/pull/18) 작업 중 발견 + 즉시 mv로 복구 (커밋 전 발견됨, prod 영향 0).
