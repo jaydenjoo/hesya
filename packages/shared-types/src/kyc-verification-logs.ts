@@ -13,6 +13,7 @@ export const KYC_LOG_EVENT_TYPES = [
   "cron_revalidate",
   "notification_sent",
   "keyword_scan",
+  "self_declaration",
 ] as const;
 export type KycLogEventType = (typeof KYC_LOG_EVENT_TYPES)[number];
 

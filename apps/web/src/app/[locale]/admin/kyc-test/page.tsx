@@ -10,9 +10,11 @@ import { useState, useTransition, type FormEvent } from "react";
 import {
   matchStoreToLocaldata,
   searchLocaldataBeautyShops,
+  signSelfDeclarationAction,
   verifyBusinessNumber,
   type MatchStoreToLocaldataResult,
   type SearchLocaldataResult,
+  type SignSelfDeclarationActionResult,
   type VerifyBusinessNumberResult,
 } from "@/lib/kyc/actions";
 
@@ -32,6 +34,8 @@ export default function KycTestPage() {
       <LocaldataSection />
       <hr className="border-gray-200" />
       <MatchSection />
+      <hr className="border-gray-200" />
+      <SelfDeclarationSection />
     </main>
   );
 }
@@ -340,6 +344,127 @@ function MatchResultBlock({ result }: { result: MatchStoreToLocaldataResult }) {
         verification ID:{" "}
         <span className="font-mono">{result.verificationId}</span>
       </div>
+    </section>
+  );
+}
+
+function SelfDeclarationSection() {
+  const [verificationId, setVerificationId] = useState("");
+  const [noMassage, setNoMassage] = useState(false);
+  const [noMedicalDevice, setNoMedicalDevice] = useState(false);
+  const [noOrientalMedicine, setNoOrientalMedicine] = useState(false);
+  const [result, setResult] = useState<SignSelfDeclarationActionResult | null>(
+    null,
+  );
+  const [isPending, startTransition] = useTransition();
+
+  const allChecked = noMassage && noMedicalDevice && noOrientalMedicine;
+
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    setResult(null);
+    startTransition(async () => {
+      const res = await signSelfDeclarationAction({
+        verificationId: verificationId.trim(),
+        declarations: { noMassage, noMedicalDevice, noOrientalMedicine },
+      });
+      setResult(res);
+    });
+  };
+
+  return (
+    <section className="space-y-4">
+      <h2 className="text-lg font-semibold">Step 4 — 약관 자기신고</h2>
+      <p className="text-xs leading-relaxed text-gray-500">
+        매장 사장이 가입 시 마사지·의료기기·한방 시술 안 함 3가지에 모두
+        동의해야 진행. 한 번 서명되면 immutable (재서명 불가). 의료법 위반 가맹
+        차단의 법적 분리 근거 (PRD § 5.4 Step 4).
+      </p>
+      <form onSubmit={onSubmit} className="space-y-4">
+        <Field label="verification ID (Step 1 결과에서 복사)">
+          <input
+            type="text"
+            value={verificationId}
+            onChange={(e) => setVerificationId(e.target.value)}
+            placeholder="예: 0c1d2e3f-..."
+            required
+            className="w-full rounded border px-3 py-2 font-mono text-sm"
+          />
+        </Field>
+        <DeclarationCheckbox
+          checked={noMassage}
+          onChange={setNoMassage}
+          label="① 마사지·발마사지·스포츠마사지·아로마·경락·림프 등 안마 행위를 일체 제공하지 않습니다 (의료법 88조)"
+        />
+        <DeclarationCheckbox
+          checked={noMedicalDevice}
+          onChange={setNoMedicalDevice}
+          label="② LED·고주파·울쎄라·인모드·레이저·IPL·보톡스·필러 등 의료기기 시술을 일체 제공하지 않습니다 (의료기기법)"
+        />
+        <DeclarationCheckbox
+          checked={noOrientalMedicine}
+          onChange={setNoOrientalMedicine}
+          label="③ 침·뜸·부항·한약 등 한방 시술을 일체 제공하지 않습니다 (의료해외진출법)"
+        />
+        <button
+          type="submit"
+          disabled={isPending || !allChecked}
+          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+        >
+          {isPending
+            ? "서명 중..."
+            : allChecked
+              ? "동의 + 서명"
+              : "3가지 모두 체크 필요"}
+        </button>
+      </form>
+      {result && <SelfDeclarationResultBlock result={result} />}
+    </section>
+  );
+}
+
+function DeclarationCheckbox({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+}) {
+  return (
+    <label className="flex cursor-pointer items-start gap-2 rounded border p-3 text-sm hover:bg-gray-50">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="mt-1"
+      />
+      <span className="leading-relaxed">{label}</span>
+    </label>
+  );
+}
+
+function SelfDeclarationResultBlock({
+  result,
+}: {
+  result: SignSelfDeclarationActionResult;
+}) {
+  if (result.ok) {
+    return (
+      <section className="space-y-2 rounded border bg-green-50 p-4">
+        <h2 className="font-semibold">서명 완료</h2>
+        <dl className="space-y-1 text-sm">
+          <Row k="verification ID" v={result.verificationId} />
+          <Row k="signedAt" v={result.signedAt.toISOString()} />
+        </dl>
+      </section>
+    );
+  }
+  return (
+    <section className="space-y-2 rounded border bg-red-50 p-4">
+      <h2 className="font-semibold">실패: {result.error}</h2>
+      <p className="text-sm">{result.message}</p>
     </section>
   );
 }
