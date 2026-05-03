@@ -344,6 +344,14 @@ export async function matchStoreToLocaldata(
       localdataMatched: matched,
       localdataBusinessType: bestCandidate?.OPN_ATMY_GRP_CD ?? null,
       localdataStatus: bestCandidate?.SALS_STTS_CD ?? null,
+      // E9-10 cron 재검증 시 LOCALDATA에 다시 검색하기 위해 키 저장
+      localdataBplcNm: bestCandidate?.BPLC_NM ?? null,
+      localdataRoadNmAddr: bestCandidate?.ROAD_NM_ADDR ?? null,
+      // 다음 재검증 예약: 분기별(90일) — D7 결정, Phase 1.5에서 정밀화 예약
+      nextRevalidationDue: matched
+        ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+        : null,
+      lastRevalidationAt: new Date(),
       updatedAt: new Date(),
     })
     .where(eq(storeVerifications.id, parsed.data.verificationId));
