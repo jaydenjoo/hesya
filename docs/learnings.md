@@ -1334,3 +1334,35 @@ const items = extractLocaldataItems(parsed);
 - 인간 리뷰: plan 단계에서 새 enum/CHECK constraint 도입 시 "이 enum 안 값을 쓰는 모든 호출처 grep 결과" 첨부 필수. 호출처가 1개라도 enum 밖 값 쓰면 사전 정정 commit 분리.
 
 **연관**: PR #9 commit 1 (`12a24cd` cron `'approved' → 'auto_approved'` 사전 정정), commit 2 (`4f78e68` v0005 NOT NULL + CHECK), PRD § 7 line 619 (source of truth), packages/database/src/schema/stores.ts (4-enum CHECK 패턴 미러), L-031 (5곳 동기화 정신과 동일 — schema source-of-truth ↔ 호출처 모두 sync).
+
+---
+
+### [2026-05-03] L-038 — Zod 4 `.uuid()`는 RFC 4122 strict (테스트 fixture v4 형식 강제) + 새 export const 추가 전 grep 사전 검증
+
+**증상 1 (Zod 4 UUID strict)**: E9-5 self-declaration TDD 작성 중 임의 UUID `11111111-1111-1111-1111-111111111111`로 5 cases 작성 → 4 cases가 `invalid_input`으로 fail. "verificationId가 UUID 아니면" case만 통과 (그건 의도). Zod 4 변경 사항 모르고 ~10분 디버깅. 향후 모든 helper TDD에 동일 함정 가능.
+
+**증상 2 (shared-types const 중복 export)**: E9-4 카테고리 분류 시 `STORE_CATEGORIES` const를 `packages/shared-types/src/store-categories.ts`에 신규 작성 → `packages/shared-types/src/index.ts`가 `store-categories`도 `stores`도 re-export → tsc error TS2308 "Module has already exported a member named 'STORE_CATEGORIES'". `stores.ts`에 이미 동일 const 존재. 사전 grep 안 해서 tsc 단계에서 발견 (5분 손실).
+
+**원인 1**: Zod 4의 `.uuid()`는 더 이상 단순 hex 형식 + dash가 아니라 **RFC 4122 strict regex** 적용 — `[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}` (3번째 그룹 첫 자리 `[1-8]` = 버전 nibble, 4번째 그룹 첫 자리 `[89abAB]` = variant nibble). 예외는 nil UUID `00000000-...` + max UUID `ffffffff-...`. Zod 3까지는 looser regex, Zod 4 (`v4.4.1`) strict 강화. 임의 hex pattern은 거의 모두 reject.
+
+**원인 2**: shared-types의 `stores.ts`가 PRD § 7 stores 테이블 schema 정의 시점에 `STORE_CATEGORIES` const를 이미 export. E9-4 plan 단계에서 "shared-types/store-categories.ts 신규" 결정 시 `grep -rn "export const STORE_CATEGORIES"` 안 함. 4원칙 1번(Think Before Coding)은 따랐지만 grep 단계 누락.
+
+**해결**:
+
+1. **Zod 4 UUID 함정**: 테스트 fixture를 v4 형식으로 교체 — `11111111-1111-4111-8111-111111111111` (3번째 그룹 첫 자리 `4` = v4, 4번째 그룹 첫 자리 `8` = variant). 향후 모든 TDD에 `4111-8...` 패턴 통일.
+2. **shared-types 중복 const**: `store-categories.ts`에서 `STORE_CATEGORIES` 자체 정의 삭제 → `import { STORE_CATEGORIES } from "./stores"` 후 type alias만 신규 추가.
+
+**규칙** ⭐:
+
+1. **Zod 4 환경에서 테스트 UUID는 항상 v4 형식**: `11111111-1111-4111-8111-111111111111` 류. 임의 `1111-1111-...` 패턴 금지. test 파일 헤더에 주석으로 명시 ("Zod 4 RFC 4122 strict — 4111-8... 형식 사용").
+2. **새 export const/enum 추가 전 `grep -rn "export const NAME" packages/`** 필수. shared-types/\* 같은 OST 디렉토리는 중복 정의 시 tsc error TS2308. plan 단계에서 grep 결과 첨부. 이미 있으면 신규 정의 X, import 후 재사용.
+3. **prod UUID는 Postgres `gen_random_uuid()` → 항상 v4 RFC 4122**. 임의 fixture가 prod에서 안 만들어지는 형식이라 더더욱 v4 사용 자연.
+4. **L-037 정신과 동일** — schema source-of-truth가 있으면 grep으로 호출처/중복 정의 사전 검증. enum 추가, const 추가, 마이그레이션 모두 동일.
+5. **vitest fail 메시지가 `invalid_input`만 모호하면 Zod safeParse error message 출력** — `result.message` 직접 출력해서 어떤 field가 왜 fail인지 확인. Zod 4 error에 `[1-8]`/`[89abAB]` mention 보이면 즉시 v4 형식 의심.
+
+**확인 방법**:
+
+- 자동: TDD 작성 후 첫 실행에서 모든 case가 `invalid_input` 반환하면 Zod schema strict 함정 의심. v4 UUID + Zod safeParse error message 확인.
+- 인간 리뷰: plan 단계에서 신규 export const/enum 추가 시 "이 이름이 이미 있는지 grep 결과" 첨부 필수. shared-types/\* 작업 시 특히.
+
+**연관**: E9-5 self-declaration.test.ts (Zod 4 UUID 디버깅, [apps#14](https://github.com/jaydenjoo/hesya/pull/14)), E9-4 store-categories.ts re-export 정정 ([apps#16](https://github.com/jaydenjoo/hesya/pull/16) "발견+정정" 섹션), L-037 (schema source-of-truth ↔ 호출처 sync 정신과 동일), Zod 4 changelog (https://zod.dev/v4/changelog).

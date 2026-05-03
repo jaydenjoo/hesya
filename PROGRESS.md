@@ -4,13 +4,66 @@
 
 ## 현재 위치
 
-- **Phase**: Setup → Phase 1 진입 직전
-- **Epic**: Day 0 Setup
-- **Task**: **E9-3 후속 P1·P2·minor + PRD § 6.5 정정 ✅ main 머지 완료** (PR #9 squash `f4e5705` + PR #10 squash `89f447f`, hesya-web Production 자동 배포, 30 tests green). 다음 = Phase 1 Epic 진입.
-- **상태**: Day 0 Setup 사실상 완료. 다음 세션 = Phase 1 Epic 우선순위 결정 (Epic 9 잔여 / Epic 11 SEO / Epic 3 예약 / Epic 12 관리자 중 택1).
-- **작업 브랜치**: `main` (chore/e9-3-followup + docs/prd-badge-gating-fix 모두 머지 후 삭제)
+- **Phase**: Phase 1 진행 중
+- **Epic**: Epic 9 매장 KYC 자동 검증 시스템 (대부분 완료, 2개 잔여)
+- **Task**: **E9-4 카테고리 자동 분류 ✅ 구현 완료** ([apps#16](https://github.com/jaydenjoo/hesya/pull/16) — Anthropic Sonnet 4.6, 76 tests green, CI all pass) — 머지 승인 대기 중.
+- **상태**: Phase 1 Epic 9 활발 진행. **세션 P.M.+ = 5개 sub-task 머지** (E9-9/E9-12/E9-7/E9-5/E9-11). E9-4 PR 머지 대기. 잔여 = E9-13 (4h, 거절 알림 다국어+TTS) / E9-6 (6h, OCR Vision).
+- **작업 브랜치**: 다음 sub-task 시작 시 chore/e9-13 또는 chore/e9-6 새로 생성
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
+
+## 이번 세션 완료 (2026-05-03 P.M.+ — Epic 9 잔여 5개 sub-task 통과)
+
+### E9-4 카테고리 자동 분류 (PR [apps#16](https://github.com/jaydenjoo/hesya/pull/16) — 머지 대기, CI all pass)
+
+- **Anthropic Sonnet 4.6 통합 첫 사례**. 9개 카테고리(미용업 5종 가/나/다/라/마 + 자유업 4종 퍼스널컬러/메이크업클래스/한복/K팝) 자동 분류.
+- **결정 포인트 자체 검증 10개 모두 채택**: 100% LLM (LOCALDATA OPN_ATMY_GRP_CD hybrid는 1.5에서) / @anthropic-ai/sdk 직접 / Sonnet 4.6 / confidence 0.85 / 자체 status 변경 X / kyc-test Step 5 통합 등.
+- **TDD helper** `lib/kyc/category-classifier.ts` (CategoryClassifierRepo + 5 cases mock). Anthropic factory `lib/llm/anthropic-category-repo.ts` (lazy init L-035 패턴 + JSON parse + 응답 schema 검증).
+- **마이그레이션 v0009** (`category_classify` event_type 추가, MCP `apply_migration` prod 적용 ✅).
+- **L-031 5곳 동기화** ANTHROPIC_API_KEY: env.ts/turbo.json/ci.yml/.env.local/Vercel (Jayden 외부 작업 완료).
+- **Pre-grep 부재로 STORE_CATEGORIES 중복 export 발견** — `stores.ts`에 이미 있어 type-check 실패 → re-export로 정리. **L-038 추가** (아래 별도 항목).
+- **JSX `<` 파싱 오류** — `< 0.85` 텍스트가 tag 시작으로 해석 → `{"<"}` escape.
+- **검증**: 76 tests green / type-check / lint / Vercel Preview / validate 1m42s ✅
+
+### E9-11 외부 신고 채널 (PR [apps#15](https://github.com/jaydenjoo/hesya/pull/15) → main `9c3617c`)
+
+- **PRD § 7 + § 1062** — 고객·경쟁사가 매장의 의료법 위반·위생·사기 제보. **E9-11 = 접수만**, 처리(차단)는 E12-3 (Epic 12 admin panel).
+- shared-types `REPORTER_TYPES` (4종: customer/competitor/staff/anonymous) + `REPORT_REASONS` (4종: illegal_service/safety_issue/fraud/other) Zod enum + description 10~2000자 + evidence URL https 검증 + 최대 5개.
+- `submitStoreReport` helper (StoreReportRepo + 5 cases TDD green) + `submitStoreReportAction` Server Action + admin 검증 UI 페이지 신규 (`/[locale]/admin/store-reports/page.tsx`).
+- **DB 컬럼 변경 0건** (`store_reports` 이미 존재). 마이그레이션 0건.
+- **결정 7개 모두 자체 검증 채택**: Phase 1 admin only / storeId UUID / 4-enum 강제 / URL 입력만 / 알림 E12-3에서 / kyc_verification_logs INSERT X (store_reports 자체가 audit) / Repo mock 패턴.
+
+### E9-5 약관 자기신고 (PR [apps#14](https://github.com/jaydenjoo/hesya/pull/14) → main `1ba3036`)
+
+- **PRD § 5.4 Step 4** — 매장 사장이 가입 시 마사지·의료기기·한방 시술 안 함 3가지 자기신고 동의. immutable 재서명 차단.
+- `signSelfDeclaration` helper (SelfDeclarationRepo + Zod + 3개 모두 true 강제 + 재서명 차단, 4 cases TDD) + `signSelfDeclarationAction` Server Action + UI Step 4 섹션.
+- 마이그레이션 v0008: `self_declaration` event_type 추가 (MCP prod 적용 ✅).
+- **결정 7개 모두 자체 검증 채택**: 별도 Server Action / status 변경 X / 3개 모두 true / immutable 재서명 차단 / requireAdminEmail / Repo mock TDD / 한국어 admin only.
+- **Zod 4 RFC 4122 strict UUID 발견** — 테스트 UUID `1111-1111-1111-1111-111111111111` 4번째 그룹이 `[89abAB]` variant 위반 → v4 형식(`...4111-8111-...`) 필수. **L-038 추가**.
+
+### E9-7 위험 키워드 자동 차단 (PR [apps#13](https://github.com/jaydenjoo/hesya/pull/13) → main `a968c30`)
+
+- 6 카테고리 50개+ 위험 키워드 (마사지/스파/한방/의료기기/의료/성인) substring case-insensitive 검사.
+- `scanForDangerKeywords` helper (8 cases TDD) + `matchStoreToLocaldata` 통합 (bplcNm + LOCALDATA bplcNm 양쪽 검사 → matched && passed → auto_approved, 둘 중 하나 fail → manual_review).
+- 마이그레이션 v0007: `keyword_scan` event_type 추가.
+
+### E9-12 검증 로그·감사 추적 (PR [apps#12](https://github.com/jaydenjoo/hesya/pull/12) → main `ee1c884`)
+
+- **kyc_verification_logs immutable 감사 테이블** — RLS ENABLE + BEFORE UPDATE/DELETE trigger + RAISE EXCEPTION (service_role도 차단, BYPASSRLS로 trigger 우회 못 함, 임시 테이블로 사전 검증 완료).
+- 마이그레이션 v0006: 테이블 + RLS + 2 trigger.
+- `KycLogRepo` interface (Drizzle 구현 + mock) + `logKycEvent({ repo, ... })` (INSERT 실패 시 throw X — KYC 결과에 영향 없음).
+- 5 event_type enum 시작: nts_check / localdata_match / status_change / cron_revalidate / notification_sent.
+- 호출 hook 7곳: verifyBusinessNumber / matchStoreToLocaldata 두 분기 / cron route 두 분기 / sendKycNotification 시점.
+
+### E9-9 가입 통과/거절 알림 (PR [apps#11](https://github.com/jaydenjoo/hesya/pull/11) → main `0fca15e`)
+
+- Resend SDK 통합 (Free 3K/월). 6 locale × 3 kind = 18 declarative 메시지 매트릭스.
+- `sendKycNotification` lazy init wrapper + `lib/notifications/kyc-result.ts`.
+- L-031 5곳 동기 RESEND_API_KEY + RESEND_FROM_EMAIL.
+- **TDD guard "Over-implementation" 차단 → allowlist 영구 추가** (`lib/notifications/*.ts` declarative i18n + thin SDK wrapper는 helper TDD 분리 안 함, manual smoke로 검증).
+- **vitest server-only import 실패** → vitest.config alias + vitest.server-only-stub.ts 신규 (L-035 동일 패턴).
+
+---
 
 ## 이번 세션 완료 (2026-05-03 P.M.)
 
