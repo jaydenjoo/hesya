@@ -10,3 +10,7 @@ export function createDbClient(databaseUrl: string) {
 export type DbClient = ReturnType<typeof createDbClient>;
 export { schema };
 export * from "./schema";
+
+// 자주 쓰이는 SQL operator만 facade로 노출 (apps/web에 drizzle-orm 직접
+// 의존성 추가 회피, layered architecture 유지)
+export { eq } from "drizzle-orm";
