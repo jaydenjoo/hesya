@@ -12,6 +12,23 @@
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
+## 다음 세션 할 일 (E9-6 OCR Vision, 6h, 마지막 sub-task)
+
+1. **Plan 작성** — PRD § 5.4 Step 3 (영업신고증 사진 → Vision API → 사업자번호·대표자명·주소·개업일자 자동 추출 → NTS/LOCALDATA 매칭에 자동 입력) + DECISIONS § 1.5 (Claude Opus 4.7 Vision 2,576px) 정합 검증.
+2. **모델 결정 포인트** — Sonnet 4.6 (E9-4와 동일, 비용 ~$0.003/장) vs Opus 4.7 (DECISIONS 권장, 비용 ~$0.015/장). 결정 후 `anthropic-category-repo.ts` factory 패턴 재사용.
+3. **TDD 순서** — `lib/kyc/ocr-extractor.{ts,test.ts}` (Repo + 5 cases mock) → Anthropic Vision factory → Server Action → kyc-test 페이지 Step 3 통합 → 마이그레이션 (필요 시 `ocr_extracted` event_type 추가).
+4. **6h = 2 세션 분할 권장** — 첫 세션 plan + TDD helper + factory, 두 번째 세션 Server Action + UI + 검증. 또는 한 세션에 풀 사이클 가능 시 진행.
+5. **Epic 9 100% 완료 후** — Epic 1 (다국어 인박스) 또는 Epic 2 (결제 통합 🔴) 또는 Epic 12 (관리자 패널) 시작 결정 필요.
+
+## 차단 요소
+
+없음. 모든 외부 의존성(NTS API key / LOCALDATA API key / RESEND / ANTHROPIC) Jayden 이미 발급·env 5곳 동기화 완료.
+
+## 마지막 업데이트
+
+- 날짜: 2026-05-03 P.M.++ (E9-13 머지 후 세션 종료)
+- 다음 세션 시작 시 `/start` 스킬이 이 파일 읽고 자동 보고
+
 ## 이번 세션 완료 (2026-05-03 P.M.++ — E9-4 + E9-13 머지)
 
 ### E9-13 거절 알림 actionable + KYC 페이지 AAA (PR [apps#17](https://github.com/jaydenjoo/hesya/pull/17) → main `7185d45`)

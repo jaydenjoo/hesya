@@ -1366,3 +1366,42 @@ const items = extractLocaldataItems(parsed);
 - 인간 리뷰: plan 단계에서 신규 export const/enum 추가 시 "이 이름이 이미 있는지 grep 결과" 첨부 필수. shared-types/\* 작업 시 특히.
 
 **연관**: E9-5 self-declaration.test.ts (Zod 4 UUID 디버깅, [apps#14](https://github.com/jaydenjoo/hesya/pull/14)), E9-4 store-categories.ts re-export 정정 ([apps#16](https://github.com/jaydenjoo/hesya/pull/16) "발견+정정" 섹션), L-037 (schema source-of-truth ↔ 호출처 sync 정신과 동일), Zod 4 changelog (https://zod.dev/v4/changelog).
+
+---
+
+### [2026-05-03] L-039 — 다중 source-of-truth 모순은 plan 단계에서 즉시 보고 + 옵션 제시 (짐작 금지)
+
+**증상 / 상황**: E9-13 plan 작성 중 두 source 모순 발견:
+
+- `DEVELOPMENT-PLAN.md:241`: E9-13 = "거절 알림 다국어 + **음성 안내** (AAA 핵심)" 4h
+- `DECISIONS.md` § 1.11 line 310-312: "다국어 음성 안내 — **Phase 1.5 모듈 4 통합** (Phase 1엔 텍스트만)"
+
+또한 E9-9가 이미 다국어 KYC 이메일(6 locale × 3 kind)을 완성 → "다국어 거절 알림"은 중복. E9-13의 4h 가치가 어디서 나오는지 plan 단계에서 명확히 안 나옴.
+
+**원인**: 두 문서가 다른 시점에 갱신되어 라벨 정합성 깨짐. `DECISIONS.md`는 v1.1에서 명시적으로 "Phase 1엔 텍스트만"으로 변경했지만 `DEVELOPMENT-PLAN.md` task 목록은 v1.0 라벨 유지. 그대로 진행했으면:
+
+- 옵션 B (TTS 강행): ElevenLabs 인프라(Phase 1.5 예정)를 Phase 1로 당겨 분리 구현 → 향후 모듈 4 통합 시 폐기·재작업 부채 + 4h가 6~8h로 부풀음.
+- 묵묵히 옵션 A로 진행: DEVELOPMENT-PLAN의 "음성 안내" 라벨이 prod 코드와 영원히 불일치 → 다음 세션·다음 사람이 "음성 기능이 어디 있지?" 혼란.
+
+**해결**:
+
+1. Plan 단계에서 즉시 멈추고 Jayden에게 모순 보고 + 옵션 A/B/C 3개 제시 + 권장 옵션 명기.
+2. Jayden 옵션 A 선택 후 → DEVELOPMENT-PLAN.md:241 라벨 정정을 별 commit으로 분리 (impl commit과 섞지 않음). 이렇게 하면:
+   - revert 시 라벨/impl 따로 되돌릴 수 있음.
+   - 라벨 정정 commit이 코드 변경 commit과 의미적으로 분리되어 git log/blame 가독성 ↑.
+3. PR 본문에 "스펙 모순 해소" 섹션 명기 → reviewer가 즉시 의도 파악.
+
+**규칙** ⭐:
+
+1. **Plan 단계에서 PRD/DECISIONS/DEVELOPMENT-PLAN/learnings 등 다중 source-of-truth 모순 발견 시 즉시 멈추고 보고**. "둘 중 어느 게 맞는지 짐작해서 진행" 절대 금지 (4원칙 1번 위반). 옵션 A/B/C 형식으로 트레이드오프 + 권장 명기.
+2. **모순 정정 commit은 impl commit과 분리**. enum/타입/라벨/문구 정정은 작은 commit 1개로 머지 → 그 위에 impl commit. revert 안전성 + git log 가독성.
+3. **DECISIONS.md (정책 결정 문서) > DEVELOPMENT-PLAN.md (task 목록)**: 정책이 변경됐으면 task 라벨도 따라가야 함. DEVELOPMENT-PLAN은 lagging indicator. 모순 시 보통 DECISIONS 정합 해석이 안전.
+4. **PR 본문에 "스펙 모순 해소" 섹션 명기**: 어느 source가 어떻게 모순이었고 어떻게 해소했는지. 미래 reviewer/나에게 컨텍스트 전달.
+5. **L-031/L-037 5곳·source-of-truth 정신과 동일** — schema/enum/spec 모두 다중 source 동기화 필수. spec 모순도 "schema 모순"의 한 형태.
+
+**확인 방법**:
+
+- 자동: PR 본문에 "spec 모순" 류 키워드가 있으면 reviewer가 정정 commit이 분리되어 있는지 확인 (git log).
+- 인간 리뷰: plan 단계에서 항상 "관련 spec/DECISIONS/PRD 섹션을 같은 plan에서 cross-reference 했는가?" 자체 점검. cross-ref 결과 모순이면 옵션 제시.
+
+**연관**: E9-13 plan 단계 모순 발견 (PR [apps#17](https://github.com/jaydenjoo/hesya/pull/17) 본문 "스펙 모순 해소" 섹션 + commit `9ba1789` docs 정정 분리), L-031 (5곳 동기화 함정 정신), L-037 (enum source-of-truth ↔ 호출처 sync), L-038 (사전 grep 검증), CLAUDE.md 4원칙 1번 (Surface Assumptions).
