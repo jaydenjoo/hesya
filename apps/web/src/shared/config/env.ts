@@ -63,6 +63,13 @@ const envSchema = z.object({
   // 외부에서 임의로 cron endpoint 호출 차단. openssl rand -base64 32로 생성.
   CRON_SECRET: z.string().min(32),
 
+  // ─── E9-9 KYC 결과 알림 (Resend Free 3K/월) ───
+  // DECISIONS § 1.5. Resend Dashboard에서 발급한 API key (`re_...`).
+  // RESEND_FROM_EMAIL: 발신자 이메일. 도메인 검증 전에는 `onboarding@resend.dev`
+  // (Resend 기본 도메인) 사용 가능. prod 배포 시 hesya 도메인 검증 권장 (별 PR).
+  RESEND_API_KEY: z.string().startsWith("re_"),
+  RESEND_FROM_EMAIL: z.email(),
+
   // ─── AI/외부 (사용 시 주석 해제) ───
   // ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-"),
 });

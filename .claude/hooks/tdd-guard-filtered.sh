@@ -151,6 +151,11 @@ case "$path" in
   # gate + G6 store_verifications INSERT (Supabase MCP execute_sql). Pure functions
   # (valid 코드 매핑 등) extracted later get individual TDD.
   */apps/*/src/lib/kyc/*.ts) exit 0 ;;
+  # E9-9 KYC 결과 알림 — declarative i18n message map (6 locale × 3 kind = 18
+  # hardcoded strings) + thin Resend SDK wrapper. Same rationale as KYC clients
+  # (mock-heavy, low unit test value). Verification = builder unit test (18 cases
+  # subject/body 비어있지 않음 + storeName 포함) + manual smoke (실 이메일 수신).
+  */apps/*/src/lib/notifications/*.ts) exit 0 ;;
   */apps/*/src/app/admin/kyc-test/*.tsx) exit 0 ;;
   */apps/*/src/app/admin/kyc-test/*.ts) exit 0 ;;
   # L-030: next-intl으로 admin 페이지가 [locale] 안으로 이동 → glob 패턴도 함께 보강.

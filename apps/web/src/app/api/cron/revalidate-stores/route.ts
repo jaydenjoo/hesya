@@ -33,6 +33,14 @@ import type { LocaldataItem } from "@hesya/shared-types";
 import { env } from "@/shared/config/env";
 import { computeMatchScore } from "@/lib/kyc/match-score";
 import { searchBeautyShops } from "@/lib/kyc/localdata-client";
+import { sendKycNotification } from "@/lib/notifications/kyc-result";
+
+// E9-9: cron은 admin 가드 없음 → ADMIN_EMAILS 첫 항목(운영팀)으로 알림 발송.
+// Epic 12 매장 owner 가드 도입 시 row.storeId → store_owners 조인 → 매장 사장
+// email로 자연 교체.
+function getOpsEmail(): string {
+  return env.ADMIN_EMAILS.split(",")[0]?.trim() ?? "";
+}
 
 const PAGE_SIZE = 50;
 const REVALIDATION_INTERVAL_MS = 90 * 24 * 60 * 60 * 1000; // 분기별
@@ -62,16 +70,24 @@ async function revalidateOne(row: {
     });
     if (items.length === 0) {
       // 후보 0건 — 매장이 LOCALDATA에서 사라짐 → 매뉴얼 검토
+      const reason = "LOCALDATA에서 매장 정보 사라짐 (재검증 시점)";
       await db
         .update(storeVerifications)
         .set({
           verificationStatus: "manual_review",
-          rejectionReason: "LOCALDATA에서 매장 정보 사라짐 (재검증 시점)",
+          rejectionReason: reason,
           lastRevalidationAt: new Date(),
           nextRevalidationDue: new Date(Date.now() + REVALIDATION_INTERVAL_MS),
           updatedAt: new Date(),
         })
         .where(eq(storeVerifications.id, row.id));
+      await sendKycNotification({
+        to: getOpsEmail(),
+        kind: "manual_review_queued",
+        locale: "ko",
+        storeName: row.localdataBplcNm,
+        reason,
+      });
       return "manual_review";
     }
 
@@ -95,6 +111,11 @@ async function revalidateOne(row: {
     // 폐업(03) 또는 매칭 실패 → 매뉴얼 검토 큐
     const needsManualReview = newStatus === "03" || bestTotalScore < 0.85;
 
+    const rejectionReason = needsManualReview
+      ? newStatus === "03"
+        ? "LOCALDATA 영업 상태가 폐업으로 변경"
+        : `재검증 매칭 점수 ${bestTotalScore.toFixed(3)} < 0.85`
+      : null;
     await db
       .update(storeVerifications)
       .set({
@@ -103,18 +124,23 @@ async function revalidateOne(row: {
         verificationStatus: needsManualReview
           ? "manual_review"
           : "auto_approved",
-        rejectionReason: needsManualReview
-          ? newStatus === "03"
-            ? "LOCALDATA 영업 상태가 폐업으로 변경"
-            : `재검증 매칭 점수 ${bestTotalScore.toFixed(3)} < 0.85`
-          : null,
+        rejectionReason,
         lastRevalidationAt: new Date(),
         nextRevalidationDue: new Date(Date.now() + REVALIDATION_INTERVAL_MS),
         updatedAt: new Date(),
       })
       .where(eq(storeVerifications.id, row.id));
 
-    if (needsManualReview) return "manual_review";
+    if (needsManualReview) {
+      await sendKycNotification({
+        to: getOpsEmail(),
+        kind: "manual_review_queued",
+        locale: "ko",
+        storeName: row.localdataBplcNm,
+        reason: rejectionReason ?? undefined,
+      });
+      return "manual_review";
+    }
     return statusChanged ? "changed" : "unchanged";
   } catch (err) {
     console.error(`[cron] revalidate row ${row.id} failed:`, err);

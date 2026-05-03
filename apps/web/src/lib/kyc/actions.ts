@@ -29,6 +29,7 @@ import { LocaldataApiError, searchBeautyShops } from "./localdata-client";
 import { NtsApiError, validateBusinessNumber } from "./nts-client";
 import { computeMatchScore } from "./match-score";
 import { normalizeBusinessName } from "./normalize-business-name";
+import { sendKycNotification } from "@/lib/notifications/kyc-result";
 
 const db = createDbClient(env.DATABASE_URL);
 
@@ -120,6 +121,19 @@ export async function verifyBusinessNumber(
       error: "internal",
       message: "store_verifications INSERT 실패",
     };
+  }
+
+  // E9-9: NTS 진위확인 실패 시 즉시 거절 알림 (KYC step 1만 fail = auto_rejected).
+  // 수신자는 admin email — Epic 12 매장 owner 가드 도입 시 매장 사장 email로 교체.
+  // storeName은 NTS가 사업장명 안 줘서 대표자명을 fallback으로 표기.
+  if (validationResult === "valid_mismatch") {
+    await sendKycNotification({
+      to: guard.email,
+      kind: "auto_rejected_nts",
+      locale: "ko",
+      storeName: parsed.data.p_nm,
+      reason: `NTS valid 코드 ${ntsData.valid}`,
+    });
   }
 
   return {
@@ -355,6 +369,18 @@ export async function matchStoreToLocaldata(
       updatedAt: new Date(),
     })
     .where(eq(storeVerifications.id, parsed.data.verificationId));
+
+  // E9-9: matched=true면 자동 승인 알림, false면 매뉴얼 검토 큐 알림.
+  // 수신자는 admin email — Epic 12 매장 owner 가드 도입 시 자연 교체.
+  await sendKycNotification({
+    to: guard.email,
+    kind: matched ? "auto_approved" : "manual_review_queued",
+    locale: "ko",
+    storeName: parsed.data.bplcNm,
+    reason: matched
+      ? undefined
+      : `LOCALDATA 매칭 점수 ${bestScore?.totalScore.toFixed(3) ?? "0.000"} < 0.85`,
+  });
 
   return {
     ok: true,

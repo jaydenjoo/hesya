@@ -23,7 +23,9 @@
         "KOREA_NTS_API_KEY",
         "KOREA_LOCALDATA_API_KEY",
         "ADMIN_EMAILS",
-        "CRON_SECRET"
+        "CRON_SECRET",
+        "RESEND_API_KEY",
+        "RESEND_FROM_EMAIL"
       ]
     },
     "dev": {
