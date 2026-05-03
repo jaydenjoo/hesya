@@ -10,7 +10,7 @@ type KVerifiedBadgeProps = HTMLAttributes<HTMLSpanElement> & {
 
 /**
  * KVerifiedBadge — gold trust marker for stores whose verification_status
- * is `auto_approved` or `approved` (PRD § 6.5).
+ * is `auto_approved` (PRD § 6.5 / § 7).
  *
  * Rules baked in:
  *   - Customer-facing surfaces only — never render on operator/admin pages.
