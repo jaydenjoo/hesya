@@ -6,6 +6,7 @@ export * from "./kyc-localdata";
 export * from "./kyc-verification-logs";
 export * from "./kyc-match";
 export * from "./kyc-nts";
+export * from "./kyc-ocr";
 export * from "./messages";
 export * from "./payments";
 export * from "./reviews";

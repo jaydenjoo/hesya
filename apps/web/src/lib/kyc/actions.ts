@@ -42,11 +42,18 @@ import {
   type ClassifyStoreCategoryHelperResult,
 } from "./category-classifier";
 import { createAnthropicCategoryRepo } from "@/lib/llm/anthropic-category-repo";
+import {
+  extractOcrFromLicense,
+  SUPPORTED_MEDIA_TYPES,
+  type ExtractOcrHelperResult,
+} from "./ocr-extractor";
+import { createAnthropicVisionRepo } from "@/lib/llm/anthropic-vision-repo";
 
 const db = createDbClient(env.DATABASE_URL);
 const auditRepo = createDrizzleAuditRepo(db);
 const selfDeclarationRepo = createDrizzleSelfDeclarationRepo(db);
 const categoryClassifierRepo = createAnthropicCategoryRepo();
+const visionExtractorRepo = createAnthropicVisionRepo();
 
 const RATE_LIMIT = { max: 20, windowSec: 60 } as const;
 
@@ -718,6 +725,133 @@ export async function classifyStoreCategoryAction(
       confidence: result.confidence,
       autoClassified: result.autoClassified,
       reasoning: result.reasoning ?? null,
+    },
+    actorUserId: guard.userId,
+  });
+
+  return { ...result, verificationId: parsed.data.verificationId };
+}
+
+/**
+ * Epic 9 § Step 4-2 (E9-6) — 영업신고증 OCR 추출 (Claude Opus 4.7 Vision).
+ *
+ * 입력 = verificationId + base64 인코딩된 영업신고증 사진 + media type.
+ * 결과 = 4개 필드(사업자번호·대표자명·주소·개업일자) + confidence (< 0.85 → manual_review).
+ *
+ * Storage 미통합 (DECISIONS § 1.6 Phase 1.5 본 가입 플로우 통합) — 이번엔 admin
+ * 검증용 base64 직접 입력. 30일 자동 삭제 cron도 별도 task.
+ *
+ * Vercel Server Action body 한도 ~4.5MB → 안전 마진 4MB. 클라이언트(kyc-test)는
+ * 3MB로 한 번 더 제한.
+ *
+ * 자체 status 변경 X (E9-4·E9-5 동일 — admin이 5단계 종합 판단).
+ * ocrExtractedData + ocrMatchScore UPDATE + audit log만.
+ */
+const MAX_BASE64_BYTES = 4 * 1024 * 1024; // 4MB
+
+const extractOcrInputSchema = z.object({
+  verificationId: z.string().uuid("verificationId는 UUID"),
+  imageBase64: z.string().min(1, "imageBase64 빈 문자열 불가"),
+  mediaType: z.enum(SUPPORTED_MEDIA_TYPES),
+});
+
+export type ExtractOcrActionResult =
+  | (ExtractOcrHelperResult & { ok: true; verificationId: string })
+  | {
+      ok: false;
+      error:
+        | "unauthorized"
+        | "forbidden"
+        | "rate_limited"
+        | "invalid_input"
+        | "image_too_large"
+        | "verification_not_found"
+        | "vision_invalid_response"
+        | "vision_error";
+      message: string;
+    };
+
+export async function extractOcrFromLicenseAction(
+  rawInput: unknown,
+): Promise<ExtractOcrActionResult> {
+  const guard = await requireAdminEmail();
+  if (!guard.ok) {
+    return { ok: false, error: guard.error, message: guard.message };
+  }
+
+  try {
+    await checkRateLimit(`kyc:${guard.userId}`, RATE_LIMIT);
+  } catch (err) {
+    if (err instanceof RateLimitError) {
+      return { ok: false, error: "rate_limited", message: err.message };
+    }
+    throw err;
+  }
+
+  const parsed = extractOcrInputSchema.safeParse(rawInput);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "invalid_input",
+      message: parsed.error.issues
+        .map((i) => `${i.path.join(".")}: ${i.message}`)
+        .join("; "),
+    };
+  }
+
+  if (parsed.data.imageBase64.length > MAX_BASE64_BYTES) {
+    return {
+      ok: false,
+      error: "image_too_large",
+      message: `imageBase64 ${(parsed.data.imageBase64.length / 1024 / 1024).toFixed(2)}MB > 4MB (Vercel Server Action body 한도)`,
+    };
+  }
+
+  const [row] = await db
+    .select({ id: storeVerifications.id })
+    .from(storeVerifications)
+    .where(eq(storeVerifications.id, parsed.data.verificationId))
+    .limit(1);
+
+  if (!row) {
+    return {
+      ok: false,
+      error: "verification_not_found",
+      message: `verificationId ${parsed.data.verificationId} 없음`,
+    };
+  }
+
+  const result = await extractOcrFromLicense({
+    repo: visionExtractorRepo,
+    input: {
+      imageBase64: parsed.data.imageBase64,
+      mediaType: parsed.data.mediaType,
+    },
+  });
+
+  if (!result.ok) {
+    return result;
+  }
+
+  await db
+    .update(storeVerifications)
+    .set({
+      ocrExtractedData: result.extracted,
+      ocrMatchScore: result.confidence.toString(),
+      updatedAt: new Date(),
+    })
+    .where(eq(storeVerifications.id, parsed.data.verificationId));
+
+  await logKycEvent({
+    repo: auditRepo,
+    verificationId: parsed.data.verificationId,
+    eventType: "ocr_extract",
+    eventData: {
+      confidence: result.confidence,
+      autoExtracted: result.autoExtracted,
+      mediaType: parsed.data.mediaType,
+      base64ByteSize: parsed.data.imageBase64.length,
+      extracted: result.extracted,
     },
     actorUserId: guard.userId,
   });
