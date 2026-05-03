@@ -8,10 +8,12 @@
 
 import { useState, useTransition, type FormEvent } from "react";
 import {
+  classifyStoreCategoryAction,
   matchStoreToLocaldata,
   searchLocaldataBeautyShops,
   signSelfDeclarationAction,
   verifyBusinessNumber,
+  type ClassifyCategoryActionResult,
   type MatchStoreToLocaldataResult,
   type SearchLocaldataResult,
   type SignSelfDeclarationActionResult,
@@ -36,6 +38,8 @@ export default function KycTestPage() {
       <MatchSection />
       <hr className="border-gray-200" />
       <SelfDeclarationSection />
+      <hr className="border-gray-200" />
+      <CategoryClassifySection />
     </main>
   );
 }
@@ -465,6 +469,95 @@ function SelfDeclarationResultBlock({
     <section className="space-y-2 rounded border bg-red-50 p-4">
       <h2 className="font-semibold">실패: {result.error}</h2>
       <p className="text-sm">{result.message}</p>
+    </section>
+  );
+}
+
+function CategoryClassifySection() {
+  const [verificationId, setVerificationId] = useState("");
+  const [result, setResult] = useState<ClassifyCategoryActionResult | null>(
+    null,
+  );
+  const [isPending, startTransition] = useTransition();
+
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    setResult(null);
+    startTransition(async () => {
+      const res = await classifyStoreCategoryAction({
+        verificationId: verificationId.trim(),
+      });
+      setResult(res);
+    });
+  };
+
+  return (
+    <section className="space-y-4">
+      <h2 className="text-lg font-semibold">
+        Step 5 — 카테고리 자동 분류 (Anthropic Sonnet 4.6)
+      </h2>
+      <p className="text-xs leading-relaxed text-gray-500">
+        9개 카테고리(미용업 5종 + 자유업 4종) 중 1개 + confidence 분류. 입력은
+        store_verifications row의 LOCALDATA 매칭 결과(bplcNm + OPN_ATMY_GRP_CD).
+        confidence ≥ 0.85 → autoClassified=true. {"<"} 0.85 → manual_review
+        (admin 확인 필요). 1회 ~$0.003.
+      </p>
+      <form onSubmit={onSubmit} className="space-y-4">
+        <Field label="verification ID (Step 1·3 결과에서 복사)">
+          <input
+            type="text"
+            value={verificationId}
+            onChange={(e) => setVerificationId(e.target.value)}
+            placeholder="예: 0c1d2e3f-..."
+            required
+            className="w-full rounded border px-3 py-2 font-mono text-sm"
+          />
+        </Field>
+        <button
+          type="submit"
+          disabled={isPending}
+          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+        >
+          {isPending ? "분류 중..." : "카테고리 분류"}
+        </button>
+      </form>
+      {result && <CategoryResultBlock result={result} />}
+    </section>
+  );
+}
+
+function CategoryResultBlock({
+  result,
+}: {
+  result: ClassifyCategoryActionResult;
+}) {
+  if (!result.ok) {
+    return (
+      <section className="space-y-2 rounded border bg-red-50 p-4">
+        <h2 className="font-semibold">실패: {result.error}</h2>
+        <p className="text-sm whitespace-pre-wrap">{result.message}</p>
+      </section>
+    );
+  }
+  const bg = result.autoClassified ? "bg-green-50" : "bg-yellow-50";
+  return (
+    <section className={`space-y-2 rounded border p-4 ${bg}`}>
+      <h2 className="font-semibold">
+        {result.autoClassified
+          ? "자동 분류 완료"
+          : "신뢰도 낮음 (manual_review 필요)"}
+      </h2>
+      <dl className="space-y-1 text-sm">
+        <Row k="category" v={result.category} />
+        <Row k="confidence" v={result.confidence.toFixed(3)} />
+        <Row k="autoClassified" v={String(result.autoClassified)} />
+        <Row k="verification ID" v={result.verificationId} />
+      </dl>
+      {result.reasoning && (
+        <p className="rounded border bg-white p-3 text-xs leading-relaxed text-gray-700">
+          {result.reasoning}
+        </p>
+      )}
     </section>
   );
 }

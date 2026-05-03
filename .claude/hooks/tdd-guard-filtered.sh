@@ -166,6 +166,9 @@ case "$path" in
   */apps/*/src/lib/store-reports/*.ts) exit 0 ;;
   */apps/*/src/app/\[locale\]/admin/store-reports/*.tsx) exit 0 ;;
   */apps/*/src/app/\[locale\]/admin/store-reports/*.ts) exit 0 ;;
+  # E9-4 LLM thin wrappers (Anthropic SDK 호출 + JSON parse + lazy init).
+  # 핵심 helper(category-classifier.ts)는 lib/kyc/* 안에서 별도 TDD. 같은 정책.
+  */apps/*/src/lib/llm/*.ts) exit 0 ;;
 esac
 
 # Business code path — delegate to the real tdd-guard CLI with original stdin.

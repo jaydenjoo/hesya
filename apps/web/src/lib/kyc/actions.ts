@@ -37,10 +37,16 @@ import {
   createDrizzleSelfDeclarationRepo,
   type SignSelfDeclarationResult,
 } from "./self-declaration";
+import {
+  classifyStoreCategory,
+  type ClassifyStoreCategoryHelperResult,
+} from "./category-classifier";
+import { createAnthropicCategoryRepo } from "@/lib/llm/anthropic-category-repo";
 
 const db = createDbClient(env.DATABASE_URL);
 const auditRepo = createDrizzleAuditRepo(db);
 const selfDeclarationRepo = createDrizzleSelfDeclarationRepo(db);
+const categoryClassifierRepo = createAnthropicCategoryRepo();
 
 const RATE_LIMIT = { max: 20, windowSec: 60 } as const;
 
@@ -580,4 +586,133 @@ export async function signSelfDeclarationAction(
   }
 
   return result;
+}
+
+/**
+ * Epic 9 § Step 3 (E9-4) — 카테고리 자동 분류.
+ *
+ * 입력 = verificationId. store_verifications에서 LOCALDATA 매칭 결과
+ * (bplcNm, localdata_bplc_nm, localdata_business_type) 가져와 LLM 분류.
+ * 결과 = 9개 카테고리 중 1개 + confidence. < 0.85 → manual_review 후속.
+ *
+ * 자체 status 변경 X (E9-5와 동일 — admin이 5단계 종합 판단).
+ * categoryClassified + categoryConfidence UPDATE + audit log만.
+ */
+const classifyCategoryInputSchema = z.object({
+  verificationId: z.string().uuid("verificationId는 UUID"),
+});
+
+export type ClassifyCategoryActionResult =
+  | (ClassifyStoreCategoryHelperResult & { ok: true; verificationId: string })
+  | {
+      ok: false;
+      error:
+        | "unauthorized"
+        | "forbidden"
+        | "rate_limited"
+        | "invalid_input"
+        | "verification_not_found"
+        | "verification_missing_input"
+        | "llm_invalid_response"
+        | "llm_error";
+      message: string;
+    };
+
+export async function classifyStoreCategoryAction(
+  rawInput: unknown,
+): Promise<ClassifyCategoryActionResult> {
+  const guard = await requireAdminEmail();
+  if (!guard.ok) {
+    return { ok: false, error: guard.error, message: guard.message };
+  }
+
+  try {
+    await checkRateLimit(`kyc:${guard.userId}`, RATE_LIMIT);
+  } catch (err) {
+    if (err instanceof RateLimitError) {
+      return { ok: false, error: "rate_limited", message: err.message };
+    }
+    throw err;
+  }
+
+  const parsed = classifyCategoryInputSchema.safeParse(rawInput);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "invalid_input",
+      message: parsed.error.issues
+        .map((i) => `${i.path.join(".")}: ${i.message}`)
+        .join("; "),
+    };
+  }
+
+  // store_verifications에서 분류 입력 가져오기
+  const [row] = await db
+    .select({
+      id: storeVerifications.id,
+      businessNumber: storeVerifications.businessNumber,
+      localdataBplcNm: storeVerifications.localdataBplcNm,
+      localdataBusinessType: storeVerifications.localdataBusinessType,
+    })
+    .from(storeVerifications)
+    .where(eq(storeVerifications.id, parsed.data.verificationId))
+    .limit(1);
+
+  if (!row) {
+    return {
+      ok: false,
+      error: "verification_not_found",
+      message: `verificationId ${parsed.data.verificationId} 없음`,
+    };
+  }
+
+  // 분류 입력 = LOCALDATA 매칭이 있으면 그 사업장명, 아니면 representativeName fallback
+  // 정확도 떨어지므로 verification에 명시적 입력 컬럼 추가는 Phase 1.5
+  const bplcNm = row.localdataBplcNm ?? row.businessNumber;
+  if (!bplcNm) {
+    return {
+      ok: false,
+      error: "verification_missing_input",
+      message: "분류 입력 (localdataBplcNm 또는 businessNumber) 누락",
+    };
+  }
+
+  const result = await classifyStoreCategory({
+    repo: categoryClassifierRepo,
+    input: {
+      bplcNm,
+      localdataBplcNm: row.localdataBplcNm,
+      localdataOpnAtmyGrpCd: row.localdataBusinessType,
+    },
+  });
+
+  if (!result.ok) {
+    return result;
+  }
+
+  // store_verifications UPDATE
+  await db
+    .update(storeVerifications)
+    .set({
+      categoryClassified: result.category,
+      categoryConfidence: result.confidence.toString(),
+      updatedAt: new Date(),
+    })
+    .where(eq(storeVerifications.id, parsed.data.verificationId));
+
+  // E9-12 audit log
+  await logKycEvent({
+    repo: auditRepo,
+    verificationId: parsed.data.verificationId,
+    eventType: "category_classify",
+    eventData: {
+      category: result.category,
+      confidence: result.confidence,
+      autoClassified: result.autoClassified,
+      reasoning: result.reasoning ?? null,
+    },
+    actorUserId: guard.userId,
+  });
+
+  return { ...result, verificationId: parsed.data.verificationId };
 }

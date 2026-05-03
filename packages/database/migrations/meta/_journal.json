@@ -64,6 +64,13 @@
       "when": 1777793380139,
       "tag": "0008_yummy_pestilence",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1777798887615,
+      "tag": "0009_gifted_goliath",
+      "breakpoints": true
     }
   ]
 }
