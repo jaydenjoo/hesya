@@ -1,12 +1,19 @@
 /**
  * Epic 9 § Step 1 — KYC 진위확인 검증용 임시 페이지.
  *
- * 향후 Epic 12 Admin Panel 통합 시 이 디렉토리 흡수 또는 삭제.
- * 디자인은 minimal — Phase 1 검증 우선.
+ * E9-13 (DECISIONS § 1.11) AAA 강화 적용:
+ *  - SkipLink 첫 요소 → 키보드 사용자 본문 즉시 점프 (WCAG 2.4.1 Level A)
+ *  - 모든 텍스트 색상 대비 ≥ 7:1 (text-gray-700 이상, WCAG 1.4.6 AAA)
+ *  - 결과 영역 role="status" + aria-live="polite" → SR 자동 announcement
+ *  - <main id="main" tabIndex={-1}>로 SkipLink 점프 타겟 + focus 가능
+ *
+ * 향후 Epic 12 Admin Panel 통합 시 이 디렉토리 흡수 또는 삭제 — AAA 패턴은
+ * 그때 매장 사장 onboarding 페이지에 그대로 재사용.
  */
 "use client";
 
-import { useState, useTransition, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent, type ReactNode } from "react";
+import { SkipLink } from "@/components/a11y/SkipLink";
 import {
   classifyStoreCategoryAction,
   matchStoreToLocaldata,
@@ -22,25 +29,44 @@ import {
 
 export default function KycTestPage() {
   return (
-    <main className="mx-auto max-w-3xl space-y-12 p-8">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-bold">KYC 검증 페이지</h1>
-        <p className="text-sm leading-relaxed text-gray-600">
-          Epic 9 Step 1·2 — 국세청 진위확인 + LOCALDATA 미용업 영업신고 조회.
-          로그인 필요.
-        </p>
-      </header>
+    <>
+      <SkipLink targetId="main" label="본문으로 건너뛰기" />
+      <main
+        id="main"
+        tabIndex={-1}
+        className="mx-auto max-w-3xl space-y-12 p-8"
+      >
+        <header className="space-y-2">
+          <h1 className="text-2xl font-bold">KYC 검증 페이지</h1>
+          <p className="text-sm leading-relaxed text-gray-700">
+            Epic 9 Step 1·2 — 국세청 진위확인 + LOCALDATA 미용업 영업신고 조회.
+            로그인 필요.
+          </p>
+        </header>
 
-      <NtsSection />
-      <hr className="border-gray-200" />
-      <LocaldataSection />
-      <hr className="border-gray-200" />
-      <MatchSection />
-      <hr className="border-gray-200" />
-      <SelfDeclarationSection />
-      <hr className="border-gray-200" />
-      <CategoryClassifySection />
-    </main>
+        <NtsSection />
+        <hr className="border-gray-200" />
+        <LocaldataSection />
+        <hr className="border-gray-200" />
+        <MatchSection />
+        <hr className="border-gray-200" />
+        <SelfDeclarationSection />
+        <hr className="border-gray-200" />
+        <CategoryClassifySection />
+      </main>
+    </>
+  );
+}
+
+/**
+ * 결과 영역 라이브 리전 — 항상 mount되어 있어야 SR이 dynamic 변경을 인식.
+ * `aria-atomic="true"`로 자식이 변경되면 영역 전체를 다시 announce.
+ */
+function LiveResult({ children }: { children: ReactNode }) {
+  return (
+    <div role="status" aria-live="polite" aria-atomic="true">
+      {children}
+    </div>
   );
 }
 
@@ -67,7 +93,7 @@ function NtsSection() {
   return (
     <section className="space-y-4">
       <h2 className="text-lg font-semibold">Step 1 — 국세청 진위확인</h2>
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-gray-700">
         공개 사업자번호 예시: 삼성전자 1248100998 / 네이버 2208145242 / 카카오
         1208147521.
       </p>
@@ -110,7 +136,7 @@ function NtsSection() {
           {isPending ? "확인 중..." : "진위확인"}
         </button>
       </form>
-      {result && <ResultBlock result={result} />}
+      <LiveResult>{result && <ResultBlock result={result} />}</LiveResult>
     </section>
   );
 }
@@ -140,7 +166,7 @@ function LocaldataSection() {
       <h2 className="text-lg font-semibold">
         Step 2 — LOCALDATA 미용업 영업신고 조회
       </h2>
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-gray-700">
         행정안전부 생활_미용업 (data.go.kr 1741000). 사업자번호 검색은 미지원 —
         사업장명 LIKE 검색. 동명 매장 변별을 위해 도로명주소 일부 추가 권장.
       </p>
@@ -172,7 +198,9 @@ function LocaldataSection() {
           {isPending ? "검색 중..." : "검색"}
         </button>
       </form>
-      {result && <LocaldataResultBlock result={result} />}
+      <LiveResult>
+        {result && <LocaldataResultBlock result={result} />}
+      </LiveResult>
     </section>
   );
 }
@@ -257,7 +285,7 @@ function MatchSection() {
       <h2 className="text-lg font-semibold">
         Step 3 — 통합 매칭 (NTS verificationId + LOCALDATA 후보 매칭)
       </h2>
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-gray-700">
         Step 1 결과의 verification ID에 LOCALDATA 후보를 검색·매칭하여
         store_verifications 행을 갱신. 사업장명·주소를 정규화 후 가중평균(이름
         0.6 + 주소 0.4) 점수가 0.85 이상이면 matched=true.
@@ -300,7 +328,7 @@ function MatchSection() {
           {isPending ? "매칭 중..." : "매칭"}
         </button>
       </form>
-      {result && <MatchResultBlock result={result} />}
+      <LiveResult>{result && <MatchResultBlock result={result} />}</LiveResult>
     </section>
   );
 }
@@ -335,16 +363,16 @@ function MatchResultBlock({ result }: { result: MatchStoreToLocaldataResult }) {
           <div className="font-medium">
             {result.candidate.BPLC_NM ?? "(이름 미기재)"}
           </div>
-          <div className="text-xs text-gray-600">
+          <div className="text-xs text-gray-700">
             {result.candidate.ROAD_NM_ADDR ?? "(주소 미기재)"}
           </div>
-          <div className="flex gap-3 text-xs text-gray-500">
+          <div className="flex gap-3 text-xs text-gray-700">
             <span>업종 그룹: {result.candidate.OPN_ATMY_GRP_CD ?? "-"}</span>
             <span>영업상태: {result.candidate.SALS_STTS_CD ?? "-"}</span>
           </div>
         </div>
       )}
-      <div className="text-xs text-gray-500">
+      <div className="text-xs text-gray-700">
         verification ID:{" "}
         <span className="font-mono">{result.verificationId}</span>
       </div>
@@ -379,7 +407,7 @@ function SelfDeclarationSection() {
   return (
     <section className="space-y-4">
       <h2 className="text-lg font-semibold">Step 4 — 약관 자기신고</h2>
-      <p className="text-xs leading-relaxed text-gray-500">
+      <p className="text-xs leading-relaxed text-gray-700">
         매장 사장이 가입 시 마사지·의료기기·한방 시술 안 함 3가지에 모두
         동의해야 진행. 한 번 서명되면 immutable (재서명 불가). 의료법 위반 가맹
         차단의 법적 분리 근거 (PRD § 5.4 Step 4).
@@ -422,7 +450,9 @@ function SelfDeclarationSection() {
               : "3가지 모두 체크 필요"}
         </button>
       </form>
-      {result && <SelfDeclarationResultBlock result={result} />}
+      <LiveResult>
+        {result && <SelfDeclarationResultBlock result={result} />}
+      </LiveResult>
     </section>
   );
 }
@@ -496,7 +526,7 @@ function CategoryClassifySection() {
       <h2 className="text-lg font-semibold">
         Step 5 — 카테고리 자동 분류 (Anthropic Sonnet 4.6)
       </h2>
-      <p className="text-xs leading-relaxed text-gray-500">
+      <p className="text-xs leading-relaxed text-gray-700">
         9개 카테고리(미용업 5종 + 자유업 4종) 중 1개 + confidence 분류. 입력은
         store_verifications row의 LOCALDATA 매칭 결과(bplcNm + OPN_ATMY_GRP_CD).
         confidence ≥ 0.85 → autoClassified=true. {"<"} 0.85 → manual_review
@@ -521,7 +551,9 @@ function CategoryClassifySection() {
           {isPending ? "분류 중..." : "카테고리 분류"}
         </button>
       </form>
-      {result && <CategoryResultBlock result={result} />}
+      <LiveResult>
+        {result && <CategoryResultBlock result={result} />}
+      </LiveResult>
     </section>
   );
 }
@@ -576,7 +608,7 @@ function LocaldataResultBlock({ result }: { result: SearchLocaldataResult }) {
     return (
       <section className="space-y-2 rounded border bg-gray-50 p-4">
         <h2 className="font-semibold">검색 결과 없음</h2>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-700">
           입력한 사업장명과 일치하는 미용업 영업신고가 없습니다.
         </p>
       </section>
@@ -595,10 +627,10 @@ function LocaldataResultBlock({ result }: { result: SearchLocaldataResult }) {
         {result.items.map((item, idx) => (
           <li key={idx} className="space-y-1 rounded border bg-white p-3">
             <div className="font-medium">{item.BPLC_NM ?? "(이름 미기재)"}</div>
-            <div className="text-xs text-gray-600">
+            <div className="text-xs text-gray-700">
               {item.ROAD_NM_ADDR ?? "(주소 미기재)"}
             </div>
-            <div className="flex gap-3 text-xs text-gray-500">
+            <div className="flex gap-3 text-xs text-gray-700">
               <span>인허가: {item.LCPMT_YMD ?? "-"}</span>
               <span>영업상태: {item.SALS_STTS_CD ?? "-"}</span>
               <span>지자체: {item.OPN_ATMY_GRP_CD ?? "-"}</span>

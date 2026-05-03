@@ -153,16 +153,23 @@ export async function verifyBusinessNumber(
     actorUserId: guard.userId,
   });
 
-  // E9-9: NTS 진위확인 실패 시 즉시 거절 알림 (KYC step 1만 fail = auto_rejected).
+  // E9-9 + E9-13: NTS 진위확인 실패 시 즉시 actionable 거절 알림.
   // 수신자는 admin email — Epic 12 매장 owner 가드 도입 시 매장 사장 email로 교체.
   // storeName은 NTS가 사업장명 안 줘서 대표자명을 fallback으로 표기.
+  // retryUrl/faqUrl은 NEXT_PUBLIC_APP_URL 기반 placeholder — Epic 12 onboarding +
+  // Epic 11 FAQ page 도입 시 자연 교체 (시그니처 변경 없음).
   if (validationResult === "valid_mismatch") {
+    const { env } = await import("@/shared/config/env");
     await sendKycNotification({
       to: guard.email,
       kind: "auto_rejected_nts",
       locale: "ko",
       storeName: parsed.data.p_nm,
-      reason: `NTS valid 코드 ${ntsData.valid}`,
+      reason: {
+        summary: `NTS valid 코드 ${ntsData.valid} (사업자번호·개업일자·대표자명 중 일치하지 않는 값이 있습니다)`,
+        retryUrl: `${env.NEXT_PUBLIC_APP_URL}/ko/admin/kyc-test#nts`,
+        faqUrl: `${env.NEXT_PUBLIC_APP_URL}/ko#faq-kyc`,
+      },
     });
     await logKycEvent({
       repo: auditRepo,
@@ -490,7 +497,8 @@ export async function matchStoreToLocaldata(
     kind: notifyKind,
     locale: "ko",
     storeName: parsed.data.bplcNm,
-    reason: finalApproved ? undefined : failReasons.join("; "),
+    // manual_review_queued는 waiting 상태라 retry/faq URL 무관 — summary만 전달.
+    reason: finalApproved ? undefined : { summary: failReasons.join("; ") },
   });
   await logKycEvent({
     repo: auditRepo,
