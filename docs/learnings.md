@@ -1232,3 +1232,42 @@ fix commit `868d8a5` → main `246bfd6` (PR #4). Playwright 자동 검증으로 
 - 인간 리뷰: 리뷰 결과 보고 직후 "이 함수 정말 동작하는지 본문 Read로 확인했나?" 자체 점검.
 
 **연관**: PR #6 코드 리뷰(4 에이전트 병렬), `apps/web/src/shared/lib/{auth-guard.ts (stub), admin-guard.ts (실 구현), rate-limit.ts (in-memory)}`, CLAUDE.md "AI 응답 검증 규칙" 섹션, L-031 정신 (5곳 동기화 같은 함정)
+
+---
+
+### [2026-05-03] L-035 — `server-only` 가드 + 검증 스크립트 함정 (실 흐름 검증의 import 우회 패턴)
+
+**증상 / 상황**: E9-3 매칭 흐름의 실 호출 검증을 위해 `apps/web/scripts/verify-e9-3-match.ts` 작성. `localdata-client.ts`의 `searchBeautyShops`를 import하니 tsx 실행 시 `Error: This module cannot be imported from a Client Component module. It should only be used from a Server Component.` 즉시 throw. `localdata-client.ts` 첫 줄의 `import "server-only"`가 Next.js Server Component 외 환경(일반 Node.js 스크립트)을 차단.
+
+**원인**: `server-only` 패키지는 Client Component 보호용 가드 — import만 해도 throw하는 sentinel 모듈. tsx로 실행되는 검증 스크립트는 Next.js 서버 런타임 컨텍스트가 아니므로 이 가드를 통과 X. `localdata-client.ts`처럼 server-only로 표시된 모듈을 일반 Node.js script에서 import하면 무조건 실패.
+
+**해결**: production 모듈을 import하지 말고 **shared-types의 Zod schema와 헬퍼만** 직접 import + fetch는 스크립트 안에 인라인. `packages/shared-types`는 server-only 가드 없는 순수 타입/스키마 모듈이라 안전.
+
+```ts
+// ❌ tsx 실행 시 throw
+import { searchBeautyShops } from "../src/lib/kyc/localdata-client";
+
+// ✅ 안전 — shared-types만 사용 + fetch 인라인
+import {
+  localdataSearchResponseSchema,
+  extractLocaldataItems,
+} from "@hesya/shared-types";
+const res = await fetch(`${ENDPOINT}?${params}`);
+const parsed = localdataSearchResponseSchema.parse(await res.json());
+const items = extractLocaldataItems(parsed);
+```
+
+**규칙** ⭐:
+
+1. **검증 스크립트는 server-only 모듈을 import하지 말 것.** 대신 (a) shared-types의 Zod schema·헬퍼 직접 사용 + (b) fetch·DB 호출은 스크립트에 인라인.
+2. 검증 스크립트 위치 컨벤션: `apps/web/scripts/verify-*.ts` 또는 `scripts/integration-*.ts`. TDD guard hook의 allowlist에 등록 (production-adjacent, unit test로 격리 불가).
+3. 인라인된 fetch 파라미터는 **production 클라이언트와 일치하는지 별도 검증 필수** — 이번 검증에서 production은 `cond[BPLC_NM::LIKE]` + `returnType` 사용인데 스크립트가 `BPLC_NM` 직접 + `type` 사용해서 totalCount=451954(필터 미적용 전체) 받음. production 코드를 grep으로 비교 후 일치시키는 단계 필수.
+4. 첫 시도가 통과해도 production과 동작이 달라 검증 가치 0일 수 있음. **PR #6 같은 기존 검증 결과(예: "청담"+"강남구" → 191건)와 비교해서 일관성 확인** 필수.
+5. 같은 패턴이 admin-guard, rate-limit 등 server-only 모듈 검증에 반복 적용됨 — Server Action 자체는 인증 우회 어려움. 검증 가능한 것은 **순수 비즈니스 로직 + 외부 API + DB I/O** 흐름까지. 인증 흐름은 별도 e2e (Playwright + 로그인 쿠키).
+
+**확인 방법**:
+
+- 자동: 검증 스크립트 PR에서 `import .*from "..\/.*\/(localdata-client|nts-client|admin-guard|rate-limit)"` 패턴 발견 시 review 차단.
+- 인간 리뷰: 검증 스크립트 첫 실행 후 **production 클라이언트의 fetch 파라미터를 grep해서 일치하는지 확인**. 결과가 PR 이전 검증과 일관된지 비교.
+
+**연관**: `apps/web/scripts/verify-e9-3-match.ts` (이번 검증 — 매칭 흐름), `apps/web/src/lib/kyc/localdata-client.ts` (server-only), `packages/shared-types/src/kyc-localdata.ts` (Zod + 헬퍼, 안전), `.claude/hooks/tdd-guard-filtered.sh` (allowlist 추가), L-027 (실 동작이 source of truth), L-031 (5곳 동기화 함정 정신), 향후 NTS·OCR·payment 검증 스크립트 동일 패턴
