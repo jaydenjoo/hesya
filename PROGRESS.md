@@ -14,9 +14,9 @@
 
 ## 다음 세션 할 일 (E9-6 OCR Vision, 6h, 마지막 sub-task)
 
-1. **Plan 작성** — PRD § 5.4 Step 3 (영업신고증 사진 → Vision API → 사업자번호·대표자명·주소·개업일자 자동 추출 → NTS/LOCALDATA 매칭에 자동 입력) + DECISIONS § 1.5 (Claude Opus 4.7 Vision 2,576px) 정합 검증.
-2. **모델 결정 포인트** — Sonnet 4.6 (E9-4와 동일, 비용 ~$0.003/장) vs Opus 4.7 (DECISIONS 권장, 비용 ~$0.015/장). 결정 후 `anthropic-category-repo.ts` factory 패턴 재사용.
-3. **TDD 순서** — `lib/kyc/ocr-extractor.{ts,test.ts}` (Repo + 5 cases mock) → Anthropic Vision factory → Server Action → kyc-test 페이지 Step 3 통합 → 마이그레이션 (필요 시 `ocr_extracted` event_type 추가).
+1. **Plan 작성** — PRD § 5.4 **Step 4-2** (영업신고증 사진 → Vision API → 사업자번호·대표자명·주소·개업일자 자동 추출 → NTS/LOCALDATA 매칭에 자동 입력) + **PRD §509 모델 매트릭스 + §1028 시간 견적** (Claude Opus 4.7 Vision 2,576px, 6h) 정합 검증 ✅. (이전 인용 오류: § 5.4 Step 3 = 카테고리 분류 = E9-4에서 완료 / DECISIONS § 1.5 = 알림 시스템 챕터 → 정정)
+2. **모델 결정** — Opus 4.7 Vision (PRD §509 기결정, ~$0.015/장, task_budget 활용). `anthropic-category-repo.ts` factory 패턴 재사용 → `anthropic-vision-repo.ts`.
+3. **TDD 순서** — `lib/kyc/ocr-extractor.{ts,test.ts}` (Repo + 5 cases mock) → Anthropic Vision factory → Server Action → kyc-test 페이지 **Step 4-2** 통합 → 마이그레이션 (`ocr_extract` event_type 추가, `packages/database/src/schema/kyc-verification-logs.ts` §27 주석 명시).
 4. **6h = 2 세션 분할 권장** — 첫 세션 plan + TDD helper + factory, 두 번째 세션 Server Action + UI + 검증. 또는 한 세션에 풀 사이클 가능 시 진행.
 5. **Epic 9 100% 완료 후** — Epic 1 (다국어 인박스) 또는 Epic 2 (결제 통합 🔴) 또는 Epic 12 (관리자 패널) 시작 결정 필요.
 

@@ -24,10 +24,10 @@ import { users } from "./auth/users";
  *     superuser 외 모든 role 차단). 임시 테이블 검증 완료.
  *   - 코드에서 UPDATE/DELETE 호출하면 P0001 ERROR로 즉시 throw됨 (의도).
  *
- * event_type 8종 (현재 KYC 흐름 cover):
+ * event_type 9종 (현재 KYC 흐름 cover):
  *   nts_check / localdata_match / status_change / cron_revalidate /
- *   notification_sent / keyword_scan / self_declaration / category_classify
- * 미구현 1종(ocr_extract)은 E9-6 진입 시 ALTER로 enum 확장.
+ *   notification_sent / keyword_scan / self_declaration / category_classify /
+ *   ocr_extract
  */
 export const kycVerificationLogs = pgTable(
   "kyc_verification_logs",
@@ -46,7 +46,7 @@ export const kycVerificationLogs = pgTable(
   (table) => [
     check(
       "kyc_verification_logs_event_type_check",
-      sql`${table.eventType} IN ('nts_check','localdata_match','status_change','cron_revalidate','notification_sent','keyword_scan','self_declaration','category_classify')`,
+      sql`${table.eventType} IN ('nts_check','localdata_match','status_change','cron_revalidate','notification_sent','keyword_scan','self_declaration','category_classify','ocr_extract')`,
     ),
     index("kyc_verification_logs_verification_id_idx").on(table.verificationId),
     index("kyc_verification_logs_event_type_idx").on(table.eventType),

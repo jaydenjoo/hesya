@@ -1,0 +1,2 @@
+ALTER TABLE "kyc_verification_logs" DROP CONSTRAINT "kyc_verification_logs_event_type_check";--> statement-breakpoint
+ALTER TABLE "kyc_verification_logs" ADD CONSTRAINT "kyc_verification_logs_event_type_check" CHECK ("kyc_verification_logs"."event_type" IN ('nts_check','localdata_match','status_change','cron_revalidate','notification_sent','keyword_scan','self_declaration','category_classify','ocr_extract'));
