@@ -30,8 +30,10 @@ import { NtsApiError, validateBusinessNumber } from "./nts-client";
 import { computeMatchScore } from "./match-score";
 import { normalizeBusinessName } from "./normalize-business-name";
 import { sendKycNotification } from "@/lib/notifications/kyc-result";
+import { logKycEvent, createDrizzleAuditRepo } from "./audit-log";
 
 const db = createDbClient(env.DATABASE_URL);
+const auditRepo = createDrizzleAuditRepo(db);
 
 const RATE_LIMIT = { max: 20, windowSec: 60 } as const;
 
@@ -123,6 +125,21 @@ export async function verifyBusinessNumber(
     };
   }
 
+  // E9-12: NTS 호출 결과 + (실패 시) status_change 감사 로그
+  await logKycEvent({
+    repo: auditRepo,
+    verificationId: row.id,
+    eventType: "nts_check",
+    eventData: {
+      b_no: parsed.data.b_no,
+      validCode: ntsData.valid,
+      status: ntsData.status?.b_stt ?? null,
+      taxType: ntsData.status?.tax_type ?? null,
+      validationResult,
+    },
+    actorUserId: guard.userId,
+  });
+
   // E9-9: NTS 진위확인 실패 시 즉시 거절 알림 (KYC step 1만 fail = auto_rejected).
   // 수신자는 admin email — Epic 12 매장 owner 가드 도입 시 매장 사장 email로 교체.
   // storeName은 NTS가 사업장명 안 줘서 대표자명을 fallback으로 표기.
@@ -133,6 +150,13 @@ export async function verifyBusinessNumber(
       locale: "ko",
       storeName: parsed.data.p_nm,
       reason: `NTS valid 코드 ${ntsData.valid}`,
+    });
+    await logKycEvent({
+      repo: auditRepo,
+      verificationId: row.id,
+      eventType: "notification_sent",
+      eventData: { kind: "auto_rejected_nts", to: guard.email },
+      actorUserId: guard.userId,
     });
   }
 
@@ -370,16 +394,59 @@ export async function matchStoreToLocaldata(
     })
     .where(eq(storeVerifications.id, parsed.data.verificationId));
 
+  // E9-12: LOCALDATA 매칭 결과 + status_change 감사 로그
+  await logKycEvent({
+    repo: auditRepo,
+    verificationId: parsed.data.verificationId,
+    eventType: "localdata_match",
+    eventData: {
+      bplcNm: parsed.data.bplcNm,
+      roadNmAddr: parsed.data.roadNmAddr ?? null,
+      candidatesCount: searchResult.items.length,
+      bestNameScore: bestScore?.nameScore ?? null,
+      bestAddressScore: bestScore?.addressScore ?? null,
+      bestTotalScore: bestScore?.totalScore ?? null,
+      matched,
+      bestCandidate: bestCandidate
+        ? {
+            BPLC_NM: bestCandidate.BPLC_NM,
+            ROAD_NM_ADDR: bestCandidate.ROAD_NM_ADDR,
+          }
+        : null,
+    },
+    actorUserId: guard.userId,
+  });
+  await logKycEvent({
+    repo: auditRepo,
+    verificationId: parsed.data.verificationId,
+    eventType: "status_change",
+    eventData: {
+      to: matched ? "auto_approved" : "manual_review",
+      reason: matched
+        ? "LOCALDATA 매칭 통과"
+        : `LOCALDATA 매칭 점수 ${bestScore?.totalScore.toFixed(3) ?? "0.000"} < 0.85`,
+    },
+    actorUserId: guard.userId,
+  });
+
   // E9-9: matched=true면 자동 승인 알림, false면 매뉴얼 검토 큐 알림.
   // 수신자는 admin email — Epic 12 매장 owner 가드 도입 시 자연 교체.
+  const notifyKind = matched ? "auto_approved" : "manual_review_queued";
   await sendKycNotification({
     to: guard.email,
-    kind: matched ? "auto_approved" : "manual_review_queued",
+    kind: notifyKind,
     locale: "ko",
     storeName: parsed.data.bplcNm,
     reason: matched
       ? undefined
       : `LOCALDATA 매칭 점수 ${bestScore?.totalScore.toFixed(3) ?? "0.000"} < 0.85`,
+  });
+  await logKycEvent({
+    repo: auditRepo,
+    verificationId: parsed.data.verificationId,
+    eventType: "notification_sent",
+    eventData: { kind: notifyKind, to: guard.email },
+    actorUserId: guard.userId,
   });
 
   return {
