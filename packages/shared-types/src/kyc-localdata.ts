@@ -9,6 +9,9 @@
  *
  * L-029 적용: 응답 필드는 명세에 없는 게 추가될 수 있어 .passthrough() —
  * 비즈니스 로직이 사용하는 필드만 strict, 메타·미관찰 필드는 optional.
+ *
+ * 외부 노출 면적 (P2): envelope schema는 내부에 두고 비즈니스 helper만 export —
+ * 호출자(client/cron/script)는 raw 응답에 대한 parse 책임을 지지 않음.
  */
 import { z } from "zod";
 
@@ -59,7 +62,8 @@ const localdataBodySchema = z
 
 // envelope 자체도 `response` (공공데이터 표준) 또는 `result` 등으로 다를 수 있어
 // passthrough + optional. 첫 호출 후 보정.
-export const localdataSearchResponseSchema = z
+// Internal — 외부 노출 X. parseLocaldataResponse를 통해서만 사용.
+const localdataSearchResponseSchema = z
   .object({
     response: z
       .object({
@@ -73,16 +77,32 @@ export const localdataSearchResponseSchema = z
 
 export type LocaldataSearchInput = z.infer<typeof localdataSearchInputSchema>;
 export type LocaldataItem = z.infer<typeof localdataItemSchema>;
-export type LocaldataSearchResponse = z.infer<
-  typeof localdataSearchResponseSchema
->;
 
-/** 응답에서 items 배열을 정규화해서 꺼낸다 (배열 / { item: [...] } 두 형태 통합) */
-export function extractLocaldataItems(
-  parsed: LocaldataSearchResponse,
-): LocaldataItem[] {
-  const items = parsed.response?.body?.items;
-  if (!items) return [];
-  if (Array.isArray(items)) return items;
-  return items.item ?? [];
+export interface ParsedLocaldataResponse {
+  items: LocaldataItem[];
+  totalCount: number | null;
+  pageNo: number | null;
+  numOfRows: number | null;
+}
+
+/**
+ * raw 응답을 schema로 검증한 뒤 비즈니스가 쓰는 형태로 정규화해서 반환.
+ * 실패 시 z.ZodError throw — 호출자가 도메인 에러로 변환 책임.
+ *
+ * items는 배열 / { item: [...] } 두 형태 모두 정규화.
+ */
+export function parseLocaldataResponse(raw: unknown): ParsedLocaldataResponse {
+  const parsed = localdataSearchResponseSchema.parse(raw);
+  const itemsRaw = parsed.response?.body?.items;
+  const items = !itemsRaw
+    ? []
+    : Array.isArray(itemsRaw)
+      ? itemsRaw
+      : (itemsRaw.item ?? []);
+  return {
+    items,
+    totalCount: parsed.response?.body?.totalCount ?? null,
+    pageNo: parsed.response?.body?.pageNo ?? null,
+    numOfRows: parsed.response?.body?.numOfRows ?? null,
+  };
 }

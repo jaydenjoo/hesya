@@ -1,5 +1,6 @@
 import { storeVerifications } from "@hesya/database/schema";
 import { z } from "zod";
+import { STORE_VERIFICATION_STATUSES } from "./stores";
 
 export const storeVerificationInsertSchema = z.object({
   id: z.string().uuid().optional(),
@@ -23,7 +24,9 @@ export const storeVerificationInsertSchema = z.object({
   ocrMatchScore: z.string().nullish(),
   keywordScanPassed: z.boolean().nullish(),
   flaggedKeywords: z.string().array().nullish(),
-  verificationStatus: z.string().nullish(),
+  // v0005 마이그레이션: NOT NULL DEFAULT 'pending' + CHECK. Insert 시 생략하면
+  // DB가 'pending' 채움 → optional.
+  verificationStatus: z.enum(STORE_VERIFICATION_STATUSES).optional(),
   rejectionReason: z.string().nullish(),
   reviewedBy: z.string().uuid().nullish(),
   reviewedAt: z.date().nullish(),
@@ -55,7 +58,8 @@ export const storeVerificationSelectSchema = z.object({
   ocrMatchScore: z.string().nullable(),
   keywordScanPassed: z.boolean().nullable(),
   flaggedKeywords: z.string().array().nullable(),
-  verificationStatus: z.string().nullable(),
+  // v0005 마이그레이션: NOT NULL → DB select는 항상 enum 중 하나.
+  verificationStatus: z.enum(STORE_VERIFICATION_STATUSES),
   rejectionReason: z.string().nullable(),
   reviewedBy: z.string().uuid().nullable(),
   reviewedAt: z.date().nullable(),

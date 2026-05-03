@@ -17,8 +17,7 @@ config({ path: path.resolve(__dirname, "../.env.local") });
 
 import { createDbClient, eq, storeVerifications } from "@hesya/database";
 import {
-  extractLocaldataItems,
-  localdataSearchResponseSchema,
+  parseLocaldataResponse,
   type LocaldataItem,
   type MatchScoreResult,
 } from "@hesya/shared-types";
@@ -49,9 +48,7 @@ async function fetchLocaldataCandidates(
     throw new Error(`LOCALDATA HTTP ${res.status}`);
   }
   const json = (await res.json()) as unknown;
-  const parsed = localdataSearchResponseSchema.parse(json);
-  const items = extractLocaldataItems(parsed);
-  const totalCount = parsed.response?.body?.totalCount ?? null;
+  const { items, totalCount } = parseLocaldataResponse(json);
   return { items, totalCount };
 }
 
