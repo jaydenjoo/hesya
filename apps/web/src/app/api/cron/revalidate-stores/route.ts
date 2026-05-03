@@ -116,7 +116,9 @@ async function revalidateOne(row: {
       .set({
         localdataStatus: newStatus,
         localdataBusinessType: bestCandidate?.OPN_ATMY_GRP_CD ?? null,
-        verificationStatus: needsManualReview ? "manual_review" : "approved",
+        verificationStatus: needsManualReview
+          ? "manual_review"
+          : "auto_approved",
         rejectionReason: needsManualReview
           ? newStatus === "03"
             ? "LOCALDATA 영업 상태가 폐업으로 변경"
