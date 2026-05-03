@@ -1271,3 +1271,37 @@ const items = extractLocaldataItems(parsed);
 - 인간 리뷰: 검증 스크립트 첫 실행 후 **production 클라이언트의 fetch 파라미터를 grep해서 일치하는지 확인**. 결과가 PR 이전 검증과 일관된지 비교.
 
 **연관**: `apps/web/scripts/verify-e9-3-match.ts` (이번 검증 — 매칭 흐름), `apps/web/src/lib/kyc/localdata-client.ts` (server-only), `packages/shared-types/src/kyc-localdata.ts` (Zod + 헬퍼, 안전), `.claude/hooks/tdd-guard-filtered.sh` (allowlist 추가), L-027 (실 동작이 source of truth), L-031 (5곳 동기화 함정 정신), 향후 NTS·OCR·payment 검증 스크립트 동일 패턴
+
+---
+
+### [2026-05-03] L-036 — Vercel CLI stale `.vercel/project.json` + `--yes` confirm으로 빈 프로젝트 자동 생성
+
+**증상 / 상황**: PR #8 머지 전 cron 빌드 검증을 위해 `vercel deploy --scope jaydens-projects-f5e92399 --yes` 호출. 첫 출력에 **"Your Project was either deleted, transferred to a new Team, or you don't have access to it anymore"** 경고. 그 다음 "Loading scopes… Searching for existing projects…" → CLI가 fallback으로 **빈 `hesya` 프로젝트를 jaydens-projects-f5e92399 팀에 자동 생성**. 의도된 프로젝트는 `hesya-web` (PROGRESS·DECISIONS에 명시). Jayden이 dashboard에서 잔여 프로젝트 직접 삭제해야 했고, `.vercel/project.json` ID도 진짜 hesya-web ID로 교정 필요했음.
+
+**원인**:
+
+1. `.vercel/project.json`이 **stale 상태** (이전 어떤 시점의 다른 project ID `prj_9pQYikxGYoGpa4jDrMP7QQ3uPqOn`, `projectName: "hesya"`로 link됨). 진짜 운영 프로젝트는 `hesya-web` (`prj_N5IPqEfHP3vDsiHxSTdascXZulma`). 어떻게 stale이 됐는지 추적 어려움 — Jayden의 dashboard 작업 또는 이전 세션 잔여물.
+2. CLI 경고 메시지를 **검증 없이 `--yes`로 confirm** → 새 리소스 생성을 confirm한 셈. AI 응답 검증 3원칙 위반 (메시지 캡처 + 확신등급 표시 없이 진행).
+3. `--yes`/`--force`/`--auto-confirm` 플래그는 confirm prompt 모두를 자동 yes 처리 — "지금 새 project를 만들 것인가?" 같은 위험한 prompt도 포함.
+
+**해결**:
+
+1. 즉시 Jayden에게 솔직하게 보고 (숨기거나 자동 정리 시도 X — CLI 삭제는 더 큰 실수 위험).
+2. `vercel projects inspect hesya-web --scope ...`로 진짜 project ID 확인 → `.vercel/project.json` 직접 교체.
+3. Jayden이 Vercel dashboard에서 빈 hesya 프로젝트 직접 삭제 (CLI X).
+4. 행동 규칙으로 영구 저장 (memory feedback `feedback_no_unauthorized_resource_creation.md`).
+
+**규칙** ⭐:
+
+1. **외부 서비스(Vercel/Supabase/GitHub/AWS 등) 새 리소스 생성은 Jayden 명시 승인 없이 절대 실행 금지.** 의도하지 않은 자동 생성도 위반.
+2. CLI 출력에 **"Project deleted/transferred/not accessible"**, **"Will create new ..."**, **"About to provision ..."** 류 문구 발견 시 **즉시 멈추고 Jayden 보고**. 무시·진행 금지.
+3. `--yes`, `--force`, `--auto-confirm`, `--non-interactive` 플래그는 **이미 명시 승인된 안전 작업에만**. 새 리소스 생성 가능 명령엔 절대 사용 X.
+4. `.vercel/project.json` / `.supabase/` 등 **link 메타파일은 stale 가능성 검증 필수** — 명령 실행 전 `cat`으로 ID 확인 + dashboard 실제 ID와 대조. 불일치 시 Jayden 보고.
+5. 잘못 만들어졌다면 즉시 솔직히 보고 + dashboard 삭제 안내 (CLI 삭제는 위험).
+
+**확인 방법**:
+
+- 자동: PR diff에서 `.vercel/project.json` 또는 `.supabase/config.toml` 변경 발견 시 link ID가 진짜 운영 프로젝트와 일치하는지 grep + dashboard 비교 단계 추가.
+- 인간 리뷰: 외부 서비스 CLI 명령 실행 전 (a) `--yes` 플래그 적합성 (b) link 메타파일 stale 여부 (c) 명령이 새 리소스 만들 가능성 — 3 mental check.
+
+**연관**: `.vercel/project.json` (이번 사건 — stale link), Vercel CLI `vercel deploy --yes` (이번 함정 명령), `feedback_no_unauthorized_resource_creation.md` (memory feedback), CLAUDE.md "Executing actions with care" + "AI 응답 검증 3원칙", L-034 (AI 환각 검증 정신 — CLI 경고도 검증 대상), 향후 Supabase/GitHub/AWS CLI 동일 패턴
