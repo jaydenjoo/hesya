@@ -161,6 +161,11 @@ case "$path" in
   # L-030: next-intl으로 admin 페이지가 [locale] 안으로 이동 → glob 패턴도 함께 보강.
   */apps/*/src/app/\[locale\]/admin/kyc-test/*.tsx) exit 0 ;;
   */apps/*/src/app/\[locale\]/admin/kyc-test/*.ts) exit 0 ;;
+  # E9-11 외부 신고 채널 — Server Action + Drizzle thin wrapper + Phase 1 admin
+  # 검증 페이지. 핵심 helper(submit.ts)는 별도 TDD 적용. 같은 정책.
+  */apps/*/src/lib/store-reports/*.ts) exit 0 ;;
+  */apps/*/src/app/\[locale\]/admin/store-reports/*.tsx) exit 0 ;;
+  */apps/*/src/app/\[locale\]/admin/store-reports/*.ts) exit 0 ;;
 esac
 
 # Business code path — delegate to the real tdd-guard CLI with original stdin.
