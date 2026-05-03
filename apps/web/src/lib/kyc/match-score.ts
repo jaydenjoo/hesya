@@ -7,27 +7,17 @@
  *
  * 임계값 0.85는 D7 결정 — Phase 1.5에서 50건 이상 데이터로 정밀화 예약.
  */
+import {
+  MATCH_THRESHOLD,
+  type MatchScoreInput,
+  type MatchScoreResult,
+} from "@hesya/shared-types";
 import { normalizeBusinessName } from "./normalize-business-name";
 import { normalizeAddress } from "./normalize-address";
 import { levenshteinSimilarity } from "./levenshtein";
 
-export const MATCH_THRESHOLD = 0.85;
 const NAME_WEIGHT = 0.6;
 const ADDRESS_WEIGHT = 0.4;
-
-export interface MatchScoreInput {
-  ntsName: string | null | undefined;
-  ntsAddress: string | null | undefined;
-  localdataName: string | null | undefined;
-  localdataAddress: string | null | undefined;
-}
-
-export interface MatchScoreResult {
-  nameScore: number;
-  addressScore: number;
-  totalScore: number;
-  matched: boolean;
-}
 
 export function computeMatchScore(input: MatchScoreInput): MatchScoreResult {
   const ntsName = normalizeBusinessName(input.ntsName);

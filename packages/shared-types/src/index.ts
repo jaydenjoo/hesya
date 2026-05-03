@@ -2,6 +2,7 @@ export * from "./aftercare-messages";
 export * from "./bookings";
 export * from "./customers";
 export * from "./kyc-localdata";
+export * from "./kyc-match";
 export * from "./kyc-nts";
 export * from "./messages";
 export * from "./payments";

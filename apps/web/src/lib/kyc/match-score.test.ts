@@ -9,7 +9,8 @@
  * 점진 TDD (L-033) — `it.skip` 1개씩 enable.
  */
 import { describe, expect, it } from "vitest";
-import { computeMatchScore, MATCH_THRESHOLD } from "./match-score";
+import { MATCH_THRESHOLD } from "@hesya/shared-types";
+import { computeMatchScore } from "./match-score";
 
 describe("computeMatchScore", () => {
   it("완전 일치하면 nameScore=addressScore=totalScore=1, matched=true", () => {
