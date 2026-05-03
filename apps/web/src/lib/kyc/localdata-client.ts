@@ -18,6 +18,7 @@ import {
 } from "@hesya/shared-types";
 import { z } from "zod";
 import { env } from "@/shared/config/env";
+import { escapeLocaldataLike } from "./escape-like";
 
 const LOCALDATA_BASE_URL = "https://apis.data.go.kr/1741000/beauty_salons/info";
 const TIMEOUT_MS = 5_000;
@@ -97,15 +98,19 @@ async function getWithRetry(url: string, attempt = 1): Promise<unknown> {
 export async function searchBeautyShops(
   input: LocaldataSearchInput,
 ): Promise<ParsedLocaldataResponse> {
+  // ANSI LIKE escape — `%`/`_` 리터럴 검색 보장 (data.go.kr escape 규약 가정)
   const params = new URLSearchParams({
     serviceKey: env.KOREA_LOCALDATA_API_KEY,
     pageNo: String(input.pageNo),
     numOfRows: String(input.numOfRows),
     returnType: "json",
-    "cond[BPLC_NM::LIKE]": input.bplcNm,
+    "cond[BPLC_NM::LIKE]": escapeLocaldataLike(input.bplcNm),
   });
   if (input.roadNmAddr) {
-    params.append("cond[ROAD_NM_ADDR::LIKE]", input.roadNmAddr);
+    params.append(
+      "cond[ROAD_NM_ADDR::LIKE]",
+      escapeLocaldataLike(input.roadNmAddr),
+    );
   }
 
   const url = `${LOCALDATA_BASE_URL}?${params.toString()}`;
