@@ -32,9 +32,15 @@ import { normalizeBusinessName } from "./normalize-business-name";
 import { sendKycNotification } from "@/lib/notifications/kyc-result";
 import { logKycEvent, createDrizzleAuditRepo } from "./audit-log";
 import { scanForDangerKeywords } from "./keyword-scan";
+import {
+  signSelfDeclaration,
+  createDrizzleSelfDeclarationRepo,
+  type SignSelfDeclarationResult,
+} from "./self-declaration";
 
 const db = createDbClient(env.DATABASE_URL);
 const auditRepo = createDrizzleAuditRepo(db);
+const selfDeclarationRepo = createDrizzleSelfDeclarationRepo(db);
 
 const RATE_LIMIT = { max: 20, windowSec: 60 } as const;
 
@@ -499,4 +505,79 @@ export async function matchStoreToLocaldata(
     flaggedKeywords: keywordScan.flagged,
     finalApproved,
   };
+}
+
+/**
+ * Epic 9 § Step 4 — 약관 자기신고.
+ *
+ * 매장 사장이 가입 시 "마사지·의료기기·한방 시술 안 함" 3개 모두 동의.
+ * 자기신고 자체는 status 변경 X (단순 동의 기록 + audit log).
+ * 5단계 종합 결과는 admin panel(Epic 12)에서 운영자가 확인.
+ *
+ * 인가: requireAdminEmail (E9-3·E9-12 동일 정책 — Epic 12에서 owner guard 교체).
+ *
+ * 결과 union:
+ *   - ok=true: 신규 서명 성공
+ *   - declaration_incomplete: 3개 중 하나라도 false (가입 자격 없음)
+ *   - already_signed: immutable (재서명 차단)
+ *   - invalid_input: Zod 검증 실패
+ */
+export type SignSelfDeclarationActionResult =
+  | SignSelfDeclarationResult
+  | {
+      ok: false;
+      error: "unauthorized" | "forbidden" | "rate_limited";
+      message: string;
+    };
+
+export async function signSelfDeclarationAction(
+  rawInput: unknown,
+): Promise<SignSelfDeclarationActionResult> {
+  const guard = await requireAdminEmail();
+  if (!guard.ok) {
+    return { ok: false, error: guard.error, message: guard.message };
+  }
+
+  try {
+    await checkRateLimit(`kyc:${guard.userId}`, RATE_LIMIT);
+  } catch (err) {
+    if (err instanceof RateLimitError) {
+      return { ok: false, error: "rate_limited", message: err.message };
+    }
+    throw err;
+  }
+
+  // 입력 형태가 Zod 검증 실패할 수 있어 unknown 그대로 helper에 위임
+  const result = await signSelfDeclaration({
+    repo: selfDeclarationRepo,
+    // 안전한 캐스팅 — helper가 Zod로 재검증
+    ...((rawInput ?? {}) as {
+      verificationId: string;
+      declarations: {
+        noMassage: boolean;
+        noMedicalDevice: boolean;
+        noOrientalMedicine: boolean;
+      };
+    }),
+  });
+
+  // E9-12 audit log: 결과와 무관하게 시도 자체를 기록 (법적 책임 추적)
+  if (result.ok) {
+    await logKycEvent({
+      repo: auditRepo,
+      verificationId: result.verificationId,
+      eventType: "self_declaration",
+      eventData: {
+        signedAt: result.signedAt.toISOString(),
+        declarations: {
+          noMassage: true,
+          noMedicalDevice: true,
+          noOrientalMedicine: true,
+        },
+      },
+      actorUserId: guard.userId,
+    });
+  }
+
+  return result;
 }
