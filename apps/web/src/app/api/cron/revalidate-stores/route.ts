@@ -101,7 +101,7 @@ async function revalidateOne(row: {
         kind: "manual_review_queued",
         locale: "ko",
         storeName: row.localdataBplcNm,
-        reason,
+        reason: { summary: reason },
       });
       await logKycEvent({
         repo: auditRepo,
@@ -177,7 +177,7 @@ async function revalidateOne(row: {
         kind: "manual_review_queued",
         locale: "ko",
         storeName: row.localdataBplcNm,
-        reason: rejectionReason ?? undefined,
+        reason: rejectionReason ? { summary: rejectionReason } : undefined,
       });
       await logKycEvent({
         repo: auditRepo,
