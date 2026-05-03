@@ -60,4 +60,30 @@ describe("computeMatchScore", () => {
     expect(result.totalScore).toBeLessThan(MATCH_THRESHOLD);
     expect(result.matched).toBe(false);
   });
+
+  it("null/undefined 입력은 빈 문자열로 정규화된다 — 양쪽 모두 비면 matched=true (호출자 책임)", () => {
+    // Spec: 외부 API가 null을 줄 수 있는 환경에서 안전하게 동작.
+    // 양쪽이 모두 비면 levenshteinSimilarity("","")=1로 matched=true가 됨 —
+    // 의미적으로 부적절하므로 호출자(Server Action)는 정규화 후 빈 문자열
+    // 검사를 별도로 수행해야 함. 현 모듈은 점수 계산만 책임.
+    const bothNull = computeMatchScore({
+      ntsName: null,
+      ntsAddress: null,
+      localdataName: undefined,
+      localdataAddress: undefined,
+    });
+    expect(bothNull.totalScore).toBe(1);
+    expect(bothNull.matched).toBe(true);
+
+    // 한쪽만 null이면 점수 낮아지고 matched=false
+    const oneSideNull = computeMatchScore({
+      ntsName: "유민호헤어",
+      ntsAddress: "서울 강남구 청담동",
+      localdataName: null,
+      localdataAddress: undefined,
+    });
+    expect(oneSideNull.nameScore).toBe(0);
+    expect(oneSideNull.addressScore).toBe(0);
+    expect(oneSideNull.matched).toBe(false);
+  });
 });

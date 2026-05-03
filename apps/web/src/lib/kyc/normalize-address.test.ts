@@ -31,6 +31,16 @@ describe("normalizeAddress", () => {
     expect(normalizeAddress("부산광역시 해운대구")).toBe("부산 해운대구");
   });
 
+  it("구 행정구역명도 약칭으로 통일한다 (전라북도/강원도/전북특별자치도)", () => {
+    // 공공데이터가 신·구 표기 혼용 — 둘 다 같은 약칭으로 정규화
+    expect(normalizeAddress("전라북도 전주시 완산구")).toBe(
+      "전북 전주시 완산구",
+    );
+    expect(normalizeAddress("전북특별자치도 전주시")).toBe("전북 전주시");
+    expect(normalizeAddress("강원도 춘천시")).toBe("강원 춘천시");
+    expect(normalizeAddress("강원특별자치도 강릉시")).toBe("강원 강릉시");
+  });
+
   it("'번지' 표기를 제거한다", () => {
     expect(normalizeAddress("강남구 청담동 123-4번지")).toBe(
       "강남구 청담동 123-4",
