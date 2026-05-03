@@ -39,6 +39,8 @@ jobs:
       KOREA_LOCALDATA_API_KEY: ci_dummy_korea_localdata_key_xxxxxxxx
       # Admin 화이트리스트 — 검증 페이지·KYC Server Action 접근 제어
       ADMIN_EMAILS: ci-dummy-admin@example.com
+      # E9-10 cron 자동 재검증 (Vercel Cron Authorization Bearer 검증, min 32 chars)
+      CRON_SECRET: ci_dummy_cron_secret_xxxxxxxxxxxxxxxxxxxxxxxx
     steps:
       - uses: actions/checkout@v4
         with:

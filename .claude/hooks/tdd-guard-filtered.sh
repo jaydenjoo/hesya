@@ -66,6 +66,14 @@ case "$path" in
   # 같은 비즈니스 로직은 별도 unit test로 cover. 명명 규칙: scripts/verify-*.ts.
   */scripts/verify-*.ts|*/scripts/integration-*.ts) exit 0 ;;
 
+  # Vercel Cron / 외부 webhook Route Handler — 인증·외부 API·DB UPDATE 통합.
+  # Server Action(actions.ts)과 같은 카테고리 (server-only + 인증). unit test로
+  # 격리 부적절 (mock 위에 mock 가치 낮음). 비즈니스 로직은 helper 모듈
+  # (match-score, normalize-*)로 분리해 unit test cover. 통합 흐름은 verify-*
+  # 스크립트 또는 Vercel Cron 실행 로그로 검증.
+  */apps/*/src/app/api/cron/*/route.ts) exit 0 ;;
+  */apps/*/src/app/api/webhooks/*/route.ts) exit 0 ;;
+
   # monorepo packages — Drizzle schema files & DB client entry (declarative infra)
   # See docs/learnings.md L-003. Schemas mirror PRD § 7; verification = drizzle-kit
   # generate (syntax) + Supabase apply_migration (runtime) + list_tables (deploy).
