@@ -1433,3 +1433,97 @@ const items = extractLocaldataItems(parsed);
 - 인간 리뷰: 새 파일 생성 직후 `git status`에 untracked가 의도한 위치인지 1초 확인.
 
 **연관**: CLAUDE.md 글로벌 룰 "Write 도구는 absolute path 요구" 명시, E9-6 PR [apps#18](https://github.com/jaydenjoo/hesya/pull/18) 작업 중 발견 + 즉시 mv로 복구 (커밋 전 발견됨, prod 영향 0).
+
+---
+
+### [2026-05-04] L-041 — Epic 시작 전 senior-engineer 검증을 의무화
+
+**증상**: Epic 9는 features/README가 강제하는 패턴(features-based + Server Action + DAL)을 안 지키고 `lib/kyc/`에 직접 구현 → `actions.ts` 860줄 비대 + DAL 미구현 부채. Epic 1 spec 작성 시점에 senior-engineer 서브에이전트로 5축 검증(현재 패턴 준수도 / 확장성 / cross-Epic 경계 / DB 마이그레이션 / 테스트·관측성) 수행한 결과 종합 6.5/10. 권장 12개 발견.
+
+**원인**: Epic 시작 전 코드베이스 패턴 일관성 검증 단계가 없었음. spec 단계에서 PRD/DEVELOPMENT-PLAN만 읽고 시작하면 코드베이스 실제 부채를 못 본다.
+
+**해결**: spec 작성 후 `senior-engineer` 서브에이전트(Hesya 정의 agent)로 5축 검증 → 권장사항을 **현재 Epic 흡수 (Critical만)** vs **별도 cleanup trail** (시점·트리거 명시)로 분리. 1A는 6개 흡수 + 6개 cleanup trail로 분리 (C-01~C-06).
+
+**규칙** ⭐:
+
+1. **새 Epic 시작 전 senior-engineer 검증 의무화** (특히 features/README 같은 패턴 강제 문서가 있는 프로젝트)
+2. 권장사항을 "**어차피 손대는 시점**에 묶는 cleanup trail"로 매핑 — 별도 task로 미루지 말고 다음 Epic 진입 시점에 자연 흡수 (예: KYC features/ 이전은 Epic 12 시작 직전, KYC HTTP mock 소급은 1B 4채널 추가 시)
+3. spec 첫 commit body에 `senior-engineer 검토 [점수]/10`을 명시
+
+**확인 방법**:
+
+- 자동: spec 파일 첫 commit message에 `senior-engineer` 또는 `[N]/10` 포함 검증 가능
+- 인간 리뷰: spec § Cleanup Trail 섹션 존재 여부 (있어야 senior 검증한 것)
+
+**연관**: Epic 1 1A spec § 6 Cleanup Trail, plan § 6.2.
+
+---
+
+### [2026-05-04] L-042 — 외부 API 의존 spec은 정책 검증을 spec 단계에서 (사후 catch X)
+
+**증상**: Epic 1 1A spec 초안 Goal에 "사장이 한국어로 답변 가능"만 명시. 실제 Meta Instagram Graph API는 **고객 메시지 후 24시간 내**에만 자동 응답 허용. 24~7일은 `HUMAN_AGENT` tag로만 (자동화 X, 고객지원 목적만). 7일 이후 답변 불가. 구현 후 발견했다면 DB 스키마 + UI 모두 다시 작업해야 했음.
+
+**원인**: 외부 API 정책을 spec 작성 시 검증하지 않음. AI가 기존 지식으로 단정하면 외부 정책 변경/추가 제약을 놓침 (Meta API는 자주 변경).
+
+**해결**: spec 검증 단계에서 WebSearch 4건(API 정책 + endpoint + permissions + rate limit) 수행. § 1.3 G3에 "24시간 내 답변" 명시, § 1.2 Out of Scope에 HUMAN_AGENT 7일 윈도우 1B/Epic 12로 미룸, § 3 conversations 테이블에 `messaging_window_expires_at` 컬럼, § 4 UI 3-state(open/closing-soon/expired) + 다국어 안내.
+
+**규칙** ⭐:
+
+1. **외부 API 의존 기능은 spec 단계에서 WebSearch로 정책 최신 검증** (정책 + endpoint + permissions + rate limit 4축 의무)
+2. **외부 정책 위반 시 어떻게 UI/DB로 표현할지를 spec에 명시** (사후 catch X — 구현 후 발견하면 큰 리팩터)
+3. **App Review 같은 외부 검증 단계는 spec 완료 게이트에서 분리** (Critical Path 외부 의존 — 1A G10에서 App Review 통과는 게이트 X, dev mode + 25 test users로 검증)
+4. spec § References 섹션에 공식 docs URL 3개 이상 명시 의무
+
+**확인 방법**:
+
+- 자동: spec 파일에 `## ... References` 섹션 존재 + 외부 docs URL 3개 이상 grep
+- 인간 리뷰: 외부 API 사용 spec PR 머지 전 References 섹션 확인
+
+**연관**: Epic 1 1A spec § 1 Goal/G3/G9, § 4.6 24h 윈도우 UI, § 10 References (Meta + ngrok + Vercel + Cloudflare 9 URL).
+
+---
+
+### [2026-05-04] L-043 — 외부 도구·서비스 정책 답변 시 검색 우선 (확증편향 경계)
+
+**증상**: Epic 1 1A clarifying Q4 (로컬 dev 환경) 답변 시 "ngrok 무료는 URL 매번 바뀜 → Meta webhook 재등록 매우 귀찮음"이라 단정. Jayden이 "최신정보로 검증" 요청 → WebSearch 결과 **2023-08부터 자동 할당된 정적 도메인 1개 무료 제공 중**이었음. 즉 잘못된 정보로 추천을 왜곡할 뻔.
+
+**원인**: 기존 지식만으로 답변, WebSearch 안 함. CLAUDE.md "확증편향 경계" 명시 룰 — _"검색 결과 중 기존 지식과 일치하는 부분만 선택 사용 금지"_ 위반. 추측을 사실처럼 단정하는 톤(`...하기 매우 귀찮음`).
+
+**해결**: WebSearch로 ngrok / Cloudflare Tunnel / Vercel preview / Meta webhook 정책 4건 병렬 검증 → 정정 답변. 정정 사유 + 확신등급(🟢 공식 docs)도 답변에 포함.
+
+**규칙** ⭐:
+
+1. **외부 도구·서비스(ngrok, Vercel, Supabase, Meta API 등) 정책 답변 시 WebSearch 우선** — 기존 지식 vs 새 정보 충돌 발생 가능 가정
+2. **모든 답변 끝에 확신등급 명시 의무** (🟢 공식 docs / 🟡 추정·기존 지식 / 🔴 캡처 필요)
+3. 단정 톤(`...임`, `반드시 ...`) 사용 전 **검색 1회 + 확신등급 🟢 충족 여부** 자체 점검
+4. 잘못된 답변 발견 시 **정정안 + 정정 사유 + learnings.md 기록** 의무
+
+**확인 방법**:
+
+- 자동: 답변에 확신등급 표시(🟢/🟡/🔴) 없으면 답변 미완성으로 간주 (hook으로 검증 가능)
+- 인간 리뷰: Jayden이 "검증해서 추천해줘" 요청 시 = 자체 검증 누락 신호
+
+**연관**: CLAUDE.md "AI 응답 검증 규칙" 위반, Epic 1 1A Q4 ngrok 추천 정정.
+
+---
+
+### [2026-05-04] L-044 — PRD vs 실제 코드 갭은 spec 작성 시 양쪽 다 점검
+
+**증상**: PRD/DEVELOPMENT-PLAN은 webhook을 `supabase/functions/inbox-webhook/`로 명시 (Edge Function). 그러나 실제 코드베이스엔 `supabase/` 디렉토리 자체가 없고 KYC도 모두 Next.js API route(`apps/web/src/app/api/...`)로 구현됨. spec 작성 시 PRD 그대로 따랐다면 구현 시점에 갭 발견 → 큰 재작업.
+
+**원인**: PRD 작성 시점(2026-04-30)과 실제 구현(2026-05-01~04) 사이에 Lead가 Supabase Edge Function 대신 Next.js API route 채택. PRD 후속 갱신 누락 (PRD = source-of-truth가 아님).
+
+**해결**: spec 작성 시 `find` + `ls`로 실제 코드베이스 폴더 구조 점검 → PRD와 다른 점 spec § "Open Questions"에 명시 + 실제 코드 위치(`apps/web/src/app/api/webhooks/instagram/route.ts`)로 spec 작성. PRD는 추후 v1.3에서 일괄 갱신.
+
+**규칙** ⭐:
+
+1. **spec 작성 시 PRD 명시 위치 + 실제 코드베이스 위치 양쪽 점검** (`find docs -name "..."` 또는 `ls apps/web/src/...`로 실존 확인)
+2. **갭 발견 시 코드베이스 실제를 따르되 spec § Open Questions에 갭 명시** (PRD 맹종 X — PRD는 의도이지 진리가 아님)
+3. **PRD 갭이 누적되면 별도 task로 PRD revisit** (예: Epic 12 시작 시 PRD v1.3 일괄 갱신)
+
+**확인 방법**:
+
+- 자동: spec 파일에서 인용한 파일 경로(`apps/web/...`)를 grep으로 실존 확인 가능
+- 인간 리뷰: spec § File Structure / § 폴더 구조 섹션의 모든 경로가 `ls`로 검증되는지
+
+**연관**: Epic 1 1A spec § 2.6 폴더 구조 (Next.js API route 채택), § 9 Open Questions Q4 (i18n routing 실존 확인).
