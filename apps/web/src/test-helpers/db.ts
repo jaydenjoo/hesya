@@ -3,7 +3,10 @@ import {
   conversations,
   customers,
   messages,
+  storeIntegrations,
+  storeOwners,
   stores,
+  users,
   type DbClient,
 } from "@hesya/database";
 
@@ -19,9 +22,14 @@ import {
  */
 
 export async function resetDb(db: DbClient): Promise<void> {
-  // FK 의존: messages → conversations → customers/stores
+  // FK 의존 (자식 → 부모): messages → conversations,
+  // store_integrations / store_owners → stores, customers → 자체
+  // store_owners.storeId는 onDelete 미지정(NO ACTION)이라 명시 delete 필요.
+  // users는 Better Auth 관리 — reset 안 함 (seedUser 누적은 dev/test DB에서만 무해).
   await db.delete(messages);
   await db.delete(conversations);
+  await db.delete(storeIntegrations);
+  await db.delete(storeOwners);
   await db.delete(customers);
   await db.delete(stores);
 }
@@ -48,4 +56,26 @@ export async function seedCustomer(
     .returning({ id: customers.id });
   if (!row) throw new Error("seedCustomer: insert returned no row");
   return row.id;
+}
+
+export async function seedUser(
+  db: DbClient,
+  overrides: { email?: string; name?: string } = {},
+): Promise<string> {
+  const email =
+    overrides.email ??
+    `test-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`;
+  const [row] = await db
+    .insert(users)
+    .values({ name: overrides.name ?? "Test User", email })
+    .returning({ id: users.id });
+  if (!row) throw new Error("seedUser: insert returned no row");
+  return row.id;
+}
+
+export async function seedStoreOwner(
+  db: DbClient,
+  input: { userId: string; storeId: string; role: "owner" | "manager" },
+): Promise<void> {
+  await db.insert(storeOwners).values(input);
 }
