@@ -37,12 +37,16 @@ export class WindowClosedError extends Error {
 
 /** 502 — 외부 API 호출 실패 (Meta IG, etc.) */
 export class ExternalApiError extends Error {
-  constructor(
-    message: string,
-    public readonly context: { status?: number; body?: string },
-  ) {
+  public readonly context: { status?: number; body?: string };
+  constructor(message: string, context: { status?: number; body?: string }) {
     super(message);
     this.name = "ExternalApiError";
+    // Sentry 노출 차단 (M-1): body 200자 truncate. Meta 에러 응답에 token 부분 포함 가능.
+    const body = context.body;
+    this.context = {
+      ...context,
+      body: body && body.length > 200 ? body.slice(0, 200) + "…" : body,
+    };
   }
 }
 
