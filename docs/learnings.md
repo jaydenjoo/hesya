@@ -1618,3 +1618,31 @@ const items = extractLocaldataItems(parsed);
 - 인간 리뷰: 매 세션 시작 시 PROGRESS.md `⚠️ dev branch 살아있음` 표기 여부 확인.
 
 **연관**: Phase B T04 dev branch `phase-b-v0011` (project_ref `jypvsjgaxcxwtcgcomcp`) — 이번 세션 종료 시 살아있음, 다음 세션 시작 즉시 사용 또는 삭제 판단. 글로벌 메모리 `feedback_no_unauthorized_resource_creation.md` (외부 리소스 생성 전 명시 승인 필수) 정신 연장.
+
+---
+
+### [2026-05-04] L-048 — AI plan 코드는 검증 안 거친 가정 — dev branch 시험 의무
+
+**증상**: Phase B T06 plan 코드(`crypto_aead_det_encrypt` 직접 호출)를 dev branch에 시험하면서 **두 가지 결함** 동시 발견:
+
+1. plan은 `pgsodium.crypto_aead_det_encrypt`를 deterministic으로 사용하면서 같은 plan 안의 테스트가 "동일 평문 ≠ 다른 암호문 (random nonce)"을 단언 → **무조건 RED**. plan 작성자가 실제로 돌려보지 않은 증거.
+2. Supabase에서 `pgsodium.crypto_*` 함수는 `supabase_admin` / `pgsodium_keyiduser` role 전용. postgres role(우리 마이그레이션 권한) → permission denied (`42501`). SECURITY DEFINER 래퍼도 함수 owner가 supabase_admin일 때만 우회 가능 → 앱 코드로는 만들 수 없음. plan 코드는 prod에서도 똑같이 실패할 코드.
+
+**원인**: plan 작성 단계에서 외부 인프라(Supabase의 pgsodium 권한 모델, vault 추상화 존재)를 검증하지 않은 채 일반 PostgreSQL pgsodium 사용법을 그대로 옮김. AI가 짠 plan 코드는 **"도면"이지 "실행 결과"가 아님** — 실제 실행 환경에 맞지 않을 수 있음.
+
+**해결 (이번 세션)**: Supabase 공식 추상화 `vault.create_secret` + `vault.decrypted_secrets` view로 전환. `store_integrations.access_token_encrypted BYTEA`에 vault.secrets row의 UUID(16바이트)를 저장하는 패턴. 같은 평문 호출 → 새 vault row → 다른 BYTEA로 random 효과 자동 확보. 헬퍼는 db 인자로 받아 env 결합 제거. 검증 17 files / 101 pass / 2 skip + dev branch SQL 라운드트립 ✓.
+
+**규칙** ⭐:
+
+1. **외부 인프라(Supabase, Vercel, 외부 API) 의존 plan 코드는 dev/sandbox 환경에서 1회 시험 후 commit**. plan 그대로 prod에 적용은 위험. plan 코드 ≠ 실행 가능 코드.
+2. **plan 안에 self-contradiction(예: deterministic + random-nonce 테스트)이 있으면 즉시 plan 수정**. 발견 시 OAR 보고 후 결정.
+3. **Supabase 같은 managed DB는 권한 모델이 vanilla PostgreSQL과 다름** — `pgsodium`/`pg_cron` 같은 system extension은 일반 role 차단. 필요하면 Supabase 공식 추상화(vault, supabase_functions 등) 사용 우선.
+4. **plan 결함 수정 시 commit message에 "plan 결함 수정" 명시 + 어떻게 다른지 기록**. 다음 세션이 plan 다시 따르다 같은 함정 안 빠지게.
+5. **TDD-guard hook이 강제하는 RED→GREEN 사이클을 우회하지 말 것** — plan 결함 발견 시에도 우선 RED를 만들고(테스트 변경) 그 다음 GREEN(구현 변경) 순서. hook이 fail 안전장치 역할.
+
+**확인 방법**:
+
+- 자동: plan 작성 시 `dev branch에서 미검증` 코드 블록은 별도 `<!-- VERIFIED: dev branch -->` 태그로 표기. 미검증 plan 코드는 dev 시험 게이트 통과 의무.
+- 인간 리뷰: senior-engineer 검증 단계에서 외부 인프라 의존 plan 코드는 "dev에서 시험됐는가?" 질문 의무.
+
+**연관**: Phase B T06 plan 코드(`crypto_aead_det_encrypt`) → vault 전환 (commit `57e88fb`). plan v1: `docs/superpowers/plans/2026-05-04-epic-1a-inbox-instagram.md` § Task 06. CLAUDE.md 4원칙 1번(Surface Assumptions) 정신 — plan도 검증 대상이지 진리가 아니다.
