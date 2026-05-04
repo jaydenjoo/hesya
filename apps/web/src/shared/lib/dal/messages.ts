@@ -15,7 +15,7 @@ export async function insertMessage(
     externalMessageId?: string;
     status?: string;
   },
-): Promise<Message> {
+): Promise<Message | null> {
   const defaultStatus =
     input.status ?? (input.direction === "outbound" ? "sent" : null);
 
@@ -34,11 +34,8 @@ export async function insertMessage(
 
   if (inserted[0]) return inserted[0];
 
-  if (!input.externalMessageId) {
-    throw new Error(
-      "insertMessage: insert returned no row and no externalMessageId for conflict lookup",
-    );
-  }
+  // conflict 발생 — externalMessageId 없으면 조회 불가, null 반환 (caller가 처리)
+  if (!input.externalMessageId) return null;
 
   const existing = await db
     .select()
@@ -51,25 +48,22 @@ export async function insertMessage(
     )
     .limit(1);
 
-  if (!existing[0]) {
-    throw new Error(
-      `insertMessage: conflict on (${input.channel}, ${input.externalMessageId}) but row not found`,
-    );
-  }
-  return existing[0];
+  // race condition: insert와 select 사이에 row 삭제 → null 반환 (caller 결정)
+  return existing[0] ?? null;
 }
 
 export async function listByConversation(
   db: DbClient,
   conversationId: string,
-  opts: { limit?: number } = {},
+  opts: { limit?: number; offset?: number } = {},
 ): Promise<Message[]> {
   return db
     .select()
     .from(messages)
     .where(eq(messages.conversationId, conversationId))
     .orderBy(asc(messages.createdAt))
-    .limit(opts.limit ?? 200);
+    .limit(opts.limit ?? 200)
+    .offset(opts.offset ?? 0);
 }
 
 export async function markFailed(

@@ -30,6 +30,19 @@ describe("error classes", () => {
     expect(e.context.status).toBe(502);
   });
 
+  it("ExternalApiError는 body를 200자로 truncate (Sentry 노출 차단)", () => {
+    const long = "a".repeat(500);
+    const e = new ExternalApiError("Meta API err", { status: 400, body: long });
+    expect(e.context.body!.length).toBeLessThanOrEqual(220);
+    expect(e.context.body).toContain("…");
+  });
+
+  it("ExternalApiError body가 200자 이하면 그대로", () => {
+    const short = "short error";
+    const e = new ExternalApiError("err", { status: 400, body: short });
+    expect(e.context.body).toBe(short);
+  });
+
   it("WebhookSignatureError는 항상 동일 메시지", () => {
     const e = new WebhookSignatureError();
     expect(e.message).toBe("Webhook signature verification failed");

@@ -22,9 +22,10 @@ describe.skipIf(!hasDb)("dal.customers (integration)", () => {
       channel: "instagram",
       externalId: "igsid_001",
     });
-    expect(c.id).toBeDefined();
-    expect(c.channel).toBe("instagram");
-    expect(c.externalId).toBe("igsid_001");
+    expect(c).not.toBeNull();
+    expect(c!.id).toBeDefined();
+    expect(c!.channel).toBe("instagram");
+    expect(c!.externalId).toBe("igsid_001");
   });
 
   it("upsertCustomer: 동일 (channel, externalId) 재호출은 같은 row (idempotent)", async () => {
@@ -36,7 +37,7 @@ describe.skipIf(!hasDb)("dal.customers (integration)", () => {
       channel: "instagram",
       externalId: "igsid_002",
     });
-    expect(b.id).toBe(a.id);
+    expect(b!.id).toBe(a!.id);
   });
 
   it("upsertCustomer: preferredLanguage 저장", async () => {
@@ -45,7 +46,7 @@ describe.skipIf(!hasDb)("dal.customers (integration)", () => {
       externalId: "igsid_003",
       preferredLanguage: "en",
     });
-    expect(c.preferredLanguage).toBe("en");
+    expect(c!.preferredLanguage).toBe("en");
   });
 
   it("upsertCustomer: 다른 channel은 별 row", async () => {
@@ -57,7 +58,7 @@ describe.skipIf(!hasDb)("dal.customers (integration)", () => {
       channel: "whatsapp",
       externalId: "shared_id",
     });
-    expect(b.id).not.toBe(a.id);
+    expect(b!.id).not.toBe(a!.id);
   });
 });
 
@@ -65,5 +66,12 @@ describe("dal.customers (pure)", () => {
   it("module exports upsertCustomer", async () => {
     const mod = await import("./customers");
     expect(typeof mod.upsertCustomer).toBe("function");
+  });
+
+  it("upsertCustomer race condition fallback returns null (review HIGH)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/customers.ts", "utf-8");
+    expect(src).toMatch(/Promise<Customer\s*\|\s*null>/);
+    expect(src).not.toMatch(/throw new Error[^"]*"upsertCustomer:/);
   });
 });

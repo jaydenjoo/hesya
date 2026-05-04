@@ -144,3 +144,16 @@ describe("dal.conversations (pure)", () => {
     expect(typeof mod.updateLastMessage).toBe("function");
   });
 });
+
+describe("Channel 단일 소스 (review M-1)", () => {
+  it("@hesya/database가 CHANNELS 상수와 Channel 타입을 export", async () => {
+    const mod = await import("@hesya/database");
+    expect(mod.CHANNELS).toEqual([
+      "instagram",
+      "whatsapp",
+      "kakao",
+      "line",
+      "messenger",
+    ]);
+  });
+});

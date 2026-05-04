@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { WebhookSignatureError } from "@/shared/lib/errors";
+import { ValidationError, WebhookSignatureError } from "@/shared/lib/errors";
 import { createInstagramAdapter } from "./instagram-adapter";
 import type { InstagramApiClient } from "./instagram-api-client";
 
@@ -157,5 +157,56 @@ describe("instagramAdapter (pure)", () => {
   it("createInstagramAdapter exports channel='instagram'", () => {
     const adapter = createInstagramAdapter({} as InstagramApiClient);
     expect(adapter.channel).toBe("instagram");
+  });
+});
+
+describe("instagramAdapter payload validation (H-3 Zod)", () => {
+  it("HMAC 통과 + JSON 파싱 실패 → ValidationError", async () => {
+    const adapter = createInstagramAdapter({} as InstagramApiClient);
+    const malformed = "{ not valid json";
+    const sig = sign(malformed, SECRET);
+    await expect(
+      adapter.parseInbound(malformed, sig, SECRET),
+    ).rejects.toBeInstanceOf(ValidationError);
+  });
+
+  it("HMAC 통과 + schema 위반 (object='facebook') → ValidationError", async () => {
+    const adapter = createInstagramAdapter({} as InstagramApiClient);
+    const wrong = JSON.stringify({ object: "facebook", entry: [] });
+    const sig = sign(wrong, SECRET);
+    await expect(
+      adapter.parseInbound(wrong, sig, SECRET),
+    ).rejects.toBeInstanceOf(ValidationError);
+  });
+
+  it("HMAC 통과 + entry 누락 → ValidationError", async () => {
+    const adapter = createInstagramAdapter({} as InstagramApiClient);
+    const noEntry = JSON.stringify({ object: "instagram" });
+    const sig = sign(noEntry, SECRET);
+    await expect(
+      adapter.parseInbound(noEntry, sig, SECRET),
+    ).rejects.toBeInstanceOf(ValidationError);
+  });
+});
+
+describe("instagramAdapter HMAC verify (timing-safe 보안)", () => {
+  it("HMAC 길이 다른 sig도 throw (length leak 방지)", async () => {
+    const adapter = createInstagramAdapter({} as InstagramApiClient);
+    const shortSig = "sha256=short";
+    await expect(
+      adapter.parseInbound(samplePayload, shortSig, SECRET),
+    ).rejects.toBeInstanceOf(WebhookSignatureError);
+    const longSig = "sha256=" + "a".repeat(200);
+    await expect(
+      adapter.parseInbound(samplePayload, longSig, SECRET),
+    ).rejects.toBeInstanceOf(WebhookSignatureError);
+  });
+
+  it("instagram-adapter.ts: length short-circuit 패턴 부재 (timingSafeEqual 무조건 호출)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/lib/inbox/instagram-adapter.ts", "utf-8");
+    expect(src).not.toMatch(
+      /sigBuf\.length\s*!==\s*expBuf\.length\s*\|\|\s*!timingSafeEqual/,
+    );
   });
 });

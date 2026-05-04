@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { WebhookSignatureError } from "@/shared/lib/errors";
+import { z } from "zod";
+import { ValidationError, WebhookSignatureError } from "@/shared/lib/errors";
 import type { ChannelAdapter } from "./channel-adapter";
 import type { InstagramApiClient } from "./instagram-api-client";
 import type {
@@ -9,19 +10,30 @@ import type {
   OutboundInput,
 } from "./types";
 
-interface IgWebhookPayload {
-  object: "instagram";
-  entry?: Array<{
-    id: string;
-    time?: number;
-    messaging?: Array<{
-      sender: { id: string };
-      recipient: { id: string };
-      timestamp: number;
-      message?: { mid: string; text?: string };
-    }>;
-  }>;
-}
+const igWebhookSchema = z.object({
+  object: z.literal("instagram"),
+  entry: z.array(
+    z.object({
+      id: z.string(),
+      time: z.number().optional(),
+      messaging: z
+        .array(
+          z.object({
+            sender: z.object({ id: z.string() }),
+            recipient: z.object({ id: z.string() }),
+            timestamp: z.number(),
+            message: z
+              .object({
+                mid: z.string(),
+                text: z.string().optional(),
+              })
+              .optional(),
+          }),
+        )
+        .optional(),
+    }),
+  ),
+});
 
 export interface InstagramAdapterDeps {
   appId?: string;
@@ -40,18 +52,39 @@ export function createInstagramAdapter(
       signature: string,
       secret: string,
     ): Promise<InboundMessage[]> {
+      // ⚠️ Replay attack 방어 (H-4):
+      // X-Hub-Timestamp 헤더 5분 윈도우 검증은 Phase F webhook route 책임 (Meta 권장).
+      // adapter는 HMAC + payload 형식 검증만 담당.
       const expected =
         "sha256=" +
         createHmac("sha256", secret).update(rawPayload).digest("hex");
       const sigBuf = Buffer.from(signature);
       const expBuf = Buffer.from(expected);
-      if (sigBuf.length !== expBuf.length || !timingSafeEqual(sigBuf, expBuf)) {
+      // length 다르면 timingSafeEqual은 throw → 길이를 expected에 맞춰 패딩 후
+      // 무조건 같은 시간 동안 비교 (length 누출 방지).
+      const padded =
+        sigBuf.length === expBuf.length ? sigBuf : Buffer.alloc(expBuf.length);
+      const equal = timingSafeEqual(padded, expBuf);
+      if (sigBuf.length !== expBuf.length || !equal) {
         throw new WebhookSignatureError();
       }
 
-      const data = JSON.parse(rawPayload) as IgWebhookPayload;
+      let raw: unknown;
+      try {
+        raw = JSON.parse(rawPayload);
+      } catch {
+        throw new ValidationError("Webhook payload JSON parse failed");
+      }
+      const result = igWebhookSchema.safeParse(raw);
+      if (!result.success) {
+        throw new ValidationError(
+          "Webhook payload schema mismatch",
+          result.error.issues,
+        );
+      }
+      const data = result.data;
       const out: InboundMessage[] = [];
-      for (const entry of data.entry ?? []) {
+      for (const entry of data.entry) {
         for (const m of entry.messaging ?? []) {
           if (!m.message?.mid || !m.message.text) continue;
           out.push({

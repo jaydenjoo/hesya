@@ -38,10 +38,11 @@ describe.skipIf(!hasDb)("dal.messages (integration)", () => {
       originalText: "안녕",
       externalMessageId: "mid_1",
     });
-    expect(m.id).toBeDefined();
-    expect(m.conversationId).toBe(conversationId);
-    expect(m.direction).toBe("inbound");
-    expect(m.originalText).toBe("안녕");
+    expect(m).not.toBeNull();
+    expect(m!.id).toBeDefined();
+    expect(m!.conversationId).toBe(conversationId);
+    expect(m!.direction).toBe("inbound");
+    expect(m!.originalText).toBe("안녕");
   });
 
   it("insertMessage: 동일 (channel, external_message_id) 재호출은 같은 row (idempotent)", async () => {
@@ -59,7 +60,7 @@ describe.skipIf(!hasDb)("dal.messages (integration)", () => {
       originalText: "x",
       externalMessageId: "mid_2",
     });
-    expect(b.id).toBe(a.id);
+    expect(b!.id).toBe(a!.id);
   });
 
   it("insertMessage: outbound는 status='sent' 기본값", async () => {
@@ -70,7 +71,7 @@ describe.skipIf(!hasDb)("dal.messages (integration)", () => {
       originalText: "응답",
       externalMessageId: "mid_out_1",
     });
-    expect(m.status).toBe("sent");
+    expect(m!.status).toBe("sent");
   });
 
   it("listByConversation: created_at ASC, conversation 한정", async () => {
@@ -102,7 +103,7 @@ describe.skipIf(!hasDb)("dal.messages (integration)", () => {
       originalText: "보내기 실패할 메시지",
       externalMessageId: "mid_fail_1",
     });
-    await markFailed(db, m.id);
+    await markFailed(db, m!.id);
     const list = await listByConversation(db, conversationId);
     expect(list[0]?.status).toBe("failed");
   });
@@ -114,5 +115,21 @@ describe("dal.messages (pure)", () => {
     expect(typeof mod.insertMessage).toBe("function");
     expect(typeof mod.listByConversation).toBe("function");
     expect(typeof mod.markFailed).toBe("function");
+  });
+
+  it("listByConversation supports offset for pagination (review M-2)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/messages.ts", "utf-8");
+    expect(src).toMatch(/\.offset\(/);
+    expect(src).toMatch(/offset\?\s*:\s*number/);
+  });
+
+  it("insertMessage race condition fallback returns null (review HIGH)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/messages.ts", "utf-8");
+    expect(src).toMatch(/Promise<Message\s*\|\s*null>/);
+    expect(src).not.toMatch(
+      /throw new Error[^"]*"insertMessage:[^"]*not found/,
+    );
   });
 });
