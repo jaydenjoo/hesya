@@ -100,3 +100,11 @@ describe("requireAdminEmail", () => {
     expect(result.error).toBe("forbidden");
   });
 });
+
+describe("admin-guard.ts (boundary)", () => {
+  it("첫 줄에 server-only import — 클라이언트 번들 유출 방지", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/admin-guard.ts", "utf-8");
+    expect(src.split("\n")[0]).toBe('import "server-only";');
+  });
+});

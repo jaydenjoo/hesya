@@ -1,6 +1,7 @@
 export * from "./aftercare-messages";
 export * from "./auth";
 export * from "./bookings";
+export * from "./channels";
 export * from "./conversations";
 export * from "./customers";
 export * from "./kyc-verification-logs";
