@@ -26,14 +26,17 @@
 
 ```bash
 # 1. ngrok 무료 가입 → dashboard.ngrok.com
-# 2. authtoken 받아서:
+# 2. authtoken 설정 (한 번만):
 ngrok config add-authtoken <token>
-# 3. 정적 도메인 발급 (자동 할당, 변경 X):
-ngrok http 3000  # → https://<your-name>.ngrok-free.app
+# 3. 자동 할당된 dev domain 확인:
+#    dashboard.ngrok.com → Universal Gateway → Domains
+#    → ngrok-free.app (또는 .ngrok-free.dev) 도메인 1개가 이미 할당되어 있음
+# 4. 그 도메인으로 endpoint 시작:
+ngrok http --url=<your-assigned-name>.ngrok-free.app 3000
 ```
 
 - 한도: HTTP 20k req/월, 1GB/월, 동시 endpoint 3개 (1A PoC 충분)
-- URL은 영구 고정. 매번 같은 URL.
+- 자동 할당된 도메인은 영구 고정 (계정 유지 한). 매번 같은 URL.
 - `IG_REDIRECT_URI`, Meta webhook subscription URL 모두 이 도메인 사용.
 
 ## 3. Meta App Review (1A 외부 의존)
