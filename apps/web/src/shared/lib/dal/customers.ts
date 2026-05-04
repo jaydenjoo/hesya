@@ -11,7 +11,7 @@ export async function upsertCustomer(
     externalId: string;
     preferredLanguage?: string;
   },
-): Promise<Customer> {
+): Promise<Customer | null> {
   const inserted = await db
     .insert(customers)
     .values({
@@ -35,10 +35,6 @@ export async function upsertCustomer(
     )
     .limit(1);
 
-  if (!existing[0]) {
-    throw new Error(
-      `upsertCustomer: insert returned no row and lookup failed for (${input.channel}, ${input.externalId})`,
-    );
-  }
-  return existing[0];
+  // race condition: insert와 select 사이에 row 삭제 → null 반환 (caller 결정)
+  return existing[0] ?? null;
 }
