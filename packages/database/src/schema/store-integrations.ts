@@ -10,7 +10,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { stores } from "./stores";
 
-const bytea = customType<{ data: Buffer; default: false }>({
+const bytea = customType<{ data: Uint8Array; default: false }>({
   dataType() {
     return "bytea";
   },
