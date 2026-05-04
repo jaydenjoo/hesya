@@ -1527,3 +1527,94 @@ const items = extractLocaldataItems(parsed);
 - 인간 리뷰: spec § File Structure / § 폴더 구조 섹션의 모든 경로가 `ls`로 검증되는지
 
 **연관**: Epic 1 1A spec § 2.6 폴더 구조 (Next.js API route 채택), § 9 Open Questions Q4 (i18n routing 실존 확인).
+
+---
+
+### [2026-05-04] L-045 — spec/plan 문서를 main에 직접 commit하면 PR squash 머지 후 main divergence
+
+**증상**: Phase A PR #19 머지(squash) 후 로컬 `main` ↔ `origin/main` 분기 — 로컬에만 `d1cd2d8 docs(spec)` + `d3843d8 docs(plan)` 2 commit이 존재. `git pull --ff-only` 거부. `git checkout -b` 시도 시 어디서 시작해야 할지 혼란.
+
+**원인**: 이전 세션에서 spec(`d1cd2d8`)·plan(`d3843d8`) 작성 후 **main 브랜치에 직접 commit** (글로벌 룰 위반: `main 직접 커밋 금지, Task별 브랜치 → 완료 후 merge`). 이후 같은 main에서 `feat/epic-1a-inbox-instagram` 브랜치를 분기하여 Phase A 작업 진행. PR #19에는 spec + plan + Phase A 5 commits 모두 포함되어 squash됨. 머지 결과 `19d2f1a` 단일 commit이 origin/main에 등록 → 로컬 main의 `d1cd2d8`/`d3843d8`는 squash에 흡수된 채로 SHA만 다른 형태로 남아 분기.
+
+**해결 (이번 세션)**:
+
+1. `git reset --hard origin/main` 으로 로컬 main을 origin과 일치 (Jayden 직접 — Claude Code hook이 `--hard` 차단). 손실 0건 (두 commit 내용은 squash에 흡수됨).
+2. 새 작업 브랜치는 `git checkout -b feat/epic-1a-phase-b-db origin/main` 으로 origin 직접 base.
+
+**규칙** ⭐:
+
+1. **spec/plan/runbook 같은 문서 commit도 반드시 feature 브랜치에서**. main 직접 commit은 글로벌 룰 위반. 다음 PR squash 시 SHA 분기 사고 발생.
+2. **새 작업 브랜치 분기는 항상 `git checkout -b <name> origin/<base>` 형태**. 로컬 base 신뢰 X — origin이 source of truth. 로컬 main이 dirty해도 origin/main에서 깨끗이 분기.
+3. **PR squash 머지 후 로컬 main이 divergent로 표시되면 무조건 `git reset --hard origin/main`** (commit 내용이 squash에 모두 포함됐는지 1초 확인 후). 머지 후 로컬 main은 항상 origin이 정답.
+
+**확인 방법**:
+
+- 자동: pre-commit hook으로 현재 브랜치명이 `main|master`이면 commit 차단 가능 (글로벌 settings).
+- 인간 리뷰: PR 머지 직후 `git log origin/main..main`이 empty인지 확인. empty 아니면 reset 필요.
+
+**연관**: Phase A → Phase B 전환 시점, CLAUDE.md 글로벌 룰 § Git 안전 규칙 ("브랜치 전략: Task별 브랜치 → 완료 후 merge — main 직접 커밋 금지"), L-001 (모노레포 마이그레이션 시 동일 reset 패턴 사용).
+
+---
+
+### [2026-05-04] L-046 — Supabase 원격 MCP는 OAuth Connected 상태여도 도구 호출 시 PAT 별도 요구 — 로컬 npx MCP로 우회
+
+**증상**: 세션 시작 시 `mcp____supabase__list_projects` 호출 → `Unauthorized. Please provide a valid access token to the MCP server via the --access-token flag or SUPABASE_ACCESS_TOKEN.` 에러. `claude mcp list`에는 `[claude.ai] Supabase: https://mcp.supabase.com/mcp - ✓ Connected` 로 정상 표시. `~/.claude/settings.json` 최상위 `env`에 `SUPABASE_ACCESS_TOKEN=sbp_...` 등록되어 있음에도 인증 실패. `/mcp` 슬래시 커맨드로 재인증해도 같은 세션 안에서는 변화 없음.
+
+**원인**: 두 가지가 합쳐짐 —
+
+1. **claude.ai 호스팅 원격 MCP는 OAuth 흐름**이지만 도구 호출 시 별도 PAT 헤더를 요구하는 방식. "Connected" 표시는 단순 ping/연결만 의미하고 데이터 접근 권한과 무관.
+2. **settings.json 최상위 `env`는 로컬 프로세스 환경변수**일 뿐 — claude.ai 원격 MCP는 Anthropic 서버에서 호출되므로 사용자 로컬 env를 못 봄.
+
+**해결 (이번 세션)**:
+
+1. **로컬 npx 기반 MCP 추가** — 같은 PAT를 사용하지만 사용자 컴퓨터에서 직접 실행:
+   ```bash
+   claude mcp add supabase-local --scope user \
+     --env SUPABASE_ACCESS_TOKEN=$(grep '"SUPABASE_ACCESS_TOKEN"' ~/.claude/settings.json | sed -E 's/.*"(sbp_[^"]+)".*/\1/') \
+     -- npx -y @supabase/mcp-server-supabase@latest
+   ```
+2. Claude Code 데스크톱 앱 완전 종료(`Cmd+Q`) → 재실행 (창 닫기 X — MCP 서버는 앱 시작 시 1회만 env 로드).
+3. 새 세션에서 `mcp__supabase-local__list_projects` 호출 → 5 projects 정상 반환 ✓.
+
+**규칙** ⭐:
+
+1. **Supabase MCP는 항상 로컬 npx 기반 등록** (`@supabase/mcp-server-supabase`). claude.ai 원격 MCP는 같은 이름의 도구를 노출하지만 인증 모델이 다르고 디버깅 어려움.
+2. **PAT는 글로벌 env가 아니라 MCP 서버 자체의 `--env` 옵션으로 전달**. `claude mcp add ... --env KEY=value` 형식. 이러면 `~/.claude.json`의 mcpServers 항목 안에 자동 등록되어 MCP 서버 시작 시 정확히 전달됨.
+3. **Claude Code 데스크톱 앱은 MCP 서버를 앱 프로세스 시작 시 1회만 로드** — 채팅창 새로 열기/`/clear` 등으로는 재로드 안 됨. `Cmd+Q`로 완전 종료 후 재실행 필수.
+4. **MCP 도구 이름에서 인증 출처 식별**: `mcp____supabase__*` (4 underscore prefix) = claude.ai 원격, `mcp__supabase-local__*` (2 underscore + dash) = 로컬 npx. 두 개가 공존 가능하므로 호출 시 의도한 쪽 명확히 선택.
+
+**확인 방법**:
+
+- 자동: 세션 시작 시 `/start` 스킬에서 `mcp__supabase-local__list_projects` 1회 호출 → 5 projects 반환 못하면 즉시 트러블슈팅 trigger.
+- 인간 리뷰: `claude mcp list`에 `supabase-local: npx -y @supabase/mcp-server-supabase@latest - ✓ Connected` 항목 존재 확인.
+
+**연관**: PROGRESS.md 2026-05-04 "Supabase MCP PAT 토큰 셋업 완료 — 검증 대기" 항목, 다음 세션 시작 시 자연 검증 실패.
+
+---
+
+### [2026-05-04] L-047 — Supabase dev branch는 시간당 과금 ($0.01344/h) — 생성→사용→즉시 삭제 운영 룰
+
+**증상 / 상황**: Phase B T04 Migration v0011 검증을 위해 prod schema에 적용하기 전 dev branch가 필요. Supabase Pro 플랜 branching 기능 사용 시 비용 발생. `get_cost(type=branch)` → `$0.01344/hour` 확인. 한 번 생성하고 잊으면 일주일 ≈ $2.26, 한 달 ≈ $9.81. T04~T06 작업 후 즉시 삭제 안 하면 누적.
+
+**원인**: Supabase dev branch는 별도 Postgres 인스턴스를 띄우는 구조 — prod와 비슷한 상시 자원 점유. 시간 단위 청구 (사용 안 해도 살아있으면 청구). `persistent: false` 설정도 자동 삭제 X — 명시적 `delete_branch` 호출 또는 대시보드 삭제만 정지 트리거.
+
+**해결 (이번 세션 운영 룰)**:
+
+1. **생성 직전 `confirm_cost` 강제** — MCP `create_branch` 호출 시 cost confirmation_id 필수. 비용 누적 우발 차단.
+2. **명확한 사용 기간 사전 결정** — Phase B만(3시간) / 1A 전체(56시간) / 잊고 방치(168시간+) 시나리오를 미리 보고하고 Jayden 명시 승인.
+3. **세션 종료 직전 `list_branches` 의무 호출** — 살아있는 dev branch 발견 시 즉시 `delete_branch` 또는 다음 세션 즉시 진입 결정.
+4. **다음 세션 시작 시 `/start` 첫 명령으로 `list_branches` 호출** — 잊혀진 dev branch 자동 발견.
+
+**규칙** ⭐:
+
+1. **dev branch는 항상 명시적 사용 목적 + 종료 조건 정의 후 생성**. "혹시 모르니 만들어두자"는 비용 누적의 시작.
+2. **세션 종료 시점 살아있는 dev branch가 있으면 PROGRESS.md에 명시 표기** (`⚠️ 비용 발생 중`). 다음 세션 시작자(나 또는 다른 AI)가 즉시 인지하고 판단할 수 있어야 함.
+3. **Phase 단위로 dev branch 분리 권장** — Phase B 검증 후 삭제 → Phase F 검증 시 새 dev branch. 비용 단위가 명확해지고 리스크 격리.
+4. **`persistent: false` 신뢰 금지** — 자동 삭제 기능 아님. 명시적 `delete_branch` 호출만 비용 정지.
+
+**확인 방법**:
+
+- 자동: 세션 종료 hook(`Stop` 이벤트)에서 `mcp__supabase-local__list_branches`로 살아있는 dev branch 점검 → 발견 시 알림.
+- 인간 리뷰: 매 세션 시작 시 PROGRESS.md `⚠️ dev branch 살아있음` 표기 여부 확인.
+
+**연관**: Phase B T04 dev branch `phase-b-v0011` (project_ref `jypvsjgaxcxwtcgcomcp`) — 이번 세션 종료 시 살아있음, 다음 세션 시작 즉시 사용 또는 삭제 판단. 글로벌 메모리 `feedback_no_unauthorized_resource_creation.md` (외부 리소스 생성 전 명시 승인 필수) 정신 연장.

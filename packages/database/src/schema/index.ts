@@ -1,6 +1,7 @@
 export * from "./aftercare-messages";
 export * from "./auth";
 export * from "./bookings";
+export * from "./conversations";
 export * from "./customers";
 export * from "./kyc-verification-logs";
 export * from "./messages";
@@ -8,6 +9,7 @@ export * from "./payments";
 export * from "./reviews";
 export * from "./services";
 export * from "./staff";
+export * from "./store-integrations";
 export * from "./store-owners";
 export * from "./store-reports";
 export * from "./store-verifications";
