@@ -5,26 +5,41 @@
 ## 현재 위치
 
 - **Phase**: Phase 1 진행 중
-- **Epic**: Epic 9 매장 KYC 자동 검증 시스템 — **🎉 12/12 100% 완료**
-- **Task**: **E9-6 영업신고증 OCR (Anthropic Opus 4.7 Vision) ✅ 머지 완료** ([apps#18](https://github.com/jaydenjoo/hesya/pull/18) → main `97283cc`, 94 tests green, validate 1m56s ✅, Vercel preview ✅).
-- **상태**: Epic 9 12 sub-task 모두 main 머지 완료 + **prod schema 정합 (v0010 적용 ✅, 2026-05-04 Supabase Studio SQL Editor)**. **다음 Epic 결정 단계**.
-- **Supabase MCP**: PAT 토큰 셋업 완료 (`~/.claude/settings.json` env.SUPABASE_ACCESS_TOKEN, 2026-05-04), 다음 세션부터 `apply_migration`/`execute_sql` 등 자동 사용 가능.
-- **작업 브랜치**: (다음 Epic 시작 시 새 브랜치 생성)
+- **Epic**: **Epic 1 통합 다국어 인박스** 시작 — 1A 인프라 + Instagram PoC (Phase A 완료)
+- **Task**: **Phase A (T01~T03) ✅ 완료** — PR 대기 중 (브랜치 `feat/epic-1a-inbox-instagram`, 5 commits)
+- **상태**: brainstorming → writing-plans → subagent-driven-development 풀 사이클로 Epic 1 1A 시작. spec(978줄)·plan(4009줄·40 tasks) 작성 후 Phase A 6 task 중 3개 완료. **Phase A PR 머지 후 새 세션 Phase B**.
+- **다음 작업**: Phase A PR 생성 → 머지 → 새 세션 Phase B (T04 Migration v0011 + Supabase dev branch + T05 Drizzle + T06 pgsodium)
+- **Supabase MCP**: PAT 토큰 셋업 완료 (검증 대기 — 다음 세션 시작 시 자연 검증)
+- **작업 브랜치**: `feat/epic-1a-inbox-instagram` (5 commits ahead of main)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
-## 다음 세션 할 일 (Epic 결정 토론)
+## 다음 세션 할 일 (Phase B 시작)
 
-1. **다음 Epic 결정 (3 옵션 trade-off 토론)**:
-   - **Epic 1 다국어 통합 인박스 (~50h)** — 5채널 + Sonnet 4.6 RAG + Opus 4.7 Vision. Phase 1 핵심 사용자 가치.
-   - **Epic 2 결제 통합 (~60h, 🔴 보안)** — 토스페이먼츠 + 정산. 매출 직결, Jayden 직접 검증 필수.
-   - **Epic 12 관리자 패널 (~60h)** — 8종 운영자 플로우. KYC 매뉴얼 큐(E9-8 흡수) + 운영 효율.
-2. **Epic 결정 trade-off 핵심**:
-   - Epic 1 = 사용자 가치 즉시 (외국인 매장 사장이 가입 후 다음 만나는 화면)
-   - Epic 2 = 매출 발생 가능 시점 (β-test 매장 결제 흐름 실제 가동)
-   - Epic 12 = 내부 운영 효율 (KYC 자동 검증 결과 admin이 매뉴얼 검토하는 큐 — 매장 100곳 미만에선 Jayden 1인 처리 가능)
-3. **(보류) E9-6 OCR smoke test** — β-test 매장 모집 시 실제 영업신고증 사진 1~3장 자연 확보 → 그때 baseline 1회 측정 → `docs/kyc-ocr-baseline.md` 작성. 인터넷/합성 샘플은 baseline 의미 약함 (실제 매장 폰트/조명/해상도 차이).
+1. **Phase A PR 머지 확인** — main에 5 commits 반영
+2. **Supabase dev branch 생성** (MCP `create_branch`) — Phase B의 마이그레이션 v0011 적용 검증용
+3. **T04 Migration v0011 작성 + dev branch 적용**
+   - conversations 신규 테이블, messages 컬럼 3개 alter, customers 유일 인덱스, store_integrations 신규
+   - RLS 정책 (admin + store_owner 이중)
+   - `-- ROLLBACK:` 주석 (C-06 정책 첫 적용)
+4. **T05 Drizzle 스키마 TypeScript 정의** (`packages/database/src/schema/{conversations,store-integrations}.ts`)
+5. **T06 pgsodium 헬퍼** (`shared/lib/dal/pgsodium-helpers.ts` + TDD with DB)
+6. (Phase B 끝나면) Phase C DAL 구현으로 진입
+
+## Phase A (이번 세션 완료, 5 commits)
+
+| Task                                                 | Commits               | 결과        |
+| ---------------------------------------------------- | --------------------- | ----------- |
+| T01 docs/runbook.md (롤백 + ngrok + Meta App Review) | `c671cce` + `1680cc0` | ✅ Approved |
+| T03 errors.ts (6 클래스 + auth-guard 통합)           | `b9849cf`             | ✅ Approved |
+| T02 instrumentation captureServerActionError (C-01)  | `3ee534d` + `62ade9b` | ✅ Approved |
+
+검증: tsc 0 error, 100/100 tests pass, 회귀 0건.
+
+## (보류) E9-6 OCR smoke test
+
+β-test 매장 모집 시 실제 영업신고증 사진 1~3장 자연 확보 → 그때 baseline 1회 측정 → `docs/kyc-ocr-baseline.md` 작성. 인터넷/합성 샘플은 baseline 의미 약함.
 
 ## 차단 요소
 
@@ -32,10 +47,54 @@
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-04 (prod 마이그레이션 v0010 적용 + Supabase MCP 토큰 셋업, /save 세션 종료)
+- 날짜: 2026-05-04 PM (Epic 1 결정 + 1A spec/plan 작성 + Phase A 완료)
 - 다음 세션 시작 시 `/start` 스킬이 이 파일 읽고 자동 보고
 
-## 이번 세션 완료 (2026-05-04 — prod schema 정합 + Supabase MCP 토큰 셋업)
+## 이번 세션 완료 (2026-05-04 PM — Epic 1 1A 시작 + Phase A 완료)
+
+### 1. Epic 결정: Epic 1 통합 인박스 채택
+
+- Epic 1 / 2 / 12 trade-off 검증 → Epic 1이 의존성·사용자 가치·MVP P0 측면 최우선 (Epic 12는 Epic 1·2 의존, Epic 2는 Epic 3 의존).
+- Epic 1 전체(56h, 11 Tasks)를 4단계 분해: **1A 인프라+Instagram PoC** → 1B 채널 4개 → 1C AI+RAG+번역 → 1D Vision+검증.
+
+### 2. brainstorming → 1A spec 작성 (commit `d1cd2d8`)
+
+- 위치: `docs/superpowers/specs/2026-05-04-epic-1a-inbox-instagram-design.md` (978줄, 10 섹션)
+- 4 clarifying Q (PoC 범위 MID / 더미 매장 IG / conversations 테이블 / ngrok 무료 정적 도메인) + Approach A (미니멀 직결)
+- senior-engineer 검증 6.5/10 → 권장 12개를 **1A 흡수 6개 + cleanup trail 6개**로 분리
+- 외부 정보 검증으로 24h 메시징 윈도우, ngrok 정적 도메인 정책, Vercel preview URL 안정성, Cloudflare Tunnel 무제한 대역폭 4건 정정/확인
+- L-043 후보: 이전 답변에서 ngrok 무료 정적 도메인 확신 단정 → 정정 (확증편향 경계)
+
+### 3. writing-plans → 1A implementation plan 작성 (commit `d3843d8`)
+
+- 위치: `docs/superpowers/plans/2026-05-04-epic-1a-inbox-instagram.md` (4009줄, 40 tasks, 10 phases)
+- 각 task TDD 5단계 + 명시 commit + self-review 통과
+- Open Questions 4개 모두 해결 (store_owners v0002 존재, admins는 ENV 화이트리스트, pgsodium key Supabase 자동, i18n routing 구성됨)
+
+### 4. subagent-driven-development → Phase A 완료 (5 commits on `feat/epic-1a-inbox-instagram`)
+
+| Task                                                | Commits                           | 검토                 |
+| --------------------------------------------------- | --------------------------------- | -------------------- |
+| T01 docs/runbook.md (C-06)                          | `c671cce` + `1680cc0` (ngrok fix) | spec ✅ + quality ✅ |
+| T03 errors.ts (6 클래스 + auth-guard 통합)          | `b9849cf`                         | spec ✅ + quality ✅ |
+| T02 instrumentation captureServerActionError (C-01) | `3ee534d` + `62ade9b` (refactor)  | spec ✅ + quality ✅ |
+
+**검증**: tsc 0 error, 100/100 tests pass, 회귀 0건.
+
+**Subagent dispatch 패턴**: 각 task당 implementer → spec compliance reviewer → code quality reviewer → (필요 시 fix 사이클). 총 9~10 dispatch / 3 task.
+
+### 만들지 않은 것 (Not Doing)
+
+- ❌ Phase B (T04~T06) — 새 세션 (DB 환경 분리 + 비용 효율)
+- ❌ App Review 신청 — 1A 메인 코드 완료 후 별도 trail (외부 의존)
+- ❌ 외부 Pre-flight 셋업 (Meta App, IG Business, FB Page, Business Verification) — Jayden 직접
+- ❌ learnings.md 신규 항목 — 1A 완료 게이트(T39 plan)에 일괄 기록 (L-041~L-044 예약)
+
+### 자체 정정 (4원칙 1번)
+
+- ngrok 무료 정적 도메인 정책 답변 시 검색 없이 추측 단정 → Jayden 검증 요청 → WebSearch로 4건 검증 후 정정. 다음 세션 1A T39 시점에 L-043으로 공식 기록 예정.
+
+## 이전 세션 완료 (2026-05-04 — prod schema 정합 + Supabase MCP 토큰 셋업)
 
 ### Task 1: 마이그레이션 v0010 prod 적용 ✅
 
