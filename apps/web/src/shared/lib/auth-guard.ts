@@ -21,12 +21,8 @@ export interface Session {
   role?: "admin" | "user";
 }
 
-export class UnauthorizedError extends Error {
-  constructor(message = "인증이 필요합니다") {
-    super(message);
-    this.name = "UnauthorizedError";
-  }
-}
+import { UnauthorizedError } from "./errors";
+export { UnauthorizedError };
 
 /**
  * 인증 확인. 비로그인 시 UnauthorizedError 던짐.
