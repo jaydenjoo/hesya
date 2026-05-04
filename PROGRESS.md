@@ -7,23 +7,24 @@
 - **Phase**: Phase 1 진행 중
 - **Epic**: Epic 9 매장 KYC 자동 검증 시스템 — **🎉 12/12 100% 완료**
 - **Task**: **E9-6 영업신고증 OCR (Anthropic Opus 4.7 Vision) ✅ 머지 완료** ([apps#18](https://github.com/jaydenjoo/hesya/pull/18) → main `97283cc`, 94 tests green, validate 1m56s ✅, Vercel preview ✅).
-- **상태**: Epic 9 12 sub-task 모두 main 머지 완료. **다음 Epic 결정 단계**.
+- **상태**: Epic 9 12 sub-task 모두 main 머지 완료 + **prod schema 정합 (v0010 적용 ✅, 2026-05-04 Supabase Studio SQL Editor)**. **다음 Epic 결정 단계**.
+- **Supabase MCP**: PAT 토큰 셋업 완료 (`~/.claude/settings.json` env.SUPABASE_ACCESS_TOKEN, 2026-05-04), 다음 세션부터 `apply_migration`/`execute_sql` 등 자동 사용 가능.
 - **작업 브랜치**: (다음 Epic 시작 시 새 브랜치 생성)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
+- **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul)
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
-## 다음 세션 할 일 (Epic 결정 + 마이그레이션 v0010 prod 적용)
+## 다음 세션 할 일 (Epic 결정 토론)
 
-1. **마이그레이션 v0010 Prod 적용** — `kyc_verification_logs` CHECK 제약에 `'ocr_extract'` 추가 ([0010_round_metal_master.sql](packages/database/migrations/0010_round_metal_master.sql)). Supabase Studio 또는 `supabase db push`로 prod DB 반영.
-2. **E9-6 manual smoke test (선택)** — `/admin/kyc-test` Step 6에서 실제 영업신고증 사진 1장 업로드 → 4필드 자동 추출 정확도 확인. Phase 1.5 임계값 조정 데이터 수집 시작.
-3. **다음 Epic 결정 (3 옵션)**:
+1. **다음 Epic 결정 (3 옵션 trade-off 토론)**:
    - **Epic 1 다국어 통합 인박스 (~50h)** — 5채널 + Sonnet 4.6 RAG + Opus 4.7 Vision. Phase 1 핵심 사용자 가치.
    - **Epic 2 결제 통합 (~60h, 🔴 보안)** — 토스페이먼츠 + 정산. 매출 직결, Jayden 직접 검증 필수.
    - **Epic 12 관리자 패널 (~60h)** — 8종 운영자 플로우. KYC 매뉴얼 큐(E9-8 흡수) + 운영 효율.
-4. **Epic 9 → Epic 결정 trade-off 핵심**:
+2. **Epic 결정 trade-off 핵심**:
    - Epic 1 = 사용자 가치 즉시 (외국인 매장 사장이 가입 후 다음 만나는 화면)
    - Epic 2 = 매출 발생 가능 시점 (β-test 매장 결제 흐름 실제 가동)
    - Epic 12 = 내부 운영 효율 (KYC 자동 검증 결과 admin이 매뉴얼 검토하는 큐 — 매장 100곳 미만에선 Jayden 1인 처리 가능)
+3. **(보류) E9-6 OCR smoke test** — β-test 매장 모집 시 실제 영업신고증 사진 1~3장 자연 확보 → 그때 baseline 1회 측정 → `docs/kyc-ocr-baseline.md` 작성. 인터넷/합성 샘플은 baseline 의미 약함 (실제 매장 폰트/조명/해상도 차이).
 
 ## 차단 요소
 
@@ -31,8 +32,47 @@
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-03 P.M.+++ (E9-6 머지 → Epic 9 100% 완료, /save 세션 종료)
+- 날짜: 2026-05-04 (prod 마이그레이션 v0010 적용 + Supabase MCP 토큰 셋업, /save 세션 종료)
 - 다음 세션 시작 시 `/start` 스킬이 이 파일 읽고 자동 보고
+
+## 이번 세션 완료 (2026-05-04 — prod schema 정합 + Supabase MCP 토큰 셋업)
+
+### Task 1: 마이그레이션 v0010 prod 적용 ✅
+
+- **목표**: `kyc_verification_logs.event_type` CHECK 제약에 `'ocr_extract'` 추가 — main 머지된 E9-6 코드 ↔ prod schema 정합 회복.
+- **방법**: Supabase Studio SQL Editor (hesya-prod / main / PRODUCTION) 직접 실행. 🔴 schema 변경은 Jayden 직접 검증 (CLAUDE.md 보안 룰 준수).
+- **검증**: `pg_get_constraintdef(oid)` ILIKE `'%ocr_extract%'` → `has_ocr_extract = true` 확인.
+- **영향**: prod에서 OCR 호출 시 `INSERT INTO kyc_verification_logs (event_type='ocr_extract')` 정상 동작 보장. E9-6 코드의 schema 차단 위험 해소.
+
+### Supabase MCP 토큰 셋업 ✅
+
+- **위치**: `~/.claude/settings.json` env.SUPABASE_ACCESS_TOKEN (글로벌, 모든 프로젝트).
+- **권한**: PAT — 5개 프로젝트 모두 접근 가능 (chatsio-v1 / autovoxflow / **hesya-prod** / dairect / dari).
+- **효과**: 다음 세션부터 `mcp____supabase__list_projects/apply_migration/execute_sql` 자동 작동. 이번 같은 GUI 왕복 1.5h → 5분으로 단축 예상.
+- **검증**: 이번 세션엔 불가 (MCP 서버는 Claude Code 시작 시 1회만 env 읽음). 다음 세션 시작 시 자연 검증.
+- **보안**: 분실 의심 시 supabase.com/dashboard/account/tokens → 해당 토큰 Revoke 즉시 가능.
+
+### Task 2: E9-6 OCR smoke test → 보류
+
+- **사유**: 영업신고증 사진 부재 (Jayden 매장 미운영 + 인터넷 공개 샘플 baseline 의미 약함).
+- **재개 조건**: β-test 매장 모집 시 실제 매장 사진 자연 확보.
+- **위험 평가**: prod schema 정합은 회복됐으므로 코드 자체 차단 위험 0. Phase 1.5 임계값 조정 데이터 부족만 남음.
+
+### 만들지 않은 것 (Not Doing)
+
+- ❌ Epic 1/2/12 결정 토론 (별도 세션, 깊은 trade-off 컨텍스트 필요)
+- ❌ Phase 1.5 임계값 결정 (smoke test baseline 데이터 확보 후)
+- ❌ MCP 토큰 즉시 검증 (서버 1회 env 읽기 — 다음 세션에 자연 검증)
+- ❌ learnings.md 신규 항목 (Supabase MCP 인증 부재 = 1회성 환경 이슈, L-등급 트리거 미해당)
+- ❌ `~/.claude/settings.local.json` line 36의 chatsio-v1 SERVICE_ROLE_KEY 평문 흔적 정리 (별 task 권장, 스코프 외)
+- ❌ `chmod 600 ~/.claude/settings.json` 권한 강화 (별 task)
+
+### 자체 정정 (4원칙 1번 — Surface Assumptions)
+
+- 보고 중 "PROGRESS.md에 컬럼명 `action` 표기 오류" 라고 잘못 보고 → 실제 line 44는 정확히 `event_type` 표기. 제 오인. 정정 작업 불필요로 결론.
+- L-039 정신을 위반할 뻔. Read 결과 직접 확인 후 보고하는 습관 재확인.
+
+---
 
 ## 이번 세션 완료 (2026-05-03 P.M.+++ — E9-6 머지, Epic 9 100% 완료)
 
