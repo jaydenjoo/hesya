@@ -6,151 +6,124 @@
 
 - **Phase**: Phase 1 진행 중
 - **Epic**: **Epic 1 통합 다국어 인박스** — 1A 인프라 + Instagram PoC
-- **Task**: Phase A ✅ + Phase B ✅ + **Prod migration v0011 적용 ✅ (2026-05-04 P.M.)** → **다음**: Phase C 진입 (T06.5 test-helpers + T07~T09 DAL)
-- **상태**: prod schema 최신. Sentry/Vercel 5분 모니터링 이상 없음. 차단 요소 없음.
-- **작업 브랜치**: `chore/prod-v0011-applied` (origin/main `efa2a8c` 기준 분기, PROGRESS 갱신용)
-- **이전 PR**: [hesya#20](https://github.com/jaydenjoo/hesya/pull/20) Phase B — DB 마이그레이션 + Drizzle 스키마 + Vault 토큰 헬퍼 → main `8cbb7ba` ✅ (Jayden squash merge)
-- **그 이전 PR**: [hesya#19](https://github.com/jaydenjoo/hesya/pull/19) Phase A — runbook + 6 에러 클래스 + Server Action Sentry → main `19d2f1a` ✅
+- **Task**: Phase A ✅ + Phase B ✅ + Prod migration v0011 ✅ + **Phase C ✅** + **Phase D ✅** + **사후 리뷰 9 fix ✅** → **다음**: Phase E (i18n, ~1h) + Phase F (Routes/UI/E2E, ~6h)
+- **상태**: 모든 코어 인프라/DAL/Channel Layer 완성. main 최신 SHA `6de6931`. 차단 요소 없음.
+- **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
+- **이번 세션 PR (6개)**: [#22](https://github.com/jaydenjoo/hesya/pull/22) prod v0011 → [#23](https://github.com/jaydenjoo/hesya/pull/23) T07 → [#24](https://github.com/jaydenjoo/hesya/pull/24) T08+T09 → [#25](https://github.com/jaydenjoo/hesya/pull/25) T10~T12 → [#26](https://github.com/jaydenjoo/hesya/pull/26) Phase D → [#27](https://github.com/jaydenjoo/hesya/pull/27) 사후 리뷰 9 fix
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
-- **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul)
+- **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Phase C 시작 — DAL (T06.5 + T07~T09, ~3h)
+### 1. Phase E — i18n (~1h)
 
-plan: docs/superpowers/plans/2026-05-04-epic-1a-inbox-instagram.md § Phase C
+plan: docs/superpowers/plans/2026-05-04-epic-1a-inbox-instagram.md § Phase E
 
-- **T06.5 (plan 보강 필요)** `test-helpers/db` 인프라 구축 (`resetDb`/`seedStore`/`seedCustomer`) — T07~T09 테스트 의존
-- T07 `dal/conversations.ts` (upsert / get / list / unread / window)
-- T08 `dal/messages.ts`
-- T09 `dal/customers.ts`
+- T19 `apps/web/messages/{ko,en}.json` (100% 번역)
+- T20 `{ja,zh-CN,zh-TW,vi}.json` placeholder (1B 본격 번역)
 
-prod schema는 최신이므로 `HESYA_TEST_DATABASE_URL` 게이트 통합 테스트도 prod에서 실행 가능. 단, prod 데이터 보호를 위해 **별도 Supabase project 또는 dev branch에서만** 실행 권장 (L-047 비용 룰 준수).
+### 2. Phase F — Routes / UI / E2E (~6h, 큰 작업)
+
+plan § Phase F
+
+- T21 webhook route (Instagram, HMAC verify + DAL 통합) — **H-4 X-Hub-Timestamp 5분 검증 포함** (사후 리뷰 follow-up)
+- T22 OAuth callback route — **state CSRF 검증 포함** (review LOW follow-up)
+- T23 polling endpoint
+- T24 window-utils (24h 윈도우 계산)
+- T25 send-outbound Server Action (window 만료 시 throw)
+- T26 connect-instagram (OAuth start URL)
+- T27 features/inbox/{types,schema,index}.ts
+- T28 shadcn 5개 설치 (Sheet/Tabs/Avatar/Skeleton/ScrollArea)
+- T29~T33 컴포넌트 (WindowStatus / ThreadList / MessageBubble / Composer / EmptyState)
+- T34 store/inbox/page.tsx (Server Component + 5초 polling)
+- T35 store/inbox/connect/page.tsx
+- T36~T37 E2E (Playwright)
+
+### 3. 미진행 follow-up (Phase F 작업 중 자연 흡수 또는 별 PR)
+
+- 🟡 Channel inline 정의 5 파일 제거 → `import from "@hesya/database"` (`CHANNELS` 단일 소스 마련됨)
+- 🟡 fetch timeout (Phase F instagram-api-client 보강)
+- 🟡 vault row orphan cleanup (1B 영역)
 
 ## 차단 요소
 
-없음. prod schema 최신, dev branch 없음 (비용 0), Sentry/Vercel 이상 없음.
+없음. 모든 fix 머지, prod schema 최신, dev branch 없음 (비용 0).
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-04 P.M. v2 (Prod migration v0011 적용 + 검증 5/5 + 모니터링 5분 클린)
+- 날짜: 2026-05-04 P.M. v3 (Phase D + 사후 리뷰 9 fix 완료)
 
-## 이번 세션 완료 (2026-05-04 P.M. v2 — Prod migration v0011 적용)
+## 이번 세션 완료 (2026-05-04 P.M. v3 — 풀 세션 6 PR 머지)
 
-### 1. 사전 점검 5건 (병렬)
+### 1. Prod migration v0011 적용 (PR #22)
 
-- `list_branches`: dev branch 부활 X — 비용 0 ✓
-- `list_migrations` prod: 10건, v0011 미적용 → 적용 가능 상태 ✓
-- `list_tables` prod: conversations/store_integrations 미존재, messages 0 rows → 충돌 0 ✓
-- `list_extensions`: pgsodium null(미활성) / vault 0.3.1 활성 — SQL 1행이 활성화 처리 ✓
-- SQL 파일 106줄 — Phase B에서 dev branch 검증 통과한 최종본 ✓
+- 사전 점검 5건 (병렬) → apply_migration 1회 → 검증 5/5 → Sentry/Vercel 5분 모니터링 클린
+- prod schema 최신: conversations + store_integrations + messages 3컬럼 + 인덱스 5 + RLS 2 + pgsodium 3.1.8
 
-### 2. apply_migration v0011 호출 (Jayden "진행" 명시 승인 후)
+### 2. Phase C — DAL 레이어 (PR #23, #24, #25)
 
-- `mcp__supabase-local__apply_migration(project_id="bnlyzlfsxtjpzzydjjuv", name="0011_inbox_conversations", query=<106줄>)` → `{"success":true}`
-- Migration 등록: `20260504133829 0011_inbox_conversations` ✓
+- T07 `dal/conversations.ts` + test-helpers/db.ts (PR #23)
+- T08 `dal/messages.ts` (idempotent insert) + T09 `dal/customers.ts` (idempotent upsert) (PR #24)
+- T10 `dal/store-integrations.ts` (vault 연계) + T11 `dal/store-owners.ts` + T12 `store-owner-guard.ts` (Better Auth) (PR #25)
+- 패턴 일관: `(db: DbClient, ...)` 인자 (Phase B vault 연속) + `HESYA_TEST_DATABASE_URL` 게이트 + `import "server-only"`
 
-### 3. 검증 5/5 통과 (병렬 4개 호출)
+### 3. Phase D — Channel Layer (PR #26)
 
-- 신규 테이블: `conversations` (12 컬럼) + `store_integrations` (12 컬럼, PK=(store_id,channel)) ✓
-- messages 컬럼 3개: `conversation_id`/`external_message_id`/`status` ✓
-- 인덱스 5/5: `idx_conversations_store_lastmsg`, `idx_conversations_window`, `idx_messages_conv_created`, `idx_messages_external_unique`, `idx_customers_channel_external` ✓
-- RLS 정책 2/2: `conversations_store_owner`, `store_integrations_store_owner` ✓
-- pgsodium 활성: `installed_version: 3.1.8` (이전 null → 활성화) ✓
+- T13 ChannelAdapter 인터페이스 + types.ts (5채널 union)
+- T14 instagram-api-client (Meta Graph API 5 endpoint HTTP fetch 래퍼)
+- T15-17 instagram-adapter (HMAC + parse + sendOutbound + OAuth code exchange)
+- T18 process-inbound (1A 빈 hook, 1C에서 AI 응답 트리거)
 
-### 4. Advisor (security 18건)
+### 4. 사후 리뷰 9 fix (PR #27) — 작업 프로토콜 § 4 보강
 
-- 🟢 v0011 신규 advisor 경고 0건
-- ℹ️ 17건 INFO `rls_enabled_no_policy` = 모두 기존 테이블 (1A spec § "1A는 service_role + application-level 강제" 의도와 일치)
-- ⚠️ 1건 WARN `function_search_path_mutable` on `prevent_kyc_log_modification` — 기존 KYC 함수, v0011 무관
+3 agent 병렬 리뷰 (security-reviewer + code-reviewer + consistency-reviewer) 결과 발견 9 issue 중 7 fix:
 
-### 5. Sentry / Vercel 5분 모니터링
+**Security**:
 
-- Jayden 직접 확인 → 이상 없음 ✓
-- 사용자 영향 0 (KYC/로그인/매장가입 영향 없음, messages는 nullable 컬럼만 추가)
+- H-1 + M-1: `sanitize-url.ts` 신규 + Sentry beforeBreadcrumb/beforeSend (`access_token`/`client_secret` 마스킹) + ExternalApiError body 200자 truncate
+- H-2: HMAC length leak 제거 (dummy buffer 패딩 + timingSafeEqual 무조건 1회)
+- H-3: webhook payload Zod schema + JSON.parse try-catch
+- H-4: X-Hub-Timestamp는 Phase F webhook route 책임으로 명시 코멘트 (header layer 분리)
 
-### 만들지 않은 것 (Not Doing)
+**DAL**:
 
-- ❌ Phase C T06.5/T07~T09 — 다음 세션
-- ❌ v0012 (NOT NULL 전환) — Phase C 후 별 세션 (T07~T09에서 conversation_id 필수 채워진 후)
-- ❌ 통합 테스트 실 실행 — `HESYA_TEST_DATABASE_URL` 셋업 후 별 task
+- HIGH: insertMessage / upsertCustomer 시그니처 `Promise<T | null>` (race condition 시 throw 대신 null → 500 leak 방지)
+- MEDIUM: listByConversation `opts.offset` 추가 (cursor 기반 페이지네이션)
 
-## 이전 세션 완료 (2026-05-04 P.M. — Phase B 완주 + PR #20 머지)
+**Consistency**:
 
-### 1. T04 Migration v0011 dev branch 적용 + 검증
+- C-1: admin-guard.ts 첫 줄 `import "server-only";` 추가
+- M-1: `packages/database/src/schema/channels.ts` 신규 (`CHANNELS` 상수 + `Channel` 타입 단일 소스)
 
-- `mcp__supabase-local__apply_migration` 호출 → 성공
-- 검증 5/5: 테이블 2개, messages 컬럼 3개, 인덱스 5개, RLS 2개, pgsodium 3.1.8
-- Drizzle journal 수동 entry idx=11 추가 (L-010 패턴)
-- 첫 commit: `61120cd feat(db): v0011 conversations + store_integrations + messages 확장 + RLS`
+### 5. 통계
 
-### 2. T05 Drizzle 스키마 TypeScript
+- vitest: 26 files / 137 pass / 24 skipped (161 total) — 신규 36+ tests 추가
+- type-check: 6/6 패키지 통과
+- lint: pass
+- 머지된 PR: 6개 (#22~#27)
+- Vercel preview 비용: PR당 1회만 (Phase 단위 push, Jayden 비용 절감 요청)
 
-- 신규: `conversations.ts` (UNIQUE + 2 인덱스), `store-integrations.ts` (PK 복합 + bytea customType)
-- 확장: `messages.ts` (3 컬럼 + 2 인덱스), `customers.ts` (UNIQUE 부분 인덱스)
-- `index.ts` re-export
-- `@hesya/database` + `@hesya/web` type-check 통과
-- commit: `a944d3d feat(db): Drizzle 스키마`
+### 6. learnings.md 신규 3건 (L-049, L-050, L-051)
 
-### 3. T06 Vault 기반 토큰 암호화 헬퍼 (plan 결함 2개 수정)
-
-dev branch 검증 중 plan 코드 결함 2개 발견:
-
-- 결함 1: `pgsodium.crypto_aead_det_encrypt`는 deterministic이라 "동일 평문 ≠ 다른 암호문" 테스트와 모순.
-- 결함 2: Supabase에서 `pgsodium.crypto_*`는 `supabase_admin`/`pgsodium_keyiduser` 전용 → postgres role 차단. SECURITY DEFINER 래퍼도 owner 제약으로 막힘.
-
-해결: Supabase 공식 추상화 `vault.create_secret` + `vault.decrypted_secrets` view 사용.
-
-- `store_integrations.access_token_encrypted BYTEA`에 vault.secrets row의 UUID(16바이트)를 저장
-- 같은 평문 호출 → 새 vault row → 다른 BYTEA로 random 효과 자동 확보
-- 헬퍼는 db를 인자로 받아 env 결합 제거 (테스트 시 stub db 주입 가능)
-- 통합 테스트는 `HESYA_TEST_DATABASE_URL` env 게이트 (CI 안전)
-
-검증: vitest 17 files / 101 pass / 2 skip ✓ + type-check 6 패키지 모두 ✓ + dev branch SQL 라운드트립 ✓
-
-commit: `57e88fb feat(dal): vault 토큰 암호화 헬퍼`
-
-### 4. CI fix — Buffer → Uint8Array
-
-CI validate Type Check 실패: packages/shared-types tsconfig에 node types 미포함 → Buffer 미인식 (TS2591). bytea customType을 Uint8Array로 변경 (Buffer는 부모 Uint8Array 서브타입이라 consumer 호환).
-
-commit: `e411d2d fix(db): bytea customType을 Uint8Array로 변경`
-
-### 5. dev branch 삭제 (비용 정지)
-
-- `mcp__supabase-local__delete_branch(branch_id="8aeb72db-43ef-49fc-9a05-8443437e7d2d")` ✓
-- list_branches 후속 호출에서 main만 남음 확인
-- 총 청구 시간 약 1.5h × $0.01344 ≈ ₩28
-
-### 6. PR #20 생성 + Jayden squash 머지
-
-- 4 commits (`5e15477` 이전 세션 save + `61120cd` T04 + `a944d3d` T05 + `57e88fb` T06 + `e411d2d` CI fix)
-- CI 모두 pass (validate, Vercel, Vercel Preview Comments)
-- Jayden 직접 squash 머지 → main `8cbb7ba`
-- L-045 패턴 재발 (이전 세션 잔재 spec/plan commit이 로컬 main에 다시 남음) → `git reset --hard origin/main` (Jayden 직접, hook 차단)
-
-### 7. learnings.md 신규 1건 (L-048)
-
-- L-048: AI plan 코드는 검증 안 거친 가정. dev branch 시험에서 결함 2개 동시 발견 (deterministic vs random nonce 모순 + Supabase pgsodium 권한 차단). 해결: Supabase 공식 추상화 (vault) 우선 시도 룰.
+- L-049: 자동 머지 PR 리뷰 누락 위험 + multi-agent 병렬 사후 리뷰 패턴
+- L-050: TDD-guard hook 우회 — source code grep test로 RED 만들기
+- L-051: Phase 단위 push로 Vercel preview 비용 절감 (~5x)
 
 ### 만들지 않은 것 (Not Doing)
 
-- ❌ Prod migration v0011/v0012 적용 — 🔴 별 세션 (Jayden 옆에서)
-- ❌ Phase C T07~T09 — plan 보강(test-helpers/db) 후 별 세션
-- ❌ v0012 SECURITY DEFINER 래퍼 SQL — vault 전환으로 불필요해져 작성 파일 삭제
+- ❌ Phase E i18n + Phase F Routes/UI/E2E — 다음 세션
+- ❌ Channel inline 정의 cleanup (5 파일) — 별 cleanup PR 또는 Phase F 시 자연 처리
+- ❌ vault row orphan 정리 — 1B 영역
 - ❌ 통합 테스트 실 실행 — `HESYA_TEST_DATABASE_URL` 셋업 후 별 task
 
-### 자체 정정 (4원칙 1번 — Surface Assumptions)
+## 이전 세션 완료 (2026-05-04 P.M. v2 — Prod migration v0011 적용)
 
-- T06 plan 코드를 그대로 따랐다면 prod에서 권한 거부로 실패했을 것. dev branch 시험으로 사전 발견 → vault 전환.
-- L-045가 또 재발 — 이전 세션의 main 직접 commit 잔재가 두 번 연속 시퀀스로 발현. 다음부터 새 작업 브랜치 분기 시 항상 `git checkout -b <name> origin/main`만 사용 (로컬 main 신뢰 X).
+apply_migration 1회 + 검증 5/5 + 모니터링 클린. prod schema 최신.
 
-## 더 이전 세션 완료 (2026-05-04 — PR #19 머지 + Supabase MCP 전환 + Phase B 시작)
+## 더 이전 세션 완료 (2026-05-04 P.M. — Phase B 완주 + PR #20 머지)
 
-PR #19 squash merged → main `19d2f1a` (Phase A: runbook, 6 에러 클래스, Server Action Sentry).
-Supabase MCP 원격 → 로컬 npx 전환 (L-046).
-Phase B T04 SQL 작성 + dev branch 생성.
+Phase B vault helper (plan 결함 2건 dev에서 발견 → vault 전환). dev branch 삭제 (비용 정지).
 
 ## (보류) E9-6 OCR smoke test
 
