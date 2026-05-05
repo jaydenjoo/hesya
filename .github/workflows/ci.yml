@@ -91,7 +91,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   e2e-smoke:
-    needs: validate
+    # validate와 병렬 실행 (wall time 단축). e2e가 인프라만 검증하므로 validate
+    # 결과와 무관. validate 실패 시 PR 자체가 머지 불가라 e2e 자원 낭비 미미.
     runs-on: ubuntu-latest
     timeout-minutes: 10
     # ⚠️ env 블록은 validate job과 의도적으로 동일 (Next.js dev 서버가
@@ -138,8 +139,21 @@ jobs:
           cache: pnpm
       - name: Install
         run: pnpm install --frozen-lockfile
+      # Playwright 브라우저는 lockfile에 안 박혀 매번 ~30초 다운로드. cache로 5초 복원.
+      # key는 lockfile hash 기반 — playwright 버전 업 시 자동 갱신.
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
       - name: Install Playwright browsers (chromium)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm --filter @hesya/web exec playwright install --with-deps chromium
+      # 캐시 적중 시에도 system deps(libnss3 등)는 매번 설치 필요 (브라우저 binary만 캐시됨)
+      - name: Install Playwright system deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm --filter @hesya/web exec playwright install-deps chromium
       - name: Run e2e smoke
         run: pnpm --filter @hesya/web e2e smoke.spec.ts
       - name: Upload Playwright report on failure
