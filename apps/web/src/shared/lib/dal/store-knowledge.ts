@@ -97,6 +97,76 @@ export async function listStoreKnowledge(
 }
 
 /**
+ * 매장별 FAQ 개수만 반환. count 한도 체크 전용 — list로 전체 row 페이로드
+ * (~12KB/row × N) 가져오지 말고 단일 SELECT COUNT(*) 사용.
+ */
+export async function countStoreKnowledge(
+  db: DbClient,
+  storeId: string,
+): Promise<number> {
+  const rows = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(storeKnowledge)
+    .where(eq(storeKnowledge.storeId, storeId));
+  return rows[0]?.n ?? 0;
+}
+
+/**
+ * count 한도 보강 + insert를 단일 트랜잭션에 묶음 (TOCTOU 차단).
+ *
+ * **흐름**: pg_advisory_xact_lock(namespace, hashtext(storeId)) → count → insert.
+ * 같은 매장의 동시 createFAQ 요청은 advisory lock 대기 → 직렬화. 트랜잭션
+ * 종료 시 자동 해제 (xact = transaction-scoped). namespace=1로 다른 advisory
+ * lock과 키 공간 분리.
+ *
+ * **반환**: 한도 초과면 `{ ok: false, reason: 'limit_exceeded' }` — caller에서
+ * UI 메시지 처리. 일반 error는 throw 그대로 (e.g., DB 연결 실패).
+ */
+export async function createStoreKnowledgeWithLimit(
+  db: DbClient,
+  input: {
+    storeId: string;
+    question: string;
+    answer: string;
+    embedding: number[] | null;
+  },
+  maxCount: number,
+): Promise<
+  { ok: true; row: StoreKnowledge } | { ok: false; reason: "limit_exceeded" }
+> {
+  return db.transaction(async (tx) => {
+    // lock 무한 대기 차단 — 동시 요청 폭주 시 함수 타임아웃 → 매장별 DoS 방어.
+    // xact-scoped라 트랜잭션 종료 시 자동 해제. 3s는 정상 등록 충분 + DoS 방어선.
+    await tx.execute(sql`SET LOCAL lock_timeout = '3s'`);
+    await tx.execute(
+      sql`SELECT pg_advisory_xact_lock(1, hashtext(${input.storeId}::text))`,
+    );
+    const countRows = await tx
+      .select({ n: sql<number>`count(*)::int` })
+      .from(storeKnowledge)
+      .where(eq(storeKnowledge.storeId, input.storeId));
+    const current = countRows[0]?.n ?? 0;
+    if (current >= maxCount) {
+      return { ok: false as const, reason: "limit_exceeded" as const };
+    }
+    const inserted = await tx
+      .insert(storeKnowledge)
+      .values({
+        storeId: input.storeId,
+        question: input.question,
+        answer: input.answer,
+        embedding: input.embedding,
+      })
+      .returning();
+    const row = inserted[0];
+    if (!row) {
+      throw new Error("createStoreKnowledgeWithLimit: insert returned empty");
+    }
+    return { ok: true as const, row };
+  });
+}
+
+/**
  * 메시지 임베딩과 cosine distance가 가까운 top-k FAQ 반환 (RAG 검색).
  *
  * @param threshold 0.0~2.0 cosine distance 상한 (0=완전 일치). 0.5는 매우

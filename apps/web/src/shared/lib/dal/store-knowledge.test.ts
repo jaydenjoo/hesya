@@ -73,4 +73,47 @@ describe("dal.store-knowledge (pure)", () => {
     expect(src).not.toMatch(/return\s+inserted\[0\]!/);
     expect(src).toMatch(/createStoreKnowledge[\s\S]*?(throw|Error)/);
   });
+
+  it("countStoreKnowledge export + storeId 가드 (B-4 followup C-1)", async () => {
+    const mod = await import("./store-knowledge");
+    expect(typeof mod.countStoreKnowledge).toBe("function");
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile(
+      "src/shared/lib/dal/store-knowledge.ts",
+      "utf-8",
+    );
+    expect(src).toMatch(
+      /countStoreKnowledge[\s\S]*?eq\(\s*\w+\.storeId\s*,\s*storeId/,
+    );
+    // SELECT COUNT(*) 사용 — 페이로드 절약
+    expect(src).toMatch(/countStoreKnowledge[\s\S]*?count\s*\(/i);
+  });
+
+  it("createStoreKnowledgeWithLimit: 트랜잭션 + advisory lock + count (B-4 followup C-2)", async () => {
+    const mod = await import("./store-knowledge");
+    expect(typeof mod.createStoreKnowledgeWithLimit).toBe("function");
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile(
+      "src/shared/lib/dal/store-knowledge.ts",
+      "utf-8",
+    );
+    // 트랜잭션 안에서 advisory lock + count → insert. TOCTOU 차단.
+    expect(src).toMatch(/createStoreKnowledgeWithLimit[\s\S]*?\.transaction\(/);
+    expect(src).toMatch(
+      /createStoreKnowledgeWithLimit[\s\S]*?pg_advisory_xact_lock/,
+    );
+  });
+
+  it("createStoreKnowledgeWithLimit: lock_timeout 설정 (Sec MEDIUM-1, DoS 방어)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile(
+      "src/shared/lib/dal/store-knowledge.ts",
+      "utf-8",
+    );
+    // lock 무한 대기 → 같은 storeId 동시 요청 폭주 시 Vercel 함수 타임아웃 →
+    // 매장별 DoS. SET LOCAL lock_timeout으로 차단 (xact-scoped 자동 해제).
+    expect(src).toMatch(
+      /createStoreKnowledgeWithLimit[\s\S]*?SET\s+LOCAL\s+lock_timeout/i,
+    );
+  });
 });
