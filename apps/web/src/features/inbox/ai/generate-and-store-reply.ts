@@ -37,7 +37,11 @@ import {
   type TranslateReplyInput,
   type TranslateReplyOutput,
 } from "./translate-reply";
-import type { CustomerLanguage } from "./prompt";
+import {
+  generateEmbedding as defaultGenerateEmbedding,
+  type EmbeddingResult,
+} from "./embeddings";
+import type { CustomerLanguage, RelatedFAQ } from "./prompt";
 import {
   findMessageById,
   insertMessage,
@@ -47,6 +51,7 @@ import {
 } from "@/shared/lib/dal/messages";
 import { findStoreNameByConversationId } from "@/shared/lib/dal/stores";
 import { getCustomerPreferredLanguage } from "@/shared/lib/dal/customers";
+import { searchSimilarKnowledge as defaultSearchSimilarKnowledge } from "@/shared/lib/dal/store-knowledge";
 
 // 모듈 수명 동안 단일 DbClient 유지 — fire-and-forget 동시 호출 폭주 시
 // connection pool 누수 방어. 테스트는 deps.db 주입으로 격리되므로 영향 없음.
@@ -87,6 +92,10 @@ export type GenerateAndStoreReplyDeps = {
   db: DbClient;
   generateReply: (input: GenerateReplyInput) => Promise<GenerateReplyOutput>;
   translateReply: (input: TranslateReplyInput) => Promise<TranslateReplyOutput>;
+  /** Phase B-4b RAG — text → 1536d 벡터. */
+  generateEmbedding: (input: { text: string }) => Promise<EmbeddingResult>;
+  /** Phase B-4b RAG — pgvector cosine similarity 검색. */
+  searchSimilarKnowledge: typeof defaultSearchSimilarKnowledge;
 };
 
 export type GenerateAndStoreReplyResult =
@@ -120,6 +129,8 @@ export async function generateAndStoreReply(
   const db = deps.db ?? getDefaultDb();
   const gen = deps.generateReply ?? defaultGenerateReply;
   const translate = deps.translateReply ?? defaultTranslateReply;
+  const embed = deps.generateEmbedding ?? defaultGenerateEmbedding;
+  const searchKB = deps.searchSimilarKnowledge ?? defaultSearchSimilarKnowledge;
 
   const msg = await findMessageById(db, idCheck.data);
   if (!msg) return { stored: false, reason: "message_not_found" };
@@ -190,10 +201,40 @@ export async function generateAndStoreReply(
     return { stored: false, reason: "already_responded" };
   }
 
+  // B-4b RAG — inbound 메시지 임베딩 + 매장 FAQ 검색. 실패 silent skip
+  // (RAG 없이 기존 흐름 진행). Sentry tag로 단계 구분 (embedding vs search).
+  // storeId 없는 레거시 메시지 → 검색 자체 skip (현 데이터 호환).
+  let relatedFAQs: RelatedFAQ[] | undefined;
+  if (msg.storeId && msg.originalText) {
+    try {
+      const embedded = await embed({ text: msg.originalText });
+      try {
+        const hits = await searchKB(db, msg.storeId, embedded.embedding, {
+          k: 3,
+        });
+        relatedFAQs = hits.map((h) => ({
+          question: h.question,
+          answer: h.answer,
+        }));
+      } catch (searchErr) {
+        Sentry.captureException(searchErr, {
+          tags: { phase: "searchSimilarKnowledge" },
+          extra: { messageId: msg.id, storeId: msg.storeId },
+        });
+      }
+    } catch (embeddingErr) {
+      Sentry.captureException(embeddingErr, {
+        tags: { phase: "embedding" },
+        extra: { messageId: msg.id, storeId: msg.storeId },
+      });
+    }
+  }
+
   const result = await gen({
     storeName,
     customerLanguage,
     recentMessages,
+    ...(relatedFAQs !== undefined ? { relatedFAQs } : {}),
   });
   if (result.reply.length > MAX_REPLY_CHARS) {
     return { stored: false, reason: "reply_too_long" };
