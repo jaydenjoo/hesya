@@ -1896,3 +1896,33 @@ it("upsertCustomer race condition fallback returns null (review HIGH)", async ()
 - `cat -et <path>` — character class 안에 `$\n` 가시화되면 손상.
 
 **연관**: Phase B-1 (PR #37). L-052 (TDD Guard baby-step)와 결합되어 incident 회복 시간 단축 (~10분).
+
+---
+
+### [2026-05-05] L-058 — Race-safe claim 패턴: conditional UPDATE + RETURNING으로 fire-and-forget 비싼 작업 1회 보장
+
+**증상**: Phase B-2 사후 보안 리뷰(security-reviewer)가 HIGH로 발견 — `aiResponded` boolean을 `findMessageById`로 read-then-check하고 마지막에 `markAIResponded` UPDATE하는 구조가 TOCTOU(Time-Of-Check vs Time-Of-Use) 취약. webhook re-delivery 또는 Meta retry 시 동일 inbound에 두 호출이 동시 도착하면 둘 다 `aiResponded=false` 읽기 통과 → generateReply 두 번(API 비용 2x) → outbound 두 개 저장. 인박스 UI에 동일 응답 두 번 표시 + 토큰 비용 누적.
+
+**원인**: AI/결제/외부 API 호출 같은 비싼 작업을 트리거 함수에서 실행할 때, "이미 처리됐는지 확인" → "처리" → "처리됨 마킹" 흐름이 자연스러워 보이지만 동시성 환경에선 첫 두 단계 사이에 race window가 생긴다. fire-and-forget 호출(webhook, queue worker, cron)은 본질적으로 동시·재시도 환경이라 모든 트리거에 race가 잠재한다. transaction wrapping은 `SELECT ... FOR UPDATE` lock 없이는 같은 row를 두 트랜잭션이 모두 읽을 수 있어 효과 없음 (read-committed 기본 격리).
+
+**해결 (B-2 채택 패턴)**:
+
+DAL은 conditional UPDATE WHERE flag=false + RETURNING. caller는 claim 결과 boolean을 받아 false면 비싼 작업 스킵.
+
+DB가 atomic하게 UPDATE 적용하므로 동시 호출 두 건 중 한 건만 1 row 반환, 나머지는 0 row 반환 -> false. lock 불필요 + transaction 불필요 + 단일 SQL.
+
+**규칙** (별):
+
+1. Fire-and-forget 트리거의 비싼 작업은 race-safe claim으로 진입. webhook hook, queue worker, cron, retry 가능한 API endpoint는 모두 본질적으로 동시·재시도 환경. read-then-check-then-update 3단 흐름은 race 잠재.
+2. claim DAL 함수는 boolean 반환. `Promise<boolean>` 시그니처로 caller가 race 발견 가능. `Promise<void>`는 race 정보 손실.
+3. `WHERE existing_flag = expected_old_value` + `RETURNING` 패턴 사용. lock/transaction 회피, 단일 SQL.
+4. partial success 책임 명시. claim 후 비싼 작업이 실패하면 inbound는 영원히 "처리됨" 상태로 남아 미응답. 재시도 mechanism이 없다면 Sentry alert + 운영 보정 정책을 코드 주석에 명시. 미명시 시 다음 엔지니어가 재시도 가능한 코드로 오해.
+5. 재사용 가능 영역: AI 응답 트리거 / 결제 처리 / 메일 발송 / SMS 발송 / 외부 API 호출 / 멱등 키 webhook 처리. 동일 패턴.
+
+**확인 방법**:
+
+- 단위 테스트: claim mock이 false 반환 시 비싼 작업(generateReply mock 등)이 호출 안 되는지 검증.
+- 통합 테스트: 같은 inbound에 두 번 호출 -> 두 번째는 already_responded skip + 비싼 작업 1회만 호출.
+- 보안 리뷰: 모든 fire-and-forget 트리거에 대해 "동시 두 건 도착 시 비싼 작업 몇 번 호출되는가?"를 자문.
+
+**연관**: PR #38 Phase B-2. security-reviewer HIGH H-1로 사전 차단. L-052 (TDD-guard baby-step)로 fix 사이클 강제 — pure source-level test → caller test → 본 구현 단계 분할로 안전 적용. Vibe Coding 24.7% AI 결함 패턴(mutation/race)을 구조적으로 방어.

@@ -4,12 +4,12 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Epic 1B Phase B-1 완료** ✅ (1A 전체 + 1B 첫 Phase 머지)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A 인프라/PoC ✅ + 1B AI 응답 코어 ✅ → **다음**: Phase B-2 (AI 응답 Server Action + processInbound 트리거)
-- **Task**: 1A Phase A~J ✅ / 1B Phase B-1 ✅ (Anthropic Sonnet 응답 생성 순수 모듈)
-- **상태**: AI 응답 코어 (`features/inbox/ai/`) 4 파일 + 단위 테스트 12건. Meta App Development mode 발급 완료, Vercel prod env 4개 실값 교체 완료. main 최신 SHA `d117903`. 차단 요소 없음.
+- **Phase**: Phase 1 — **Epic 1B Phase B-2 완료** ✅ (1A 전체 + 1B B-1, B-2 머지)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1 (AI 코어) ✅ + 1B B-2 (트리거 통합) ✅ → **다음**: Phase B-3 (다국어 자동 번역 + Composer + IG 자동 발송)
+- **Task**: 1A Phase A~J ✅ / 1B B-1 ✅ / 1B B-2 ✅ (AI trigger + processInbound 통합)
+- **상태**: AI inbound→draft 흐름 작동 (DAL 5개 + `generateAndStoreReply` + `processInbound` 교체). race-safe markAI claim + connection pool singleton + 5000자 reply 가드 적용. main 최신 SHA `c1cad2d`. 차단 요소 없음.
 - **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **이번 세션 PR (1개)**: [#37](https://github.com/jaydenjoo/hesya/pull/37) Phase B-1 — Anthropic 응답 생성 코어 + 사후 리뷰 11 fix
+- **이번 세션 PR (1개)**: [#38](https://github.com/jaydenjoo/hesya/pull/38) Phase B-2 — AI 응답 트리거 + 사후 리뷰 8 fix (HIGH 4 + MEDIUM 4)
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -17,19 +17,18 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Epic 1B Phase B-2 진입 (권장)
+### 1. Epic 1B Phase B-3 진입 (권장)
 
-**B-2: AI 응답 Server Action + processInbound 트리거** (~3h, 1 PR):
+**B-3: 다국어 자동 번역 + Composer 통합 + IG 자동 발송** (~3~4h, 2 PR 추정):
 
-- `features/inbox/ai/generate-reply` 호출하는 Server Action
-- DAL: 직전 5턴 messages + storeName 조회 → buildPrompt 입력 구성
-- `processInbound` 비어있는 hook을 AI 트리거로 채움 (1A에서 placeholder)
-- `recentMessages` 길이 상한 + storeName 신뢰성 검증 (B-1 주석에 "B-2 boundary 책임"으로 위임된 것들)
-- 통합 테스트 (DB-gated)
+- **B-3a**: 한국어 ai_draft → 5개 언어 자동 번역 (사장 검수 후 송신용 번역본). messages.translatedText / languageTo 컬럼 활용
+- **B-3b**: ai_draft outbound → 인박스 UI Composer 통합 (사장 검수/수정/발송 액션 + ai_draft 시각 라벨)
+- **B-3c**: 발송 트리거 → IG API send + status 'sent' 전환 (B-2에서 분리한 부분)
+
+**B-3 진입 직전 RLS 검증 필수** (B-2 LOW [L-2]): `ai_draft` outbound가 다른 store staff에게 노출되지 않는지.
 
 ### 2. 또는 다른 옵션
 
-- **Phase B-3**: 다국어 자동 번역 (5개 언어) + Composer 통합
 - **Phase B-4**: RAG 인덱싱 (매장 FAQ 학습 — pgvector)
 - **Phase B-5**: e2e 시나리오 (AI 응답 → 번역 → 발송) + PostgreSQL CI
 
@@ -58,13 +57,65 @@
 - 🟢 `test-helpers/db.ts` Channel inline (TDD Guard allowlist 추가 후 별 PR)
 - 🟢 vault row orphan cleanup (1B 영역)
 
+**B-2 사후 리뷰 LOW 4건** (B-3 진입 시 흡수 또는 별 PR):
+
+- 🟡 `revalidatePath` silent failure 추적 + path 상수화 (B-3 Composer 작업 시 자연 흡수)
+- 🔴 `ai_draft` outbound RLS 검증 (B-3 진입 직전 필수)
+- 🟡 DAL error wrapping 일관성 (connection string 누출 방어 — Drizzle 에러)
+- 🟢 `recentMessages` filter type narrowing 단순화 (스키마 NOT NULL 확인 후)
+- 🟢 `no_recent_messages` 가드 주석 명확화 (방어적 코딩 의도)
+
 ## 차단 요소
 
 없음. 모든 fix 머지, prod schema 최신, dev branch 없음 (비용 0).
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-05 evening — **Epic 1B Phase B-1 완료** (PR #37, 사후 리뷰 11 fix)
+- 날짜: 2026-05-05 evening — **Epic 1B Phase B-2 완료** (PR #38, HIGH 4 + MEDIUM 4 fix)
+
+## 이번 세션 완료 (2026-05-05 evening — Phase B-2)
+
+### 1. DAL 5개 추가
+
+- `stores.findStoreNameByConversationId` (conversation→store join)
+- `messages.listRecentByConversation` (DESC + limit + reverse → ASC N개)
+- `messages.findMessageById` (단건 조회)
+- `messages.markAIResponded` — **Race-safe boolean 시그니처** (`WHERE ai_responded=false` conditional UPDATE + RETURNING). 동시 호출 시 한 번만 true 반환 → caller가 generateReply 비용 1회 보장
+- `customers.getCustomerPreferredLanguage`
+
+### 2. AI internal trigger (`features/inbox/ai/generate-and-store-reply.ts`)
+
+- `generateAndStoreReply(messageId, deps?)` — server-only 함수 (`"use server"` 아님)
+- 11개 skip reason union (invalid_message_id, message_not_found, not_inbound, no_channel, already_responded, no_conversation_id, no_recent_messages, no_store_name, invalid_store_name, reply_too_long, insert_failed)
+- B-2 boundary: 5턴 slice / storeName trim+1~100자 / customerId UUID / 5개 언어 enum + 'ko' fallback / 5000자 reply 상한
+- Default db는 모듈 레벨 lazy singleton (connection pool 누수 방어)
+
+### 3. processInbound 교체
+
+- 1A 빈 placeholder → `generateAndStoreReply` 호출
+- skip silent (정상 흐름) / throw 그대로 전파 (webhook route가 Sentry capture)
+
+### 4. 사후 리뷰 8 fix (PR #38 동봉)
+
+**HIGH 4** (security 2 + code 2):
+
+- markAIResponded race-safe conditional UPDATE
+- LLM 응답 5000자 상한
+- default db lazy singleton (connection pool)
+- channel `?? "instagram"` 무조건 폴백 제거 → no_channel skip
+
+**MEDIUM 4**:
+
+- customerId UUID 검증 (비-UUID는 'ko' fallback)
+- listRecentByConversation jsdoc 위치 수정
+- LLM01 known-limitation 주석
+- partial success 정책 문서화 (Sentry monitoring)
+
+### 5. 테스트
+
+- 단위 26건 (B-2 trigger 20 + processInbound 4 + DAL pure 2)
+- 통합 2건 (DB-gated, HESYA_TEST_DATABASE_URL CI)
+- main 최종 SHA `c1cad2d`
 
 ## 이번 세션 완료 (2026-05-05 evening — Phase B-1 + Meta App 발급)
 
