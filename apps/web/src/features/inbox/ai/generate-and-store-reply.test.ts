@@ -13,6 +13,10 @@ vi.mock("@/shared/lib/dal/stores", () => ({
 vi.mock("@/shared/lib/dal/customers", () => ({
   getCustomerPreferredLanguage: vi.fn(),
 }));
+vi.mock("@/shared/lib/dal/store-tone-examples", () => ({
+  // default: 빈 배열 반환 (storeId 있는 회귀 테스트가 mock 누락에도 안전).
+  listRecentToneExamples: vi.fn(async () => []),
+}));
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
@@ -833,6 +837,115 @@ describe("generateAndStoreReply (B-2)", () => {
     const call = vi.mocked(insertMessage).mock.calls.at(-1);
     const args = call?.[1] as Record<string, unknown> | undefined;
     expect(args?.metadata).toBeUndefined();
+  });
+
+  // ─── Phase 2-B: 매장 톤 학습 examples 주입 ───
+
+  it("Phase 2-B: storeId 있음 → listRecentToneExamples(10) → storeToneExamples로 generateReply 전달", async () => {
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      storeId: "55555555-5555-4555-8555-555555555555",
+      originalText: "단발 가능?",
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("미용실");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    const listRecentToneExamples = vi.fn().mockResolvedValue([
+      {
+        id: "t1",
+        storeId: "55555555-5555-4555-8555-555555555555",
+        content: "안녕하세요 손님~ 오늘도 좋은 하루 보내세요!",
+        createdAt: new Date(),
+      },
+      {
+        id: "t2",
+        storeId: "55555555-5555-4555-8555-555555555555",
+        content: "예약은 DM으로 받고 있어요",
+        createdAt: new Date(),
+      },
+    ]);
+    generateReplyMock.mockResolvedValue({
+      reply: "x",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, {
+      ...deps,
+      listRecentToneExamples,
+    });
+
+    expect(listRecentToneExamples).toHaveBeenCalledWith(
+      fakeDb,
+      "55555555-5555-4555-8555-555555555555",
+      10,
+    );
+    expect(generateReplyMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        storeToneExamples: [
+          "안녕하세요 손님~ 오늘도 좋은 하루 보내세요!",
+          "예약은 DM으로 받고 있어요",
+        ],
+      }),
+    );
+  });
+
+  it("Phase 2-B: storeId null → listRecentToneExamples 호출 안 함 + storeToneExamples 미전달", async () => {
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      storeId: null,
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("X");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    const listRecentToneExamples = vi.fn();
+    generateReplyMock.mockResolvedValue({
+      reply: "x",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, {
+      ...deps,
+      listRecentToneExamples,
+    });
+
+    expect(listRecentToneExamples).not.toHaveBeenCalled();
+    const call = generateReplyMock.mock.calls[0]?.[0];
+    expect(call?.storeToneExamples).toBeUndefined();
+  });
+
+  it("Phase 2-B: listRecentToneExamples 실패 → silent skip + Sentry tag 'listRecentToneExamples'", async () => {
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      storeId: "55555555-5555-4555-8555-555555555555",
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("X");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    const listRecentToneExamples = vi
+      .fn()
+      .mockRejectedValue(new Error("DB error"));
+    generateReplyMock.mockResolvedValue({
+      reply: "x",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    const r = await generateAndStoreReply(VALID_UUID, {
+      ...deps,
+      listRecentToneExamples,
+    });
+
+    expect(r.stored).toBe(true);
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({
+        tags: { phase: "listRecentToneExamples" },
+      }),
+    );
+    const call = generateReplyMock.mock.calls[0]?.[0];
+    expect(call?.storeToneExamples).toBeUndefined();
   });
 
   it("module exports generateAndStoreReply (pure)", async () => {

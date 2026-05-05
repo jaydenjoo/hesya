@@ -14,5 +14,6 @@ export * from "./store-integrations";
 export * from "./store-knowledge";
 export * from "./store-owners";
 export * from "./store-reports";
+export * from "./store-tone-examples";
 export * from "./store-verifications";
 export * from "./stores";
