@@ -7,9 +7,9 @@
 - **Phase**: Phase 1 — **Epic 1B Phase B-4 RAG 시리즈 완료** ✅ (1A + 1B B-1~B-3c + B-4a/b/c 머지)
 - **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1 ✅ + B-2 ✅ + B-3a ✅ + B-3b ✅ + B-3c ✅ + **B-4a ✅ + B-4b ✅ + B-4c ✅** → **다음**: 별 Epic 1B-UI (3-col 인박스) 또는 B-5 e2e
 - **Task**: 1A Phase A~J ✅ / 1B B-1 ✅ / B-2 ✅ / B-3a ✅ / B-3b ✅ / B-3c ✅ / B-4a ✅ (pgvector + store_knowledge) / B-4b ✅ (RAG 검색 → AI 프롬프트 주입) / B-4c ✅ (FAQ CRUD UI)
-- **상태**: RAG 파이프라인 완성. inbound 메시지 → 임베딩 → store_knowledge 코사인 검색 (top-3) → system prompt에 `<store_faq>` XML data block 주입(L-059 framing). 사장은 `/store/knowledge`에서 FAQ CRUD. 임베딩 실패 silent skip(embedding=null) → 다음 수정 시 재생성. count 한도 200/매장. 차단 요소 없음.
+- **상태**: RAG 파이프라인 완성 + B-4 followup(C-1+C-2) 흡수. createFAQ count 한도는 advisory lock + lock_timeout으로 TOCTOU 차단. countStoreKnowledge DAL 분리 (페이로드 ~2.4MB → 수 byte). 임베딩 실패 silent skip(embedding=null) — 한도 슬롯은 차지(보안 회피 차단). 차단 요소 없음.
 - **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **최근 PR**: [#42](https://github.com/jaydenjoo/hesya/pull/42) B-4a (pgvector), [#43](https://github.com/jaydenjoo/hesya/pull/43) B-4b (RAG 검색), [#44](https://github.com/jaydenjoo/hesya/pull/44) B-4c (FAQ CRUD UI). main 최신 SHA `f4ac43b`.
+- **최근 PR**: [#42](https://github.com/jaydenjoo/hesya/pull/42) B-4a, [#43](https://github.com/jaydenjoo/hesya/pull/43) B-4b, [#44](https://github.com/jaydenjoo/hesya/pull/44) B-4c, [#45](https://github.com/jaydenjoo/hesya/pull/45) B-4 followup (countStoreKnowledge + advisory lock + lock_timeout). main 최신 SHA `4f5f82a`.
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -27,13 +27,17 @@
 
 ### 2. Phase B-4 사후 follow-up (선택, 별 PR)
 
-**B-4a/b/c 리뷰에서 언급된 MEDIUM 항목**:
+**남아있는 항목 (B-4 followup PR #45에서 일부 흡수 후)**:
 
-- 🟡 `countStoreKnowledge` DAL 함수 분리 (현재 `listStoreKnowledge({limit:201})` 결과 length로 체크 — ~100KB 페이로드 낭비)
+- 🟡 OpenAI rate limit (현재 무방어 — 빠른 클릭 시 429 가능). Upstash Redis 전환과 함께 처리 권장
+- 🟡 `createStoreKnowledge` (limit 없는 원본) orphan 제거 — 미래 개발자가 실수로 직접 호출하면 TOCTOU 재오픈 위험. `@deprecated` 또는 파일 내부 비공개로 전환
+- 🟡 Sentry tag `storeId` 풀 UUID → short ID 통일 (다른 actions 모두 적용 — 전 프로젝트 정책)
+- 🟡 `count(*)::int` 드라이버 런타임 number 보장 — postgres-js는 안전하나 `Number(...)` 가드 추가 검토
 - 🟡 FAQ 삭제 `window.confirm` → shadcn AlertDialog (UX 개선, 디자인 ref 추가 시)
-- 🟡 createFAQ count 한도 TOCTOU (race condition — 200개 동시 등록 시 201개 가능). DB unique constraint 또는 advisory lock으로 보강
-- 🟡 OpenAI rate limit (현재 무방어 — 사장이 빠르게 200개 등록 시 429 가능)
 - 🟢 FAQ 검색/필터 UI (등록 수 50개 초과 시점)
+- 🔵 통합 테스트: advisory lock 실제 직렬화 + limit_exceeded 행동 검증 (HESYA_TEST_DATABASE_URL 게이트)
+
+**완료 (PR #45)**: ✅ countStoreKnowledge DAL 분리, ✅ createFAQ TOCTOU 차단(advisory lock + lock_timeout)
 
 ### 3. B-3c 사후 follow-up (선택, 별 PR)
 
@@ -86,6 +90,7 @@
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-05 late night+ — **B-4 followup 흡수** (PR #45: countStoreKnowledge DAL + advisory lock TOCTOU 차단 + lock_timeout)
 - 날짜: 2026-05-05 late night — **Epic 1B Phase B-4 RAG 시리즈 완료** (PR #42 pgvector + #43 검색 주입 + #44 CRUD UI)
 - 날짜: 2026-05-05 night — **Epic 1B Phase B-3c 완료** (PR #41, Sec HIGH 1 + Code MEDIUM 4 + 운영 안전 fix)
 
