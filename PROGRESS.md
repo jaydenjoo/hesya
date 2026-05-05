@@ -6,10 +6,10 @@
 
 - **Phase**: Phase 1 진행 중
 - **Epic**: **Epic 1 통합 다국어 인박스** — 1A 인프라 + Instagram PoC
-- **Task**: Phase A~D ✅ + Prod v0011 ✅ + **Phase E ✅** + **Phase F (Routes) ✅** → **다음**: Phase G (Server Actions/features, ~2h) + Phase H (UI, ~3h) + Phase I (Pages, ~1.5h) + Phase J (E2E, ~1.5h)
-- **상태**: 코어 인프라/DAL/Channel Layer/i18n/Routes 완성. main 최신 SHA `a960e0e`. 차단 요소 없음.
+- **Task**: Phase A~D ✅ + Prod v0011 ✅ + **Phase E ✅** + **Phase F (Routes) ✅** + **사후 리뷰 follow-up ✅** → **다음**: Phase G (Server Actions/features, ~2h) + Phase H (UI, ~3h) + Phase I (Pages, ~1.5h) + Phase J (E2E, ~1.5h)
+- **상태**: 코어 인프라/DAL/Channel Layer/i18n/Routes 완성. main 최신 SHA `cca3be8`. 차단 요소 없음.
 - **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **이번 세션 PR (2개)**: [#29](https://github.com/jaydenjoo/hesya/pull/29) Phase E i18n → [#30](https://github.com/jaydenjoo/hesya/pull/30) Phase F Routes + 사후 리뷰 6 fix
+- **이번 세션 PR (3개)**: [#29](https://github.com/jaydenjoo/hesya/pull/29) Phase E i18n → [#30](https://github.com/jaydenjoo/hesya/pull/30) Phase F Routes + 사후 리뷰 6 fix → [#31](https://github.com/jaydenjoo/hesya/pull/31) consistency follow-up (HIGH 1 + MEDIUM 3 + LOW 3)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
@@ -47,11 +47,20 @@ plan § Phase J
 
 ### 5. 미진행 follow-up (별 PR 또는 자연 흡수)
 
-- 🟡 T21 fire-and-forget concurrency (p-limit 또는 sequential)
+**Senior Engineer 검토 (Epic 1B/1C/1D 진입 시 ADR 동반)**:
+
+- 🔴 채널명 박힌 라우트 → `/api/webhooks/[channel]/route.ts` (Epic 1D, 1A 단일 채널 PoC라 OK)
+- 🔴 fire-and-forget `processInbound` → Vercel Queue (Epic 1C, AI 지연 2~5s)
+- 🟡 env.ts flat schema → 5채널로 안 확장 (Epic 1D, channelConfigs map 권장)
+- 🟡 module-level adapter → lazy `getAdapter()` Map cache (Epic 1D)
+- 🟢 폴링 endpoint → SSE 마이그레이션 (Phase H follow-up, ~1000 owner 도달 시)
+
+**기타 cleanup**:
+
 - 🟡 X-Hub-Timestamp Meta 미발송 시 entry.time fallback (실제 PoC에서 발견 시)
-- 🟡 Channel inline 정의 5 파일 제거 → `CHANNELS` 단일 소스 사용
 - 🟡 fetch timeout (instagram-api-client 보강)
 - 🟢 `HESYA_TEST_DATABASE_URL` 문서화
+- 🟢 `test-helpers/db.ts` Channel inline (TDD Guard allowlist 추가 후 별 PR)
 - 🟢 vault row orphan cleanup (1B 영역)
 
 ## 차단 요소
@@ -60,7 +69,7 @@ plan § Phase J
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-05 (Phase E + Phase F Routes 완료, 사후 리뷰 6 fix 완료)
+- 날짜: 2026-05-05 (Phase E + Phase F Routes 완료, 사후 리뷰 6 fix 완료, consistency follow-up 7 fix 완료)
 
 ## 이번 세션 완료 (2026-05-05 — 옵션 C 풀 세션, 2 PR 머지)
 
@@ -90,11 +99,25 @@ plan § Phase J
 - **MEDIUM T21 module-level adapter**: 재시작 필요성 주석
 - **LOW T21 hub.challenge**: `slice(0, 256)` (amplifier 방어)
 
-### 4. 통계
+### 4. 통계 (PR #29 + #30)
 
 - 189 unit test (5 신규 추가) + 29 skipped (DB-gated) / 0 fail
 - tsc clean
 - 커밋 7개 (Phase E 2 + Phase F 3 + 사후 fix 1 + i18n 2)
+
+### 5. Consistency follow-up (PR #31) — senior + consistency 병렬 리뷰 후 처리
+
+**HIGH 1 + MEDIUM 3 + LOW 3 fix**:
+
+- HIGH: `Channel` union 6 파일 단일 소스 (`@hesya/database`의 `CHANNELS`/`Channel` import). test-helpers/db.ts는 TDD Guard 차단으로 별 PR
+- MEDIUM R-2: `inbox/refresh` unknown error → `Sentry.captureException`
+- MEDIUM I-1: `inbox` → `Inbox` 네임스페이스 (PascalCase 통일)
+- MEDIUM I-2: placeholder 4 locale 한국어 → 영어 fallback
+- LOW: stores.test.ts pure describe / webhook test import 순서 / ko.json 문장 종결
+
+**미수정**: T-2 db.test.ts mock chain (false positive — 실제 `seedStoreIntegration`이 `.returning()` 미호출)
+
+**총 통계**: 162 통과 + 29 skipped / tsc clean / i18n 6 파일 20 키 일치
 
 ## 이번 세션 완료 (2026-05-04 P.M. v3 — 풀 세션 6 PR 머지)
 
