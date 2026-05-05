@@ -24,6 +24,8 @@ beforeEach(() => {
   fetchMock.mockReset();
   vi.stubGlobal("fetch", fetchMock);
   fetchMock.mockResolvedValue({
+    ok: true,
+    status: 200,
     json: async () => ({ conversations: [], messages: {} }),
   });
 });
@@ -68,6 +70,8 @@ describe("InboxClient", () => {
   it("hasIgIntegration=true → ThreadList 렌더 (폴링 후에도 유지)", async () => {
     const conv = makeConv("c1", "안녕");
     fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
       json: async () => ({ conversations: [conv], messages: {} }),
     });
     await act(async () => {
@@ -94,5 +98,53 @@ describe("InboxClient", () => {
       );
     });
     expect(screen.getByText("banner")).toBeInTheDocument();
+  });
+
+  it("폴링 응답이 401 → 인터벌 중단 (다음 tick 호출 없음)", async () => {
+    vi.useFakeTimers();
+    fetchMock.mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: async () => ({}),
+    });
+    await act(async () => {
+      render(
+        <InboxClient
+          initialConversations={[]}
+          hasIgIntegration={true}
+          igTokenExpiresAt={null}
+        />,
+      );
+    });
+    const callsAfterFirst = fetchMock.mock.calls.length;
+    await act(async () => {
+      vi.advanceTimersByTime(15_000);
+    });
+    expect(fetchMock.mock.calls.length).toBe(callsAfterFirst);
+    vi.useRealTimers();
+  });
+
+  it("폴링 응답이 500 → 인터벌 유지 (다음 tick 재시도)", async () => {
+    vi.useFakeTimers();
+    fetchMock.mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: async () => ({}),
+    });
+    await act(async () => {
+      render(
+        <InboxClient
+          initialConversations={[]}
+          hasIgIntegration={true}
+          igTokenExpiresAt={null}
+        />,
+      );
+    });
+    const callsAfterFirst = fetchMock.mock.calls.length;
+    await act(async () => {
+      vi.advanceTimersByTime(5_000);
+    });
+    expect(fetchMock.mock.calls.length).toBeGreaterThan(callsAfterFirst);
+    vi.useRealTimers();
   });
 });

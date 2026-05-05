@@ -24,10 +24,17 @@ describe("ConnectPage", () => {
     expect(screen.getByRole("button", { name: "button" })).toBeInTheDocument();
   });
 
-  it("searchParams.error 존재 → 에러 메시지(failed 키) 표시", async () => {
+  it("searchParams.error 화이트리스트 값 → 에러 메시지(failed 키) 표시", async () => {
     const sp = Promise.resolve({ error: "exchange_failed" });
     const ui = await ConnectPage({ searchParams: sp });
     render(ui);
     expect(screen.getByRole("alert")).toHaveTextContent("failed");
+  });
+
+  it("searchParams.error 알 수 없는 값 → 에러 표시 안 함 (reflected injection 차단)", async () => {
+    const sp = Promise.resolve({ error: "<script>alert(1)</script>" });
+    const ui = await ConnectPage({ searchParams: sp });
+    render(ui);
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });

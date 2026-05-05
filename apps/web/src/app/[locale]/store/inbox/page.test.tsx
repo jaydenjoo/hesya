@@ -29,10 +29,9 @@ vi.mock("@hesya/database", () => ({
   createDbClient: vi.fn().mockReturnValue({}),
 }));
 
+// InboxClient는 jsdom에서 리졸브할 필요만 있음 — JSX element의 .props 자체로 검증.
 vi.mock("./inbox-client", () => ({
-  InboxClient: (props: unknown) => {
-    return { __test_props: props };
-  },
+  InboxClient: () => null,
 }));
 
 import InboxPage from "./page";

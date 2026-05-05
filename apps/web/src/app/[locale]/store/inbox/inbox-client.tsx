@@ -6,12 +6,14 @@ import {
   ResizablePanel,
   ResizableHandle,
 } from "@/components/ui/resizable";
-import { ThreadList } from "@/features/inbox/components/thread-list";
-import { ThreadListConnectCTA } from "@/features/inbox/components/thread-list-connect-cta";
-import { MessageView } from "@/features/inbox/components/message-view";
-import { TokenExpiredBanner } from "@/features/inbox/components/token-expired-banner";
-import { getWindowStatus } from "@/features/inbox/lib/window-utils";
-import type { Conversation, Message } from "@/features/inbox/types";
+import {
+  ThreadList,
+  ThreadListConnectCTA,
+  MessageView,
+  TokenExpiredBanner,
+  getWindowStatus,
+} from "@/features/inbox";
+import type { Conversation, Message } from "@/features/inbox";
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -32,11 +34,27 @@ export function InboxClient({
   useEffect(() => {
     if (!hasIgIntegration) return;
     let cancelled = false;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    const stop = () => {
+      cancelled = true;
+      if (intervalId !== null) clearInterval(intervalId);
+    };
     const tick = async () => {
+      if (cancelled) return;
       const url = new URL("/api/inbox/refresh", window.location.origin);
       if (activeId) url.searchParams.set("activeId", activeId);
       try {
         const res = await fetch(url);
+        if (!res.ok) {
+          // 401/403: 세션 만료/권한 박탈 → 폴링 영구 중단.
+          if (res.status === 401 || res.status === 403) {
+            stop();
+            return;
+          }
+          // 5xx 등 일시 오류 → 다음 tick에서 재시도.
+          console.error("inbox poll failed", res.status);
+          return;
+        }
         const data = (await res.json()) as {
           conversations: Conversation[];
           messages: Record<string, Message[]>;
@@ -46,16 +64,14 @@ export function InboxClient({
         if (activeId && data.messages[activeId]) {
           setMessages(data.messages[activeId]);
         }
-      } catch {
-        // 폴링 실패는 다음 tick에서 자연 복구.
+      } catch (err) {
+        // 네트워크 오류 → 다음 tick 재시도. console에만 남김.
+        console.error("inbox poll error", err);
       }
     };
     void tick();
-    const id = setInterval(() => void tick(), POLL_INTERVAL_MS);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
+    intervalId = setInterval(() => void tick(), POLL_INTERVAL_MS);
+    return stop;
   }, [activeId, hasIgIntegration]);
 
   if (!hasIgIntegration) return <ThreadListConnectCTA />;
