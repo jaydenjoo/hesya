@@ -1996,3 +1996,61 @@ Output ONLY the translation. No explanation, no quotes, no notes, no commentary.
 - 다음 세션 검증: 새 세션 시작 시 AI가 "이 프로젝트의 디자인은 `docs/design/reference/`에 있다"고 인식하는지 확인 (memory 등록 효과).
 
 **연관**: PR #40 Phase B-3b. 사용자가 명시적으로 "기억이 사라졌다면 기억해야되"로 요청 → memory 시스템의 본질적 가치(세션 간 stateless AI를 stateful처럼 만드는 layer)를 디자인 영역에 적용. L-058·L-059가 코드 동작/보안 패턴 교훈인 반면, L-060은 AI 협업 인프라 교훈. 향후 PRD·API 스펙·외부 문서 인용이 늘어나면 동일 패턴 자동 적용.
+
+---
+
+### [2026-05-05] L-061 — Claim 후 변경 실패 안전 패턴: safeRevert + enumeration 메시지 통합
+
+**증상**: Phase B-3c 사후 보안/코드 리뷰가 두 운영 위험을 발견.
+
+- (a) `claim → inner-try → revert` 흐름에서 revert 자체가 실패하면(DB 연결 끊김 등) 메시지가 'sending' 상태에 영구 고착 → 사장 재시도 불가, AI 답변 영구 미발송.
+- (b) 인증된 server action에서도 "메시지 없음" / "대화 없음" / "ownership 불일치"를 다른 메시지로 throw하면, 인증된 사용자가 자기 매장 외부 messageId를 enumerate 가능 (어떤 ID가 실재하는지 유추) → 정보 누출 벡터.
+
+**원인**: L-058 race-safe claim 패턴은 "lock → 비싼 작업 → unlock" 흐름인데, unlock 단계의 실패를 가정하지 않으면 claim 흔적만 남고 영구 잠긴 상태 발생. 같은 패턴의 다음 자연스러운 강화 단계.
+
+enumeration은 unauthenticated 환경에서만 위험으로 인식되기 쉬우나, 인증된 사용자도 자기 매장 외 messageId가 실재하는지 알면 sales intelligence / social engineering 입력으로 활용 가능. 인증 != 정보 노출 OK.
+
+**해결 (B-3c 채택 패턴)**:
+
+(a) `safeRevertWithSentry` 헬퍼 — revert를 try-catch로 감싸고 실패 시 Sentry tag `phase: revertAiDraftClaim` + extra(messageId, userId, storeId)로 캡처. 원본 inner 에러는 정상 re-throw하여 사용자에게 노출.
+
+```ts
+async function safeRevertWithSentry(db, messageId, ctx): Promise<void> {
+  try {
+    await revertAiDraftClaim(db, messageId);
+  } catch (revertErr) {
+    Sentry.captureException(revertErr, {
+      tags: { phase: "revertAiDraftClaim" },
+      extra: { messageId, userId: ctx.userId, storeId: ctx.storeId },
+    });
+  }
+}
+```
+
+(b) 미존재 / 미허가 통합 메시지:
+
+```ts
+const ERR_UNPROCESSABLE = "요청한 메시지를 처리할 수 없습니다";
+if (!message) throw new ValidationError(ERR_UNPROCESSABLE);
+if (!message.conversationId) throw new ValidationError(ERR_UNPROCESSABLE);
+if (!conv) throw new ValidationError(ERR_UNPROCESSABLE);
+if (conv.storeId !== session.storeId)
+  throw new ValidationError(ERR_UNPROCESSABLE);
+```
+
+ForbiddenError를 ValidationError로 통합 — 어떤 messageId가 실재하는지 사용자가 유추 불가.
+
+**규칙** (별):
+
+1. **L-058 claim 패턴을 도입할 때마다 safeRevert 헬퍼를 함께 도입**. revert 자체 실패의 운영 비용(영구 잠금)을 잊으면 race-safety가 데이터 일관성 사고를 막아주지 못함.
+2. **운영 보정 정책 명시**: stale 'sending' row를 주기적으로 ai_draft로 복원하는 cron / job. Sentry alert는 알림이지 자동 복원이 아님. (B-3c는 알림만, cron은 Epic 1B-ops 후속)
+3. **인증된 endpoint도 enumeration 벡터 점검**: 미존재 / 미허가 / ownership 불일치 모두 동일 메시지로 통합. ValidationError("요청한 ${자원}을 처리할 수 없습니다")가 일반 패턴.
+4. **재사용 가능 영역**: 결제/주문/예약 처리 (status='processing' lock + IG send 같은 외부 API), 메일 발송 큐, 비동기 작업 큐 — 모든 stateful claim 워크플로에 동일 적용.
+
+**확인 방법**:
+
+- 단위 테스트: revert mock이 reject할 때 원본 에러는 정상 re-throw + Sentry 캡처 검증.
+- 보안 리뷰: 모든 server action에 대해 "동일 messageId/userId/storeId 조합으로 미존재/미허가/ownership 시나리오의 에러 메시지가 동일한가?" 자문.
+- 운영: Sentry에서 `phase: revertAiDraftClaim` 태그로 stale 'sending' 발생률 모니터링 → 임계값 초과 시 cron 자동화 도입.
+
+**연관**: PR #41 Phase B-3c. L-058(race-safe claim)의 운영 안전 강화 형태. L-058이 "두 클릭이 두 send를 발생시키지 않게" 보장이라면, L-061은 "claim 후 변경 실패가 영구 잠금이 되지 않게" 보장 + "인증된 사용자도 enumerate 못하게" 보장. 두 패턴 함께 적용해야 race-safe claim 패턴 완성.

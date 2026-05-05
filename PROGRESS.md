@@ -4,12 +4,12 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Epic 1B Phase B-3b 완료** ✅ (1A + 1B B-1, B-2, B-3a, B-3b 머지)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1 ✅ + B-2 ✅ + B-3a ✅ + B-3b ✅ → **다음**: Phase B-3c (IG 발송 트리거)
-- **Task**: 1A Phase A~J ✅ / 1B B-1 ✅ / B-2 ✅ / B-3a ✅ / B-3b ✅ (AIAssist 패널 + Composer prefill + 번역본 표시)
-- **상태**: 사장이 인박스에서 AI 초안을 검수 → '편집 후 보내기'로 입력란 prefill → 수정 후 send 가능. '그대로 보내기'는 B-3c 대기로 disabled. 디자인 ref(`docs/design/reference/`) 영구 보관 + memory 등록. main 최신 SHA `231648b`. 차단 요소 없음.
+- **Phase**: Phase 1 — **Epic 1B Phase B-3c 완료** ✅ (1A + 1B B-1, B-2, B-3a, B-3b, B-3c 머지)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1 ✅ + B-2 ✅ + B-3a ✅ + B-3b ✅ + B-3c ✅ → **다음**: B-4 RAG 또는 별 Epic 1B-UI (3-col 인박스)
+- **Task**: 1A Phase A~J ✅ / 1B B-1 ✅ / B-2 ✅ / B-3a ✅ / B-3b ✅ / B-3c ✅ (AI 초안 자동 발송 + messages RLS)
+- **상태**: 사장이 AIAssist '그대로 보내기' 클릭 → IG로 자동 송출 + status 'sent' 전환. race-safe claim(L-058)으로 동시 두 클릭 시 IG send 1회만. 실패 시 revert로 사장 재시도 가능. messages RLS POLICY 추가(B-2 LOW [L-2] 흡수). main 최신 SHA `a3c50ad`. 차단 요소 없음.
 - **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **최근 PR**: [#38](https://github.com/jaydenjoo/hesya/pull/38) B-2, [#39](https://github.com/jaydenjoo/hesya/pull/39) B-3a, [#40](https://github.com/jaydenjoo/hesya/pull/40) B-3b (HIGH 2 + MEDIUM 4 + LOW 2 fix 흡수)
+- **최근 PR**: [#39](https://github.com/jaydenjoo/hesya/pull/39) B-3a, [#40](https://github.com/jaydenjoo/hesya/pull/40) B-3b, [#41](https://github.com/jaydenjoo/hesya/pull/41) B-3c (Sec HIGH 1 + Code MEDIUM 4 + 운영 안전 fix 흡수)
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -17,22 +17,31 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Epic 1B Phase B-3c 진입 (권장)
+### 1. Epic 1B Phase B-4 RAG 인덱싱 (권장)
 
-**B-3c: IG 발송 트리거 + status 'sent' 전환** (~1.5h, 1 PR):
+**B-4: 매장 FAQ 학습** (~3~4h, 여러 PR):
 
-- send-outbound 액션 재사용 또는 신규 액션
-- IG API send + status 'sent' 전환
-- 멱등 (중복 발송 방어)
-- AIAssist `'그대로 보내기'` 버튼 활성화 (`onAcceptAsIs` prop만 다시 연결하면 자동 enabled)
+- pgvector 활성화 + `store_knowledge` 테이블 (질문/답변/임베딩)
+- 임베딩 생성 (Anthropic 또는 OpenAI text-embedding-3-small)
+- generate-reply.ts에서 RAG 검색 → context로 주입
+- 매장 FAQ CRUD UI (간단)
 
-**B-3d 또는 별 Epic 1B-UI: 인박스 전체 재구성** (~4~6h, 별 Epic 권장):
+**선행 검증**: chained LLM(L-059) 패턴이 RAG 컨텍스트에도 적용 — 검색 결과를 system prompt에 "data, not instruction" framing.
+
+### 2. 별 Epic 1B-UI: 인박스 전체 재구성 (~4~6h)
 
 - 디자인 ref 3-col 레이아웃 (ChannelRail + Thread + ContextPanel)
 - 톤 4탭 (warm/formal/short/friendly) + 톤 검증 pill
 - "이유 보기" 팝업, "내 매장 톤 학습" 버튼
 - Shortcuts FAB 키보드 단축키 모달
 - 출처: `docs/design/reference/inbox-app.jsx` 전체 적용
+
+### 3. B-3c 사후 follow-up (선택, 별 PR)
+
+- **Code-L-2**: AIAssist 발송 후 짧은 클릭 창 → toast + 즉시 dismiss (UX 개선)
+- **Sec-L-2**: claimAiDraftForSend ownership 함수 시그니처 강제 (래퍼 패턴)
+- **Sec-M-3**: 다른 16개 테이블 RLS POLICY 추가 (advisor 권장 — accounts/customers/payments 등)
+- **Code-L-1**: source-code 정규식 검사 → integration test 이전 (DB CI 도입 시)
 
 ### 2. 또는 다른 옵션
 
@@ -78,7 +87,56 @@
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-05 night — **Epic 1B Phase B-3b 완료** (PR #40, HIGH 2 + MEDIUM 4 + LOW 2 fix) + 디자인 ref 영구 보관
+- 날짜: 2026-05-05 night — **Epic 1B Phase B-3c 완료** (PR #41, Sec HIGH 1 + Code MEDIUM 4 + 운영 안전 fix)
+
+## 이번 세션 완료 (2026-05-05 night — Phase B-3c)
+
+### 1. messages RLS 정책 추가 (Track 1, B-2 LOW [L-2] 흡수)
+
+- 0003에서 RLS enable됐으나 POLICY 없는 상태 → `0012_messages_rls.sql` (`FOR ALL` + conversation_id → store_owners EXISTS join)
+- prod 적용 + Supabase advisor 검증 (messages는 더 이상 `rls_enabled_no_policy` 목록 없음)
+- service_role bypass이므로 application 회귀 0 (defense-in-depth 레이어)
+
+### 2. DAL 3개 신규 (Track 2-2, race-safe claim — L-058 재사용)
+
+- `claimAiDraftForSend(db, messageId): Promise<Message | null>` — UPDATE WHERE status='ai_draft' RETURNING
+- `markMessageSent(db, messageId, externalMessageId)` — WHERE status='sending' 가드
+- `revertAiDraftClaim(db, messageId)` — WHERE status='sending' 가드
+
+### 3. Server action `acceptAiDraft` (Track 2-3)
+
+- 흐름: 인증 → 메시지/conversation/ownership 검증 → claim → inner-try (window/integration/recipient/IG send) → markMessageSent + revalidatePath
+- 실패 시 `safeRevertWithSentry` (revert 자체 실패 시 Sentry alert로 stale 'sending' 영구 고착 방어)
+- **MVP 결정**: `originalText`(한국어) 발송. `translatedText`는 사장 검수용 보조 표시 (B-3a/B-3b 일관)
+
+### 4. UI 연결 (Track 2-4)
+
+- MessageView가 `useTransition`으로 acceptAiDraft 호출
+- AIAssist에 `isAccepting` prop 추가 → 처리 중 모든 액션 disabled + '그대로 보내기' → '발송 중...'
+- 발송 완료 시 revalidatePath가 messages 갱신 → status='sent' 전환되어 AIAssist 자동 사라짐
+
+### 5. 사후 리뷰 fix (PR #41 동봉)
+
+**Security HIGH 1**:
+
+- 메시지/대화/ownership 미존재 모두 동일 ValidationError("요청한 메시지를 처리할 수 없습니다") — enumeration 벡터 차단
+
+**Code MEDIUM 4**:
+
+- `message.conversationId!` → null 가드 + ValidationError
+- `claimed.originalText!` 2군데 → narrowing + revert + ValidationError (non-null assertion 완전 제거)
+- revalidatePath `[locale]` 의도 주석
+- 동적 import → 정적 import (테스트 안정성)
+
+**운영 안전 (Sec 추가)**:
+
+- `safeRevertWithSentry` 헬퍼 — revert 실패 시 stale 'sending' row 영구 고착 방어
+
+### 6. 테스트
+
+- DAL +4 (source-level pattern), 액션 +14 (성공/검증/race/실패/revert/Sentry), AIAssist +2, MessageView +1
+- **336 passed (+21 vs B-3c 시작)** / typecheck / lint clean
+- main 최종 SHA `a3c50ad`
 
 ## 이번 세션 완료 (2026-05-05 night — Phase B-3b)
 
