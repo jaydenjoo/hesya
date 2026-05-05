@@ -4,13 +4,13 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **워크플로우 인프라 개선 완료** + **Epic 1B-Tone Phase 2-A PR open** (자동 머지 대기 중)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone Phase 1 (4탭) ✅ + **1B-Tone Phase 2-A (verification pill + 이유 보기) PR #56 open** → **다음**: PR #56 머지 확인 → P2-B (매장 톤 학습)
-- **Task**: 1A ✅ / 1B B-1~B-4c ✅ / 1B-UI A-1~A-4 ✅ / 1B-Tone 1~4 ✅ / **워크플로우 A-1 (CI 병렬화+Playwright cache) ✅** / **워크플로우 A-2 (auto-merge.yml + 라벨) ✅** / **1B-Tone P2-A 구현 완료, PR open**
-- **상태**: 사장이 4 tone 중 선택 + 톤 self-check pill까지 볼 수 있음 (PR #56 머지 후). PR #56은 첫 `auto-merge` 라벨 사용 사례로, CI green 시 workflow_run 트리거가 자동 squash + branch delete. 차단 요소 없음.
-- **작업 브랜치**: `feat/epic-1b-tone-phase2-a-verification` (PR #56 open). 머지 후 자동 삭제 예정.
+- **Phase**: Phase 1 — **워크플로우 인프라 개선 완료** + **Epic 1B-Tone Phase 2-A 머지 완료** (auto-merge 라벨 첫 동작 ✅)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone Phase 1 (4탭) ✅ + **1B-Tone Phase 2-A (verification pill + 이유 보기) ✅** → **다음**: P2-B (매장 톤 학습)
+- **Task**: 1A ✅ / 1B B-1~B-4c ✅ / 1B-UI A-1~A-4 ✅ / 1B-Tone 1~4 ✅ / **워크플로우 A-1 (CI 병렬화+Playwright cache) ✅** / **워크플로우 A-2 (auto-merge.yml + 라벨) ✅** / **1B-Tone P2-A ✅**
+- **상태**: 사장이 4 tone 중 선택 + 톤 self-check pill 표시 가능. PR #56 머지 검증 결과 auto-merge 라벨 + workflow_run 트리거 정상 동작 (validate + e2e-smoke + Vercel + Vercel Preview Comments 모두 SUCCESS → squash merge `6730140` + 브랜치 자동 삭제). 차단 요소 없음.
+- **작업 브랜치**: `main` (Phase 2-A 머지 + 작업 브랜치 자동 삭제 완료). origin 동기화 ✅.
 - **최근 main 직접 commit**: `503c16d` (ci 병렬화), `725e437` (auto-merge.yml). 둘 다 인프라 yml 변경 — 정책상 main 직접 push 적용 (코드 회귀 0).
-- **PR 진행 중**: [#56](https://github.com/jaydenjoo/hesya/pull/56) Phase 2-A — auto-merge 라벨, 12 신규 테스트, 440/440 + 40 skipped.
+- **최근 머지된 PR**: [#56](https://github.com/jaydenjoo/hesya/pull/56) Phase 2-A — `auto-merge` 라벨 첫 사용, squash merge `6730140`, 12 신규 테스트, 440/440 + 40 skipped.
 - **prod migration**: `0014_messages_tone_metadata.sql` 적용 완료. P2-A는 metadata jsonb 확장만 → 마이그레이션 불필요.
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
@@ -19,14 +19,7 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. PR #56 머지 검증 (선결)
-
-- `gh pr view 56 --json state` → MERGED 확인
-- 자동 머지 인프라(workflow_run 트리거 + `auto-merge` 라벨) 첫 동작 검증
-- 머지 후 main pull
-- 만약 자동 머지 실패 시: `gh run list --workflow=auto-merge.yml -L 3` 로그 확인 → 디버깅
-
-### 2. Epic 1B-Tone Phase 2-B: 매장 톤 학습 (~2~3h, 1 PR)
+### 1. Epic 1B-Tone Phase 2-B: 매장 톤 학습 (~2~3h, 1 PR)
 
 **Phase 2-A로 verification 끝났음. 남은 항목**:
 
@@ -121,6 +114,7 @@ ContextPanel 데이터 확장 (현재 1B 스코프 밖):
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-06 세션 시작 — **PR #56 자동 머지 검증 ✅** (auto-merge 라벨 + workflow_run 트리거 첫 동작 성공: validate + e2e-smoke + Vercel + Vercel Preview Comments 모두 SUCCESS → squash merge `6730140` + 브랜치 자동 삭제). main + origin/main 완전 동기화. 다음 Task: Phase 2-B 매장 톤 학습.
 - 날짜: 2026-05-05 심야 후속 — **워크플로우 인프라 (CI 병렬화 + Playwright cache + auto-merge.yml) + Epic 1B-Tone Phase 2-A 구현 (PR #56 open with auto-merge 라벨)**. main SHA `725e437`. learnings L-062 (auto-merge silent ignore), L-063 (Playwright cache) 추가.
 - 날짜: 2026-05-05 심야 세션 — **Epic 1B-Tone 시리즈 완료** (PR #52 DB+DAL + #53 Anthropic 4 tone tool use + #54 generate-and-store 저장 + #55 AIAssist 4탭). main SHA `197b5a6`. prod migration `0014_messages_tone_metadata.sql` 수동 적용 완료.
 - 날짜: 2026-05-05 후반 세션 — **Epic 1B-UI 시리즈 완료** (PR #48 골조 + #49 ThreadRow + #50 MessageBubble/Header + #51 ContextPanel) + **B-4 followup-2** (PR #46) + **C-light** (PR #47)
