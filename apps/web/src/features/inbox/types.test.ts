@@ -22,4 +22,8 @@ describe("inbox types", () => {
       remainingMs: number | null;
     }>();
   });
+
+  it("Message has metadata field (Epic 1B-Tone-1: jsonb)", () => {
+    expectTypeOf<Message>().toHaveProperty("metadata");
+  });
 });

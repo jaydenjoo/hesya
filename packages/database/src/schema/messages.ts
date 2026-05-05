@@ -3,6 +3,7 @@ import {
   boolean,
   check,
   index,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -12,6 +13,22 @@ import {
 import { conversations } from "./conversations";
 import { customers } from "./customers";
 import { stores } from "./stores";
+
+/**
+ * Epic 1B-Tone-1 — messages.metadata 형태.
+ *
+ * tones: AIAssist 4탭(warm/formal/short/friendly) 4 variations 동시 저장.
+ * `originalText`는 default tone(warm) 한 개만, 나머지 3개는 metadata.tones에.
+ * metadata=NULL → 1A/1B 레거시 메시지 (UI는 originalText fallback).
+ */
+export type MessageMetadata = {
+  tones?: {
+    warm: string;
+    formal: string;
+    short: string;
+    friendly: string;
+  };
+};
 
 export const messages = pgTable(
   "messages",
@@ -32,6 +49,7 @@ export const messages = pgTable(
     languageTo: text("language_to"),
     aiResponded: boolean("ai_responded").default(false),
     aiModel: text("ai_model"),
+    metadata: jsonb("metadata").$type<MessageMetadata>(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
   (table) => [

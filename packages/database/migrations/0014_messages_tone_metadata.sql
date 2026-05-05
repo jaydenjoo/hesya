@@ -1,0 +1,26 @@
+-- Epic 1B-Tone-1: messages.metadata jsonb 컬럼 추가
+--
+-- AIAssist 톤 4탭 (warm/formal/short/friendly)을 단일 호출로 동시 생성하기 위해
+-- 4 variations를 messages 1 row에 통합 저장. originalText는 default tone(warm)
+-- 한 개만, 다른 3개는 metadata.tones에 저장.
+--
+-- **데이터 형태** (Epic 1B-Tone-2/3 진입 시 활용):
+--   {
+--     "tones": {
+--       "warm": "사장님, 안녕하세요...",
+--       "formal": "안녕하십니까...",
+--       "short": "네, 가능합니다.",
+--       "friendly": "안녕하세요~ 오케이!"
+--     }
+--   }
+--
+-- **NULL 허용**: 1A/1B 기존 메시지는 metadata=NULL. 1B-Tone-2 진입 후 새
+-- inbound만 metadata 채워짐. 클라이언트는 metadata 없으면 originalText만 표시
+-- (자연스러운 fallback).
+--
+-- **인덱스 없음**: tones는 검색 대상 아님 (UI 즉시 전환용 데이터). 향후 톤
+-- 통계 기능 진입 시 GIN 인덱스 추가 검토.
+--
+-- ROLLBACK:
+--   ALTER TABLE messages DROP COLUMN IF EXISTS metadata;
+ALTER TABLE messages ADD COLUMN metadata jsonb;
