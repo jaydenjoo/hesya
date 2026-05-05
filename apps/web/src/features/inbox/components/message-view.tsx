@@ -104,6 +104,7 @@ function MessageViewActive({
         <AIAssist
           draftText={aiDraft.originalText}
           tones={aiDraft.metadata?.tones}
+          verifications={aiDraft.metadata?.verifications}
           onAcceptAsIs={handleAcceptAsIs}
           onEditDraft={handleEditDraft}
           onReject={handleReject}

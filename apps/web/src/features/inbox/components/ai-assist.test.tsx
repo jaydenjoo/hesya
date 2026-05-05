@@ -276,3 +276,131 @@ describe("AIAssist (Epic 1B-Tone-4: 4탭 활성화)", () => {
     expect(onAcceptAsIs).toHaveBeenCalledWith("short");
   });
 });
+
+describe("AIAssist (Epic 1B-Tone Phase 2-A: verification pill + 이유 보기)", () => {
+  const TONES = {
+    warm: "warm-text",
+    formal: "formal-text",
+    short: "short-text",
+    friendly: "friendly-text",
+  };
+
+  const VERIFS = {
+    warm: { state: "ok" as const, label: "따뜻한 톤 유지", reason: null },
+    formal: {
+      state: "warn" as const,
+      label: "약간 사무적인 톤",
+      reason: "환영 인사가 빠져 있어요.",
+    },
+    short: {
+      state: "warn" as const,
+      label: "정보 누락",
+      reason: "디자이너 정보가 없어요.",
+    },
+    friendly: {
+      state: "ok" as const,
+      label: "친근한 톤 유지",
+      reason: null,
+    },
+  };
+
+  it("verifications 미전달 → pill 미표시 (1B-Tone Phase 1 호환)", () => {
+    render(
+      <AIAssist
+        draftText={TONES.warm}
+        tones={TONES}
+        onAcceptAsIs={() => {}}
+        onEditDraft={() => {}}
+        onReject={() => {}}
+      />,
+    );
+    expect(screen.queryByText(/따뜻한 톤 유지/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /이유 보기/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("verifications 전달 + 기본 active(warm) → 'ok' pill + 이유 보기 미표시 (reason=null)", () => {
+    render(
+      <AIAssist
+        draftText={TONES.warm}
+        tones={TONES}
+        verifications={VERIFS}
+        onAcceptAsIs={() => {}}
+        onEditDraft={() => {}}
+        onReject={() => {}}
+      />,
+    );
+    expect(screen.getByText("따뜻한 톤 유지")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /이유 보기/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("warn tone 탭 클릭 → warn pill + '이유 보기' 버튼 표시", async () => {
+    render(
+      <AIAssist
+        draftText={TONES.warm}
+        tones={TONES}
+        verifications={VERIFS}
+        onAcceptAsIs={() => {}}
+        onEditDraft={() => {}}
+        onReject={() => {}}
+      />,
+    );
+    await userEvent.click(screen.getByRole("tab", { name: /공식적으로/ }));
+    expect(screen.getByText("약간 사무적인 톤")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /이유 보기/ }),
+    ).toBeInTheDocument();
+  });
+
+  it("'이유 보기' 클릭 → reason 텍스트 표시 (popover toggle)", async () => {
+    render(
+      <AIAssist
+        draftText={TONES.warm}
+        tones={TONES}
+        verifications={VERIFS}
+        onAcceptAsIs={() => {}}
+        onEditDraft={() => {}}
+        onReject={() => {}}
+      />,
+    );
+    await userEvent.click(screen.getByRole("tab", { name: /공식적으로/ }));
+    expect(
+      screen.queryByText("환영 인사가 빠져 있어요."),
+    ).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /이유 보기/ }));
+    expect(screen.getByText("환영 인사가 빠져 있어요.")).toBeInTheDocument();
+    // 다시 클릭 → 닫힘
+    await userEvent.click(screen.getByRole("button", { name: /이유 보기/ }));
+    expect(
+      screen.queryByText("환영 인사가 빠져 있어요."),
+    ).not.toBeInTheDocument();
+  });
+
+  it("탭 전환 시 popover 자동 닫힘 (다른 tone reason이 잘못 보이지 않게)", async () => {
+    render(
+      <AIAssist
+        draftText={TONES.warm}
+        tones={TONES}
+        verifications={VERIFS}
+        onAcceptAsIs={() => {}}
+        onEditDraft={() => {}}
+        onReject={() => {}}
+      />,
+    );
+    await userEvent.click(screen.getByRole("tab", { name: /공식적으로/ }));
+    await userEvent.click(screen.getByRole("button", { name: /이유 보기/ }));
+    expect(screen.getByText("환영 인사가 빠져 있어요.")).toBeInTheDocument();
+    // 다른 tone으로 전환
+    await userEvent.click(screen.getByRole("tab", { name: /짧게/ }));
+    expect(
+      screen.queryByText("환영 인사가 빠져 있어요."),
+    ).not.toBeInTheDocument();
+    // short은 warn이지만 reason은 다른 텍스트, popover는 닫힌 상태
+    expect(
+      screen.queryByText("디자이너 정보가 없어요."),
+    ).not.toBeInTheDocument();
+  });
+});

@@ -24,7 +24,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Tones } from "../ai/generate-reply";
+import type { Tones, Verifications } from "../ai/generate-reply";
 import type { Tone } from "../schema";
 
 const TONE_TABS: { id: Tone; label: string; sparkle?: boolean }[] = [
@@ -37,6 +37,7 @@ const TONE_TABS: { id: Tone; label: string; sparkle?: boolean }[] = [
 export function AIAssist({
   draftText,
   tones,
+  verifications,
   onAcceptAsIs,
   onEditDraft,
   onReject,
@@ -46,6 +47,11 @@ export function AIAssist({
   draftText: string;
   /** Epic 1B-Tone-4 — 4 variations. 미전달 시 4탭 미표시 (1A/1B 호환). */
   tones?: Tones;
+  /**
+   * Phase 2-A — tone별 self-check (state/label/reason). 미전달 시 pill 미표시
+   * (1B-Tone Phase 1 호환). state='warn' + reason 있으면 "이유 보기" 활성.
+   */
+  verifications?: Verifications;
   /** undefined → '그대로 보내기' 비활성 (B-3c 이전 호환용). 1B-Tone-4: tone 인자 추가. */
   onAcceptAsIs: ((tone: Tone) => void) | undefined;
   onEditDraft: () => void;
@@ -54,22 +60,59 @@ export function AIAssist({
   isAccepting?: boolean;
 }) {
   const [activeTone, setActiveTone] = useState<Tone>("warm");
+  // Phase 2-A — popover open 상태. tone 전환 시 자동 닫힘.
+  const [showWhy, setShowWhy] = useState(false);
   const acceptUnavailable = onAcceptAsIs === undefined;
   const acceptDisabled = acceptUnavailable || isAccepting;
 
   const displayText = tones ? tones[activeTone] : draftText;
+  const activeVerify = verifications?.[activeTone];
 
   function handleAccept() {
     if (!onAcceptAsIs) return;
     onAcceptAsIs(activeTone);
   }
 
+  function handleToneChange(tone: Tone) {
+    setActiveTone(tone);
+    setShowWhy(false); // 다른 tone reason이 잘못 보이지 않도록 강제 닫기
+  }
+
   return (
     <div className="bg-hesya-peach-100 border-t border-hesya-amber-500 px-[18px] py-3">
-      <div className="mb-2 flex items-center gap-2">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
         <span className="kr text-[11px] font-semibold text-hesya-amber-600">
           <span aria-hidden="true">🤖 </span>AI가 답변을 준비했어요
         </span>
+        {activeVerify ? (
+          <span
+            className={
+              "kr inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold " +
+              (activeVerify.state === "ok"
+                ? "bg-emerald-100 text-emerald-700"
+                : "bg-amber-100 text-amber-700")
+            }
+          >
+            <span aria-hidden="true">
+              {activeVerify.state === "ok" ? "✓" : "⚠"}
+            </span>
+            <span>{activeVerify.label}</span>
+            {activeVerify.reason ? (
+              <button
+                type="button"
+                onClick={() => setShowWhy((v) => !v)}
+                className="kr ml-1 underline-offset-2 hover:underline cursor-pointer"
+              >
+                이유 보기
+              </button>
+            ) : null}
+          </span>
+        ) : null}
+        {showWhy && activeVerify?.reason ? (
+          <span className="kr w-full rounded-md bg-white px-2 py-1 text-[11px] leading-[1.55] text-gray-700 ring-1 ring-amber-200">
+            {activeVerify.reason}
+          </span>
+        ) : null}
       </div>
       <div className="mb-2 break-keep rounded-xl bg-white px-3 py-2.5 text-[13px] font-medium leading-[1.65] text-hesya-navy-900">
         {displayText}
@@ -84,7 +127,7 @@ export function AIAssist({
                 type="button"
                 role="tab"
                 aria-selected={active}
-                onClick={() => setActiveTone(t.id)}
+                onClick={() => handleToneChange(t.id)}
                 disabled={isAccepting}
                 className={
                   "kr rounded-md px-3 py-1.5 text-[11px] font-semibold transition-colors not-disabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 " +

@@ -754,6 +754,68 @@ describe("generateAndStoreReply (B-2)", () => {
     );
   });
 
+  it("Phase 2-A: verifications 있으면 metadata.verifications도 저장", async () => {
+    vi.mocked(findMessageById).mockResolvedValue(baseInbound);
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
+    vi.mocked(getCustomerPreferredLanguage).mockResolvedValue("ko");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    const tones = {
+      warm: "w",
+      formal: "f",
+      short: "s",
+      friendly: "fr",
+    };
+    const verifications = {
+      warm: { state: "ok" as const, label: "OK", reason: null },
+      formal: {
+        state: "warn" as const,
+        label: "사무적",
+        reason: "환영 인사 누락",
+      },
+      short: { state: "ok" as const, label: "OK", reason: null },
+      friendly: { state: "ok" as const, label: "OK", reason: null },
+    };
+    generateReplyMock.mockResolvedValue({
+      reply: tones.warm,
+      tones,
+      verifications,
+      tokensUsed: { input: 10, output: 40 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, deps);
+
+    expect(insertMessage).toHaveBeenCalledWith(
+      fakeDb,
+      expect.objectContaining({
+        metadata: { tones, verifications },
+      }),
+    );
+  });
+
+  it("Phase 2-A: tones 있고 verifications 없으면 verifications 키 생략", async () => {
+    vi.mocked(findMessageById).mockResolvedValue(baseInbound);
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
+    vi.mocked(getCustomerPreferredLanguage).mockResolvedValue("ko");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    const tones = { warm: "w", formal: "f", short: "s", friendly: "fr" };
+    generateReplyMock.mockResolvedValue({
+      reply: tones.warm,
+      tones,
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, deps);
+
+    const call = vi.mocked(insertMessage).mock.calls.at(-1);
+    const args = call?.[1] as { metadata?: Record<string, unknown> };
+    expect(args.metadata).toEqual({ tones });
+    expect(args.metadata).not.toHaveProperty("verifications");
+  });
+
   it("Epic 1B-Tone-3: tones 없으면 metadata 생략 (1A/1B 호환)", async () => {
     vi.mocked(findMessageById).mockResolvedValue(baseInbound);
     vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
