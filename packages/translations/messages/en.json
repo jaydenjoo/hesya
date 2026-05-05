@@ -21,7 +21,10 @@
       "label": "Compose reply",
       "send": "Send",
       "sendError": "Send failed: {reason}",
-      "sendErrorGeneric": "Something went wrong. Please try again."
+      "sendErrorGeneric": "Something went wrong. Please try again.",
+      "learnTone": "🎙️ Learn my store tone →",
+      "learnToneSuccess": "Learned as your store tone",
+      "learnToneError": "Failed to learn. Please try again."
     },
     "window": {
       "openWithTime": "Reply window — {time} remaining",

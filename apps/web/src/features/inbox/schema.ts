@@ -17,3 +17,10 @@ export const acceptAiDraftInputSchema = z.object({
 });
 
 export type AcceptAiDraftInput = z.infer<typeof acceptAiDraftInputSchema>;
+
+/** Phase 2-B — 매장 톤 학습 (사장 명시 클릭). 1~500자 (D5 결정). */
+export const learnStoreToneInputSchema = z.object({
+  text: z.string().min(1).max(500),
+});
+
+export type LearnStoreToneInput = z.infer<typeof learnStoreToneInputSchema>;

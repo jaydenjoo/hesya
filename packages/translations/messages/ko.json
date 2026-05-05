@@ -21,7 +21,10 @@
       "label": "답변 작성",
       "send": "전송",
       "sendError": "전송 실패: {reason}",
-      "sendErrorGeneric": "전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
+      "sendErrorGeneric": "전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
+      "learnTone": "🎙️ 내 매장 톤 학습 →",
+      "learnToneSuccess": "사장님 말투로 학습됐어요",
+      "learnToneError": "학습 실패, 잠시 후 다시 시도해 주세요"
     },
     "window": {
       "openWithTime": "답변 가능 — {time} 남음",

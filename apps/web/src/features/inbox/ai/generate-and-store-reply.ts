@@ -52,6 +52,7 @@ import {
 import { findStoreNameByConversationId } from "@/shared/lib/dal/stores";
 import { getCustomerPreferredLanguage } from "@/shared/lib/dal/customers";
 import { searchSimilarKnowledge as defaultSearchSimilarKnowledge } from "@/shared/lib/dal/store-knowledge";
+import { listRecentToneExamples as defaultListRecentToneExamples } from "@/shared/lib/dal/store-tone-examples";
 
 // 모듈 수명 동안 단일 DbClient 유지 — fire-and-forget 동시 호출 폭주 시
 // connection pool 누수 방어. 테스트는 deps.db 주입으로 격리되므로 영향 없음.
@@ -96,6 +97,8 @@ export type GenerateAndStoreReplyDeps = {
   generateEmbedding: (input: { text: string }) => Promise<EmbeddingResult>;
   /** Phase B-4b RAG — pgvector cosine similarity 검색. */
   searchSimilarKnowledge: typeof defaultSearchSimilarKnowledge;
+  /** Phase 2-B — 매장 톤 예시 (사장님 말투 reference) 조회. */
+  listRecentToneExamples: typeof defaultListRecentToneExamples;
 };
 
 export type GenerateAndStoreReplyResult =
@@ -131,6 +134,8 @@ export async function generateAndStoreReply(
   const translate = deps.translateReply ?? defaultTranslateReply;
   const embed = deps.generateEmbedding ?? defaultGenerateEmbedding;
   const searchKB = deps.searchSimilarKnowledge ?? defaultSearchSimilarKnowledge;
+  const listToneEx =
+    deps.listRecentToneExamples ?? defaultListRecentToneExamples;
 
   const msg = await findMessageById(db, idCheck.data);
   if (!msg) return { stored: false, reason: "message_not_found" };
@@ -236,11 +241,29 @@ export async function generateAndStoreReply(
     }
   }
 
+  // Phase 2-B — 매장 톤 학습 examples 조회. storeId 있을 때만 호출.
+  // 실패 silent skip + Sentry tag (FAQ 패턴 일관). examples 없어도
+  // generate-reply는 정상 동작 (D4 fallback). storeIdShort 8자만 노출.
+  let storeToneExamples: string[] | undefined;
+  if (msg.storeId) {
+    const storeIdShort = msg.storeId.slice(0, 8);
+    try {
+      const rows = await listToneEx(db, msg.storeId, 10);
+      storeToneExamples = rows.map((r) => r.content);
+    } catch (toneErr) {
+      Sentry.captureException(toneErr, {
+        tags: { phase: "listRecentToneExamples" },
+        extra: { messageId: msg.id, storeIdShort },
+      });
+    }
+  }
+
   const result = await gen({
     storeName,
     customerLanguage,
     recentMessages,
     relatedFAQs,
+    storeToneExamples,
   });
   if (result.reply.length > MAX_REPLY_CHARS) {
     return { stored: false, reason: "reply_too_long" };
