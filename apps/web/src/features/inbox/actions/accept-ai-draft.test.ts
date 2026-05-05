@@ -53,11 +53,8 @@ import {
 import { getConversationById } from "@/shared/lib/dal/conversations";
 import { getIntegration } from "@/shared/lib/dal/store-integrations";
 import { getExternalIdByCustomerId } from "@/shared/lib/dal/customers";
-import {
-  ForbiddenError,
-  ValidationError,
-  WindowClosedError,
-} from "@/shared/lib/errors";
+import { ValidationError, WindowClosedError } from "@/shared/lib/errors";
+import { captureServerActionError } from "@/instrumentation";
 
 const VALID_MSG_UUID = "11111111-1111-4111-8111-111111111111";
 const VALID_CONV_UUID = "22222222-2222-4222-8222-222222222222";
@@ -136,14 +133,57 @@ describe("acceptAiDraft action (B-3c)", () => {
     );
   });
 
-  it("매장 소유 아니면 ForbiddenError (claim 안 함)", async () => {
+  it("매장 소유 아니면 ValidationError(통합 메시지) (claim 안 함, Sec-H-1 enumeration 차단)", async () => {
     setSession("s_other");
     vi.mocked(findMessageById).mockResolvedValue(mockMessage() as never);
     vi.mocked(getConversationById).mockResolvedValue(mockConv() as never);
     await expect(acceptAiDraft({ messageId: VALID_MSG_UUID })).rejects.toThrow(
-      ForbiddenError,
+      /요청한 메시지를 처리할 수 없습니다/,
     );
     expect(claimAiDraftForSend).not.toHaveBeenCalled();
+  });
+
+  it("메시지 미존재 / 대화 미존재 / ownership 불일치 모두 동일 메시지 (Sec-H-1)", async () => {
+    setSession();
+
+    vi.mocked(findMessageById).mockResolvedValueOnce(null);
+    await expect(acceptAiDraft({ messageId: VALID_MSG_UUID })).rejects.toThrow(
+      /요청한 메시지를 처리할 수 없습니다/,
+    );
+
+    vi.mocked(findMessageById).mockResolvedValueOnce(mockMessage() as never);
+    vi.mocked(getConversationById).mockResolvedValueOnce(null);
+    await expect(acceptAiDraft({ messageId: VALID_MSG_UUID })).rejects.toThrow(
+      /요청한 메시지를 처리할 수 없습니다/,
+    );
+  });
+
+  it("conversationId null → ValidationError(통합 메시지) (Code-M-1 가드)", async () => {
+    setSession();
+    vi.mocked(findMessageById).mockResolvedValue(
+      mockMessage({ conversationId: null }) as never,
+    );
+    await expect(acceptAiDraft({ messageId: VALID_MSG_UUID })).rejects.toThrow(
+      /요청한 메시지를 처리할 수 없습니다/,
+    );
+    expect(getConversationById).not.toHaveBeenCalled();
+  });
+
+  it("originalText null → revert 후 ValidationError (Code-M-2 가드)", async () => {
+    setSession();
+    vi.mocked(findMessageById).mockResolvedValue(mockMessage() as never);
+    vi.mocked(getConversationById).mockResolvedValue(mockConv() as never);
+    vi.mocked(claimAiDraftForSend).mockResolvedValue(
+      mockMessage({ originalText: null }) as never,
+    );
+    await expect(acceptAiDraft({ messageId: VALID_MSG_UUID })).rejects.toThrow(
+      /초안에 원문이 없습니다/,
+    );
+    expect(revertAiDraftClaim).toHaveBeenCalledWith(
+      expect.anything(),
+      VALID_MSG_UUID,
+    );
+    expect(sendOutboundMock).not.toHaveBeenCalled();
   });
 
   it("status가 ai_draft 아니면 (claim null 반환) → ValidationError + IG send 호출 안 함 (race-safe)", async () => {
@@ -210,8 +250,6 @@ describe("acceptAiDraft action (B-3c)", () => {
     vi.mocked(getExternalIdByCustomerId).mockResolvedValue("igsid_recipient");
     sendOutboundMock.mockRejectedValueOnce(new Error("Meta 5xx"));
 
-    const { captureServerActionError } = await import("@/instrumentation");
-
     await expect(acceptAiDraft({ messageId: VALID_MSG_UUID })).rejects.toThrow(
       /Meta 5xx/,
     );
@@ -220,6 +258,24 @@ describe("acceptAiDraft action (B-3c)", () => {
       VALID_MSG_UUID,
     );
     expect(markMessageSent).not.toHaveBeenCalled();
+    expect(captureServerActionError).toHaveBeenCalled();
+  });
+
+  it("revert 자체 실패 → 원본 에러 re-throw + Sentry 별도 캡처 (Sec 운영 안전)", async () => {
+    setSession();
+    vi.mocked(findMessageById).mockResolvedValue(mockMessage() as never);
+    vi.mocked(getConversationById).mockResolvedValue(mockConv() as never);
+    vi.mocked(claimAiDraftForSend).mockResolvedValue(mockMessage() as never);
+    vi.mocked(getIntegration).mockResolvedValue(mockIntegration());
+    vi.mocked(getExternalIdByCustomerId).mockResolvedValue("igsid_recipient");
+    sendOutboundMock.mockRejectedValueOnce(new Error("Meta 5xx"));
+    vi.mocked(revertAiDraftClaim).mockRejectedValueOnce(
+      new Error("DB connection lost"),
+    );
+
+    await expect(acceptAiDraft({ messageId: VALID_MSG_UUID })).rejects.toThrow(
+      /Meta 5xx/,
+    );
     expect(captureServerActionError).toHaveBeenCalled();
   });
 
