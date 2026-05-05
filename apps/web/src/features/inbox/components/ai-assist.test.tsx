@@ -182,3 +182,97 @@ describe("AIAssist (B-3b)", () => {
     expect(emoji?.textContent).toContain("🤖");
   });
 });
+
+describe("AIAssist (Epic 1B-Tone-4: 4탭 활성화)", () => {
+  const TONES = {
+    warm: "warm-text",
+    formal: "formal-text",
+    short: "short-text",
+    friendly: "friendly-text",
+  };
+
+  it("tones 미전달 → 4탭 미표시 (기존 동작 유지)", () => {
+    render(
+      <AIAssist
+        draftText="hi"
+        onAcceptAsIs={() => {}}
+        onEditDraft={() => {}}
+        onReject={() => {}}
+      />,
+    );
+    expect(
+      screen.queryByRole("tab", { name: /따뜻하게/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("tones 전달 → 4탭 표시 (따뜻하게/공식적으로/짧게/매장 톤으로)", () => {
+    render(
+      <AIAssist
+        draftText={TONES.warm}
+        tones={TONES}
+        onAcceptAsIs={() => {}}
+        onEditDraft={() => {}}
+        onReject={() => {}}
+      />,
+    );
+    expect(screen.getByRole("tab", { name: /따뜻하게/ })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /공식적으로/ })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /짧게/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /매장 톤으로/ }),
+    ).toBeInTheDocument();
+  });
+
+  it("기본 active tone = warm → draft에 warm 텍스트 표시 + warm 탭 aria-selected", () => {
+    render(
+      <AIAssist
+        draftText={TONES.warm}
+        tones={TONES}
+        onAcceptAsIs={() => {}}
+        onEditDraft={() => {}}
+        onReject={() => {}}
+      />,
+    );
+    expect(screen.getByText(TONES.warm)).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /따뜻하게/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
+  it("탭 클릭 → 해당 tone 텍스트 즉시 전환", async () => {
+    render(
+      <AIAssist
+        draftText={TONES.warm}
+        tones={TONES}
+        onAcceptAsIs={() => {}}
+        onEditDraft={() => {}}
+        onReject={() => {}}
+      />,
+    );
+    await userEvent.click(screen.getByRole("tab", { name: /공식적으로/ }));
+    expect(screen.getByText(TONES.formal)).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /공식적으로/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
+  it("그대로 보내기 클릭 → onAcceptAsIs(activeTone) 호출", async () => {
+    const onAcceptAsIs = vi.fn();
+    render(
+      <AIAssist
+        draftText={TONES.warm}
+        tones={TONES}
+        onAcceptAsIs={onAcceptAsIs}
+        onEditDraft={() => {}}
+        onReject={() => {}}
+      />,
+    );
+    await userEvent.click(screen.getByRole("tab", { name: /짧게/ }));
+    await userEvent.click(
+      screen.getByRole("button", { name: /그대로 보내기/ }),
+    );
+    expect(onAcceptAsIs).toHaveBeenCalledWith("short");
+  });
+});

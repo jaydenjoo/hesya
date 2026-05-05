@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import type { Conversation, Message } from "../types";
+import type { Tone } from "../schema";
 import { getWindowStatus } from "../lib/window-utils";
 import { acceptAiDraft } from "../actions/accept-ai-draft";
 import { MessageViewEmpty } from "./message-view-empty";
@@ -75,15 +76,17 @@ function MessageViewActive({
     setDismissed(true);
   }
 
-  function handleAcceptAsIs() {
+  function handleAcceptAsIs(tone: Tone) {
     if (!aiDraft) return;
     const messageId = aiDraft.id;
+    // Epic 1B-Tone-4: tones 있으면 active tone 전달. metadata.tones 없으면
+    // 서버에서 originalText fallback (1A/1B 호환).
+    const hasTones = !!aiDraft.metadata?.tones;
     startAccepting(async () => {
       // 발송 완료 시 revalidatePath로 messages 갱신 → status='sent' 전환되어
       // pickAIDraft가 null 반환 → AIAssist 자동 사라짐. 별 dismissed 호출 불필요.
       // 실패 시 acceptAiDraft가 throw → useTransition pending 해제 + 에러 노출.
-      // (B-3c-follow-up: 사용자에게 toast 알림 추가 검토)
-      await acceptAiDraft({ messageId });
+      await acceptAiDraft(hasTones ? { messageId, tone } : { messageId });
     });
   }
 
@@ -100,6 +103,7 @@ function MessageViewActive({
       {aiDraft ? (
         <AIAssist
           draftText={aiDraft.originalText}
+          tones={aiDraft.metadata?.tones}
           onAcceptAsIs={handleAcceptAsIs}
           onEditDraft={handleEditDraft}
           onReject={handleReject}

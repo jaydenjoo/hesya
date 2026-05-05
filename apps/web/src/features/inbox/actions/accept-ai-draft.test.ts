@@ -304,4 +304,56 @@ describe("acceptAiDraft action (B-3c)", () => {
     );
     expect(revertAiDraftClaim).not.toHaveBeenCalled();
   });
+
+  it("Epic 1B-Tone-4: tone 지정 + metadata.tones 있으면 해당 tone 발송", async () => {
+    setSession();
+    const tones = {
+      warm: "warm-text",
+      formal: "안녕하십니까. 가능합니다.",
+      short: "네 가능.",
+      friendly: "OK 가능해요!",
+    };
+    vi.mocked(findMessageById).mockResolvedValue(
+      mockMessage({ metadata: { tones } }) as never,
+    );
+    vi.mocked(getConversationById).mockResolvedValue(mockConv() as never);
+    vi.mocked(claimAiDraftForSend).mockResolvedValue(
+      mockMessage({ metadata: { tones } }) as never,
+    );
+    vi.mocked(getIntegration).mockResolvedValue(mockIntegration());
+    vi.mocked(getExternalIdByCustomerId).mockResolvedValue("igsid_recipient");
+
+    await acceptAiDraft({ messageId: VALID_MSG_UUID, tone: "formal" });
+
+    expect(sendOutboundMock).toHaveBeenCalledWith(
+      expect.objectContaining({ text: tones.formal }),
+      expect.anything(),
+    );
+  });
+
+  it("Epic 1B-Tone-4: tone 지정했으나 metadata.tones 없음 → originalText fallback (1A/1B 호환)", async () => {
+    setSession();
+    vi.mocked(findMessageById).mockResolvedValue(mockMessage() as never);
+    vi.mocked(getConversationById).mockResolvedValue(mockConv() as never);
+    vi.mocked(claimAiDraftForSend).mockResolvedValue(mockMessage() as never);
+    vi.mocked(getIntegration).mockResolvedValue(mockIntegration());
+    vi.mocked(getExternalIdByCustomerId).mockResolvedValue("igsid_recipient");
+
+    await acceptAiDraft({ messageId: VALID_MSG_UUID, tone: "formal" });
+
+    expect(sendOutboundMock).toHaveBeenCalledWith(
+      expect.objectContaining({ text: "안녕하세요!" }),
+      expect.anything(),
+    );
+  });
+
+  it("Epic 1B-Tone-4: tone 잘못된 값 → ValidationError (스키마 거절)", async () => {
+    setSession();
+    await expect(
+      acceptAiDraft({
+        messageId: VALID_MSG_UUID,
+        tone: "casual",
+      } as never),
+    ).rejects.toThrow(ValidationError);
+  });
 });
