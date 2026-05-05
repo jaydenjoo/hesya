@@ -154,6 +154,7 @@ describe("generateAndStoreReply (B-2)", () => {
       "  맛있는 빵집  ",
     );
     vi.mocked(getCustomerPreferredLanguage).mockResolvedValue("en");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
     generateReplyMock.mockResolvedValue({
       reply: "Hello there",
       tokensUsed: { input: 12, output: 7 },
@@ -198,6 +199,7 @@ describe("generateAndStoreReply (B-2)", () => {
     vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
     vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
     vi.mocked(getCustomerPreferredLanguage).mockResolvedValue(null);
+    vi.mocked(markAIResponded).mockResolvedValue(true);
     generateReplyMock.mockResolvedValue({
       reply: "안녕!",
       tokensUsed: { input: 1, output: 1 },
@@ -215,6 +217,7 @@ describe("generateAndStoreReply (B-2)", () => {
     vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
     vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
     vi.mocked(getCustomerPreferredLanguage).mockResolvedValue("fr");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
     generateReplyMock.mockResolvedValue({
       reply: "안녕!",
       tokensUsed: { input: 1, output: 1 },
@@ -227,11 +230,60 @@ describe("generateAndStoreReply (B-2)", () => {
     );
   });
 
-  it("insertMessage가 null 반환 → insert_failed, markAIResponded 미호출", async () => {
+  it("LLM 응답이 5000자 초과 → reply_too_long (B-2 review HIGH H-2)", async () => {
     vi.mocked(findMessageById).mockResolvedValue(baseInbound);
     vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
     vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
     vi.mocked(getCustomerPreferredLanguage).mockResolvedValue(null);
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    generateReplyMock.mockResolvedValue({
+      reply: "x".repeat(5001),
+      tokensUsed: { input: 1, output: 1 },
+    });
+
+    const r = await generateAndStoreReply(VALID_UUID, deps);
+    expect(r).toEqual({ stored: false, reason: "reply_too_long" });
+    expect(insertMessage).not.toHaveBeenCalled();
+  });
+
+  it("channel이 null → no_channel (B-2 review HIGH code[2])", async () => {
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      channel: null,
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
+    vi.mocked(getCustomerPreferredLanguage).mockResolvedValue(null);
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    generateReplyMock.mockResolvedValue({
+      reply: "응답",
+      tokensUsed: { input: 1, output: 1 },
+    });
+
+    const r = await generateAndStoreReply(VALID_UUID, deps);
+    expect(r).toEqual({ stored: false, reason: "no_channel" });
+    expect(insertMessage).not.toHaveBeenCalled();
+  });
+
+  it("markAIResponded가 false 반환 (동시 호출 race) → already_responded (B-2 review HIGH)", async () => {
+    vi.mocked(findMessageById).mockResolvedValue(baseInbound);
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
+    vi.mocked(getCustomerPreferredLanguage).mockResolvedValue(null);
+    vi.mocked(markAIResponded).mockResolvedValue(false);
+
+    const r = await generateAndStoreReply(VALID_UUID, deps);
+    expect(r).toEqual({ stored: false, reason: "already_responded" });
+    expect(generateReplyMock).not.toHaveBeenCalled();
+    expect(insertMessage).not.toHaveBeenCalled();
+  });
+
+  it("insertMessage가 null 반환 → insert_failed (markAIResponded는 이미 claim됨)", async () => {
+    vi.mocked(findMessageById).mockResolvedValue(baseInbound);
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
+    vi.mocked(getCustomerPreferredLanguage).mockResolvedValue(null);
+    vi.mocked(markAIResponded).mockResolvedValue(true);
     generateReplyMock.mockResolvedValue({
       reply: "x",
       tokensUsed: { input: 1, output: 1 },
@@ -240,7 +292,8 @@ describe("generateAndStoreReply (B-2)", () => {
 
     const r = await generateAndStoreReply(VALID_UUID, deps);
     expect(r).toEqual({ stored: false, reason: "insert_failed" });
-    expect(markAIResponded).not.toHaveBeenCalled();
+    // markAI는 generateReply 전에 호출됨 (race-safe claim) → 1번 호출
+    expect(markAIResponded).toHaveBeenCalledTimes(1);
   });
 
   it("originalText 비어있는 메시지는 recentMessages에서 제외", async () => {
@@ -251,6 +304,7 @@ describe("generateAndStoreReply (B-2)", () => {
     ]);
     vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
     vi.mocked(getCustomerPreferredLanguage).mockResolvedValue(null);
+    vi.mocked(markAIResponded).mockResolvedValue(true);
     generateReplyMock.mockResolvedValue({
       reply: "응답",
       tokensUsed: { input: 1, output: 1 },
@@ -265,8 +319,40 @@ describe("generateAndStoreReply (B-2)", () => {
     );
   });
 
+  it("customerId가 UUID 형식 아니면 getCustomerPreferredLanguage 미호출 + 'ko' fallback (B-2 review M-3)", async () => {
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      customerId: "not-a-uuid",
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    generateReplyMock.mockResolvedValue({
+      reply: "안녕!",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, deps);
+    expect(getCustomerPreferredLanguage).not.toHaveBeenCalled();
+    expect(generateReplyMock).toHaveBeenCalledWith(
+      expect.objectContaining({ customerLanguage: "ko" }),
+    );
+  });
+
   it("module exports generateAndStoreReply (pure)", async () => {
     const mod = await import("./generate-and-store-reply");
     expect(typeof mod.generateAndStoreReply).toBe("function");
+  });
+
+  it("default db는 모듈 캐시된 lazy singleton (B-2 review HIGH code[1])", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile(
+      "src/features/inbox/ai/generate-and-store-reply.ts",
+      "utf-8",
+    );
+    // 매 호출마다 createDbClient 직접 호출하지 않고 helper 경유
+    expect(src).not.toMatch(/deps\.db\s*\?\?\s*createDbClient/);
+    expect(src).toMatch(/cachedDb|getDefaultDb/);
   });
 });

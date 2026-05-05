@@ -4,15 +4,22 @@
  * 책임:
  *   1. messageId로 inbound message 컨텍스트 fetch (conversation/store/customer)
  *   2. boundary 검증 (storeName 신뢰성, 5턴 상한, 중복 응답 방어)
- *   3. B-1 generateReply 호출
+ *   3. race-safe claim (markAIResponded conditional UPDATE) → generateReply
  *   4. outbound `ai_draft` 메시지로 DB 저장
- *   5. inbound에 aiResponded=true 마킹
- *   6. 인박스 UI revalidate
+ *   5. 인박스 UI revalidate
  *
- * IG API 발송은 Phase B-3에서 별 트리거.
+ * IG API 발송은 Phase B-3에서 별 트리거. 응답은 `ai_draft` 상태로 사장 검수 대기.
  *
  * processInbound가 fire-and-forget으로 호출 — Server Action(`"use server"`) 아님.
  * 외부 클라이언트 노출 금지를 위해 server-only 가드 유지.
+ *
+ * **LLM01 known-limitation**: `recentMessages.text`(고객 inbound 원문)는 sanitize 없이
+ * Anthropic API user content로 전달된다. ai_draft 상태로 사장 검수가 강제되므로 자동
+ * 발송 위험 X. 자동 발송 도입 시(B-3+) injection 방어 재검토 필요.
+ *
+ * **Partial success**: generateReply 또는 insert 실패 시 markAIResponded는 이미
+ * true → inbound는 영원히 미응답 상태. 재시도 메커니즘 없음 — Sentry capture
+ * 모니터링으로 감지·수동 보정 (B-2 design 결정, queue/재시도는 향후 Epic 1C).
  */
 import "server-only";
 import { z } from "zod";
@@ -34,8 +41,20 @@ import {
 import { findStoreNameByConversationId } from "@/shared/lib/dal/stores";
 import { getCustomerPreferredLanguage } from "@/shared/lib/dal/customers";
 
+// 모듈 수명 동안 단일 DbClient 유지 — fire-and-forget 동시 호출 폭주 시
+// connection pool 누수 방어. 테스트는 deps.db 주입으로 격리되므로 영향 없음.
+let cachedDb: DbClient | null = null;
+function getDefaultDb(): DbClient {
+  if (cachedDb) return cachedDb;
+  cachedDb = createDbClient(env.DATABASE_URL);
+  return cachedDb;
+}
+
 const RECENT_LIMIT = 10; // 5턴 = inbound+outbound 페어 5쌍
 const STORE_NAME_MAX = 100;
+// LLM 응답 길이 상한. generate-reply MAX_TOKENS=600(한국어 ~1500자)의 ~3x 여유.
+// DB 컬럼은 text(무제한)지만 인박스 UI 렌더 비용 + 스팸성 응답 사전 차단.
+const MAX_REPLY_CHARS = 5000;
 const SUPPORTED_LANGS: ReadonlySet<CustomerLanguage> = new Set([
   "ko",
   "en",
@@ -48,11 +67,13 @@ export type SkipReason =
   | "invalid_message_id"
   | "message_not_found"
   | "not_inbound"
+  | "no_channel"
   | "already_responded"
   | "no_conversation_id"
   | "no_recent_messages"
   | "no_store_name"
   | "invalid_store_name"
+  | "reply_too_long"
   | "insert_failed";
 
 export type GenerateAndStoreReplyDeps = {
@@ -84,7 +105,7 @@ export async function generateAndStoreReply(
     return { stored: false, reason: "invalid_message_id" };
   }
 
-  const db = deps.db ?? createDbClient(env.DATABASE_URL);
+  const db = deps.db ?? getDefaultDb();
   const gen = deps.generateReply ?? defaultGenerateReply;
 
   const msg = await findMessageById(db, idCheck.data);
@@ -97,6 +118,11 @@ export async function generateAndStoreReply(
   }
   if (!msg.conversationId) {
     return { stored: false, reason: "no_conversation_id" };
+  }
+  // schema 상 channel은 nullable text. webhook은 항상 enum 값을 set하지만
+  // 레거시/수동 insert에 대비해 명시 skip — 무조건 "instagram" fallback 금지.
+  if (!msg.channel) {
+    return { stored: false, reason: "no_channel" };
   }
 
   const recent = await listRecentByConversation(
@@ -120,8 +146,12 @@ export async function generateAndStoreReply(
     return { stored: false, reason: "invalid_store_name" };
   }
 
-  const langRaw = msg.customerId
-    ? await getCustomerPreferredLanguage(db, msg.customerId)
+  // customerId UUID 검증 후 language 조회. 비-UUID는 schema 정합성 오류이지만
+  // 'ko' fallback으로 진행 (개별 메시지로 전체 흐름 차단 안 함, 운영 모니터링).
+  const customerIdValid =
+    !!msg.customerId && z.string().uuid().safeParse(msg.customerId).success;
+  const langRaw = customerIdValid
+    ? await getCustomerPreferredLanguage(db, msg.customerId!)
     : null;
   const customerLanguage = normalizeLanguage(langRaw);
 
@@ -138,13 +168,27 @@ export async function generateAndStoreReply(
       text: m.originalText,
     }));
 
+  // Race-safe claim: conditional UPDATE (WHERE ai_responded=false). 동시 호출 시
+  // 한 호출만 true 반환 — generateReply/insert 비용을 한 번만 부담. partial
+  // success(generateReply 또는 insert 실패) 시 inbound는 영원히 미응답 상태로 남으며
+  // 운영 모니터링(Sentry) 책임 (B-2 design 결정).
+  const claimed = await markAIResponded(db, msg.id);
+  if (!claimed) {
+    return { stored: false, reason: "already_responded" };
+  }
+
   const result = await gen({
     storeName,
     customerLanguage,
     recentMessages,
   });
+  if (result.reply.length > MAX_REPLY_CHARS) {
+    return { stored: false, reason: "reply_too_long" };
+  }
 
-  const channel = (msg.channel ?? "instagram") as Channel;
+  // channel은 위 가드를 통과했으므로 non-null. DB CHECK 제약이 enum 값을
+  // 강제하므로 cast 안전 (`send-outbound.ts`와 동일 패턴).
+  const channel = msg.channel as Channel;
   const stored = await insertMessage(db, {
     conversationId: msg.conversationId,
     channel,
@@ -156,7 +200,6 @@ export async function generateAndStoreReply(
     return { stored: false, reason: "insert_failed" };
   }
 
-  await markAIResponded(db, msg.id);
   revalidatePath("/[locale]/store/inbox", "page");
 
   return {

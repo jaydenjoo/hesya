@@ -121,6 +121,21 @@ describe.skipIf(!hasDb)("dal.messages (integration)", () => {
     ]);
   });
 
+  it("markAIResponded: 첫 호출은 true, 두 번째는 false (race-safe, B-2 review)", async () => {
+    const { markAIResponded } = await import("./messages");
+    const m = await insertMessage(db, {
+      conversationId,
+      channel: "instagram",
+      direction: "inbound",
+      originalText: "race test",
+      externalMessageId: "mid_race_1",
+    });
+    const first = await markAIResponded(db, m!.id);
+    const second = await markAIResponded(db, m!.id);
+    expect(first).toBe(true);
+    expect(second).toBe(false);
+  });
+
   it("markFailed: status='failed'로 변경", async () => {
     const m = await insertMessage(db, {
       conversationId,
@@ -151,6 +166,13 @@ describe("dal.messages (pure)", () => {
     const src = await readFile("src/shared/lib/dal/messages.ts", "utf-8");
     expect(src).toMatch(/\.offset\(/);
     expect(src).toMatch(/offset\?\s*:\s*number/);
+  });
+
+  it("markAIResponded conditional UPDATE returns boolean (B-2 review HIGH)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/messages.ts", "utf-8");
+    expect(src).toMatch(/markAIResponded[\s\S]*?Promise<boolean>/);
+    expect(src).toMatch(/aiResponded,\s*false/);
   });
 
   it("insertMessage race condition fallback returns null (review HIGH)", async () => {
