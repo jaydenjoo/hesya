@@ -74,6 +74,14 @@ const envSchema = z.object({
   // console.anthropic.com에서 발급한 API key (`sk-ant-...`).
   // 분류 1회당 ~$0.003 (input ~500 tokens + output ~100 tokens, Sonnet 4.6).
   ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-"),
+
+  // ─── Epic 1-1A Instagram (developers.facebook.com Meta App) ───
+  // App Dashboard에서 발급한 App ID + App Secret + Webhook Verify Token.
+  // IG_REDIRECT_URI는 Meta App에 등록된 OAuth redirect URI (ngrok 또는 prod 도메인).
+  IG_APP_ID: z.string().min(1),
+  IG_APP_SECRET: z.string().min(1),
+  IG_WEBHOOK_VERIFY_TOKEN: z.string().min(8),
+  IG_REDIRECT_URI: z.url(),
 });
 
 /**

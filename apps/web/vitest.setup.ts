@@ -29,6 +29,10 @@ const stubs: Record<string, string> = {
   RESEND_API_KEY: "re_stub",
   RESEND_FROM_EMAIL: "test@example.com",
   ANTHROPIC_API_KEY: "sk-ant-stub",
+  IG_APP_ID: "stub-ig-app-id",
+  IG_APP_SECRET: "stub-ig-app-secret",
+  IG_WEBHOOK_VERIFY_TOKEN: "stub-ig-verify-token",
+  IG_REDIRECT_URI: "https://stub.example.com/api/oauth/instagram/callback",
 };
 for (const [k, v] of Object.entries(stubs)) {
   if (process.env[k] == null || process.env[k] === "") {
