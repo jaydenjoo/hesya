@@ -138,4 +138,71 @@ describe.skipIf(!hasDb)("generateAndStoreReply (integration)", () => {
     expect(second).toEqual({ stored: false, reason: "already_responded" });
     expect(stub).toHaveBeenCalledTimes(1);
   });
+
+  it("시나리오 3 (B-1~B-4 통합): FAQ 시드 → RAG 검색 결과가 generateReply에 주입", async () => {
+    // C-light: 회귀 안전망 — RAG 파이프라인이 실제 DB에서 작동하는지 검증.
+    // FAQ row를 직접 storeKnowledge에 시드(임베딩 1536d 임의값) → embed stub이
+    // 같은 차원 벡터 반환 → searchSimilarKnowledge 실제 cosine distance 계산 →
+    // hits가 generateReply에 relatedFAQs로 전달되는지 검증.
+    const { storeKnowledge } = await import("@hesya/database");
+    const { generateAndStoreReply: gsr } =
+      await import("./generate-and-store-reply");
+
+    const storeId = await seedStore(db, { name: "단발 매장" });
+    const customer = await upsertCustomer(db, {
+      channel: "instagram",
+      externalId: "igsid_c_light",
+      preferredLanguage: "ko",
+    });
+    const convId = await seedConversation(db, {
+      storeId,
+      customerId: customer!.id,
+      channel: "instagram",
+    });
+    const inboundId = await seedMessage(db, {
+      conversationId: convId,
+      direction: "inbound",
+      text: "단발 가능한가요?",
+    });
+
+    // FAQ 시드 — 임베딩은 모두 0.1로 채워 embed stub과 cosine distance 0 유지.
+    const faqEmbedding = Array(1536).fill(0.1);
+    await db.insert(storeKnowledge).values({
+      storeId,
+      question: "단발 가능?",
+      answer: "네 가능합니다 (5만원). DM으로 예약 받습니다.",
+      embedding: faqEmbedding,
+    });
+
+    const generateReplyStub = vi.fn().mockResolvedValue({
+      reply: "안녕하세요! 단발 5만원에 가능합니다.",
+      tokensUsed: { input: 10, output: 8 },
+    });
+    const translateReplyStub = vi.fn(); // ko → no-op
+    const embedStub = vi.fn().mockResolvedValue({
+      embedding: faqEmbedding,
+      tokensUsed: 5,
+    });
+
+    const result = await gsr(inboundId, {
+      db,
+      generateReply: generateReplyStub,
+      translateReply: translateReplyStub,
+      generateEmbedding: embedStub,
+    });
+
+    expect(result.stored).toBe(true);
+    // RAG 핵심 검증: relatedFAQs가 실제 DB cosine 검색 결과로 generateReply에 주입.
+    expect(generateReplyStub).toHaveBeenCalledWith(
+      expect.objectContaining({
+        relatedFAQs: [
+          {
+            question: "단발 가능?",
+            answer: "네 가능합니다 (5만원). DM으로 예약 받습니다.",
+          },
+        ],
+      }),
+    );
+    expect(embedStub).toHaveBeenCalledWith({ text: "단발 가능한가요?" });
+  });
 });
