@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { createDbClient, type DbClient } from "@hesya/database";
-import { upsertCustomer } from "./customers";
+import { getExternalIdByCustomerId, upsertCustomer } from "./customers";
 import { resetDb } from "@/test-helpers/db";
 
 const url = process.env.HESYA_TEST_DATABASE_URL;
@@ -60,12 +60,47 @@ describe.skipIf(!hasDb)("dal.customers (integration)", () => {
     });
     expect(b!.id).not.toBe(a!.id);
   });
+
+  it("getExternalIdByCustomerId: 존재 → externalId 반환", async () => {
+    const c = await upsertCustomer(db, {
+      channel: "instagram",
+      externalId: "igsid_lookup",
+    });
+    const ext = await getExternalIdByCustomerId(db, c!.id);
+    expect(ext).toBe("igsid_lookup");
+  });
+
+  it("getExternalIdByCustomerId: 미존재 → null", async () => {
+    const ext = await getExternalIdByCustomerId(
+      db,
+      "00000000-0000-0000-0000-000000000000",
+    );
+    expect(ext).toBeNull();
+  });
 });
 
 describe("dal.customers (pure)", () => {
   it("module exports upsertCustomer", async () => {
     const mod = await import("./customers");
     expect(typeof mod.upsertCustomer).toBe("function");
+  });
+
+  it("module exports getExternalIdByCustomerId", async () => {
+    const mod = await import("./customers");
+    expect(typeof mod.getExternalIdByCustomerId).toBe("function");
+  });
+
+  it("getExternalIdByCustomerId queries customers table with id (mock)", async () => {
+    const { vi } = await import("vitest");
+    const limitSpy = vi.fn(() => Promise.resolve([{ externalId: "ig_xyz" }]));
+    const whereSpy = vi.fn(() => ({ limit: limitSpy }));
+    const fromSpy = vi.fn(() => ({ where: whereSpy }));
+    const selectSpy = vi.fn(() => ({ from: fromSpy }));
+    const fakeDb = { select: selectSpy } as unknown as DbClient;
+
+    const result = await getExternalIdByCustomerId(fakeDb, "cust_123");
+    expect(selectSpy).toHaveBeenCalled();
+    expect(result).toBe("ig_xyz");
   });
 
   it("upsertCustomer race condition fallback returns null (review HIGH)", async () => {
