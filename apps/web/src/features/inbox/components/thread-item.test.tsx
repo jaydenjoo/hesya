@@ -24,7 +24,7 @@ const conv: Conversation = {
   updatedAt: new Date(),
 };
 
-describe("ThreadItem", () => {
+describe("ThreadItem (A-2 시각 풍부화)", () => {
   it("renders lastMessagePreview", () => {
     render(
       <ThreadItem conversation={conv} isActive={false} onClick={() => {}} />,
@@ -46,5 +46,60 @@ describe("ThreadItem", () => {
       <ThreadItem conversation={conv} isActive={true} onClick={() => {}} />,
     );
     expect(screen.getByRole("button")).toHaveAttribute("aria-current", "page");
+  });
+
+  it("avatar 표시 — customerId 첫 글자(대문자)", () => {
+    render(
+      <ThreadItem
+        conversation={{ ...conv, customerId: "abc12345-..." }}
+        isActive={false}
+        onClick={() => {}}
+      />,
+    );
+    expect(screen.getByTestId("thread-avatar")).toHaveTextContent("A");
+  });
+
+  it("unreadCount > 0 → unread badge + bold preview", () => {
+    render(
+      <ThreadItem
+        conversation={{ ...conv, unreadCount: 3 }}
+        isActive={false}
+        onClick={() => {}}
+      />,
+    );
+    expect(screen.getByTestId("unread-badge")).toHaveTextContent("3");
+  });
+
+  it("unreadCount=0 → unread badge 없음", () => {
+    render(
+      <ThreadItem
+        conversation={{ ...conv, unreadCount: 0 }}
+        isActive={false}
+        onClick={() => {}}
+      />,
+    );
+    expect(screen.queryByTestId("unread-badge")).not.toBeInTheDocument();
+  });
+
+  it("lastMessageAt 있으면 시간 표시 (HH:mm 형식)", () => {
+    const at = new Date("2026-05-05T14:24:00Z");
+    render(
+      <ThreadItem
+        conversation={{ ...conv, lastMessageAt: at }}
+        isActive={false}
+        onClick={() => {}}
+      />,
+    );
+    // 로컬타임존 의존 → 정규식으로 HH:mm 패턴만 검증
+    expect(screen.getByTestId("thread-time").textContent).toMatch(
+      /^\d{2}:\d{2}$/,
+    );
+  });
+
+  it("channel='instagram' → IG 채널 아이콘 표시", () => {
+    render(
+      <ThreadItem conversation={conv} isActive={false} onClick={() => {}} />,
+    );
+    expect(screen.getByTestId("thread-channel-icon")).toBeInTheDocument();
   });
 });

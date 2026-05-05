@@ -49,7 +49,35 @@ describe("ThreadList", () => {
     render(
       <ThreadList conversations={convs} activeId={null} onSelect={onSelect} />,
     );
-    fireEvent.click(screen.getByRole("button"));
+    // 첫 번째 button = ThreadItem (header에 button 없음)
+    const buttons = screen.getAllByRole("button");
+    fireEvent.click(buttons[0]!);
     expect(onSelect).toHaveBeenCalledWith("conv_x");
+  });
+
+  it("A-2 헤더: '통합 인박스' + unread 미답 카운트 표시", () => {
+    const convs = [
+      { ...makeConv("a", "x"), unreadCount: 2 },
+      { ...makeConv("b", "y"), unreadCount: 0 },
+      { ...makeConv("c", "z"), unreadCount: 5 },
+    ];
+    render(
+      <ThreadList conversations={convs} activeId={null} onSelect={() => {}} />,
+    );
+    expect(screen.getByText("통합 인박스")).toBeInTheDocument();
+    // unread > 0 인 thread 수 (메시지 수가 아닌 미답 thread 수). 2개.
+    expect(screen.getByTestId("thread-list-unread-total")).toHaveTextContent(
+      "2",
+    );
+  });
+
+  it("빈 상태에서도 헤더 표시 (사장이 빈 인박스에서도 매장 상태 인지)", () => {
+    render(
+      <ThreadList conversations={[]} activeId={null} onSelect={() => {}} />,
+    );
+    expect(screen.getByText("통합 인박스")).toBeInTheDocument();
+    expect(screen.getByTestId("thread-list-unread-total")).toHaveTextContent(
+      "0",
+    );
   });
 });
