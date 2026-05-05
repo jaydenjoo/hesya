@@ -109,6 +109,74 @@ describe("sendOutbound action", () => {
     ).rejects.toThrow(WindowClosedError);
   });
 
+  it("integration 없음 → ValidationError", async () => {
+    setSession("s1");
+    vi.mocked(getConversationById).mockResolvedValue({
+      id: VALID_UUID,
+      storeId: "s1",
+      customerId: "cust_1",
+      channel: "instagram",
+      messagingWindowExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    } as never);
+    vi.mocked(getIntegration).mockResolvedValue(null);
+    await expect(
+      sendOutbound({ conversationId: VALID_UUID, text: "hi" }),
+    ).rejects.toThrow(ValidationError);
+  });
+
+  it("recipient externalId 없음 → ValidationError", async () => {
+    setSession("s1");
+    vi.mocked(getConversationById).mockResolvedValue({
+      id: VALID_UUID,
+      storeId: "s1",
+      customerId: "cust_1",
+      channel: "instagram",
+      messagingWindowExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    } as never);
+    vi.mocked(getIntegration).mockResolvedValue({
+      externalAccountId: "ig_acc_1",
+      externalPageId: null,
+      externalAccountName: null,
+      accessToken: "tok",
+      tokenExpiresAt: null,
+      scopes: null,
+      webhookSubscribedAt: null,
+    });
+    vi.mocked(getExternalIdByCustomerId).mockResolvedValue(null);
+    await expect(
+      sendOutbound({ conversationId: VALID_UUID, text: "hi" }),
+    ).rejects.toThrow(ValidationError);
+  });
+
+  it("adapter.sendOutbound throw → captureServerActionError 호출 후 re-throw", async () => {
+    setSession("s1");
+    vi.mocked(getConversationById).mockResolvedValue({
+      id: VALID_UUID,
+      storeId: "s1",
+      customerId: "cust_1",
+      channel: "instagram",
+      messagingWindowExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    } as never);
+    vi.mocked(getIntegration).mockResolvedValue({
+      externalAccountId: "ig_acc_1",
+      externalPageId: "page_1",
+      externalAccountName: "demo",
+      accessToken: "tok",
+      tokenExpiresAt: null,
+      scopes: ["instagram_business_basic"],
+      webhookSubscribedAt: null,
+    });
+    vi.mocked(getExternalIdByCustomerId).mockResolvedValue("igsid_recipient");
+    sendOutboundMock.mockRejectedValueOnce(new Error("Meta 5xx"));
+
+    const { captureServerActionError } = await import("@/instrumentation");
+
+    await expect(
+      sendOutbound({ conversationId: VALID_UUID, text: "x" }),
+    ).rejects.toThrow(/Meta 5xx/);
+    expect(captureServerActionError).toHaveBeenCalled();
+  });
+
   it("정상: adapter.sendOutbound 호출 + insertMessage outbound + ok 반환", async () => {
     setSession("s1");
     vi.mocked(getConversationById).mockResolvedValue({

@@ -1,8 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
-import { createDbClient } from "@hesya/database";
+import { createDbClient, type Channel } from "@hesya/database";
 import { env } from "@/shared/config/env";
 import { captureServerActionError } from "@/instrumentation";
 import { fetchInstagramApiClient } from "@/lib/inbox/instagram-api-client";
@@ -16,16 +15,11 @@ import { insertMessage } from "@/shared/lib/dal/messages";
 import { getExternalIdByCustomerId } from "@/shared/lib/dal/customers";
 import { getIntegration } from "@/shared/lib/dal/store-integrations";
 import {
-  ExternalApiError,
   ForbiddenError,
   ValidationError,
   WindowClosedError,
 } from "@/shared/lib/errors";
-
-const inputSchema = z.object({
-  conversationId: z.uuid(),
-  text: z.string().min(1).max(2000),
-});
+import { sendOutboundInputSchema } from "../schema";
 
 // 모듈 로드 시 1회. IG_APP_SECRET 변경 시 서버 재시작 필요.
 const adapter = createInstagramAdapter(fetchInstagramApiClient, {
@@ -39,7 +33,7 @@ export async function sendOutbound(input: {
 }): Promise<{ ok: true; messageId: string }> {
   const session = await requireStoreOwnerAuth();
   try {
-    const parsed = inputSchema.safeParse(input);
+    const parsed = sendOutboundInputSchema.safeParse(input);
     if (!parsed.success) {
       throw new ValidationError("입력 형식 오류", parsed.error.issues);
     }
@@ -59,15 +53,11 @@ export async function sendOutbound(input: {
       });
     }
 
-    const channel = conv.channel as
-      | "instagram"
-      | "whatsapp"
-      | "kakao"
-      | "line"
-      | "messenger";
+    // DB CHECK constraint(channel IN ...)이 허용값을 강제하므로 cast 안전.
+    const channel = conv.channel as Channel;
     const integration = await getIntegration(db, session.storeId, channel);
     if (!integration) {
-      throw new ExternalApiError("Instagram 연결이 없습니다", {});
+      throw new ValidationError("Instagram 연결이 없습니다");
     }
 
     const recipientExternalId = await getExternalIdByCustomerId(

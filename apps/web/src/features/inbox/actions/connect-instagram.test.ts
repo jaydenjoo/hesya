@@ -14,6 +14,7 @@ vi.mock("@/shared/lib/store-owner-guard", () => ({
 
 import { getInstagramOAuthUrl } from "./connect-instagram";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
+import { UnauthorizedError } from "@/shared/lib/errors";
 
 describe("getInstagramOAuthUrl", () => {
   beforeEach(() => {
@@ -34,7 +35,7 @@ describe("getInstagramOAuthUrl", () => {
     expect(url).toMatch(/state=[0-9a-f]{64}/);
   });
 
-  it("ig_oauth_state cookie 설정 (httpOnly + secure + sameSite=lax + 5분)", async () => {
+  it("ig_oauth_state cookie 설정 (httpOnly + sameSite=lax + 5분)", async () => {
     await getInstagramOAuthUrl();
     expect(cookieStoreMock.set).toHaveBeenCalledTimes(1);
     const [name, value, options] = cookieStoreMock.set.mock.calls[0]!;
@@ -42,7 +43,6 @@ describe("getInstagramOAuthUrl", () => {
     expect(value).toMatch(/^[0-9a-f]{64}$/);
     expect(options).toMatchObject({
       httpOnly: true,
-      secure: true,
       sameSite: "lax",
       maxAge: 5 * 60,
       path: "/",
@@ -52,5 +52,19 @@ describe("getInstagramOAuthUrl", () => {
   it("매장 사장 인증 호출", async () => {
     await getInstagramOAuthUrl();
     expect(requireStoreOwnerAuth).toHaveBeenCalledTimes(1);
+  });
+
+  it("인증 실패 → throw, cookie/URL 생성 안 함", async () => {
+    vi.mocked(requireStoreOwnerAuth).mockRejectedValue(
+      new UnauthorizedError("로그인 필요"),
+    );
+    await expect(getInstagramOAuthUrl()).rejects.toThrow(UnauthorizedError);
+    expect(cookieStoreMock.set).not.toHaveBeenCalled();
+  });
+
+  it("test 환경(NODE_ENV=test)에서 secure: false (로컬 개발 호환)", async () => {
+    await getInstagramOAuthUrl();
+    const [, , options] = cookieStoreMock.set.mock.calls[0]!;
+    expect(options).toMatchObject({ secure: false });
   });
 });

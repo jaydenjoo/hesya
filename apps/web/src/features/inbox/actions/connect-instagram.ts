@@ -7,6 +7,13 @@ import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 
 const STATE_TTL_SECONDS = 5 * 60;
 
+/**
+ * Instagram OAuth 시작 URL 생성. 클라이언트가 받은 URL로 redirect → Instagram
+ * 동의 화면 → callback route로 돌아옴 (state cookie 비교).
+ *
+ * 반환 envelope 미사용 사유: 클라이언트는 이 string을 그대로 `window.location`에
+ * 넣어 redirect한다. `{ ok, data }` 봉투는 client-side parse 단계만 추가해 부담.
+ */
 export async function getInstagramOAuthUrl(): Promise<string> {
   await requireStoreOwnerAuth();
 
@@ -14,7 +21,8 @@ export async function getInstagramOAuthUrl(): Promise<string> {
   const cookieStore = await cookies();
   cookieStore.set("ig_oauth_state", state, {
     httpOnly: true,
-    secure: true,
+    // 로컬 HTTP 환경(개발)에서 쿠키 미설정 방지 — prod에서만 secure 강제.
+    secure: env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: STATE_TTL_SECONDS,
     path: "/",
