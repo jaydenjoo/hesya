@@ -4,12 +4,12 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Epic 1B Phase B-3c 완료** ✅ (1A + 1B B-1, B-2, B-3a, B-3b, B-3c 머지)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1 ✅ + B-2 ✅ + B-3a ✅ + B-3b ✅ + B-3c ✅ → **다음**: B-4 RAG 또는 별 Epic 1B-UI (3-col 인박스)
-- **Task**: 1A Phase A~J ✅ / 1B B-1 ✅ / B-2 ✅ / B-3a ✅ / B-3b ✅ / B-3c ✅ (AI 초안 자동 발송 + messages RLS)
-- **상태**: 사장이 AIAssist '그대로 보내기' 클릭 → IG로 자동 송출 + status 'sent' 전환. race-safe claim(L-058)으로 동시 두 클릭 시 IG send 1회만. 실패 시 revert로 사장 재시도 가능. messages RLS POLICY 추가(B-2 LOW [L-2] 흡수). main 최신 SHA `a3c50ad`. 차단 요소 없음.
+- **Phase**: Phase 1 — **Epic 1B Phase B-4 RAG 시리즈 완료** ✅ (1A + 1B B-1~B-3c + B-4a/b/c 머지)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1 ✅ + B-2 ✅ + B-3a ✅ + B-3b ✅ + B-3c ✅ + **B-4a ✅ + B-4b ✅ + B-4c ✅** → **다음**: 별 Epic 1B-UI (3-col 인박스) 또는 B-5 e2e
+- **Task**: 1A Phase A~J ✅ / 1B B-1 ✅ / B-2 ✅ / B-3a ✅ / B-3b ✅ / B-3c ✅ / B-4a ✅ (pgvector + store_knowledge) / B-4b ✅ (RAG 검색 → AI 프롬프트 주입) / B-4c ✅ (FAQ CRUD UI)
+- **상태**: RAG 파이프라인 완성. inbound 메시지 → 임베딩 → store_knowledge 코사인 검색 (top-3) → system prompt에 `<store_faq>` XML data block 주입(L-059 framing). 사장은 `/store/knowledge`에서 FAQ CRUD. 임베딩 실패 silent skip(embedding=null) → 다음 수정 시 재생성. count 한도 200/매장. 차단 요소 없음.
 - **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **최근 PR**: [#39](https://github.com/jaydenjoo/hesya/pull/39) B-3a, [#40](https://github.com/jaydenjoo/hesya/pull/40) B-3b, [#41](https://github.com/jaydenjoo/hesya/pull/41) B-3c (Sec HIGH 1 + Code MEDIUM 4 + 운영 안전 fix 흡수)
+- **최근 PR**: [#42](https://github.com/jaydenjoo/hesya/pull/42) B-4a (pgvector), [#43](https://github.com/jaydenjoo/hesya/pull/43) B-4b (RAG 검색), [#44](https://github.com/jaydenjoo/hesya/pull/44) B-4c (FAQ CRUD UI). main 최신 SHA `f4ac43b`.
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -17,24 +17,23 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Epic 1B Phase B-4 RAG 인덱싱 (권장)
-
-**B-4: 매장 FAQ 학습** (~3~4h, 여러 PR):
-
-- pgvector 활성화 + `store_knowledge` 테이블 (질문/답변/임베딩)
-- 임베딩 생성 (Anthropic 또는 OpenAI text-embedding-3-small)
-- generate-reply.ts에서 RAG 검색 → context로 주입
-- 매장 FAQ CRUD UI (간단)
-
-**선행 검증**: chained LLM(L-059) 패턴이 RAG 컨텍스트에도 적용 — 검색 결과를 system prompt에 "data, not instruction" framing.
-
-### 2. 별 Epic 1B-UI: 인박스 전체 재구성 (~4~6h)
+### 1. 별 Epic 1B-UI: 인박스 전체 재구성 (권장, ~4~6h)
 
 - 디자인 ref 3-col 레이아웃 (ChannelRail + Thread + ContextPanel)
 - 톤 4탭 (warm/formal/short/friendly) + 톤 검증 pill
 - "이유 보기" 팝업, "내 매장 톤 학습" 버튼
 - Shortcuts FAB 키보드 단축키 모달
 - 출처: `docs/design/reference/inbox-app.jsx` 전체 적용
+
+### 2. Phase B-4 사후 follow-up (선택, 별 PR)
+
+**B-4a/b/c 리뷰에서 언급된 MEDIUM 항목**:
+
+- 🟡 `countStoreKnowledge` DAL 함수 분리 (현재 `listStoreKnowledge({limit:201})` 결과 length로 체크 — ~100KB 페이로드 낭비)
+- 🟡 FAQ 삭제 `window.confirm` → shadcn AlertDialog (UX 개선, 디자인 ref 추가 시)
+- 🟡 createFAQ count 한도 TOCTOU (race condition — 200개 동시 등록 시 201개 가능). DB unique constraint 또는 advisory lock으로 보강
+- 🟡 OpenAI rate limit (현재 무방어 — 사장이 빠르게 200개 등록 시 429 가능)
+- 🟢 FAQ 검색/필터 UI (등록 수 50개 초과 시점)
 
 ### 3. B-3c 사후 follow-up (선택, 별 PR)
 
@@ -87,6 +86,7 @@
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-05 late night — **Epic 1B Phase B-4 RAG 시리즈 완료** (PR #42 pgvector + #43 검색 주입 + #44 CRUD UI)
 - 날짜: 2026-05-05 night — **Epic 1B Phase B-3c 완료** (PR #41, Sec HIGH 1 + Code MEDIUM 4 + 운영 안전 fix)
 
 ## 이번 세션 완료 (2026-05-05 night — Phase B-3c)
