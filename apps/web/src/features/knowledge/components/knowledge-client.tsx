@@ -149,17 +149,23 @@ function FAQRow({ faq, onEdit }: { faq: FAQItem; onEdit: () => void }) {
   );
 }
 
-function FAQForm({
-  mode,
-  initialFAQ,
-  onCancel,
-  onDone,
-}: {
-  mode: "create" | "edit";
-  initialFAQ?: FAQItem;
-  onCancel: () => void;
-  onDone: () => void;
-}) {
+type FAQFormProps =
+  | {
+      mode: "create";
+      initialFAQ?: never;
+      onCancel: () => void;
+      onDone: () => void;
+    }
+  | {
+      mode: "edit";
+      initialFAQ: FAQItem;
+      onCancel: () => void;
+      onDone: () => void;
+    };
+
+function FAQForm(props: FAQFormProps) {
+  const { mode, onCancel, onDone } = props;
+  const initialFAQ = mode === "edit" ? props.initialFAQ : undefined;
   const [question, setQuestion] = useState(initialFAQ?.question ?? "");
   const [answer, setAnswer] = useState(initialFAQ?.answer ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -172,8 +178,8 @@ function FAQForm({
       try {
         if (mode === "create") {
           await createFAQ({ question, answer });
-        } else if (initialFAQ) {
-          await updateFAQ({ id: initialFAQ.id, question, answer });
+        } else {
+          await updateFAQ({ id: props.initialFAQ.id, question, answer });
         }
         onDone();
       } catch (err) {

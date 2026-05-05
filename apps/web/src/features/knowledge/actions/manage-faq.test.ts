@@ -180,6 +180,30 @@ describe("updateFAQ (B-4c)", () => {
       updateFAQ({ id: "not-uuid", question: "Q", answer: "A" }),
     ).rejects.toThrow(ValidationError);
   });
+
+  it("임베딩 실패 → embedding=null로 update 진행 (createFAQ와 대칭)", async () => {
+    setSession("s1");
+    vi.mocked(generateEmbedding).mockRejectedValue(new Error("OpenAI down"));
+    vi.mocked(updateStoreKnowledge).mockResolvedValue({
+      id: VALID_UUID,
+      storeId: "s1",
+      question: "Q",
+      answer: "A",
+      embedding: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const r = await updateFAQ({ id: VALID_UUID, question: "Q", answer: "A" });
+
+    expect(r).toEqual({ ok: true });
+    expect(updateStoreKnowledge).toHaveBeenCalledWith(
+      expect.anything(),
+      VALID_UUID,
+      "s1",
+      expect.objectContaining({ embedding: null }),
+    );
+  });
 });
 
 describe("deleteFAQ (B-4c)", () => {
