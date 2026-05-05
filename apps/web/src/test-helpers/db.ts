@@ -79,3 +79,22 @@ export async function seedStoreOwner(
 ): Promise<void> {
   await db.insert(storeOwners).values(input);
 }
+
+export async function seedStoreIntegration(
+  db: DbClient,
+  input: {
+    storeId: string;
+    channel: "instagram" | "whatsapp" | "kakao" | "line" | "messenger";
+    externalAccountId: string;
+    externalPageId?: string;
+  },
+): Promise<void> {
+  await db.insert(storeIntegrations).values({
+    storeId: input.storeId,
+    channel: input.channel,
+    externalAccountId: input.externalAccountId,
+    externalPageId: input.externalPageId,
+    accessTokenEncrypted: Buffer.from("test_tok_encrypted"),
+    scopes: ["instagram_business_basic", "instagram_business_manage_messages"],
+  });
+}
