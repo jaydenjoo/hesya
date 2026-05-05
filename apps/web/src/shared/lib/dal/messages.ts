@@ -7,6 +7,7 @@ import {
   messages,
   type Channel,
   type DbClient,
+  type MessageMetadata,
 } from "@hesya/database";
 
 type Message = typeof messages.$inferSelect;
@@ -21,6 +22,8 @@ export async function insertMessage(
     originalText: string;
     externalMessageId?: string;
     status?: string;
+    /** Epic 1B-Tone-1 — 4 tone variations 포함 (1B-Tone-3에서 채워짐). */
+    metadata?: MessageMetadata;
   },
 ): Promise<Message | null> {
   const defaultStatus =
@@ -35,6 +38,7 @@ export async function insertMessage(
       originalText: input.originalText,
       externalMessageId: input.externalMessageId,
       status: defaultStatus,
+      metadata: input.metadata,
     })
     .onConflictDoNothing()
     .returning();

@@ -61,6 +61,7 @@ const baseInbound: Message = {
   languageTo: null,
   aiResponded: false,
   aiModel: null,
+  metadata: null,
   createdAt: new Date(),
 };
 
