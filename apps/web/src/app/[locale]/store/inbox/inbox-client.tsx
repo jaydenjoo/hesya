@@ -2,17 +2,13 @@
 
 import { useEffect, useState } from "react";
 import {
-  ResizablePanelGroup,
-  ResizablePanel,
-  ResizableHandle,
-} from "@/components/ui/resizable";
-import {
   ThreadList,
   ThreadListConnectCTA,
   MessageView,
   TokenExpiredBanner,
   getWindowStatus,
 } from "@/features/inbox";
+import { InboxShell } from "@/features/inbox/components/inbox-shell";
 import type { Conversation, Message } from "@/features/inbox";
 
 const POLL_INTERVAL_MS = 5000;
@@ -83,23 +79,24 @@ export function InboxClient({
   return (
     <div className="flex h-screen flex-col">
       {tokenExpired ? <TokenExpiredBanner /> : null}
-      <ResizablePanelGroup orientation="horizontal" className="flex-1">
-        <ResizablePanel defaultSize={25} minSize={15}>
-          <ThreadList
-            conversations={conversations}
-            activeId={activeId}
-            onSelect={setActiveId}
-          />
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize={75}>
-          <MessageView
-            conversation={active}
-            messages={messages}
-            customerName={customerName}
-          />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+      <div className="flex-1 overflow-hidden">
+        <InboxShell
+          threadColumn={
+            <ThreadList
+              conversations={conversations}
+              activeId={activeId}
+              onSelect={setActiveId}
+            />
+          }
+          messageColumn={
+            <MessageView
+              conversation={active}
+              messages={messages}
+              customerName={customerName}
+            />
+          }
+        />
+      </div>
     </div>
   );
 }
