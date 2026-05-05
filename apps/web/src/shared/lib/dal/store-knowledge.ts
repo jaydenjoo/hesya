@@ -8,6 +8,7 @@ import {
   storeKnowledge,
   type DbClient,
 } from "@hesya/database";
+import { EMBEDDING_DIMENSIONS } from "@/features/inbox/ai/embeddings";
 
 /**
  * Phase B-4a — store_knowledge CRUD + RAG 검색.
@@ -41,7 +42,11 @@ export async function createStoreKnowledge(
       embedding: input.embedding,
     })
     .returning();
-  return inserted[0]!;
+  const row = inserted[0];
+  if (!row) {
+    throw new Error("createStoreKnowledge: insert returned empty");
+  }
+  return row;
 }
 
 export async function updateStoreKnowledge(
@@ -103,6 +108,13 @@ export async function searchSimilarKnowledge(
   queryEmbedding: number[],
   opts: { k?: number; threshold?: number } = {},
 ): Promise<Array<StoreKnowledge & { distance: number }>> {
+  // 입력 가드: caller가 generateEmbedding 외 경로로 임의 벡터 전달 시
+  // pgvector 런타임 에러를 클라이언트 500으로 흘리지 말고 사전에 차단.
+  if (queryEmbedding.length !== EMBEDDING_DIMENSIONS) {
+    throw new Error(
+      `searchSimilarKnowledge: invalid embedding dim ${queryEmbedding.length} (expected ${EMBEDDING_DIMENSIONS})`,
+    );
+  }
   const k = opts.k ?? 3;
   const threshold = opts.threshold ?? 0.5;
   const queryVec = sql`${JSON.stringify(queryEmbedding)}::vector`;

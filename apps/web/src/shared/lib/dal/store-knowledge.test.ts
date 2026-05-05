@@ -52,4 +52,25 @@ describe("dal.store-knowledge (pure)", () => {
     );
     expect(src).toMatch(/deleteStoreKnowledge[\s\S]*?eq\(\s*\w+\.storeId/);
   });
+
+  it("searchSimilarKnowledge: queryEmbedding 길이 가드 (Sec/Code MEDIUM)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile(
+      "src/shared/lib/dal/store-knowledge.ts",
+      "utf-8",
+    );
+    expect(src).toMatch(
+      /searchSimilarKnowledge[\s\S]*?queryEmbedding\.length\s*!==\s*EMBEDDING_DIMENSIONS/,
+    );
+  });
+
+  it("createStoreKnowledge: insert empty 명시 가드 (Code-MEDIUM-3)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile(
+      "src/shared/lib/dal/store-knowledge.ts",
+      "utf-8",
+    );
+    expect(src).not.toMatch(/return\s+inserted\[0\]!/);
+    expect(src).toMatch(/createStoreKnowledge[\s\S]*?(throw|Error)/);
+  });
 });

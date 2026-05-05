@@ -48,12 +48,18 @@ describe("embeddings.generateEmbedding (B-4a)", () => {
     expect(embeddingsCreateMock).not.toHaveBeenCalled();
   });
 
-  it("8192 chars 초과 입력 → ValidationError (OpenAI 토큰 한도 보호)", async () => {
-    const tooLong = "가".repeat(8193);
+  it("3000 chars 초과 입력 → ValidationError (한국어 토큰 한도 보호, Sec-MEDIUM-3)", async () => {
+    const tooLong = "가".repeat(3001);
     await expect(generateEmbedding({ text: tooLong })).rejects.toThrow(
       /too long/,
     );
     expect(embeddingsCreateMock).not.toHaveBeenCalled();
+  });
+
+  it("module은 'server-only' import (Sec-MEDIUM-1, OPENAI_API_KEY 클라이언트 누출 방어)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/features/inbox/ai/embeddings.ts", "utf-8");
+    expect(src).toMatch(/import\s+["']server-only["']/);
   });
 
   it("OpenAI 응답에 data 없음 → 명시적 에러", async () => {

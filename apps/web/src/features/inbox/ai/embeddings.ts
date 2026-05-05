@@ -16,13 +16,18 @@
  * **에러 처리**: 빈/과도한 입력은 사전 가드, OpenAI 실패는 throw — caller가
  * silent skip 또는 재시도 결정 (generate-and-store-reply.ts 패턴).
  */
+import "server-only";
 import OpenAI from "openai";
 import { env } from "@/shared/config/env";
 
 export const EMBEDDING_DIMENSIONS = 1536;
 export const EMBEDDING_MODEL = "text-embedding-3-small";
 
-const MAX_INPUT_CHARS = 8192;
+// OpenAI 한도는 8191 토큰. 한국어는 1 char ≈ 1~2 토큰이므로 단순 char
+// 환산이 위험. 한국어 기준 보수적 상한 3000자 (~3000~6000 토큰). 영문도
+// FAQ가 3000자면 충분 (대략 750 단어 = 한 페이지). Sec-MEDIUM-3 권장.
+// 정밀 토큰 카운팅(tiktoken)은 별 PR.
+const MAX_INPUT_CHARS = 3000;
 
 let client: OpenAI | null = null;
 function getClient(): OpenAI {
