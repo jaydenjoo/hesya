@@ -41,4 +41,39 @@ describe("ThreadHeader", () => {
     expect(screen.getByText("channelUnknown")).toBeInTheDocument();
     expect(screen.queryByText("some-future-channel")).not.toBeInTheDocument();
   });
+
+  it("A-3a: avatar(이름 첫 글자) 표시", () => {
+    render(
+      <ThreadHeader
+        customerName="홍길동"
+        channel="instagram"
+        windowExpiresAt={null}
+      />,
+    );
+    expect(screen.getByTestId("thread-header-avatar")).toHaveTextContent("홍");
+  });
+
+  it("A-3a: customerName 비어있어도 avatar fallback ('?')", () => {
+    render(
+      <ThreadHeader
+        customerName=""
+        channel="instagram"
+        windowExpiresAt={null}
+      />,
+    );
+    expect(screen.getByTestId("thread-header-avatar")).toHaveTextContent("?");
+  });
+
+  it("A-3a: 채널 아이콘 표시 (avatar 우하단)", () => {
+    render(
+      <ThreadHeader
+        customerName="홍길동"
+        channel="instagram"
+        windowExpiresAt={null}
+      />,
+    );
+    expect(
+      screen.getByTestId("thread-header-channel-icon"),
+    ).toBeInTheDocument();
+  });
 });
