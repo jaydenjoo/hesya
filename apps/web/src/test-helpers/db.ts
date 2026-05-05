@@ -6,6 +6,7 @@ import {
   customers,
   messages,
   storeIntegrations,
+  storeKnowledge,
   storeOwners,
   stores,
   users,
@@ -31,6 +32,7 @@ export async function resetDb(db: DbClient): Promise<void> {
   await db.delete(messages);
   await db.delete(conversations);
   await db.delete(storeIntegrations);
+  await db.delete(storeKnowledge);
   await db.delete(storeOwners);
   await db.delete(customers);
   await db.delete(stores);
