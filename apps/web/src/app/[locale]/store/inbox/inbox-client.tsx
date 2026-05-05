@@ -1,0 +1,105 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
+import {
+  ThreadList,
+  ThreadListConnectCTA,
+  MessageView,
+  TokenExpiredBanner,
+  getWindowStatus,
+} from "@/features/inbox";
+import type { Conversation, Message } from "@/features/inbox";
+
+const POLL_INTERVAL_MS = 5000;
+
+export function InboxClient({
+  initialConversations,
+  hasIgIntegration,
+  igTokenExpiresAt,
+}: {
+  initialConversations: Conversation[];
+  hasIgIntegration: boolean;
+  igTokenExpiresAt: Date | null;
+}) {
+  const [conversations, setConversations] =
+    useState<Conversation[]>(initialConversations);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    if (!hasIgIntegration) return;
+    let cancelled = false;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    const stop = () => {
+      cancelled = true;
+      if (intervalId !== null) clearInterval(intervalId);
+    };
+    const tick = async () => {
+      if (cancelled) return;
+      const url = new URL("/api/inbox/refresh", window.location.origin);
+      if (activeId) url.searchParams.set("activeId", activeId);
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          // 401/403: 세션 만료/권한 박탈 → 폴링 영구 중단.
+          if (res.status === 401 || res.status === 403) {
+            stop();
+            return;
+          }
+          // 5xx 등 일시 오류 → 다음 tick에서 재시도.
+          console.error("inbox poll failed", res.status);
+          return;
+        }
+        const data = (await res.json()) as {
+          conversations: Conversation[];
+          messages: Record<string, Message[]>;
+        };
+        if (cancelled) return;
+        setConversations(data.conversations);
+        if (activeId && data.messages[activeId]) {
+          setMessages(data.messages[activeId]);
+        }
+      } catch (err) {
+        // 네트워크 오류 → 다음 tick 재시도. console에만 남김.
+        console.error("inbox poll error", err);
+      }
+    };
+    void tick();
+    intervalId = setInterval(() => void tick(), POLL_INTERVAL_MS);
+    return stop;
+  }, [activeId, hasIgIntegration]);
+
+  if (!hasIgIntegration) return <ThreadListConnectCTA />;
+
+  const active = conversations.find((c) => c.id === activeId) ?? null;
+  const tokenExpired = getWindowStatus(igTokenExpiresAt).state === "expired";
+  const customerName = active ? active.customerId.slice(0, 8) : "";
+
+  return (
+    <div className="flex h-screen flex-col">
+      {tokenExpired ? <TokenExpiredBanner /> : null}
+      <ResizablePanelGroup orientation="horizontal" className="flex-1">
+        <ResizablePanel defaultSize={25} minSize={15}>
+          <ThreadList
+            conversations={conversations}
+            activeId={activeId}
+            onSelect={setActiveId}
+          />
+        </ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel defaultSize={75}>
+          <MessageView
+            conversation={active}
+            messages={messages}
+            customerName={customerName}
+          />
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </div>
+  );
+}

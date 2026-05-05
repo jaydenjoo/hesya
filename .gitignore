@@ -46,6 +46,7 @@ next-env.d.ts
 
 # claude code tooling caches
 .claude/tdd-guard/
+.claude/scheduled_tasks.lock
 
 # playwright MCP one-off verification artifacts (visual regression scratch space)
 .playwright-mcp/
