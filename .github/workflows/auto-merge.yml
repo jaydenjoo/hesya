@@ -1,0 +1,59 @@
+name: Auto-merge
+
+# CI workflow가 성공으로 완료되고 PR에 'auto-merge' 라벨이 있으면 squash merge.
+# branch protection 없이 동작 (개인 repo). 외부 액션 의존성 없음 — gh CLI만 사용.
+#
+# 사용법:
+#   1. PR 생성 시 라벨 추가:  gh pr create --label auto-merge --title ... --body ...
+#   2. 기존 PR에 라벨 부여:    gh pr edit <num> --add-label auto-merge
+#
+# 안전:
+#   - on: workflow_run (CI 완료 후만 트리거) → CI 실패 PR은 절대 머지 안 됨
+#   - 라벨 누락 PR은 자동 머지 X (명시적 opt-in)
+#   - --squash --delete-branch로 history 정리
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find PR for head SHA + check label
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -e
+          PR_NUMBER=$(gh api "repos/$REPO/commits/$SHA/pulls" --jq '.[0].number // empty')
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No PR found for SHA $SHA — skip"
+            exit 0
+          fi
+          echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          HAS_LABEL=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json labels --jq '.labels[] | select(.name == "auto-merge") | .name' || echo "")
+          if [ "$HAS_LABEL" = "auto-merge" ]; then
+            echo "should_merge=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "PR #$PR_NUMBER missing 'auto-merge' label — skip"
+          fi
+
+      - name: Squash merge PR
+        if: steps.pr.outputs.should_merge == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh pr merge "${{ steps.pr.outputs.number }}" \
+            --repo "$REPO" \
+            --squash \
+            --delete-branch
