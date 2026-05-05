@@ -6,3 +6,9 @@ export const sendOutboundInputSchema = z.object({
 });
 
 export type SendOutboundInput = z.infer<typeof sendOutboundInputSchema>;
+
+export const acceptAiDraftInputSchema = z.object({
+  messageId: z.uuid(),
+});
+
+export type AcceptAiDraftInput = z.infer<typeof acceptAiDraftInputSchema>;
