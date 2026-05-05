@@ -75,6 +75,12 @@ const envSchema = z.object({
   // 분류 1회당 ~$0.003 (input ~500 tokens + output ~100 tokens, Sonnet 4.6).
   ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-"),
 
+  // ─── Epic 1-1B Phase B-4 RAG 임베딩 (OpenAI text-embedding-3-small) ───
+  // platform.openai.com에서 발급한 API key (`sk-...` 또는 `sk-proj-...`).
+  // 모델: text-embedding-3-small (1536차원, $0.02/M tokens, 한국어 양호).
+  // FAQ 등록·수정 시 1회 + inbound 메시지당 1회 호출.
+  OPENAI_API_KEY: z.string().startsWith("sk-"),
+
   // ─── Epic 1-1A Instagram (developers.facebook.com Meta App) ───
   // App Dashboard에서 발급한 App ID + App Secret + Webhook Verify Token.
   // IG_REDIRECT_URI는 Meta App에 등록된 OAuth redirect URI (ngrok 또는 prod 도메인).
