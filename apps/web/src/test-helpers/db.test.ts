@@ -1,6 +1,14 @@
 import { describe, it, expect, vi } from "vitest";
 import * as helpers from "./db";
-import type { DbClient } from "@hesya/database";
+import {
+  messages,
+  conversations,
+  storeIntegrations,
+  storeOwners,
+  customers,
+  stores,
+  type DbClient,
+} from "@hesya/database";
 
 describe("test-helpers/db", () => {
   it("exports seedStoreIntegration function", () => {
@@ -83,5 +91,56 @@ describe("test-helpers/db", () => {
         status: "delivered",
       }),
     );
+  });
+
+  it("seedUser id override → 명시 id로 INSERT 가능 (E2E_AUTH_USER_ID 동기화용)", async () => {
+    const returningSpy = vi.fn(() => Promise.resolve([{ id: "fixed_id" }]));
+    const valuesSpy = vi.fn(() => ({ returning: returningSpy }));
+    const insertSpy = vi.fn(() => ({ values: valuesSpy }));
+    const fakeDb = { insert: insertSpy } as unknown as DbClient;
+
+    await helpers.seedUser(fakeDb, { id: "fixed_id" });
+
+    expect(valuesSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "fixed_id" }),
+    );
+  });
+
+  it("seedUser id override 미명시 → values에 id 키 없음 (schema defaultRandom 작동)", async () => {
+    const returningSpy = vi.fn(() => Promise.resolve([{ id: "auto_id" }]));
+    const valuesSpy = vi.fn<(arg: unknown) => unknown>(() => ({
+      returning: returningSpy,
+    }));
+    const insertSpy = vi.fn(() => ({ values: valuesSpy }));
+    const fakeDb = { insert: insertSpy } as unknown as DbClient;
+
+    await helpers.seedUser(fakeDb, {});
+
+    expect(valuesSpy).toHaveBeenCalled();
+    const arg = valuesSpy.mock.calls[0]![0] as Record<string, unknown>;
+    expect(arg).not.toHaveProperty("id");
+  });
+
+  it("resetDb deletes tables in FK-safe order (자식 → 부모)", async () => {
+    // FK 의존: messages → conversations → (storeIntegrations/storeOwners/customers) → stores
+    // store_owners.storeId는 NO ACTION → stores 전에 명시 delete 필수.
+    // referential equality로 호출된 테이블 객체 자체를 검증 → 순서 회귀 방어.
+    const calls: unknown[] = [];
+    const deleteSpy = vi.fn((table: unknown) => {
+      calls.push(table);
+      return Promise.resolve();
+    });
+    const fakeDb = { delete: deleteSpy } as unknown as DbClient;
+
+    await helpers.resetDb(fakeDb);
+
+    expect(calls).toEqual([
+      messages,
+      conversations,
+      storeIntegrations,
+      storeOwners,
+      customers,
+      stores,
+    ]);
   });
 });

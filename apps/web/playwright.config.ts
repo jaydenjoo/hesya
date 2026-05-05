@@ -39,12 +39,27 @@ export default defineConfig({
     },
   ],
 
-  webServer: {
-    command: "pnpm dev",
-    url: "http://localhost:4200",
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-    stdout: "pipe",
-    stderr: "pipe",
-  },
+  webServer: [
+    {
+      // IG Graph API mock — port 4201
+      command: "node e2e/mock-server.mjs",
+      url: "http://localhost:4201/health",
+      reuseExistingServer: !process.env.CI,
+      timeout: 30_000,
+      stdout: "pipe",
+      stderr: "pipe",
+    },
+    {
+      // Next.js dev — port 4200, IG API를 mock으로 redirect
+      command: "pnpm dev",
+      url: "http://localhost:4200",
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+      stdout: "pipe",
+      stderr: "pipe",
+      env: {
+        IG_API_BASE_URL: "http://localhost:4201",
+      },
+    },
+  ],
 });
