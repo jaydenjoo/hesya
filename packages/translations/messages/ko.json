@@ -2,7 +2,7 @@
   "Common": {
     "signIn": "Google로 로그인"
   },
-  "inbox": {
+  "Inbox": {
     "title": "통합 인박스",
     "empty": "아직 메시지가 없습니다",
     "notConnected": {
@@ -22,7 +22,7 @@
     "window": {
       "openWithTime": "답변 가능 — {time} 남음",
       "closingSoon": "곧 만료 — {time} 남음",
-      "expired": "고객 메시지 후 24시간 경과 — 답변 불가",
+      "expired": "고객 메시지 후 24시간이 경과하여 답변할 수 없습니다",
       "expiredHelp": "고객이 다시 메시지를 보낼 때까지 기다려 주세요"
     },
     "connect": {

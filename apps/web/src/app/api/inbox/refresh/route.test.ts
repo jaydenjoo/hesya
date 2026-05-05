@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
 
+vi.mock("@sentry/nextjs", () => ({
+  captureException: vi.fn(),
+}));
+
 vi.mock("@/shared/lib/store-owner-guard", () => ({
   requireStoreOwnerAuth: vi.fn(),
 }));
@@ -15,6 +19,7 @@ vi.mock("@/shared/lib/dal/messages", () => ({
 }));
 
 import { GET } from "./route";
+import * as Sentry from "@sentry/nextjs";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 import {
   listByStore,
@@ -123,5 +128,15 @@ describe("inbox refresh GET", () => {
     const res = await GET(makeReq("activeId=conv_unknown"));
     expect(res.status).toBe(404);
     expect(listByConversation).not.toHaveBeenCalled();
+  });
+
+  it("알 수 없는 에러 → Sentry 캡처 후 throw", async () => {
+    vi.mocked(Sentry.captureException).mockClear();
+    vi.mocked(requireStoreOwnerAuth).mockRejectedValue(
+      new Error("DB 연결 실패"),
+    );
+
+    await expect(GET(makeReq())).rejects.toThrow(/DB 연결 실패/);
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
   });
 });

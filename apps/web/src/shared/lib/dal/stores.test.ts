@@ -1,8 +1,15 @@
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { createDbClient, type DbClient } from "@hesya/database";
+import * as dalStores from "./stores";
 import { findStoreByExternalAccount } from "./stores";
 import { upsertIntegration } from "./store-integrations";
 import { resetDb, seedStore } from "@/test-helpers/db";
+
+describe("dal.stores (pure)", () => {
+  it("module exports findStoreByExternalAccount function", () => {
+    expect(typeof dalStores.findStoreByExternalAccount).toBe("function");
+  });
+});
 
 const url = process.env.HESYA_TEST_DATABASE_URL;
 const hasDb = Boolean(url);

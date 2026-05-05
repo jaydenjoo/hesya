@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { createDbClient } from "@hesya/database";
 import { env } from "@/shared/config/env";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
@@ -20,6 +21,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     if (err instanceof ForbiddenError) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
+    Sentry.captureException(err, { tags: { route: "inbox:refresh" } });
     throw err;
   }
 

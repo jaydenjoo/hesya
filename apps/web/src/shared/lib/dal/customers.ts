@@ -1,8 +1,13 @@
 import "server-only";
-import { and, customers, eq, type DbClient } from "@hesya/database";
+import {
+  and,
+  customers,
+  eq,
+  type Channel,
+  type DbClient,
+} from "@hesya/database";
 
 type Customer = typeof customers.$inferSelect;
-type Channel = "instagram" | "whatsapp" | "kakao" | "line" | "messenger";
 
 export async function upsertCustomer(
   db: DbClient,
