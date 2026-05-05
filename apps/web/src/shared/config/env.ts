@@ -82,6 +82,9 @@ const envSchema = z.object({
   IG_APP_SECRET: z.string().min(1),
   IG_WEBHOOK_VERIFY_TOKEN: z.string().min(8),
   IG_REDIRECT_URI: z.url(),
+  // E2E 또는 self-hosted Meta 호환 환경에서 base URL override.
+  // prod 기본값은 Instagram Graph API 공식 endpoint.
+  IG_API_BASE_URL: z.url().default("https://graph.instagram.com/v24.0"),
 });
 
 /**

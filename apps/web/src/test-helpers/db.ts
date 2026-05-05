@@ -1,4 +1,6 @@
-import "server-only";
+// E2E (Playwright Node 환경)와 vitest 양쪽에서 사용 가능하도록 server-only 제거.
+// Helper는 schema reference만 — client에서 import해도 DB 연결 부작용 없음.
+// Production bundle 보호는 코드 리뷰·디렉토리 컨벤션에 의존 (test-helpers/**).
 import {
   conversations,
   customers,
@@ -97,4 +99,55 @@ export async function seedStoreIntegration(
     accessTokenEncrypted: Buffer.from("test_tok_encrypted"),
     scopes: ["instagram_business_basic", "instagram_business_manage_messages"],
   });
+}
+
+export async function seedConversation(
+  db: DbClient,
+  input: {
+    storeId: string;
+    customerId: string;
+    channel: "instagram" | "whatsapp" | "kakao" | "line" | "messenger";
+    externalThreadId?: string;
+    messagingWindowExpiresAt?: Date | null;
+    lastInboundAt?: Date | null;
+  },
+): Promise<string> {
+  const [row] = await db
+    .insert(conversations)
+    .values({
+      storeId: input.storeId,
+      customerId: input.customerId,
+      channel: input.channel,
+      status: "open",
+      externalThreadId: input.externalThreadId,
+      messagingWindowExpiresAt: input.messagingWindowExpiresAt ?? null,
+      lastInboundAt: input.lastInboundAt ?? null,
+    })
+    .returning({ id: conversations.id });
+  if (!row) throw new Error("seedConversation: insert returned no row");
+  return row.id;
+}
+
+export async function seedMessage(
+  db: DbClient,
+  input: {
+    conversationId: string;
+    direction: "inbound" | "outbound";
+    text: string;
+    channel?: "instagram" | "whatsapp" | "kakao" | "line" | "messenger";
+    status?: "delivered" | "sent" | "failed";
+  },
+): Promise<string> {
+  const [row] = await db
+    .insert(messages)
+    .values({
+      conversationId: input.conversationId,
+      channel: input.channel ?? "instagram",
+      direction: input.direction,
+      originalText: input.text,
+      status: input.status ?? "delivered",
+    })
+    .returning({ id: messages.id });
+  if (!row) throw new Error("seedMessage: insert returned no row");
+  return row.id;
 }
