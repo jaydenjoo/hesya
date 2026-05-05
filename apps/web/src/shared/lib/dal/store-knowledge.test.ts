@@ -3,11 +3,19 @@ import { describe, it, expect } from "vitest";
 describe("dal.store-knowledge (pure)", () => {
   it("module exports B-4a CRUD + search functions", async () => {
     const mod = await import("./store-knowledge");
-    expect(typeof mod.createStoreKnowledge).toBe("function");
     expect(typeof mod.updateStoreKnowledge).toBe("function");
     expect(typeof mod.deleteStoreKnowledge).toBe("function");
     expect(typeof mod.listStoreKnowledge).toBe("function");
     expect(typeof mod.searchSimilarKnowledge).toBe("function");
+  });
+
+  it("createStoreKnowledge (limit 없는 원본) orphan 제거 (B-4 followup-2 Sec L-2)", async () => {
+    const mod = await import("./store-knowledge");
+    // 미래 개발자가 limit 없는 함수를 직접 호출하면 TOCTOU 재오픈 → 완전 제거.
+    // createFAQ는 createStoreKnowledgeWithLimit만 사용.
+    expect(
+      (mod as Record<string, unknown>).createStoreKnowledge,
+    ).toBeUndefined();
   });
 
   it("searchSimilarKnowledge: cosine similarity 정렬 + IS NOT NULL 가드", async () => {
@@ -64,14 +72,14 @@ describe("dal.store-knowledge (pure)", () => {
     );
   });
 
-  it("createStoreKnowledge: insert empty 명시 가드 (Code-MEDIUM-3)", async () => {
+  it("createStoreKnowledgeWithLimit: insert empty 명시 가드 (Code-MEDIUM-3 inherited)", async () => {
     const { readFile } = await import("node:fs/promises");
     const src = await readFile(
       "src/shared/lib/dal/store-knowledge.ts",
       "utf-8",
     );
     expect(src).not.toMatch(/return\s+inserted\[0\]!/);
-    expect(src).toMatch(/createStoreKnowledge[\s\S]*?(throw|Error)/);
+    expect(src).toMatch(/createStoreKnowledgeWithLimit[\s\S]*?(throw|Error)/);
   });
 
   it("countStoreKnowledge export + storeId 가드 (B-4 followup C-1)", async () => {

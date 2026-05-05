@@ -32,10 +32,14 @@ export function captureServerActionError(
 ): void {
   if (err instanceof ValidationError) return;
 
+  // PII 최소화 — storeId 풀 UUID 대신 8자 short ID만 Sentry tag로 (Sec MED-2).
+  // 다른 phase tag(faq_embedding 등)와 일관. 호출자는 무변경.
   const sentryContext = {
     tags: {
       action: context.action,
-      ...(context.storeId !== undefined && { storeId: context.storeId }),
+      ...(context.storeId !== undefined && {
+        storeId: context.storeId.slice(0, 8),
+      }),
     },
     user: context.userId ? { id: context.userId } : undefined,
   };
