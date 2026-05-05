@@ -43,3 +43,15 @@ export async function upsertCustomer(
   // race condition: insert와 select 사이에 row 삭제 → null 반환 (caller 결정)
   return existing[0] ?? null;
 }
+
+export async function getExternalIdByCustomerId(
+  db: DbClient,
+  customerId: string,
+): Promise<string | null> {
+  const rows = await db
+    .select({ externalId: customers.externalId })
+    .from(customers)
+    .where(eq(customers.id, customerId))
+    .limit(1);
+  return rows[0]?.externalId ?? null;
+}
