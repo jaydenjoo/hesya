@@ -24,3 +24,19 @@ export const learnStoreToneInputSchema = z.object({
 });
 
 export type LearnStoreToneInput = z.infer<typeof learnStoreToneInputSchema>;
+
+/**
+ * Customer 확장 (CC-6) — 사장이 ContextPanel에서 customer 메모 편집.
+ * conversationId는 ownership 검증용 (customer→conv→store join), customerId는
+ * 실제 update 대상. 둘 다 UUID 강제. allergyNote/preferredDesigner 옵셔널 nullable.
+ */
+export const updateCustomerNotesInputSchema = z.object({
+  conversationId: z.uuid(),
+  customerId: z.uuid(),
+  allergyNote: z.string().max(500).nullable().optional(),
+  preferredDesigner: z.string().max(500).nullable().optional(),
+});
+
+export type UpdateCustomerNotesInput = z.infer<
+  typeof updateCustomerNotesInputSchema
+>;

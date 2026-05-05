@@ -172,3 +172,25 @@ describe.skipIf(!hasDb)("webhook POST (integration)", () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe("webhook route source-level (CC-4 customer profile enrichment)", () => {
+  it("customer.name === null 시 fetchUserProfile + updateCustomerProfile + Sentry tag", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile(
+      "src/app/api/webhooks/instagram/route.ts",
+      "utf-8",
+    );
+    // 새 customer 또는 backfill 대상 trigger
+    expect(src).toMatch(/customer\.name\s*===?\s*null/);
+    // IG profile fetch 호출
+    expect(src).toMatch(/fetchUserProfile/);
+    // locale 매핑 helper 사용
+    expect(src).toMatch(/mapLocaleToLanguage/);
+    // DB 갱신
+    expect(src).toMatch(/updateCustomerProfile/);
+    // Sentry phase tag (fetch 실패 silent skip)
+    expect(src).toMatch(/phase:\s*["']fetchUserProfile["']/);
+    // PII 방어: customer.id는 8자만 노출 (storeId truncate 패턴 일관)
+    expect(src).toMatch(/customer\.id\.slice\(\s*0\s*,\s*8\s*\)/);
+  });
+});

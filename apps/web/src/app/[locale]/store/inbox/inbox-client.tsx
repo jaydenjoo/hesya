@@ -10,7 +10,7 @@ import {
 } from "@/features/inbox";
 import { InboxShell } from "@/features/inbox/components/inbox-shell";
 import { ContextPanel } from "@/features/inbox/components/context-panel";
-import type { Conversation, Message } from "@/features/inbox";
+import type { Conversation, Customer, Message } from "@/features/inbox";
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -27,6 +27,8 @@ export function InboxClient({
     useState<Conversation[]>(initialConversations);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  // Customer 확장 (CC-5) — activeId의 customer 정보. /api/inbox/refresh 응답에서 동봉.
+  const [activeCustomer, setActiveCustomer] = useState<Customer | null>(null);
 
   useEffect(() => {
     if (!hasIgIntegration) return;
@@ -55,11 +57,17 @@ export function InboxClient({
         const data = (await res.json()) as {
           conversations: Conversation[];
           messages: Record<string, Message[]>;
+          customers?: Record<string, Customer>;
         };
         if (cancelled) return;
         setConversations(data.conversations);
         if (activeId && data.messages[activeId]) {
           setMessages(data.messages[activeId]);
+        }
+        if (activeId && data.customers?.[activeId]) {
+          setActiveCustomer(data.customers[activeId]);
+        } else if (!activeId) {
+          setActiveCustomer(null);
         }
       } catch (err) {
         // 네트워크 오류 → 다음 tick 재시도. console에만 남김.
@@ -86,7 +94,13 @@ export function InboxClient({
             <ThreadList
               conversations={conversations}
               activeId={activeId}
-              onSelect={setActiveId}
+              onSelect={(id) => {
+                // HIGH-1 사후 리뷰: conversation 전환 시 즉시 reset → 다음 poll까지
+                // 이전 customer/messages 잔류 방지 (Notes form stale 차단).
+                setActiveId(id);
+                setActiveCustomer(null);
+                setMessages([]);
+              }}
             />
           }
           messageColumn={
@@ -97,7 +111,11 @@ export function InboxClient({
             />
           }
           contextColumn={
-            <ContextPanel conversation={active} messages={messages} />
+            <ContextPanel
+              conversation={active}
+              messages={messages}
+              customer={activeCustomer}
+            />
           }
         />
       </div>

@@ -8,6 +8,7 @@ import {
   listByStore,
 } from "@/shared/lib/dal/conversations";
 import { listByConversation } from "@/shared/lib/dal/messages";
+import { getCustomerById } from "@/shared/lib/dal/customers";
 import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -30,6 +31,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
   const activeId = req.nextUrl.searchParams.get("activeId");
   const messages: Record<string, unknown> = {};
+  // Customer 확장 (CC-5) — active conversation의 customer 정보 동봉.
+  // ContextPanel이 name/totalVisits/ltvKrw/notes 표시에 사용.
+  const customers: Record<string, unknown> = {};
   if (activeId) {
     // IDOR 방어: activeId가 호출자 매장의 conversation인지 검증.
     const conv = await getConversationById(db, activeId);
@@ -40,7 +44,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
     messages[activeId] = await listByConversation(db, activeId);
+    const customer = await getCustomerById(db, conv.customerId);
+    if (customer) customers[activeId] = customer;
   }
 
-  return NextResponse.json({ conversations, messages });
+  return NextResponse.json({ conversations, messages, customers });
 }

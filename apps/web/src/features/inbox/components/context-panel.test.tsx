@@ -1,8 +1,16 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
+}));
+
+const { updateCustomerNotesMock } = vi.hoisted(() => ({
+  updateCustomerNotesMock: vi.fn(),
+}));
+
+vi.mock("../actions/update-customer-notes", () => ({
+  updateCustomerNotes: updateCustomerNotesMock,
 }));
 
 import { ContextPanel } from "./context-panel";
@@ -97,10 +105,10 @@ describe("ContextPanel (Epic 1B-UI A-4)", () => {
     expect(items[0]).toHaveTextContent("셋째");
   });
 
-  it("Notes 탭 → 1B 스코프 밖 placeholder", () => {
+  it("Notes 탭 — customer 미전달 시 로딩 안내 (caller가 다음 poll에서 채움)", () => {
     render(<ContextPanel conversation={makeConv()} messages={[]} />);
     fireEvent.click(screen.getByRole("tab", { name: "Notes" }));
-    expect(screen.getByText(/메모 기능은 다음 업데이트/)).toBeInTheDocument();
+    expect(screen.getByText(/고객 정보 로딩 중/)).toBeInTheDocument();
   });
 
   it("Risk 탭 → 1B 스코프 밖 placeholder", () => {
@@ -119,5 +127,118 @@ describe("ContextPanel (Epic 1B-UI A-4)", () => {
     fireEvent.click(historyBtn);
     expect(historyBtn).toHaveAttribute("aria-selected", "true");
     expect(infoBtn).toHaveAttribute("aria-selected", "false");
+  });
+
+  // ─── Customer 확장 (CC-5) ───
+
+  it("customer prop 있음 → Info 탭에 name 표시", () => {
+    render(
+      <ContextPanel
+        conversation={makeConv()}
+        messages={[]}
+        customer={{
+          id: "cust_abc",
+          externalId: "ig_1",
+          channel: "instagram",
+          name: "Alice Kim",
+          nationality: null,
+          preferredLanguage: "en",
+          paymentMethodPreferred: null,
+          totalVisits: 0,
+          ltvKrw: 0,
+          allergyNote: null,
+          preferredDesigner: null,
+        }}
+      />,
+    );
+    expect(screen.getByText("Alice Kim")).toBeInTheDocument();
+  });
+
+  it("customer.totalVisits + ltvKrw 표시 (Info 탭)", () => {
+    render(
+      <ContextPanel
+        conversation={makeConv()}
+        messages={[]}
+        customer={{
+          id: "cust_abc",
+          externalId: "ig_1",
+          channel: "instagram",
+          name: "Bob",
+          nationality: null,
+          preferredLanguage: "ko",
+          paymentMethodPreferred: null,
+          totalVisits: 7,
+          ltvKrw: 245000,
+          allergyNote: null,
+          preferredDesigner: null,
+        }}
+      />,
+    );
+    expect(screen.getByText("7")).toBeInTheDocument();
+    // 천 단위 포맷 (245,000 또는 ₩245,000)
+    expect(screen.getByText(/245,000/)).toBeInTheDocument();
+  });
+
+  it("Notes 탭 — customer 데이터로 form prefill (allergyNote/preferredDesigner)", () => {
+    render(
+      <ContextPanel
+        conversation={makeConv()}
+        messages={[]}
+        customer={{
+          id: "cust_abc",
+          externalId: "ig_1",
+          channel: "instagram",
+          name: null,
+          nationality: null,
+          preferredLanguage: null,
+          paymentMethodPreferred: null,
+          totalVisits: 0,
+          ltvKrw: 0,
+          allergyNote: "땅콩 알러지",
+          preferredDesigner: "민지",
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: "Notes" }));
+    // textarea / input value로 표시
+    expect(screen.getByDisplayValue("땅콩 알러지")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("민지")).toBeInTheDocument();
+  });
+
+  it("Notes 탭 — 저장 버튼 클릭 → updateCustomerNotes 호출 + ok notice", async () => {
+    updateCustomerNotesMock.mockResolvedValueOnce({ ok: true });
+    render(
+      <ContextPanel
+        conversation={makeConv()}
+        messages={[]}
+        customer={{
+          id: "cust_abc",
+          externalId: "ig_1",
+          channel: "instagram",
+          name: null,
+          nationality: null,
+          preferredLanguage: null,
+          paymentMethodPreferred: null,
+          totalVisits: 0,
+          ltvKrw: 0,
+          allergyNote: "이전 메모",
+          preferredDesigner: "이전",
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: "Notes" }));
+    fireEvent.change(screen.getByLabelText("알러지 메모"), {
+      target: { value: "수정된 메모" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /저장/ }));
+    await waitFor(() => {
+      expect(updateCustomerNotesMock).toHaveBeenCalledWith({
+        conversationId: "conv_1",
+        customerId: "cust_abc",
+        allergyNote: "수정된 메모",
+        preferredDesigner: "이전",
+      });
+    });
+    expect(screen.getByText("저장됨")).toBeInTheDocument();
   });
 });

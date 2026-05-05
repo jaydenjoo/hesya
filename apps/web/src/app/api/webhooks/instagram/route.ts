@@ -5,7 +5,10 @@ import { env } from "@/shared/config/env";
 import { fetchInstagramApiClient } from "@/lib/inbox/instagram-api-client";
 import { createInstagramAdapter } from "@/lib/inbox/instagram-adapter";
 import { processInbound } from "@/lib/inbox/process-inbound";
-import { upsertCustomer } from "@/shared/lib/dal/customers";
+import {
+  upsertCustomer,
+  updateCustomerProfile,
+} from "@/shared/lib/dal/customers";
 import {
   upsertConversation,
   setMessagingWindow,
@@ -14,6 +17,8 @@ import {
 } from "@/shared/lib/dal/conversations";
 import { insertMessage } from "@/shared/lib/dal/messages";
 import { findStoreByExternalAccount } from "@/shared/lib/dal/stores";
+import { getIntegration } from "@/shared/lib/dal/store-integrations";
+import { mapLocaleToLanguage } from "@/lib/inbox/locale-to-language";
 import { WebhookSignatureError } from "@/shared/lib/errors";
 
 // 모듈 로드 시 1회만 인스턴스화. IG_APP_SECRET 변경 시 서버 재시작 필요.
@@ -84,6 +89,37 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         externalId: m.senderExternalId,
       });
       if (!customer) continue;
+
+      // CC-4: profile enrichment — customer.name === null 시 IG fetch + 갱신.
+      // 신규 customer + 기존 customer (name 미설정 backfill 대상) 모두 처리.
+      // 실패 silent skip + Sentry tag — 메시지 처리 흐름 차단 X.
+      // PII 방어: customer.id는 8자만 노출 (storeId 패턴 일관).
+      if (customer.name === null) {
+        const integration = await getIntegration(db, store.id, "instagram");
+        if (integration) {
+          try {
+            const profile = await fetchInstagramApiClient.fetchUserProfile({
+              igUserId: m.senderExternalId,
+              accessToken: integration.accessToken,
+            });
+            const language = mapLocaleToLanguage(profile.locale);
+            await updateCustomerProfile(db, customer.id, {
+              name: profile.name,
+              ...(language !== null ? { preferredLanguage: language } : {}),
+            });
+          } catch (profileErr) {
+            // Sentry tag에 storeId 8자 포함 (Code MED-4 사후 리뷰) — 매장별
+            // fetch 실패율 추적. customer는 8자만 (PII 방어 패턴 일관).
+            Sentry.captureException(profileErr, {
+              tags: {
+                phase: "fetchUserProfile",
+                storeIdShort: store.id.slice(0, 8),
+              },
+              extra: { customerIdShort: customer.id.slice(0, 8) },
+            });
+          }
+        }
+      }
 
       const conv = await upsertConversation(db, {
         storeId: store.id,

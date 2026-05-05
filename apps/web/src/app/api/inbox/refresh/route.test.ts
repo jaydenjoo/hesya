@@ -18,6 +18,11 @@ vi.mock("@/shared/lib/dal/messages", () => ({
   listByConversation: vi.fn(),
 }));
 
+vi.mock("@/shared/lib/dal/customers", () => ({
+  // CC-5: refresh API가 active customer 동봉 — default null 반환 (회귀 안전).
+  getCustomerById: vi.fn(async () => null),
+}));
+
 import { GET } from "./route";
 import * as Sentry from "@sentry/nextjs";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";

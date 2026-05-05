@@ -52,3 +52,59 @@ describe("fetchInstagramApiClient — env-based BASE URL", () => {
     expect(url).toMatch(/^http:\/\/localhost:4201\/me/);
   });
 });
+
+describe("fetchInstagramApiClient.fetchUserProfile (CC-3)", () => {
+  it("정상 응답: name/profilePic/locale 반환", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        name: "Alice Kim",
+        profile_pic: "https://cdn.example.com/a.jpg",
+        locale: "en_US",
+      }),
+    });
+    const result = await fetchInstagramApiClient.fetchUserProfile({
+      igUserId: "12345",
+      accessToken: "tok",
+    });
+    expect(result).toEqual({
+      name: "Alice Kim",
+      profilePic: "https://cdn.example.com/a.jpg",
+      locale: "en_US",
+    });
+    const url = fetchSpy.mock.calls[0][0] as string;
+    expect(url).toMatch(
+      /\/12345\?.*fields=name,profile_pic,locale.*access_token=tok/,
+    );
+  });
+
+  it("일부 필드 누락 (privacy 정책) → 누락은 null로 graceful", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ name: "Bob" }), // profile_pic + locale 누락
+    });
+    const result = await fetchInstagramApiClient.fetchUserProfile({
+      igUserId: "67890",
+      accessToken: "tok",
+    });
+    expect(result).toEqual({
+      name: "Bob",
+      profilePic: null,
+      locale: null,
+    });
+  });
+
+  it("404 또는 ok=false → ExternalApiError throw", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      text: async () => '{"error":"not found"}',
+    });
+    await expect(
+      fetchInstagramApiClient.fetchUserProfile({
+        igUserId: "404id",
+        accessToken: "tok",
+      }),
+    ).rejects.toThrow(/IG.*프로필.*조회 실패|fetchUserProfile/i);
+  });
+});

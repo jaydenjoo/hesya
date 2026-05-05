@@ -22,6 +22,7 @@ export { getInstagramOAuthUrl } from "./actions/connect-instagram";
 // Types
 export type {
   Conversation,
+  Customer,
   Message,
   WindowState,
   WindowStatus as WindowStatusType,
