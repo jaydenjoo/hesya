@@ -136,6 +136,26 @@ describe.skipIf(!hasDb)("dal.messages (integration)", () => {
     expect(second).toBe(false);
   });
 
+  it("markTranslated: outbound에 translated_text + language_to 저장 (B-3a)", async () => {
+    const { markTranslated } = await import("./messages");
+    const m = await insertMessage(db, {
+      conversationId,
+      channel: "instagram",
+      direction: "outbound",
+      originalText: "안녕하세요",
+      externalMessageId: "mid_translate_1",
+      status: "ai_draft",
+    });
+    await markTranslated(db, m!.id, {
+      translatedText: "Hello",
+      languageTo: "en",
+    });
+    const list = await listByConversation(db, conversationId);
+    const updated = list.find((x) => x.id === m!.id);
+    expect(updated?.translatedText).toBe("Hello");
+    expect(updated?.languageTo).toBe("en");
+  });
+
   it("markFailed: status='failed'로 변경", async () => {
     const m = await insertMessage(db, {
       conversationId,
@@ -161,11 +181,24 @@ describe("dal.messages (pure)", () => {
     expect(typeof mod.markFailed).toBe("function");
   });
 
+  it("module exports markTranslated (B-3a)", async () => {
+    const mod = await import("./messages");
+    expect(typeof mod.markTranslated).toBe("function");
+  });
+
   it("listByConversation supports offset for pagination (review M-2)", async () => {
     const { readFile } = await import("node:fs/promises");
     const src = await readFile("src/shared/lib/dal/messages.ts", "utf-8");
     expect(src).toMatch(/\.offset\(/);
     expect(src).toMatch(/offset\?\s*:\s*number/);
+  });
+
+  it("markTranslated UPDATE는 direction='outbound' 가드 (B-3a review LOW)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/messages.ts", "utf-8");
+    expect(src).toMatch(
+      /markTranslated[\s\S]*?eq\(messages\.direction,\s*["']outbound["']\)/,
+    );
   });
 
   it("markAIResponded conditional UPDATE returns boolean (B-2 review HIGH)", async () => {
