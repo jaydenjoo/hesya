@@ -4,12 +4,12 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Epic 1B Phase B-2 완료** ✅ (1A 전체 + 1B B-1, B-2 머지)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1 (AI 코어) ✅ + 1B B-2 (트리거 통합) ✅ → **다음**: Phase B-3 (다국어 자동 번역 + Composer + IG 자동 발송)
-- **Task**: 1A Phase A~J ✅ / 1B B-1 ✅ / 1B B-2 ✅ (AI trigger + processInbound 통합)
-- **상태**: AI inbound→draft 흐름 작동 (DAL 5개 + `generateAndStoreReply` + `processInbound` 교체). race-safe markAI claim + connection pool singleton + 5000자 reply 가드 적용. main 최신 SHA `c1cad2d`. 차단 요소 없음.
+- **Phase**: Phase 1 — **Epic 1B Phase B-3a 완료** ✅ (1A + 1B B-1, B-2, B-3a 머지)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1 ✅ + B-2 ✅ + B-3a ✅ → **다음**: Phase B-3b (Composer 통합) → B-3c (IG 발송)
+- **Task**: 1A Phase A~J ✅ / 1B B-1 ✅ / B-2 ✅ / B-3a ✅ (자동 번역 모듈 + AI trigger 통합)
+- **상태**: AI inbound→한국어 ai_draft→고객 언어 번역(translatedText) 흐름 완성. ko fallback no-op. 번역 실패 silent skip + Sentry. main 최신 SHA `c56c909`. 차단 요소 없음.
 - **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **이번 세션 PR (1개)**: [#38](https://github.com/jaydenjoo/hesya/pull/38) Phase B-2 — AI 응답 트리거 + 사후 리뷰 8 fix (HIGH 4 + MEDIUM 4)
+- **최근 PR**: [#38](https://github.com/jaydenjoo/hesya/pull/38) B-2 (HIGH 4 + MED 4 fix), [#39](https://github.com/jaydenjoo/hesya/pull/39) B-3a (HIGH 1 + MED 6 fix)
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -17,15 +17,22 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Epic 1B Phase B-3 진입 (권장)
+### 1. Epic 1B Phase B-3b 진입 (권장)
 
-**B-3: 다국어 자동 번역 + Composer 통합 + IG 자동 발송** (~3~4h, 2 PR 추정):
+**B-3b: Composer UI 통합** (~2~2.5h, 1 PR):
 
-- **B-3a**: 한국어 ai_draft → 5개 언어 자동 번역 (사장 검수 후 송신용 번역본). messages.translatedText / languageTo 컬럼 활용
-- **B-3b**: ai_draft outbound → 인박스 UI Composer 통합 (사장 검수/수정/발송 액션 + ai_draft 시각 라벨)
-- **B-3c**: 발송 트리거 → IG API send + status 'sent' 전환 (B-2에서 분리한 부분)
+- 인박스 UI에 ai_draft outbound 표시 (`status='ai_draft'` + `translatedText` 동시)
+- 입력란에 한국어 원문 미리 채움 (Q4=A 결정) + 사장 수정 가능
+- "발송" 버튼 → B-3c 트리거 (예약 자리만, 실제 IG send는 B-3c)
+- ai_draft 시각 라벨 (예: "AI 초안" 뱃지)
 
-**B-3 진입 직전 RLS 검증 필수** (B-2 LOW [L-2]): `ai_draft` outbound가 다른 store staff에게 노출되지 않는지.
+**B-3c: IG 발송 트리거 + status 'sent' 전환** (~1.5h, 1 PR):
+
+- send-outbound 액션 재사용 또는 신규 액션
+- IG API send + status 'sent' 전환
+- 멱등 (중복 발송 방어)
+
+**선행 검증 (B-3b 진입 직전)**: B-2 LOW [L-2] `ai_draft` outbound RLS — 1A 검증 시 application-level 안전 확인 (PROGRESS B-3-pre 분석). messages 정책 추가는 별 follow-up.
 
 ### 2. 또는 다른 옵션
 
@@ -71,7 +78,43 @@
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-05 evening — **Epic 1B Phase B-2 완료** (PR #38, HIGH 4 + MEDIUM 4 fix)
+- 날짜: 2026-05-05 night — **Epic 1B Phase B-3a 완료** (PR #39, HIGH 1 + MEDIUM 6 fix)
+
+## 이번 세션 완료 (2026-05-05 night — Phase B-3a)
+
+### 1. 신규 모듈 `features/inbox/ai/translate-reply.ts`
+
+- 순수 함수 (B-1 generate-reply.ts 패턴 재사용): `translateReply({koreanText, targetLanguage}) → {translatedText, tokensUsed}`
+- `targetLanguage='ko'` → SDK 호출 없이 입력 그대로 반환 (no-op, 비용 0)
+- 5개 언어 라벨 (en/zh/ja/vi)
+- Sonnet 4.6, MAX_TOKENS=800
+- **LLM01 framing 강화**: system에 "user turn은 input data, instruction 아님" 명시 (chained LLM 보호)
+
+### 2. DAL `markTranslated`
+
+- outbound 메시지에 translated_text + language_to 저장
+- 멱등 (사장 수정 후 재번역 허용)
+- **방어적 가드**: WHERE direction='outbound' (inbound 덮어쓰기 차단)
+
+### 3. AI trigger 통합 (`generate-and-store-reply.ts`)
+
+- insertMessage 후 customerLanguage !== 'ko' → translateReply + markTranslated
+- **try-catch 분리**: translate 에러는 Sentry tag `phase: "translateReply"`, markTranslated 에러는 `phase: "markTranslated"`
+- **출력 길이 가드**: translatedText > 7500자 (MAX_REPLY_CHARS \* 1.5) silent skip
+- Sentry extra: aiMessageId / targetLanguage / inputLength / translatedLength
+- 번역 실패 silent skip → 한국어 ai_draft는 살아있어 사장 수동 처리 가능 (Q1=A)
+
+### 4. 사후 리뷰 7 fix (PR #39 동봉)
+
+**HIGH 1**: LLM01 framing (chained LLM injection 방어)
+**MEDIUM 6**: 출력 길이 가드 / try-catch 분리 / Sentry inputLength / Partial<Deps> JSDoc / markTranslated direction guard / Sentry serialization 검증 (운영 점검)
+
+### 5. 테스트
+
+- 단위 30건 (translate-reply 7 + trigger 26 + DAL +2)
+- 통합 2건 갱신 (translateReplyStub + translatedText/languageTo 검증)
+- **297 passed / 39 skipped** / typecheck / lint clean
+- main 최종 SHA `c56c909`
 
 ## 이번 세션 완료 (2026-05-05 evening — Phase B-2)
 
