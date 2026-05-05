@@ -1,5 +1,38 @@
 {
   "Common": {
     "signIn": "Sign in with Google"
+  },
+  "inbox": {
+    "title": "Unified Inbox",
+    "empty": "No messages yet",
+    "notConnected": {
+      "title": "Connect your Instagram",
+      "description": "Connect an Instagram Business account to start receiving customer DMs",
+      "button": "Connect Instagram"
+    },
+    "thread": {
+      "noSelection": "Select a conversation from the left",
+      "channelInstagram": "Instagram"
+    },
+    "composer": {
+      "placeholder": "Type your reply in Korean...",
+      "send": "Send",
+      "sendError": "Send failed: {reason}"
+    },
+    "window": {
+      "openWithTime": "Reply window — {time} remaining",
+      "closingSoon": "Closing soon — {time} remaining",
+      "expired": "24 hours passed since the customer's last message — replies disabled",
+      "expiredHelp": "Wait until the customer messages you again"
+    },
+    "connect": {
+      "loading": "Connecting...",
+      "success": "Instagram connected",
+      "failed": "Connection failed: {reason}"
+    },
+    "tokenExpired": {
+      "banner": "Instagram token expired — please reconnect",
+      "button": "Reconnect"
+    }
   }
 }
