@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import type { Conversation, Message } from "../types";
 import { getWindowStatus } from "../lib/window-utils";
+import { acceptAiDraft } from "../actions/accept-ai-draft";
 import { MessageViewEmpty } from "./message-view-empty";
 import { ThreadHeader } from "./thread-header";
 import { MessageList } from "./message-list";
@@ -53,6 +54,7 @@ function MessageViewActive({
   const [dismissed, setDismissed] = useState(false);
   const [composerInit, setComposerInit] = useState("");
   const [composerKey, setComposerKey] = useState(0);
+  const [isAccepting, startAccepting] = useTransition();
 
   const windowState = getWindowStatus(
     conversation.messagingWindowExpiresAt,
@@ -73,6 +75,18 @@ function MessageViewActive({
     setDismissed(true);
   }
 
+  function handleAcceptAsIs() {
+    if (!aiDraft) return;
+    const messageId = aiDraft.id;
+    startAccepting(async () => {
+      // 발송 완료 시 revalidatePath로 messages 갱신 → status='sent' 전환되어
+      // pickAIDraft가 null 반환 → AIAssist 자동 사라짐. 별 dismissed 호출 불필요.
+      // 실패 시 acceptAiDraft가 throw → useTransition pending 해제 + 에러 노출.
+      // (B-3c-follow-up: 사용자에게 toast 알림 추가 검토)
+      await acceptAiDraft({ messageId });
+    });
+  }
+
   return (
     <div className="flex h-full flex-col">
       <ThreadHeader
@@ -86,9 +100,10 @@ function MessageViewActive({
       {aiDraft ? (
         <AIAssist
           draftText={aiDraft.originalText}
-          onAcceptAsIs={undefined}
+          onAcceptAsIs={handleAcceptAsIs}
           onEditDraft={handleEditDraft}
           onReject={handleReject}
+          isAccepting={isAccepting}
         />
       ) : null}
       <ReplyComposer

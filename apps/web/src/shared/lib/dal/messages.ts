@@ -164,3 +164,61 @@ export async function markFailed(
     .set({ status: "failed" })
     .where(eq(messages.id, messageId));
 }
+
+/**
+ * Phase B-3c — '그대로 보내기' 클릭 시 ai_draft outbound를 sending으로 잠금.
+ *
+ * **Race-safe**: `WHERE status='ai_draft'` conditional UPDATE + RETURNING.
+ * 동시 두 클릭 → 한 트랜잭션만 1 row 반환, 나머지는 0 row → null.
+ * caller가 두 번째 IG send 호출을 차단할 수 있다 (L-058 패턴).
+ *
+ * **Ownership 가드**: messages는 store_id가 없으므로 caller가 conversation
+ * 조회로 store_id 일치를 검증한 뒤 본 함수를 호출. 본 함수는 status 가드만
+ * 담당하여 단일 책임 유지.
+ *
+ * 반환값: claim 성공 시 row, 이미 처리됐거나 messageId 없으면 null.
+ */
+export async function claimAiDraftForSend(
+  db: DbClient,
+  messageId: string,
+): Promise<Message | null> {
+  const updated = await db
+    .update(messages)
+    .set({ status: "sending" })
+    .where(and(eq(messages.id, messageId), eq(messages.status, "ai_draft")))
+    .returning();
+  return updated[0] ?? null;
+}
+
+/**
+ * Phase B-3c — IG send 성공 시 status='sending' → 'sent' 전환 + external_message_id 저장.
+ *
+ * **방어적 가드**: `WHERE status='sending'`로 잠금된 row만 업데이트
+ * (이미 sent/failed/ai_draft에 덮어쓰기 차단). 멱등 — claim 안 된 row 호출 시 no-op.
+ */
+export async function markMessageSent(
+  db: DbClient,
+  messageId: string,
+  externalMessageId: string,
+): Promise<void> {
+  await db
+    .update(messages)
+    .set({ status: "sent", externalMessageId })
+    .where(and(eq(messages.id, messageId), eq(messages.status, "sending")));
+}
+
+/**
+ * Phase B-3c — IG send 실패/window expired 시 status='sending' → 'ai_draft' 복원.
+ *
+ * 사장이 알림 보고 재시도 가능. **방어적 가드**: `WHERE status='sending'`로
+ * 잠금된 row만 복원 (이미 sent된 row의 status를 ai_draft로 되돌리기 차단).
+ */
+export async function revertAiDraftClaim(
+  db: DbClient,
+  messageId: string,
+): Promise<void> {
+  await db
+    .update(messages)
+    .set({ status: "ai_draft" })
+    .where(and(eq(messages.id, messageId), eq(messages.status, "sending")));
+}

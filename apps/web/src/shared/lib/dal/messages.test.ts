@@ -186,6 +186,38 @@ describe("dal.messages (pure)", () => {
     expect(typeof mod.markTranslated).toBe("function");
   });
 
+  it("module exports B-3c functions (claim/markSent/revert)", async () => {
+    const mod = await import("./messages");
+    expect(typeof mod.claimAiDraftForSend).toBe("function");
+    expect(typeof mod.markMessageSent).toBe("function");
+    expect(typeof mod.revertAiDraftClaim).toBe("function");
+  });
+
+  it("claimAiDraftForSend: race-safe conditional UPDATE WHERE status='ai_draft' (B-3c)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/messages.ts", "utf-8");
+    expect(src).toMatch(
+      /claimAiDraftForSend[\s\S]*?eq\(messages\.status,\s*["']ai_draft["']\)/,
+    );
+    expect(src).toMatch(/claimAiDraftForSend[\s\S]*?\.returning\(/);
+  });
+
+  it("revertAiDraftClaim UPDATE는 status='sending' 가드 (B-3c)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/messages.ts", "utf-8");
+    expect(src).toMatch(
+      /revertAiDraftClaim[\s\S]*?eq\(messages\.status,\s*["']sending["']\)/,
+    );
+  });
+
+  it("markMessageSent UPDATE는 status='sending' 가드 (B-3c)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/messages.ts", "utf-8");
+    expect(src).toMatch(
+      /markMessageSent[\s\S]*?eq\(messages\.status,\s*["']sending["']\)/,
+    );
+  });
+
   it("listByConversation supports offset for pagination (review M-2)", async () => {
     const { readFile } = await import("node:fs/promises");
     const src = await readFile("src/shared/lib/dal/messages.ts", "utf-8");

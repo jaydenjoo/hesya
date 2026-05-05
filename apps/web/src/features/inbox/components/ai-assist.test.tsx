@@ -79,7 +79,7 @@ describe("AIAssist (B-3b)", () => {
     expect(onReject).toHaveBeenCalledTimes(1);
   });
 
-  it("onAcceptAsIs=undefined → '그대로 보내기' disabled (B-3c 대기)", () => {
+  it("onAcceptAsIs=undefined → '그대로 보내기' disabled (B-3c 이전 호환)", () => {
     render(
       <AIAssist
         draftText="x"
@@ -91,6 +91,45 @@ describe("AIAssist (B-3b)", () => {
     const accept = screen.getByRole("button", { name: /그대로 보내기/ });
     expect(accept).toBeDisabled();
     expect(accept).toHaveAttribute("title", "다음 단계(B-3c)에서 활성화됩니다");
+  });
+
+  it("isAccepting=true → 모든 액션 disabled + '발송 중...' 라벨 (B-3c)", () => {
+    render(
+      <AIAssist
+        draftText="x"
+        onAcceptAsIs={() => {}}
+        onEditDraft={() => {}}
+        onReject={() => {}}
+        isAccepting={true}
+      />,
+    );
+    expect(screen.getByRole("button", { name: /발송 중/ })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: /편집 후 보내기/ }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: /거절하고 직접 작성/ }),
+    ).toBeDisabled();
+    expect(
+      screen.queryByRole("button", { name: /^그대로 보내기$/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("isAccepting=false (기본값) → 라벨은 '그대로 보내기'", () => {
+    render(
+      <AIAssist
+        draftText="x"
+        onAcceptAsIs={() => {}}
+        onEditDraft={() => {}}
+        onReject={() => {}}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: /^그대로 보내기$/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /발송 중/ }),
+    ).not.toBeInTheDocument();
   });
 
   it("키보드 Tab → 액션 버튼 순서대로 포커스 이동", async () => {
