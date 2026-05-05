@@ -24,31 +24,6 @@ import { EMBEDDING_DIMENSIONS } from "@/features/inbox/ai/embeddings";
 
 type StoreKnowledge = typeof storeKnowledge.$inferSelect;
 
-export async function createStoreKnowledge(
-  db: DbClient,
-  input: {
-    storeId: string;
-    question: string;
-    answer: string;
-    embedding: number[] | null;
-  },
-): Promise<StoreKnowledge> {
-  const inserted = await db
-    .insert(storeKnowledge)
-    .values({
-      storeId: input.storeId,
-      question: input.question,
-      answer: input.answer,
-      embedding: input.embedding,
-    })
-    .returning();
-  const row = inserted[0];
-  if (!row) {
-    throw new Error("createStoreKnowledge: insert returned empty");
-  }
-  return row;
-}
-
 export async function updateStoreKnowledge(
   db: DbClient,
   id: string,
