@@ -44,18 +44,17 @@ describe("generateReply", () => {
       recentMessages: [{ direction: "inbound", text: "단발 가능?" }],
     });
 
-    expect(createMock).toHaveBeenCalledTimes(1);
-    const arg = createMock.mock.calls[0]![0] as {
-      model: string;
-      system: string;
-      messages: Array<{ role: string; content: string }>;
-    };
-    expect(arg.model).toBe("claude-sonnet-4-6");
-    expect(arg.system).toContain("강남미용실");
-    expect(arg.messages).toEqual([{ role: "user", content: "단발 가능?" }]);
+    // expect.objectContaining으로 캐스팅 제거 + 정확한 인자 검증.
+    expect(createMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: "claude-sonnet-4-6",
+        system: expect.stringContaining("강남미용실"),
+        messages: [{ role: "user", content: "단발 가능?" }],
+      }),
+    );
   });
 
-  it("응답에 text block이 없으면 throw", async () => {
+  it("응답에 text block이 없으면 'text block 없음' 메시지로 throw", async () => {
     createMock.mockResolvedValue({
       content: [],
       usage: { input_tokens: 1, output_tokens: 0 },
@@ -66,17 +65,28 @@ describe("generateReply", () => {
         customerLanguage: "ko",
         recentMessages: [{ direction: "inbound", text: "hi" }],
       }),
-    ).rejects.toThrow();
+    ).rejects.toThrow("text block 없음");
   });
 
-  it("Anthropic 호출 실패는 그대로 전파 (silent failure 금지)", async () => {
-    createMock.mockRejectedValue(new Error("network down"));
+  it("Anthropic SDK 에러는 도메인 에러로 래핑 (LLM02 키 prefix 누출 방지)", async () => {
+    // SDK가 401 에러 메시지에 키 prefix("sk-ant-...")를 포함할 수 있음 → 상위로 그대로 전파 X.
+    createMock.mockRejectedValue(
+      new Error("AuthenticationError: invalid x-api-key sk-ant-xxxx"),
+    );
     await expect(
       generateReply({
         storeName: "X",
         customerLanguage: "ko",
         recentMessages: [{ direction: "inbound", text: "hi" }],
       }),
-    ).rejects.toThrow("network down");
+    ).rejects.toThrow("AI 응답 생성 실패");
+    // 원본 키 prefix 누출 X
+    await expect(
+      generateReply({
+        storeName: "X",
+        customerLanguage: "ko",
+        recentMessages: [{ direction: "inbound", text: "hi" }],
+      }),
+    ).rejects.not.toThrow(/sk-ant-/);
   });
 });

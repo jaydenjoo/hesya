@@ -35,9 +35,25 @@ const LANGUAGE_LABEL: Record<CustomerLanguage, string> = {
   vi: "베트남어 (Vietnamese)",
 };
 
+// system 프롬프트 보간 시 인젝션 표면 축소용 가드.
+// 100자 상한 + 백틱·이중인용·역슬래시·ASCII 제어문자 제거. 공백·한글·일반 punctuation은 보존.
+// LLM01 defense in depth — B-2 boundary 검증과 별개로 모듈 단독 재사용 시 안전.
+const STORE_NAME_MAX = 100;
+function sanitizeStoreName(name: string): string {
+  const out: string[] = [];
+  for (const ch of name.slice(0, STORE_NAME_MAX)) {
+    if (ch === "`" || ch === '"' || ch === "\\") continue;
+    const code = ch.charCodeAt(0);
+    if (code < 0x20 || code === 0x7f) continue;
+    out.push(ch);
+  }
+  return out.join("");
+}
+
 export function buildPrompt(input: BuildPromptInput): BuildPromptOutput {
   const langLabel = LANGUAGE_LABEL[input.customerLanguage];
-  const system = `당신은 한국 매장 "${input.storeName}"의 사장님 응대 비서다. 고객 언어: ${langLabel}.
+  const safeName = sanitizeStoreName(input.storeName);
+  const system = `당신은 한국 매장 "${safeName}"의 사장님 응대 비서다. 고객 언어: ${langLabel}.
 
 규칙:
 - 반드시 **한국어**로 답변 초안을 작성한다 (사장님 검수 후 자동 번역됨).
