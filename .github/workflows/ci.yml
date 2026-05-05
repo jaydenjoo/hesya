@@ -119,6 +119,7 @@ jobs:
       RESEND_API_KEY: re_ci_dummy_resend_api_key
       RESEND_FROM_EMAIL: ci-dummy@resend.dev
       ANTHROPIC_API_KEY: sk-ant-ci-dummy-anthropic-api-key-xxxxxxxx
+      OPENAI_API_KEY: sk-ci-dummy-openai-api-key-xxxxxxxx
       IG_APP_ID: stub-ig-app-id
       IG_APP_SECRET: stub-ig-app-secret
       IG_WEBHOOK_VERIFY_TOKEN: stub-ig-verify-token
