@@ -83,6 +83,7 @@ async function safeRevertWithSentry(
 
 export async function acceptAiDraft(input: {
   messageId: string;
+  tone?: "warm" | "formal" | "short" | "friendly";
 }): Promise<{ ok: true; externalMessageId: string }> {
   const session = await requireStoreOwnerAuth();
   try {
@@ -90,7 +91,7 @@ export async function acceptAiDraft(input: {
     if (!parsed.success) {
       throw new ValidationError("입력 형식 오류", parsed.error.issues);
     }
-    const { messageId } = parsed.data;
+    const { messageId, tone } = parsed.data;
 
     const db = createDbClient(env.DATABASE_URL);
     const message = await findMessageById(db, messageId);
@@ -117,7 +118,11 @@ export async function acceptAiDraft(input: {
       await safeRevertWithSentry(db, messageId, session);
       throw new ValidationError("초안에 원문이 없습니다");
     }
-    const draftText = claimed.originalText;
+    // Epic 1B-Tone-4: tone 지정 + metadata.tones 있으면 해당 tone 발송.
+    // metadata.tones 없으면(1A/1B 호환) originalText fallback.
+    const tonesAvailable = claimed.metadata?.tones;
+    const draftText =
+      tone && tonesAvailable ? tonesAvailable[tone] : claimed.originalText;
 
     // claim 후 검증 — 실패 시 revert로 복원
     try {
