@@ -2,7 +2,7 @@
   "Common": {
     "signIn": "Sign in with Google"
   },
-  "inbox": {
+  "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",
     "notConnected": {

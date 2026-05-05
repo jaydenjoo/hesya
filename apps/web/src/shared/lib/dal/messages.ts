@@ -1,8 +1,14 @@
 import "server-only";
-import { and, asc, eq, messages, type DbClient } from "@hesya/database";
+import {
+  and,
+  asc,
+  eq,
+  messages,
+  type Channel,
+  type DbClient,
+} from "@hesya/database";
 
 type Message = typeof messages.$inferSelect;
-type Channel = "instagram" | "whatsapp" | "kakao" | "line" | "messenger";
 type Direction = "inbound" | "outbound";
 
 export async function insertMessage(

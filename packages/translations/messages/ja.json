@@ -2,37 +2,37 @@
   "Common": {
     "signIn": "Googleでログイン"
   },
-  "inbox": {
-    "title": "통합 인박스",
-    "empty": "아직 메시지가 없습니다",
+  "Inbox": {
+    "title": "Unified Inbox",
+    "empty": "No messages yet",
     "notConnected": {
-      "title": "Instagram 연결이 필요합니다",
-      "description": "고객 DM을 받으려면 Instagram 비즈니스 계정을 연결해 주세요",
-      "button": "Instagram 연결"
+      "title": "Connect your Instagram",
+      "description": "Connect an Instagram Business account to start receiving customer DMs",
+      "button": "Connect Instagram"
     },
     "thread": {
-      "noSelection": "왼쪽에서 대화를 선택하세요",
+      "noSelection": "Select a conversation from the left",
       "channelInstagram": "Instagram"
     },
     "composer": {
-      "placeholder": "한국어로 답변을 작성하세요...",
-      "send": "전송",
-      "sendError": "전송 실패: {reason}"
+      "placeholder": "Type your reply in Korean...",
+      "send": "Send",
+      "sendError": "Send failed: {reason}"
     },
     "window": {
-      "openWithTime": "답변 가능 — {time} 남음",
-      "closingSoon": "곧 만료 — {time} 남음",
-      "expired": "고객 메시지 후 24시간 경과 — 답변 불가",
-      "expiredHelp": "고객이 다시 메시지를 보낼 때까지 기다려 주세요"
+      "openWithTime": "Reply window — {time} remaining",
+      "closingSoon": "Closing soon — {time} remaining",
+      "expired": "24 hours passed since the customer's last message — replies disabled",
+      "expiredHelp": "Wait until the customer messages you again"
     },
     "connect": {
-      "loading": "연결 처리 중...",
-      "success": "Instagram 연결 완료",
-      "failed": "연결 실패: {reason}"
+      "loading": "Connecting...",
+      "success": "Instagram connected",
+      "failed": "Connection failed: {reason}"
     },
     "tokenExpired": {
-      "banner": "Instagram 토큰이 만료되었습니다 — 재연결이 필요합니다",
-      "button": "재연결"
+      "banner": "Instagram token expired — please reconnect",
+      "button": "Reconnect"
     }
   }
 }

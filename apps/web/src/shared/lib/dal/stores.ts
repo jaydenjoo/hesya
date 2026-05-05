@@ -4,10 +4,9 @@ import {
   eq,
   storeIntegrations,
   stores,
+  type Channel,
   type DbClient,
 } from "@hesya/database";
-
-type Channel = "instagram" | "whatsapp" | "kakao" | "line" | "messenger";
 
 /**
  * 외부 채널 계정 ID로 매장 1건 조회.

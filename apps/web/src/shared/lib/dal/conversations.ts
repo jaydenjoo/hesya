@@ -5,11 +5,11 @@ import {
   desc,
   eq,
   sql,
+  type Channel,
   type DbClient,
 } from "@hesya/database";
 
 type Conversation = typeof conversations.$inferSelect;
-type Channel = "instagram" | "whatsapp" | "kakao" | "line" | "messenger";
 type Status = "open" | "closed" | "snoozed";
 
 export async function upsertConversation(

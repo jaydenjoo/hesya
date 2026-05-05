@@ -1,8 +1,12 @@
 import "server-only";
-import { and, eq, storeIntegrations, type DbClient } from "@hesya/database";
+import {
+  and,
+  eq,
+  storeIntegrations,
+  type Channel,
+  type DbClient,
+} from "@hesya/database";
 import { decryptToken, encryptToken } from "./pgsodium-helpers";
-
-type Channel = "instagram" | "whatsapp" | "kakao" | "line" | "messenger";
 
 export interface StoreIntegration {
   externalAccountId: string;
