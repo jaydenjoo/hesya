@@ -28,10 +28,9 @@ import * as Sentry from "@sentry/nextjs";
 import { captureServerActionError } from "@/instrumentation";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 import {
-  createStoreKnowledge,
+  createStoreKnowledgeWithLimit,
   updateStoreKnowledge,
   deleteStoreKnowledge,
-  listStoreKnowledge,
 } from "@/shared/lib/dal/store-knowledge";
 import { generateEmbedding } from "@/features/inbox/ai/embeddings";
 import { ValidationError } from "@/shared/lib/errors";
@@ -72,30 +71,30 @@ export async function createFAQ(input: {
     }
 
     const db = createDbClient(env.DATABASE_URL);
-    // count 한도 — list({ limit: MAX+1 }) length로 체크. 단일 쿼리.
-    const existing = await listStoreKnowledge(db, session.storeId, {
-      limit: MAX_FAQS_PER_STORE + 1,
-    });
-    if (existing.length >= MAX_FAQS_PER_STORE) {
-      throw new ValidationError(
-        `FAQ가 가득 찼습니다 (최대 ${MAX_FAQS_PER_STORE}개). 기존 FAQ를 삭제하고 다시 시도해주세요.`,
-      );
-    }
-
     const embedding = await tryGenerateEmbedding(
       `${parsed.data.question}\n${parsed.data.answer}`,
       { storeIdShort: session.storeId.slice(0, 8) },
     );
 
-    const created = await createStoreKnowledge(db, {
-      storeId: session.storeId,
-      question: parsed.data.question,
-      answer: parsed.data.answer,
-      embedding,
-    });
+    // 한도 체크 + insert를 advisory lock 트랜잭션에 묶음 (TOCTOU 차단).
+    const result = await createStoreKnowledgeWithLimit(
+      db,
+      {
+        storeId: session.storeId,
+        question: parsed.data.question,
+        answer: parsed.data.answer,
+        embedding,
+      },
+      MAX_FAQS_PER_STORE,
+    );
+    if (!result.ok) {
+      throw new ValidationError(
+        `FAQ가 가득 찼습니다 (최대 ${MAX_FAQS_PER_STORE}개). 기존 FAQ를 삭제하고 다시 시도해주세요.`,
+      );
+    }
 
     revalidatePath("/[locale]/store/knowledge", "page");
-    return { ok: true as const, id: created.id };
+    return { ok: true as const, id: result.row.id };
   } catch (err) {
     captureServerActionError(err, {
       action: "knowledge.createFAQ",

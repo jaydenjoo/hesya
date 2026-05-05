@@ -7,10 +7,9 @@ vi.mock("@/shared/lib/store-owner-guard", () => ({
 }));
 
 vi.mock("@/shared/lib/dal/store-knowledge", () => ({
-  createStoreKnowledge: vi.fn(),
+  createStoreKnowledgeWithLimit: vi.fn(),
   updateStoreKnowledge: vi.fn(),
   deleteStoreKnowledge: vi.fn(),
-  listStoreKnowledge: vi.fn(),
 }));
 
 vi.mock("@/features/inbox/ai/embeddings", () => ({
@@ -24,10 +23,9 @@ vi.mock("@/instrumentation", () => ({
 import { createFAQ, updateFAQ, deleteFAQ } from "./manage-faq";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 import {
-  createStoreKnowledge,
+  createStoreKnowledgeWithLimit,
   updateStoreKnowledge,
   deleteStoreKnowledge,
-  listStoreKnowledge,
 } from "@/shared/lib/dal/store-knowledge";
 import { generateEmbedding } from "@/features/inbox/ai/embeddings";
 import { ValidationError } from "@/shared/lib/errors";
@@ -46,22 +44,24 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("createFAQ (B-4c)", () => {
-  it("정상 입력 → 임베딩 생성 + DAL insert + ok 반환", async () => {
+describe("createFAQ (B-4 followup C-2)", () => {
+  it("정상 입력 → 임베딩 생성 + WithLimit insert + ok 반환", async () => {
     setSession("s1");
-    vi.mocked(listStoreKnowledge).mockResolvedValue([]);
     vi.mocked(generateEmbedding).mockResolvedValue({
       embedding: Array(1536).fill(0.1),
       tokensUsed: 5,
     });
-    vi.mocked(createStoreKnowledge).mockResolvedValue({
-      id: VALID_UUID,
-      storeId: "s1",
-      question: "단발 가능?",
-      answer: "네 5만원",
-      embedding: Array(1536).fill(0.1),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    vi.mocked(createStoreKnowledgeWithLimit).mockResolvedValue({
+      ok: true,
+      row: {
+        id: VALID_UUID,
+        storeId: "s1",
+        question: "단발 가능?",
+        answer: "네 5만원",
+        embedding: Array(1536).fill(0.1),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     });
 
     const r = await createFAQ({ question: "단발 가능?", answer: "네 5만원" });
@@ -70,7 +70,7 @@ describe("createFAQ (B-4c)", () => {
     expect(generateEmbedding).toHaveBeenCalledWith({
       text: "단발 가능?\n네 5만원",
     });
-    expect(createStoreKnowledge).toHaveBeenCalledWith(
+    expect(createStoreKnowledgeWithLimit).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
         storeId: "s1",
@@ -78,6 +78,7 @@ describe("createFAQ (B-4c)", () => {
         answer: "네 5만원",
         embedding: expect.any(Array),
       }),
+      200,
     );
   });
 
@@ -86,41 +87,47 @@ describe("createFAQ (B-4c)", () => {
     await expect(createFAQ({ question: "", answer: "x" })).rejects.toThrow(
       ValidationError,
     );
-    expect(createStoreKnowledge).not.toHaveBeenCalled();
+    expect(createStoreKnowledgeWithLimit).not.toHaveBeenCalled();
   });
 
-  it("매장당 200개 초과 → ValidationError ('FAQ가 가득 찼습니다')", async () => {
+  it("WithLimit이 limit_exceeded 반환 → ValidationError ('FAQ가 가득 찼습니다')", async () => {
     setSession("s1");
-    vi.mocked(listStoreKnowledge).mockResolvedValue(
-      Array(200).fill({}) as never,
-    );
+    vi.mocked(generateEmbedding).mockResolvedValue({
+      embedding: Array(1536).fill(0.1),
+      tokensUsed: 5,
+    });
+    vi.mocked(createStoreKnowledgeWithLimit).mockResolvedValue({
+      ok: false,
+      reason: "limit_exceeded",
+    });
     await expect(createFAQ({ question: "Q", answer: "A" })).rejects.toThrow(
       /가득 찼/,
     );
-    expect(generateEmbedding).not.toHaveBeenCalled();
-    expect(createStoreKnowledge).not.toHaveBeenCalled();
   });
 
-  it("임베딩 실패 → embedding=null로 insert 진행 (나중에 재생성 가능)", async () => {
+  it("임베딩 실패 → embedding=null로 WithLimit insert 진행", async () => {
     setSession("s1");
-    vi.mocked(listStoreKnowledge).mockResolvedValue([]);
     vi.mocked(generateEmbedding).mockRejectedValue(new Error("OpenAI down"));
-    vi.mocked(createStoreKnowledge).mockResolvedValue({
-      id: VALID_UUID,
-      storeId: "s1",
-      question: "Q",
-      answer: "A",
-      embedding: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    vi.mocked(createStoreKnowledgeWithLimit).mockResolvedValue({
+      ok: true,
+      row: {
+        id: VALID_UUID,
+        storeId: "s1",
+        question: "Q",
+        answer: "A",
+        embedding: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     });
 
     const r = await createFAQ({ question: "Q", answer: "A" });
 
     expect(r.ok).toBe(true);
-    expect(createStoreKnowledge).toHaveBeenCalledWith(
+    expect(createStoreKnowledgeWithLimit).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({ embedding: null }),
+      200,
     );
   });
 });

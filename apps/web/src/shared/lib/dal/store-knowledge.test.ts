@@ -73,4 +73,34 @@ describe("dal.store-knowledge (pure)", () => {
     expect(src).not.toMatch(/return\s+inserted\[0\]!/);
     expect(src).toMatch(/createStoreKnowledge[\s\S]*?(throw|Error)/);
   });
+
+  it("countStoreKnowledge export + storeId 가드 (B-4 followup C-1)", async () => {
+    const mod = await import("./store-knowledge");
+    expect(typeof mod.countStoreKnowledge).toBe("function");
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile(
+      "src/shared/lib/dal/store-knowledge.ts",
+      "utf-8",
+    );
+    expect(src).toMatch(
+      /countStoreKnowledge[\s\S]*?eq\(\s*\w+\.storeId\s*,\s*storeId/,
+    );
+    // SELECT COUNT(*) 사용 — 페이로드 절약
+    expect(src).toMatch(/countStoreKnowledge[\s\S]*?count\s*\(/i);
+  });
+
+  it("createStoreKnowledgeWithLimit: 트랜잭션 + advisory lock + count (B-4 followup C-2)", async () => {
+    const mod = await import("./store-knowledge");
+    expect(typeof mod.createStoreKnowledgeWithLimit).toBe("function");
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile(
+      "src/shared/lib/dal/store-knowledge.ts",
+      "utf-8",
+    );
+    // 트랜잭션 안에서 advisory lock + count → insert. TOCTOU 차단.
+    expect(src).toMatch(/createStoreKnowledgeWithLimit[\s\S]*?\.transaction\(/);
+    expect(src).toMatch(
+      /createStoreKnowledgeWithLimit[\s\S]*?pg_advisory_xact_lock/,
+    );
+  });
 });
