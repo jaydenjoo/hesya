@@ -2054,3 +2054,85 @@ ForbiddenError를 ValidationError로 통합 — 어떤 messageId가 실재하는
 - 운영: Sentry에서 `phase: revertAiDraftClaim` 태그로 stale 'sending' 발생률 모니터링 → 임계값 초과 시 cron 자동화 도입.
 
 **연관**: PR #41 Phase B-3c. L-058(race-safe claim)의 운영 안전 강화 형태. L-058이 "두 클릭이 두 send를 발생시키지 않게" 보장이라면, L-061은 "claim 후 변경 실패가 영구 잠금이 되지 않게" 보장 + "인증된 사용자도 enumerate 못하게" 보장. 두 패턴 함께 적용해야 race-safe claim 패턴 완성.
+
+---
+
+### [2026-05-05] L-062 — GitHub auto-merge는 Branch Protection 의존성
+
+**증상**: `gh api -X PATCH repos/.../hesya -F allow_auto_merge=true`가 200 OK + 응답 body에 `errors: null`로 성공처럼 보이지만, 직후 GET 시 `allow_auto_merge: false`로 되돌아옴 (silent ignore).
+
+**원인**: GitHub auto-merge 기능은 **"Require a pull request before merging" branch protection rule이 활성화된 repo에서만** 사용 가능. Hesya는 personal repo + 혼자 작업이라 branch protection 미설정 → API가 PATCH 자체는 받지만 적용 거부 (에러도 안 던짐).
+
+**해결**: branch protection 추가 대신 **GitHub Actions workflow_run 트리거**로 우회.
+
+```yaml
+# .github/workflows/auto-merge.yml
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+jobs:
+  auto-merge:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request'
+    # ... gh pr merge --squash --delete-branch
+```
+
+`auto-merge` 라벨로 명시적 opt-in. 외부 액션 의존성 0.
+
+**규칙** ⭐:
+
+1. **GitHub auto-merge API silent failure 패턴**: `allow_auto_merge=true` PATCH가 성공으로 보여도 GET 재확인 필수. 응답 body에 `allow_auto_merge` 값을 직접 보고 검증.
+2. **Personal repo는 workflow_run 트리거가 더 깔끔**: branch protection은 main 직접 push 정책(docs는 main 직접)과 충돌. workflow는 라벨 기반 opt-in이라 정책 자유로움.
+3. **auto-merge 활성화 사전 점검**: branch protection rule 존재 여부 → 없으면 API로 활성화 불가능. UI Settings → General → Pull Requests에 옵션 자체가 회색 처리됨.
+
+**확인 방법**: `gh api repos/<owner>/<repo> -q .allow_auto_merge` 직접 GET. PATCH 응답 body의 errors 필드 신뢰 X.
+
+**연관**: PR #56 첫 auto-merge 라벨 사용 사례. 워크플로우 인프라 옵션 A-2 구현. memory `feedback_workflow_main_vs_branch.md`.
+
+---
+
+### [2026-05-05] L-063 — e2e-smoke 1.5분의 진짜 병목은 Playwright browser download
+
+**증상**: e2e-smoke job이 1m28s 소요. 실 테스트는 sign-in 페이지 접근 1줄(`page.goto`). 테스트 자체는 1초 미만이라 "왜 이렇게 오래 걸리지?" 의문.
+
+**원인** (단계별 분해):
+
+| 단계                                         | 시간                       |
+| -------------------------------------------- | -------------------------- |
+| pnpm install (cached)                        | ~20s                       |
+| **Playwright chromium download (with-deps)** | **~30~40s** ← 가장 큰 병목 |
+| Next.js dev 서버 boot (Turbopack)            | ~15~25s                    |
+| 실제 test 실행                               | <1s                        |
+
+`playwright install --with-deps chromium`은 매 CI 실행마다 ~150MB 브라우저 binary + system deps(libnss3 등) 설치. lockfile에 박혀있지 않아 cache 안 됨.
+
+**해결** (2단계):
+
+1. **`needs: validate` 제거 → e2e와 validate 병렬화**: wall time 5분 → 4분 (e2e가 validate에 의존성 없음, validate 실패 시 PR 머지 불가라 자원 낭비 미미)
+2. **`actions/cache@v4`로 `~/.cache/ms-playwright` 캐싱**: lockfile hash 기반 key → playwright 버전 업 시 자동 갱신. 캐시 적중 시 30~40초 → 5초.
+
+```yaml
+- name: Cache Playwright browsers
+  id: playwright-cache
+  uses: actions/cache@v4
+  with:
+    path: ~/.cache/ms-playwright
+    key: playwright-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+- name: Install Playwright browsers
+  if: steps.playwright-cache.outputs.cache-hit != 'true'
+  run: pnpm exec playwright install --with-deps chromium
+- name: Install system deps # 캐시 적중에도 매번 필요 (binary만 캐시됨)
+  if: steps.playwright-cache.outputs.cache-hit == 'true'
+  run: pnpm exec playwright install-deps chromium
+```
+
+**규칙** ⭐:
+
+1. **Playwright CI에 cache 누락은 디폴트 안티패턴**: `actions/cache` 없으면 매 실행 30~40초 낭비. 두 번째 PR부터 효과.
+2. **CI 시간 분석은 단계별 분해 먼저**: 전체 시간만 보고 "느리다" 판단 금지. install/setup vs 실제 작업 분리해서 진짜 병목 식별.
+3. **job 의존성 점검**: `needs:`가 정말 필요한지. 독립 검증이면 병렬화로 wall time 절감 가능 (실패 PR이 머지되지 않는 안전망은 GitHub PR 자체).
+4. **system deps와 binary는 별 캐시 정책**: `--with-deps`는 binary + apt 패키지 동시 설치. 캐시는 binary만 잡힘 → system deps는 매번 `install-deps` 명시.
+
+**확인 방법**: GitHub Actions 로그에서 "Install Playwright browsers" step 시간 측정. 캐시 적중 시 "Cache restored from key: ..." 메시지 + 5초 미만.
+
+**연관**: 503c16d (ci.yml 병렬화 + Playwright cache). 워크플로우 인프라 옵션 A-1 구현.

@@ -4,13 +4,14 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Epic 1B-Tone 시리즈 완료** ✅ (1A + 1B B-1~B-4 + B 사후 follow-up + C-light + 1B-UI 4 PR + **1B-Tone 4 PR**)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone (DB metadata + 4 tone tool use + 저장 + UI 4탭) ✅ → **다음**: Customer 확장 Epic 또는 톤 검증 pill / "이유 보기" / "매장 톤 학습"
-- **Task**: 1A Phase A~J ✅ / 1B B-1~B-4c ✅ / B-4 followup(C-1+C-2) ✅ / B-4 followup-2(orphan + Sentry storeId) ✅ / C-light(integration 시나리오 3) ✅ / 1B-UI A-1~A-4 ✅ / **1B-Tone 1~4 ✅** (DB metadata + Anthropic 4 tone tool use + generate-and-store-reply 저장 + AIAssist 4탭 활성화)
-- **상태**: 사장이 `/store/inbox`에서 AIAssist의 4 tone(따뜻하게/공식적으로/짧게/매장 톤으로) 중 선택해 즉시 발송 가능. 1A/1B 기존 메시지(metadata.tones 없음)는 originalText fallback으로 무손실 호환. 차단 요소 없음.
-- **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **최근 PR (1B-Tone 4건)**: [#52](https://github.com/jaydenjoo/hesya/pull/52) 1B-Tone-1 (DB+DAL), [#53](https://github.com/jaydenjoo/hesya/pull/53) 1B-Tone-2 (Anthropic tool use), [#54](https://github.com/jaydenjoo/hesya/pull/54) 1B-Tone-3 (저장), [#55](https://github.com/jaydenjoo/hesya/pull/55) 1B-Tone-4 (UI 4탭). main 최신 SHA `197b5a6`.
-- **prod migration**: `0014_messages_tone_metadata.sql` (nullable jsonb metadata 컬럼) — Jayden이 머지 전 Supabase Studio 수동 적용 완료 (nullable + drizzle ignores unknown 덕에 순서 무관 안전).
+- **Phase**: Phase 1 — **워크플로우 인프라 개선 완료** + **Epic 1B-Tone Phase 2-A PR open** (자동 머지 대기 중)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone Phase 1 (4탭) ✅ + **1B-Tone Phase 2-A (verification pill + 이유 보기) PR #56 open** → **다음**: PR #56 머지 확인 → P2-B (매장 톤 학습)
+- **Task**: 1A ✅ / 1B B-1~B-4c ✅ / 1B-UI A-1~A-4 ✅ / 1B-Tone 1~4 ✅ / **워크플로우 A-1 (CI 병렬화+Playwright cache) ✅** / **워크플로우 A-2 (auto-merge.yml + 라벨) ✅** / **1B-Tone P2-A 구현 완료, PR open**
+- **상태**: 사장이 4 tone 중 선택 + 톤 self-check pill까지 볼 수 있음 (PR #56 머지 후). PR #56은 첫 `auto-merge` 라벨 사용 사례로, CI green 시 workflow_run 트리거가 자동 squash + branch delete. 차단 요소 없음.
+- **작업 브랜치**: `feat/epic-1b-tone-phase2-a-verification` (PR #56 open). 머지 후 자동 삭제 예정.
+- **최근 main 직접 commit**: `503c16d` (ci 병렬화), `725e437` (auto-merge.yml). 둘 다 인프라 yml 변경 — 정책상 main 직접 push 적용 (코드 회귀 0).
+- **PR 진행 중**: [#56](https://github.com/jaydenjoo/hesya/pull/56) Phase 2-A — auto-merge 라벨, 12 신규 테스트, 440/440 + 40 skipped.
+- **prod migration**: `0014_messages_tone_metadata.sql` 적용 완료. P2-A는 metadata jsonb 확장만 → 마이그레이션 불필요.
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -18,17 +19,26 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Epic 1B-Tone Phase 2 (선택, ~2~3h) — 톤 검증 pill / "이유 보기" / "매장 톤 학습"
+### 1. PR #56 머지 검증 (선결)
 
-**디자인 ref 패턴** (`docs/design/reference/inbox-app.jsx` AIAssist) 중 미적용 항목:
+- `gh pr view 56 --json state` → MERGED 확인
+- 자동 머지 인프라(workflow_run 트리거 + `auto-merge` 라벨) 첫 동작 검증
+- 머지 후 main pull
+- 만약 자동 머지 실패 시: `gh run list --workflow=auto-merge.yml -L 3` 로그 확인 → 디버깅
 
-- 톤 검증 pill ("따뜻한 톤 유지" / "약간 사무적인 톤") — 생성 결과 self-check
-- "이유 보기" 팝업 — 왜 이 톤·문구를 골랐는지 explain
-- "내 매장 톤 학습" 버튼 — 사장이 직접 보낸 메시지를 few-shot 예시에 추가
+### 2. Epic 1B-Tone Phase 2-B: 매장 톤 학습 (~2~3h, 1 PR)
 
-**구현 노트**: Phase 1(1B-Tone-1~4)이 metadata 인프라를 마련했으므로 metadata에 reasoning/validations 추가 + UI 노출만 하면 됨.
+**Phase 2-A로 verification 끝났음. 남은 항목**:
 
-### 2. Epic Customer 확장: 고객 정보 풍부화 (권장 다음, ~4~6h)
+- 새 테이블 `store_tone_examples` 마이그레이션 (`0015_store_tone_examples.sql`) — RLS + index
+- DAL `insertToneExample`, `listRecentToneExamples`
+- Server Action `learnStoreTone(text)` — Composer 입력 텍스트 학습
+- `generate-reply.ts` system prompt에 tone examples few-shot 주입 (prompt caching 활용)
+- Composer 툴바 우측 "🎙️ 내 매장 톤 학습 →" 버튼 (디자인 ref `inbox-app.jsx` 라인 600)
+
+**Synergy**: P2-B 도입 후 P2-A의 `verifications.reason`이 매장 톤 비교 컨텍스트로 자연스럽게 풍부해짐.
+
+### 3. Epic Customer 확장: 고객 정보 풍부화 (~4~6h)
 
 ContextPanel 데이터 확장 (현재 1B 스코프 밖):
 
@@ -39,7 +49,7 @@ ContextPanel 데이터 확장 (현재 1B 스코프 밖):
 
 **선행 작업**: Customer 스키마 확장 마이그레이션 + IG profile fetch (`/me?fields=profile_pic_url,name,locale`)
 
-### 3. Shortcuts FAB 키보드 단축키 모달 (선택, ~1h)
+### 4. Shortcuts FAB 키보드 단축키 모달 (선택, ~1h)
 
 디자인 ref Composer에 단축키 1~9 표시. 실제 단축키 hookup은 별 Task.
 
@@ -111,11 +121,62 @@ ContextPanel 데이터 확장 (현재 1B 스코프 밖):
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-05 심야 후속 — **워크플로우 인프라 (CI 병렬화 + Playwright cache + auto-merge.yml) + Epic 1B-Tone Phase 2-A 구현 (PR #56 open with auto-merge 라벨)**. main SHA `725e437`. learnings L-062 (auto-merge silent ignore), L-063 (Playwright cache) 추가.
 - 날짜: 2026-05-05 심야 세션 — **Epic 1B-Tone 시리즈 완료** (PR #52 DB+DAL + #53 Anthropic 4 tone tool use + #54 generate-and-store 저장 + #55 AIAssist 4탭). main SHA `197b5a6`. prod migration `0014_messages_tone_metadata.sql` 수동 적용 완료.
 - 날짜: 2026-05-05 후반 세션 — **Epic 1B-UI 시리즈 완료** (PR #48 골조 + #49 ThreadRow + #50 MessageBubble/Header + #51 ContextPanel) + **B-4 followup-2** (PR #46) + **C-light** (PR #47)
 - 날짜: 2026-05-05 late night+ — **B-4 followup 흡수** (PR #45: countStoreKnowledge DAL + advisory lock TOCTOU 차단 + lock_timeout)
 - 날짜: 2026-05-05 late night — **Epic 1B Phase B-4 RAG 시리즈 완료** (PR #42 pgvector + #43 검색 주입 + #44 CRUD UI)
 - 날짜: 2026-05-05 night — **Epic 1B Phase B-3c 완료** (PR #41, Sec HIGH 1 + Code MEDIUM 4 + 운영 안전 fix)
+
+## 이번 세션 완료 (2026-05-05 심야 후속 — 워크플로우 인프라 + Phase 2-A)
+
+### 1. 워크플로우 정책 결정 + 메모리화
+
+- **main 직접 vs 브랜치+PR 분류**: docs/색상은 main 직접 (회귀 0), 코드는 브랜치+PR
+- **시리즈 작업**: PR 묶음 권장 (1 PR + N commit) 또는 분리 PR — 사전 결정
+- **memory 저장**: `feedback_workflow_main_vs_branch.md` (구현된 인프라 + 새 PR 명령 포함)
+
+### 2. CI 워크플로우 최적화 (PR 없이 main 직접 — 503c16d)
+
+- `e2e-smoke needs: validate` 제거 → validate와 병렬 실행 (wall time 5분 → 4분)
+- `actions/cache@v4`로 `~/.cache/ms-playwright` 캐시 추가 (lockfile hash 기반 key)
+- 캐시 적중 시 Playwright browser download 30~40초 → 5초
+- 다음 PR (#56)부터 효과 측정 가능
+
+### 3. Auto-merge 인프라 구축 (PR 없이 main 직접 — 725e437)
+
+- `.github/workflows/auto-merge.yml` 신규 — workflow_run 트리거
+- `auto-merge` 라벨 PR이 CI green 시 자동 squash + branch delete
+- 외부 액션 의존성 0 (gh CLI만 사용)
+- branch protection 불필요 (개인 repo + main 직접 push 정책 호환)
+- `gh label create auto-merge` (#0E8A16) 완료
+- **Why workflow_run**: GitHub auto-merge API는 branch protection 없으면 silent ignore (L-062)
+
+### 4. Epic 1B-Tone Phase 2-A 구현 (PR #56 open, 12a5ff9)
+
+**디자인 ref** (`docs/design/reference/inbox-app.jsx` 라인 475~570): AIAssist에 verification pill + 이유 보기 inline popover.
+
+- **schema**: `ToneVerification` 타입 + `MessageMetadata.verifications` 옵셔널
+- **generate-reply.ts**: tool_schema에 `verifications` 객체 추가 — 4 tone × `{state, label, reason}`. state enum `["ok", "warn"]`. 응답 형식 가드 (`isValidVerifications`).
+- **generate-and-store-reply.ts**: `verifications` 있을 때만 `metadata.verifications` 키 저장 (Phase 1 호환)
+- **AIAssist UI**: active tone pill (✓ 녹색 / ⚠ 주황) + reason 있을 때만 '이유 보기' 버튼 + 탭 전환 시 popover 자동 닫힘
+- **message-view.tsx**: `verifications={aiDraft.metadata?.verifications}` forwarding
+
+**테스트** (12 신규):
+
+- generate-reply +5 (정상 응답, 누락 호환, schema 포함, state enum 검증, 잘못된 형식 reject)
+- ai-assist +5 (미전달 미표시, ok pill, warn pill+이유, popover toggle, 탭 전환 시 닫힘)
+- generate-and-store-reply +2 (verifications 있을 때 metadata 저장, 없을 때 키 생략)
+- 440/440 + 40 skipped, tsc + lint 클린
+
+**비용**: tool output 토큰 ~30% 증가 (4 verification labels + reasons). input은 prompt cache로 무변동.
+
+**PR #56 진행 중**: 첫 `auto-merge` 라벨 사용 사례 — workflow_run 트리거 자동 머지 검증 예정.
+
+### 5. learnings.md 추가 (2건)
+
+- **L-062**: GitHub auto-merge는 Branch Protection 의존성 (silent ignore). workflow_run 트리거로 우회.
+- **L-063**: e2e-smoke 1.5분의 진짜 병목은 Playwright browser download. lockfile hash 기반 cache 필수.
 
 ## 이번 세션 완료 (2026-05-05 심야 — Epic 1B-Tone 시리즈 4 PR)
 
