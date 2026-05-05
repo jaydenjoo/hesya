@@ -22,6 +22,7 @@ import {
   resetDb,
   seedStore,
   seedCustomer,
+  seedUser,
   seedStoreOwner,
   seedStoreIntegration,
   seedConversation,
@@ -46,24 +47,11 @@ test.describe("Inbox E2E (시나리오 1, 2)", () => {
     page,
   }) => {
     const db = createTestDb();
-
-    // 1. 시드: user(E2E_USER_ID로 직접) → store → owner → integration → conversation → inbound message
     const userId = E2E_USER_ID!;
-    // user 시드: E2E_AUTH_USER_ID와 동일한 id 사용. seedUser는 random id를 만들므로
-    // 직접 INSERT 패턴이 필요. 1A 단순화: seedUser 호출하지 않고 store_owners에
-    // userId를 그대로 입력 (Better Auth user 테이블에 row가 없어도 application FK 미지정).
-    // 다만 store_owners.userId → users.id 외래키가 있으면 실패. 확인 필요.
-    // 본 시나리오는 store_owners 테이블 schema에 onDelete cascade가 없고 FK는
-    // 있을 수 있음 — 안전하게 seedUser 호출 후 그 id를 E2E_AUTH_USER_ID와 일치시킨다.
-    // 단, dev 서버 시작 시 E2E_AUTH_USER_ID가 고정이라 random id면 mismatch.
-    // → 해결: schema에 FK가 없거나 NO ACTION이면 임의 id 직접 지정. 그렇지 않으면
-    //    Better Auth row를 직접 INSERT하는 헬퍼가 필요. PR B 범위 내에서는
-    //    seedUser 호출 + store_owner의 userId를 그 id로 사용하고, dev 서버에는
-    //    런타임에 그 id를 알려줄 수 없으므로 실제 통합은 dev DB schema 검증이 필요.
-    //
-    // 현실 결정: 1A spec은 전제로 store_owners.userId가 application-level 매칭만
-    // 강제(RLS 미래 대비). DB에 FK 제약이 없거나 deferred라면 임의 id 사용 가능.
-    // dev 환경에서 실패하면 schema 점검 후 보강.
+
+    // store_owners.userId → users.id (CASCADE) FK 존재 — users row를 먼저 시드.
+    // E2E_AUTH_USER_ID와 동일 id로 INSERT (env로 dev 서버 bypass 매칭).
+    await seedUser(db, { id: userId });
     const storeId = await seedStore(db);
     await seedStoreOwner(db, { userId, storeId, role: "owner" });
     await seedStoreIntegration(db, {
@@ -115,8 +103,9 @@ test.describe("Inbox E2E (시나리오 1, 2)", () => {
     page,
   }) => {
     const db = createTestDb();
-
     const userId = E2E_USER_ID!;
+
+    await seedUser(db, { id: userId });
     const storeId = await seedStore(db);
     await seedStoreOwner(db, { userId, storeId, role: "owner" });
     await seedStoreIntegration(db, {

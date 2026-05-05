@@ -92,8 +92,11 @@ jobs:
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # ⚠️ env 블록은 validate job과 의도적으로 동일 (Next.js dev 서버가
+    #    env.ts zod parse를 통과해야 기동). env.ts 추가 시 양쪽 동기화 의무 (L-053).
+    #    GitHub Actions는 yaml anchor 미지원 → composite action으로 추출은
+    #    별 작업 (현재 19개 변수, 동기화 누락 시 build 실패로 즉각 발견).
     env:
-      # validate job과 동일 dummy env (build에 동일 env 필요).
       NEXT_PUBLIC_APP_URL: http://localhost:4200
       NEXT_PUBLIC_SUPABASE_URL: https://x.supabase.co
       NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy_anon_key_for_ci_build_xxxxxxx

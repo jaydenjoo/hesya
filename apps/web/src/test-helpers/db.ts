@@ -62,14 +62,21 @@ export async function seedCustomer(
 
 export async function seedUser(
   db: DbClient,
-  overrides: { email?: string; name?: string } = {},
+  overrides: { id?: string; email?: string; name?: string } = {},
 ): Promise<string> {
   const email =
     overrides.email ??
     `test-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`;
+  // id 명시 시 그대로 INSERT (E2E에서 환경변수 동기화용).
+  // 미명시 시 schema의 defaultRandom() 작동.
+  const values: { name: string; email: string; id?: string } = {
+    name: overrides.name ?? "Test User",
+    email,
+  };
+  if (overrides.id) values.id = overrides.id;
   const [row] = await db
     .insert(users)
-    .values({ name: overrides.name ?? "Test User", email })
+    .values(values)
     .returning({ id: users.id });
   if (!row) throw new Error("seedUser: insert returned no row");
   return row.id;

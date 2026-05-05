@@ -70,6 +70,8 @@ const server = createServer((req, res) => {
   res.end(`Not Found: ${req.method} ${path}`);
 });
 
-server.listen(PORT, () => {
-  console.log(`[ig-mock] listening on http://localhost:${PORT}`);
+// 로컬 dev 전용 mock — loopback에 명시적으로 bind하여
+// 같은 네트워크의 다른 기기 접근 차단.
+server.listen(PORT, "127.0.0.1", () => {
+  console.log(`[ig-mock] listening on http://127.0.0.1:${PORT}`);
 });
