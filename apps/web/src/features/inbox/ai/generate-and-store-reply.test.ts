@@ -667,6 +667,33 @@ describe("generateAndStoreReply (B-2)", () => {
     expect(call?.relatedFAQs).toBeUndefined();
   });
 
+  it("RAG: 3000자 초과 inbound → embed 호출 안 함 + Sentry 미발생 (Sec DoS 방어)", async () => {
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      storeId: "44444444-4444-4444-8444-444444444444",
+      originalText: "가".repeat(3001),
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("X");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    const generateEmbedding = vi.fn();
+    const searchSimilarKnowledge = vi.fn();
+    generateReplyMock.mockResolvedValue({
+      reply: "x",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, {
+      ...deps,
+      generateEmbedding,
+      searchSimilarKnowledge,
+    });
+
+    expect(generateEmbedding).not.toHaveBeenCalled();
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+
   it("RAG: 검색 결과 빈 배열 → relatedFAQs=[] 전달 (정상)", async () => {
     vi.mocked(findMessageById).mockResolvedValue({
       ...baseInbound,

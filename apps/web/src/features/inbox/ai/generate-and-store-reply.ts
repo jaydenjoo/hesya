@@ -203,9 +203,15 @@ export async function generateAndStoreReply(
 
   // B-4b RAG — inbound 메시지 임베딩 + 매장 FAQ 검색. 실패 silent skip
   // (RAG 없이 기존 흐름 진행). Sentry tag로 단계 구분 (embedding vs search).
-  // storeId 없는 레거시 메시지 → 검색 자체 skip (현 데이터 호환).
+  //
+  // skip 조건:
+  //   - storeId/originalText 없는 레거시 메시지 → 정상 skip
+  //   - 3000자 초과 (embeddings.MAX_INPUT_CHARS) → 정상 skip (Sec DoS 방어,
+  //     Sentry 미발생; 긴 메시지는 RAG 없이 진행이 정상 경로)
+  // storeId는 Sentry extra에 8자만 (전체 식별자 노출 회피).
   let relatedFAQs: RelatedFAQ[] | undefined;
-  if (msg.storeId && msg.originalText) {
+  if (msg.storeId && msg.originalText && msg.originalText.length <= 3000) {
+    const storeIdShort = msg.storeId.slice(0, 8);
     try {
       const embedded = await embed({ text: msg.originalText });
       try {
@@ -219,13 +225,13 @@ export async function generateAndStoreReply(
       } catch (searchErr) {
         Sentry.captureException(searchErr, {
           tags: { phase: "searchSimilarKnowledge" },
-          extra: { messageId: msg.id, storeId: msg.storeId },
+          extra: { messageId: msg.id, storeIdShort },
         });
       }
     } catch (embeddingErr) {
       Sentry.captureException(embeddingErr, {
         tags: { phase: "embedding" },
-        extra: { messageId: msg.id, storeId: msg.storeId },
+        extra: { messageId: msg.id, storeIdShort },
       });
     }
   }
@@ -234,7 +240,7 @@ export async function generateAndStoreReply(
     storeName,
     customerLanguage,
     recentMessages,
-    ...(relatedFAQs !== undefined ? { relatedFAQs } : {}),
+    relatedFAQs,
   });
   if (result.reply.length > MAX_REPLY_CHARS) {
     return { stored: false, reason: "reply_too_long" };

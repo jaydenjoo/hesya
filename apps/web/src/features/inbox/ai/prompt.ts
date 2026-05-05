@@ -60,11 +60,23 @@ function sanitizeStoreName(name: string): string {
   return out.join("");
 }
 
-// FAQ 인젝션 방어 — 사장이 FAQ에 `</store_faq>` 같은 닫는 태그를 심어도
-// system framing이 깨지지 않도록 닫는/여는 태그를 제거 (L-061 enumeration
-// 방어와 별개의 RAG injection 표면).
+// FAQ 항목 1개의 글자수 상한. k=3 × 질문/답변 2 = 최대 ~6000자가 system
+// 추가됨 (Anthropic 200k context window 대비 무해). 더 큰 상한은 관련 없는
+// 긴 FAQ가 응답 품질을 낮출 수 있어 보수적으로 1000자.
+const FAQ_TEXT_MAX = 1000;
+
+// FAQ 인젝션 방어 — 사장이 FAQ에 닫는 태그(<store_faq>, <instruction>,
+// <system> 등 LLM이 의미 있게 해석할 수 있는 모든 XML-like 태그)를 심어도
+// system framing이 깨지지 않도록 모든 XML 태그 제거 + 1000자 상한.
+//
+// Sec/Code 리뷰 H-1 — 처음엔 `<\/?store_faq>`만 제거했으나 공백 변형
+// (`< / store_faq >`)이나 다른 태그(`<instruction>`)는 통과되어 framing
+// 우회 가능. 모든 `<...>` 패턴을 제거해 LLM XML 파싱을 단절.
+//
+// 정상 FAQ 텍스트에 `1 < 2` 같은 비교 표현은 드물고, 있어도 단어 일부가
+// 사라지는 정도(공격 표면 차단의 비용으로 수용).
 function sanitizeFAQText(text: string): string {
-  return text.replace(/<\/?store_faq>/gi, "").slice(0, 1000);
+  return text.replace(/<[^>]*>/g, "").slice(0, FAQ_TEXT_MAX);
 }
 
 export function buildPrompt(input: BuildPromptInput): BuildPromptOutput {
