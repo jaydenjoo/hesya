@@ -6,45 +6,53 @@
 
 - **Phase**: Phase 1 진행 중
 - **Epic**: **Epic 1 통합 다국어 인박스** — 1A 인프라 + Instagram PoC
-- **Task**: Phase A ✅ + Phase B ✅ + Prod migration v0011 ✅ + **Phase C ✅** + **Phase D ✅** + **사후 리뷰 9 fix ✅** → **다음**: Phase E (i18n, ~1h) + Phase F (Routes/UI/E2E, ~6h)
-- **상태**: 모든 코어 인프라/DAL/Channel Layer 완성. main 최신 SHA `6de6931`. 차단 요소 없음.
+- **Task**: Phase A~D ✅ + Prod v0011 ✅ + **Phase E ✅** + **Phase F (Routes) ✅** → **다음**: Phase G (Server Actions/features, ~2h) + Phase H (UI, ~3h) + Phase I (Pages, ~1.5h) + Phase J (E2E, ~1.5h)
+- **상태**: 코어 인프라/DAL/Channel Layer/i18n/Routes 완성. main 최신 SHA `a960e0e`. 차단 요소 없음.
 - **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **이번 세션 PR (6개)**: [#22](https://github.com/jaydenjoo/hesya/pull/22) prod v0011 → [#23](https://github.com/jaydenjoo/hesya/pull/23) T07 → [#24](https://github.com/jaydenjoo/hesya/pull/24) T08+T09 → [#25](https://github.com/jaydenjoo/hesya/pull/25) T10~T12 → [#26](https://github.com/jaydenjoo/hesya/pull/26) Phase D → [#27](https://github.com/jaydenjoo/hesya/pull/27) 사후 리뷰 9 fix
+- **이번 세션 PR (2개)**: [#29](https://github.com/jaydenjoo/hesya/pull/29) Phase E i18n → [#30](https://github.com/jaydenjoo/hesya/pull/30) Phase F Routes + 사후 리뷰 6 fix
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Phase E — i18n (~1h)
+### 1. Phase G — Server Actions + features (~2h)
 
-plan: docs/superpowers/plans/2026-05-04-epic-1a-inbox-instagram.md § Phase E
+plan: docs/superpowers/plans/2026-05-04-epic-1a-inbox-instagram.md § Phase G
 
-- T19 `apps/web/messages/{ko,en}.json` (100% 번역)
-- T20 `{ja,zh-CN,zh-TW,vi}.json` placeholder (1B 본격 번역)
+- T24 `features/inbox/lib/window-utils.ts` (24h 메시징 윈도우 계산, TDD)
+- T25 send-outbound Server Action (window 만료 시 WindowClosedError throw)
+- T26 connect-instagram (OAuth start URL + state cookie)
+- T27 `features/inbox/{types,schema,index}.ts`
 
-### 2. Phase F — Routes / UI / E2E (~6h, 큰 작업)
+### 2. Phase H — UI 컴포넌트 (~3h)
 
-plan § Phase F
+plan § Phase H
 
-- T21 webhook route (Instagram, HMAC verify + DAL 통합) — **H-4 X-Hub-Timestamp 5분 검증 포함** (사후 리뷰 follow-up)
-- T22 OAuth callback route — **state CSRF 검증 포함** (review LOW follow-up)
-- T23 polling endpoint
-- T24 window-utils (24h 윈도우 계산)
-- T25 send-outbound Server Action (window 만료 시 throw)
-- T26 connect-instagram (OAuth start URL)
-- T27 features/inbox/{types,schema,index}.ts
 - T28 shadcn 5개 설치 (Sheet/Tabs/Avatar/Skeleton/ScrollArea)
 - T29~T33 컴포넌트 (WindowStatus / ThreadList / MessageBubble / Composer / EmptyState)
-- T34 store/inbox/page.tsx (Server Component + 5초 polling)
-- T35 store/inbox/connect/page.tsx
-- T36~T37 E2E (Playwright)
 
-### 3. 미진행 follow-up (Phase F 작업 중 자연 흡수 또는 별 PR)
+### 3. Phase I — Pages (~1.5h)
 
-- 🟡 Channel inline 정의 5 파일 제거 → `import from "@hesya/database"` (`CHANNELS` 단일 소스 마련됨)
-- 🟡 fetch timeout (Phase F instagram-api-client 보강)
-- 🟡 vault row orphan cleanup (1B 영역)
+plan § Phase I
+
+- T34 `store/inbox/page.tsx` (Server Component + 5초 polling)
+- T35 `store/inbox/connect/page.tsx`
+
+### 4. Phase J — E2E + Verification (~1.5h)
+
+plan § Phase J
+
+- T36~T37 Playwright E2E (Instagram webhook verify / OAuth happy path)
+
+### 5. 미진행 follow-up (별 PR 또는 자연 흡수)
+
+- 🟡 T21 fire-and-forget concurrency (p-limit 또는 sequential)
+- 🟡 X-Hub-Timestamp Meta 미발송 시 entry.time fallback (실제 PoC에서 발견 시)
+- 🟡 Channel inline 정의 5 파일 제거 → `CHANNELS` 단일 소스 사용
+- 🟡 fetch timeout (instagram-api-client 보강)
+- 🟢 `HESYA_TEST_DATABASE_URL` 문서화
+- 🟢 vault row orphan cleanup (1B 영역)
 
 ## 차단 요소
 
@@ -52,7 +60,41 @@ plan § Phase F
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-04 P.M. v3 (Phase D + 사후 리뷰 9 fix 완료)
+- 날짜: 2026-05-05 (Phase E + Phase F Routes 완료, 사후 리뷰 6 fix 완료)
+
+## 이번 세션 완료 (2026-05-05 — 옵션 C 풀 세션, 2 PR 머지)
+
+### 1. Phase E — i18n (PR #29)
+
+- T19 `packages/translations/messages/{ko,en}.json` — inbox 키 100% 번역
+- T20 `{ja,zh-CN,zh-TW,vi}.json` — ko 구조 그대로 placeholder (next-intl 키 미스 방지)
+- 6개 파일 동일 키 트리 (20 키), `Common.signIn` 기존 번역 보존
+
+### 2. Phase F — Routes (PR #30)
+
+- T21 `/api/webhooks/instagram` — HMAC + replay defense (X-Hub-Timestamp 5분) + 5 DAL upsert + fire-and-forget hook
+- T22 `/api/oauth/instagram/callback` — state CSRF + 매장 사장 인증 + 토큰 교환 + integration upsert + webhook subscribe
+- T23 `/api/inbox/refresh` — 인증/IDOR 검증 + listByStore + 옵션 activeId의 listByConversation
+- DAL `findStoreByExternalAccount` 신규
+- env IG_APP_ID/IG_APP_SECRET/IG_WEBHOOK_VERIFY_TOKEN/IG_REDIRECT_URI 추가
+- vitest stub 4개 추가, test-helper `seedStoreIntegration` 추가
+
+### 3. 사후 리뷰 6 fix (PR #30 동봉)
+
+병렬 2 agent (security-reviewer + code-reviewer) 결과:
+
+- **HIGH T23 IDOR**: `getConversationById`로 storeId 검증 → 다른 매장 conv 접근 시 403
+- **HIGH T22 빈 catch**: Auth 에러만 sign-in, 나머지 throw → 500 (Sentry instrumentation 자동 캡처)
+- **MEDIUM T22 err.message leak**: URL은 `exchange_failed` 카테고리만, raw 메시지는 Sentry로
+- **MEDIUM T22 base URL**: `req.url` → `NEXT_PUBLIC_APP_URL` (Host 변조 open-redirect 방어)
+- **MEDIUM T21 module-level adapter**: 재시작 필요성 주석
+- **LOW T21 hub.challenge**: `slice(0, 256)` (amplifier 방어)
+
+### 4. 통계
+
+- 189 unit test (5 신규 추가) + 29 skipped (DB-gated) / 0 fail
+- tsc clean
+- 커밋 7개 (Phase E 2 + Phase F 3 + 사후 fix 1 + i18n 2)
 
 ## 이번 세션 완료 (2026-05-04 P.M. v3 — 풀 세션 6 PR 머지)
 

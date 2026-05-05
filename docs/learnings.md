@@ -1734,3 +1734,40 @@ it("upsertCustomer race condition fallback returns null (review HIGH)", async ()
 - 수동: 매 세션 종료 시 PR 수 ÷ Phase 수 비율 점검 (이번 세션: 5 Phase → 6 PR = 1.2 ratio. 양호).
 
 **연관**: 이번 세션 PR #22~#27 (6 PR). 원안 plan은 Task별 PR(약 12+개) → Phase 단위로 압축. CLAUDE.md "토큰 효율" 정신 + Vercel 인프라 비용 절감 정신의 결합. Jayden 명시 지시 후 채택. L-049 "auto-merge sub-agent 리뷰" 패턴과 병행 운영.
+
+---
+
+### [2026-05-05] L-052 — TDD Guard는 baby step 강제. Phase F Routes 작업 시 시간 비용 +30%
+
+**증상**: Phase F Routes (T21~T23) 작성 중 TDD Guard hook이 매 코드 작성마다 차단:
+
+1. `dal/stores.ts` 신규 → "Premature implementation" 차단 → 테스트 먼저 작성
+2. `seedStoreIntegration` test-helper 추가 → 차단 → `db.test.ts` 신규 + RED → 빈 stub → "Over-implementation" 차단 → 2단계 테스트 (mock db.insert spy) → RED → 본 구현
+3. T22 OAuth route 본 구현 시도 → "Over-implementation" 차단 (5 fail 일괄 처리 시도) → 3단계 분할 (state-only redirect → auth check → success flow with side effects)
+4. T23 refresh route 본 구현 → 차단 → 4단계 분할 (401 → 403 → conversations → messages with IDOR)
+
+각 차단마다 1~3분 소요. T21+T22+T23 + 사후 리뷰 fix 합쳐 ~10회 차단 = 약 +30분.
+
+**원인**: tdd-guard CLI는 vitest reporter (`tdd-guard-vitest`)가 `.claude/tdd-guard/data/test.json`에 기록한 마지막 RED 결과를 검증 + 변경 diff가 단일 fail에 비해 과도한지 LLM 휴리스틱 판단. 두 가드(RED 존재 + 단일 step) 모두 통과해야 Edit/Write 허용. **Strict baby steps**가 강제되며, 한 PR에 여러 기능 묶을 때 비효율.
+
+**해결 (이번 세션 운영 패턴)**:
+
+1. **stub-then-evolve 패턴**: 빈 stub (`async function fn() {}`) 작성 → 1단계 테스트 (`typeof fn === 'function'`)로 stub 통과 → 2단계 테스트 (mock spy로 동작 검증) → 본 구현. **2단계 테스트 → 2단계 구현**.
+2. **N단계 점진 구현**: 5개 fail 일괄 처리 시도 금지. 한 fail → 한 패치. 라우트 작성 시 401 → 403 → empty success → activeId messages 4단계로 분할.
+3. **vi.hoisted for shared mocks**: `exchangeCodeMock`을 vi.mock 외부에서 정의 시 ReferenceError. `const { x } = vi.hoisted(() => ({ x: vi.fn(...) }))` 패턴 사용 (Hoisting 회피).
+4. **단일 파일 vitest run**: 새 테스트는 자체 파일에 두고 `vitest run <file>` 단독 실행 → reporter가 해당 RED 정확히 기록.
+
+**규칙** ⭐:
+
+1. **TDD Guard 활성 시 Phase 작업 시간 +30% 예상**. 계획 단계에서 buffer 반영.
+2. **새 함수/모듈은 항상 stub-then-evolve 사이클**. "한 번에 작성"은 Hook이 차단. 사이클 자체는 좋은 TDD이나 시간 비용 인지.
+3. **TDD Guard allowlist 후보** (이번 세션 발견): `test-helpers/**`, `vitest.setup.ts`, `*.config.*`. `.claude/hooks/tdd-guard-filtered.sh`에 패턴 추가 검토 (다음 세션 follow-up).
+4. **vi.mock 모듈 외부 변수는 `vi.hoisted` 필수** — vi.mock factory가 hoisting되어 변수 초기화 전 평가됨.
+5. **사후 리뷰 fix도 TDD 사이클**: HIGH IDOR / 빈 catch fix할 때도 테스트 먼저. 이번 fix +5 테스트 (IDOR 2 + Forbidden + unknown throw + err category).
+
+**확인 방법**:
+
+- 자동: hook 차단 발생 시 stderr에 "Premature implementation" / "Over-implementation". 차단 후 수정 사이클 = 1회 비용.
+- 인간 리뷰: PR 머지 전 `.claude/tdd-guard/data/test.json` 마지막 상태 확인 (cleanup 권장).
+
+**연관**: PR #30 Phase F Routes (T21+T22+T23+post-review fixes). 이번 세션 차단 ~10회. L-002 (TDD Guard 인프라/setup 차단) 연장 — 비즈니스 로직(routes/dal)도 baby step 강제됨. L-005 (schema 파일 allowlist)와 같은 패턴으로 확대 적용 가능.
