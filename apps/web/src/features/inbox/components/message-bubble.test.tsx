@@ -84,4 +84,43 @@ describe("MessageBubble", () => {
     expect(container.querySelector('[aria-hidden="true"]')).toBeNull();
     expect(container.querySelector(".sr-only")).toBeNull();
   });
+
+  it("translatedText 있으면 번역본 표시 (B-3b)", () => {
+    render(
+      <MessageBubble
+        message={makeMsg({
+          direction: "outbound",
+          originalText: "안녕하세요!",
+          translatedText: "Hello!",
+          languageTo: "en",
+        })}
+      />,
+    );
+    expect(screen.getByText("안녕하세요!")).toBeInTheDocument();
+    expect(screen.getByText("Hello!")).toBeInTheDocument();
+  });
+
+  it("translatedText 없으면 원문만 표시 (회귀)", () => {
+    const { container } = render(
+      <MessageBubble
+        message={makeMsg({
+          direction: "outbound",
+          originalText: "안녕",
+          translatedText: null,
+        })}
+      />,
+    );
+    expect(screen.getByText("안녕")).toBeInTheDocument();
+    expect(container.querySelectorAll("p").length).toBe(1);
+  });
+
+  it("status='ai_draft' → 'AI 초안' 뱃지 표시 + data-status='ai_draft' (B-3b)", () => {
+    const { container } = render(
+      <MessageBubble
+        message={makeMsg({ direction: "outbound", status: "ai_draft" })}
+      />,
+    );
+    expect(container.firstChild).toHaveAttribute("data-status", "ai_draft");
+    expect(screen.getByText(/AI 초안/)).toBeInTheDocument();
+  });
 });

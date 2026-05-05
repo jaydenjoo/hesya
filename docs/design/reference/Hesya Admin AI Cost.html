@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Hesya Admin · AI 비용 관리</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="admin-chrome.css">
+<link rel="stylesheet" href="admin-ai-cost.css">
+</head>
+<body>
+<div class="ad-shell" data-screen-label="04 AI Cost Management">
+
+  <!-- TOP BAR -->
+  <header class="ad-topbar">
+    <div class="ad-tb-brand">
+      <div class="ad-tb-logo">H</div>
+      <div class="ad-tb-name">Hesya</div>
+      <div class="ad-tb-pill">ADMIN</div>
+    </div>
+    <div class="ad-tb-search">
+      <span class="ic">⌕</span>
+      <input type="text" placeholder="매장 / task_budget / 모델 / API 호출ID 검색…"/>
+      <span class="kbd">⌘ K</span>
+    </div>
+    <div class="ad-tb-right">
+      <div class="ad-tb-env">
+        <span class="dot"></span>
+        <span>prod · ap-northeast-2 · v2.6.4</span>
+      </div>
+      <button class="ad-bell" aria-label="알림">🔔<span class="badge">11</span></button>
+      <div class="ad-tb-user">
+        <div class="meta">
+          <div class="name">박정민</div>
+          <div class="role">SR · OPS LEAD</div>
+        </div>
+        <div class="av">박</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="ad-sidebar">
+    <div class="ad-sb-section">
+      <div class="ad-sb-label">운영</div>
+      <nav class="ad-nav">
+        <a class="ad-nav-item" href="Hesya Admin Dashboard.html"><span class="ic">📊</span><span class="label">대시보드</span></a>
+        <a class="ad-nav-item" href="Hesya Admin KYC.html"><span class="ic">🛡</span><span class="label">KYC 검증</span><span class="count urgent">8</span></a>
+        <a class="ad-nav-item" href="Hesya Admin Payments.html"><span class="ic">💳</span><span class="label">결제·정산</span><span class="count">2</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">⚖</span><span class="label">분쟁</span><span class="count">3</span></a>
+      </nav>
+    </div>
+    <div class="ad-sb-section">
+      <div class="ad-sb-label">시스템</div>
+      <nav class="ad-nav">
+        <a class="ad-nav-item active" href="#"><span class="ic">🤖</span><span class="label">AI 비용</span><span class="count urgent">87%</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">📣</span><span class="label">공지·CS</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">👥</span><span class="label">매장·고객</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">📜</span><span class="label">감사 로그</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">⚙</span><span class="label">시스템 설정</span></a>
+      </nav>
+    </div>
+    <div class="ad-sb-foot">
+      <div class="row"><span>API</span><span class="ok">99.98%</span></div>
+      <div class="row"><span>DB lag</span><span class="ok">12ms</span></div>
+      <div class="row"><span>v2.6.4</span><span>build #4892</span></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="ad-main">
+
+    <!-- HEAD -->
+    <div class="ai-head">
+      <div class="ai-head-l" style="flex:1; min-width:0;">
+        <div class="crumb">UNIT ECONOMICS · MODEL SPEND · TASK BUDGETS</div>
+        <h1>AI 비용 관리</h1>
+        <div class="sub">Sonnet 4.6 · Opus 4.7 사용량 모니터링 — 실시간 sync, 마지막 업데이트 <strong>14:24 KST</strong></div>
+
+        <div class="ai-head-row2">
+          <div class="ai-period">
+            <button>오늘</button>
+            <button>이번 주</button>
+            <button class="active">이번 달</button>
+            <button>분기</button>
+            <button>커스텀 ▾</button>
+          </div>
+          <button class="ai-budget-pill" type="button">
+            <span class="ic">🟡</span>
+            <span>일일 예산</span>
+            <strong>87%</strong>
+            <span>사용</span>
+            <span class="of">₩2,610,000 / ₩3,000,000</span>
+          </button>
+        </div>
+      </div>
+      <div class="ai-head-r">
+        <button class="ai-btn ghost"><span>🔔</span>예산 알림 설정</button>
+        <button class="ai-btn primary"><span>⚙</span>task_budget 관리</button>
+      </div>
+    </div>
+
+    <!-- KPI ROW -->
+    <div class="ai-kpi-row">
+      <div class="ai-kpi today">
+        <div class="ai-kpi-h">TODAY · 오늘 사용량</div>
+        <div class="ai-kpi-v"><span class="cur">₩</span>2,610,000</div>
+        <div class="ai-kpi-foot">
+          일일 예산 <strong>₩3,000,000</strong> 중 <span class="pct up">87%</span>
+        </div>
+        <div class="ai-kpi-bar warn"><i style="width: 87%;"></i></div>
+      </div>
+
+      <div class="ai-kpi month">
+        <div class="ai-kpi-h">MTD · 이번 달</div>
+        <div class="ai-kpi-v"><span class="cur">₩</span>52,830,000</div>
+        <div class="ai-kpi-foot">
+          월 예산 <strong>₩60,000,000</strong> 중 <span class="pct up">88%</span>
+        </div>
+        <div class="ai-kpi-bar"><i style="width: 88%;"></i></div>
+      </div>
+
+      <div class="ai-kpi">
+        <div class="ai-kpi-h">PER STORE · 매장당 평균</div>
+        <div class="ai-kpi-v"><span class="cur">₩</span>84,693<span style="font-size:14px;color:var(--gray-500);font-family:var(--font-body-kr);font-weight:500;letter-spacing:-0.005em;"> / 월</span></div>
+        <div class="ai-kpi-foot">
+          624 활성 매장 · 중앙값 <strong>₩61,200</strong>
+        </div>
+      </div>
+
+      <div class="ai-kpi alert">
+        <div class="ai-kpi-h">TOP SPENDER · 최대 비용 매장</div>
+        <div class="ai-kpi-v" style="font-size:18px;line-height:1.2;letter-spacing:-0.005em;font-family:var(--font-body-kr);font-weight:600;">Stylista 홍대점</div>
+        <div class="ai-kpi-foot">
+          <span style="font-family:var(--font-mono);font-feature-settings:'tnum';font-weight:600;color:var(--hesya-navy-900);">₩412,000</span> · 평균의 <span class="pct up">+387%</span>
+        </div>
+      </div>
+
+      <div class="ai-kpi">
+        <div class="ai-kpi-h">MODEL MIX · 모델별 비중</div>
+        <div class="ai-kpi-split" style="margin-top:8px;">
+          <div class="ai-kpi-split-seg sonnet" style="flex: 78;">SONNET 78%</div>
+          <div class="ai-kpi-split-seg opus" style="flex: 22;">OPUS 22%</div>
+        </div>
+        <div class="ai-kpi-split-cap">
+          <span>Sonnet 4.6 · ₩41.2M</span>
+          <span>Opus 4.7 · ₩11.6M</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- BENTO GRID -->
+    <div class="ai-bento">
+
+      <!-- TILE A · daily area -->
+      <div class="ai-tile span-8">
+        <div class="ai-tile-h">
+          <div class="ai-tile-h-l">
+            <div class="lbl">DAILY COST · STACKED BY MODEL</div>
+            <h2>일별 비용 추이 — 4월 1일 ~ 4월 30일</h2>
+          </div>
+          <div class="ai-tile-h-r">
+            <span class="ai-tile-legend"><i style="background:var(--hesya-peach-200);"></i>Sonnet 4.6</span>
+            <span class="ai-tile-legend"><i style="background:var(--hesya-amber-600);"></i>Opus 4.7</span>
+          </div>
+        </div>
+
+        <div class="ai-area-wrap">
+          <svg viewBox="0 0 720 240" preserveAspectRatio="none">
+            <!-- gridlines -->
+            <line x1="36" x2="720" y1="20" y2="20" stroke="#EAECEF" stroke-dasharray="2 4"/>
+            <line x1="36" x2="720" y1="70" y2="70" stroke="#EAECEF" stroke-dasharray="2 4"/>
+            <line x1="36" x2="720" y1="120" y2="120" stroke="#EAECEF" stroke-dasharray="2 4"/>
+            <line x1="36" x2="720" y1="170" y2="170" stroke="#EAECEF" stroke-dasharray="2 4"/>
+            <line x1="36" x2="720" y1="220" y2="220" stroke="#EAECEF"/>
+
+            <!-- y-axis labels -->
+            <text x="30" y="24" font-family="JetBrains Mono" font-size="9" fill="#6B7280" text-anchor="end">₩3M</text>
+            <text x="30" y="74" font-family="JetBrains Mono" font-size="9" fill="#6B7280" text-anchor="end">₩2.25M</text>
+            <text x="30" y="124" font-family="JetBrains Mono" font-size="9" fill="#6B7280" text-anchor="end">₩1.5M</text>
+            <text x="30" y="174" font-family="JetBrains Mono" font-size="9" fill="#6B7280" text-anchor="end">₩750K</text>
+            <text x="30" y="224" font-family="JetBrains Mono" font-size="9" fill="#6B7280" text-anchor="end">₩0</text>
+
+            <!-- daily budget reference line -->
+            <line x1="36" x2="720" y1="60" y2="60" stroke="#C9483A" stroke-width="1" stroke-dasharray="6 3" opacity="0.6"/>
+            <text x="716" y="56" font-family="JetBrains Mono" font-size="9" fill="#C9483A" text-anchor="end">DAILY BUDGET ₩3M</text>
+
+            <!-- TOTAL stacked area (sonnet + opus) — top line -->
+            <path d="
+              M 36,160 L 59,158 L 82,162 L 105,150 L 128,140 L 151,144 L 174,132
+              L 197,128 L 220,118 L 243,124 L 266,108 L 289,114 L 312,98
+              L 335,104 L 358,92 L 381,88 L 404,80 L 427,84 L 450,72
+              L 473,78 L 496,68 L 519,64 L 542,56 L 565,60 L 588,52
+              L 611,58 L 634,46 L 657,52 L 680,42 L 703,68 L 720,44
+              L 720,220 L 36,220 Z"
+              fill="url(#opusGrad)" opacity="0.92"/>
+
+            <!-- SONNET only area (lower portion) -->
+            <path d="
+              M 36,180 L 59,178 L 82,182 L 105,172 L 128,164 L 151,168 L 174,158
+              L 197,154 L 220,146 L 243,150 L 266,138 L 289,142 L 312,128
+              L 335,134 L 358,124 L 381,120 L 404,114 L 427,118 L 450,108
+              L 473,114 L 496,104 L 519,100 L 542,92 L 565,96 L 588,90
+              L 611,94 L 634,84 L 657,88 L 680,80 L 703,98 L 720,82
+              L 720,220 L 36,220 Z"
+              fill="url(#sonnetGrad)" opacity="0.95"/>
+
+            <defs>
+              <linearGradient id="sonnetGrad" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#F2DDC2"/>
+                <stop offset="100%" stop-color="#FAEEE0"/>
+              </linearGradient>
+              <linearGradient id="opusGrad" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#D88B5B"/>
+                <stop offset="100%" stop-color="#E8A97A"/>
+              </linearGradient>
+            </defs>
+
+            <!-- hover crosshair (day 28) -->
+            <line x1="657" x2="657" y1="20" y2="220" stroke="#1A2238" stroke-dasharray="3 3" opacity="0.5"/>
+            <circle cx="657" cy="46" r="4" fill="#1A2238" stroke="#FFF" stroke-width="2"/>
+            <circle cx="657" cy="88" r="3" fill="#D88B5B" stroke="#FFF" stroke-width="1.5"/>
+          </svg>
+
+          <!-- hover tooltip -->
+          <div class="ai-tooltip" style="left: 478px; top: -10px;">
+            <div class="ai-tooltip-h">4월 28일 화요일</div>
+            <div class="ai-tooltip-row"><span class="k">Sonnet 4.6 · 응답</span><span class="v">₩1,684,200</span></div>
+            <div class="ai-tooltip-row"><span class="k">Opus 4.7 · 사진 분석</span><span class="v">₩482,800</span></div>
+            <div class="ai-tooltip-row"><span class="k">Opus 4.7 · 감사</span><span class="v">₩186,400</span></div>
+            <div class="ai-tooltip-row total"><span class="k">합계 · 호출 4,218건</span><span class="v">₩2,353,400</span></div>
+          </div>
+        </div>
+
+        <div class="ai-area-x">
+          <span>4/1</span><span>4/6</span><span>4/11</span><span>4/16</span><span>4/21</span><span>4/26</span><span>4/30</span>
+        </div>
+      </div>
+
+      <!-- TILE B · task_budget bars -->
+      <div class="ai-tile span-4">
+        <div class="ai-tile-h">
+          <div class="ai-tile-h-l">
+            <div class="lbl">TASK BUDGETS · HEADER USAGE</div>
+            <h2>한도 사용률</h2>
+          </div>
+          <div class="ai-tile-h-r"><span style="cursor:pointer;font-weight:600;color:var(--hesya-navy-900);">관리 →</span></div>
+        </div>
+
+        <div class="ai-budget-list">
+          <div class="ai-budget-row">
+            <div class="ai-budget-h">
+              <div class="ai-budget-name"><span class="ic">🌐</span><code style="font-family:var(--font-mono);font-size:11.5px;">translation</code></div>
+              <div class="ai-budget-pct">78%</div>
+            </div>
+            <div class="ai-budget-bar"><i style="width:78%;"></i></div>
+            <div class="ai-budget-foot">
+              <span>₩7,800 / ₩10,000 일일</span>
+              <span>1,847 calls today</span>
+            </div>
+          </div>
+
+          <div class="ai-budget-row">
+            <div class="ai-budget-h">
+              <div class="ai-budget-name"><span class="ic">📷</span><code style="font-family:var(--font-mono);font-size:11.5px;">vision_analysis</code></div>
+              <div class="ai-budget-pct">52%</div>
+            </div>
+            <div class="ai-budget-bar"><i style="width:52%;"></i></div>
+            <div class="ai-budget-foot">
+              <span>₩78,000 / ₩150,000 일일</span>
+              <span>312 calls today</span>
+            </div>
+          </div>
+
+          <div class="ai-budget-row">
+            <div class="ai-budget-h">
+              <div class="ai-budget-name"><span class="ic">💬</span><code style="font-family:var(--font-mono);font-size:11.5px;">auto_response</code></div>
+              <div class="ai-budget-pct"><span class="warn">98% ⚠</span></div>
+            </div>
+            <div class="ai-budget-bar crit"><i style="width:98%;"></i></div>
+            <div class="ai-budget-foot">
+              <span>₩49,000 / ₩50,000 일일</span>
+              <span class="crit">한도 임박 — 알림 발송됨</span>
+            </div>
+          </div>
+
+          <div class="ai-budget-row">
+            <div class="ai-budget-h">
+              <div class="ai-budget-name"><span class="ic">🛡</span><code style="font-family:var(--font-mono);font-size:11.5px;">compliance</code></div>
+              <div class="ai-budget-pct">31%</div>
+            </div>
+            <div class="ai-budget-bar"><i style="width:31%;"></i></div>
+            <div class="ai-budget-foot">
+              <span>₩6,200 / ₩20,000 일일</span>
+              <span>184 calls today</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--gray-100);font-family:var(--font-body-kr);font-size:11px;color:var(--gray-500);letter-spacing:-0.005em;line-height:1.55;">
+          <code style="font-family:var(--font-mono);font-size:10.5px;background:var(--gray-50);padding:1px 5px;border-radius:3px;">task_budget</code> 헤더는 매 API 호출에 자동 첨부됩니다. Anthropic 측 한도 — 우리 정책 변경 즉시 반영.
+        </div>
+      </div>
+
+      <!-- TILE C · top-10 stores -->
+      <div class="ai-tile span-6">
+        <div class="ai-tile-h">
+          <div class="ai-tile-h-l">
+            <div class="lbl">TOP 10 BY STORE · 30D</div>
+            <h2>매장별 AI 비용</h2>
+          </div>
+          <div class="ai-tile-h-r">행 클릭 → 드릴다운</div>
+        </div>
+
+        <div class="ai-rank">
+          <div class="ai-rank-row">
+            <div class="ai-rank-num">01</div>
+            <div class="ai-rank-mid">
+              <div class="ai-rank-name"><span class="logo amber">S</span>Stylista 홍대점<span style="font-family:var(--font-body-en);font-size:10px;font-weight:600;letter-spacing:0.04em;color:#C9483A;margin-left:6px;">⚠ ANOMALY</span></div>
+              <div class="ai-rank-bar"><i style="width:100%;"></i></div>
+            </div>
+            <div class="ai-rank-amt">₩412,000</div>
+          </div>
+
+          <div class="ai-rank-row">
+            <div class="ai-rank-num">02</div>
+            <div class="ai-rank-mid">
+              <div class="ai-rank-name"><span class="logo peach">청</span>청담 헤어 라운지</div>
+              <div class="ai-rank-bar"><i style="width:71%;"></i></div>
+            </div>
+            <div class="ai-rank-amt">₩293,400</div>
+          </div>
+
+          <div class="ai-rank-row">
+            <div class="ai-rank-num">03</div>
+            <div class="ai-rank-mid">
+              <div class="ai-rank-name"><span class="logo">L</span>Luna Nail Studio</div>
+              <div class="ai-rank-bar"><i style="width:68%;"></i></div>
+            </div>
+            <div class="ai-rank-amt">₩281,000</div>
+          </div>
+
+          <div class="ai-rank-row">
+            <div class="ai-rank-num">04</div>
+            <div class="ai-rank-mid">
+              <div class="ai-rank-name"><span class="logo amber">소</span>SOOM 명동 1호점</div>
+              <div class="ai-rank-bar"><i style="width:54%;"></i></div>
+            </div>
+            <div class="ai-rank-amt">₩222,800</div>
+          </div>
+
+          <div class="ai-rank-row">
+            <div class="ai-rank-num">05</div>
+            <div class="ai-rank-mid">
+              <div class="ai-rank-name"><span class="logo peach">라</span>라온 강남</div>
+              <div class="ai-rank-bar"><i style="width:48%;"></i></div>
+            </div>
+            <div class="ai-rank-amt">₩198,200</div>
+          </div>
+
+          <div class="ai-rank-row">
+            <div class="ai-rank-num">06</div>
+            <div class="ai-rank-mid">
+              <div class="ai-rank-name"><span class="logo">M</span>MIRO Beauty 성수</div>
+              <div class="ai-rank-bar"><i style="width:43%;"></i></div>
+            </div>
+            <div class="ai-rank-amt">₩177,000</div>
+          </div>
+
+          <div class="ai-rank-row">
+            <div class="ai-rank-num">07</div>
+            <div class="ai-rank-mid">
+              <div class="ai-rank-name"><span class="logo amber">한</span>한혜진 살롱</div>
+              <div class="ai-rank-bar"><i style="width:39%;"></i></div>
+            </div>
+            <div class="ai-rank-amt">₩160,600</div>
+          </div>
+
+          <div class="ai-rank-row">
+            <div class="ai-rank-num">08</div>
+            <div class="ai-rank-mid">
+              <div class="ai-rank-name"><span class="logo">B</span>Bloom Eyelash 가로수</div>
+              <div class="ai-rank-bar"><i style="width:34%;"></i></div>
+            </div>
+            <div class="ai-rank-amt">₩140,000</div>
+          </div>
+
+          <div class="ai-rank-row">
+            <div class="ai-rank-num">09</div>
+            <div class="ai-rank-mid">
+              <div class="ai-rank-name"><span class="logo peach">민</span>민트 스파 압구정</div>
+              <div class="ai-rank-bar"><i style="width:30%;"></i></div>
+            </div>
+            <div class="ai-rank-amt">₩123,800</div>
+          </div>
+
+          <div class="ai-rank-row">
+            <div class="ai-rank-num">10</div>
+            <div class="ai-rank-mid">
+              <div class="ai-rank-name"><span class="logo">A</span>Atelier Mahi 이태원</div>
+              <div class="ai-rank-bar"><i style="width:27%;"></i></div>
+            </div>
+            <div class="ai-rank-amt">₩111,200</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TILE D · donut -->
+      <div class="ai-tile span-6">
+        <div class="ai-tile-h">
+          <div class="ai-tile-h-l">
+            <div class="lbl">API CALL DISTRIBUTION · 30D</div>
+            <h2>호출 유형별 비중</h2>
+          </div>
+          <div class="ai-tile-h-r">총 <strong style="font-family:var(--font-mono);color:var(--hesya-navy-900);">128,492</strong> 호출</div>
+        </div>
+
+        <div class="ai-donut-wrap">
+          <div class="ai-donut">
+            <svg viewBox="0 0 100 100">
+              <!-- circumference 2πr where r=40 ≈ 251.33 -->
+              <!-- inbox-reply 42% → 105.56 -->
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#D88B5B" stroke-width="16"
+                stroke-dasharray="105.56 251.33" stroke-dashoffset="0"/>
+              <!-- vision-analysis 28% → 70.37, offset -105.56 -->
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#1A2238" stroke-width="16"
+                stroke-dasharray="70.37 251.33" stroke-dashoffset="-105.56"/>
+              <!-- translation 18% → 45.24, offset -175.93 -->
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#F2DDC2" stroke-width="16"
+                stroke-dasharray="45.24 251.33" stroke-dashoffset="-175.93"/>
+              <!-- audit 8% → 20.11, offset -221.17 -->
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#9CA3AF" stroke-width="16"
+                stroke-dasharray="20.11 251.33" stroke-dashoffset="-221.17"/>
+              <!-- other 4% → 10.05, offset -241.28 -->
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#D1D5DB" stroke-width="16"
+                stroke-dasharray="10.05 251.33" stroke-dashoffset="-241.28"/>
+            </svg>
+            <div class="ai-donut-c">
+              <div class="v">₩52.8<small>M</small></div>
+              <div class="l">MTD TOTAL</div>
+            </div>
+          </div>
+
+          <div class="ai-donut-list">
+            <div class="ai-donut-row">
+              <span class="ai-donut-dot" style="background:#D88B5B;"></span>
+              <span class="ai-donut-name">고객 응답 <span class="api">inbox-reply</span></span>
+              <span class="ai-donut-pct"><span class="p">42%</span><span class="a">₩22.2M</span></span>
+            </div>
+            <div class="ai-donut-row">
+              <span class="ai-donut-dot" style="background:#1A2238;"></span>
+              <span class="ai-donut-name">사진 분석 <span class="api">vision-analysis</span></span>
+              <span class="ai-donut-pct"><span class="p">28%</span><span class="a">₩14.8M</span></span>
+            </div>
+            <div class="ai-donut-row">
+              <span class="ai-donut-dot" style="background:#F2DDC2;"></span>
+              <span class="ai-donut-name">번역 <span class="api">translation</span></span>
+              <span class="ai-donut-pct"><span class="p">18%</span><span class="a">₩9.5M</span></span>
+            </div>
+            <div class="ai-donut-row">
+              <span class="ai-donut-dot" style="background:#9CA3AF;"></span>
+              <span class="ai-donut-name">감사·검증 <span class="api">audit</span></span>
+              <span class="ai-donut-pct"><span class="p">8%</span><span class="a">₩4.2M</span></span>
+            </div>
+            <div class="ai-donut-row">
+              <span class="ai-donut-dot" style="background:#D1D5DB;"></span>
+              <span class="ai-donut-name">기타 <span class="api">other</span></span>
+              <span class="ai-donut-pct"><span class="p">4%</span><span class="a">₩2.1M</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TILE E · anomaly -->
+      <div class="ai-tile span-12">
+        <div class="ai-tile-h">
+          <div class="ai-tile-h-l">
+            <div class="lbl">ANOMALY DETECTION · LAST 24H</div>
+            <h2>이상 비용 탐지</h2>
+          </div>
+          <div class="ai-tile-h-r">
+            <span class="ai-tile-legend"><i style="background:#C9483A;"></i>+500% 이상</span>
+            <span class="ai-tile-legend"><i style="background:#B86A2A;"></i>+200~500%</span>
+            <span style="cursor:pointer;font-weight:600;color:var(--hesya-navy-900);margin-left:8px;">탐지 규칙 →</span>
+          </div>
+        </div>
+
+        <div class="ai-anomaly-h">
+          <div><strong>3건</strong>의 이상 비용 감지 — 어제 자정 ~ 현재 14:24 KST 기준</div>
+          <div>임계치: 평균 대비 +200% 또는 절대값 ₩30,000 이상</div>
+        </div>
+
+        <table class="ai-anomaly">
+          <thead>
+            <tr>
+              <th style="width: 25%;">매장</th>
+              <th class="num" style="width: 13%;">평균 일일 비용</th>
+              <th class="num" style="width: 13%;">어제 비용</th>
+              <th class="num" style="width: 9%;">증가율</th>
+              <th style="width: 22%;">의심 사유</th>
+              <th style="width: 8%;">감지 시각</th>
+              <th style="width: 10%;">액션</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="crit">
+              <td>
+                <div class="ai-anomaly-store">
+                  <span class="logo amber">S</span>
+                  <span>Stylista 홍대점</span>
+                  <span style="font-family:var(--font-body-en);font-size:9.5px;font-weight:700;letter-spacing:0.18em;color:var(--gray-500);">store_98421</span>
+                </div>
+              </td>
+              <td class="num">₩4,200</td>
+              <td class="num" style="color:#C9483A;font-weight:700;">₩48,300</td>
+              <td class="num"><span class="ai-anomaly-delta">▲ +1,050%</span></td>
+              <td>
+                <div class="ai-anomaly-cause">
+                  <strong>OPUS 호출 폭증</strong> — 사진 분석 <code>vision-analysis</code> 224건 (평균 14건). 신규 사진 일괄 업로드 추정.
+                </div>
+              </td>
+              <td>
+                <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray-500);letter-spacing:0;">02:14<br/><span style="font-size:9.5px;">12시간 전</span></div>
+              </td>
+              <td>
+                <div class="ai-anomaly-actions">
+                  <button class="ai-anomaly-btn primary">조사하기</button>
+                  <button class="ai-anomaly-btn">한도 적용</button>
+                </div>
+              </td>
+            </tr>
+
+            <tr class="crit">
+              <td>
+                <div class="ai-anomaly-store">
+                  <span class="logo peach">청</span>
+                  <span>청담 헤어 라운지</span>
+                  <span style="font-family:var(--font-body-en);font-size:9.5px;font-weight:700;letter-spacing:0.18em;color:var(--gray-500);">store_71208</span>
+                </div>
+              </td>
+              <td class="num">₩9,800</td>
+              <td class="num" style="color:#C9483A;font-weight:700;">₩42,100</td>
+              <td class="num"><span class="ai-anomaly-delta">▲ +330%</span></td>
+              <td>
+                <div class="ai-anomaly-cause">
+                  <strong>응답 토큰 길이 이상</strong> — <code>auto_response</code> 평균 응답 토큰 280 → 1,840. 프롬프트 변경 또는 시스템 톤 설정 변경 가능성.
+                </div>
+              </td>
+              <td>
+                <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray-500);letter-spacing:0;">04:52<br/><span style="font-size:9.5px;">9시간 전</span></div>
+              </td>
+              <td>
+                <div class="ai-anomaly-actions">
+                  <button class="ai-anomaly-btn primary">조사하기</button>
+                  <button class="ai-anomaly-btn">한도 적용</button>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <div class="ai-anomaly-store">
+                  <span class="logo">L</span>
+                  <span>Luna Nail Studio</span>
+                  <span style="font-family:var(--font-body-en);font-size:9.5px;font-weight:700;letter-spacing:0.18em;color:var(--gray-500);">store_44192</span>
+                </div>
+              </td>
+              <td class="num">₩6,400</td>
+              <td class="num" style="color:#B86A2A;font-weight:700;">₩21,800</td>
+              <td class="num"><span class="ai-anomaly-delta warn">▲ +240%</span></td>
+              <td>
+                <div class="ai-anomaly-cause">
+                  <strong>번역 호출 증가</strong> — <code>translation</code> 일본어 페어 +180%. 이벤트 공지 다국어 발송 추정 — 정상 가능성 높음.
+                </div>
+              </td>
+              <td>
+                <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray-500);letter-spacing:0;">11:38<br/><span style="font-size:9.5px;">3시간 전</span></div>
+              </td>
+              <td>
+                <div class="ai-anomaly-actions">
+                  <button class="ai-anomaly-btn">관찰</button>
+                  <button class="ai-anomaly-btn">조사하기</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ROUTING POLICY -->
+      <div class="ai-tile span-12" style="padding: 0; border: 0; background: transparent;">
+        <div class="ai-routing">
+          <div>
+            <div class="ai-routing-h">CURRENT MODEL ROUTING POLICY</div>
+            <div class="ai-routing-title">현재 정책 — Sonnet 4.6 / Opus 4.7 자동 라우팅</div>
+            <div class="ai-routing-body">
+              <strong>80% 트래픽</strong>은 <em>Sonnet 4.6</em>으로, <strong>20%</strong>는 <em>Opus 4.7</em>로 분기됩니다.
+              일반 응답·번역·짧은 분류는 Sonnet, 사진 분석·복잡 추론·정책 위반 검토는 Opus를 사용합니다.
+              매장별 오버라이드 <strong>없음</strong> — 정책 변경시 모든 매장에 즉시 적용.
+            </div>
+            <div class="ai-routing-bar">
+              <div class="sonnet" style="flex: 80;">SONNET 80%</div>
+              <div class="opus" style="flex: 20;">OPUS 20%</div>
+            </div>
+          </div>
+          <div class="ai-routing-actions">
+            <button class="ai-routing-btn primary">정책 편집 →</button>
+            <button class="ai-routing-btn ghost">A/B 테스트 시작 →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORECAST -->
+      <div class="ai-tile span-12" style="padding: 0; border: 0; background: transparent;">
+        <div class="ai-forecast">
+          <div>
+            <div class="ai-forecast-h">📈 PROPOSAL · MONTH-END FORECAST</div>
+            <div class="ai-forecast-title">
+              이번 달 예상 사용액은 <em>₩61,200,000</em> 입니다 — 월 예산의 <em>+2%</em>.
+              Sonnet 비중을 <em>80%→85%</em>로 상향하면 약 <span class="ai-forecast-amt">₩2.4M</span> 절감이 예상됩니다.
+            </div>
+
+            <div class="ai-forecast-rows">
+              <div class="ai-forecast-row">
+                <div class="k">원인</div>
+                <div>외국인 신규 매장 <strong>+12 가입</strong>으로 inbox-reply 호출량 증가 (전월 대비 <strong>+18%</strong>). vision-analysis는 평이한 추세.</div>
+              </div>
+              <div class="ai-forecast-row">
+                <div class="k">예상 영향</div>
+                <div>현재 추세 유지 시 월말 <strong>₩61.2M</strong> — 예산 ₩60M 대비 <strong>2% 초과</strong>. 다음 달 더 가팔라질 가능성.</div>
+              </div>
+              <div class="ai-forecast-row">
+                <div class="k">권장 조치</div>
+                <div>일반 응답·짧은 분류를 Sonnet으로 라우팅 비중 <strong>5%p 추가 이동</strong>. Opus는 사진 분석·복잡 추론에 한정. 예상 절감 <span class="saving">−₩2.4M</span>, 응답 품질 영향 <strong>≤ 0.3%</strong> (지난주 A/B 결과).</div>
+              </div>
+              <div class="ai-forecast-row">
+                <div class="k">위험</div>
+                <div>Sonnet 비중 상향시 일부 복잡 응답에서 품질 저하 가능 — fallback 규칙 (low-confidence → Opus 재시도) 자동 적용됨.</div>
+              </div>
+            </div>
+
+            <div class="ai-forecast-foot">
+              <span>제안 ID <code style="font-family:var(--font-mono);background:var(--gray-50);padding:1px 5px;border-radius:3px;">prop_8K3JZQ</code></span>
+              <span class="sep">·</span>
+              <span>생성 14:18 KST</span>
+              <span class="sep">·</span>
+              <span>유효 ~ 5/15 24:00</span>
+              <span class="sep">·</span>
+              <span>승인시 즉시 audit log 기록 + 모든 매장에 적용</span>
+            </div>
+          </div>
+
+          <div class="ai-forecast-act">
+            <button class="ai-forecast-btn primary">제안 승인 →</button>
+            <button class="ai-forecast-btn modify">수정 후 적용</button>
+            <button class="ai-forecast-btn">기각</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+</body>
+</html>
