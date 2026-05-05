@@ -6,28 +6,23 @@
 
 - **Phase**: Phase 1 진행 중
 - **Epic**: **Epic 1 통합 다국어 인박스** — 1A 인프라 + Instagram PoC
-- **Task**: Phase A~G ✅ + Prod v0011 ✅ + **Phase H ✅** → **다음**: Phase I (Pages, ~1.5h) + Phase J (E2E, ~1.5h)
-- **상태**: 코어 인프라/DAL/Channel Layer/i18n/Routes/Server Actions/UI 컴포넌트 14개 완성. main 최신 SHA `e214fe7`. 차단 요소 없음.
+- **Task**: Phase A~H ✅ + Prod v0011 ✅ + **Phase I ✅** → **다음**: Phase J (E2E + 종합 검증, ~1.5h)
+- **상태**: 코어 인프라/DAL/Channel Layer/i18n/Routes/Server Actions/UI 컴포넌트/Pages 완성. main 최신 SHA `bde1eaa`. 차단 요소 없음.
 - **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **이번 세션 PR (5개)**: [#29](https://github.com/jaydenjoo/hesya/pull/29) Phase E i18n → [#30](https://github.com/jaydenjoo/hesya/pull/30) Phase F Routes + 사후 리뷰 6 fix → [#31](https://github.com/jaydenjoo/hesya/pull/31) consistency follow-up (HIGH 1 + MEDIUM 3 + LOW 3) → [#32](https://github.com/jaydenjoo/hesya/pull/32) Phase G + 사후 리뷰 7 fix → [#33](https://github.com/jaydenjoo/hesya/pull/33) Phase H UI 14 컴포넌트 + 사후 리뷰 8 fix + CI 3 fix (turbo.json env 화이트리스트)
+- **이번 세션 PR (6개)**: [#29](https://github.com/jaydenjoo/hesya/pull/29) Phase E i18n → [#30](https://github.com/jaydenjoo/hesya/pull/30) Phase F Routes + 사후 리뷰 6 fix → [#31](https://github.com/jaydenjoo/hesya/pull/31) consistency follow-up (HIGH 1 + MEDIUM 3 + LOW 3) → [#32](https://github.com/jaydenjoo/hesya/pull/32) Phase G + 사후 리뷰 7 fix → [#33](https://github.com/jaydenjoo/hesya/pull/33) Phase H UI 14 컴포넌트 + 사후 리뷰 8 fix + CI 3 fix (turbo.json env) → [#34](https://github.com/jaydenjoo/hesya/pull/34) Phase I Pages 4 파일 + 사후 리뷰 4 fix
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Phase I — Pages (~1.5h)
-
-plan § Phase I
-
-- T34 `store/inbox/page.tsx` (Server Component + 5초 polling)
-- T35 `store/inbox/connect/page.tsx`
-
-### 2. Phase J — E2E + Verification (~1.5h)
+### 1. Phase J — E2E + 종합 검증 (~1.5h)
 
 plan § Phase J
 
-- T36~T37 Playwright E2E (Instagram webhook verify / OAuth happy path)
+- T37 Playwright E2E (시나리오 1: 인박스 표시 + 한국어 답변 / 시나리오 2: 24h 만료 composer disabled)
+- T38 종합 검증 게이트 (tsc/lint/unit/build × code-reviewer × security-reviewer 최종 패스)
+- T39 PROGRESS + learnings 1A 완료 마감
 
 ### 4. 미진행 follow-up (별 PR 또는 자연 흡수)
 
