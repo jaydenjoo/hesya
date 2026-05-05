@@ -30,6 +30,18 @@ function requireTestDbUrl(): string {
       "E2E DB fixture: HESYA_TEST_DATABASE_URL은 postgres URL이어야 합니다.",
     );
   }
+  // prod URL 실수 주입 방지 — localhost / 127.0.0.1 / supabase local / "test" 키워드만 허용.
+  // E2E는 격리된 schema/DB만 사용해야 하며, prod URL은 데이터 손실 위험.
+  const isLocal =
+    /(?:^|@)(?:localhost|127\.0\.0\.1)(?::|\/|$)/i.test(url) ||
+    /\btest\b/i.test(url) ||
+    /\.supabase\.local\b/i.test(url);
+  if (!isLocal) {
+    throw new Error(
+      "E2E DB fixture: HESYA_TEST_DATABASE_URL은 localhost/127.0.0.1/test/supabase.local 만 허용. " +
+        "prod URL 실수 주입 차단.",
+    );
+  }
   return url;
 }
 

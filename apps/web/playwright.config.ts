@@ -26,6 +26,8 @@ export default defineConfig({
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:4200",
     trace: "on-first-retry",
+    // 1A는 ko 단일 시나리오. 다국어(en/ja/zh-CN/zh-TW/vi) 시나리오는
+    // project별 use.locale override로 분리 추가.
     locale: "ko-KR",
     timezoneId: "Asia/Seoul",
   },

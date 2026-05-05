@@ -9,6 +9,6 @@ import { test, expect } from "@playwright/test";
 test.describe("smoke", () => {
   test("dev 서버 응답 — sign-in 페이지 접근 가능", async ({ page }) => {
     await page.goto("/ko/sign-in");
-    await expect(page).toHaveURL(/\/sign-in/);
+    await expect(page).toHaveURL(/\/ko\/sign-in/);
   });
 });
