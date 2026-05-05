@@ -11,8 +11,15 @@ vi.mock("@/lib/auth", () => ({
   auth: { api: { getSession: vi.fn() } },
 }));
 
+const { envMock } = vi.hoisted(() => ({
+  envMock: {
+    DATABASE_URL: "postgres://test:test@localhost/test",
+    NODE_ENV: "test" as "test" | "production" | "development",
+  },
+}));
+
 vi.mock("@/shared/config/env", () => ({
-  env: { DATABASE_URL: "postgres://test:test@localhost/test" },
+  env: envMock,
 }));
 
 vi.mock("@hesya/database", () => ({
@@ -37,6 +44,8 @@ const findByUserIdMock = vi.mocked(findByUserId);
 
 afterEach(() => {
   vi.clearAllMocks();
+  delete process.env.E2E_AUTH_USER_ID;
+  envMock.NODE_ENV = "test";
 });
 
 describe("requireStoreOwnerAuth", () => {
@@ -65,5 +74,47 @@ describe("requireStoreOwnerAuth", () => {
 
     const got = await requireStoreOwnerAuth();
     expect(got).toEqual({ userId: "u1", storeId: "s1", role: "owner" });
+  });
+
+  describe("E2E bypass (E2E_AUTH_USER_ID env)", () => {
+    it("test 환경 + E2E_AUTH_USER_ID 설정 → Better Auth 호출 없이 DAL 직접 조회", async () => {
+      envMock.NODE_ENV = "test";
+      process.env.E2E_AUTH_USER_ID = "e2e_user";
+      findByUserIdMock.mockResolvedValueOnce({
+        storeId: "s_e2e",
+        role: "owner",
+      });
+
+      const got = await requireStoreOwnerAuth();
+
+      expect(getSessionMock).not.toHaveBeenCalled();
+      expect(findByUserIdMock).toHaveBeenCalledWith({}, "e2e_user");
+      expect(got).toEqual({
+        userId: "e2e_user",
+        storeId: "s_e2e",
+        role: "owner",
+      });
+    });
+
+    it("E2E_AUTH_USER_ID 설정되어도 NODE_ENV='production' → bypass 거부 + 일반 흐름", async () => {
+      envMock.NODE_ENV = "production";
+      process.env.E2E_AUTH_USER_ID = "e2e_user";
+      getSessionMock.mockResolvedValueOnce(null);
+
+      await expect(requireStoreOwnerAuth()).rejects.toBeInstanceOf(
+        UnauthorizedError,
+      );
+      expect(getSessionMock).toHaveBeenCalled();
+    });
+
+    it("E2E bypass + DAL이 ownership 못 찾으면 ForbiddenError", async () => {
+      envMock.NODE_ENV = "test";
+      process.env.E2E_AUTH_USER_ID = "e2e_orphan";
+      findByUserIdMock.mockResolvedValueOnce(null);
+
+      await expect(requireStoreOwnerAuth()).rejects.toBeInstanceOf(
+        ForbiddenError,
+      );
+    });
   });
 });

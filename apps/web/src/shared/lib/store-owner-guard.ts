@@ -18,16 +18,31 @@ export interface StoreOwnerSession {
  * Better Auth 세션을 가져온 뒤 `store_owners` DAL로 owner ↔ store 매칭 확인.
  * 1A는 application-level 강제 (DB RLS 정책은 미래 대비 작성됨).
  *
+ * **E2E bypass**: `NODE_ENV !== "production"`이고 `E2E_AUTH_USER_ID`가 설정된 경우,
+ * Better Auth 세션 검증을 우회하고 해당 user_id로 직접 DAL 조회. Playwright E2E 전용.
+ * prod NODE_ENV에서는 절대 작동하지 않으며, 단위 테스트로 prod 차단 검증됨.
+ *
  * @throws UnauthorizedError 세션 없음 (401)
  * @throws ForbiddenError 세션은 있으나 매장 소유자 아님 (403)
  */
 export async function requireStoreOwnerAuth(): Promise<StoreOwnerSession> {
+  const db = createDbClient(env.DATABASE_URL);
+
+  // E2E bypass — prod에서는 절대 작동 안 함.
+  if (env.NODE_ENV !== "production" && process.env.E2E_AUTH_USER_ID) {
+    const userId = process.env.E2E_AUTH_USER_ID;
+    const ownership = await findByUserId(db, userId);
+    if (!ownership) {
+      throw new ForbiddenError("매장 소유자 권한이 없습니다");
+    }
+    return { userId, storeId: ownership.storeId, role: ownership.role };
+  }
+
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) {
     throw new UnauthorizedError("로그인이 필요합니다");
   }
 
-  const db = createDbClient(env.DATABASE_URL);
   const ownership = await findByUserId(db, session.user.id);
   if (!ownership) {
     throw new ForbiddenError("매장 소유자 권한이 없습니다");
