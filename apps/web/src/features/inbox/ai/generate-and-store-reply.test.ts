@@ -515,6 +515,214 @@ describe("generateAndStoreReply (B-2)", () => {
     );
   });
 
+  // ─── B-4b RAG 통합 ───
+
+  it("RAG: storeId + 임베딩 + 검색 → relatedFAQs를 generateReply에 전달", async () => {
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      storeId: "44444444-4444-4444-8444-444444444444",
+      originalText: "단발 가능?",
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([
+      { ...baseInbound, originalText: "단발 가능?" },
+    ]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("미용실");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    const generateEmbedding = vi.fn().mockResolvedValue({
+      embedding: Array(1536).fill(0.1),
+      tokensUsed: 5,
+    });
+    const searchSimilarKnowledge = vi.fn().mockResolvedValue([
+      { question: "단발 가능?", answer: "네 5만원입니다" },
+      { question: "예약?", answer: "DM" },
+    ]);
+    generateReplyMock.mockResolvedValue({
+      reply: "네 가능합니다",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({
+      ...baseInbound,
+      id: "ai-rag",
+    });
+
+    await generateAndStoreReply(VALID_UUID, {
+      ...deps,
+      generateEmbedding,
+      searchSimilarKnowledge,
+    });
+
+    expect(generateEmbedding).toHaveBeenCalledWith({ text: "단발 가능?" });
+    expect(searchSimilarKnowledge).toHaveBeenCalledWith(
+      fakeDb,
+      "44444444-4444-4444-8444-444444444444",
+      expect.any(Array),
+      expect.objectContaining({ k: 3 }),
+    );
+    expect(generateReplyMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        relatedFAQs: [
+          { question: "단발 가능?", answer: "네 5만원입니다" },
+          { question: "예약?", answer: "DM" },
+        ],
+      }),
+    );
+  });
+
+  it("RAG: storeId null → 검색 skip + relatedFAQs 미전달 (기존 흐름 유지)", async () => {
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      storeId: null,
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("X");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    const generateEmbedding = vi.fn();
+    const searchSimilarKnowledge = vi.fn();
+    generateReplyMock.mockResolvedValue({
+      reply: "x",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, {
+      ...deps,
+      generateEmbedding,
+      searchSimilarKnowledge,
+    });
+
+    expect(generateEmbedding).not.toHaveBeenCalled();
+    expect(searchSimilarKnowledge).not.toHaveBeenCalled();
+    const call = generateReplyMock.mock.calls[0]?.[0];
+    expect(call?.relatedFAQs).toBeUndefined();
+  });
+
+  it("RAG: 임베딩 실패 → silent skip + Sentry tag 'embedding' (FAQ 없이 진행)", async () => {
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      storeId: "44444444-4444-4444-8444-444444444444",
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("X");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    const generateEmbedding = vi
+      .fn()
+      .mockRejectedValue(new Error("OpenAI down"));
+    const searchSimilarKnowledge = vi.fn();
+    generateReplyMock.mockResolvedValue({
+      reply: "x",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    const r = await generateAndStoreReply(VALID_UUID, {
+      ...deps,
+      generateEmbedding,
+      searchSimilarKnowledge,
+    });
+
+    expect(r.stored).toBe(true);
+    expect(searchSimilarKnowledge).not.toHaveBeenCalled();
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({ tags: { phase: "embedding" } }),
+    );
+    const call = generateReplyMock.mock.calls[0]?.[0];
+    expect(call?.relatedFAQs).toBeUndefined();
+  });
+
+  it("RAG: 검색 실패 → silent skip + Sentry tag 'searchSimilarKnowledge'", async () => {
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      storeId: "44444444-4444-4444-8444-444444444444",
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("X");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    const generateEmbedding = vi
+      .fn()
+      .mockResolvedValue({ embedding: Array(1536).fill(0.1), tokensUsed: 5 });
+    const searchSimilarKnowledge = vi
+      .fn()
+      .mockRejectedValue(new Error("DB error"));
+    generateReplyMock.mockResolvedValue({
+      reply: "x",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    const r = await generateAndStoreReply(VALID_UUID, {
+      ...deps,
+      generateEmbedding,
+      searchSimilarKnowledge,
+    });
+
+    expect(r.stored).toBe(true);
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({
+        tags: { phase: "searchSimilarKnowledge" },
+      }),
+    );
+    const call = generateReplyMock.mock.calls[0]?.[0];
+    expect(call?.relatedFAQs).toBeUndefined();
+  });
+
+  it("RAG: 3000자 초과 inbound → embed 호출 안 함 + Sentry 미발생 (Sec DoS 방어)", async () => {
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      storeId: "44444444-4444-4444-8444-444444444444",
+      originalText: "가".repeat(3001),
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("X");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    const generateEmbedding = vi.fn();
+    const searchSimilarKnowledge = vi.fn();
+    generateReplyMock.mockResolvedValue({
+      reply: "x",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, {
+      ...deps,
+      generateEmbedding,
+      searchSimilarKnowledge,
+    });
+
+    expect(generateEmbedding).not.toHaveBeenCalled();
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it("RAG: 검색 결과 빈 배열 → relatedFAQs=[] 전달 (정상)", async () => {
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      storeId: "44444444-4444-4444-8444-444444444444",
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("X");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    const generateEmbedding = vi
+      .fn()
+      .mockResolvedValue({ embedding: Array(1536).fill(0.1), tokensUsed: 5 });
+    const searchSimilarKnowledge = vi.fn().mockResolvedValue([]);
+    generateReplyMock.mockResolvedValue({
+      reply: "x",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, {
+      ...deps,
+      generateEmbedding,
+      searchSimilarKnowledge,
+    });
+
+    expect(generateReplyMock).toHaveBeenCalledWith(
+      expect.objectContaining({ relatedFAQs: [] }),
+    );
+  });
+
   it("module exports generateAndStoreReply (pure)", async () => {
     const mod = await import("./generate-and-store-reply");
     expect(typeof mod.generateAndStoreReply).toBe("function");
