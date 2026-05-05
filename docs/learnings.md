@@ -1771,3 +1771,28 @@ it("upsertCustomer race condition fallback returns null (review HIGH)", async ()
 - 인간 리뷰: PR 머지 전 `.claude/tdd-guard/data/test.json` 마지막 상태 확인 (cleanup 권장).
 
 **연관**: PR #30 Phase F Routes (T21+T22+T23+post-review fixes). 이번 세션 차단 ~10회. L-002 (TDD Guard 인프라/setup 차단) 연장 — 비즈니스 로직(routes/dal)도 baby step 강제됨. L-005 (schema 파일 allowlist)와 같은 패턴으로 확대 적용 가능.
+
+### [2026-05-05] L-053 — turbo.json env 화이트리스트 누락 → CI build 단계만 zod parse 실패
+
+**증상**: PR #33 Phase H 머지 시도 시 CI `validate` job의 Build 단계에서 `Error [ZodError]: IG_APP_ID expected string, received undefined`. ci.yml에 dummy 값을 추가해도 동일 에러. Vercel preview는 통과 (prod env 사용).
+
+**원인**: Turborepo는 `turbo.json`의 task별 `env` 배열에 명시된 환경변수만 task 프로세스에 전달함. Phase F(#30)에서 `apps/web/src/shared/config/env.ts`에 `IG_APP_ID/IG_APP_SECRET/IG_WEBHOOK_VERIFY_TOKEN/IG_REDIRECT_URI` 4개 required 추가했으나 `turbo.json` `tasks.build.env` 배열은 갱신 안 됨. ci.yml에 `IG_APP_ID=stub-ig-app-id` 등을 설정해도 turbo가 build sub-process에 전달 안 하므로 `process.env.IG_APP_ID === undefined` → env.ts module 로드 시 `envSchema.parse(process.env)` 실패 → `/api/cron/revalidate-stores` page collection 실패 → build 실패.
+
+**왜 main에서 통과했는가 (PR #30 머지 시)**: 추정 — turbo 캐시 또는 fluke. 다음 cold build에서 동일 실패 가능. 이번 세션이 첫 발견.
+
+**디버깅 단서 (실제로 놓친 hint)**: build log에 `[@sentry/nextjs] You seem to be using Turborepo, did you forget to put SENTRY_AUTH_TOKEN in passThroughEnv?` 메시지가 항상 나옴. Sentry는 자기 변수만 언급하지만 **이 메시지가 나오면 turbo.json env 화이트리스트 패턴 문제 시그널**.
+
+**해결**: `turbo.json`의 `tasks.build.env` 배열에 IG\_\* 4개 추가. `ci.yml`에도 dummy 값 (vitest.setup.ts stub과 동일한 값으로 통일하면 build+test 모두 통과).
+
+**규칙** ⭐:
+
+1. **env.ts에 새 환경변수 추가 시 3곳 동시 갱신**: ① `env.ts` zod schema, ② `turbo.json` `tasks.build.env` (필요시 다른 task도), ③ `.github/workflows/ci.yml` env (build·test에서 검증된 값으로). 한 곳만 빠뜨려도 CI 차단.
+2. **CI dummy 값은 vitest.setup.ts stub과 일치시킬 것**. `vitest.setup.ts`는 `process.env[k] == null`일 때만 stub하므로 CI에서 미리 다른 값 설정 시 stub이 안 먹힘. Test assertion `/client_id=stub-ig-app-id/` 같은 것이 실패. 통일하면 build·test 둘 다 OK.
+3. **Sentry "passThroughEnv" 경고는 turbo.json env 누락 시그널** — 무시 금지. turbo.json env 배열을 env.ts schema와 diff하라.
+
+**확인 방법**:
+
+- `apps/web/src/shared/config/env.ts`의 `envSchema` 키 목록 ↔ `turbo.json` `tasks.build.env` 배열 ↔ `.github/workflows/ci.yml` env 키 — 3곳이 항상 일치해야 함.
+- 실패 시 "Failed to collect page data" 메시지의 page는 미끼 — 진짜 원인은 env.ts module evaluation.
+
+**연관**: PR #33 Phase H. 1차 fix(ci.yml 추가)·2차 fix(stub 값 통일) 모두 부분 해결만, 3차에서 root(turbo.json)에 도달. 디버깅 비용 ~30분. L-024 "CI dummy env 패턴" 연장 — turbo.json 측면 추가.

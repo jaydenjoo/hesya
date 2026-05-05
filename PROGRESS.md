@@ -6,31 +6,24 @@
 
 - **Phase**: Phase 1 진행 중
 - **Epic**: **Epic 1 통합 다국어 인박스** — 1A 인프라 + Instagram PoC
-- **Task**: Phase A~D ✅ + Prod v0011 ✅ + **Phase E ✅** + **Phase F ✅** + **Phase G ✅** → **다음**: Phase H (UI, ~3h) + Phase I (Pages, ~1.5h) + Phase J (E2E, ~1.5h)
-- **상태**: 코어 인프라/DAL/Channel Layer/i18n/Routes/Server Actions 완성. main 최신 SHA `39459a8`. 차단 요소 없음.
+- **Task**: Phase A~G ✅ + Prod v0011 ✅ + **Phase H ✅** → **다음**: Phase I (Pages, ~1.5h) + Phase J (E2E, ~1.5h)
+- **상태**: 코어 인프라/DAL/Channel Layer/i18n/Routes/Server Actions/UI 컴포넌트 14개 완성. main 최신 SHA `e214fe7`. 차단 요소 없음.
 - **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **이번 세션 PR (4개)**: [#29](https://github.com/jaydenjoo/hesya/pull/29) Phase E i18n → [#30](https://github.com/jaydenjoo/hesya/pull/30) Phase F Routes + 사후 리뷰 6 fix → [#31](https://github.com/jaydenjoo/hesya/pull/31) consistency follow-up (HIGH 1 + MEDIUM 3 + LOW 3) → [#32](https://github.com/jaydenjoo/hesya/pull/32) Phase G + 사후 리뷰 7 fix
+- **이번 세션 PR (5개)**: [#29](https://github.com/jaydenjoo/hesya/pull/29) Phase E i18n → [#30](https://github.com/jaydenjoo/hesya/pull/30) Phase F Routes + 사후 리뷰 6 fix → [#31](https://github.com/jaydenjoo/hesya/pull/31) consistency follow-up (HIGH 1 + MEDIUM 3 + LOW 3) → [#32](https://github.com/jaydenjoo/hesya/pull/32) Phase G + 사후 리뷰 7 fix → [#33](https://github.com/jaydenjoo/hesya/pull/33) Phase H UI 14 컴포넌트 + 사후 리뷰 8 fix + CI 3 fix (turbo.json env 화이트리스트)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Phase H — UI 컴포넌트 (~3h)
-
-plan § Phase H
-
-- T28 shadcn 5개 설치 (Sheet/Tabs/Avatar/Skeleton/ScrollArea)
-- T29~T33 컴포넌트 (WindowStatus / ThreadList / MessageBubble / Composer / EmptyState)
-
-### 2. Phase I — Pages (~1.5h)
+### 1. Phase I — Pages (~1.5h)
 
 plan § Phase I
 
 - T34 `store/inbox/page.tsx` (Server Component + 5초 polling)
 - T35 `store/inbox/connect/page.tsx`
 
-### 3. Phase J — E2E + Verification (~1.5h)
+### 2. Phase J — E2E + Verification (~1.5h)
 
 plan § Phase J
 
