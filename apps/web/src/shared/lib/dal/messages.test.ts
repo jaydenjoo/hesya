@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { createDbClient, type DbClient } from "@hesya/database";
-import { insertMessage, listByConversation, markFailed } from "./messages";
+import {
+  insertMessage,
+  listByConversation,
+  listRecentByConversation,
+  markFailed,
+} from "./messages";
 import { upsertConversation } from "./conversations";
 import { resetDb, seedStore, seedCustomer } from "@/test-helpers/db";
 
@@ -95,6 +100,42 @@ describe.skipIf(!hasDb)("dal.messages (integration)", () => {
     expect(list[1]?.originalText).toBe("2");
   });
 
+  it("listRecentByConversation: 최신 N개를 ASC 순서로 반환 (B-2)", async () => {
+    for (let i = 1; i <= 7; i++) {
+      await insertMessage(db, {
+        conversationId,
+        channel: "instagram",
+        direction: i % 2 === 1 ? "inbound" : "outbound",
+        originalText: `m${i}`,
+        externalMessageId: `mid_recent_${i}`,
+      });
+    }
+    const recent = await listRecentByConversation(db, conversationId, 5);
+    expect(recent).toHaveLength(5);
+    expect(recent.map((m) => m.originalText)).toEqual([
+      "m3",
+      "m4",
+      "m5",
+      "m6",
+      "m7",
+    ]);
+  });
+
+  it("markAIResponded: 첫 호출은 true, 두 번째는 false (race-safe, B-2 review)", async () => {
+    const { markAIResponded } = await import("./messages");
+    const m = await insertMessage(db, {
+      conversationId,
+      channel: "instagram",
+      direction: "inbound",
+      originalText: "race test",
+      externalMessageId: "mid_race_1",
+    });
+    const first = await markAIResponded(db, m!.id);
+    const second = await markAIResponded(db, m!.id);
+    expect(first).toBe(true);
+    expect(second).toBe(false);
+  });
+
   it("markFailed: status='failed'로 변경", async () => {
     const m = await insertMessage(db, {
       conversationId,
@@ -110,10 +151,13 @@ describe.skipIf(!hasDb)("dal.messages (integration)", () => {
 });
 
 describe("dal.messages (pure)", () => {
-  it("module exports 3 functions", async () => {
+  it("module exports B-2 functions (findMessageById + markAIResponded)", async () => {
     const mod = await import("./messages");
     expect(typeof mod.insertMessage).toBe("function");
     expect(typeof mod.listByConversation).toBe("function");
+    expect(typeof mod.listRecentByConversation).toBe("function");
+    expect(typeof mod.findMessageById).toBe("function");
+    expect(typeof mod.markAIResponded).toBe("function");
     expect(typeof mod.markFailed).toBe("function");
   });
 
@@ -122,6 +166,13 @@ describe("dal.messages (pure)", () => {
     const src = await readFile("src/shared/lib/dal/messages.ts", "utf-8");
     expect(src).toMatch(/\.offset\(/);
     expect(src).toMatch(/offset\?\s*:\s*number/);
+  });
+
+  it("markAIResponded conditional UPDATE returns boolean (B-2 review HIGH)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/messages.ts", "utf-8");
+    expect(src).toMatch(/markAIResponded[\s\S]*?Promise<boolean>/);
+    expect(src).toMatch(/aiResponded,\s*false/);
   });
 
   it("insertMessage race condition fallback returns null (review HIGH)", async () => {

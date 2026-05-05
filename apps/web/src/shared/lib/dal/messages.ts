@@ -2,6 +2,7 @@ import "server-only";
 import {
   and,
   asc,
+  desc,
   eq,
   messages,
   type Channel,
@@ -70,6 +71,64 @@ export async function listByConversation(
     .orderBy(asc(messages.createdAt))
     .limit(opts.limit ?? 200)
     .offset(opts.offset ?? 0);
+}
+
+/**
+ * messageId로 단건 조회. Phase B-2 AI 트리거가 inbound 검증·conversationId 추출에 사용.
+ */
+export async function findMessageById(
+  db: DbClient,
+  id: string,
+): Promise<Message | null> {
+  const rows = await db
+    .select()
+    .from(messages)
+    .where(eq(messages.id, id))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+/**
+ * inbound 메시지에 AI 응답 발생 마킹. Phase B-2 중복 트리거 방어.
+ *
+ * **Race-safe**: `WHERE ai_responded = false` conditional UPDATE + RETURNING.
+ * 동시 호출 시 한 트랜잭션만 1 row 반환, 나머지는 0 row → false. caller가
+ * 두 번째 generateReply/insert를 차단할 수 있다 (TOCTOU 방어).
+ *
+ * 반환값: false → true 전환이 실제 발생했으면 `true`, 이미 true였으면 `false`.
+ */
+export async function markAIResponded(
+  db: DbClient,
+  messageId: string,
+): Promise<boolean> {
+  const updated = await db
+    .update(messages)
+    .set({ aiResponded: true })
+    .where(and(eq(messages.id, messageId), eq(messages.aiResponded, false)))
+    .returning({ id: messages.id });
+  return updated.length > 0;
+}
+
+/**
+ * 직전 N개 메시지를 ASC(오래된→최신) 순서로 반환. Phase B-2 AI 트리거가
+ * `buildPrompt.recentMessages` 입력으로 사용.
+ *
+ * 구현: DESC + limit으로 최신 N개만 fetch한 뒤 reverse → 메모리 비용 O(N).
+ * `listByConversation`(ASC + offset)은 페이지네이션용이라 끝쪽 N개를 뽑으려면
+ * 전체 count 조회가 필요해 부적합.
+ */
+export async function listRecentByConversation(
+  db: DbClient,
+  conversationId: string,
+  limit: number,
+): Promise<Message[]> {
+  const rows = await db
+    .select()
+    .from(messages)
+    .where(eq(messages.conversationId, conversationId))
+    .orderBy(desc(messages.createdAt))
+    .limit(limit);
+  return rows.reverse();
 }
 
 export async function markFailed(
