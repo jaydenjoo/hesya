@@ -9,6 +9,7 @@ import {
   getWindowStatus,
 } from "@/features/inbox";
 import { InboxShell } from "@/features/inbox/components/inbox-shell";
+import { ContextPanel } from "@/features/inbox/components/context-panel";
 import type { Conversation, Message } from "@/features/inbox";
 
 const POLL_INTERVAL_MS = 5000;
@@ -94,6 +95,9 @@ export function InboxClient({
               messages={messages}
               customerName={customerName}
             />
+          }
+          contextColumn={
+            <ContextPanel conversation={active} messages={messages} />
           }
         />
       </div>
