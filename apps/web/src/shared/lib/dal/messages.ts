@@ -131,6 +131,27 @@ export async function listRecentByConversation(
   return rows.reverse();
 }
 
+/**
+ * outbound 메시지에 번역본 저장. Phase B-3a 자동 번역이 호출.
+ *
+ * 멱등 — 같은 messageId 재호출 시 단순 overwrite (사장 수정 후 재번역 시나리오 허용).
+ * race-safe claim 불필요 — 번역은 idempotent하고 사장 검수 전 백그라운드 작업이라
+ * 중복 호출 비용이 낮음 (`markAIResponded`와 동기화되는 outbound 1건당 0~1회).
+ */
+export async function markTranslated(
+  db: DbClient,
+  messageId: string,
+  data: { translatedText: string; languageTo: string },
+): Promise<void> {
+  await db
+    .update(messages)
+    .set({
+      translatedText: data.translatedText,
+      languageTo: data.languageTo,
+    })
+    .where(eq(messages.id, messageId));
+}
+
 export async function markFailed(
   db: DbClient,
   messageId: string,

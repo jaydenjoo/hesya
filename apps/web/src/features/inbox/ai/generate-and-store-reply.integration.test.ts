@@ -56,13 +56,18 @@ describe.skipIf(!hasDb)("generateAndStoreReply (integration)", () => {
     });
 
     const generateReplyStub = vi.fn().mockResolvedValue({
-      reply: "Hi there!",
+      reply: "안녕하세요!",
       tokensUsed: { input: 5, output: 3 },
+    });
+    const translateReplyStub = vi.fn().mockResolvedValue({
+      translatedText: "Hello!",
+      tokensUsed: { input: 4, output: 2 },
     });
 
     const result = await generateAndStoreReply(inboundId, {
       db,
       generateReply: generateReplyStub,
+      translateReply: translateReplyStub,
     });
 
     expect(result).toEqual({
@@ -75,13 +80,19 @@ describe.skipIf(!hasDb)("generateAndStoreReply (integration)", () => {
       customerLanguage: "en",
       recentMessages: [{ direction: "inbound", text: "Hello" }],
     });
+    expect(translateReplyStub).toHaveBeenCalledWith({
+      koreanText: "안녕하세요!",
+      targetLanguage: "en",
+    });
 
     const all = await listByConversation(db, convId);
     expect(all).toHaveLength(2);
     const outbound = all[1]!;
     expect(outbound.direction).toBe("outbound");
-    expect(outbound.originalText).toBe("Hi there!");
+    expect(outbound.originalText).toBe("안녕하세요!");
     expect(outbound.status).toBe("ai_draft");
+    expect(outbound.translatedText).toBe("Hello!");
+    expect(outbound.languageTo).toBe("en");
 
     const inbound = await findMessageById(db, inboundId);
     expect(inbound?.aiResponded).toBe(true);
@@ -108,11 +119,20 @@ describe.skipIf(!hasDb)("generateAndStoreReply (integration)", () => {
       reply: "응답",
       tokensUsed: { input: 1, output: 1 },
     });
+    const tStub = vi.fn().mockResolvedValue({
+      translatedText: "x",
+      tokensUsed: { input: 1, output: 1 },
+    });
 
-    await generateAndStoreReply(inboundId, { db, generateReply: stub });
+    await generateAndStoreReply(inboundId, {
+      db,
+      generateReply: stub,
+      translateReply: tStub,
+    });
     const second = await generateAndStoreReply(inboundId, {
       db,
       generateReply: stub,
+      translateReply: tStub,
     });
 
     expect(second).toEqual({ stored: false, reason: "already_responded" });

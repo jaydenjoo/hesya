@@ -26,17 +26,24 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createDbClient, type Channel, type DbClient } from "@hesya/database";
 import { env } from "@/shared/config/env";
+import * as Sentry from "@sentry/nextjs";
 import {
   generateReply as defaultGenerateReply,
   type GenerateReplyInput,
   type GenerateReplyOutput,
 } from "./generate-reply";
+import {
+  translateReply as defaultTranslateReply,
+  type TranslateReplyInput,
+  type TranslateReplyOutput,
+} from "./translate-reply";
 import type { CustomerLanguage } from "./prompt";
 import {
   findMessageById,
   insertMessage,
   listRecentByConversation,
   markAIResponded,
+  markTranslated,
 } from "@/shared/lib/dal/messages";
 import { findStoreNameByConversationId } from "@/shared/lib/dal/stores";
 import { getCustomerPreferredLanguage } from "@/shared/lib/dal/customers";
@@ -79,6 +86,7 @@ export type SkipReason =
 export type GenerateAndStoreReplyDeps = {
   db: DbClient;
   generateReply: (input: GenerateReplyInput) => Promise<GenerateReplyOutput>;
+  translateReply: (input: TranslateReplyInput) => Promise<TranslateReplyOutput>;
 };
 
 export type GenerateAndStoreReplyResult =
@@ -107,6 +115,7 @@ export async function generateAndStoreReply(
 
   const db = deps.db ?? getDefaultDb();
   const gen = deps.generateReply ?? defaultGenerateReply;
+  const translate = deps.translateReply ?? defaultTranslateReply;
 
   const msg = await findMessageById(db, idCheck.data);
   if (!msg) return { stored: false, reason: "message_not_found" };
@@ -198,6 +207,27 @@ export async function generateAndStoreReply(
   });
   if (!stored) {
     return { stored: false, reason: "insert_failed" };
+  }
+
+  // B-3a 자동 번역. customerLanguage가 'ko'이면 translateReply 자체가 no-op이지만
+  // markTranslated 호출도 불필요하므로 caller에서 분기. 번역 실패는 silent skip
+  // (한국어 ai_draft는 살아있어 사장이 한국어로 검수 후 수동 처리 가능).
+  if (customerLanguage !== "ko") {
+    try {
+      const translated = await translate({
+        koreanText: result.reply,
+        targetLanguage: customerLanguage,
+      });
+      await markTranslated(db, stored.id, {
+        translatedText: translated.translatedText,
+        languageTo: customerLanguage,
+      });
+    } catch (translationErr) {
+      Sentry.captureException(translationErr, {
+        tags: { phase: "translateReply" },
+        extra: { aiMessageId: stored.id, targetLanguage: customerLanguage },
+      });
+    }
   }
 
   revalidatePath("/[locale]/store/inbox", "page");

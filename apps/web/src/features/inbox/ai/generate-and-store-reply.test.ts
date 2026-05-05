@@ -5,6 +5,7 @@ vi.mock("@/shared/lib/dal/messages", () => ({
   insertMessage: vi.fn(),
   listRecentByConversation: vi.fn(),
   markAIResponded: vi.fn(),
+  markTranslated: vi.fn(),
 }));
 vi.mock("@/shared/lib/dal/stores", () => ({
   findStoreNameByConversationId: vi.fn(),
@@ -30,6 +31,7 @@ import {
   insertMessage,
   listRecentByConversation,
   markAIResponded,
+  markTranslated,
 } from "@/shared/lib/dal/messages";
 import { findStoreNameByConversationId } from "@/shared/lib/dal/stores";
 import { getCustomerPreferredLanguage } from "@/shared/lib/dal/customers";
@@ -60,10 +62,16 @@ const baseInbound: Message = {
 
 type Deps = NonNullable<Parameters<typeof generateAndStoreReply>[1]>;
 type GenFn = NonNullable<Deps["generateReply"]>;
+type TransFn = NonNullable<Deps["translateReply"]>;
 
 const fakeDb = {} as unknown as NonNullable<Deps["db"]>;
 const generateReplyMock = vi.fn<GenFn>();
-const deps: Deps = { db: fakeDb, generateReply: generateReplyMock };
+const translateReplyMock = vi.fn<TransFn>();
+const deps: Deps = {
+  db: fakeDb,
+  generateReply: generateReplyMock,
+  translateReply: translateReplyMock,
+};
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -317,6 +325,78 @@ describe("generateAndStoreReply (B-2)", () => {
         recentMessages: [{ direction: "inbound", text: "유효" }],
       }),
     );
+  });
+
+  it("customerLanguage='ko' → translateReply/markTranslated 미호출 (B-3a no-op)", async () => {
+    vi.mocked(findMessageById).mockResolvedValue(baseInbound);
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
+    vi.mocked(getCustomerPreferredLanguage).mockResolvedValue(null); // null → ko
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    generateReplyMock.mockResolvedValue({
+      reply: "안녕!",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, deps);
+    expect(translateReplyMock).not.toHaveBeenCalled();
+    expect(markTranslated).not.toHaveBeenCalled();
+  });
+
+  it("customerLanguage='en' → translateReply 호출 + markTranslated 호출 (B-3a happy)", async () => {
+    vi.mocked(findMessageById).mockResolvedValue(baseInbound);
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
+    vi.mocked(getCustomerPreferredLanguage).mockResolvedValue("en");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    generateReplyMock.mockResolvedValue({
+      reply: "안녕!",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({
+      ...baseInbound,
+      id: "ai-out-id",
+    });
+    translateReplyMock.mockResolvedValue({
+      translatedText: "Hello!",
+      tokensUsed: { input: 5, output: 3 },
+    });
+
+    await generateAndStoreReply(VALID_UUID, deps);
+    expect(translateReplyMock).toHaveBeenCalledWith({
+      koreanText: "안녕!",
+      targetLanguage: "en",
+    });
+    expect(markTranslated).toHaveBeenCalledWith(fakeDb, "ai-out-id", {
+      translatedText: "Hello!",
+      languageTo: "en",
+    });
+  });
+
+  it("translateReply 실패 → silent skip, 결과는 stored: true (B-3a Q1=A)", async () => {
+    vi.mocked(findMessageById).mockResolvedValue(baseInbound);
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
+    vi.mocked(getCustomerPreferredLanguage).mockResolvedValue("en");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    generateReplyMock.mockResolvedValue({
+      reply: "안녕",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({
+      ...baseInbound,
+      id: "ai-out-2",
+    });
+    translateReplyMock.mockRejectedValue(new Error("AI 번역 실패"));
+
+    const r = await generateAndStoreReply(VALID_UUID, deps);
+    expect(r).toEqual({
+      stored: true,
+      aiMessageId: "ai-out-2",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    expect(markTranslated).not.toHaveBeenCalled();
   });
 
   it("customerId가 UUID 형식 아니면 getCustomerPreferredLanguage 미호출 + 'ko' fallback (B-2 review M-3)", async () => {
