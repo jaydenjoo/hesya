@@ -4,12 +4,12 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Epic 1B Phase B-4 RAG 시리즈 완료** ✅ (1A + 1B B-1~B-3c + B-4a/b/c 머지)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1 ✅ + B-2 ✅ + B-3a ✅ + B-3b ✅ + B-3c ✅ + **B-4a ✅ + B-4b ✅ + B-4c ✅** → **다음**: 별 Epic 1B-UI (3-col 인박스) 또는 B-5 e2e
-- **Task**: 1A Phase A~J ✅ / 1B B-1 ✅ / B-2 ✅ / B-3a ✅ / B-3b ✅ / B-3c ✅ / B-4a ✅ (pgvector + store_knowledge) / B-4b ✅ (RAG 검색 → AI 프롬프트 주입) / B-4c ✅ (FAQ CRUD UI)
-- **상태**: RAG 파이프라인 완성 + B-4 followup(C-1+C-2) 흡수. createFAQ count 한도는 advisory lock + lock_timeout으로 TOCTOU 차단. countStoreKnowledge DAL 분리 (페이로드 ~2.4MB → 수 byte). 임베딩 실패 silent skip(embedding=null) — 한도 슬롯은 차지(보안 회피 차단). 차단 요소 없음.
+- **Phase**: Phase 1 — **Epic 1B-UI 시리즈 완료** ✅ (1A + 1B B-1~B-4 + B 사후 follow-up + C-light + 1B-UI 4 PR)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI (3-col 골조 + ThreadRow + MessageBubble + ContextPanel) ✅ → **다음**: Epic 1B-Tone (AIAssist 톤 4탭 + 백엔드) 또는 Customer 확장 Epic
+- **Task**: 1A Phase A~J ✅ / 1B B-1~B-4c ✅ / B-4 followup(C-1+C-2) ✅ / B-4 followup-2(orphan + Sentry storeId) ✅ / C-light(integration 시나리오 3) ✅ / 1B-UI A-1~A-4 ✅ (A-3b는 Epic 1B-Tone으로 분리)
+- **상태**: 1B 백엔드(RAG + FAQ) + 1B-UI(3-col 인박스) 모두 완성. 사장은 `/store/inbox`에서 채널 아이콘 + avatar + 시간 + unread badge 갖춘 ThreadList, hesya tone bubble, ContextPanel 4탭(Info/History/Notes/Risk)을 본다. 차단 요소 없음.
 - **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **최근 PR**: [#42](https://github.com/jaydenjoo/hesya/pull/42) B-4a, [#43](https://github.com/jaydenjoo/hesya/pull/43) B-4b, [#44](https://github.com/jaydenjoo/hesya/pull/44) B-4c, [#45](https://github.com/jaydenjoo/hesya/pull/45) B-4 followup (countStoreKnowledge + advisory lock + lock_timeout). main 최신 SHA `4f5f82a`.
+- **최근 PR (이번 세션 7건)**: [#45](https://github.com/jaydenjoo/hesya/pull/45) B-4 followup, [#46](https://github.com/jaydenjoo/hesya/pull/46) B-4 followup-2, [#47](https://github.com/jaydenjoo/hesya/pull/47) C-light, [#48](https://github.com/jaydenjoo/hesya/pull/48) A-1, [#49](https://github.com/jaydenjoo/hesya/pull/49) A-2, [#50](https://github.com/jaydenjoo/hesya/pull/50) A-3a, [#51](https://github.com/jaydenjoo/hesya/pull/51) A-4. main 최신 SHA `fd662e9`.
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -17,27 +17,53 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. 별 Epic 1B-UI: 인박스 전체 재구성 (권장, ~4~6h)
+### 1. Epic 1B-Tone: AIAssist 톤 4탭 + 매장 톤 학습 (권장, ~3~4h, 백엔드+UI)
 
-- 디자인 ref 3-col 레이아웃 (ChannelRail + Thread + ContextPanel)
-- 톤 4탭 (warm/formal/short/friendly) + 톤 검증 pill
-- "이유 보기" 팝업, "내 매장 톤 학습" 버튼
-- Shortcuts FAB 키보드 단축키 모달
-- 출처: `docs/design/reference/inbox-app.jsx` 전체 적용
+**디자인 ref 패턴** (`docs/design/reference/inbox-app.jsx` AIAssist):
+
+- warm / formal / short / friendly 4 tone 탭
+- 톤 검증 pill ("따뜻한 톤 유지" / "약간 사무적인 톤")
+- "이유 보기" 팝업
+- "내 매장 톤 학습" 버튼
+
+**구현 전략 (2026-05 검증 결과 기반)**:
+
+- Claude API **Structured Outputs GA** (Sonnet/Opus/Haiku 4.5/4.7) → 단일 호출 + JSON schema array로 4 tone 동시 생성
+- **Prompt caching** (cache read 90% 절감) → system prompt + few-shot 캐싱으로 비용 최소화
+- 예상 비용: 단일 generate 대비 +30~50% (output 토큰만 4배, input은 거의 무료)
+- 변경 파일: `generate-reply.ts` 시그니처 변경 + `generate-and-store-reply.ts` 갈아끼움 + `ai-assist.tsx` 4탭 활성화
+
+### 2. Epic Customer 확장: 고객 정보 풍부화 (~4~6h)
+
+ContextPanel 데이터 확장 (현재 1B 스코프 밖):
+
+- 고객 이름 (IG profile name)
+- 국적 flag (preferredLanguage 매핑 또는 IG locale)
+- 사용 금액 / 선호 디자이너 / 알러지 메모 → Customer 테이블 확장
+- payment history → Payments 결제 Epic (별 Epic)
+
+**선행 작업**: Customer 스키마 확장 마이그레이션 + IG profile fetch (`/me?fields=profile_pic_url,name,locale`)
+
+### 3. Shortcuts FAB 키보드 단축키 모달 (선택, ~1h)
+
+디자인 ref Composer에 단축키 1~9 표시. 실제 단축키 hookup은 별 Task.
 
 ### 2. Phase B-4 사후 follow-up (선택, 별 PR)
 
-**남아있는 항목 (B-4 followup PR #45에서 일부 흡수 후)**:
+**남아있는 항목**:
 
 - 🟡 OpenAI rate limit (현재 무방어 — 빠른 클릭 시 429 가능). Upstash Redis 전환과 함께 처리 권장
-- 🟡 `createStoreKnowledge` (limit 없는 원본) orphan 제거 — 미래 개발자가 실수로 직접 호출하면 TOCTOU 재오픈 위험. `@deprecated` 또는 파일 내부 비공개로 전환
-- 🟡 Sentry tag `storeId` 풀 UUID → short ID 통일 (다른 actions 모두 적용 — 전 프로젝트 정책)
 - 🟡 `count(*)::int` 드라이버 런타임 number 보장 — postgres-js는 안전하나 `Number(...)` 가드 추가 검토
 - 🟡 FAQ 삭제 `window.confirm` → shadcn AlertDialog (UX 개선, 디자인 ref 추가 시)
 - 🟢 FAQ 검색/필터 UI (등록 수 50개 초과 시점)
 - 🔵 통합 테스트: advisory lock 실제 직렬화 + limit_exceeded 행동 검증 (HESYA_TEST_DATABASE_URL 게이트)
+- 🔵 **C-heavy** (PostgreSQL CI service container) — Supabase 호환(pgsodium/auth.uid) 처리 ~4~6h. 옵션: (a) Supabase CLI in CI, (b) pgsodium pre-install 커스텀 이미지, (c) RLS 마이그레이션 conditional 분리
 
-**완료 (PR #45)**: ✅ countStoreKnowledge DAL 분리, ✅ createFAQ TOCTOU 차단(advisory lock + lock_timeout)
+**완료**:
+
+- ✅ PR #45: countStoreKnowledge DAL 분리 + createFAQ TOCTOU 차단(advisory lock + lock_timeout)
+- ✅ PR #46: createStoreKnowledge orphan 제거 + Sentry tag storeId PII 자동 truncate(8자)
+- ✅ PR #47: C-light integration 시나리오 3 (RAG 통합) + storeKnowledge 격리
 
 ### 3. B-3c 사후 follow-up (선택, 별 PR)
 
@@ -90,6 +116,7 @@
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-05 후반 세션 — **Epic 1B-UI 시리즈 완료** (PR #48 골조 + #49 ThreadRow + #50 MessageBubble/Header + #51 ContextPanel) + **B-4 followup-2** (PR #46) + **C-light** (PR #47)
 - 날짜: 2026-05-05 late night+ — **B-4 followup 흡수** (PR #45: countStoreKnowledge DAL + advisory lock TOCTOU 차단 + lock_timeout)
 - 날짜: 2026-05-05 late night — **Epic 1B Phase B-4 RAG 시리즈 완료** (PR #42 pgvector + #43 검색 주입 + #44 CRUD UI)
 - 날짜: 2026-05-05 night — **Epic 1B Phase B-3c 완료** (PR #41, Sec HIGH 1 + Code MEDIUM 4 + 운영 안전 fix)
