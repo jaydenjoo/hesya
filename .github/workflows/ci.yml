@@ -87,3 +87,59 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  e2e-smoke:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # validate job과 동일 dummy env (build에 동일 env 필요).
+      NEXT_PUBLIC_APP_URL: http://localhost:4200
+      NEXT_PUBLIC_SUPABASE_URL: https://x.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy_anon_key_for_ci_build_xxxxxxx
+      SUPABASE_SERVICE_ROLE_KEY: dummy_service_role_for_ci_build_xxxx
+      DATABASE_URL: postgres://x:x@x.pooler.supabase.com:6543/postgres
+      BETTER_AUTH_SECRET: ci_dummy_secret_minimum_32_chars_long_xxx
+      BETTER_AUTH_URL: http://localhost:4200
+      GOOGLE_CLIENT_ID: ci-dummy-google-client-id
+      GOOGLE_CLIENT_SECRET: ci-dummy-google-client-secret
+      SENTRY_DSN: https://x@x.ingest.sentry.io/0
+      NEXT_PUBLIC_SENTRY_DSN: https://x@x.ingest.sentry.io/0
+      NEXT_PUBLIC_POSTHOG_KEY: phc_dummy_for_ci_build
+      NEXT_PUBLIC_POSTHOG_HOST: https://eu.i.posthog.com
+      KOREA_NTS_API_KEY: ci_dummy_korea_nts_key_xxxxxxxxxxxxxx
+      KOREA_LOCALDATA_API_KEY: ci_dummy_korea_localdata_key_xxxxxxxx
+      ADMIN_EMAILS: ci-dummy-admin@example.com
+      CRON_SECRET: ci_dummy_cron_secret_xxxxxxxxxxxxxxxxxxxxxxxx
+      RESEND_API_KEY: re_ci_dummy_resend_api_key
+      RESEND_FROM_EMAIL: ci-dummy@resend.dev
+      ANTHROPIC_API_KEY: sk-ant-ci-dummy-anthropic-api-key-xxxxxxxx
+      IG_APP_ID: stub-ig-app-id
+      IG_APP_SECRET: stub-ig-app-secret
+      IG_WEBHOOK_VERIFY_TOKEN: stub-ig-verify-token
+      IG_REDIRECT_URI: https://stub.example.com/api/oauth/instagram/callback
+      # smoke만 실행 — inbox.spec.ts는 HESYA_TEST_DATABASE_URL 없어 자동 skip.
+      # 실 시나리오는 PostgreSQL service container + migration이 필요해
+      # 별도 인프라 작업으로 분리. 본 e2e-smoke는 dev 서버 + Playwright 자체 작동만 보장.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright browsers (chromium)
+        run: pnpm --filter @hesya/web exec playwright install --with-deps chromium
+      - name: Run e2e smoke
+        run: pnpm --filter @hesya/web e2e smoke.spec.ts
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 7

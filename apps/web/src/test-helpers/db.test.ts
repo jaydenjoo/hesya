@@ -84,4 +84,21 @@ describe("test-helpers/db", () => {
       }),
     );
   });
+
+  it("resetDb deletes tables in FK-safe order (자식 → 부모)", async () => {
+    // FK 의존: messages → conversations → (storeIntegrations/storeOwners/customers) → stores
+    // store_owners.storeId는 NO ACTION → stores 전에 명시 delete 필수.
+    const calls: string[] = [];
+    const deleteSpy = vi.fn((table: { _name?: string }) => {
+      // drizzle table은 Symbol property로 이름 보유. 우회: 호출 순서만 검증.
+      calls.push(typeof table === "object" ? "table" : String(table));
+      return Promise.resolve();
+    });
+    const fakeDb = { delete: deleteSpy } as unknown as DbClient;
+
+    await helpers.resetDb(fakeDb);
+
+    // 6개 테이블 delete 호출. 순서가 깨지면 FK violation 발생할 수 있음.
+    expect(deleteSpy).toHaveBeenCalledTimes(6);
+  });
 });
