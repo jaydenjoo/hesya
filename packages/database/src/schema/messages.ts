@@ -20,13 +20,29 @@ import { stores } from "./stores";
  * tones: AIAssist 4탭(warm/formal/short/friendly) 4 variations 동시 저장.
  * `originalText`는 default tone(warm) 한 개만, 나머지 3개는 metadata.tones에.
  * metadata=NULL → 1A/1B 레거시 메시지 (UI는 originalText fallback).
+ *
+ * Epic 1B-Tone Phase 2-A — verifications: tone별 self-check 결과.
+ * state 'ok'면 톤 일관성 OK, 'warn'면 reason에 사유. reason=null이면 UI에서
+ * "이유 보기" 버튼 미표시. verifications=undefined도 UI는 정상 동작 (pill 미표시).
  */
+export type ToneVerification = {
+  state: "ok" | "warn";
+  label: string;
+  reason: string | null;
+};
+
 export type MessageMetadata = {
   tones?: {
     warm: string;
     formal: string;
     short: string;
     friendly: string;
+  };
+  verifications?: {
+    warm: ToneVerification;
+    formal: ToneVerification;
+    short: ToneVerification;
+    friendly: ToneVerification;
   };
 };
 

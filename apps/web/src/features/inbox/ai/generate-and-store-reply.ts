@@ -249,15 +249,25 @@ export async function generateAndStoreReply(
   // channel은 위 가드를 통과했으므로 non-null. DB CHECK 제약이 enum 값을
   // 강제하므로 cast 안전 (`send-outbound.ts`와 동일 패턴).
   const channel = msg.channel as Channel;
-  // Epic 1B-Tone-3: tones 있으면 metadata에 통합 저장 (AIAssist 4탭 즉시 전환용).
-  // originalText는 default tone(warm). 1A/1B 호환 — tones 없으면 metadata 생략.
+  // Epic 1B-Tone-3 + Phase 2-A: tones/verifications metadata에 통합 저장.
+  // - tones 없으면 metadata 자체 생략 (1A/1B 호환).
+  // - tones만 있고 verifications 없으면 verifications 키 자체 생략 (Phase 1 호환).
+  // originalText는 default tone(warm).
+  const metadata = result.tones
+    ? {
+        tones: result.tones,
+        ...(result.verifications
+          ? { verifications: result.verifications }
+          : {}),
+      }
+    : undefined;
   const stored = await insertMessage(db, {
     conversationId: msg.conversationId,
     channel,
     direction: "outbound",
     originalText: result.reply,
     status: "ai_draft",
-    ...(result.tones ? { metadata: { tones: result.tones } } : {}),
+    ...(metadata ? { metadata } : {}),
   });
   if (!stored) {
     return { stored: false, reason: "insert_failed" };
