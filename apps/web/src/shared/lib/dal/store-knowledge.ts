@@ -135,6 +135,9 @@ export async function createStoreKnowledgeWithLimit(
   { ok: true; row: StoreKnowledge } | { ok: false; reason: "limit_exceeded" }
 > {
   return db.transaction(async (tx) => {
+    // lock 무한 대기 차단 — 동시 요청 폭주 시 함수 타임아웃 → 매장별 DoS 방어.
+    // xact-scoped라 트랜잭션 종료 시 자동 해제. 3s는 정상 등록 충분 + DoS 방어선.
+    await tx.execute(sql`SET LOCAL lock_timeout = '3s'`);
     await tx.execute(
       sql`SELECT pg_advisory_xact_lock(1, hashtext(${input.storeId}::text))`,
     );

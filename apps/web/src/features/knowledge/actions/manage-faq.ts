@@ -71,6 +71,9 @@ export async function createFAQ(input: {
     }
 
     const db = createDbClient(env.DATABASE_URL);
+    // 순서 의도: 임베딩(1~3s 외부 IO) → 트랜잭션(lock + count + insert, 수 ms).
+    // 임베딩이 실패해도 한도 슬롯은 차지 (embedding=null insert) — 임베딩 실패
+    // 반복으로 한도 우회되는 보안 회피 차단. 검색에서는 IS NOT NULL 가드로 제외.
     const embedding = await tryGenerateEmbedding(
       `${parsed.data.question}\n${parsed.data.answer}`,
       { storeIdShort: session.storeId.slice(0, 8) },
