@@ -10,11 +10,16 @@ import {
   markWebhookSubscribed,
 } from "@/shared/lib/dal/store-integrations";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
+import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
 
+// 모듈 로드 시 1회만 인스턴스화. IG_APP_SECRET 변경 시 서버 재시작 필요.
 const adapter = createInstagramAdapter(fetchInstagramApiClient, {
   appId: env.IG_APP_ID,
   appSecret: env.IG_APP_SECRET,
 });
+
+// req.url의 Host 헤더 변조에 따른 open-redirect 방지.
+const baseUrl = env.NEXT_PUBLIC_APP_URL;
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const params = req.nextUrl.searchParams;
@@ -25,7 +30,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
   if (!code || !state || !expectedState || state !== expectedState) {
     return NextResponse.redirect(
-      new URL(`/ko/store/inbox/connect?error=state_mismatch`, req.url),
+      new URL(`/ko/store/inbox/connect?error=state_mismatch`, baseUrl),
     );
   }
   cookieStore.delete("ig_oauth_state");
@@ -33,10 +38,14 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   let session;
   try {
     session = await requireStoreOwnerAuth();
-  } catch {
-    return NextResponse.redirect(
-      new URL(`/ko/sign-in?next=/ko/store/inbox/connect`, req.url),
-    );
+  } catch (err) {
+    if (err instanceof UnauthorizedError || err instanceof ForbiddenError) {
+      return NextResponse.redirect(
+        new URL(`/ko/sign-in?next=/ko/store/inbox/connect`, baseUrl),
+      );
+    }
+    // 알 수 없는 에러는 Next.js 500 처리에 위임 (Sentry instrumentation이 자동 캡처)
+    throw err;
   }
 
   try {
@@ -59,18 +68,15 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     await markWebhookSubscribed(db, session.storeId, "instagram");
 
     return NextResponse.redirect(
-      new URL(`/ko/store/inbox?connected=instagram`, req.url),
+      new URL(`/ko/store/inbox?connected=instagram`, baseUrl),
     );
   } catch (err) {
     Sentry.captureException(err, {
       tags: { route: "oauth:instagram", storeId: session.storeId },
     });
-    const reason = err instanceof Error ? err.message : "unknown";
+    // err.message는 Sentry로만 — URL에는 안전한 카테고리 코드만 노출.
     return NextResponse.redirect(
-      new URL(
-        `/ko/store/inbox/connect?error=${encodeURIComponent(reason)}`,
-        req.url,
-      ),
+      new URL(`/ko/store/inbox/connect?error=exchange_failed`, baseUrl),
     );
   }
 }

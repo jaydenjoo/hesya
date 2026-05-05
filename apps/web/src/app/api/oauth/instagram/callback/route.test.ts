@@ -21,18 +21,19 @@ vi.mock("@/lib/inbox/instagram-api-client", () => ({
   },
 }));
 
+const { exchangeCodeMock } = vi.hoisted(() => ({
+  exchangeCodeMock: vi.fn(async () => ({
+    accessToken: "long_tok",
+    expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+    externalAccountId: "ig_acc_id",
+    externalAccountName: "demo_salon",
+    scopes: ["instagram_business_basic", "instagram_business_manage_messages"],
+  })),
+}));
+
 vi.mock("@/lib/inbox/instagram-adapter", () => ({
   createInstagramAdapter: vi.fn(() => ({
-    exchangeCode: vi.fn(async () => ({
-      accessToken: "long_tok",
-      expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
-      externalAccountId: "ig_acc_id",
-      externalAccountName: "demo_salon",
-      scopes: [
-        "instagram_business_basic",
-        "instagram_business_manage_messages",
-      ],
-    })),
+    exchangeCode: exchangeCodeMock,
   })),
 }));
 
@@ -44,7 +45,7 @@ import {
   markWebhookSubscribed,
 } from "@/shared/lib/dal/store-integrations";
 import { fetchInstagramApiClient } from "@/lib/inbox/instagram-api-client";
-import { UnauthorizedError } from "@/shared/lib/errors";
+import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
 
 function buildCookieStore(stateValue: string | null) {
   const map = new Map<string, { value: string }>();
@@ -120,6 +121,47 @@ describe("oauth callback GET", () => {
     expect(res.headers.get("location")).toMatch(
       /\/ko\/store\/inbox\?connected=instagram/,
     );
+  });
+
+  it("ForbiddenError → /ko/sign-in 리다이렉트", async () => {
+    vi.mocked(cookies).mockResolvedValue(buildCookieStore("ok_state") as never);
+    vi.mocked(requireStoreOwnerAuth).mockRejectedValue(
+      new ForbiddenError("권한 없음"),
+    );
+
+    const res = await GET(makeReq("code=auth_code&state=ok_state"));
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toMatch(/\/ko\/sign-in/);
+  });
+
+  it("requireStoreOwnerAuth가 알 수 없는 에러 throw → 500 (Sentry 캡처)", async () => {
+    vi.mocked(cookies).mockResolvedValue(buildCookieStore("ok_state") as never);
+    vi.mocked(requireStoreOwnerAuth).mockRejectedValue(
+      new Error("DB 연결 실패"),
+    );
+
+    await expect(GET(makeReq("code=auth_code&state=ok_state"))).rejects.toThrow(
+      /DB 연결 실패/,
+    );
+  });
+
+  it("exchangeCode 실패 → error=exchange_failed 카테고리만 (raw 메시지 노출 X)", async () => {
+    vi.mocked(cookies).mockResolvedValue(buildCookieStore("ok_state") as never);
+    vi.mocked(requireStoreOwnerAuth).mockResolvedValue({
+      userId: "u1",
+      storeId: "s1",
+      role: "owner",
+    });
+    exchangeCodeMock.mockRejectedValueOnce(
+      new Error("internal: token=secret123 expired"),
+    );
+
+    const res = await GET(makeReq("code=auth_code&state=ok_state"));
+    expect(res.status).toBe(307);
+    const loc = res.headers.get("location") ?? "";
+    expect(loc).toMatch(/error=exchange_failed/);
+    expect(loc).not.toMatch(/secret123/);
+    expect(loc).not.toMatch(/internal/);
   });
 
   it("정상 흐름 → upsertIntegration + subscribeWebhook + markWebhookSubscribed 호출", async () => {

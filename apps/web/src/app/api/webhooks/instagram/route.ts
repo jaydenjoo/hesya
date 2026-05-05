@@ -16,12 +16,14 @@ import { insertMessage } from "@/shared/lib/dal/messages";
 import { findStoreByExternalAccount } from "@/shared/lib/dal/stores";
 import { WebhookSignatureError } from "@/shared/lib/errors";
 
+// 모듈 로드 시 1회만 인스턴스화. IG_APP_SECRET 변경 시 서버 재시작 필요.
 const adapter = createInstagramAdapter(fetchInstagramApiClient, {
   appId: env.IG_APP_ID,
   appSecret: env.IG_APP_SECRET,
 });
 
 const REPLAY_WINDOW_MS = 5 * 60 * 1000;
+const MAX_CHALLENGE_LEN = 256;
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const params = req.nextUrl.searchParams;
@@ -29,7 +31,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     params.get("hub.mode") === "subscribe" &&
     params.get("hub.verify_token") === env.IG_WEBHOOK_VERIFY_TOKEN
   ) {
-    return new NextResponse(params.get("hub.challenge") ?? "", { status: 200 });
+    // hub.challenge는 Meta가 짧은 알파벳 토큰으로 발송. 길이 제한으로 amplifier 방어.
+    const challenge = (params.get("hub.challenge") ?? "").slice(
+      0,
+      MAX_CHALLENGE_LEN,
+    );
+    return new NextResponse(challenge, { status: 200 });
   }
   return new NextResponse("forbidden", { status: 403 });
 }

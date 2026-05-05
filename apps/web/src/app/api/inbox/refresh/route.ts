@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createDbClient } from "@hesya/database";
 import { env } from "@/shared/config/env";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
-import { listByStore } from "@/shared/lib/dal/conversations";
+import {
+  getConversationById,
+  listByStore,
+} from "@/shared/lib/dal/conversations";
 import { listByConversation } from "@/shared/lib/dal/messages";
 import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
 
@@ -26,6 +29,14 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   const activeId = req.nextUrl.searchParams.get("activeId");
   const messages: Record<string, unknown> = {};
   if (activeId) {
+    // IDOR 방어: activeId가 호출자 매장의 conversation인지 검증.
+    const conv = await getConversationById(db, activeId);
+    if (!conv) {
+      return NextResponse.json({ error: "not_found" }, { status: 404 });
+    }
+    if (conv.storeId !== session.storeId) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    }
     messages[activeId] = await listByConversation(db, activeId);
   }
 
