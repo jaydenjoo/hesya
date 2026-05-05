@@ -1,13 +1,21 @@
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { createDbClient, type DbClient } from "@hesya/database";
 import * as dalStores from "./stores";
-import { findStoreByExternalAccount } from "./stores";
+import {
+  findStoreByExternalAccount,
+  findStoreNameByConversationId,
+} from "./stores";
 import { upsertIntegration } from "./store-integrations";
-import { resetDb, seedStore } from "@/test-helpers/db";
+import { upsertConversation } from "./conversations";
+import { resetDb, seedStore, seedCustomer } from "@/test-helpers/db";
 
 describe("dal.stores (pure)", () => {
   it("module exports findStoreByExternalAccount function", () => {
     expect(typeof dalStores.findStoreByExternalAccount).toBe("function");
+  });
+
+  it("module exports findStoreNameByConversationId function (B-2)", () => {
+    expect(typeof dalStores.findStoreNameByConversationId).toBe("function");
   });
 });
 
@@ -67,6 +75,32 @@ describe.skipIf(!hasDb)("dal.stores (integration)", () => {
         externalAccountId: "shared_id",
       });
       expect(found).toBeNull();
+    });
+  });
+
+  describe("findStoreNameByConversationId (B-2)", () => {
+    it("conversation→store 조인으로 이름 반환", async () => {
+      const storeId = await seedStore(db, { name: "맛있는 빵집" });
+      const customerId = await seedCustomer(db, {
+        channel: "instagram",
+        externalId: "igsid_b2_1",
+      });
+      const conv = await upsertConversation(db, {
+        storeId,
+        customerId,
+        channel: "instagram",
+      });
+
+      const name = await findStoreNameByConversationId(db, conv.id);
+      expect(name).toBe("맛있는 빵집");
+    });
+
+    it("존재하지 않는 conversationId → null", async () => {
+      const name = await findStoreNameByConversationId(
+        db,
+        "00000000-0000-0000-0000-000000000000",
+      );
+      expect(name).toBeNull();
     });
   });
 });

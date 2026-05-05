@@ -49,6 +49,24 @@ describe.skipIf(!hasDb)("dal.customers (integration)", () => {
     expect(c!.preferredLanguage).toBe("en");
   });
 
+  it("getCustomerPreferredLanguage: preferredLanguage 반환 / 없으면 null (B-2)", async () => {
+    const { getCustomerPreferredLanguage } = await import("./customers");
+    const c = await upsertCustomer(db, {
+      channel: "instagram",
+      externalId: "lang_001",
+      preferredLanguage: "ja",
+    });
+    const lang = await getCustomerPreferredLanguage(db, c!.id);
+    expect(lang).toBe("ja");
+
+    const c2 = await upsertCustomer(db, {
+      channel: "instagram",
+      externalId: "lang_002",
+    });
+    const lang2 = await getCustomerPreferredLanguage(db, c2!.id);
+    expect(lang2).toBeNull();
+  });
+
   it("upsertCustomer: 다른 channel은 별 row", async () => {
     const a = await upsertCustomer(db, {
       channel: "instagram",

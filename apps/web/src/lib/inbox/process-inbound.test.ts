@@ -1,16 +1,48 @@
-import { describe, expect, it } from "vitest";
-import { processInbound } from "./process-inbound";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
-/**
- * 1A는 빈 hook — DB 저장만으로 충분 (spec § 2.5).
- * 1C에서 AI 자동 응답 + 번역 + RAG 트리거 추가 예정.
- */
-describe("processInbound (1A 빈 함수)", () => {
-  it("어떤 messageId든 throw하지 않고 undefined 반환", async () => {
-    await expect(processInbound("msg_001")).resolves.toBeUndefined();
+vi.mock("@/features/inbox/ai/generate-and-store-reply", () => ({
+  generateAndStoreReply: vi.fn(),
+}));
+
+import { processInbound } from "./process-inbound";
+import { generateAndStoreReply } from "@/features/inbox/ai/generate-and-store-reply";
+
+beforeEach(() => {
+  vi.resetAllMocks();
+});
+
+describe("processInbound (B-2 AI trigger)", () => {
+  it("messageId로 generateAndStoreReply 호출", async () => {
+    vi.mocked(generateAndStoreReply).mockResolvedValue({
+      stored: true,
+      aiMessageId: "out-id",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    await processInbound("msg-uuid-1");
+    expect(generateAndStoreReply).toHaveBeenCalledWith("msg-uuid-1");
   });
 
-  it("빈 string도 throw 안 함", async () => {
-    await expect(processInbound("")).resolves.toBeUndefined();
+  it("stored: true → undefined (silent)", async () => {
+    vi.mocked(generateAndStoreReply).mockResolvedValue({
+      stored: true,
+      aiMessageId: "x",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    await expect(processInbound("m")).resolves.toBeUndefined();
+  });
+
+  it("skip (stored: false) → undefined (silent, 정상 흐름)", async () => {
+    vi.mocked(generateAndStoreReply).mockResolvedValue({
+      stored: false,
+      reason: "already_responded",
+    });
+    await expect(processInbound("m")).resolves.toBeUndefined();
+  });
+
+  it("generateAndStoreReply throw → throw 그대로 전파 (webhook route가 Sentry capture)", async () => {
+    vi.mocked(generateAndStoreReply).mockRejectedValue(
+      new Error("AI 응답 생성 실패"),
+    );
+    await expect(processInbound("m")).rejects.toThrow("AI 응답 생성 실패");
   });
 });

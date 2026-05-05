@@ -55,3 +55,20 @@ export async function getExternalIdByCustomerId(
     .limit(1);
   return rows[0]?.externalId ?? null;
 }
+
+/**
+ * customerId로 `preferred_language` 단건 조회. Phase B-2 AI 응답 언어 결정에 사용.
+ * - 미설정(null)이면 caller가 fallback 언어 결정 (보통 "ko").
+ * - DB 컬럼은 임의 text — 5개 enum 매핑은 caller 책임.
+ */
+export async function getCustomerPreferredLanguage(
+  db: DbClient,
+  customerId: string,
+): Promise<string | null> {
+  const rows = await db
+    .select({ preferredLanguage: customers.preferredLanguage })
+    .from(customers)
+    .where(eq(customers.id, customerId))
+    .limit(1);
+  return rows[0]?.preferredLanguage ?? null;
+}
