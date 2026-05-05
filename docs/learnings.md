@@ -1870,3 +1870,29 @@ it("upsertCustomer race condition fallback returns null (review HIGH)", async ()
   - 코드 통계: TypeScript ~3500 LOC, 단위 테스트 커버리지 ~80% (DAL/route/component/page 분기).
 
 **연관**: 1A 전체. Epic 1B 진입 시 본 데이터 기반 추정 보정.
+
+### [2026-05-05] L-057 — Write/Edit 도구가 character class 안의 escape 시퀀스를 line-break로 직렬화 → 파일 binary 손상
+
+**증상**: Phase B-1 사후 리뷰 fix 적용 중, `prompt.ts`에 `sanitizeStoreName` 함수 추가하며 `[backtick + 이중인용 + 역슬래시]` 류 character class를 가진 regex 리터럴 작성. Write 도구로 같은 패턴이 2회 반복 손상됨. 손상 후 `git diff`가 "Binary files differ"로 출력. `cat -et`로 확인 시 character class 안에 실제 `\n` 바이트가 침입.
+
+**원인**: Write/Edit 도구의 직렬화 레이어가 regex character class 안의 백슬래시 escape 시퀀스를 부분적으로 line break로 잘못 해석. 한 번 손상되면 같은 패턴 Edit이 매번 재손상 ("string not found" 또는 partial replace로 진행).
+
+**해결**:
+
+1. `git checkout HEAD -- <file>` 로 마지막 커밋 상태 복원.
+2. **regex 리터럴 대신 imperative 패턴 사용** — char-by-char for-loop + `charCodeAt` 검사로 dangerous 문자 제거. character class 없이도 동일 효과.
+3. 또는 `new RegExp("...", "g")` constructor + 문자열 인자(escape 이중처리 필요).
+
+**규칙** ⭐:
+
+1. **보안용 sanitize/검증 함수에서 character class에 escape 시퀀스 다중 포함된 regex 리터럴 금지**. imperative 패턴이 도구 직렬화에 안전.
+2. **regex 리터럴은 단순 문자(a-z, 0-9, 한글 등)에만 사용**. 백틱/이중인용/역슬래시/제어문자는 imperative 분기로 처리.
+3. **손상 의심 시 즉시 검증**: `file <path>` (UTF-8 text 확인) + `git diff` ("Binary" 출력 시 즉시 reset).
+
+**확인 방법**:
+
+- `file <path>` — 손상 시 "data" 또는 "Binary" 출력. 정상 시 "UTF-8 text".
+- `git diff` — 손상 시 "Binary files differ" 출력.
+- `cat -et <path>` — character class 안에 `$\n` 가시화되면 손상.
+
+**연관**: Phase B-1 (PR #37). L-052 (TDD Guard baby-step)와 결합되어 incident 회복 시간 단축 (~10분).

@@ -4,32 +4,41 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Epic 1 1A 완료** ✅
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A 인프라 + Instagram PoC ✅ → **다음**: Epic 1B (customers 조인 + AI 응답) 또는 다른 Epic
-- **Task**: Phase A~J ✅ + Prod v0011 ✅. **모든 Task 완료**.
-- **상태**: 코어 인프라/DAL/Channel Layer/i18n/Routes/Server Actions/UI 컴포넌트/Pages/E2E Playwright 인프라 + 시나리오 2개 완성. main 최신 SHA `9b19776`. 차단 요소 없음.
+- **Phase**: Phase 1 — **Epic 1B Phase B-1 완료** ✅ (1A 전체 + 1B 첫 Phase 머지)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A 인프라/PoC ✅ + 1B AI 응답 코어 ✅ → **다음**: Phase B-2 (AI 응답 Server Action + processInbound 트리거)
+- **Task**: 1A Phase A~J ✅ / 1B Phase B-1 ✅ (Anthropic Sonnet 응답 생성 순수 모듈)
+- **상태**: AI 응답 코어 (`features/inbox/ai/`) 4 파일 + 단위 테스트 12건. Meta App Development mode 발급 완료, Vercel prod env 4개 실값 교체 완료. main 최신 SHA `d117903`. 차단 요소 없음.
 - **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **이번 세션 PR (8개)**: [#29](https://github.com/jaydenjoo/hesya/pull/29) Phase E i18n → [#30](https://github.com/jaydenjoo/hesya/pull/30) Phase F Routes → [#31](https://github.com/jaydenjoo/hesya/pull/31) consistency follow-up → [#32](https://github.com/jaydenjoo/hesya/pull/32) Phase G → [#33](https://github.com/jaydenjoo/hesya/pull/33) Phase H UI → [#34](https://github.com/jaydenjoo/hesya/pull/34) Phase I Pages → [#35](https://github.com/jaydenjoo/hesya/pull/35) Phase J PR A Playwright 인프라 → [#36](https://github.com/jaydenjoo/hesya/pull/36) Phase J PR B 시나리오 + IG mock + CI e2e job
-- **사후 리뷰 fix 총합**: HIGH 11 + MED 21 + LOW 7 (8개 PR × 2-agent 병렬 리뷰)
+- **이번 세션 PR (1개)**: [#37](https://github.com/jaydenjoo/hesya/pull/37) Phase B-1 — Anthropic 응답 생성 코어 + 사후 리뷰 11 fix
+- **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Epic 1B 진입 또는 다른 Epic 결정
+### 1. Epic 1B Phase B-2 진입 (권장)
 
-1A 완료. 다음 Epic 결정 필요:
+**B-2: AI 응답 Server Action + processInbound 트리거** (~3h, 1 PR):
 
-- **Epic 1B**: customers 조인 (고객 이름/프로필 표시) + AI 응답 (Anthropic Sonnet)
-- **Epic 1C**: 메시지 큐 (Vercel Queue로 fire-and-forget processInbound 대체)
-- **Epic 1D**: 다채널 (WhatsApp / KakaoTalk / LINE / Messenger 추가)
-- **다른 Epic**: PRD 재검토
+- `features/inbox/ai/generate-reply` 호출하는 Server Action
+- DAL: 직전 5턴 messages + storeName 조회 → buildPrompt 입력 구성
+- `processInbound` 비어있는 hook을 AI 트리거로 채움 (1A에서 placeholder)
+- `recentMessages` 길이 상한 + storeName 신뢰성 검증 (B-1 주석에 "B-2 boundary 책임"으로 위임된 것들)
+- 통합 테스트 (DB-gated)
 
-### 2. 1A 외부 의존성 (Epic 외 task)
+### 2. 또는 다른 옵션
 
-- **Meta App 발급 + Vercel env 교체**: 현재 stub 값. 실제 OAuth 시작하려면 https://developers.facebook.com 에서 App 발급 후 Vercel env 4개 (`IG_APP_ID/IG_APP_SECRET/IG_WEBHOOK_VERIFY_TOKEN/IG_REDIRECT_URI`) 교체. 코드 수정 0.
-- **PostgreSQL service container CI 통합**: Phase J PR B 분리. 실 시나리오를 CI에서 돌리려면 supabase local 또는 PostgreSQL service container + drizzle migration 추가. 현재 e2e-smoke만 CI 통과.
+- **Phase B-3**: 다국어 자동 번역 (5개 언어) + Composer 통합
+- **Phase B-4**: RAG 인덱싱 (매장 FAQ 학습 — pgvector)
+- **Phase B-5**: e2e 시나리오 (AI 응답 → 번역 → 발송) + PostgreSQL CI
+
+### 3. 외부 의존성 (Epic 외 task)
+
+- **Meta App Test User 등록**: 베타 검증 직전. 본인 IG Pro 계정 → 앱 역할 → 테스터 추가
+- **Meta App Webhooks 구성**: Live mode 전환 시점 (`콜백 URL` + `IG_WEBHOOK_VERIFY_TOKEN`)
+- **Meta App Review (Live mode)**: 출시 직전. Hesya 사업자등록증 발급 후 (개인사업자 즉시 가능)
+- **PostgreSQL service container CI 통합**: B-5 시 자연 흡수 가능
 
 ### 3. 미진행 follow-up (Epic 진입 시 흡수 또는 별 PR)
 
@@ -55,7 +64,77 @@
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-05 — **Epic 1 1A 완료** (Phase A~J, 8 PR 머지, 사후 리뷰 fix 39건)
+- 날짜: 2026-05-05 evening — **Epic 1B Phase B-1 완료** (PR #37, 사후 리뷰 11 fix)
+
+## 이번 세션 완료 (2026-05-05 evening — Phase B-1 + Meta App 발급)
+
+### 1. Meta App 발급 (Jayden 외부 작업)
+
+- `https://developers.facebook.com` → Hesya-IG 앱 생성 (Development mode)
+- 이용 사례 "Instagram에서 메시지 및 콘텐츠 관리" 추가
+- 권한 3개 (`instagram_business_basic`, `instagram_manage_comments`, `instagram_business_manage_messages`)
+- OAuth Redirect URI 등록 (`https://hesya-web.vercel.app/api/oauth/instagram/callback`)
+- `IG_APP_ID = 898424353214958` / `IG_APP_SECRET` (32자) / `IG_WEBHOOK_VERIFY_TOKEN` (`openssl rand -hex 16`) / `IG_REDIRECT_URI` 4개 수집
+- Vercel prod env 4개 stub → 실값 교체 (Production)
+
+### 2. Phase B-1 — Anthropic 응답 생성 코어 (PR #37)
+
+신규 4파일 (`apps/web/src/features/inbox/ai/`):
+
+- **prompt.ts** — `buildPrompt({storeName, customerLanguage, recentMessages})` → `{system, messages}`
+  - 5개 언어 라벨 (ko/en/zh/ja/vi)
+  - 한국어 답변 강제 (사장 검수용 — 자동 번역은 B-3)
+  - `inbound → user` / `outbound → assistant` 역할 매핑
+  - **storeName sanitize** (100자 + 백틱·이중인용·역슬래시·제어문자 제거 — LLM01 defense in depth)
+- **generate-reply.ts** — `generateReply(input)` → `{reply, tokensUsed}`
+  - Sonnet 4.6 (`claude-sonnet-4-6`), `max_tokens: 600`
+  - `server-only` + cached client (anthropic-category-repo.ts 패턴 준수, top-level env import)
+  - SDK 에러 → "AI 응답 생성 실패" 도메인 에러 래핑 (LLM02 키 prefix 누출 방지, `cause` 보존)
+  - text block 부재 / 호출 실패 → throw (silent failure 금지)
+- **prompt.test.ts** — 8건 (storeName/언어 라벨/한국어 강제/매핑/5개 언어/인젝션 회귀/100자/공백 보존)
+- **generate-reply.test.ts** — 4건 (응답+토큰 / SDK 호출 인자 (objectContaining) / text block 부재 메시지 / SDK 에러 래핑)
+
+### 3. 사후 리뷰 11 fix (PR #37 동봉)
+
+병렬 2-agent (security-reviewer Opus + code-reviewer Sonnet):
+
+**Security (MED 3 + LOW 2)**:
+
+- M-1 storeName 인젝션 → sanitize 추가
+- M-2 recentMessages 길이 상한 → B-2 boundary 위임 명시 주석
+- M-3 SDK 에러 원문 전파 → 도메인 에러 래핑
+- L-1 마지막 메시지 inbound 선제조건 → 주석 명시
+- L-3 인젝션 회귀 테스트 추가
+
+**Code (HIGH 2 + MED 4 + LOW 2)**:
+
+- H-1 lazy require 주석/구현 불일치 → top-level import 유지 + 주석 정정 (vitest.setup이 env stub 선제 공급으로 안전)
+- H-2 type narrowing 중복 → 의도 주석 (SDK 한계)
+- M-1 `.rejects.toThrow()` 메시지 검증 → "text block 없음" 메시지 명시
+- M-2 MAX_TOKENS 근거 → 주석 추가
+- M-3 5개 언어 라벨 매칭 강화 → Record 누락 회귀 방어
+- M-4 tokensUsed 네이밍 의도 주석
+- L-1 cachedClient 격리 주석
+- L-2 mock arg 캐스팅 → `expect.objectContaining`
+
+### 4. 통계
+
+- 신규 unit test 12건 (prompt 8 + generate-reply 4)
+- 전체 258 통과 + 31 skipped / tsc clean / lint clean
+- CI validate ✅ + e2e-smoke ✅ + Vercel preview ✅
+- TDD baby-step (L-052) 적용 — RED 확인 후 GREEN
+
+### 5. learnings.md 신규 1건 (L-057)
+
+- L-057: Write/Edit 도구의 character class regex literal 직렬화 손상 → imperative 패턴으로 우회
+
+### 만들지 않은 것 (Not Doing)
+
+- ❌ Server Action / API Route / DB 변경 — Phase B-2
+- ❌ 자동 번역 — Phase B-3
+- ❌ RAG / pgvector / FAQ — Phase B-4
+- ❌ E2E 시나리오 — Phase B-5
+- ❌ Meta App Test User / Webhook / App Review — 베타·출시 시점에 처리
 
 ## 이번 세션 완료 (2026-05-05 — 옵션 C 풀 세션, 2 PR 머지)
 
