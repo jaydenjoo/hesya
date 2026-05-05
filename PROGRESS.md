@@ -4,14 +4,14 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **워크플로우 인프라 개선 완료** + **Epic 1B-Tone Phase 2-A 머지 완료** (auto-merge 라벨 첫 동작 ✅)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone Phase 1 (4탭) ✅ + **1B-Tone Phase 2-A (verification pill + 이유 보기) ✅** → **다음**: P2-B (매장 톤 학습)
-- **Task**: 1A ✅ / 1B B-1~B-4c ✅ / 1B-UI A-1~A-4 ✅ / 1B-Tone 1~4 ✅ / **워크플로우 A-1 (CI 병렬화+Playwright cache) ✅** / **워크플로우 A-2 (auto-merge.yml + 라벨) ✅** / **1B-Tone P2-A ✅**
-- **상태**: 사장이 4 tone 중 선택 + 톤 self-check pill 표시 가능. PR #56 머지 검증 결과 auto-merge 라벨 + workflow_run 트리거 정상 동작 (validate + e2e-smoke + Vercel + Vercel Preview Comments 모두 SUCCESS → squash merge `6730140` + 브랜치 자동 삭제). 차단 요소 없음.
-- **작업 브랜치**: `main` (Phase 2-A 머지 + 작업 브랜치 자동 삭제 완료). origin 동기화 ✅.
+- **Phase**: Phase 1 — **워크플로우 인프라 개선 완료** + **Epic 1B-Tone Phase 2-A/2-B 머지 완료** (auto-merge 라벨 2회 검증 ✅)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone Phase 1 (4탭) ✅ + 1B-Tone Phase 2-A ✅ + **1B-Tone Phase 2-B (매장 톤 학습) ✅** → **다음**: Customer 확장 또는 다른 Epic 진입
+- **Task**: 1A ✅ / 1B B-1~B-4c ✅ / 1B-UI A-1~A-4 ✅ / 1B-Tone 1~4 ✅ / **워크플로우 A-1 (CI 병렬화+Playwright cache) ✅** / **워크플로우 A-2 (auto-merge.yml + 라벨) ✅** / **1B-Tone P2-A ✅** / **1B-Tone P2-B (매장 톤 학습 7-step) ✅**
+- **상태**: 사장이 답변 작성 → "🎙️ 내 매장 톤 학습 →" 버튼 클릭 → 매장 어휘/말투 reference 누적 → 다음 AI 답변 4 tone variation에 few-shot 주입. PR #57 머지 검증 결과 auto-merge 라벨 + workflow_run 정상 동작 (validate + e2e-smoke + Vercel 모두 SUCCESS → squash merge `c79081a` + 브랜치 자동 삭제). 차단 요소 없음.
+- **작업 브랜치**: `main` (Phase 2-B 머지 + 작업 브랜치 자동 삭제 완료). origin 동기화 ✅.
 - **최근 main 직접 commit**: `503c16d` (ci 병렬화), `725e437` (auto-merge.yml). 둘 다 인프라 yml 변경 — 정책상 main 직접 push 적용 (코드 회귀 0).
-- **최근 머지된 PR**: [#56](https://github.com/jaydenjoo/hesya/pull/56) Phase 2-A — `auto-merge` 라벨 첫 사용, squash merge `6730140`, 12 신규 테스트, 440/440 + 40 skipped.
-- **prod migration**: `0014_messages_tone_metadata.sql` 적용 완료. P2-A는 metadata jsonb 확장만 → 마이그레이션 불필요.
+- **최근 머지된 PR**: [#57](https://github.com/jaydenjoo/hesya/pull/57) Phase 2-B — `auto-merge` 라벨 2회 사용, squash merge `c79081a`, 26 신규 테스트, 466/466 + 40 skipped.
+- **prod migration**: `0014_messages_tone_metadata.sql` 적용 완료. **`0015_store_tone_examples.sql` 미적용 — Jayden 수동 적용 필요** (drizzle ignores unknown table이라 코드 머지 자체는 회귀 0이지만 P2-B 학습 기능은 prod 미동작).
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -19,17 +19,22 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Epic 1B-Tone Phase 2-B: 매장 톤 학습 (~2~3h, 1 PR)
+### 1. prod migration `0015_store_tone_examples.sql` 수동 적용 (선결, ~5분)
 
-**Phase 2-A로 verification 끝났음. 남은 항목**:
+- Jayden Supabase Dashboard → SQL Editor → `0015_store_tone_examples.sql` 실행
+- 검증: `list_tables` `store_tone_examples` 존재 + RLS 적용 + advisor 클린
 
-- 새 테이블 `store_tone_examples` 마이그레이션 (`0015_store_tone_examples.sql`) — RLS + index
-- DAL `insertToneExample`, `listRecentToneExamples`
-- Server Action `learnStoreTone(text)` — Composer 입력 텍스트 학습
-- `generate-reply.ts` system prompt에 tone examples few-shot 주입 (prompt caching 활용)
-- Composer 툴바 우측 "🎙️ 내 매장 톤 학습 →" 버튼 (디자인 ref `inbox-app.jsx` 라인 600)
+### 2. P2-B/P2-A follow-up (선택, 별 PR)
 
-**Synergy**: P2-B 도입 후 P2-A의 `verifications.reason`이 매장 톤 비교 컨텍스트로 자연스럽게 풍부해짐.
+**Security review 잔여**:
+
+- 🟡 S2: `store_tone_examples` per-store row cap (storage growth 방어)
+- 🟢 S3: Sentry full userId → 8자 truncate (cross-cutting, 기존 패턴 통합)
+
+**최적화**:
+
+- 🔵 D6: prompt caching — system을 array of blocks로 리팩 (cache breakpoint, ~30% 비용 절감 추정)
+- 🔵 톤 학습 buffer 축적 시 quality 측정 (실 사용 후 정성 평가)
 
 ### 3. Epic Customer 확장: 고객 정보 풍부화 (~4~6h)
 
@@ -114,6 +119,7 @@ ContextPanel 데이터 확장 (현재 1B 스코프 밖):
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-06 (P2-B 풀 세션) — **Epic 1B-Tone Phase 2-B 매장 톤 학습 완료** (PR #57 squash merge `c79081a`). 7-step 구현 (DB → DAL → Action → Prompt → Trigger → UI → Review). 사후 리뷰 2-agent 병렬 결과 fix 6건 적용 (Sec S1 rate limit 30/h, Code HIGH-2 catch 주석, MEDIUM-1 null 가드, LOW-1 onChange clear, HIGH-1은 message-view key prop 패턴 위임, lint 1 error fix). vitest 466 passed (+26 신규) + 40 skipped. type-check 6/6 + lint Done. auto-merge 라벨 2회 연속 검증 ✅. **prod migration `0015_store_tone_examples.sql` 수동 적용 보류 (Jayden)**.
 - 날짜: 2026-05-06 세션 시작 — **PR #56 자동 머지 검증 ✅** (auto-merge 라벨 + workflow_run 트리거 첫 동작 성공: validate + e2e-smoke + Vercel + Vercel Preview Comments 모두 SUCCESS → squash merge `6730140` + 브랜치 자동 삭제). main + origin/main 완전 동기화. 다음 Task: Phase 2-B 매장 톤 학습.
 - 날짜: 2026-05-05 심야 후속 — **워크플로우 인프라 (CI 병렬화 + Playwright cache + auto-merge.yml) + Epic 1B-Tone Phase 2-A 구현 (PR #56 open with auto-merge 라벨)**. main SHA `725e437`. learnings L-062 (auto-merge silent ignore), L-063 (Playwright cache) 추가.
 - 날짜: 2026-05-05 심야 세션 — **Epic 1B-Tone 시리즈 완료** (PR #52 DB+DAL + #53 Anthropic 4 tone tool use + #54 generate-and-store 저장 + #55 AIAssist 4탭). main SHA `197b5a6`. prod migration `0014_messages_tone_metadata.sql` 수동 적용 완료.
