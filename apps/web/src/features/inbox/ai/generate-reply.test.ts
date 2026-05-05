@@ -11,15 +11,29 @@ vi.mock("@anthropic-ai/sdk", () => ({
 
 import { generateReply } from "./generate-reply";
 
-describe("generateReply", () => {
+// Epic 1B-Tone-2: tool use 패턴으로 4 tone 동시 생성. mock도 tool_use block 반환.
+const TONES_FIXTURE = {
+  warm: "사쿠라님~ 오후 3시 가능합니다 :)",
+  formal: "안녕하십니까. 오후 3시 가능합니다.",
+  short: "네, 15:00 가능.",
+  friendly: "OK! 3시에 봬요!",
+};
+
+describe("generateReply (1B-Tone-2: 4 tone tool use)", () => {
   beforeEach(() => {
     createMock.mockReset();
   });
 
-  it("Anthropic 응답 텍스트 + 토큰 사용량을 반환", async () => {
+  it("tool_use 응답 → tones 4개 + reply(=warm) + 토큰 사용량 반환", async () => {
     createMock.mockResolvedValue({
-      content: [{ type: "text", text: "네, 오후 3시 가능합니다." }],
-      usage: { input_tokens: 120, output_tokens: 40 },
+      content: [
+        {
+          type: "tool_use",
+          name: "generate_tone_variations",
+          input: TONES_FIXTURE,
+        },
+      ],
+      usage: { input_tokens: 120, output_tokens: 80 },
     });
 
     const result = await generateReply({
@@ -28,13 +42,20 @@ describe("generateReply", () => {
       recentMessages: [{ direction: "inbound", text: "오늘 가능?" }],
     });
 
-    expect(result.reply).toBe("네, 오후 3시 가능합니다.");
-    expect(result.tokensUsed).toEqual({ input: 120, output: 40 });
+    expect(result.reply).toBe(TONES_FIXTURE.warm);
+    expect(result.tones).toEqual(TONES_FIXTURE);
+    expect(result.tokensUsed).toEqual({ input: 120, output: 80 });
   });
 
-  it("Sonnet 모델 + buildPrompt 결과 그대로 호출 (system + messages)", async () => {
+  it("Sonnet 모델 + buildPrompt + tool_choice=generate_tone_variations 호출", async () => {
     createMock.mockResolvedValue({
-      content: [{ type: "text", text: "ok" }],
+      content: [
+        {
+          type: "tool_use",
+          name: "generate_tone_variations",
+          input: TONES_FIXTURE,
+        },
+      ],
       usage: { input_tokens: 1, output_tokens: 1 },
     });
 
@@ -44,19 +65,22 @@ describe("generateReply", () => {
       recentMessages: [{ direction: "inbound", text: "단발 가능?" }],
     });
 
-    // expect.objectContaining으로 캐스팅 제거 + 정확한 인자 검증.
     expect(createMock).toHaveBeenCalledWith(
       expect.objectContaining({
         model: "claude-sonnet-4-6",
         system: expect.stringContaining("강남미용실"),
         messages: [{ role: "user", content: "단발 가능?" }],
+        tools: expect.arrayContaining([
+          expect.objectContaining({ name: "generate_tone_variations" }),
+        ]),
+        tool_choice: { type: "tool", name: "generate_tone_variations" },
       }),
     );
   });
 
-  it("응답에 text block이 없으면 'text block 없음' 메시지로 throw", async () => {
+  it("응답에 tool_use block이 없으면 명시 에러로 throw", async () => {
     createMock.mockResolvedValue({
-      content: [],
+      content: [{ type: "text", text: "이건 text block만 있음" }],
       usage: { input_tokens: 1, output_tokens: 0 },
     });
     await expect(
@@ -65,7 +89,27 @@ describe("generateReply", () => {
         customerLanguage: "ko",
         recentMessages: [{ direction: "inbound", text: "hi" }],
       }),
-    ).rejects.toThrow("text block 없음");
+    ).rejects.toThrow(/tool_use block 없음/);
+  });
+
+  it("tool_use input에 tone 필드 누락 시 에러", async () => {
+    createMock.mockResolvedValue({
+      content: [
+        {
+          type: "tool_use",
+          name: "generate_tone_variations",
+          input: { warm: "ok" }, // formal/short/friendly 누락
+        },
+      ],
+      usage: { input_tokens: 1, output_tokens: 1 },
+    });
+    await expect(
+      generateReply({
+        storeName: "X",
+        customerLanguage: "ko",
+        recentMessages: [{ direction: "inbound", text: "hi" }],
+      }),
+    ).rejects.toThrow(/tone 필드 누락/);
   });
 
   it("Anthropic SDK 에러는 도메인 에러로 래핑 (LLM02 키 prefix 누출 방지)", async () => {
