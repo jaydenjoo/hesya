@@ -4,12 +4,13 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Epic 1B-UI 시리즈 완료** ✅ (1A + 1B B-1~B-4 + B 사후 follow-up + C-light + 1B-UI 4 PR)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI (3-col 골조 + ThreadRow + MessageBubble + ContextPanel) ✅ → **다음**: Epic 1B-Tone (AIAssist 톤 4탭 + 백엔드) 또는 Customer 확장 Epic
-- **Task**: 1A Phase A~J ✅ / 1B B-1~B-4c ✅ / B-4 followup(C-1+C-2) ✅ / B-4 followup-2(orphan + Sentry storeId) ✅ / C-light(integration 시나리오 3) ✅ / 1B-UI A-1~A-4 ✅ (A-3b는 Epic 1B-Tone으로 분리)
-- **상태**: 1B 백엔드(RAG + FAQ) + 1B-UI(3-col 인박스) 모두 완성. 사장은 `/store/inbox`에서 채널 아이콘 + avatar + 시간 + unread badge 갖춘 ThreadList, hesya tone bubble, ContextPanel 4탭(Info/History/Notes/Risk)을 본다. 차단 요소 없음.
+- **Phase**: Phase 1 — **Epic 1B-Tone 시리즈 완료** ✅ (1A + 1B B-1~B-4 + B 사후 follow-up + C-light + 1B-UI 4 PR + **1B-Tone 4 PR**)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone (DB metadata + 4 tone tool use + 저장 + UI 4탭) ✅ → **다음**: Customer 확장 Epic 또는 톤 검증 pill / "이유 보기" / "매장 톤 학습"
+- **Task**: 1A Phase A~J ✅ / 1B B-1~B-4c ✅ / B-4 followup(C-1+C-2) ✅ / B-4 followup-2(orphan + Sentry storeId) ✅ / C-light(integration 시나리오 3) ✅ / 1B-UI A-1~A-4 ✅ / **1B-Tone 1~4 ✅** (DB metadata + Anthropic 4 tone tool use + generate-and-store-reply 저장 + AIAssist 4탭 활성화)
+- **상태**: 사장이 `/store/inbox`에서 AIAssist의 4 tone(따뜻하게/공식적으로/짧게/매장 톤으로) 중 선택해 즉시 발송 가능. 1A/1B 기존 메시지(metadata.tones 없음)는 originalText fallback으로 무손실 호환. 차단 요소 없음.
 - **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **최근 PR (이번 세션 7건)**: [#45](https://github.com/jaydenjoo/hesya/pull/45) B-4 followup, [#46](https://github.com/jaydenjoo/hesya/pull/46) B-4 followup-2, [#47](https://github.com/jaydenjoo/hesya/pull/47) C-light, [#48](https://github.com/jaydenjoo/hesya/pull/48) A-1, [#49](https://github.com/jaydenjoo/hesya/pull/49) A-2, [#50](https://github.com/jaydenjoo/hesya/pull/50) A-3a, [#51](https://github.com/jaydenjoo/hesya/pull/51) A-4. main 최신 SHA `fd662e9`.
+- **최근 PR (1B-Tone 4건)**: [#52](https://github.com/jaydenjoo/hesya/pull/52) 1B-Tone-1 (DB+DAL), [#53](https://github.com/jaydenjoo/hesya/pull/53) 1B-Tone-2 (Anthropic tool use), [#54](https://github.com/jaydenjoo/hesya/pull/54) 1B-Tone-3 (저장), [#55](https://github.com/jaydenjoo/hesya/pull/55) 1B-Tone-4 (UI 4탭). main 최신 SHA `197b5a6`.
+- **prod migration**: `0014_messages_tone_metadata.sql` (nullable jsonb metadata 컬럼) — Jayden이 머지 전 Supabase Studio 수동 적용 완료 (nullable + drizzle ignores unknown 덕에 순서 무관 안전).
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -17,23 +18,17 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Epic 1B-Tone: AIAssist 톤 4탭 + 매장 톤 학습 (권장, ~3~4h, 백엔드+UI)
+### 1. Epic 1B-Tone Phase 2 (선택, ~2~3h) — 톤 검증 pill / "이유 보기" / "매장 톤 학습"
 
-**디자인 ref 패턴** (`docs/design/reference/inbox-app.jsx` AIAssist):
+**디자인 ref 패턴** (`docs/design/reference/inbox-app.jsx` AIAssist) 중 미적용 항목:
 
-- warm / formal / short / friendly 4 tone 탭
-- 톤 검증 pill ("따뜻한 톤 유지" / "약간 사무적인 톤")
-- "이유 보기" 팝업
-- "내 매장 톤 학습" 버튼
+- 톤 검증 pill ("따뜻한 톤 유지" / "약간 사무적인 톤") — 생성 결과 self-check
+- "이유 보기" 팝업 — 왜 이 톤·문구를 골랐는지 explain
+- "내 매장 톤 학습" 버튼 — 사장이 직접 보낸 메시지를 few-shot 예시에 추가
 
-**구현 전략 (2026-05 검증 결과 기반)**:
+**구현 노트**: Phase 1(1B-Tone-1~4)이 metadata 인프라를 마련했으므로 metadata에 reasoning/validations 추가 + UI 노출만 하면 됨.
 
-- Claude API **Structured Outputs GA** (Sonnet/Opus/Haiku 4.5/4.7) → 단일 호출 + JSON schema array로 4 tone 동시 생성
-- **Prompt caching** (cache read 90% 절감) → system prompt + few-shot 캐싱으로 비용 최소화
-- 예상 비용: 단일 generate 대비 +30~50% (output 토큰만 4배, input은 거의 무료)
-- 변경 파일: `generate-reply.ts` 시그니처 변경 + `generate-and-store-reply.ts` 갈아끼움 + `ai-assist.tsx` 4탭 활성화
-
-### 2. Epic Customer 확장: 고객 정보 풍부화 (~4~6h)
+### 2. Epic Customer 확장: 고객 정보 풍부화 (권장 다음, ~4~6h)
 
 ContextPanel 데이터 확장 (현재 1B 스코프 밖):
 
@@ -116,10 +111,52 @@ ContextPanel 데이터 확장 (현재 1B 스코프 밖):
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-05 심야 세션 — **Epic 1B-Tone 시리즈 완료** (PR #52 DB+DAL + #53 Anthropic 4 tone tool use + #54 generate-and-store 저장 + #55 AIAssist 4탭). main SHA `197b5a6`. prod migration `0014_messages_tone_metadata.sql` 수동 적용 완료.
 - 날짜: 2026-05-05 후반 세션 — **Epic 1B-UI 시리즈 완료** (PR #48 골조 + #49 ThreadRow + #50 MessageBubble/Header + #51 ContextPanel) + **B-4 followup-2** (PR #46) + **C-light** (PR #47)
 - 날짜: 2026-05-05 late night+ — **B-4 followup 흡수** (PR #45: countStoreKnowledge DAL + advisory lock TOCTOU 차단 + lock_timeout)
 - 날짜: 2026-05-05 late night — **Epic 1B Phase B-4 RAG 시리즈 완료** (PR #42 pgvector + #43 검색 주입 + #44 CRUD UI)
 - 날짜: 2026-05-05 night — **Epic 1B Phase B-3c 완료** (PR #41, Sec HIGH 1 + Code MEDIUM 4 + 운영 안전 fix)
+
+## 이번 세션 완료 (2026-05-05 심야 — Epic 1B-Tone 시리즈 4 PR)
+
+### 1. DB 스키마 + DAL (PR #52, 1B-Tone-1)
+
+- 마이그레이션 `0014_messages_tone_metadata.sql` — `messages.metadata` jsonb (nullable) 추가
+- `MessageMetadata` 타입: `{ tones?: { warm: string; formal: string; short: string; friendly: string } }`
+- `insertMessage` DAL 시그니처 확장 — `metadata?: MessageMetadata` 옵셔널
+- prod 수동 적용: nullable + drizzle ignores unknown → 머지 전후 순서 무관 안전
+
+### 2. Anthropic 4 톤 동시 생성 (PR #53, 1B-Tone-2)
+
+- `generate-reply.ts` rewrite → `tool_choice: { type: "tool", name: "generate_tone_variations" }` 강제 호출
+- MAX_TOKENS 600 → 1500 (4 tone output 4배)
+- `Tones` 타입 + `isValidTones` 타입 가드 export
+- `GenerateReplyOutput.tones`는 옵셔널 (caller backward compat)
+- 프롬프트 캐싱 + tool use 패턴으로 단일 generate 대비 +30~50% 비용
+
+### 3. metadata.tones 저장 (PR #54, 1B-Tone-3)
+
+- `generate-and-store-reply.ts` 조건부 spread:
+  ```ts
+  ...(result.tones ? { metadata: { tones: result.tones } } : {})
+  ```
+- 1A/1B 호환: tones 없으면 metadata도 없음
+
+### 4. UI 4탭 활성화 (PR #55, 1B-Tone-4)
+
+- `schema.ts`: `TONE_VALUES` enum + `acceptAiDraftInputSchema.tone` 옵셔널
+- `accept-ai-draft.ts`: `tone` 파라미터 추가, `metadata.tones[tone]` 우선 / `originalText` fallback
+- `AIAssist`: `tones?: Tones` prop, 4탭 UI (role=tablist + aria-selected), `useState<Tone>("warm")`, 탭 클릭 즉시 텍스트 전환, `onAcceptAsIs(activeTone)`
+- `message-view.tsx`: `tones={aiDraft.metadata?.tones}` 전달, `hasTones` gate로 tone 조건부 송신
+- 테스트: ai-assist +5, accept-ai-draft +3, schema +3 / 429 passed + 40 skipped / tsc 클린
+
+### 5. 백워드 호환 매트릭스
+
+| 시나리오                 | metadata | 발송 텍스트                                 |
+| ------------------------ | -------- | ------------------------------------------- |
+| 1A/1B 기존 (pre-Tone)    | null     | originalText (fallback)                     |
+| 1B-Tone 신규 (sans tone) | tones    | originalText (fallback, 호출자가 tone 생략) |
+| 1B-Tone 신규 (with tone) | tones    | tones[tone]                                 |
 
 ## 이번 세션 완료 (2026-05-05 night — Phase B-3c)
 
