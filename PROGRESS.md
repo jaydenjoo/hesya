@@ -4,32 +4,39 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 진행 중
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A 인프라 + Instagram PoC
-- **Task**: Phase A~H ✅ + Prod v0011 ✅ + **Phase I ✅** → **다음**: Phase J (E2E + 종합 검증, ~1.5h)
-- **상태**: 코어 인프라/DAL/Channel Layer/i18n/Routes/Server Actions/UI 컴포넌트/Pages 완성. main 최신 SHA `bde1eaa`. 차단 요소 없음.
+- **Phase**: Phase 1 — **Epic 1 1A 완료** ✅
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A 인프라 + Instagram PoC ✅ → **다음**: Epic 1B (customers 조인 + AI 응답) 또는 다른 Epic
+- **Task**: Phase A~J ✅ + Prod v0011 ✅. **모든 Task 완료**.
+- **상태**: 코어 인프라/DAL/Channel Layer/i18n/Routes/Server Actions/UI 컴포넌트/Pages/E2E Playwright 인프라 + 시나리오 2개 완성. main 최신 SHA `9b19776`. 차단 요소 없음.
 - **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **이번 세션 PR (6개)**: [#29](https://github.com/jaydenjoo/hesya/pull/29) Phase E i18n → [#30](https://github.com/jaydenjoo/hesya/pull/30) Phase F Routes + 사후 리뷰 6 fix → [#31](https://github.com/jaydenjoo/hesya/pull/31) consistency follow-up (HIGH 1 + MEDIUM 3 + LOW 3) → [#32](https://github.com/jaydenjoo/hesya/pull/32) Phase G + 사후 리뷰 7 fix → [#33](https://github.com/jaydenjoo/hesya/pull/33) Phase H UI 14 컴포넌트 + 사후 리뷰 8 fix + CI 3 fix (turbo.json env) → [#34](https://github.com/jaydenjoo/hesya/pull/34) Phase I Pages 4 파일 + 사후 리뷰 4 fix
+- **이번 세션 PR (8개)**: [#29](https://github.com/jaydenjoo/hesya/pull/29) Phase E i18n → [#30](https://github.com/jaydenjoo/hesya/pull/30) Phase F Routes → [#31](https://github.com/jaydenjoo/hesya/pull/31) consistency follow-up → [#32](https://github.com/jaydenjoo/hesya/pull/32) Phase G → [#33](https://github.com/jaydenjoo/hesya/pull/33) Phase H UI → [#34](https://github.com/jaydenjoo/hesya/pull/34) Phase I Pages → [#35](https://github.com/jaydenjoo/hesya/pull/35) Phase J PR A Playwright 인프라 → [#36](https://github.com/jaydenjoo/hesya/pull/36) Phase J PR B 시나리오 + IG mock + CI e2e job
+- **사후 리뷰 fix 총합**: HIGH 11 + MED 21 + LOW 7 (8개 PR × 2-agent 병렬 리뷰)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Phase J — E2E + 종합 검증 (~1.5h)
+### 1. Epic 1B 진입 또는 다른 Epic 결정
 
-plan § Phase J
+1A 완료. 다음 Epic 결정 필요:
 
-- T37 Playwright E2E (시나리오 1: 인박스 표시 + 한국어 답변 / 시나리오 2: 24h 만료 composer disabled)
-- T38 종합 검증 게이트 (tsc/lint/unit/build × code-reviewer × security-reviewer 최종 패스)
-- T39 PROGRESS + learnings 1A 완료 마감
+- **Epic 1B**: customers 조인 (고객 이름/프로필 표시) + AI 응답 (Anthropic Sonnet)
+- **Epic 1C**: 메시지 큐 (Vercel Queue로 fire-and-forget processInbound 대체)
+- **Epic 1D**: 다채널 (WhatsApp / KakaoTalk / LINE / Messenger 추가)
+- **다른 Epic**: PRD 재검토
 
-### 4. 미진행 follow-up (별 PR 또는 자연 흡수)
+### 2. 1A 외부 의존성 (Epic 외 task)
+
+- **Meta App 발급 + Vercel env 교체**: 현재 stub 값. 실제 OAuth 시작하려면 https://developers.facebook.com 에서 App 발급 후 Vercel env 4개 (`IG_APP_ID/IG_APP_SECRET/IG_WEBHOOK_VERIFY_TOKEN/IG_REDIRECT_URI`) 교체. 코드 수정 0.
+- **PostgreSQL service container CI 통합**: Phase J PR B 분리. 실 시나리오를 CI에서 돌리려면 supabase local 또는 PostgreSQL service container + drizzle migration 추가. 현재 e2e-smoke만 CI 통과.
+
+### 3. 미진행 follow-up (Epic 진입 시 흡수 또는 별 PR)
 
 **Senior Engineer 검토 (Epic 1B/1C/1D 진입 시 ADR 동반)**:
 
 - 🔴 채널명 박힌 라우트 → `/api/webhooks/[channel]/route.ts` (Epic 1D, 1A 단일 채널 PoC라 OK)
-- 🔴 fire-and-forget `processInbound` → Vercel Queue (Epic 1C, AI 지연 2~5s)
+- 🔴 fire-and-forget `processInbound` → Vercel Queue (Epic 1C)
 - 🟡 env.ts flat schema → 5채널로 안 확장 (Epic 1D, channelConfigs map 권장)
 - 🟡 module-level adapter → lazy `getAdapter()` Map cache (Epic 1D)
 - 🟢 폴링 endpoint → SSE 마이그레이션 (Phase H follow-up, ~1000 owner 도달 시)
@@ -48,7 +55,7 @@ plan § Phase J
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-05 (Phase E + Phase F Routes + consistency follow-up + **Phase G** 완료, 총 4 PR 머지)
+- 날짜: 2026-05-05 — **Epic 1 1A 완료** (Phase A~J, 8 PR 머지, 사후 리뷰 fix 39건)
 
 ## 이번 세션 완료 (2026-05-05 — 옵션 C 풀 세션, 2 PR 머지)
 

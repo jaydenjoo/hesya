@@ -1796,3 +1796,77 @@ it("upsertCustomer race condition fallback returns null (review HIGH)", async ()
 - 실패 시 "Failed to collect page data" 메시지의 page는 미끼 — 진짜 원인은 env.ts module evaluation.
 
 **연관**: PR #33 Phase H. 1차 fix(ci.yml 추가)·2차 fix(stub 값 통일) 모두 부분 해결만, 3차에서 root(turbo.json)에 도달. 디버깅 비용 ~30분. L-024 "CI dummy env 패턴" 연장 — turbo.json 측면 추가.
+
+### [2026-05-05] L-054 — Phase 단위 PR + 2-agent 병렬 리뷰 = 사후 리뷰 fix 39건 누적 회수
+
+**증상**: Epic 1 1A 8 PR 머지 후 사후 리뷰에서 HIGH 11 + MEDIUM 21 + LOW 7 = 총 39건 fix를 회수. 단일 PR로 묶었다면 리뷰 부담으로 fix 누락 또는 후순위 밀림. Phase 단위 PR + 매 PR 2-agent 병렬 리뷰 (security + code) 후 즉시 fix 머지 패턴이 결함을 빠짐없이 잡아냄.
+
+**원인**: 작은 PR은 리뷰 집중도가 높음. 2-agent는 보안과 코드 품질의 다른 시각을 동시에 제공. fix는 별 PR이 아닌 같은 PR commit으로 흡수하므로 trail이 깔끔.
+
+**규칙** ⭐:
+
+1. **Phase = 1 PR** (L-051 강화). 1.5h~3h 단위 분할. 큰 작업은 PR A/B로 명시 분리.
+2. **매 PR 2-agent 병렬**: security-reviewer (Opus) + code-reviewer (Sonnet). 동일 절대 경로 명시 + 중점 확인 항목 명시 + 결과 형식 (CRITICAL/HIGH/MEDIUM/LOW) 일관.
+3. **fix는 같은 PR commit**: 별 PR 분리 금지. trail 단순화 + reviewer가 PR diff에서 fix 직접 확인 가능.
+4. **차단 vs 권장 명확 구분**: HIGH = 머지 전 fix, MEDIUM = 같은 PR 흡수 권장, LOW = 머지 후 follow-up.
+
+**확인 방법**:
+
+- 1A 8 PR × 평균 5건 fix = ~40건 회수 (실제 39).
+- HIGH는 즉시 차단 효과 (예: PR #34 HIGH 1 = 401/403 영구 폴링 루프 사전 차단, PR #35 HIGH 1 = test-helpers production import 기계적 차단).
+- 단일 거대 PR에서는 차단 작동도 모호 + 회수 누락 가능성 높음.
+
+**연관**: L-049 multi-agent 병렬 사후 리뷰 의무 + L-051 Phase 단위 PR. 1A 전 과정에서 검증된 통합 패턴.
+
+---
+
+### [2026-05-05] L-055 — Vercel preview는 Ignored Build Step으로 가짜 통과 가능 — 첫 실 빌드 시 누적 부채 노출
+
+**증상**: PR #29~#34 모두 Vercel preview가 "Canceled by Ignored Build Step"으로 통과. PR #35 (Playwright 인프라)에서 처음 실 빌드 시도 → IG_APP_ID/IG_APP_SECRET/IG_WEBHOOK_VERIFY_TOKEN/IG_REDIRECT_URI 4개 환경변수 누락 발견. Phase F (#30)에서 env.ts에 추가했으나 Vercel project env에는 한 번도 등록 안 됨 → 첫 실 빌드에서 zod parse 실패.
+
+**원인**: Vercel project의 `ignoreCommand` 또는 git diff 기반 ignore 설정이 대부분 PR을 빌드 skip. 하지만 `apps/web/` 디렉토리 변경이 있는 특정 PR만 빌드 trigger. PR #29~#34은 ignore 패턴에 걸렸고, PR #35의 Playwright 인프라 변경이 처음 build 트리거.
+
+**해결**: Vercel dashboard → Settings → Environment Variables에 4개 추가 (Production + Preview + Development 모두). prod 부재 시 임시로 stub 값 (build 통과 위해). Meta App 발급은 별 task로 분리.
+
+**규칙** ⭐:
+
+1. **새 env 추가 시 4곳 동시 갱신** (L-053 확장): ① `env.ts`, ② `turbo.json` `tasks.build.env`, ③ `.github/workflows/ci.yml`, ④ **Vercel project env (preview + production)**. 4번이 누락되면 dev 머지 후 prod deploy 시점에야 발견.
+2. **Vercel ignoreCommand 신뢰 금지**: "preview pass"가 곧 "build 통과"는 아님. 첫 실 빌드 트리거 시 누적 누락 노출.
+3. **외부 시스템 의존성은 PRD/spec에 명시**: Meta App 발급 + Vercel env 등록 같은 외부 작업은 spec § "외부 의존성" 섹션에 분리. Epic 완료 기준에 포함하지 말고 별도 task.
+
+**확인 방법**:
+
+- PR이 Vercel "Canceled by Ignored Build Step"으로만 통과한다면 의심.
+- 새 env 추가 PR 머지 시 즉시 main에서 cold deploy 시도 → 첫 실 빌드 결과 확인.
+
+**연관**: L-053 turbo.json env 화이트리스트 누락. 이번 학습은 Vercel project env까지 확장.
+
+---
+
+### [2026-05-05] L-056 — Epic 1 1A 완료: Phase 분할 패턴 정량 회수
+
+**증상/관찰**: Epic 1 1A "통합 다국어 인박스 + Instagram PoC" 완료. plan은 Phase A~J (38 Task)를 ~25h로 추정했으나 실제는 사후 리뷰 fix + CI 디버깅 포함 ~30h.
+
+**원인 분석 (시간 분포)**:
+
+| 영역                               | 추정 | 실제 | 비율               |
+| ---------------------------------- | ---- | ---- | ------------------ |
+| 코드 작성 (Phase A~J)              | 25h  | 22h  | 88%                |
+| 사후 리뷰 + fix                    | 0h   | 5h   | 14% (예상 외)      |
+| CI 디버깅 (turbo.json env, Vercel) | 0h   | 2h   | 6% (예상 외)       |
+| Playwright 인프라 (plan은 1.5h)    | 1.5h | 4h   | 167% (인프라 부재) |
+
+**규칙** ⭐:
+
+1. **사후 리뷰 fix 시간 buffer**: plan 시간의 +20% (HIGH/MED 처리 평균).
+2. **Playwright 인프라는 첫 도입 시 4h+** (PostgreSQL CI 통합 제외). plan에 "인프라 부재" 명시.
+3. **CI 디버깅 buffer**: env 추가 PR마다 +30분 (4곳 동기화 + 첫 실 빌드 검증).
+4. **외부 의존성 task는 Epic 완료 기준에서 제외** (Meta App 발급, prod env 교체 등).
+
+**확인 방법**:
+
+- 1A 회수 데이터:
+  - PR 8개, fix 39건, 신규 파일 ~50개, 단위 테스트 246개, e2e smoke 1개.
+  - 코드 통계: TypeScript ~3500 LOC, 단위 테스트 커버리지 ~80% (DAL/route/component/page 분기).
+
+**연관**: 1A 전체. Epic 1B 진입 시 본 데이터 기반 추정 보정.
