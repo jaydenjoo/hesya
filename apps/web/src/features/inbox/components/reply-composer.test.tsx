@@ -48,6 +48,17 @@ describe("ReplyComposer", () => {
     expect(screen.getByRole("textbox")).toHaveAttribute("aria-label", "label");
   });
 
+  it("initialValue prop → textarea가 prefill됨 (B-3b)", () => {
+    render(
+      <ReplyComposer
+        conversationId="conv_1"
+        disabled={false}
+        initialValue="AI 초안 안녕하세요"
+      />,
+    );
+    expect(screen.getByRole("textbox")).toHaveValue("AI 초안 안녕하세요");
+  });
+
   it("sendOutbound 실패 → err.message 노출 없이 일반화 메시지(sendErrorGeneric) 표시", async () => {
     sendOutboundMock.mockRejectedValueOnce(
       new Error("대화를 찾을 수 없습니다"),
