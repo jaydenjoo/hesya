@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Hesya Admin · 매장 KYC 검증</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="admin-chrome.css">
+<link rel="stylesheet" href="admin-kyc.css">
+</head>
+<body>
+<div class="ad-shell" data-screen-label="02 KYC Verification">
+
+  <!-- TOP BAR -->
+  <header class="ad-topbar">
+    <div class="ad-tb-brand">
+      <div class="ad-tb-logo">H</div>
+      <div class="ad-tb-name">Hesya</div>
+      <div class="ad-tb-pill">ADMIN</div>
+    </div>
+    <div class="ad-tb-search">
+      <span class="ic">⌕</span>
+      <input type="text" placeholder="매장 / 사업자번호 / 신청 ID 검색…"/>
+      <span class="kbd">⌘ K</span>
+    </div>
+    <div class="ad-tb-right">
+      <div class="ad-tb-env">
+        <span class="dot"></span>
+        <span>prod · ap-northeast-2 · v2.6.4</span>
+      </div>
+      <button class="ad-bell" aria-label="알림">🔔<span class="badge">11</span></button>
+      <div class="ad-tb-user">
+        <div class="meta">
+          <div class="name">박정민</div>
+          <div class="role">SR · OPS LEAD</div>
+        </div>
+        <div class="av">박</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="ad-sidebar">
+    <div class="ad-sb-section">
+      <div class="ad-sb-label">운영</div>
+      <nav class="ad-nav">
+        <a class="ad-nav-item" href="#"><span class="ic">📊</span><span class="label">대시보드</span></a>
+        <a class="ad-nav-item active" href="#"><span class="ic">🛡</span><span class="label">KYC 검증</span><span class="count urgent">8</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">💳</span><span class="label">결제·정산</span><span class="count">2</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">⚖</span><span class="label">분쟁</span><span class="count">3</span></a>
+      </nav>
+    </div>
+    <div class="ad-sb-section">
+      <div class="ad-sb-label">시스템</div>
+      <nav class="ad-nav">
+        <a class="ad-nav-item" href="#"><span class="ic">🤖</span><span class="label">AI 비용</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">📣</span><span class="label">공지·CS</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">👥</span><span class="label">매장·고객</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">📜</span><span class="label">감사 로그</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">⚙</span><span class="label">시스템 설정</span></a>
+      </nav>
+    </div>
+    <div class="ad-sb-foot">
+      <div class="row"><span>API</span><span class="ok">99.98%</span></div>
+      <div class="row"><span>DB lag</span><span class="ok">12ms</span></div>
+      <div class="row"><span>v2.6.4</span><span>build #4892</span></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="ad-main" style="overflow: hidden;">
+
+    <!-- HEAD -->
+    <div class="kyc-head">
+      <div class="kyc-head-l">
+        <div class="crumb">SHIELD · STORE VERIFICATION</div>
+        <h1>매장 KYC 검증</h1>
+        <div class="kyc-status-row">
+          <div class="kyc-stat-pill active urgent">
+            <span class="ic">📋</span>
+            <span>매뉴얼 검토</span>
+            <span class="v">8</span>
+          </div>
+          <div class="kyc-stat-pill">
+            <span class="ic">✅</span>
+            <span>승인</span>
+            <span class="v">587</span>
+          </div>
+          <div class="kyc-stat-pill">
+            <span class="ic">❌</span>
+            <span>거절</span>
+            <span class="v">23</span>
+          </div>
+          <div class="kyc-stat-pill">
+            <span class="ic">⚠</span>
+            <span>분기 재검증</span>
+            <span class="v">4</span>
+          </div>
+        </div>
+      </div>
+      <div class="kyc-head-r">
+        <div class="kyc-search">
+          <span class="ic">⌕</span>
+          <input type="text" placeholder="매장명 / 사업자번호…"/>
+        </div>
+        <button class="kyc-filter">카테고리: 전체 ▾</button>
+        <button class="kyc-filter">실패 단계: 5 키워드 ▾</button>
+        <button class="kyc-filter">정렬: 우선순위 ▾</button>
+      </div>
+    </div>
+
+    <!-- 3-col body -->
+    <div class="kyc-body">
+
+      <!-- COL 1 — Queue -->
+      <aside class="kyc-queue">
+        <div class="kyc-queue-head">
+          <div class="kyc-queue-title">매뉴얼 검토 대기 · 8</div>
+          <span class="kyc-queue-sort">SLA 임박순 ▾</span>
+        </div>
+        <div class="kyc-queue-list">
+          <div class="kyc-queue-row selected">
+            <div class="kyc-queue-top">
+              <div class="kyc-queue-logo amber">스</div>
+              <div class="kyc-queue-meta">
+                <div class="name">스타일리스타 홍대</div>
+                <div class="sub">567-12-34890 · 신청 14:23</div>
+              </div>
+              <span class="kyc-queue-pri high">HIGH</span>
+            </div>
+            <div class="kyc-pipeline-mini">
+              <span class="kyc-step-mini pass">1</span>
+              <span class="kyc-step-mini pass">2</span>
+              <span class="kyc-step-mini warn">3</span>
+              <span class="kyc-step-mini pass">4</span>
+              <span class="kyc-step-mini fail">5</span>
+              <span class="kyc-step-mini skip">6</span>
+            </div>
+          </div>
+
+          <div class="kyc-queue-row">
+            <div class="kyc-queue-top">
+              <div class="kyc-queue-logo">N</div>
+              <div class="kyc-queue-meta">
+                <div class="name">Nail House 이태원점</div>
+                <div class="sub">214-08-91123 · 신청 13:48</div>
+              </div>
+              <span class="kyc-queue-pri high">HIGH</span>
+            </div>
+            <div class="kyc-pipeline-mini">
+              <span class="kyc-step-mini fail">1</span>
+              <span class="kyc-step-mini pass">2</span>
+              <span class="kyc-step-mini pass">3</span>
+              <span class="kyc-step-mini pass">4</span>
+              <span class="kyc-step-mini pass">5</span>
+              <span class="kyc-step-mini skip">6</span>
+            </div>
+          </div>
+
+          <div class="kyc-queue-row">
+            <div class="kyc-queue-top">
+              <div class="kyc-queue-logo peach">청</div>
+              <div class="kyc-queue-meta">
+                <div class="name">청담 헤어라운지</div>
+                <div class="sub">120-86-44219 · 신청 12:55</div>
+              </div>
+              <span class="kyc-queue-pri mid">MID</span>
+            </div>
+            <div class="kyc-pipeline-mini">
+              <span class="kyc-step-mini pass">1</span>
+              <span class="kyc-step-mini pass">2</span>
+              <span class="kyc-step-mini warn">3</span>
+              <span class="kyc-step-mini pass">4</span>
+              <span class="kyc-step-mini pass">5</span>
+              <span class="kyc-step-mini pass">6</span>
+            </div>
+          </div>
+
+          <div class="kyc-queue-row">
+            <div class="kyc-queue-top">
+              <div class="kyc-queue-logo">B</div>
+              <div class="kyc-queue-meta">
+                <div class="name">Bloom Skin Studio</div>
+                <div class="sub">312-54-77821 · 신청 11:34</div>
+              </div>
+              <span class="kyc-queue-pri mid">MID</span>
+            </div>
+            <div class="kyc-pipeline-mini">
+              <span class="kyc-step-mini pass">1</span>
+              <span class="kyc-step-mini pass">2</span>
+              <span class="kyc-step-mini pass">3</span>
+              <span class="kyc-step-mini warn">4</span>
+              <span class="kyc-step-mini pass">5</span>
+              <span class="kyc-step-mini skip">6</span>
+            </div>
+          </div>
+
+          <div class="kyc-queue-row">
+            <div class="kyc-queue-top">
+              <div class="kyc-queue-logo amber">메</div>
+              <div class="kyc-queue-meta">
+                <div class="name">메이크업 스튜디오 라온</div>
+                <div class="sub">408-22-15670 · 신청 10:12</div>
+              </div>
+              <span class="kyc-queue-pri mid">MID</span>
+            </div>
+            <div class="kyc-pipeline-mini">
+              <span class="kyc-step-mini pass">1</span>
+              <span class="kyc-step-mini pass">2</span>
+              <span class="kyc-step-mini pass">3</span>
+              <span class="kyc-step-mini pass">4</span>
+              <span class="kyc-step-mini warn">5</span>
+              <span class="kyc-step-mini pass">6</span>
+            </div>
+          </div>
+
+          <div class="kyc-queue-row">
+            <div class="kyc-queue-top">
+              <div class="kyc-queue-logo">S</div>
+              <div class="kyc-queue-meta">
+                <div class="name">SOOM Brow Bar 강남</div>
+                <div class="sub">601-32-98342 · 신청 09:48</div>
+              </div>
+              <span class="kyc-queue-pri low">LOW</span>
+            </div>
+            <div class="kyc-pipeline-mini">
+              <span class="kyc-step-mini pass">1</span>
+              <span class="kyc-step-mini pass">2</span>
+              <span class="kyc-step-mini pass">3</span>
+              <span class="kyc-step-mini pass">4</span>
+              <span class="kyc-step-mini pass">5</span>
+              <span class="kyc-step-mini warn">6</span>
+            </div>
+          </div>
+
+          <div class="kyc-queue-row">
+            <div class="kyc-queue-top">
+              <div class="kyc-queue-logo peach">로</div>
+              <div class="kyc-queue-meta">
+                <div class="name">로아 네일 부산</div>
+                <div class="sub">605-44-12087 · 신청 09:14</div>
+              </div>
+              <span class="kyc-queue-pri low">LOW</span>
+            </div>
+            <div class="kyc-pipeline-mini">
+              <span class="kyc-step-mini pass">1</span>
+              <span class="kyc-step-mini pass">2</span>
+              <span class="kyc-step-mini pass">3</span>
+              <span class="kyc-step-mini pass">4</span>
+              <span class="kyc-step-mini warn">5</span>
+              <span class="kyc-step-mini skip">6</span>
+            </div>
+          </div>
+
+          <div class="kyc-queue-row">
+            <div class="kyc-queue-top">
+              <div class="kyc-queue-logo">L</div>
+              <div class="kyc-queue-meta">
+                <div class="name">Lumière Hair Atelier</div>
+                <div class="sub">220-08-66514 · 신청 어제</div>
+              </div>
+              <span class="kyc-queue-pri low">LOW</span>
+            </div>
+            <div class="kyc-pipeline-mini">
+              <span class="kyc-step-mini pass">1</span>
+              <span class="kyc-step-mini pass">2</span>
+              <span class="kyc-step-mini warn">3</span>
+              <span class="kyc-step-mini pass">4</span>
+              <span class="kyc-step-mini pass">5</span>
+              <span class="kyc-step-mini pass">6</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- COL 2 — Dossier -->
+      <section class="kyc-dossier">
+
+        <!-- Hero -->
+        <div class="kyc-hero">
+          <div class="kyc-hero-logo">스</div>
+          <div class="kyc-hero-body">
+            <div class="kyc-hero-row1">
+              <h2>스타일리스타 홍대</h2>
+              <span class="kyc-hero-pill"><span class="dot"></span>검증 진행 중</span>
+            </div>
+            <div class="kyc-hero-meta">
+              <div class="item">
+                <span class="k">사업자번호</span>
+                <span class="v">567-12-34890</span>
+              </div>
+              <div class="item">
+                <span class="k">대표자</span>
+                <span class="v kr">김지영</span>
+              </div>
+              <div class="item">
+                <span class="k">신청일시</span>
+                <span class="v">2026-04-30 09:14</span>
+              </div>
+              <div class="item">
+                <span class="k">신청 IP</span>
+                <span class="v">211.234.×.×</span>
+              </div>
+              <div class="item">
+                <span class="k">카테고리</span>
+                <span class="v kr">헤어</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pipeline -->
+        <div class="kyc-sec-h">
+          <div class="l"><em>PIPELINE</em>검증 단계</div>
+          <div class="r">5단계 자동 + 1단계 선택 · 응답 ~2.4s</div>
+        </div>
+
+        <div class="kyc-pipeline">
+          <article class="kyc-step pass">
+            <div class="kyc-step-num">1</div>
+            <div class="kyc-step-h">STEP 1</div>
+            <div class="kyc-step-title">국세청 진위확인</div>
+            <div class="kyc-step-status">✅ 통과</div>
+            <ul class="kyc-step-list">
+              <li><span class="k">사업자상태</span><span class="v kr">정상</span></li>
+              <li><span class="k">과세유형</span><span class="v kr">일반과세자</span></li>
+              <li><span class="k">개업일</span><span class="v">2018-03-12</span></li>
+              <li><span class="k">응답시간</span><span class="v">0.8s</span></li>
+            </ul>
+          </article>
+
+          <article class="kyc-step pass">
+            <div class="kyc-step-num">2</div>
+            <div class="kyc-step-h">STEP 2</div>
+            <div class="kyc-step-title">LOCALDATA 매칭</div>
+            <div class="kyc-step-status">✅ 통과</div>
+            <ul class="kyc-step-list">
+              <li><span class="k">영업종</span><span class="v kr">일반미용업</span></li>
+              <li><span class="k">신고일</span><span class="v">2018-03-12</span></li>
+              <li><span class="k">영업상태</span><span class="v kr">영업중</span></li>
+              <li><span class="k">소재지</span><span class="v kr">서울 마포구</span></li>
+            </ul>
+          </article>
+
+          <article class="kyc-step warn">
+            <div class="kyc-step-num">3</div>
+            <div class="kyc-step-h">STEP 3</div>
+            <div class="kyc-step-title">카테고리 분류</div>
+            <div class="kyc-step-status">⚠ 검토 필요</div>
+            <ul class="kyc-step-list">
+              <li><span class="k">분류</span><span class="v">hair_general</span></li>
+              <li class="warn"><span class="k">신뢰도</span><span class="v">78%</span></li>
+              <li><span class="k">2순위</span><span class="v">scalp_clinic 21%</span></li>
+              <li><span class="k">모델</span><span class="v">cls-v3.2</span></li>
+            </ul>
+            <div class="kyc-step-foot"><span class="arrow">→</span>매뉴얼 확인 권장 (애매한 경계 케이스)</div>
+          </article>
+
+          <article class="kyc-step pass">
+            <div class="kyc-step-num">4</div>
+            <div class="kyc-step-h">STEP 4</div>
+            <div class="kyc-step-title">약관 자기신고</div>
+            <div class="kyc-step-status">✅ 서명 완료</div>
+            <div class="kyc-attest">
+              <span class="k">마사지 미운영</span><span class="v">✓</span>
+              <span class="k">의료기기 미사용</span><span class="v">✓</span>
+              <span class="k">한방 미운영</span><span class="v">✓</span>
+              <span class="k">반영구·문신 미시술</span><span class="v">✓</span>
+            </div>
+            <div class="kyc-step-foot"><span class="arrow">→</span>전자서명 2026-04-30 09:14</div>
+          </article>
+
+          <article class="kyc-step fail">
+            <div class="kyc-step-num">5</div>
+            <div class="kyc-step-h">STEP 5</div>
+            <div class="kyc-step-title">키워드 스캔</div>
+            <div class="kyc-step-status">❌ 위험 발견</div>
+            <ul class="kyc-step-list">
+              <li class="bad"><span class="k">"두피 LED 케어"</span><span class="v">1회</span></li>
+              <li class="bad"><span class="k">"고주파 트리트먼트"</span><span class="v">1회</span></li>
+              <li><span class="k">스캔 항목</span><span class="v">메뉴 14건</span></li>
+              <li><span class="k">사전 버전</span><span class="v">v2024.11</span></li>
+            </ul>
+            <div class="kyc-step-foot"><span class="arrow">→</span>거절 또는 메뉴 수정 요청</div>
+          </article>
+
+          <article class="kyc-step opt">
+            <div class="kyc-step-num">6</div>
+            <div class="kyc-step-h">STEP 6 · OPTIONAL</div>
+            <div class="kyc-step-title">여성 친화 인증 (선택)</div>
+            <div class="kyc-step-status">⚪ 미등록</div>
+            <p style="font-family: var(--font-body-kr); font-size: 11.5px; color: var(--gray-500); line-height: 1.55; margin: 0 0 4px; letter-spacing:-0.005em;">
+              이 단계는 선택입니다. 통과 여부는 v1.0 KYC에 영향을 주지 않습니다.
+              매장이 자가신고로 5개 항목 중 4개 이상을 충족하면 'Female-Friendly' 배지가 부여됩니다.
+            </p>
+            <button class="kyc-opt-cta">등록 안내 메일 보내기 →</button>
+          </article>
+        </div>
+
+        <!-- Female-Friendly stats tile -->
+        <div class="kyc-sec-h">
+          <div class="l"><em>FEMALE-FRIENDLY</em>인증 현황</div>
+          <div class="r">갱신 14:00 KST</div>
+        </div>
+
+        <div class="kyc-ff-tile">
+          <div class="kyc-ff-tile-h">
+            <div class="t">Female-Friendly 통계</div>
+            <div class="label">PRIVACY-PRESERVING · 자가신고 + 감사로그</div>
+          </div>
+          <div class="kyc-ff-stat">
+            <div class="v">412<span class="small">/ 624</span></div>
+            <div class="l">인증 완료 매장 <span class="pct">66.0%</span></div>
+          </div>
+          <div class="kyc-ff-stat">
+            <div class="v">+18</div>
+            <div class="l">이번 달 신규 인증</div>
+          </div>
+          <div class="kyc-ff-stat">
+            <div class="v">4.92<span class="small">★</span></div>
+            <div class="l">여성 솔로 손님 만족도</div>
+          </div>
+        </div>
+
+        <a class="kyc-ff-link" href="#">
+          <span class="ic">📊</span>
+          <span class="t">Female-Friendly 인증 현황 대시보드 보기</span>
+          <span class="arrow">→</span>
+        </a>
+
+        <!-- Evidence -->
+        <div class="kyc-sec-h">
+          <div class="l"><em>EVIDENCE</em>증빙 검토</div>
+          <div class="r">OCR + 키워드 컨텍스트</div>
+        </div>
+
+        <div class="kyc-evidence">
+          <div class="kyc-ev-card">
+            <div class="kyc-ev-h">영업신고증 OCR</div>
+            <div class="kyc-ev-sub">UPLOADED DOCUMENT · CLICK TO ENLARGE</div>
+
+            <div class="kyc-doc">
+              <div class="kyc-doc-paper">
+                <h4>영업신고증</h4>
+                <div class="row"><span class="k">제 호</span><span>제 2018-마포-1238호</span></div>
+                <div class="row"><span class="k">상호</span><span>스타일리스타 홍대</span></div>
+                <div class="row"><span class="k">대표자</span><span>김 지 영 (生 1986)</span></div>
+                <div class="row"><span class="k">소재지</span><span>서울특별시 마포구 양화로 41길 12, 2F</span></div>
+                <div class="row"><span class="k">영업의 종류</span><span>일반미용업</span></div>
+                <div class="row"><span class="k">신고연월일</span><span>2018年 03月 12日</span></div>
+                <div class="seal">관인</div>
+              </div>
+              <div class="kyc-doc-meta">
+                <span>scan · 1240 × 1754 · 312 KB</span>
+                <span>OCR 신뢰도 96%</span>
+              </div>
+            </div>
+
+            <div class="kyc-match-list">
+              <div class="kyc-match-row">
+                <div class="k">매장명</div>
+                <div class="vals">
+                  <span class="ocr">스타일리스타 홍대</span>
+                  <span class="arr">↔</span>
+                  <span class="sub">스타일리스타 홍대</span>
+                  <span class="ok">✓</span>
+                </div>
+              </div>
+              <div class="kyc-match-row">
+                <div class="k">대표자</div>
+                <div class="vals">
+                  <span class="ocr">김지영</span>
+                  <span class="arr">↔</span>
+                  <span class="sub">김지영</span>
+                  <span class="ok">✓</span>
+                </div>
+              </div>
+              <div class="kyc-match-row">
+                <div class="k">주소</div>
+                <div class="vals">
+                  <span class="ocr">서울 마포구 양화로 41길 12</span>
+                  <span class="arr">↔</span>
+                  <span class="sub">서울 마포구 양화로41길 12, 2F</span>
+                  <span class="ok">✓</span>
+                </div>
+              </div>
+              <div class="kyc-match-row">
+                <div class="k">영업종</div>
+                <div class="vals">
+                  <span class="ocr">일반미용업</span>
+                  <span class="arr">↔</span>
+                  <span class="sub">일반미용업</span>
+                  <span class="ok">✓</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="kyc-score">
+              <span class="l">전체 매칭 점수</span>
+              <span class="v">96%</span>
+            </div>
+          </div>
+
+          <div class="kyc-ev-card">
+            <div class="kyc-ev-h">위험 키워드 컨텍스트</div>
+            <div class="kyc-ev-sub">FLAGGED IN MENU · 2 HITS</div>
+
+            <div class="kyc-kw-list">
+              <div class="kyc-kw-row">
+                <div class="kyc-kw-h">
+                  <span class="kyc-kw-term">두피 LED 케어</span>
+                  <span class="kyc-kw-cat">의료기기 추정</span>
+                </div>
+                <div class="kyc-kw-quote">
+                  "…전문 두피 진단 후, <mark>두피 LED 케어</mark>로 모공을 자극하고 영양을 흡수시킵니다…"
+                </div>
+                <div class="kyc-kw-meta">
+                  <span class="src">메뉴: 프리미엄 두피 클리닉</span>
+                  <span>menu_id: 8412 · ₩88,000</span>
+                </div>
+              </div>
+
+              <div class="kyc-kw-row">
+                <div class="kyc-kw-h">
+                  <span class="kyc-kw-term">고주파 트리트먼트</span>
+                  <span class="kyc-kw-cat">의료기기 추정</span>
+                </div>
+                <div class="kyc-kw-quote">
+                  "…손상된 모발 회복을 위한 <mark>고주파 트리트먼트</mark>로 깊이 영양을 전달합니다…"
+                </div>
+                <div class="kyc-kw-meta">
+                  <span class="src">메뉴: 모발 집중 리페어</span>
+                  <span>menu_id: 8419 · ₩142,000</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 14px; padding: 12px 14px; background: var(--gray-50); border-radius: 6px;">
+              <div style="font-family: var(--font-body-en); font-size: 9.5px; font-weight: 700; letter-spacing: 0.18em; color: var(--gray-500); margin-bottom: 6px;">유사 메뉴 (참고)</div>
+              <div style="font-family: var(--font-body-kr); font-size: 11.5px; color: var(--hesya-navy-900); line-height: 1.55; letter-spacing: -0.005em;">
+                "두피 케어" (안전), "두피 스파" (안전) — 의료기기 단어 없음.<br/>
+                매장에 "LED" / "고주파" 단어 제거를 요청하면 자동 통과 가능.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI proposal -->
+        <div class="kyc-sec-h">
+          <div class="l"><em>AI PROPOSAL</em>운영자 검토용 권장사항</div>
+          <div class="r">claude-sonnet-4.6 · v2.6.4</div>
+        </div>
+
+        <div class="kyc-ai">
+          <div class="ic">AI</div>
+          <div>
+            <div class="kyc-ai-h">AI 권장 — <em>검토 후 운영자가 최종 결정</em></div>
+            <div class="kyc-ai-title">메뉴 수정 요청 후 재제출 받는 것을 권장합니다.</div>
+            <div class="kyc-ai-body">
+              이 매장은 5/6단계 통과로 <strong>의료기기 사용 추정 키워드</strong>가 메뉴 2건에서 발견되었습니다.
+              사업자 진위·약관 서명·OCR 매칭(96%)은 모두 정상이므로,
+              <em>거절보다는</em>매장에 메뉴 표현 수정을 안내한 뒤 재제출을 받는 것이 적절해 보입니다.
+              과거 동일 패턴 12건 중 11건이 메뉴 수정 후 통과되었습니다.
+            </div>
+            <div class="kyc-ai-actions">
+              <button class="kyc-ai-btn primary">📧 메뉴 수정 요청 메일 보내기 →</button>
+              <button class="kyc-ai-btn ghost">📝 거절 사유서 자동 생성</button>
+              <button class="kyc-ai-btn ghost">📋 유사 사례 12건 보기</button>
+            </div>
+            <div class="kyc-ai-foot">생성: 14:24 KST · 토큰 1,842 · 비용 ₩142 · 운영자 결정은 AI 권장과 무관하게 자유</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- COL 3 — Actions -->
+      <aside class="kyc-actions">
+
+        <!-- Action card -->
+        <div class="kyc-act-card">
+          <div class="kyc-act-h">DECISION</div>
+          <div class="kyc-act-title">최종 결정</div>
+          <div class="kyc-act-btns">
+            <button class="kyc-act-btn approve" id="kycApproveBtn">
+              <span class="ic">✓</span>
+              <span class="l">승인</span>
+              <span class="arrow">→</span>
+            </button>
+            <button class="kyc-act-btn modify">
+              <span class="ic">📧</span>
+              <span class="l">메뉴 수정 요청</span>
+              <span class="arrow">→</span>
+            </button>
+            <button class="kyc-act-btn reject">
+              <span class="ic">✕</span>
+              <span class="l">거절</span>
+              <span class="arrow">→</span>
+            </button>
+          </div>
+          <div class="kyc-sla">
+            <div class="kyc-sla-h">
+              <span>현재 SLA</span>
+              <span><strong>36h</strong> / 48h 사용</span>
+            </div>
+            <div class="kyc-sla-bar"><i style="width: 75%;"></i></div>
+          </div>
+        </div>
+
+        <!-- Comments -->
+        <div class="kyc-act-card">
+          <div class="kyc-act-h">INTERNAL COMMENTS</div>
+          <div class="kyc-act-title">내부 코멘트 · 3</div>
+          <div class="kyc-comments">
+            <div class="kyc-comment">
+              <div class="kyc-comment-h">
+                <span class="who">이수진</span>
+                <span class="ts">12:47</span>
+              </div>
+              <div class="kyc-comment-body">
+                <span class="mention">@박정민</span> 키워드 5단계 fail이지만 기타 단계 모두 깨끗해서 거절보다는 수정 요청이 맞을 듯.
+              </div>
+            </div>
+            <div class="kyc-comment">
+              <div class="kyc-comment-h">
+                <span class="who">박정민</span>
+                <span class="ts">13:02</span>
+              </div>
+              <div class="kyc-comment-body">
+                동의. 비슷한 케이스 12건 중 11건 통과 이력 있어요. 메일 템플릿 v2 사용해주세요.
+              </div>
+            </div>
+            <div class="kyc-comment">
+              <div class="kyc-comment-h">
+                <span class="who">김영희</span>
+                <span class="ts">13:48</span>
+              </div>
+              <div class="kyc-comment-body">
+                참고로 같은 대표자(김지영)가 운영하는 청담점도 큐에 있어요. 일관 처리 권장.
+              </div>
+            </div>
+          </div>
+          <div class="kyc-comment-input">
+            <textarea placeholder="@-mention으로 동료 호출 가능…"></textarea>
+            <div class="kyc-comment-foot">
+              <span class="kyc-comment-hint">내부 전용 · 매장에 노출 안 됨</span>
+              <button class="kyc-comment-send">코멘트 추가</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- History -->
+        <div class="kyc-act-card">
+          <div class="kyc-act-h">HISTORY</div>
+          <div class="kyc-act-title">처리 이력</div>
+          <div class="kyc-history">
+            <div class="kyc-hist-item curr">
+              <div class="kyc-hist-h"><strong>박철수</strong> 검토 시작</div>
+              <div class="kyc-hist-ts">2026-04-30 14:23 · 현재</div>
+            </div>
+            <div class="kyc-hist-item warn">
+              <div class="kyc-hist-h"><em>→</em>매뉴얼 검토 큐 이관</div>
+              <div class="kyc-hist-ts">09:14:42</div>
+            </div>
+            <div class="kyc-hist-item fail">
+              <div class="kyc-hist-h">Step 5 · 키워드 위험 감지</div>
+              <div class="kyc-hist-ts">09:14:39</div>
+            </div>
+            <div class="kyc-hist-item warn">
+              <div class="kyc-hist-h">Step 3 · 분류 신뢰도 낮음 (78%)</div>
+              <div class="kyc-hist-ts">09:14:36</div>
+            </div>
+            <div class="kyc-hist-item pass">
+              <div class="kyc-hist-h">Step 4 · 약관 서명 완료</div>
+              <div class="kyc-hist-ts">09:14:31</div>
+            </div>
+            <div class="kyc-hist-item pass">
+              <div class="kyc-hist-h">Step 2 · LOCALDATA 통과</div>
+              <div class="kyc-hist-ts">09:14:28</div>
+            </div>
+            <div class="kyc-hist-item pass">
+              <div class="kyc-hist-h">Step 1 · 국세청 통과</div>
+              <div class="kyc-hist-ts">09:14:25</div>
+            </div>
+            <div class="kyc-hist-item">
+              <div class="kyc-hist-h">신청 접수</div>
+              <div class="kyc-hist-ts">09:14:00</div>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+
+  </main>
+
+  <!-- 2-step confirm modal -->
+  <div class="kyc-modal-bd" id="kycModal">
+    <div class="kyc-modal" role="dialog" aria-modal="true">
+      <div class="kyc-modal-h">
+        <div class="label">CONFIRM · STEP 2 OF 2</div>
+        <h3>이 매장을 승인하시겠어요?</h3>
+        <div class="sub">최종 승인 시 매장에 자동 알림이 발송되고 K-Verified 배지가 부여됩니다. 이 작업은 되돌릴 수 없습니다.</div>
+      </div>
+      <div class="kyc-modal-body">
+        <div class="kyc-modal-list">
+          <div class="kyc-modal-list-h">발생할 변경 사항</div>
+          <ul>
+            <li>매장 verification_status → <code>auto_approved</code></li>
+            <li>한국어 + English 자동 알림 발송 (대표자 김지영)</li>
+            <li>K-Verified 골드 배지 부여 (고객 검색 결과 노출)</li>
+            <li>분기별 재검증 일정 자동 등록 (다음: 2026-07-30)</li>
+            <li>감사 로그 자동 기록 · 이수진 + 박정민에게 알림</li>
+          </ul>
+        </div>
+
+        <div class="kyc-confirm-h">
+          확인을 위해 <strong>매장명을 정확히</strong> 입력해주세요:
+          <span class="kyc-confirm-target">스타일리스타 홍대</span>
+        </div>
+        <input class="kyc-confirm-input" id="kycConfirmInput" placeholder="매장명 입력…" autocomplete="off"/>
+        <div class="kyc-confirm-hint">
+          <span>대소문자·공백 정확히 일치해야 활성화됩니다</span>
+          <span id="kycMatchState"></span>
+        </div>
+      </div>
+      <div class="kyc-modal-foot">
+        <div class="audit">📜 감사 로그 자동 기록 · audit-id 미리 발급 #4893</div>
+        <div class="kyc-modal-btns">
+          <button class="kyc-modal-btn cancel" id="kycCancelBtn">취소</button>
+          <button class="kyc-modal-btn final" id="kycFinalBtn">최종 승인</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  const TARGET = '스타일리스타 홍대';
+  const modal = document.getElementById('kycModal');
+  const openBtn = document.getElementById('kycApproveBtn');
+  const cancelBtn = document.getElementById('kycCancelBtn');
+  const input = document.getElementById('kycConfirmInput');
+  const finalBtn = document.getElementById('kycFinalBtn');
+  const state = document.getElementById('kycMatchState');
+
+  function open() {
+    modal.classList.add('open');
+    setTimeout(() => input.focus(), 220);
+  }
+  function close() {
+    modal.classList.remove('open');
+    input.value = '';
+    input.classList.remove('match');
+    finalBtn.classList.remove('armed');
+    state.textContent = '';
+    state.classList.remove('ok');
+  }
+
+  openBtn?.addEventListener('click', open);
+  cancelBtn?.addEventListener('click', close);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('open')) close();
+  });
+
+  input?.addEventListener('input', () => {
+    if (input.value === TARGET) {
+      input.classList.add('match');
+      finalBtn.classList.add('armed');
+      state.innerHTML = '<span class="ok">✓ 일치</span>';
+    } else {
+      input.classList.remove('match');
+      finalBtn.classList.remove('armed');
+      const len = input.value.length;
+      state.innerHTML = len > 0 ? `${len} / ${TARGET.length}자` : '';
+    }
+  });
+
+  // Queue row click selection
+  document.querySelectorAll('.kyc-queue-row').forEach(row => {
+    row.addEventListener('click', () => {
+      document.querySelectorAll('.kyc-queue-row').forEach(r => r.classList.remove('selected'));
+      row.classList.add('selected');
+    });
+  });
+})();
+</script>
+</body>
+</html>

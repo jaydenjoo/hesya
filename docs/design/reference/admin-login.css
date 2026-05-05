@@ -1,0 +1,586 @@
+/* Hesya Admin Login */
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #fafbfc;
+  color: var(--hesya-navy-900);
+  font-family: var(--font-body-kr);
+  -webkit-font-smoothing: antialiased;
+}
+
+.al-shell {
+  display: grid;
+  grid-template-columns: minmax(480px, 40fr) 60fr;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* ───────── LEFT PANEL — institutional navy ───────── */
+.al-brand {
+  background: var(--hesya-navy-900);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 56px 64px;
+  color: var(--hesya-peach-50);
+}
+
+/* Subtle peach grid pattern */
+.al-brand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(245, 221, 200, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(245, 221, 200, 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  pointer-events: none;
+}
+
+/* Faint amber wash on top corner */
+.al-brand::after {
+  content: "";
+  position: absolute;
+  top: -160px;
+  right: -160px;
+  width: 460px;
+  height: 460px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(232, 169, 122, 0.1) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+.al-brand-top {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1;
+}
+.al-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.al-brand-mark .h {
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--hesya-amber-500);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--hesya-amber-500);
+  letter-spacing: -0.04em;
+}
+.al-brand-mark .name {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: var(--hesya-peach-50);
+}
+.al-brand-pill {
+  font-family: var(--font-body-en);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--hesya-peach-100);
+  background: rgba(245, 221, 200, 0.08);
+  border: 1px solid rgba(245, 221, 200, 0.16);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.al-brand-mid {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.al-brand-tag {
+  font-family: var(--font-body-en);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  color: var(--hesya-amber-500);
+  margin-bottom: 28px;
+}
+
+.al-brand-title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 64px;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--hesya-peach-50);
+  margin-bottom: 4px;
+}
+.al-brand-title .console {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 56px;
+  letter-spacing: -0.03em;
+  color: var(--hesya-amber-500);
+  display: block;
+  margin-top: 4px;
+}
+
+.al-brand-subline {
+  font-family: var(--font-body-kr);
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--hesya-peach-200);
+  line-height: 1.7;
+  margin-top: 28px;
+  max-width: 28ch;
+  letter-spacing: -0.005em;
+}
+.al-brand-subline em {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  color: var(--hesya-peach-100);
+  font-size: 17px;
+  margin-right: 2px;
+}
+
+/* Stats bar */
+.al-brand-stats {
+  position: relative;
+  z-index: 1;
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(245, 221, 200, 0.08);
+  border-top: 1px solid rgba(245, 221, 200, 0.1);
+  border-bottom: 1px solid rgba(245, 221, 200, 0.1);
+  padding: 22px 0;
+  background: transparent;
+}
+.al-stat {
+  padding: 0 4px;
+}
+.al-stat + .al-stat {
+  border-left: 1px solid rgba(245, 221, 200, 0.1);
+  padding-left: 24px;
+}
+.al-stat .v {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 28px;
+  color: var(--hesya-peach-50);
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.al-stat .l {
+  font-family: var(--font-body-kr);
+  font-size: 11.5px;
+  color: var(--hesya-peach-200);
+  margin-top: 8px;
+  opacity: 0.75;
+  letter-spacing: 0;
+}
+
+/* Bottom: amber underline + audit ticker */
+.al-brand-foot {
+  position: relative;
+  z-index: 1;
+}
+.al-amber-rule {
+  width: 56px;
+  height: 1.5px;
+  background: var(--hesya-amber-500);
+  margin-bottom: 16px;
+}
+.al-build {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--hesya-peach-200);
+  letter-spacing: 0;
+  opacity: 0.75;
+  flex-wrap: wrap;
+}
+.al-build .dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #4fae7e;
+}
+.al-build .pulse {
+  animation: al-pulse 2s ease-in-out infinite;
+}
+@keyframes al-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.al-build .sep {
+  color: rgba(245, 221, 200, 0.3);
+}
+
+/* ───────── RIGHT PANEL — gray-50 form area ───────── */
+.al-form-pane {
+  background: #fafbfc;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.al-form-top {
+  padding: 28px 40px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid var(--gray-100);
+}
+.al-region {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--gray-500);
+  padding: 6px 10px;
+  border: 1px solid var(--gray-100);
+  border-radius: 4px;
+  background: #ffffff;
+}
+.al-region .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4fae7e;
+}
+.al-help-link {
+  font-family: var(--font-body-kr);
+  font-size: 12.5px;
+  color: var(--gray-500);
+  text-decoration: none;
+  font-weight: 500;
+}
+.al-help-link:hover {
+  color: var(--hesya-navy-900);
+}
+
+.al-form-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.al-form {
+  width: 100%;
+  max-width: 400px;
+}
+
+.al-form-h {
+  margin-bottom: 32px;
+}
+.al-form-eyebrow {
+  font-family: var(--font-body-en);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--hesya-navy-900);
+  opacity: 0.5;
+  margin-bottom: 12px;
+}
+.al-form-title {
+  font-family: var(--font-body-kr);
+  font-weight: 700;
+  font-size: 32px;
+  color: var(--hesya-navy-900);
+  letter-spacing: -0.022em;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.al-form-subtitle {
+  font-family: var(--font-body-kr);
+  font-size: 14px;
+  color: var(--gray-500);
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+}
+
+.al-field {
+  margin-bottom: 16px;
+}
+.al-field-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--font-body-kr);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--hesya-navy-900);
+  margin-bottom: 6px;
+}
+.al-field-label .hint {
+  font-family: var(--font-body-kr);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--gray-500);
+}
+
+.al-input-wrap {
+  position: relative;
+}
+.al-input {
+  width: 100%;
+  height: 46px;
+  font-family: var(--font-body-kr);
+  font-size: 14px;
+  color: var(--hesya-navy-900);
+  background: #ffffff;
+  border: 1px solid var(--gray-100);
+  border-radius: 6px;
+  padding: 0 14px;
+  outline: none;
+  transition:
+    border-color 0.14s ease,
+    box-shadow 0.14s ease;
+  letter-spacing: -0.005em;
+}
+.al-input::placeholder {
+  color: var(--gray-300);
+  font-weight: 400;
+}
+.al-input:focus {
+  border-color: var(--hesya-navy-900);
+  box-shadow: 0 0 0 3px rgba(26, 34, 56, 0.08);
+}
+.al-input.mono {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.4em;
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+.al-input-with-icon .al-input {
+  padding-left: 44px;
+}
+.al-input-with-icon .ic {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--gray-300);
+  pointer-events: none;
+}
+
+.al-otp-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.al-otp-row .al-input {
+  flex: 1;
+}
+.al-yubi {
+  height: 46px;
+  width: 46px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    border-color 0.14s ease,
+    background 0.14s ease;
+  position: relative;
+}
+.al-yubi:hover {
+  border-color: var(--hesya-navy-900);
+  background: var(--gray-50);
+}
+.al-yubi svg {
+  display: block;
+}
+.al-yubi-tip {
+  position: absolute;
+  right: -2px;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--hesya-amber-500);
+  border: 2px solid #fafbfc;
+}
+
+.al-yubi-cta {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-body-kr);
+  font-size: 11.5px;
+  color: var(--gray-500);
+}
+.al-yubi-cta a {
+  color: var(--hesya-navy-900);
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 1px dotted var(--gray-300);
+  padding-bottom: 1px;
+}
+
+.al-submit {
+  width: 100%;
+  height: 50px;
+  background: var(--hesya-navy-900);
+  color: #ffffff;
+  font-family: var(--font-body-kr);
+  font-weight: 700;
+  font-size: 14.5px;
+  letter-spacing: -0.005em;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition:
+    background 0.14s ease,
+    transform 0.08s ease;
+  position: relative;
+}
+.al-submit:hover {
+  background: #2a3552;
+}
+.al-submit:active {
+  transform: translateY(1px);
+}
+.al-submit .lock {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+/* Audit caption */
+.al-audit {
+  margin-top: 22px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid var(--gray-100);
+  border-radius: 6px;
+  font-family: var(--font-body-kr);
+  font-size: 11.5px;
+  color: var(--gray-500);
+  line-height: 1.65;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.al-audit .ic {
+  font-size: 13px;
+  color: var(--gray-300);
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+.al-audit .body {
+  flex: 1;
+  min-width: 0;
+}
+.al-audit .body strong {
+  color: var(--hesya-navy-900);
+  font-weight: 600;
+}
+.al-audit .meta {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--gray-500);
+  letter-spacing: 0;
+}
+
+/* Compliance footer */
+.al-form-foot {
+  padding: 22px 40px 28px;
+  border-top: 1px solid var(--gray-100);
+}
+.al-badges {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.al-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body-en);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--gray-500);
+}
+.al-badge .ic {
+  font-size: 12px;
+  opacity: 0.85;
+}
+.al-badge.ok .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #4fae7e;
+}
+.al-badge .sep {
+  width: 1px;
+  height: 12px;
+  background: var(--gray-100);
+}
+
+.al-foot-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  font-family: var(--font-body-kr);
+  font-size: 11px;
+  color: var(--gray-500);
+  letter-spacing: 0;
+}
+.al-foot-meta .copy {
+  font-family: var(--font-body-en);
+  letter-spacing: 0.02em;
+}

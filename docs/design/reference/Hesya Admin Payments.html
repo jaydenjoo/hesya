@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Hesya Admin · 결제 & 정산</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="admin-chrome.css">
+<link rel="stylesheet" href="admin-payments.css">
+</head>
+<body>
+<div class="ad-shell" data-screen-label="03 Payments & Settlements">
+
+  <!-- TOP BAR -->
+  <header class="ad-topbar">
+    <div class="ad-tb-brand">
+      <div class="ad-tb-logo">H</div>
+      <div class="ad-tb-name">Hesya</div>
+      <div class="ad-tb-pill">ADMIN</div>
+    </div>
+    <div class="ad-tb-search">
+      <span class="ic">⌕</span>
+      <input type="text" placeholder="거래ID / 매장 / 고객 / 결제수단 검색…"/>
+      <span class="kbd">⌘ K</span>
+    </div>
+    <div class="ad-tb-right">
+      <div class="ad-tb-env">
+        <span class="dot"></span>
+        <span>prod · ap-northeast-2 · v2.6.4</span>
+      </div>
+      <button class="ad-bell" aria-label="알림">🔔<span class="badge">11</span></button>
+      <div class="ad-tb-user">
+        <div class="meta">
+          <div class="name">박정민</div>
+          <div class="role">SR · OPS LEAD</div>
+        </div>
+        <div class="av">박</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="ad-sidebar">
+    <div class="ad-sb-section">
+      <div class="ad-sb-label">운영</div>
+      <nav class="ad-nav">
+        <a class="ad-nav-item" href="Hesya Admin Dashboard.html"><span class="ic">📊</span><span class="label">대시보드</span></a>
+        <a class="ad-nav-item" href="Hesya Admin KYC.html"><span class="ic">🛡</span><span class="label">KYC 검증</span><span class="count urgent">8</span></a>
+        <a class="ad-nav-item active" href="#"><span class="ic">💳</span><span class="label">결제·정산</span><span class="count">2</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">⚖</span><span class="label">분쟁</span><span class="count">3</span></a>
+      </nav>
+    </div>
+    <div class="ad-sb-section">
+      <div class="ad-sb-label">시스템</div>
+      <nav class="ad-nav">
+        <a class="ad-nav-item" href="#"><span class="ic">🤖</span><span class="label">AI 비용</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">📣</span><span class="label">공지·CS</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">👥</span><span class="label">매장·고객</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">📜</span><span class="label">감사 로그</span></a>
+        <a class="ad-nav-item" href="#"><span class="ic">⚙</span><span class="label">시스템 설정</span></a>
+      </nav>
+    </div>
+    <div class="ad-sb-foot">
+      <div class="row"><span>API</span><span class="ok">99.98%</span></div>
+      <div class="row"><span>DB lag</span><span class="ok">12ms</span></div>
+      <div class="row"><span>v2.6.4</span><span>build #4892</span></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="ad-main">
+
+    <!-- HEAD -->
+    <div class="pa-head">
+      <div class="pa-head-l">
+        <div class="crumb">VAULT · GMV · PAYOUTS · REFUNDS</div>
+        <h1>결제 & 정산</h1>
+        <div class="sub">실시간 GMV 모니터링 · 매장 정산 처리 · 환불 승인 — 마지막 sync <strong>14:24 KST</strong></div>
+
+        <div class="pa-period-row">
+          <div class="pa-period">
+            <button>오늘</button>
+            <button class="active">이번 주</button>
+            <button>이번 달</button>
+            <button>분기</button>
+            <button>커스텀 ▾</button>
+          </div>
+          <div class="pa-method-chips">
+            <button class="pa-chip active">전체</button>
+            <button class="pa-chip"><span class="pm stripe">S</span>Stripe</button>
+            <button class="pa-chip"><span class="pm alipay">A+</span>Alipay+</button>
+            <button class="pa-chip"><span class="pm wechat">W</span>WeChat Pay</button>
+            <button class="pa-chip"><span class="pm line">L</span>LINE Pay</button>
+            <button class="pa-chip"><span class="pm paypay">P</span>PayPay</button>
+            <button class="pa-chip"><span class="pm union">U</span>UnionPay</button>
+          </div>
+        </div>
+      </div>
+      <div class="pa-head-r">
+        <button class="pa-btn ghost"><span>📥</span>이번 주 정산 내보내기 (CSV)</button>
+        <button class="pa-btn primary"><span>↺</span>새 환불 처리</button>
+      </div>
+    </div>
+
+    <!-- KPI ROW -->
+    <div class="pa-kpi-row">
+      <div class="pa-kpi accent">
+        <div class="pa-kpi-h"><span>이번 달 GMV</span><span class="ic">💎</span></div>
+        <div class="pa-kpi-v"><span class="cur">₩</span>482,000,000</div>
+        <div class="pa-kpi-foot">
+          <span class="pa-kpi-delta up">▲ 34.2%</span>
+          <span>전월 ₩359,180,000</span>
+        </div>
+        <svg class="pa-kpi-spark" viewBox="0 0 240 28" preserveAspectRatio="none">
+          <polyline points="0,22 14,20 28,21 42,18 56,16 70,17 84,14 98,15 112,11 126,12 140,9 154,10 168,7 182,8 196,5 210,6 224,3 240,2" fill="none" stroke="#E8A97A" stroke-width="1.5"/>
+        </svg>
+      </div>
+
+      <div class="pa-kpi">
+        <div class="pa-kpi-h"><span>우리 수수료 (1.5%)</span><span class="ic">🪙</span></div>
+        <div class="pa-kpi-v"><span class="cur">₩</span>7,230,000</div>
+        <div class="pa-kpi-foot">
+          <span class="pa-kpi-delta up">▲ 34.2%</span>
+          <span>실수령 net (VAT 별도)</span>
+        </div>
+        <svg class="pa-kpi-spark" viewBox="0 0 240 28" preserveAspectRatio="none">
+          <polyline points="0,21 14,20 28,18 42,19 56,16 70,17 84,14 98,12 112,13 126,10 140,11 154,8 168,9 182,6 196,7 210,5 224,4 240,3" fill="none" stroke="#1A2238" stroke-width="1.5"/>
+        </svg>
+      </div>
+
+      <div class="pa-kpi due">
+        <div class="pa-kpi-h"><span>미정산 잔액</span><span class="ic">⏳</span></div>
+        <div class="pa-kpi-v"><span class="cur">₩</span>28,400,000</div>
+        <div class="pa-kpi-foot">
+          <span style="font-family:var(--font-body-en); font-size:10px; font-weight:700; letter-spacing:0.18em; color:var(--hesya-navy-900);">D-3</span>
+          <span>다음 정산일 5월 5일 (월) · 156건</span>
+        </div>
+        <svg class="pa-kpi-spark" viewBox="0 0 240 28" preserveAspectRatio="none">
+          <rect x="2" y="14" width="10" height="12" fill="#1A2238" opacity="0.18"/>
+          <rect x="16" y="10" width="10" height="16" fill="#1A2238" opacity="0.22"/>
+          <rect x="30" y="12" width="10" height="14" fill="#1A2238" opacity="0.28"/>
+          <rect x="44" y="8" width="10" height="18" fill="#1A2238" opacity="0.34"/>
+          <rect x="58" y="6" width="10" height="20" fill="#1A2238" opacity="0.4"/>
+          <rect x="72" y="4" width="10" height="22" fill="#1A2238" opacity="0.5"/>
+          <rect x="86" y="2" width="10" height="24" fill="#1A2238" opacity="0.62"/>
+          <rect x="100" y="3" width="10" height="23" fill="#1A2238" opacity="0.7"/>
+          <rect x="114" y="1" width="10" height="25" fill="#1A2238" opacity="0.82"/>
+          <rect x="128" y="0" width="10" height="26" fill="#1A2238"/>
+        </svg>
+      </div>
+
+      <div class="pa-kpi alert">
+        <div class="pa-kpi-h"><span>환불 · 분쟁</span><span class="ic">⚖</span></div>
+        <div class="pa-kpi-v"><span class="cur">₩</span>1,820,000</div>
+        <div class="pa-kpi-foot">
+          <span class="pa-kpi-delta dn">0.4% of GMV</span>
+          <span>환불 28건 · 분쟁 3건 진행 중</span>
+        </div>
+        <svg class="pa-kpi-spark" viewBox="0 0 240 28" preserveAspectRatio="none">
+          <polyline points="0,12 14,14 28,11 42,15 56,13 70,16 84,12 98,18 112,14 126,16 140,11 154,15 168,13 182,17 196,12 210,16 224,14 240,15" fill="none" stroke="#C9483A" stroke-width="1.5"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="pa-body">
+
+      <!-- LEFT — Transactions -->
+      <section class="pa-tx">
+        <div class="pa-tx-head">
+          <div class="pa-tx-h-l">
+            <h2>거래 내역</h2>
+            <span class="sub">2,847 ROWS · 이번 주</span>
+          </div>
+          <div class="pa-tx-h-r">
+            <div class="pa-tx-search">
+              <span class="ic">⌕</span>
+              <input type="text" placeholder="거래ID / 매장 검색…"/>
+            </div>
+            <button class="pa-btn ghost" style="height:30px; font-size:11.5px; padding:0 10px;">필터 ▾</button>
+            <div class="pa-density">
+              <button class="active" title="기본 밀도">≡</button>
+              <button title="콤팩트">☰</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bulk action bar (visible because rows are selected) -->
+        <div class="pa-bulk">
+          <div class="pa-bulk-l">
+            <input type="checkbox" class="pa-cb" checked style="filter: invert(1);"/>
+            <span><span class="pa-bulk-count">3</span> 건 선택됨</span>
+            <span style="opacity:.6">·</span>
+            <span>합계 ₩342,000</span>
+          </div>
+          <div class="pa-bulk-r">
+            <button class="pa-bulk-btn">내보내기</button>
+            <button class="pa-bulk-btn">정산 보류</button>
+            <button class="pa-bulk-btn danger">환불 처리</button>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="pa-tx-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" class="pa-cb"/></th>
+                <th>거래ID</th>
+                <th>결제일시</th>
+                <th>매장</th>
+                <th>고객</th>
+                <th>시술</th>
+                <th>결제수단</th>
+                <th class="num">원화</th>
+                <th class="num">외화</th>
+                <th>상태</th>
+                <th>정산</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="selected">
+                <td><input type="checkbox" class="pa-cb" checked/></td>
+                <td><span class="pa-id">tx_8K3JZQ</span></td>
+                <td><span class="pa-when"><span class="d">04-30</span>14:18</span></td>
+                <td><span class="pa-store"><span class="pa-store-logo amber">스</span>스타일리스타 홍대</span></td>
+                <td><span class="pa-cust"><span class="pa-flag cn">中</span>Chen Jiawei</span></td>
+                <td><span class="pa-svc">컬러 + 클리닉</span></td>
+                <td><span class="pa-pm-tag"><span class="pa-pm-dot wechat"></span>WeChat Pay</span></td>
+                <td><span class="pa-amt">₩142,000</span></td>
+                <td><span class="pa-amt fx">¥732.40</span></td>
+                <td><span class="pa-status paid"><span class="d"></span>결제 완료</span></td>
+                <td><span class="pa-settle pending">D-3 대기</span></td>
+                <td><button class="pa-row-menu">⋯</button></td>
+              </tr>
+
+              <tr>
+                <td><input type="checkbox" class="pa-cb" checked/></td>
+                <td><span class="pa-id">tx_8K3J28</span></td>
+                <td><span class="pa-when"><span class="d">04-30</span>13:54</span></td>
+                <td><span class="pa-store"><span class="pa-store-logo">N</span>Nail House 이태원</span></td>
+                <td><span class="pa-cust"><span class="pa-flag jp"></span>Sato Aoi</span></td>
+                <td><span class="pa-svc">젤네일 풀세트</span></td>
+                <td><span class="pa-pm-tag"><span class="pa-pm-dot paypay"></span>PayPay</span></td>
+                <td><span class="pa-amt">₩88,000</span></td>
+                <td><span class="pa-amt fx">¥9,840</span></td>
+                <td><span class="pa-status paid"><span class="d"></span>결제 완료</span></td>
+                <td><span class="pa-settle pending">D-3 대기</span></td>
+                <td><button class="pa-row-menu">⋯</button></td>
+              </tr>
+
+              <tr>
+                <td><input type="checkbox" class="pa-cb" checked/></td>
+                <td><span class="pa-id">tx_8K3HFY</span></td>
+                <td><span class="pa-when"><span class="d">04-30</span>13:42</span></td>
+                <td><span class="pa-store"><span class="pa-store-logo peach">청</span>청담 헤어라운지</span></td>
+                <td><span class="pa-cust"><span class="pa-flag cn">中</span>Liu Xinyi</span></td>
+                <td><span class="pa-svc">매직스트레이트</span></td>
+                <td><span class="pa-pm-tag"><span class="pa-pm-dot alipay"></span>Alipay+</span></td>
+                <td><span class="pa-amt">₩112,000</span></td>
+                <td><span class="pa-amt fx">¥577.60</span></td>
+                <td><span class="pa-status paid"><span class="d"></span>결제 완료</span></td>
+                <td><span class="pa-settle pending">D-3 대기</span></td>
+                <td><button class="pa-row-menu">⋯</button></td>
+              </tr>
+
+              <tr>
+                <td><input type="checkbox" class="pa-cb"/></td>
+                <td><span class="pa-id">tx_8K3GW1</span></td>
+                <td><span class="pa-when"><span class="d">04-30</span>13:15</span></td>
+                <td><span class="pa-store"><span class="pa-store-logo amber">메</span>메이크업 스튜디오 라온</span></td>
+                <td><span class="pa-cust"><span class="pa-flag tw">台</span>Wang Yu-han</span></td>
+                <td><span class="pa-svc">웨딩 메이크업</span></td>
+                <td><span class="pa-pm-tag"><span class="pa-pm-dot line"></span>LINE Pay</span></td>
+                <td><span class="pa-amt">₩285,000</span></td>
+                <td><span class="pa-amt fx">NT$ 6,840</span></td>
+                <td><span class="pa-status hold"><span class="d"></span>보류</span></td>
+                <td><span class="pa-settle held">검토 필요</span></td>
+                <td><button class="pa-row-menu">⋯</button></td>
+              </tr>
+
+              <tr>
+                <td><input type="checkbox" class="pa-cb"/></td>
+                <td><span class="pa-id">tx_8K3FAU</span></td>
+                <td><span class="pa-when"><span class="d">04-30</span>12:48</span></td>
+                <td><span class="pa-store"><span class="pa-store-logo">B</span>Bloom Skin Studio</span></td>
+                <td><span class="pa-cust"><span class="pa-flag kr">韓</span>김민지</span></td>
+                <td><span class="pa-svc">딥클렌징 페이셜</span></td>
+                <td><span class="pa-pm-tag"><span class="pa-pm-dot stripe"></span>Stripe</span></td>
+                <td><span class="pa-amt">₩72,000</span></td>
+                <td><span class="pa-amt fx">—</span></td>
+                <td><span class="pa-status paid"><span class="d"></span>결제 완료</span></td>
+                <td><span class="pa-settle done">정산 완료</span></td>
+                <td><button class="pa-row-menu">⋯</button></td>
+              </tr>
+
+              <tr>
+                <td><input type="checkbox" class="pa-cb"/></td>
+                <td><span class="pa-id">tx_8K3D9R</span></td>
+                <td><span class="pa-when"><span class="d">04-30</span>11:32</span></td>
+                <td><span class="pa-store"><span class="pa-store-logo">S</span>SOOM Brow Bar 강남</span></td>
+                <td><span class="pa-cust"><span class="pa-flag cn">中</span>Zhao Mengmeng</span></td>
+                <td><span class="pa-svc">반영구 눈썹</span></td>
+                <td><span class="pa-pm-tag"><span class="pa-pm-dot wechat"></span>WeChat Pay</span></td>
+                <td><span class="pa-amt">₩185,000</span></td>
+                <td><span class="pa-amt fx">¥954.20</span></td>
+                <td><span class="pa-status dispute"><span class="d"></span>분쟁</span></td>
+                <td><span class="pa-settle held">홀드</span></td>
+                <td><button class="pa-row-menu">⋯</button></td>
+              </tr>
+
+              <tr>
+                <td><input type="checkbox" class="pa-cb"/></td>
+                <td><span class="pa-id">tx_8K3CJ4</span></td>
+                <td><span class="pa-when"><span class="d">04-30</span>11:09</span></td>
+                <td><span class="pa-store"><span class="pa-store-logo peach">로</span>로아 네일 부산</span></td>
+                <td><span class="pa-cust"><span class="pa-flag jp"></span>Yamada Riko</span></td>
+                <td><span class="pa-svc">아크릴 익스텐션</span></td>
+                <td><span class="pa-pm-tag"><span class="pa-pm-dot paypay"></span>PayPay</span></td>
+                <td><span class="pa-amt">₩94,500</span></td>
+                <td><span class="pa-amt fx">¥10,560</span></td>
+                <td><span class="pa-status refund"><span class="d"></span>환불</span></td>
+                <td><span class="pa-settle done">차감 완료</span></td>
+                <td><button class="pa-row-menu">⋯</button></td>
+              </tr>
+
+              <tr>
+                <td><input type="checkbox" class="pa-cb"/></td>
+                <td><span class="pa-id">tx_8K3BZ7</span></td>
+                <td><span class="pa-when"><span class="d">04-30</span>10:48</span></td>
+                <td><span class="pa-store"><span class="pa-store-logo">L</span>Lumière Hair Atelier</span></td>
+                <td><span class="pa-cust"><span class="pa-flag hk">港</span>Cheung Wing-yi</span></td>
+                <td><span class="pa-svc">발레아쥬 풀</span></td>
+                <td><span class="pa-pm-tag"><span class="pa-pm-dot alipay"></span>Alipay+</span></td>
+                <td><span class="pa-amt">₩356,000</span></td>
+                <td><span class="pa-amt fx">HK$ 2,062</span></td>
+                <td><span class="pa-status paid"><span class="d"></span>결제 완료</span></td>
+                <td><span class="pa-settle pending">D-3 대기</span></td>
+                <td><button class="pa-row-menu">⋯</button></td>
+              </tr>
+
+              <tr>
+                <td><input type="checkbox" class="pa-cb"/></td>
+                <td><span class="pa-id">tx_8K3AP0</span></td>
+                <td><span class="pa-when"><span class="d">04-30</span>10:22</span></td>
+                <td><span class="pa-store"><span class="pa-store-logo amber">스</span>스타일리스타 홍대</span></td>
+                <td><span class="pa-cust"><span class="pa-flag sg">星</span>Tan Hui Min</span></td>
+                <td><span class="pa-svc">두피 스파</span></td>
+                <td><span class="pa-pm-tag"><span class="pa-pm-dot stripe"></span>Stripe</span></td>
+                <td><span class="pa-amt">₩68,000</span></td>
+                <td><span class="pa-amt fx">S$ 73.20</span></td>
+                <td><span class="pa-status paid"><span class="d"></span>결제 완료</span></td>
+                <td><span class="pa-settle pending">D-3 대기</span></td>
+                <td><button class="pa-row-menu">⋯</button></td>
+              </tr>
+
+              <tr>
+                <td><input type="checkbox" class="pa-cb"/></td>
+                <td><span class="pa-id">tx_8K392N</span></td>
+                <td><span class="pa-when"><span class="d">04-30</span>09:48</span></td>
+                <td><span class="pa-store"><span class="pa-store-logo">N</span>Nail House 이태원</span></td>
+                <td><span class="pa-cust"><span class="pa-flag cn">中</span>Wu Xiaoxi</span></td>
+                <td><span class="pa-svc">젤 리무버 + 케어</span></td>
+                <td><span class="pa-pm-tag"><span class="pa-pm-dot union"></span>UnionPay</span></td>
+                <td><span class="pa-amt">₩42,000</span></td>
+                <td><span class="pa-amt fx">¥216.40</span></td>
+                <td><span class="pa-status paid"><span class="d"></span>결제 완료</span></td>
+                <td><span class="pa-settle pending">D-3 대기</span></td>
+                <td><button class="pa-row-menu">⋯</button></td>
+              </tr>
+
+              <tr>
+                <td><input type="checkbox" class="pa-cb"/></td>
+                <td><span class="pa-id">tx_8K388B</span></td>
+                <td><span class="pa-when"><span class="d">04-29</span>20:14</span></td>
+                <td><span class="pa-store"><span class="pa-store-logo peach">청</span>청담 헤어라운지</span></td>
+                <td><span class="pa-cust"><span class="pa-flag jp"></span>Tanaka Mei</span></td>
+                <td><span class="pa-svc">디지털 펌</span></td>
+                <td><span class="pa-pm-tag"><span class="pa-pm-dot line"></span>LINE Pay</span></td>
+                <td><span class="pa-amt">₩168,000</span></td>
+                <td><span class="pa-amt fx">¥18,780</span></td>
+                <td><span class="pa-status paid"><span class="d"></span>결제 완료</span></td>
+                <td><span class="pa-settle pending">D-3 대기</span></td>
+                <td><button class="pa-row-menu">⋯</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pa-pag">
+          <div>표시 1–11 / 2,847 · 정렬 <strong style="color:var(--hesya-navy-900);">최신순</strong></div>
+          <div class="pa-pag-r">
+            <button class="pa-pag-btn" disabled>‹</button>
+            <button class="pa-pag-btn active">1</button>
+            <button class="pa-pag-btn">2</button>
+            <button class="pa-pag-btn">3</button>
+            <button class="pa-pag-btn">…</button>
+            <button class="pa-pag-btn">259</button>
+            <button class="pa-pag-btn">›</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT — Settlement Schedule -->
+      <aside class="pa-rail">
+
+        <!-- Calendar -->
+        <div class="pa-card">
+          <div class="pa-card-h">
+            <h3>이번 주 정산 일정</h3>
+            <span class="lbl">5월 · KST</span>
+          </div>
+          <div class="pa-cal">
+            <div class="pa-cal-dow sun">일</div>
+            <div class="pa-cal-dow">월</div>
+            <div class="pa-cal-dow">화</div>
+            <div class="pa-cal-dow">수</div>
+            <div class="pa-cal-dow">목</div>
+            <div class="pa-cal-dow">금</div>
+            <div class="pa-cal-dow sat">토</div>
+
+            <div class="pa-cal-day muted">27</div>
+            <div class="pa-cal-day muted">28</div>
+            <div class="pa-cal-day muted">29</div>
+            <div class="pa-cal-day today">30</div>
+            <div class="pa-cal-day">1<span class="pa-cal-dot"><i class="amber"></i></span></div>
+            <div class="pa-cal-day">2<span class="pa-cal-dot"><i class="green"></i></span></div>
+            <div class="pa-cal-day muted">3</div>
+
+            <div class="pa-cal-day muted">4</div>
+            <div class="pa-cal-day selected">5<span class="pa-cal-dot"><i class="amber"></i><i class="green"></i><i class="red"></i></span></div>
+            <div class="pa-cal-day">6<span class="pa-cal-dot"><i class="green"></i></span></div>
+            <div class="pa-cal-day">7</div>
+            <div class="pa-cal-day">8<span class="pa-cal-dot"><i class="amber"></i></span></div>
+            <div class="pa-cal-day">9<span class="pa-cal-dot"><i class="green"></i></span></div>
+            <div class="pa-cal-day muted">10</div>
+
+            <div class="pa-cal-day muted">11</div>
+            <div class="pa-cal-day">12<span class="pa-cal-dot"><i class="amber"></i></span></div>
+            <div class="pa-cal-day">13</div>
+            <div class="pa-cal-day">14</div>
+            <div class="pa-cal-day">15<span class="pa-cal-dot"><i class="amber"></i><i class="green"></i></span></div>
+            <div class="pa-cal-day">16<span class="pa-cal-dot"><i class="green"></i></span></div>
+            <div class="pa-cal-day muted">17</div>
+          </div>
+          <div class="pa-cal-legend">
+            <span><i style="background:var(--hesya-amber-500);"></i>예정</span>
+            <span><i style="background:#4FAE7E;"></i>완료</span>
+            <span><i style="background:#C9483A;"></i>홀드</span>
+            <span><i style="background:var(--hesya-peach-100); border:1px solid var(--hesya-peach-200);"></i>오늘</span>
+          </div>
+        </div>
+
+        <!-- Settlement queue -->
+        <div class="pa-card">
+          <div class="pa-card-h">
+            <h3>5월 5일 정산 큐 · 156건</h3>
+            <span class="lbl">D-3 · 09:00 BATCH</span>
+          </div>
+          <div class="pa-q-head">
+            <span style="font-family:var(--font-body-kr); font-size:11.5px; color:var(--gray-500);">총 입금 예정</span>
+            <span class="pa-q-total">₩28,400,000</span>
+          </div>
+
+          <div class="pa-q-list">
+            <div class="pa-q-row">
+              <div class="pa-q-store"><span class="pa-store-logo amber">스</span>스타일리스타 홍대</div>
+              <div class="pa-q-amt">₩2,847,200</div>
+              <div class="pa-q-cap">수수료 차감 후 입금<span class="sep">·</span>32건<span class="sep">·</span>국민 ××-××-1284</div>
+              <div><span class="pa-q-pill ready">READY</span></div>
+            </div>
+
+            <div class="pa-q-row">
+              <div class="pa-q-store"><span class="pa-store-logo">N</span>Nail House 이태원점</div>
+              <div class="pa-q-amt">₩1,654,800</div>
+              <div class="pa-q-cap">수수료 차감 후 입금<span class="sep">·</span>24건<span class="sep">·</span>신한 ××-××-9032</div>
+              <div><span class="pa-q-pill ready">READY</span></div>
+            </div>
+
+            <div class="pa-q-row">
+              <div class="pa-q-store"><span class="pa-store-logo peach">청</span>청담 헤어라운지</div>
+              <div class="pa-q-amt">₩4,123,500</div>
+              <div class="pa-q-cap">수수료 차감 후 입금<span class="sep">·</span>41건<span class="sep">·</span>하나 ××-××-4471</div>
+              <div><span class="pa-q-pill ready">READY</span></div>
+            </div>
+
+            <div class="pa-q-row">
+              <div class="pa-q-store"><span class="pa-store-logo amber">메</span>메이크업 스튜디오 라온</div>
+              <div class="pa-q-amt">₩892,400</div>
+              <div class="pa-q-cap">수수료 차감 후 입금<span class="sep">·</span>9건<span class="sep">·</span>국민 ××-××-7621</div>
+              <div><span class="pa-q-pill review">REVIEW</span></div>
+            </div>
+
+            <div class="pa-q-row">
+              <div class="pa-q-store"><span class="pa-store-logo">B</span>Bloom Skin Studio</div>
+              <div class="pa-q-amt">₩712,000</div>
+              <div class="pa-q-cap">수수료 차감 후 입금<span class="sep">·</span>14건<span class="sep">·</span>우리 ××-××-3309</div>
+              <div><span class="pa-q-pill ready">READY</span></div>
+            </div>
+
+            <div class="pa-q-row">
+              <div class="pa-q-store"><span class="pa-store-logo">S</span>SOOM Brow Bar 강남</div>
+              <div class="pa-q-amt">₩185,000</div>
+              <div class="pa-q-cap">분쟁 1건 진행 중<span class="sep">·</span>입금 보류</div>
+              <div><span class="pa-q-pill held">HELD</span></div>
+            </div>
+
+            <div class="pa-q-row">
+              <div class="pa-q-store" style="color:var(--gray-500); font-weight:500;">+ 외 150개 매장</div>
+              <div class="pa-q-amt" style="color:var(--gray-500);">₩17,985,100</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Proposal -->
+        <div class="pa-prop">
+          <div class="pa-prop-h">PROPOSAL · BATCH OPPORTUNITY</div>
+          <div class="pa-prop-title">💡 이번 주 정산 <em>156건</em>. 한 번에 일괄 처리할까요?</div>
+          <div class="pa-prop-body">
+            모두 자동 검증 통과 + READY 상태입니다. 일괄 처리 시 예상 소요 4분 24초.
+            HELD 1건과 REVIEW 1건은 자동 제외되며, 미리보기에서 최종 확인 후 실행할 수 있어요.
+          </div>
+          <button class="pa-prop-cta">일괄 정산 미리보기 →</button>
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- TRANSACTION DETAIL SHEET -->
+    <div class="pa-sheet-bd open" id="paSheet">
+      <aside class="pa-sheet" role="dialog" aria-modal="false">
+        <div class="pa-sheet-h">
+          <div class="lbl">TRANSACTION</div>
+          <div class="id">tx_8K3JZQ</div>
+          <div class="pa-sheet-h-row">
+            <span class="pa-status paid"><span class="d"></span>결제 완료</span>
+            <span class="pa-sheet-pm"><span class="pm wechat">W</span>WeChat Pay · CN</span>
+            <span style="font-family:var(--font-mono); font-size:10.5px; color:var(--gray-500);">2026-04-30 14:18:42 KST</span>
+          </div>
+          <button class="pa-sheet-close" id="paSheetClose">✕</button>
+        </div>
+
+        <div class="pa-sheet-body">
+
+          <!-- Vertical flow -->
+          <div class="pa-sheet-flow">
+            <div class="pa-flow-row">
+              <div class="pa-flow-ic">스</div>
+              <div class="pa-flow-meta">
+                <div class="lbl">매장</div>
+                <div class="v">스타일리스타 홍대</div>
+              </div>
+            </div>
+            <div class="pa-flow-arr">↓</div>
+            <div class="pa-flow-row cust">
+              <div class="pa-flow-ic">陈</div>
+              <div class="pa-flow-meta">
+                <div class="lbl">고객</div>
+                <div class="v">Chen Jiawei · 陈嘉伟 · 中国</div>
+              </div>
+            </div>
+            <div class="pa-flow-arr">↓</div>
+            <div class="pa-flow-row svc">
+              <div class="pa-flow-ic">✂</div>
+              <div class="pa-flow-meta">
+                <div class="lbl">시술</div>
+                <div class="v">컬러 + 두피 클리닉</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Amount breakdown -->
+          <div class="pa-bd-h"><span>금액 BREAKDOWN</span><span style="font-family:var(--font-mono); color:var(--gray-500);">KRW</span></div>
+          <div class="pa-bd-list">
+            <div class="pa-bd-row">
+              <div class="k">원금<em>service principal</em></div>
+              <div class="v">₩142,000</div>
+            </div>
+            <div class="pa-bd-row fee">
+              <div class="k">Hesya 수수료 (1.5%)<em>platform fee</em></div>
+              <div class="v">−₩2,130</div>
+            </div>
+            <div class="pa-bd-row total">
+              <div class="k" style="font-weight:600; color:var(--hesya-navy-900);">매장 정산 예정</div>
+              <div class="v">₩139,870</div>
+            </div>
+          </div>
+
+          <div class="pa-fx">
+            <span class="k">환율 적용</span>
+            <span>¥732.40 → ₩142,000 @ <strong style="font-weight:600; color:var(--hesya-navy-900);">193.88</strong></span>
+          </div>
+
+          <!-- Provider raw -->
+          <div class="pa-bd-h"><span>PAYMENT PROVIDER · RAW RESPONSE</span><span style="font-family:var(--font-body-en); font-size:9.5px; font-weight:700; color:var(--gray-500); letter-spacing:0.18em;">JSON</span></div>
+          <div class="pa-json open" id="paJson">
+            <div class="pa-json-h" id="paJsonH">
+              <span>wechatpay.transaction.success · 1.4 KB</span>
+              <span class="arr">▸</span>
+            </div>
+            <div class="pa-json-body"><span class="k">"transaction_id"</span>: <span class="s">"4200001847202604301428462931"</span>,
+<span class="k">"out_trade_no"</span>: <span class="s">"hesya_tx_8K3JZQ"</span>,
+<span class="k">"trade_state"</span>: <span class="s">"SUCCESS"</span>,
+<span class="k">"trade_state_desc"</span>: <span class="s">"支付成功"</span>,
+<span class="k">"bank_type"</span>: <span class="s">"OTHERS"</span>,
+<span class="k">"attach"</span>: <span class="s">"booking_2847"</span>,
+<span class="k">"success_time"</span>: <span class="s">"2026-04-30T14:18:42+09:00"</span>,
+<span class="k">"payer"</span>: {
+  <span class="k">"openid"</span>: <span class="s">"oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"</span>
+},
+<span class="k">"amount"</span>: {
+  <span class="k">"total"</span>: <span class="n">73240</span>,
+  <span class="k">"payer_total"</span>: <span class="n">73240</span>,
+  <span class="k">"currency"</span>: <span class="s">"CNY"</span>,
+  <span class="k">"payer_currency"</span>: <span class="s">"CNY"</span>,
+  <span class="k">"exchange_rate"</span>: <span class="n">193.88</span>
+}</div>
+          </div>
+
+          <!-- Refund eligibility -->
+          <div class="pa-refund-elig">
+            <div class="h">REFUND ELIGIBILITY</div>
+            <div class="body">
+              ✓ 환불 가능 — WeChat Pay 정책 상 결제일로부터 180일 이내. <br/>
+              환불 시 매장에서 차감될 금액: <strong>₩139,870</strong> (수수료 환불 포함).
+              실제 입금 환불은 <strong>3–7 영업일</strong> 소요.
+            </div>
+          </div>
+
+          <!-- Audit log -->
+          <div class="pa-bd-h"><span>AUDIT LOG · STATE CHANGES</span><span style="font-family:var(--font-mono); color:var(--gray-500);">audit/8K3JZQ</span></div>
+          <div class="pa-audit">
+            <div class="pa-audit-row">
+              <div class="pa-audit-dot curr"></div>
+              <div class="pa-audit-text">박정민 거래 상세 조회<em>actor: ops</em></div>
+              <div class="pa-audit-ts">14:24:18</div>
+            </div>
+            <div class="pa-audit-row">
+              <div class="pa-audit-dot ok"></div>
+              <div class="pa-audit-text">정산 큐 등록 → <code style="font-family:var(--font-mono); font-size:10px;">payout_pending</code></div>
+              <div class="pa-audit-ts">14:18:48</div>
+            </div>
+            <div class="pa-audit-row">
+              <div class="pa-audit-dot ok"></div>
+              <div class="pa-audit-text">예약 확정 (booking_2847)</div>
+              <div class="pa-audit-ts">14:18:46</div>
+            </div>
+            <div class="pa-audit-row">
+              <div class="pa-audit-dot ok"></div>
+              <div class="pa-audit-text">WeChat Pay 결제 성공<em>193.88 CNY/KRW</em></div>
+              <div class="pa-audit-ts">14:18:42</div>
+            </div>
+            <div class="pa-audit-row">
+              <div class="pa-audit-dot warn"></div>
+              <div class="pa-audit-text">FX 잠금 (15min TTL)</div>
+              <div class="pa-audit-ts">14:18:18</div>
+            </div>
+            <div class="pa-audit-row">
+              <div class="pa-audit-dot"></div>
+              <div class="pa-audit-text">결제 페이지 진입</div>
+              <div class="pa-audit-ts">14:18:08</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="pa-sheet-foot">
+          <button class="pa-sheet-btn">📎 영수증 PDF</button>
+          <button class="pa-sheet-btn">정산 보류</button>
+          <button class="pa-sheet-btn danger" id="paRefundBtn">환불</button>
+        </div>
+      </aside>
+    </div>
+
+    <!-- REFUND MODAL -->
+    <div class="pa-modal-bd" id="paModal">
+      <div class="pa-modal" role="dialog" aria-modal="true">
+        <div class="pa-modal-h">
+          <div class="lbl">CONFIRM · STEP 2 OF 2</div>
+          <h3>이 거래를 환불하시겠어요?</h3>
+          <div class="sub">환불 처리 시 고객 결제 수단으로 즉시 환불 요청이 전송되며, 매장 정산 잔액에서 자동 차감됩니다. 이 작업은 되돌릴 수 없습니다.</div>
+        </div>
+
+        <div class="pa-modal-body">
+
+          <div class="pa-modal-amt">
+            <div class="pa-modal-amt-l">
+              <div class="k">환불 금액</div>
+              <div class="v">₩85,000</div>
+            </div>
+            <div class="pa-modal-amt-r">
+              <div class="pa-toggle">
+                <button class="active">전액</button>
+                <button>부분 환불</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="pa-mod-list">
+            <div class="pa-mod-list-h">발생할 변경 사항</div>
+            <div class="pa-mod-row">
+              <div class="k">매장에서 차감</div>
+              <div class="v" style="color:#C9483A;">−₩83,725</div>
+            </div>
+            <div class="pa-mod-row">
+              <div class="k">Hesya 수수료 환불</div>
+              <div class="v" style="color:#C9483A;">−₩1,275</div>
+            </div>
+            <div class="pa-mod-row">
+              <div class="k">고객 결제 수단으로 환불</div>
+              <div class="v method"><span class="pa-pm-dot wechat" style="display:inline-block;"></span>WeChat Pay <span class="eta">3–7 영업일</span></div>
+            </div>
+            <div class="pa-mod-row">
+              <div class="k">예약 상태</div>
+              <div class="v" style="font-family:var(--font-mono); font-size:11px;"><code>refunded</code></div>
+            </div>
+          </div>
+
+          <div class="pa-reason-h">환불 사유 선택 <span style="color:#C9483A;">*</span></div>
+          <div class="pa-reason-grid">
+            <button class="pa-reason-opt active">
+              <span class="lbl">REASON · 01</span>
+              <span>노쇼</span>
+            </button>
+            <button class="pa-reason-opt">
+              <span class="lbl">REASON · 02</span>
+              <span>매장 사정</span>
+            </button>
+            <button class="pa-reason-opt">
+              <span class="lbl">REASON · 03</span>
+              <span>시술 불만족</span>
+            </button>
+            <button class="pa-reason-opt">
+              <span class="lbl">REASON · 04</span>
+              <span>이중 결제</span>
+            </button>
+            <button class="pa-reason-opt">
+              <span class="lbl">REASON · 05</span>
+              <span>고객 요청</span>
+            </button>
+            <button class="pa-reason-opt">
+              <span class="lbl">REASON · 99</span>
+              <span>기타</span>
+            </button>
+          </div>
+
+          <div class="pa-reason-h" style="margin-top:8px;">매장에 전달할 메모 (선택)</div>
+          <textarea class="pa-memo" placeholder="예: 고객이 약속 시간에 나타나지 않아 노쇼 정책에 따라 환불 처리합니다…"></textarea>
+
+          <div class="pa-confirm-h">
+            확인을 위해 <strong>거래ID를 정확히</strong> 입력해주세요:
+            <span class="pa-confirm-target">tx_8K3JZQ</span>
+          </div>
+          <input class="pa-confirm-input" id="paConfirmInput" placeholder="거래ID 입력…" autocomplete="off"/>
+          <div class="pa-confirm-hint">
+            <span>대소문자 정확히 일치해야 활성화됩니다</span>
+            <span id="paMatchState"></span>
+          </div>
+
+        </div>
+
+        <div class="pa-modal-foot">
+          <div class="audit">📜 audit-id 사전발급 #8217 · 박정민 · 14:24 KST</div>
+          <div class="pa-modal-btns">
+            <button class="pa-modal-btn cancel" id="paCancelBtn">취소</button>
+            <button class="pa-modal-btn final" id="paFinalBtn">환불 처리</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+(function() {
+  // --- Sheet open/close
+  const sheet = document.getElementById('paSheet');
+  const closeBtn = document.getElementById('paSheetClose');
+  closeBtn?.addEventListener('click', () => sheet.classList.remove('open'));
+
+  document.querySelectorAll('.pa-tx-table tbody tr').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('input, button')) return;
+      document.querySelectorAll('.pa-tx-table tbody tr').forEach(r => r.classList.remove('selected'));
+      row.classList.add('selected');
+      sheet.classList.add('open');
+    });
+  });
+
+  // JSON collapse
+  const json = document.getElementById('paJson');
+  document.getElementById('paJsonH')?.addEventListener('click', () => json.classList.toggle('open'));
+
+  // --- Refund modal
+  const TARGET = 'tx_8K3JZQ';
+  const modal = document.getElementById('paModal');
+  const openBtn = document.getElementById('paRefundBtn');
+  const cancelBtn = document.getElementById('paCancelBtn');
+  const input = document.getElementById('paConfirmInput');
+  const finalBtn = document.getElementById('paFinalBtn');
+  const state = document.getElementById('paMatchState');
+
+  function open() {
+    modal.classList.add('open');
+    setTimeout(() => input.focus(), 220);
+  }
+  function close() {
+    modal.classList.remove('open');
+    input.value = '';
+    input.classList.remove('match');
+    finalBtn.classList.remove('armed');
+    state.textContent = '';
+  }
+  openBtn?.addEventListener('click', open);
+  cancelBtn?.addEventListener('click', close);
+  modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (modal.classList.contains('open')) close();
+      else if (sheet.classList.contains('open')) sheet.classList.remove('open');
+    }
+  });
+
+  input?.addEventListener('input', () => {
+    if (input.value === TARGET) {
+      input.classList.add('match');
+      finalBtn.classList.add('armed');
+      state.innerHTML = '<span class="ok">✓ 일치</span>';
+    } else {
+      input.classList.remove('match');
+      finalBtn.classList.remove('armed');
+      const len = input.value.length;
+      state.innerHTML = len > 0 ? `${len} / ${TARGET.length}자` : '';
+    }
+  });
+
+  // Reason taxonomy
+  document.querySelectorAll('.pa-reason-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.pa-reason-opt').forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+    });
+  });
+
+  // Period & chips
+  document.querySelectorAll('.pa-period button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.pa-period button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.pa-method-chips .pa-chip').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.pa-method-chips .pa-chip').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+
+  // Calendar
+  document.querySelectorAll('.pa-cal-day').forEach(d => {
+    d.addEventListener('click', () => {
+      document.querySelectorAll('.pa-cal-day').forEach(x => x.classList.remove('selected'));
+      d.classList.add('selected');
+    });
+  });
+})();
+</script>
+</body>
+</html>
