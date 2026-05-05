@@ -4,12 +4,12 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Epic 1B Phase B-3a 완료** ✅ (1A + 1B B-1, B-2, B-3a 머지)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1 ✅ + B-2 ✅ + B-3a ✅ → **다음**: Phase B-3b (Composer 통합) → B-3c (IG 발송)
-- **Task**: 1A Phase A~J ✅ / 1B B-1 ✅ / B-2 ✅ / B-3a ✅ (자동 번역 모듈 + AI trigger 통합)
-- **상태**: AI inbound→한국어 ai_draft→고객 언어 번역(translatedText) 흐름 완성. ko fallback no-op. 번역 실패 silent skip + Sentry. main 최신 SHA `c56c909`. 차단 요소 없음.
+- **Phase**: Phase 1 — **Epic 1B Phase B-3b 완료** ✅ (1A + 1B B-1, B-2, B-3a, B-3b 머지)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1 ✅ + B-2 ✅ + B-3a ✅ + B-3b ✅ → **다음**: Phase B-3c (IG 발송 트리거)
+- **Task**: 1A Phase A~J ✅ / 1B B-1 ✅ / B-2 ✅ / B-3a ✅ / B-3b ✅ (AIAssist 패널 + Composer prefill + 번역본 표시)
+- **상태**: 사장이 인박스에서 AI 초안을 검수 → '편집 후 보내기'로 입력란 prefill → 수정 후 send 가능. '그대로 보내기'는 B-3c 대기로 disabled. 디자인 ref(`docs/design/reference/`) 영구 보관 + memory 등록. main 최신 SHA `231648b`. 차단 요소 없음.
 - **작업 브랜치**: 모두 머지됨. 다음 세션은 origin/main에서 새 브랜치 분기.
-- **최근 PR**: [#38](https://github.com/jaydenjoo/hesya/pull/38) B-2 (HIGH 4 + MED 4 fix), [#39](https://github.com/jaydenjoo/hesya/pull/39) B-3a (HIGH 1 + MED 6 fix)
+- **최근 PR**: [#38](https://github.com/jaydenjoo/hesya/pull/38) B-2, [#39](https://github.com/jaydenjoo/hesya/pull/39) B-3a, [#40](https://github.com/jaydenjoo/hesya/pull/40) B-3b (HIGH 2 + MEDIUM 4 + LOW 2 fix 흡수)
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -17,22 +17,22 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Epic 1B Phase B-3b 진입 (권장)
-
-**B-3b: Composer UI 통합** (~2~2.5h, 1 PR):
-
-- 인박스 UI에 ai_draft outbound 표시 (`status='ai_draft'` + `translatedText` 동시)
-- 입력란에 한국어 원문 미리 채움 (Q4=A 결정) + 사장 수정 가능
-- "발송" 버튼 → B-3c 트리거 (예약 자리만, 실제 IG send는 B-3c)
-- ai_draft 시각 라벨 (예: "AI 초안" 뱃지)
+### 1. Epic 1B Phase B-3c 진입 (권장)
 
 **B-3c: IG 발송 트리거 + status 'sent' 전환** (~1.5h, 1 PR):
 
 - send-outbound 액션 재사용 또는 신규 액션
 - IG API send + status 'sent' 전환
 - 멱등 (중복 발송 방어)
+- AIAssist `'그대로 보내기'` 버튼 활성화 (`onAcceptAsIs` prop만 다시 연결하면 자동 enabled)
 
-**선행 검증 (B-3b 진입 직전)**: B-2 LOW [L-2] `ai_draft` outbound RLS — 1A 검증 시 application-level 안전 확인 (PROGRESS B-3-pre 분석). messages 정책 추가는 별 follow-up.
+**B-3d 또는 별 Epic 1B-UI: 인박스 전체 재구성** (~4~6h, 별 Epic 권장):
+
+- 디자인 ref 3-col 레이아웃 (ChannelRail + Thread + ContextPanel)
+- 톤 4탭 (warm/formal/short/friendly) + 톤 검증 pill
+- "이유 보기" 팝업, "내 매장 톤 학습" 버튼
+- Shortcuts FAB 키보드 단축키 모달
+- 출처: `docs/design/reference/inbox-app.jsx` 전체 적용
 
 ### 2. 또는 다른 옵션
 
@@ -78,7 +78,65 @@
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-05 night — **Epic 1B Phase B-3a 완료** (PR #39, HIGH 1 + MEDIUM 6 fix)
+- 날짜: 2026-05-05 night — **Epic 1B Phase B-3b 완료** (PR #40, HIGH 2 + MEDIUM 4 + LOW 2 fix) + 디자인 ref 영구 보관
+
+## 이번 세션 완료 (2026-05-05 night — Phase B-3b)
+
+### 1. 디자인 레퍼런스 영구 보관 (`docs/design/reference/`)
+
+- claude.ai/design 출력 zip(80 files) 추출 → 영구 보관소 신설
+- README.md에 통합 정책 + 17 페이지 인덱스 + 단계적 적용 로드맵
+- B-3b는 디자인 토큰 + AIAssist MVP만 도입, 인박스 전체 3-col 재구성은 별 Epic
+- auto-memory 등록 (`hesya_design_reference.md`) → 다음 세션에서 위치 자동 인식
+
+### 2. AIAssist 패널 신규 (`features/inbox/components/ai-assist.tsx`)
+
+- 디자인 ref `.ix-assist*` CSS와 1:1 매핑 (padding 12px 18px, draft 13px/leading-1.65, 버튼 8px 14px)
+- 액션 3개: 그대로 보내기 / 편집 후 보내기 / 거절하고 직접 작성
+- '그대로 보내기'는 `onAcceptAsIs` prop이 undefined면 disabled + tooltip ("다음 단계(B-3c)에서 활성화됩니다") — B-3c에서 prop만 연결하면 자동 활성화
+- 🤖 이모지 aria-hidden + 키보드 접근성 (Tab 순서 + Enter 활성화 테스트)
+- B-3b 미적용 (별 Epic): 톤 4탭, 톤 검증 pill, "이유 보기" 팝업, "내 매장 톤 학습"
+
+### 3. MessageView 통합 (`features/inbox/components/message-view.tsx`)
+
+- 마지막 메시지 = `direction='outbound' + status='ai_draft'` → AIAssist 표시
+- '편집 후 보내기' → ReplyComposer `key` 증가 + `initialValue` prefill로 자동 textarea 채움
+- '거절하고 직접 작성' → AIAssist 사라짐 (dismissed state)
+- 활성 conversation 변경 시 wrapper component + key prop 패턴으로 내부 상태 자동 reset (React 19 `react-hooks/set-state-in-effect` lint 회피)
+- `pickAIDraft` 타입 가드로 narrowing → `originalText: string` 보장 (non-null assertion 제거)
+
+### 4. MessageBubble 강화
+
+- `translatedText` 보조 표시 (border-t pt-1 italic, 🌐 prefix)
+- `status='ai_draft'` 시 'AI 초안' 뱃지 + ring-dashed ring-hesya-amber-500 (디자인 ref 시각 강조)
+
+### 5. 사후 리뷰 8 fix (PR #40 동봉)
+
+**HIGH 2** (디자인 ref 정합):
+
+- AIAssist panel padding `px-4` → `px-[18px]` (디자인 ref `12px 18px` 일치)
+- draft box `kr` 클래스 충돌 해소 → `text-[13px] leading-[1.65] break-keep` (`.kr` line-height 1.8과 디자인 ref 1.65 충돌)
+- eyebrow `text-xs` → `text-[11px]`
+
+**MEDIUM 4**:
+
+- alert() placeholder 제거 → optional prop + disabled 처리 (B-3c 대기 명시)
+- i18n 하드코딩 의도 주석 추가 (사장님 한국어 전용)
+- 키보드 접근성 테스트 4개 추가
+- aiDraft non-null assertion 제거 (타입 가드 narrowing)
+
+**LOW 2**:
+
+- 🤖 이모지 aria-hidden 처리
+- 디자인 ref 매핑 주석 (ai-assist.tsx 헤더에 `.ix-assist` CSS 사양 명시)
+
+### 6. 테스트
+
+- 단위 신규: AIAssist 9건 (기존 5 + 신규 4 — disabled / Tab / Enter / aria-hidden)
+- MessageView 회귀 6건 (AIAssist 표시 조건 + prefill + dismiss)
+- MessageBubble 회귀 4건 (translatedText / ai_draft 뱃지)
+- **315 passed / 39 skipped** / typecheck / lint clean
+- main 최종 SHA `231648b`
 
 ## 이번 세션 완료 (2026-05-05 night — Phase B-3a)
 

@@ -1963,3 +1963,36 @@ Output ONLY the translation. No explanation, no quotes, no notes, no commentary.
 - 운영 모니터링: 2차 LLM 출력에 1차 prompt가 누출되는 패턴 (e.g., system prompt 단어가 출력에 등장) 정기 샘플 검토.
 
 **연관**: PR #39 Phase B-3a. security-reviewer HIGH로 사전 차단. L-058(race-safe claim)과 다른 표면 — race는 동시성, L-059는 LLM-pipeline 데이터 흐름. 함께 chained AI 파이프라인의 generic 방어 패턴 한 쌍 형성. 향후 RAG(B-4) 도입 시 "검색 결과 → LLM 입력" 또한 같은 패턴(외부 데이터 → LLM input) — 동일 framing 적용.
+
+---
+
+### [2026-05-05] L-060 — AI 디자인 출력은 코드베이스에 영구 보관 + memory 등록 필수 (세션 간 일치성 보장)
+
+**증상**: Phase B-3b 진입 시 사용자가 디자인 zip을 첨부하며 "디자인은 첨부파일과 동일해야 되, 만일 기억이 사라졌다면 기억해야되" 강조. claude.ai/design 출력 zip을 일회성으로 풀어서 작업하면 다음 세션·다음 PR에서 동일 디자인을 재현할 수 없음. AI는 stateless라 첨부파일이 컨텍스트에서 사라지면 "어떤 디자인이었는지" 기억 못 함 → 자체 추측으로 다른 디자인 생성 → 일치성 깨짐 → 수동 픽스 사이클 반복.
+
+**원인**: 디자인 시안을 "지시 사항"으로 취급(읽고 구현하면 끝). 하지만 디자인은 **권위 있는 spec** — 코드 변경 시마다 1:1 비교가 필요한 영구 참조 자료. 일회성 첨부파일은 PR/PRD/learnings와 달리 자동 보존되지 않음. memory 시스템에 위치 등록 안 하면 다음 세션 AI가 디자인 ref 존재 자체를 모름.
+
+**해결 (B-3b 채택 패턴)**:
+
+1. **영구 보관소 신설**: `docs/design/reference/` (claude.ai/design zip 80 files 그대로 추출)
+2. **README 인덱스**: 페이지별 jsx/css/html 매핑 표 + 단계적 적용 정책 (현재 Phase에서 어디까지 도입했는지)
+3. **auto-memory 등록**: 위치 + 권위(claude.ai/design 출력) + 변경 정책 (수동 수정 금지, 새 zip 통째 교체) → 다음 세션 AI가 자동 인식
+4. **코드 컴포넌트 헤더 주석에 디자인 ref 매핑**: `출처: docs/design/reference/inbox-app.jsx 라인 249~321 + .ix-assist* (inbox.css)`. CSS 주요 사양(padding/font-size/line-height)을 주석에 그대로 명시 → 향후 변경 시 1:1 비교 자료
+5. **단계적 적용 명시**: "B-3b는 토큰 + AIAssist MVP만, 인박스 3-col 재구성은 별 Epic" — README에 명시 → AI가 미적용 부분을 마음대로 추가하지 않음
+
+**규칙** (별):
+
+1. **AI 디자인 도구(claude.ai/design, v0, Lovable) 출력은 receive 즉시 repo 영구 보관**. 일회성 zip 사용 금지.
+2. **memory 등록 의무**: 위치 + 권위 + 변경 정책. 다음 세션이 위치를 모르면 존재하지 않는 것과 같음.
+3. **README 인덱스 + 단계적 적용 로드맵**: 어떤 페이지가 어떤 파일에 있는지, 현재 Phase에서 어디까지 도입했는지. AI가 미적용 부분 추측 방지.
+4. **컴포넌트 헤더에 디자인 ref 매핑 주석**: 파일/라인/CSS 주요 사양 명시. 디자인 사양이 코드와 같은 곳에 보임 → 변경 시 drift 방지.
+5. **수정은 새 zip 통째 교체로만**: 일부 파일만 수동 수정하면 출처 권위 깨짐. 디자인 변경 시 새 zip 수령 → `docs/design/reference/` 전체 교체.
+6. **재사용 가능 영역**: 디자인뿐 아니라 PRD, API 스펙, 외부 문서 발췌 등 "AI가 권위로 참조해야 하는 외부 문서"는 모두 동일 패턴 적용 — 영구 보관 + memory 등록 + 코드 매핑 주석.
+
+**확인 방법**:
+
+- 코드 리뷰: 디자인 컴포넌트에 디자인 ref 매핑 주석이 있는가? padding/font 등 주요 사양이 명시되었는가?
+- 디자인 일치 검증: 새 PR 생성 시 디자인 ref 파일과 1:1 비교 (code-reviewer 에이전트의 디자인 정합 항목).
+- 다음 세션 검증: 새 세션 시작 시 AI가 "이 프로젝트의 디자인은 `docs/design/reference/`에 있다"고 인식하는지 확인 (memory 등록 효과).
+
+**연관**: PR #40 Phase B-3b. 사용자가 명시적으로 "기억이 사라졌다면 기억해야되"로 요청 → memory 시스템의 본질적 가치(세션 간 stateless AI를 stateful처럼 만드는 layer)를 디자인 영역에 적용. L-058·L-059가 코드 동작/보안 패턴 교훈인 반면, L-060은 AI 협업 인프라 교훈. 향후 PRD·API 스펙·외부 문서 인용이 늘어나면 동일 패턴 자동 적용.
