@@ -27,9 +27,8 @@ export function ReplyComposer({
       try {
         await sendOutbound({ conversationId, text: trimmed });
         setText("");
-      } catch (e) {
-        const reason = e instanceof Error ? e.message : "unknown";
-        setError(t("sendError", { reason }));
+      } catch {
+        setError(t("sendErrorGeneric"));
       }
     });
   }
@@ -40,6 +39,7 @@ export function ReplyComposer({
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder={t("placeholder")}
+        aria-label={t("label")}
         disabled={disabled || isPending}
         rows={3}
         className="resize-none"

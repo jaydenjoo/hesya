@@ -15,7 +15,7 @@ export function ThreadItem({
     <button
       type="button"
       onClick={onClick}
-      aria-current={isActive ? "true" : undefined}
+      aria-current={isActive ? "page" : undefined}
       className="block w-full p-3 text-left hover:bg-accent"
     >
       <p className="truncate text-sm">{conversation.lastMessagePreview}</p>

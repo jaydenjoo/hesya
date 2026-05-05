@@ -29,4 +29,16 @@ describe("ThreadHeader", () => {
     );
     expect(screen.getByText("channelInstagram")).toBeInTheDocument();
   });
+
+  it("알 수 없는 channel → fallback 키(channelUnknown) 사용", () => {
+    render(
+      <ThreadHeader
+        customerName="홍길동"
+        channel="some-future-channel"
+        windowExpiresAt={null}
+      />,
+    );
+    expect(screen.getByText("channelUnknown")).toBeInTheDocument();
+    expect(screen.queryByText("some-future-channel")).not.toBeInTheDocument();
+  });
 });

@@ -1,5 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
+}));
 
 import { MessageBubble } from "./message-bubble";
 import type { Message } from "../types";
@@ -60,5 +64,24 @@ describe("MessageBubble", () => {
     const timeEl = container.querySelector("time");
     expect(timeEl).not.toBeNull();
     expect(timeEl).toHaveAttribute("datetime", created.toISOString());
+  });
+
+  it("status='failed' → 이모지는 aria-hidden, sr-only 라벨 동반", () => {
+    const { container } = render(
+      <MessageBubble message={makeMsg({ status: "failed" })} />,
+    );
+    const emoji = container.querySelector('[aria-hidden="true"]');
+    expect(emoji?.textContent).toContain("⚠️");
+    expect(container.querySelector(".sr-only")?.textContent).toContain(
+      "failedLabel",
+    );
+  });
+
+  it("status≠'failed' → 이모지/sr-only 라벨 모두 없음", () => {
+    const { container } = render(
+      <MessageBubble message={makeMsg({ status: "delivered" })} />,
+    );
+    expect(container.querySelector('[aria-hidden="true"]')).toBeNull();
+    expect(container.querySelector(".sr-only")).toBeNull();
   });
 });

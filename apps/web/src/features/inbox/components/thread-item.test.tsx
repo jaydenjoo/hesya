@@ -41,10 +41,10 @@ describe("ThreadItem", () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it("isActive=true → aria-current attribute", () => {
+  it("isActive=true → aria-current='page'", () => {
     render(
       <ThreadItem conversation={conv} isActive={true} onClick={() => {}} />,
     );
-    expect(screen.getByRole("button")).toHaveAttribute("aria-current", "true");
+    expect(screen.getByRole("button")).toHaveAttribute("aria-current", "page");
   });
 });

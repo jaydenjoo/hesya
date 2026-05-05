@@ -12,12 +12,16 @@
     },
     "thread": {
       "noSelection": "왼쪽에서 대화를 선택하세요",
-      "channelInstagram": "Instagram"
+      "channelInstagram": "Instagram",
+      "channelUnknown": "기타",
+      "failedLabel": "전송 실패"
     },
     "composer": {
       "placeholder": "한국어로 답변을 작성하세요...",
+      "label": "답변 작성",
       "send": "전송",
-      "sendError": "전송 실패: {reason}"
+      "sendError": "전송 실패: {reason}",
+      "sendErrorGeneric": "전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
     },
     "window": {
       "openWithTime": "답변 가능 — {time} 남음",

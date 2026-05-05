@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { Message } from "../types";
 
 const HOUR_MIN_FORMATTER = new Intl.DateTimeFormat(undefined, {
@@ -8,6 +9,7 @@ const HOUR_MIN_FORMATTER = new Intl.DateTimeFormat(undefined, {
 });
 
 export function MessageBubble({ message }: { message: Message }) {
+  const t = useTranslations("Inbox.thread");
   const isOutbound = message.direction === "outbound";
   const isFailed = message.status === "failed";
   const created = message.createdAt ?? new Date();
@@ -30,9 +32,16 @@ export function MessageBubble({ message }: { message: Message }) {
         </p>
         <time
           dateTime={created.toISOString()}
-          className="mt-1 block text-xs opacity-70"
+          className={`mt-1 block text-xs ${
+            isOutbound ? "text-primary-foreground/80" : "text-muted-foreground"
+          }`}
         >
-          {isFailed ? "⚠️ " : ""}
+          {isFailed ? (
+            <>
+              <span aria-hidden="true">⚠️ </span>
+              <span className="sr-only">{t("failedLabel")} </span>
+            </>
+          ) : null}
           {HOUR_MIN_FORMATTER.format(created)}
         </time>
       </div>

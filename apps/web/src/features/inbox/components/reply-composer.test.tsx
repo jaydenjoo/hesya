@@ -42,4 +42,26 @@ describe("ReplyComposer", () => {
     render(<ReplyComposer conversationId="conv_1" disabled={false} />);
     expect(screen.getByRole("button", { name: "send" })).toBeDisabled();
   });
+
+  it("Textarea aria-label 존재 (label 키)", () => {
+    render(<ReplyComposer conversationId="conv_1" disabled={false} />);
+    expect(screen.getByRole("textbox")).toHaveAttribute("aria-label", "label");
+  });
+
+  it("sendOutbound 실패 → err.message 노출 없이 일반화 메시지(sendErrorGeneric) 표시", async () => {
+    sendOutboundMock.mockRejectedValueOnce(
+      new Error("대화를 찾을 수 없습니다"),
+    );
+    render(<ReplyComposer conversationId="conv_1" disabled={false} />);
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: "test" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "send" }));
+    await waitFor(() => {
+      expect(screen.getByText("sendErrorGeneric")).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByText(/대화를 찾을 수 없습니다/),
+    ).not.toBeInTheDocument();
+  });
 });

@@ -12,12 +12,16 @@
     },
     "thread": {
       "noSelection": "Select a conversation from the left",
-      "channelInstagram": "Instagram"
+      "channelInstagram": "Instagram",
+      "channelUnknown": "Other",
+      "failedLabel": "Send failed"
     },
     "composer": {
       "placeholder": "Type your reply in Korean...",
+      "label": "Compose reply",
       "send": "Send",
-      "sendError": "Send failed: {reason}"
+      "sendError": "Send failed: {reason}",
+      "sendErrorGeneric": "Something went wrong. Please try again."
     },
     "window": {
       "openWithTime": "Reply window — {time} remaining",

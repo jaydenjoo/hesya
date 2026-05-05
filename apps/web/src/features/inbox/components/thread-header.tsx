@@ -14,7 +14,8 @@ export function ThreadHeader({
   windowExpiresAt: Date | null;
 }) {
   const t = useTranslations("Inbox.thread");
-  const channelKey = channel === "instagram" ? "channelInstagram" : channel;
+  const channelKey =
+    channel === "instagram" ? "channelInstagram" : "channelUnknown";
 
   return (
     <header className="flex items-center justify-between border-b px-4 py-3">
