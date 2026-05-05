@@ -724,6 +724,55 @@ describe("generateAndStoreReply (B-2)", () => {
     );
   });
 
+  it("Epic 1B-Tone-3: tones 있으면 metadata.tones로 insertMessage 호출", async () => {
+    vi.mocked(findMessageById).mockResolvedValue(baseInbound);
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
+    vi.mocked(getCustomerPreferredLanguage).mockResolvedValue("ko");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    const tones = {
+      warm: "사쿠라님~ 가능합니다 :)",
+      formal: "안녕하십니까. 가능합니다.",
+      short: "네, 가능.",
+      friendly: "네! 가능해요!",
+    };
+    generateReplyMock.mockResolvedValue({
+      reply: tones.warm,
+      tones,
+      tokensUsed: { input: 10, output: 40 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, deps);
+
+    expect(insertMessage).toHaveBeenCalledWith(
+      fakeDb,
+      expect.objectContaining({
+        originalText: tones.warm,
+        metadata: { tones },
+      }),
+    );
+  });
+
+  it("Epic 1B-Tone-3: tones 없으면 metadata 생략 (1A/1B 호환)", async () => {
+    vi.mocked(findMessageById).mockResolvedValue(baseInbound);
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
+    vi.mocked(getCustomerPreferredLanguage).mockResolvedValue("ko");
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    generateReplyMock.mockResolvedValue({
+      reply: "안녕!",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, deps);
+
+    const call = vi.mocked(insertMessage).mock.calls.at(-1);
+    const args = call?.[1] as Record<string, unknown> | undefined;
+    expect(args?.metadata).toBeUndefined();
+  });
+
   it("module exports generateAndStoreReply (pure)", async () => {
     const mod = await import("./generate-and-store-reply");
     expect(typeof mod.generateAndStoreReply).toBe("function");
