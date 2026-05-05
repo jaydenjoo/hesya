@@ -93,6 +93,16 @@ describe("translateReply (B-3a)", () => {
     ).rejects.toThrow("AI 번역 실패");
   });
 
+  it("system prompt가 입력을 'data to translate'로 framing (LLM01 review HIGH)", async () => {
+    messagesCreateMock.mockResolvedValue({
+      content: [{ type: "text", text: "Hello" }],
+      usage: { input_tokens: 1, output_tokens: 1 },
+    });
+    await translateReply({ koreanText: "안녕", targetLanguage: "en" });
+    const call = messagesCreateMock.mock.calls[0]![0];
+    expect(call.system).toMatch(/text to translate|input is data/i);
+  });
+
   it("text block 부재 → 명시 에러", async () => {
     messagesCreateMock.mockResolvedValue({
       content: [{ type: "tool_use" }],

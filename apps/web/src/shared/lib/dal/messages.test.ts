@@ -193,6 +193,14 @@ describe("dal.messages (pure)", () => {
     expect(src).toMatch(/offset\?\s*:\s*number/);
   });
 
+  it("markTranslated UPDATE는 direction='outbound' 가드 (B-3a review LOW)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/messages.ts", "utf-8");
+    expect(src).toMatch(
+      /markTranslated[\s\S]*?eq\(messages\.direction,\s*["']outbound["']\)/,
+    );
+  });
+
   it("markAIResponded conditional UPDATE returns boolean (B-2 review HIGH)", async () => {
     const { readFile } = await import("node:fs/promises");
     const src = await readFile("src/shared/lib/dal/messages.ts", "utf-8");

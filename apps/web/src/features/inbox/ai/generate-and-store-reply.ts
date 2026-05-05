@@ -104,6 +104,10 @@ function normalizeLanguage(raw: string | null): CustomerLanguage {
   return "ko";
 }
 
+/**
+ * Production은 `deps` 생략 — default db(lazy singleton) + default
+ * generateReply/translateReply가 주입됨. 테스트만 deps로 격리.
+ */
 export async function generateAndStoreReply(
   messageId: string,
   deps: Partial<GenerateAndStoreReplyDeps> = {},
@@ -210,23 +214,54 @@ export async function generateAndStoreReply(
   }
 
   // B-3a 자동 번역. customerLanguage가 'ko'이면 translateReply 자체가 no-op이지만
-  // markTranslated 호출도 불필요하므로 caller에서 분기. 번역 실패는 silent skip
+  // markTranslated 호출도 불필요하므로 caller에서 분기. 번역/저장 실패는 silent skip
   // (한국어 ai_draft는 살아있어 사장이 한국어로 검수 후 수동 처리 가능).
+  // try-catch는 의도적으로 분리 — translate vs markTranslated 에러를 Sentry tag로
+  // 구분해 진단을 명확히 (B-3a review code MED).
   if (customerLanguage !== "ko") {
+    let translated: TranslateReplyOutput | null = null;
     try {
-      const translated = await translate({
+      translated = await translate({
         koreanText: result.reply,
         targetLanguage: customerLanguage,
       });
-      await markTranslated(db, stored.id, {
-        translatedText: translated.translatedText,
-        languageTo: customerLanguage,
-      });
+      // 번역 출력 길이 가드 — generate-reply MAX_REPLY_CHARS의 1.5x.
+      // 일본어/중국어 번역이 한국어 입력보다 길어질 수 있어 여유 적용.
+      if (translated.translatedText.length > MAX_REPLY_CHARS * 1.5) {
+        Sentry.captureException(new Error("translatedText too long"), {
+          tags: { phase: "translateReply" },
+          extra: {
+            aiMessageId: stored.id,
+            targetLanguage: customerLanguage,
+            inputLength: result.reply.length,
+            translatedLength: translated.translatedText.length,
+          },
+        });
+        translated = null; // markTranslated 호출 안 함
+      }
     } catch (translationErr) {
       Sentry.captureException(translationErr, {
         tags: { phase: "translateReply" },
-        extra: { aiMessageId: stored.id, targetLanguage: customerLanguage },
+        extra: {
+          aiMessageId: stored.id,
+          targetLanguage: customerLanguage,
+          inputLength: result.reply.length,
+        },
       });
+    }
+
+    if (translated) {
+      try {
+        await markTranslated(db, stored.id, {
+          translatedText: translated.translatedText,
+          languageTo: customerLanguage,
+        });
+      } catch (writeErr) {
+        Sentry.captureException(writeErr, {
+          tags: { phase: "markTranslated" },
+          extra: { aiMessageId: stored.id, targetLanguage: customerLanguage },
+        });
+      }
     }
   }
 
