@@ -46,6 +46,8 @@ jobs:
       RESEND_FROM_EMAIL: ci-dummy@resend.dev
       # E9-4 카테고리 자동 분류 (Anthropic Sonnet 4.6, dummy: sk-ant- prefix)
       ANTHROPIC_API_KEY: sk-ant-ci-dummy-anthropic-api-key-xxxxxxxx
+      # B-4a RAG 임베딩 (OpenAI text-embedding-3-small, dummy: sk- prefix)
+      OPENAI_API_KEY: sk-ci-dummy-openai-api-key-xxxxxxxx
       # Epic 1-1A Instagram (Meta App, dummy values for CI build only).
       # Values intentionally match vitest.setup.ts stubs so test assertions
       # (e.g. /client_id=stub-ig-app-id/) hold under CI where process.env
@@ -117,6 +119,7 @@ jobs:
       RESEND_API_KEY: re_ci_dummy_resend_api_key
       RESEND_FROM_EMAIL: ci-dummy@resend.dev
       ANTHROPIC_API_KEY: sk-ant-ci-dummy-anthropic-api-key-xxxxxxxx
+      OPENAI_API_KEY: sk-ci-dummy-openai-api-key-xxxxxxxx
       IG_APP_ID: stub-ig-app-id
       IG_APP_SECRET: stub-ig-app-secret
       IG_WEBHOOK_VERIFY_TOKEN: stub-ig-verify-token
