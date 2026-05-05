@@ -5,9 +5,10 @@
  * MessageView가 본 컴포넌트를 표시. 디자인 출처: `docs/design/reference/inbox-app.jsx`
  * AIAssist 함수 (라인 249~321) — MVP 적용 (1 draft + 액션 3개).
  *
- * **MVP 범위 (B-3b)**:
+ * **MVP 범위 (B-3b → B-3c)**:
  *   - 한국어 원문 1 draft 표시 (번역본/audit는 MessageBubble에서 처리)
- *   - 액션 3개: 그대로 보내기 (B-3c 대기 → disabled) / 편집 후 보내기 / 거절하고 직접 작성
+ *   - 액션 3개: 그대로 보내기 (B-3c 활성) / 편집 후 보내기 / 거절하고 직접 작성
+ *   - 처리 중: '그대로 보내기' disabled + 라벨 "발송 중..."
  *
  * **B-3b 미적용 (B-3 후속 또는 별 Phase)**:
  *   - 톤 4탭 (warm/formal/short/friendly)
@@ -32,14 +33,18 @@ export function AIAssist({
   onAcceptAsIs,
   onEditDraft,
   onReject,
+  isAccepting = false,
 }: {
   draftText: string;
-  /** undefined → '그대로 보내기' 비활성. B-3c IG send 구현 전까지 MessageView가 미전달. */
+  /** undefined → '그대로 보내기' 비활성 (B-3c 이전 호환용 — 현재는 MessageView가 항상 전달). */
   onAcceptAsIs: (() => void) | undefined;
   onEditDraft: () => void;
   onReject: () => void;
+  /** B-3c useTransition pending — true면 모든 액션 disabled + '발송 중...' 라벨. */
+  isAccepting?: boolean;
 }) {
-  const acceptDisabled = onAcceptAsIs === undefined;
+  const acceptUnavailable = onAcceptAsIs === undefined;
+  const acceptDisabled = acceptUnavailable || isAccepting;
   return (
     <div className="bg-hesya-peach-100 border-t border-hesya-amber-500 px-[18px] py-3">
       <div className="mb-2 flex items-center gap-2">
@@ -56,23 +61,25 @@ export function AIAssist({
           onClick={onAcceptAsIs}
           disabled={acceptDisabled}
           title={
-            acceptDisabled ? "다음 단계(B-3c)에서 활성화됩니다" : undefined
+            acceptUnavailable ? "다음 단계(B-3c)에서 활성화됩니다" : undefined
           }
           className="kr rounded-md bg-hesya-peach-200 px-3.5 py-2 text-xs font-semibold text-hesya-navy-900 not-disabled:cursor-pointer not-disabled:hover:bg-hesya-amber-500 not-disabled:hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
-          그대로 보내기
+          {isAccepting ? "발송 중..." : "그대로 보내기"}
         </button>
         <button
           type="button"
           onClick={onEditDraft}
-          className="kr cursor-pointer rounded-md bg-hesya-amber-500 px-3.5 py-2 text-xs font-semibold text-white hover:bg-hesya-amber-600"
+          disabled={isAccepting}
+          className="kr rounded-md bg-hesya-amber-500 px-3.5 py-2 text-xs font-semibold text-white not-disabled:cursor-pointer not-disabled:hover:bg-hesya-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
           편집 후 보내기 →
         </button>
         <button
           type="button"
           onClick={onReject}
-          className="kr ml-auto cursor-pointer rounded-md border border-hesya-peach-200 px-3.5 py-2 text-xs font-medium text-gray-700 hover:border-hesya-amber-500"
+          disabled={isAccepting}
+          className="kr ml-auto rounded-md border border-hesya-peach-200 px-3.5 py-2 text-xs font-medium text-gray-700 not-disabled:cursor-pointer not-disabled:hover:border-hesya-amber-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
           거절하고 직접 작성
         </button>

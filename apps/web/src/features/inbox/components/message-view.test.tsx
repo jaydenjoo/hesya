@@ -11,7 +11,12 @@ vi.mock("../actions/send-outbound", () => ({
   sendOutbound: vi.fn(),
 }));
 
+vi.mock("../actions/accept-ai-draft", () => ({
+  acceptAiDraft: vi.fn(async () => ({ ok: true, externalMessageId: "out_1" })),
+}));
+
 import { MessageView } from "./message-view";
+import { acceptAiDraft } from "../actions/accept-ai-draft";
 import type { Conversation, Message } from "../types";
 
 const conv: Conversation = {
@@ -137,6 +142,27 @@ describe("MessageView", () => {
       screen.getByRole("button", { name: /편집 후 보내기/ }),
     );
     expect(screen.getByRole("textbox")).toHaveValue("AI가 만든 한국어 초안");
+  });
+
+  it("'그대로 보내기' 클릭 → acceptAiDraft 호출 (B-3c)", async () => {
+    vi.mocked(acceptAiDraft).mockClear();
+    render(
+      <MessageView
+        conversation={conv}
+        messages={[
+          makeMsg("m1", "안녕", { direction: "inbound" }),
+          makeMsg("m2", "안녕하세요!", {
+            direction: "outbound",
+            status: "ai_draft",
+          }),
+        ]}
+        customerName="홍길동"
+      />,
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: /^그대로 보내기$/ }),
+    );
+    expect(acceptAiDraft).toHaveBeenCalledWith({ messageId: "m2" });
   });
 
   it("'거절하고 직접 작성' 클릭 → AIAssist 사라짐", async () => {
