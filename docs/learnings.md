@@ -2434,3 +2434,39 @@ PR #73의 CI/머지 단계에서 이 미스매치가 잡히지 않는다. valida
 - 운영: 새 trigger/cron 머지 + prod redeploy 직후 즉시 `vercel inspect <prod-url>` 또는 dashboard 캡처로 등록 확인. 이번처럼 24h TTL 지나야 발견되면 너무 늦다.
 
 **연관**: PR #73 (Phase 1C 머지, wiring 누락된 채 머지됨), PR #74 (이 fix), Vercel Queues concept docs ("Push mode consumers are configured at deploy time via `vercel.json`"). 또 root vercel.json에 있던 `crons` (분기별 stores revalidate, 첫 실행 7월 1일)도 같이 미등록 상태였을 가능성 — 시간 지나야 발견될 silent miss였음.
+
+---
+
+### [2026-05-06] L-073 — 진단 명령의 zsh glob 미스가 잘못된 가설을 30분 끌고 다님 + Sentry wizard overwrite 함정
+
+**증상 (메타)**: Phase 1C Task 10 검증 중 worker invoke는 됐는데 DLQ Sentry capture가 안 도착하는 현상을 만나, "Sentry init 누락" 가설을 세우고 Sentry wizard 실행. 진행 중에 이미 정교한 `apps/web/src/instrumentation.ts`/`instrumentation-client.ts`가 tracked 상태로 존재하고 있음을 wizard 출력으로 발견 → 첫 진단이 30분 헛수고로 판명.
+
+또 wizard가 `sentry.server.config.ts`/`sentry.edge.config.ts`를 minimal default로 overwrite하면서 기존 정교한 customization (env-based DSN, `sendDefaultPii: false`, `tracesSampleRate: 0.1`, URL `beforeSend`/`beforeBreadcrumb` sanitization) 모두 손실됐고, 머지하면 prod에 PII 누출 + Sentry transactions 비용 폭증이 발생할 상황까지 갈 뻔함.
+
+**원인 (2가지)**:
+
+1. **진단 명령의 zsh glob 미스**: 첫 진단에서 `ls -la sentry*.* instrumentation*.* src/instrumentation.ts 2>&1` 사용. zsh에서 glob에 매칭되는 파일이 없으면 `no matches found` 에러로 명령이 통째로 abort됨 (bash 와 다름). `instrumentation*.*`가 매칭 안 되자 ls 자체가 종료되어 다른 패턴 결과도 안 나옴. 결과: "init 파일 없음" 으로 잘못 결론.
+
+2. **Sentry wizard의 destructive overwrite**: wizard는 기존 sentry config 파일을 발견하면 "Overwrite?" 묻고 Yes 선택 시 minimal default로 통째 교체 (기존 옵션 머지 X). PII/cost/sanitization 같은 필수 customization을 다 잃을 수 있는데 wizard 흐름 안에서는 무엇이 사라지는지 보이지 않음.
+
+**해결**:
+
+1. zsh glob 매칭 실패 시 `no matches found` abort를 받지 않으려면 `setopt NULL_GLOB` (해당 세션에서만) 또는 `ls ... 2>/dev/null || true` 패턴, 또는 단순히 `find` 로 대체. 진단 명령에서는 항상 fallback이 있어야 한다.
+2. wizard 결과는 즉시 머지하지 않고 `git diff` + `git show HEAD:<file>` 비교로 변경 내역 검증 후 머지/revert 결정 (PR #75에서 `sentry.{server,edge}.config.ts` revert + `.mcp.json`/`global-error.tsx`만 보존).
+3. 진단 가설이 잘못됐다는 판단이 들면 **즉시 가설 재검토**. 본 세션에서는 wizard 진행 도중에 instrumentation.ts 발견하고 즉시 "Sentry init은 줄곧 정상이었다"로 가설 정정. retry reschedule `MessageNotFoundError`가 진짜 차단점임을 인식.
+
+**규칙** ⭐:
+
+1. **존재 여부 점검은 `find <root> -name <pattern>`으로 한다 (zsh-safe)**. `ls <glob>` 또는 `ls <pattern1> <pattern2>`는 한 패턴이 매칭 실패하면 zsh에서 전체가 abort되어 잘못된 결론으로 이어진다. bash CI와 zsh 로컬 동작이 다르다는 점을 항상 유의.
+2. **Sentry wizard는 기존 통합 위에 실행하면 안 된다.** 새 프로젝트 첫 setup에만 사용. 이미 instrumentation.ts/sentry.config 등이 tracked되어 있으면 wizard 대신 (a) docs를 직접 보고 누락 옵션만 수동 추가 (b) 또는 wizard를 임시 브랜치에서 실행 후 `git diff`로 변경 내역 review → 가치 있는 부분만 cherry-pick.
+3. **"증상 해결을 위한 가설"은 30분 안에 검증한다.** 본 세션은 "Sentry init 누락" 가설로 wizard 진행 중에 이미 init이 있다는 것을 발견. 만약 wizard 시작 전에 `find apps/web -name "instrumentation*"` 한 번만 실행했다면 즉시 가설 폐기 가능했을 것. **가설 검증의 첫 명령은 가장 simple하고 false negative가 없는 형태로 작성.**
+4. **DLQ/retry 흐름 검증은 worker invocation이 retry 횟수만큼 일어나는지를 먼저 logs로 확인한 후 Sentry capture를 본다.** 본 세션에서는 logs에서 invocation이 1회만 일어났는데 (retry reschedule fail로 메시지 종결) Sentry capture가 안 보이는 게 SDK 문제인 줄 오해. 흐름 순서는 publish → invocation N회 → DLQ branch → Sentry capture. 첫 단계가 끊기면 Sentry는 무관.
+5. **Sentry wizard의 PII 옵션은 prod 머지 전 반드시 점검**: `sendDefaultPii: false` (Hesya는 매장 사업자번호/IG OAuth 다룸), `tracesSampleRate: 0.1` 이하 (1.0은 비용 폭증), URL `beforeSend` sanitization 보존. 기존 customization이 있으면 wizard가 다 지우므로 revert 또는 manual merge.
+
+**확인 방법**:
+
+- 자동: PR diff에 `sendDefaultPii: true` / `tracesSampleRate: 1` / 하드코딩된 DSN string이 들어오면 CI에서 fail (작은 lint script 5줄). 후속 task 가치 있음.
+- 인간 리뷰: Sentry config 변경 PR은 항상 보안/비용 관점 리뷰 필수.
+- 메타 학습: 진단 명령에 fallback을 넣고, "파일이 없다" 같은 결론 전에 두 번째 검증 명령 (`find`/`git ls-files`)으로 cross-check 한다.
+
+**연관**: PR #75 (이 wizard revert + 가치 있는 부분 cherry-pick), L-072 (직전, monorepo vercel.json), Task 13 (예정, retry reschedule MessageNotFoundError 진단). Sentry wizard 본문 — Sentry SaaS Next.js 통합 자동 setup. Hesya init-project.sh 시점에 Sentry SDK + instrumentation 자동 추가됐던 흔적이 있어서 처음 진단 잘못이 더 컸음.

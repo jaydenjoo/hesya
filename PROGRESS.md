@@ -4,12 +4,12 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Phase 1C 머지 ✅ + Task 11 wiring fix ✅ (PR #74)**. auto-merge **19회** 연속.
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C Vercel Queue ✅** + Task 11 vercel.json fix ✅ → **다음**: 별 이슈 — `MessageNotFoundError` (retry reschedule) 진단 또는 Phase 1D / 1Cb (E2E) / 1Cc (Admin DLQ UI).
-- **Task**: PR #74 머지 ✅ — Phase 1C trigger 등록 누락 fix. `vercel.json`을 레포 root → `apps/web/`로 이동 (Vercel project Root Directory 매칭). functions path를 `src/app/api/...` 기준으로 변경.
-- **상태**: PR #73 + #74 머지 완료. Prod redeploy `hesya-esra9g1py` Ready (post-fix). v4 publish 검증 — **worker invocation 확인** (`λ POST /api/queue/inbox-process-inbound` 21:15:32 prod logs). Trigger 등록 정상 작동 ✅.
-- **작업 브랜치**: `main`. 머지 commit `6387a13` (#74).
-- **최근 머지된 PR**: [#74](https://github.com/jaydenjoo/hesya/pull/74) Phase 1C wiring fix — `auto-merge` 19회, squash `6387a13`. CI green 후 자동 머지.
+- **Phase**: Phase 1 — **Phase 1C 머지 ✅ + Task 11/12 fix ✅ (PR #74 + #75)**. auto-merge **20회** 연속.
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C Vercel Queue ✅** + Task 11 vercel.json wiring fix ✅ + Task 12 Sentry MCP/global-error ✅ → **다음 (Task 13)**: retry reschedule `MessageNotFoundError` 진단 (Phase 1C exp backoff 무효화 차단점).
+- **Task**: PR #74/#75 머지 ✅. Phase 1C trigger 등록은 정상 작동, 단 SDK retry reschedule 호출 시 `MessageNotFoundError`로 worker가 단 1회 invoke 후 종결되는 별 이슈 발견.
+- **상태**: 본 세션 PR 2건 머지 완료. v4 publish 검증으로 worker invocation 1회 + Consumer Group 등록 확인. DLQ branch 도달은 retry reschedule 이슈로 차단됨 — Task 13에서 진단.
+- **작업 브랜치**: `main`. 머지 commit `79e701f` (#75) `6387a13` (#74).
+- **최근 머지된 PR**: [#75](https://github.com/jaydenjoo/hesya/pull/75) Sentry MCP + global-error boundary | [#74](https://github.com/jaydenjoo/hesya/pull/74) vercel.json monorepo fix.
 
 ## Task 10 prod 검증 결과 (이번 세션)
 
