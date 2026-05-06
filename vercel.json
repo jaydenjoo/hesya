@@ -5,5 +5,17 @@
       "path": "/api/cron/revalidate-stores",
       "schedule": "0 18 1 */3 *"
     }
-  ]
+  ],
+  "functions": {
+    "apps/web/src/app/api/queue/inbox-process-inbound/route.ts": {
+      "experimentalTriggers": [
+        {
+          "type": "queue/v2beta",
+          "topic": "inbox-process-inbound",
+          "retryAfterSeconds": 60,
+          "initialDelaySeconds": 0
+        }
+      ]
+    }
+  }
 }

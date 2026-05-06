@@ -4,7 +4,7 @@ import { createDbClient } from "@hesya/database";
 import { env } from "@/shared/config/env";
 import { fetchInstagramApiClient } from "@/lib/inbox/instagram-api-client";
 import { createInstagramAdapter } from "@/lib/inbox/instagram-adapter";
-import { processInbound } from "@/lib/inbox/process-inbound";
+import { enqueueProcessInbound } from "@/lib/inbox/queue";
 import {
   upsertCustomer,
   updateCustomerProfile,
@@ -153,8 +153,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       });
       await incrementUnread(db, conv.id);
 
-      void processInbound(inserted.id).catch((e) =>
-        Sentry.captureException(e, { tags: { phase: "processInbound" } }),
+      // Phase 1C: Vercel Queue로 enqueue. webhook은 즉시 200 OK 반환 (Meta
+      // 5s ACK 안전마진). enqueue 실패 시 Sentry capture + 200 OK 유지
+      // (Meta retry 폭증 방어가 메시지 1건 누락보다 우선 — D5).
+      await enqueueProcessInbound(inserted.id).catch((e) =>
+        Sentry.captureException(e, {
+          tags: { phase: "queue:inbox.process-inbound:enqueue" },
+        }),
       );
     }
   } catch (err) {
