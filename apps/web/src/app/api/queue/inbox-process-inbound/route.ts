@@ -42,7 +42,7 @@ export const POST = handleCallback(
     visibilityTimeoutSeconds: VISIBILITY_TIMEOUT_SECONDS,
     retry: (err, metadata) => {
       if (metadata.deliveryCount < MAX_DELIVERY_COUNT) {
-        return;
+        return; // undefined → SDK가 throw 전파 → callback 5xx → server redelivery
       }
       Sentry.captureException(err, {
         tags: { phase: "queue:inbox.process-inbound:dlq" },

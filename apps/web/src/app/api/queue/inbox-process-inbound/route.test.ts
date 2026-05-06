@@ -22,6 +22,14 @@ vi.mock("@sentry/nextjs", () => ({
 // @vercel/queue handleCallback이 받은 handler를 직접 호출하도록 stub.
 // 비유: 우체부(handleCallback)가 편지(handler)를 받아서 문(NextRequest)을
 // 통해 전달하는 과정을 단위 테스트에서 시뮬레이션.
+//
+// ⚠️ Mock 한계 (D6 workaround 검증 범위 외):
+// 이 mock은 SDK retry option을 실행하지 않고 handler throw를 직접 catch하여
+// 5xx를 반환한다. 즉 "deliveryCount<4 → undefined → SDK throw 전파 → callback
+// 5xx → server visibility timeout 기반 redelivery"의 실제 경로는 단위 테스트로
+// 검증되지 않는다. 본 단위 테스트는 retry 함수의 반환값 시그니처(handleCallback
+// options 검증)만 보장한다. End-to-end 동작 검증은 spec § 5.2 통합 테스트 또는
+// prod 검증(§ 5.3)에서 수행해야 한다.
 vi.mock("@vercel/queue", () => ({
   handleCallback: (handler: unknown, opts: unknown) => {
     handleCallbackImpl(handler, opts);
@@ -86,7 +94,7 @@ describe("worker /api/queue/inbox-process-inbound", () => {
     expect(generateAndStoreReplyMock).not.toHaveBeenCalled();
   });
 
-  it("handleCallback options — visibilityTimeoutSeconds + retry undefined<4 + acknowledge=4", () => {
+  it("retry 시그니처 검증 — visibilityTimeoutSeconds=60 + undefined<4 + acknowledge=4", () => {
     expect(handleCallbackImpl).toHaveBeenCalled();
     const opts = handleCallbackImpl.mock.calls[0]?.[1] as
       | {
@@ -113,7 +121,7 @@ describe("worker /api/queue/inbox-process-inbound", () => {
     expect(r4).toEqual({ acknowledge: true });
   });
 
-  it("deliveryCount 4 (DLQ 진입) → Sentry capture + acknowledge", () => {
+  it("Sentry capture 사이드이펙트 검증 — deliveryCount 4에서 DLQ phase 태그 + acknowledge", () => {
     sentryCaptureMock.mockReset();
     const opts = handleCallbackImpl.mock.calls[0]?.[1] as
       | {

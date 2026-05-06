@@ -97,7 +97,7 @@ Meta webhook → POST /api/webhooks/instagram (~200-500ms)
 Vercel Queue → POST /api/queue/inbox-process-inbound (별 process)
               ├─ Zod 검증
               ├─ generateAndStoreReply(messageId)  ← ~3-5s OK
-              └─ retry/DLQ 자동 (3회 exp backoff)
+              └─ retry/DLQ 자동 (3회 retry, 60s 균일 — D6 workaround)
 ```
 
 ---
@@ -141,7 +141,7 @@ Vercel Queue → POST /api/queue/inbox-process-inbound (별 process)
 ### D6. Callback retry workaround (`@vercel/queue` 0.1.6 결함)
 
 - **결함**: callback push 모드에서 retry handler가 `{ afterSeconds: N }` 반환 시 SDK가 `changeVisibility(PATCH /lease/{handle})`를 호출하나 server가 404 응답 → SDK가 silent catch 후 callback 200 응답 → server가 ack로 처리 → **메시지 1회 invoke 후 종결**
-- **진단**: SDK 소스 `dist/index.mjs` 라인 386-401 (catch 후 finalizePayload + return). 받은 receiptHandle은 v2beta callback의 `ce-vqsreceipthandle` 헤더에서 추출되며, polling 모드의 `lease` 엔드포인트와 호환되지 않음.
+- **진단**: SDK 소스 `dist/index.mjs` 라인 363-407 `processMessage` catch 블록 (afterSeconds 분기는 386-401, finalizePayload + return은 400-401). 받은 receiptHandle은 v2beta callback의 `ce-vqsreceipthandle` 헤더에서 추출되며, polling 모드의 `lease` 엔드포인트와 호환되지 않음.
 - **Workaround**: retry handler에서 `deliveryCount < 4` 시 `undefined` 반환 → SDK가 throw 전파 → callback 5xx → server-side visibility timeout(60s) 만료 후 자동 redelivery. `deliveryCount === 4` 시 `{ acknowledge: true }`로 DLQ 진입.
 - **비용**: 의도한 1+5+30s 패턴 손실, 60s 균일 retry로 변경. 총 retry 시간 36s → ~3분.
 - **후속**: `vercel/sdk` repo에 issue 등록 (`docs/superpowers/specs/2026-05-06-vercel-queue-callback-retry-issue.md`). SDK fix 시 1+5+30s 복구.
@@ -179,6 +179,7 @@ Vercel Queue → POST /api/queue/inbox-process-inbound (별 process)
 - 한 inbound 메시지 → webhook ACK ≤ 500ms (Vercel Logs)
 - AI 응답이 인박스 polling으로 도착 (회귀 0)
 - Sentry alert 채널 정상 작동 (DLQ entry 시 즉시 alert) — 의도적 invalid payload로 테스트 1회
+- **(D6 workaround 검증)** worker logs에서 첫 invoke의 metadata.deliveryCount 값 확인 — 1-based(우리 가정)인지 0-based인지. 0-based이면 `MAX_DELIVERY_COUNT` 조정 필요 (4→3). 의도적 invalid payload publish → 60s 간격 4 invoke (deliveryCount 1,2,3,4) → DLQ Sentry capture 확인.
 
 ### 5.4 회귀 0 보장
 
