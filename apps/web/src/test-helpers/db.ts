@@ -143,6 +143,8 @@ export async function seedMessage(
     conversationId: string;
     direction: "inbound" | "outbound";
     text: string;
+    customerId?: string;
+    storeId?: string;
     channel?: "instagram" | "whatsapp" | "kakao" | "line" | "messenger";
     status?: "delivered" | "sent" | "failed";
   },
@@ -151,6 +153,8 @@ export async function seedMessage(
     .insert(messages)
     .values({
       conversationId: input.conversationId,
+      customerId: input.customerId,
+      storeId: input.storeId,
       channel: input.channel ?? "instagram",
       direction: input.direction,
       originalText: input.text,

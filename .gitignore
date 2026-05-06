@@ -48,6 +48,9 @@ next-env.d.ts
 .claude/tdd-guard/
 .claude/scheduled_tasks.lock
 
+# supabase local-only config (CI는 supabase start로 동적 default 사용)
+/supabase/
+
 # playwright MCP one-off verification artifacts (visual regression scratch space)
 .playwright-mcp/
 /design-system-full.png
