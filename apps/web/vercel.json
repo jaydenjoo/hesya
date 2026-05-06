@@ -11,9 +11,7 @@
       "experimentalTriggers": [
         {
           "type": "queue/v2beta",
-          "topic": "inbox-process-inbound",
-          "retryAfterSeconds": 60,
-          "initialDelaySeconds": 0
+          "topic": "inbox-process-inbound"
         }
       ]
     }
