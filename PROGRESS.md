@@ -11,7 +11,7 @@
 - **작업 브랜치**: `main` (Customer 확장 머지 + 작업 브랜치 자동 삭제 완료). origin 동기화 ✅.
 - **최근 main 직접 commit**: `503c16d` (ci 병렬화), `725e437` (auto-merge.yml). 둘 다 인프라 yml 변경 — 정책상 main 직접 push 적용 (코드 회귀 0).
 - **최근 머지된 PR**: [#58](https://github.com/jaydenjoo/hesya/pull/58) Customer 확장 — `auto-merge` 라벨 3회 사용, squash merge `7ceeaff`, 25 신규 테스트, 491/491 + 40 skipped, 사후 리뷰 fix 5건 (Sec MED-2 명시 select, LOW-3 DB CHECK, Code HIGH-1 NotesForm key, HIGH-2 unknown cast, MED-4 Sentry storeId tag).
-- **prod migration**: `0014_messages_tone_metadata.sql` 적용 완료 (SQL Editor). **`0015_store_tone_examples.sql` 적용 ✅** (이번 세션 MCP `apply_migration`). **`0016_customers_profile.sql` 미적용 — Jayden 명시 승인 대기** (drizzle ignores unknown column이라 코드 머지 자체는 회귀 0이지만 Customer 확장 기능은 prod 미동작).
+- **prod migration**: `0014_messages_tone_metadata.sql` 적용 완료 (SQL Editor) / **`0015_store_tone_examples.sql` 적용 ✅** (이번 세션 MCP `apply_migration`) / **`0016_customers_profile.sql` 적용 ✅** (이번 세션 MCP, Jayden 명시 승인 후). customers 컬럼 11→14 (`name`/`allergy_note`/`preferred_designer` + 2 CHECK 2000자 제약). 모든 P2-B/Customer 확장 기능 prod 동작 가능 상태.
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -19,14 +19,7 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. prod migration `0016_customers_profile.sql` 적용 (선결, ~5분)
-
-- Jayden 명시 승인 후 옵션 A: MCP `apply_migration` (1분 자동) 또는 옵션 B: Supabase Dashboard SQL Editor 수동
-- SQL: `name`/`allergy_note`/`preferred_designer` 3 컬럼 + 2 CHECK 2000자 제약
-- 검증: `mcp__claude_ai_Supabase__list_tables verbose` → customers 컬럼 11개+3=14개 확인
-- 미적용 시 코드 머지는 안전 (drizzle ignores unknown column)이나 Customer 확장 기능 prod 미동작
-
-### 2. Customer 확장 follow-up (선택, 별 PR)
+### 1. Customer 확장 follow-up (선택, 별 PR)
 
 **Security review 잔여**:
 
@@ -38,14 +31,14 @@
 - 🔵 **Code MED-5**: DAL test source-grep → mock DB pattern 통합 (의도된 패턴, 별 cleanup)
 - 🔵 **Code LOW-7**: `preferredDesigner` 500자 → UX 검토 (이름 필드 적정 길이)
 
-### 3. P2-B/P2-A follow-up (선택, 별 PR)
+### 2. P2-B/P2-A follow-up (선택, 별 PR)
 
 - 🟡 **S2**: `store_tone_examples` per-store row cap (storage growth 방어)
 - 🟢 **S3**: Sentry full userId → 8자 truncate (cross-cutting, 기존 패턴 통합)
 - 🔵 **D6**: prompt caching — system을 array of blocks로 리팩 (cache breakpoint, ~30% 비용 절감 추정)
 - 🔵 톤 학습 buffer 축적 시 quality 측정 (실 사용 후 정성 평가)
 
-### 4. Shortcuts FAB 키보드 단축키 모달 (선택, ~1h)
+### 3. Shortcuts FAB 키보드 단축키 모달 (선택, ~1h)
 
 디자인 ref Composer에 단축키 1~9 표시. 실제 단축키 hookup은 별 Task.
 
@@ -117,6 +110,7 @@
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-06 (Customer 확장 + 0016 prod 적용) — **0016 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). customers 컬럼 11→14 (name/allergy_note/preferred_designer + 2 CHECK 2000자). 모든 P2-B/Customer 확장 기능 prod 동작 가능. 차단 요소 없음.
 - 날짜: 2026-05-06 (Customer 확장 풀 세션) — **Customer 확장 7-step 완료** (PR #58 squash merge `7ceeaff`). 0015 prod 적용 ✅ (MCP). DB 0016 마이그 + DAL 3 함수 + IG fetchUserProfile + locale-to-language helper + webhook 자동 enrichment + Server Action updateCustomerNotes + ContextPanel Notes 편집 form. 사후 리뷰 2-agent 병렬 결과 fix 5건 적용 (Sec MED-2 명시 select, LOW-3 DB CHECK, Code HIGH-1 NotesForm key prop+caller reset, HIGH-2 unknown cast, MED-4 Sentry storeId tag). vitest 491 passed (+25 신규) + 40 skipped. type-check 6/6 + lint Done. auto-merge 라벨 3회 연속 검증 ✅. **prod migration `0016_customers_profile.sql` 미적용 — Jayden 명시 승인 대기**.
 - 날짜: 2026-05-06 (P2-B 풀 세션) — **Epic 1B-Tone Phase 2-B 매장 톤 학습 완료** (PR #57 squash merge `c79081a`). 7-step 구현 (DB → DAL → Action → Prompt → Trigger → UI → Review). 사후 리뷰 2-agent 병렬 결과 fix 6건 적용 (Sec S1 rate limit 30/h, Code HIGH-2 catch 주석, MEDIUM-1 null 가드, LOW-1 onChange clear, HIGH-1은 message-view key prop 패턴 위임, lint 1 error fix). vitest 466 passed (+26 신규) + 40 skipped. type-check 6/6 + lint Done. auto-merge 라벨 2회 연속 검증 ✅. **prod migration `0015_store_tone_examples.sql` 수동 적용 보류 (Jayden)**.
 - 날짜: 2026-05-06 세션 시작 — **PR #56 자동 머지 검증 ✅** (auto-merge 라벨 + workflow_run 트리거 첫 동작 성공: validate + e2e-smoke + Vercel + Vercel Preview Comments 모두 SUCCESS → squash merge `6730140` + 브랜치 자동 삭제). main + origin/main 완전 동기화. 다음 Task: Phase 2-B 매장 톤 학습.
