@@ -7,7 +7,7 @@
     }
   ],
   "functions": {
-    "apps/web/src/app/api/queue/inbox-process-inbound/route.ts": {
+    "src/app/api/queue/inbox-process-inbound/route.ts": {
       "experimentalTriggers": [
         {
           "type": "queue/v2beta",
