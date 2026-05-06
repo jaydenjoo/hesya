@@ -127,4 +127,43 @@ describe("dal.customers (pure)", () => {
     expect(src).toMatch(/Promise<Customer\s*\|\s*null>/);
     expect(src).not.toMatch(/throw new Error[^"]*"upsertCustomer:/);
   });
+
+  // ─── Customer 확장 (CC-2) ───
+
+  it("module exports updateCustomerProfile + updateCustomerNotes", async () => {
+    const mod = await import("./customers");
+    expect(typeof mod.updateCustomerProfile).toBe("function");
+    expect(typeof mod.updateCustomerNotes).toBe("function");
+  });
+
+  it("updateCustomerProfile: customers.id 가드 + name/preferredLanguage 시그니처", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/customers.ts", "utf-8");
+    // customers.id로 WHERE 조건
+    expect(src).toMatch(
+      /updateCustomerProfile[\s\S]*?eq\(\s*\w+\.id\s*,\s*customerId/,
+    );
+    // 시그니처에 name 옵셔널 + .set 호출
+    expect(src).toMatch(/updateCustomerProfile[\s\S]*?name\?:[\s\S]*?\.set\(/);
+  });
+
+  it("updateCustomerNotes: customers.id 가드 + allergyNote/preferredDesigner 시그니처", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/customers.ts", "utf-8");
+    expect(src).toMatch(
+      /updateCustomerNotes[\s\S]*?eq\(\s*\w+\.id\s*,\s*customerId/,
+    );
+    expect(src).toMatch(
+      /updateCustomerNotes[\s\S]*?(allergyNote|preferredDesigner)\?:[\s\S]*?\.set\(/,
+    );
+  });
+
+  it("updateCustomerProfile: empty patch는 no-op (방어)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/customers.ts", "utf-8");
+    // patch 비어있을 때 DB 호출 회피 (무의미한 UPDATE 방어)
+    expect(src).toMatch(
+      /updateCustomerProfile[\s\S]*?Object\.keys\(\s*patch\s*\)\.length\s*===?\s*0/,
+    );
+  });
 });

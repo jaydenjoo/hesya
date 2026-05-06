@@ -37,6 +37,21 @@ export interface InstagramApiClient {
     pageId: string;
     accessToken: string;
   }): Promise<void>;
+
+  /**
+   * Epic Customer 확장 (CC-3) — IG 사용자 프로필 fetch.
+   *
+   * `instagram_business_manage_messages` 권한으로 24h 메시징 윈도우 안의
+   * 고객 프로필 조회 가능 (Meta Graph API). privacy 정책으로 일부 필드는
+   * 응답에서 누락될 수 있어 모두 nullable.
+   *
+   * @see https://developers.facebook.com/docs/messenger-platform/instagram/features/user-profile
+   */
+  fetchUserProfile(input: { igUserId: string; accessToken: string }): Promise<{
+    name: string | null;
+    profilePic: string | null;
+    locale: string | null;
+  }>;
 }
 
 // env로 override 가능. prod 기본값은 env.ts에 default로 보장.
@@ -119,6 +134,28 @@ export const fetchInstagramApiClient: InstagramApiClient = {
     }
     const json = (await res.json()) as { message_id: string };
     return { messageId: json.message_id };
+  },
+
+  async fetchUserProfile({ igUserId, accessToken }) {
+    const res = await fetch(
+      `${getBase()}/${igUserId}?fields=name,profile_pic,locale&access_token=${encodeURIComponent(accessToken)}`,
+    );
+    if (!res.ok) {
+      throw new ExternalApiError("IG 사용자 프로필 조회 실패", {
+        status: res.status,
+        body: await res.text(),
+      });
+    }
+    const json = (await res.json()) as {
+      name?: string;
+      profile_pic?: string;
+      locale?: string;
+    };
+    return {
+      name: json.name ?? null,
+      profilePic: json.profile_pic ?? null,
+      locale: json.locale ?? null,
+    };
   },
 
   async subscribeWebhook({ pageId, accessToken }) {
