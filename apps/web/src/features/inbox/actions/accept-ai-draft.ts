@@ -74,9 +74,15 @@ async function safeRevertWithSentry(
   try {
     await revertAiDraftClaim(db, messageId);
   } catch (revertErr) {
+    // S3: PII 최소화 — userId/storeId 8자 short만. messageId는 식별 가능
+    // (각 incident에 1:1 매핑) 그대로 유지.
     Sentry.captureException(revertErr, {
       tags: { phase: "revertAiDraftClaim" },
-      extra: { messageId, userId: ctx.userId, storeId: ctx.storeId },
+      extra: {
+        messageId,
+        userIdShort: ctx.userId.slice(0, 8),
+        storeIdShort: ctx.storeId.slice(0, 8),
+      },
     });
   }
 }
