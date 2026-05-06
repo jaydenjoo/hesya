@@ -4,11 +4,11 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **세션 누적 6 PR 머지 (#60~65) + 3 PR 오픈 (#66~68) CI 진행 중** (auto-merge 라벨 10회 연속 검증 ✅)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + D6/Sec-M-3/S2/S3 ✅ → **3 PR 오픈**: PR #66 advisor 0020 (function_search_path + FK 16 indexes), PR #67 Code LOW-7 (preferredDesigner 100자 + 0021 마이그), PR #68 Phase B-5 spec + ci.yml e2e-integration (advisory). 다음 세션: 머지 확인 + 0020/0021 prod 적용 + 새 Epic 결정.
-- **Task**: 직전 6 PR 머지 ✅ / **PR #66 ⏳ / PR #67 ⏳ / PR #68 ⏳**
-- **상태**: 3 PR 모두 CI 진행 중. PR #68은 `continue-on-error: true` advisory (supabase init/migration 미완성 → 다음 PR fix). 차단 요소 없음.
-- **작업 브랜치**: 3개 오픈 (chore/pr7-advisor-0020-fk-indexes, chore/pr8-code-low-7-preferred-designer-100, chore/pr9-phase-b5-e2e-pg-ci) — 머지 후 자동 삭제.
+- **Phase**: Phase 1 — **세션 누적 9 PR 머지 (#60~68) + prod migration 4건 적용 (0018~0021)** (auto-merge 라벨 13회 연속 검증 ✅)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + D6/Sec-M-3/S2/S3 + advisor 0020/0021 + Phase B-5 spec(advisory) ✅ → **다음**: PR #68b (B-5 supabase migration 자동 적용 + advisory 제거) 또는 새 Epic 진입 (Phase 1C/1D 협의 필요).
+- **Task**: 직전 9 PR 모두 머지 ✅ / 4 prod 마이그 적용 ✅ / advisor 정리 (rls_no_policy 16→0, function_search_path 1→0, unindexed_fk 16→0)
+- **상태**: 모든 follow-up + advisor cleanup 완료. PR #68 B-5 첫 실행이 fail (예상 — migration 미적용)이라도 advisory 패턴 정상 작동 검증. 차단 요소 없음.
+- **작업 브랜치**: `main` (모두 머지 + 자동 삭제). origin 동기화 ✅ (`31e5b7a`).
 - **최근 main 직접 commit**: `503c16d` (ci 병렬화), `725e437` (auto-merge.yml). 둘 다 인프라 yml 변경 — 정책상 main 직접 push 적용 (코드 회귀 0).
 - **최근 머지된 PR**: [#65](https://github.com/jaydenjoo/hesya/pull/65) S3 Sentry truncate — `auto-merge` 10회, squash `24e22f8`. 이번 세션 6 PR (#60~65) 모두 squash merge.
 - **prod migration**: `0014`~`0019` ✅ / **`0020` + `0021` 적용 ✅** (이번 세션 MCP, Jayden 명시 승인). advisor: security WARN **2→1** (function_search_path 정리, extension_in_public만 잔존), performance `unindexed_foreign_keys` **16→0** ✅. 신규 `unused_index` 16건 추가 (방금 추가한 FK 인덱스 — 트래픽 0이라 즉시 unused 표시, 베타 시점 자동 사용 예상). 0021은 preferred_designer CHECK 2000→100자.
@@ -19,12 +19,13 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 0. 다음 세션 즉시 할 일 (CI 머지 대기 중)
+### 0. 다음 세션 후보 (택1)
 
-- ⏳ **PR #66 #67 #68 머지 확인** + main pull + 작업 브랜치 3개 정리
-- ⚠️ **0020 + 0021 prod migration 적용 일괄 승인** (Jayden 명시, MCP `apply_migration`)
-- 🔍 **PR #68 e2e-integration 첫 실행 결과 분석** — 예상 fail (supabase init 부재) → PR #68b plan
-- 📊 PROGRESS.md 갱신 (3 PR 머지 반영)
+- 🟢 **PR #68b** — B-5 follow-up: `psql -f packages/database/migrations/*.sql` step 추가 → integration test 36건 자동 활성화 → `continue-on-error: true` 제거 enforced 전환 (~1-2h)
+- 🟢 **새 Epic 진입** — Phase 1C (Vercel Queue, fire-and-forget processInbound) 또는 1D (multi-channel WhatsApp/Kakao) — 사장 결정 필요
+- 🔵 advisor `extension_in_public` (vector schema) — Supabase 관리형 제한 가능성, 보류 권장
+- 🔵 advisor `unused_index` 24건 — 트래픽 0이라 판단 어려움, 베타 후 재평가
+- 🔵 advisor `auth_db_connections_absolute` — Supabase 대시보드에서 직접 변경 (5분, 코드 X)
 
 ### 1. Customer + P2 follow-up (이번 세션 누적 9 PR)
 
@@ -120,6 +121,7 @@
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-06 (세션 종료 — 9 PR + 4 prod 마이그 + advisor 38건 정리) — **하루 누적**: PR #60~68 모두 머지, prod 0018/0019/0020/0021 적용, advisor `rls_no_policy 16→0` + `function_search_path 1→0` + `unindexed_fk 16→0`. 잔존 advisor: security 1 WARN (extension_in_public, 보류), performance 25 INFO (unused_index 24 + auth_db_connections 1). vitest 491→504 (+13). main `31e5b7a`. 차단 요소 없음. 다음 세션 후보: PR #68b 또는 새 Epic.
 - 날짜: 2026-05-06 (0020 + 0021 prod 적용) — **0020 + 0021 prod 적용 ✅** (MCP `apply_migration` × 2, Jayden 명시 승인). advisor: security WARN 2→**1** (function_search_path 정리), performance `unindexed_foreign_keys` 16→**0** ✅. PR #68 e2e-integration 첫 실행 결과: **fail (advisory)** — supabase start 성공, migration 미적용으로 `relation "messages" does not exist`. continue-on-error 패턴 정상 작동 (auto-merge 차단 X). 다음 PR (#68b) plan: `psql -f packages/database/migrations/*.sql` step 추가.
 - 날짜: 2026-05-06 (세션 종료 — 9 PR 누적, 3 오픈) — **이번 세션 6 PR 머지 (#60~65) + 3 PR 오픈 (#66~68) CI 진행 중**. main `73759fa` (직전 0019 prod 적용 docs). 다음 세션 즉시: 3 PR 머지 확인 + 작업 브랜치 3개 정리 + 0020/0021 prod 적용 승인 + PR #68 e2e-integration 첫 실행 결과 분석. vitest 491 → **504** (+13 신규 누적). type-check 6/6 + lint clean.
 - 날짜: 2026-05-06 (0019 prod 적용) — **0019 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). 16 RLS 정책 일괄 추가 (owner-scoped 7 + indirect FK 4 + user-scoped 3 + service-only USING(false) 2). advisor `rls_enabled_no_policy` **16 INFO → 0건** 검증 ✅. application 회귀 0 (service_role bypass). future anon 키 사용 시점에 차단선 + 의도 명세 확보.
