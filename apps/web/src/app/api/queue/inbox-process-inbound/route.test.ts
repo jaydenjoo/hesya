@@ -67,4 +67,16 @@ describe("worker /api/queue/inbox-process-inbound", () => {
       "00000000-0000-4000-8000-000000000001",
     );
   });
+
+  it("invalid payload (messageId 누락) → ZodError throw → 5xx", async () => {
+    const res = await POST(makeReq({ wrongField: "x" }));
+    expect(res.status).toBe(500);
+    expect(generateAndStoreReplyMock).not.toHaveBeenCalled();
+  });
+
+  it("invalid payload (messageId UUID 형식 아님) → ZodError throw → 5xx", async () => {
+    const res = await POST(makeReq({ messageId: "not-a-uuid" }));
+    expect(res.status).toBe(500);
+    expect(generateAndStoreReplyMock).not.toHaveBeenCalled();
+  });
 });
