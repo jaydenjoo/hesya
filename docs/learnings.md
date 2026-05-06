@@ -2275,3 +2275,31 @@ jobs:
 - 인간 리뷰: PR 4개의 squash merge SHA 시간 간격이 ≤ 10분이면 "병렬 진행 패턴" 적용 — PROGRESS에 명시.
 
 **연관**: L-062 (auto-merge workflow_run), L-063 (Playwright cache로 e2e ~1.5분 단축이 병렬 가능 전제), L-065 (PROGRESS stale 검증 → D6 작업 실제 가치 78.5% 발견). 이번 세션 PR #62~#65.
+
+---
+
+### [2026-05-06] L-068 — 큰 인프라 작업 첫 도입 시 `continue-on-error: true` advisory 패턴
+
+**증상 / 상황**: Phase B-5 (Supabase CLI in CI) 도입 PR 작업 중, 첫 시도가 supabase init 디렉토리 부재 / migration 자동 적용 누락 등으로 fail할 가능성이 높았다. fail 시 auto-merge 차단 → PR 머지 안 됨 → 의도(spec) 자체도 main에 못 들어감 → 다음 세션이 컨텍스트 잃고 재시작.
+
+**원인**: GitHub Actions는 job fail 시 PR check 전체 fail로 표시 → branch protection이 있으면 머지 차단. Hesya는 branch protection 없지만 auto-merge.yml이 모든 check SUCCESS만 머지하도록 설계됨.
+
+**해결 (이번 세션 패턴)**:
+
+1. **`continue-on-error: true`** 명시 — fail이어도 advisory만 됨, auto-merge 안 차단
+2. spec(`docs/superpowers/specs/...`)을 같은 PR에 묶어 의도 + 결정 + 검증 기준 명시 → 다음 PR fix 작업의 가이드
+3. 안정화 후 `continue-on-error` 제거하여 강제 (TODO 명시: PR 본문 + spec § 5 검증 기준)
+
+**규칙** ⭐:
+
+1. **새 CI job (특히 외부 의존성: Docker, supabase CLI, pgvector 등) 첫 도입 PR은 `continue-on-error: true` 권장**. 첫 시도 학습 → 다음 PR enforced 전환이 한 PR에 모든 시나리오 포함보다 안전 + 빠름.
+2. **첫 시도가 fail이라도 spec/문서가 main에 들어가야 다음 세션이 컨텍스트 보존**. spec only PR vs spec + 인프라 PR은 후자가 더 가치 (의도 + 코드가 한 묶음).
+3. **`continue-on-error` 제거 시점은 spec § 검증 기준에 명시**. 잊지 않도록 PR 본문 + spec 두 곳에 TODO.
+4. **반대 케이스: 작은 SQL only 마이그(0017, 0019, 0020)는 advisory 불필요** — 첫 시도가 거의 항상 성공. 인프라 setup/외부 도구가 advisory 후보.
+
+**확인 방법**:
+
+- 자동: PR diff에 `continue-on-error: true`가 있으면 PR description에 "anchor TODO: 안정화 후 제거" 라벨 자동 추가 (skill 후보).
+- 인간 리뷰: ci.yml에 `continue-on-error: true` 라인 grep → 각 job별로 enforced 전환 시점이 spec에 있는지 확인.
+
+**연관**: L-049 (multi-agent 사후 리뷰), L-062 (auto-merge workflow_run), L-067 (병렬 PR 패턴). 이번 세션 PR #68.

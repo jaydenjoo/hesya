@@ -4,14 +4,14 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **워크플로우 인프라 + Epic 1 1A/1B 시리즈 + Customer 확장 + Customer follow-up + 4 후속 PR (D6/Sec-M-3/S2/S3) 머지 완료** (auto-merge 라벨 10회 연속 검증 ✅)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone P1~P2-B ✅ + Customer 확장 ✅ + Customer follow-up ✅ + **D6 prompt caching ✅ + Sec-M-3 RLS 16 테이블 ✅ + S2 tone cap ✅ + S3 Sentry truncate ✅** → **다음**: 새 Epic 진입 또는 Phase B-5 (e2e 시나리오 + PostgreSQL CI)
-- **Task**: 1A ✅ / 1B B-1~B-4c ✅ / 1B-UI A-1~A-4 ✅ / 1B-Tone 1~4 ✅ / 워크플로우 A-1·A-2 ✅ / P2-A·P2-B ✅ / Customer CC-1~CC-7 ✅ / Code MED-3 ✅ / Sec MED-1 ✅ / **D6 (PR #62) ✅ / Sec-M-3 (PR #63) ✅ / S2 (PR #64) ✅ / S3 (PR #65) ✅**
-- **상태**: AI 응답 generate가 prompt caching으로 78.5% input 절감 (10회 호출 system 기준). RLS 16 테이블 일괄 정책 + future anon 키 차단선 확보. tone examples row cap 100 (storage growth 방어). Sentry userId/storeId 8자 truncate 일관. 차단 요소 없음 (단 0019 prod migration 적용 보류).
-- **작업 브랜치**: `main` (4 PR 머지 + 작업 브랜치 자동 삭제 완료). origin 동기화 ✅.
+- **Phase**: Phase 1 — **세션 누적 6 PR 머지 (#60~65) + 3 PR 오픈 (#66~68) CI 진행 중** (auto-merge 라벨 10회 연속 검증 ✅)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + D6/Sec-M-3/S2/S3 ✅ → **3 PR 오픈**: PR #66 advisor 0020 (function_search_path + FK 16 indexes), PR #67 Code LOW-7 (preferredDesigner 100자 + 0021 마이그), PR #68 Phase B-5 spec + ci.yml e2e-integration (advisory). 다음 세션: 머지 확인 + 0020/0021 prod 적용 + 새 Epic 결정.
+- **Task**: 직전 6 PR 머지 ✅ / **PR #66 ⏳ / PR #67 ⏳ / PR #68 ⏳**
+- **상태**: 3 PR 모두 CI 진행 중. PR #68은 `continue-on-error: true` advisory (supabase init/migration 미완성 → 다음 PR fix). 차단 요소 없음.
+- **작업 브랜치**: 3개 오픈 (chore/pr7-advisor-0020-fk-indexes, chore/pr8-code-low-7-preferred-designer-100, chore/pr9-phase-b5-e2e-pg-ci) — 머지 후 자동 삭제.
 - **최근 main 직접 commit**: `503c16d` (ci 병렬화), `725e437` (auto-merge.yml). 둘 다 인프라 yml 변경 — 정책상 main 직접 push 적용 (코드 회귀 0).
-- **최근 머지된 PR**: [#65](https://github.com/jaydenjoo/hesya/pull/65) S3 Sentry truncate — `auto-merge` 10회, squash `24e22f8`. 직전 [#64](https://github.com/jaydenjoo/hesya/pull/64) S2 tone cap (`89c8666`), [#63](https://github.com/jaydenjoo/hesya/pull/63) Sec-M-3 RLS 16 (`b8ade8d`), [#62](https://github.com/jaydenjoo/hesya/pull/62) D6 prompt caching (`2cf7775`).
-- **prod migration**: `0014` ✅ / `0015` ✅ / `0016` ✅ / `0017` ✅ / `0018` ✅ / **`0019_rls_remaining_tables.sql` 적용 ✅** (이번 세션 MCP, Jayden 명시 승인). 16 RLS 정책 일괄, service_role bypass로 application 회귀 0. advisor `rls_enabled_no_policy` **16 INFO → 0건** 검증 완료. 남은 advisor security: 1 WARN `function_search_path_mutable` (prevent_kyc_log_modification) + 1 WARN `extension_in_public` (vector) — 0019 무관 기존 항목. 남은 advisor performance: 16 INFO `unindexed_foreign_keys` + 8 INFO `unused_index` + 1 INFO `auth_db_connections_absolute` (모두 INFO).
+- **최근 머지된 PR**: [#65](https://github.com/jaydenjoo/hesya/pull/65) S3 Sentry truncate — `auto-merge` 10회, squash `24e22f8`. 이번 세션 6 PR (#60~65) 모두 squash merge.
+- **prod migration**: `0014`~`0019` ✅ / **`0020_advisor_cleanup.sql` + `0021_customers_preferred_designer_100.sql` 미적용 — Jayden 명시 승인 대기** (PR #66 #67 머지 후). advisor 적용 후 예상: security WARN 2→1 (extension_in_public만 잔존), performance `unindexed_foreign_keys` 16→0.
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -19,22 +19,34 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Customer + P2 follow-up (잔여, 선택)
+### 0. 다음 세션 즉시 할 일 (CI 머지 대기 중)
 
-**완료** (이번 세션 누적 6 PR):
+- ⏳ **PR #66 #67 #68 머지 확인** + main pull + 작업 브랜치 3개 정리
+- ⚠️ **0020 + 0021 prod migration 적용 일괄 승인** (Jayden 명시, MCP `apply_migration`)
+- 🔍 **PR #68 e2e-integration 첫 실행 결과 분석** — 예상 fail (supabase init 부재) → PR #68b plan
+- 📊 PROGRESS.md 갱신 (3 PR 머지 반영)
 
-- ✅ **Code MED-3**: IG accessToken URL → Authorization Bearer header (PR #60)
-- ✅ **Sec MED-1**: `ig_profile_fetched boolean` 플래그 + 0018 마이그 (PR #61)
-- ✅ **D6**: prompt caching system array + cache_control (PR #62) — 실측 78.5% 절감
-- ✅ **Sec-M-3**: RLS POLICY 16 테이블 + 0019 마이그 (PR #63)
-- ✅ **S2**: `store_tone_examples` per-store row cap = 100 (PR #64)
-- ✅ **S3**: Sentry userId/storeId 8자 truncate 일관 (PR #65)
+### 1. Customer + P2 follow-up (이번 세션 누적 9 PR)
+
+**완료**:
+
+- ✅ #60 Code MED-3 Bearer header / #61 Sec MED-1 ig_profile_fetched + 0018
+- ✅ #62 D6 prompt caching (78.5% 절감) / #63 Sec-M-3 RLS 16 + 0019
+- ✅ #64 S2 tone cap=100 / #65 S3 Sentry truncate
+
+**오픈 (이번 세션)**:
+
+- ⏳ #66 advisor 0020 cleanup (function_search_path WARN + FK 16 INFO)
+- ⏳ #67 Code LOW-7 preferredDesigner 100자 (Zod + UI + 0021 마이그)
+- ⏳ #68 Phase B-5 spec + ci.yml e2e-integration job (advisory, supabase CLI in CI)
 
 **잔여 (낮은 우선순위)**:
 
-- 🔵 **Code MED-5**: DAL test source-grep → mock DB pattern 통합 (의도된 패턴, 별 cleanup)
-- 🔵 **Code LOW-7**: `preferredDesigner` 500자 → UX 검토 (이름 필드 적정 길이)
+- 🔵 **Code MED-5**: DAL test source-grep → mock DB pattern 통합 (의도된 패턴)
 - 🔵 톤 학습 buffer 축적 시 quality 측정 (실 사용 후 정성 평가)
+- 🔵 **PR #68 follow-up (B-5b)**: supabase init + migration 자동 적용, e2e 시나리오 1건
+- 🔵 advisor `extension_in_public` (vector schema 이동) — Supabase 관리형 제한 가능성 → 보류
+- 🔵 advisor `unused_index` 8 — 트래픽 0이라 판단 어려움 → 베타 후
 
 ### 3. Shortcuts FAB 키보드 단축키 모달 (선택, ~1h)
 
@@ -108,6 +120,7 @@
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-06 (세션 종료 — 9 PR 누적, 3 오픈) — **이번 세션 6 PR 머지 (#60~65) + 3 PR 오픈 (#66~68) CI 진행 중**. main `73759fa` (직전 0019 prod 적용 docs). 다음 세션 즉시: 3 PR 머지 확인 + 작업 브랜치 3개 정리 + 0020/0021 prod 적용 승인 + PR #68 e2e-integration 첫 실행 결과 분석. vitest 491 → **504** (+13 신규 누적). type-check 6/6 + lint clean.
 - 날짜: 2026-05-06 (0019 prod 적용) — **0019 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). 16 RLS 정책 일괄 추가 (owner-scoped 7 + indirect FK 4 + user-scoped 3 + service-only USING(false) 2). advisor `rls_enabled_no_policy` **16 INFO → 0건** 검증 ✅. application 회귀 0 (service_role bypass). future anon 키 사용 시점에 차단선 + 의도 명세 확보.
 - 날짜: 2026-05-06 (4 후속 PR 머지) — **PR #62 D6 + #63 Sec-M-3 + #64 S2 + #65 S3 squash merge ✅** (auto-merge 7~10회 연속). main `24e22f8`. vitest 495 → **498** (+3 신규: D6 2 + S2 2 + S3 2 — 일부 helper 마이그). type-check 6/6 + lint clean.
 - 날짜: 2026-05-06 (0018 prod 적용) — **0018 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). `customers.ig_profile_fetched boolean NOT NULL DEFAULT false` 컬럼 추가. list_tables verbose로 컬럼 검증 ✅. security advisor 회귀 0 (기존 RLS no_policy INFO + function_search_path WARN + extension_in_public WARN만, 0018과 무관).
@@ -125,7 +138,48 @@
 - 날짜: 2026-05-05 late night — **Epic 1B Phase B-4 RAG 시리즈 완료** (PR #42 pgvector + #43 검색 주입 + #44 CRUD UI)
 - 날짜: 2026-05-05 night — **Epic 1B Phase B-3c 완료** (PR #41, Sec HIGH 1 + Code MEDIUM 4 + 운영 안전 fix)
 
-## 이번 세션 완료 (2026-05-06 후속 4 PR — D6/Sec-M-3/S2/S3 머지)
+## 이번 세션 완료 (2026-05-06 후속 — Quick Wins + Phase B-5 advisory, 3 PR 오픈)
+
+### PR #66 (advisor 0020 cleanup) — chore/db
+
+- 0020 마이그: function_search_path WARN 1 + unindexed_foreign_keys 16 INFO 일괄 fix
+- ALTER FUNCTION prevent_kyc_log_modification SET search_path = ''
+- CREATE INDEX IF NOT EXISTS × 16 (FK covering, 데이터 0이라 단순 CREATE)
+- SQL only — 코드 변경 0
+- 머지 + 0020 prod 적용 후 advisor: security WARN 2→1 + performance INFO 16→0 예상
+
+### PR #67 (Code LOW-7 preferredDesigner 100자) — fix/ux
+
+- 3-layer 불일치 fix (Zod 500 / DB CHECK 2000 / UI 500 → 모두 100자)
+- preferredDesigner는 이름 필드 표준 100자, allergyNote는 메모 500자 유지
+- 0021 마이그 + schema.ts + context-panel.tsx
+- TDD RED-GREEN: schema.test 100자 OK + 101자 reject 2건 신규
+- vitest 502 → 504 (+2)
+
+### PR #68 (Phase B-5 spec + ci.yml e2e-integration) — feat/ci
+
+- spec: docs/superpowers/specs/2026-05-06-phase-b5-e2e-pg-ci.md
+- ci.yml에 e2e-integration job 신규 (supabase/setup-cli@v1 + supabase start)
+- supabase status -o env로 HESYA_TEST_DATABASE_URL 동적 추출
+- pnpm test → DB-gated 40 skipped 자동 활성화 발판
+- **continue-on-error: true** (advisory) — 첫 시도 fail 가능성 → 다음 PR fix
+- e2e-smoke wall time 무영향 (별 job)
+
+### 검증 패턴 (이번 세션)
+
+- 6 PR 동시 진행 패턴 (L-067 재적용 + 확장 9 PR 한 세션)
+- L-065 stale 검증 — D6 추정 30%가 실측 78.5% (2배+)
+- continue-on-error advisory 패턴 — 큰 작업 첫 도입 시 안전장치
+
+### 통계 (이번 세션 누적)
+
+- 6 PR 머지 + 3 PR 오픈 (총 9 PR)
+- vitest 491 → **504** (+13 신규)
+- prod migration: 0018 + 0019 적용, 0020 + 0021 대기
+- main commits: 8+ (PR 머지 + docs)
+- learnings L-066 (TDD-guard) + L-067 (4 PR 병렬) 추가
+
+## 이전 세션 완료 (2026-05-06 후속 4 PR — D6/Sec-M-3/S2/S3 머지)
 
 ### 1. PR #62 (D6 prompt caching) — perf
 
