@@ -1,5 +1,11 @@
 import "server-only";
-import { desc, eq, storeToneExamples, type DbClient } from "@hesya/database";
+import {
+  desc,
+  eq,
+  sql,
+  storeToneExamples,
+  type DbClient,
+} from "@hesya/database";
 
 /**
  * Phase 2-B — 매장 톤 학습 (사장님 말투 reference) DAL.
@@ -14,6 +20,13 @@ import { desc, eq, storeToneExamples, type DbClient } from "@hesya/database";
 
 type StoreToneExample = typeof storeToneExamples.$inferSelect;
 
+/**
+ * S2 — 매장당 row cap. listRecentToneExamples default 10 대비 충분히 크면서
+ * storage growth 방어 (rate limit 30/h × 30일 ≈ 21,600 row/매장 가능 →
+ * 100으로 상한). cap 변경 시 본 상수만 수정.
+ */
+const STORE_TONE_EXAMPLE_CAP = 100;
+
 export async function insertToneExample(
   db: DbClient,
   storeId: string,
@@ -26,7 +39,23 @@ export async function insertToneExample(
       content,
     })
     .returning();
-  return inserted[0] ?? null;
+  if (!inserted[0]) return null;
+
+  // S2 — cap 초과 시 oldest 삭제. cap 안쪽 ID(최신 N개) 외 row를 일괄
+  // DELETE. service_role connection 전제 (RLS bypass). 정상 흐름에서 매번
+  // 최대 1 row 삭제 (insert 1 + delete 1).
+  await db.execute(sql`
+    DELETE FROM store_tone_examples
+    WHERE store_id = ${storeId}
+      AND id NOT IN (
+        SELECT id FROM store_tone_examples
+        WHERE store_id = ${storeId}
+        ORDER BY created_at DESC
+        LIMIT ${STORE_TONE_EXAMPLE_CAP}
+      )
+  `);
+
+  return inserted[0];
 }
 
 /**
