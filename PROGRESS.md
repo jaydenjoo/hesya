@@ -29,7 +29,11 @@
 
 ### 별 이슈 (후속 진단 필요)
 
-- 🟡 **Retry reschedule MessageNotFoundError**: `Q-1M0z...` publish 후 worker invoke 시 SDK 내부 reschedule API 호출 fail. visibility timeout 60s 기반 redelivery로는 동작하나 의도한 1+5+30s exp backoff은 깨진 상태. PR #75 후보.
+- 🟡 **Retry reschedule MessageNotFoundError**: `Q-1M0z...` publish 후 worker invoke 시 SDK 내부 reschedule API 호출 fail. visibility timeout 60s 기반 redelivery로는 동작하나 의도한 1+5+30s exp backoff은 깨진 상태. **Task 13 다음 entry point**.
+  - **SDK 버전**: 우리 `@vercel/queue ^0.1.6`이 npm latest와 동일 — SDK 업그레이드 옵션 폐기 ❌.
+  - **메시지 ID format 단서**: publish 시 받은 ID `Q-1M0zeW2mOqC8I12gNUJP13GZZr7Sdnxi`, 에러 메시지의 ID `s.Q.1M0zeW2mOqC8I12gNUJP13GZZr7Sdnxi.AJM4lZPnlRx` — SDK 내부 envelope ID에 `s.` prefix + `.AJM4...` suffix. retry API가 envelope ID를 못 찾는 듯.
+  - **유력 가설**: SDK 0.1.x 베타의 미해결 버그 (latest인데도 발생). GitHub issues 검색이 다음 진단 첫 단계.
+  - **Workaround 후보**: retry handler에서 reschedule API 의존 제거 → visibility timeout (60s) 자동 redelivery에 맡기기. 단 의도한 1+5+30s 패턴 깨짐 → 4×60s = 4분 후 DLQ 도달.
 - 🟡 **Vercel Queue dashboard observability lag**: post-fix publish에도 Queued/Received/Deleted 메트릭이 0으로 표시됨 (logs는 명확히 invoke 확인). beta product indexing 지연 가능성. 정상화 시점 모니터링 필요.
 
 ## Phase 1C — Vercel Queue 분리 완료 ✅ (subagent-driven 8 task)
