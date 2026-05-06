@@ -4,14 +4,14 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **워크플로우 인프라 개선 완료** + **Epic 1B-Tone Phase 2-A/2-B 머지 완료** (auto-merge 라벨 2회 검증 ✅)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone Phase 1 (4탭) ✅ + 1B-Tone Phase 2-A ✅ + **1B-Tone Phase 2-B (매장 톤 학습) ✅** → **다음**: Customer 확장 또는 다른 Epic 진입
-- **Task**: 1A ✅ / 1B B-1~B-4c ✅ / 1B-UI A-1~A-4 ✅ / 1B-Tone 1~4 ✅ / **워크플로우 A-1 (CI 병렬화+Playwright cache) ✅** / **워크플로우 A-2 (auto-merge.yml + 라벨) ✅** / **1B-Tone P2-A ✅** / **1B-Tone P2-B (매장 톤 학습 7-step) ✅**
-- **상태**: 사장이 답변 작성 → "🎙️ 내 매장 톤 학습 →" 버튼 클릭 → 매장 어휘/말투 reference 누적 → 다음 AI 답변 4 tone variation에 few-shot 주입. PR #57 머지 검증 결과 auto-merge 라벨 + workflow_run 정상 동작 (validate + e2e-smoke + Vercel 모두 SUCCESS → squash merge `c79081a` + 브랜치 자동 삭제). 차단 요소 없음.
-- **작업 브랜치**: `main` (Phase 2-B 머지 + 작업 브랜치 자동 삭제 완료). origin 동기화 ✅.
+- **Phase**: Phase 1 — **워크플로우 인프라 + Epic 1B-Tone P2-A/2-B + Customer 확장 머지 완료** (auto-merge 라벨 3회 연속 검증 ✅)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone P1 (4탭) ✅ + 1B-Tone P2-A ✅ + 1B-Tone P2-B (매장 톤 학습) ✅ + **Customer 확장 (IG profile + ContextPanel name/notes 편집) ✅** → **다음**: P2-B/P2-A follow-up (S2 row cap, S3 userId truncate, D6 prompt caching, Sec MED-1 IG fetch retry) 또는 다른 Epic 진입
+- **Task**: 1A ✅ / 1B B-1~B-4c ✅ / 1B-UI A-1~A-4 ✅ / 1B-Tone 1~4 ✅ / 워크플로우 A-1 (CI 병렬화+Playwright cache) ✅ / 워크플로우 A-2 (auto-merge.yml + 라벨) ✅ / 1B-Tone P2-A ✅ / 1B-Tone P2-B ✅ / **Customer 확장 CC-1~CC-7 (DB+DAL+IG fetch+webhook+Server Action+ContextPanel UI) ✅**
+- **상태**: 사장이 ContextPanel에서 고객 이름(IG 자동 fetch) + 방문 횟수 + 사용 금액 보고, 알러지·선호 디자이너 메모 편집·저장. PR #58 머지 검증 결과 auto-merge 인프라 정상 (validate + e2e-smoke + Vercel 모두 SUCCESS → squash merge `7ceeaff` + 브랜치 자동 삭제). 차단 요소 없음 (단 0016 prod migration 적용 보류).
+- **작업 브랜치**: `main` (Customer 확장 머지 + 작업 브랜치 자동 삭제 완료). origin 동기화 ✅.
 - **최근 main 직접 commit**: `503c16d` (ci 병렬화), `725e437` (auto-merge.yml). 둘 다 인프라 yml 변경 — 정책상 main 직접 push 적용 (코드 회귀 0).
-- **최근 머지된 PR**: [#57](https://github.com/jaydenjoo/hesya/pull/57) Phase 2-B — `auto-merge` 라벨 2회 사용, squash merge `c79081a`, 26 신규 테스트, 466/466 + 40 skipped.
-- **prod migration**: `0014_messages_tone_metadata.sql` 적용 완료. **`0015_store_tone_examples.sql` 미적용 — Jayden 수동 적용 필요** (drizzle ignores unknown table이라 코드 머지 자체는 회귀 0이지만 P2-B 학습 기능은 prod 미동작).
+- **최근 머지된 PR**: [#58](https://github.com/jaydenjoo/hesya/pull/58) Customer 확장 — `auto-merge` 라벨 3회 사용, squash merge `7ceeaff`, 25 신규 테스트, 491/491 + 40 skipped, 사후 리뷰 fix 5건 (Sec MED-2 명시 select, LOW-3 DB CHECK, Code HIGH-1 NotesForm key, HIGH-2 unknown cast, MED-4 Sentry storeId tag).
+- **prod migration**: `0014_messages_tone_metadata.sql` 적용 완료 (SQL Editor). **`0015_store_tone_examples.sql` 적용 ✅** (이번 세션 MCP `apply_migration`). **`0016_customers_profile.sql` 미적용 — Jayden 명시 승인 대기** (drizzle ignores unknown column이라 코드 머지 자체는 회귀 0이지만 Customer 확장 기능은 prod 미동작).
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -19,33 +19,31 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. prod migration `0015_store_tone_examples.sql` 수동 적용 (선결, ~5분)
+### 1. prod migration `0016_customers_profile.sql` 적용 (선결, ~5분)
 
-- Jayden Supabase Dashboard → SQL Editor → `0015_store_tone_examples.sql` 실행
-- 검증: `list_tables` `store_tone_examples` 존재 + RLS 적용 + advisor 클린
+- Jayden 명시 승인 후 옵션 A: MCP `apply_migration` (1분 자동) 또는 옵션 B: Supabase Dashboard SQL Editor 수동
+- SQL: `name`/`allergy_note`/`preferred_designer` 3 컬럼 + 2 CHECK 2000자 제약
+- 검증: `mcp__claude_ai_Supabase__list_tables verbose` → customers 컬럼 11개+3=14개 확인
+- 미적용 시 코드 머지는 안전 (drizzle ignores unknown column)이나 Customer 확장 기능 prod 미동작
 
-### 2. P2-B/P2-A follow-up (선택, 별 PR)
+### 2. Customer 확장 follow-up (선택, 별 PR)
 
 **Security review 잔여**:
 
-- 🟡 S2: `store_tone_examples` per-store row cap (storage growth 방어)
-- 🟢 S3: Sentry full userId → 8자 truncate (cross-cutting, 기존 패턴 통합)
+- 🟡 **Sec MED-1**: `ig_profile_fetched boolean` 플래그 + 0017 마이그 — 영구 fail customer 무한 retry 방어
 
-**최적화**:
+**Code review 잔여**:
 
-- 🔵 D6: prompt caching — system을 array of blocks로 리팩 (cache breakpoint, ~30% 비용 절감 추정)
+- 🟡 **Code MED-3**: IG accessToken URL → Authorization header (모든 IG endpoint 영향, 큰 변경)
+- 🔵 **Code MED-5**: DAL test source-grep → mock DB pattern 통합 (의도된 패턴, 별 cleanup)
+- 🔵 **Code LOW-7**: `preferredDesigner` 500자 → UX 검토 (이름 필드 적정 길이)
+
+### 3. P2-B/P2-A follow-up (선택, 별 PR)
+
+- 🟡 **S2**: `store_tone_examples` per-store row cap (storage growth 방어)
+- 🟢 **S3**: Sentry full userId → 8자 truncate (cross-cutting, 기존 패턴 통합)
+- 🔵 **D6**: prompt caching — system을 array of blocks로 리팩 (cache breakpoint, ~30% 비용 절감 추정)
 - 🔵 톤 학습 buffer 축적 시 quality 측정 (실 사용 후 정성 평가)
-
-### 3. Epic Customer 확장: 고객 정보 풍부화 (~4~6h)
-
-ContextPanel 데이터 확장 (현재 1B 스코프 밖):
-
-- 고객 이름 (IG profile name)
-- 국적 flag (preferredLanguage 매핑 또는 IG locale)
-- 사용 금액 / 선호 디자이너 / 알러지 메모 → Customer 테이블 확장
-- payment history → Payments 결제 Epic (별 Epic)
-
-**선행 작업**: Customer 스키마 확장 마이그레이션 + IG profile fetch (`/me?fields=profile_pic_url,name,locale`)
 
 ### 4. Shortcuts FAB 키보드 단축키 모달 (선택, ~1h)
 
@@ -119,6 +117,7 @@ ContextPanel 데이터 확장 (현재 1B 스코프 밖):
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-06 (Customer 확장 풀 세션) — **Customer 확장 7-step 완료** (PR #58 squash merge `7ceeaff`). 0015 prod 적용 ✅ (MCP). DB 0016 마이그 + DAL 3 함수 + IG fetchUserProfile + locale-to-language helper + webhook 자동 enrichment + Server Action updateCustomerNotes + ContextPanel Notes 편집 form. 사후 리뷰 2-agent 병렬 결과 fix 5건 적용 (Sec MED-2 명시 select, LOW-3 DB CHECK, Code HIGH-1 NotesForm key prop+caller reset, HIGH-2 unknown cast, MED-4 Sentry storeId tag). vitest 491 passed (+25 신규) + 40 skipped. type-check 6/6 + lint Done. auto-merge 라벨 3회 연속 검증 ✅. **prod migration `0016_customers_profile.sql` 미적용 — Jayden 명시 승인 대기**.
 - 날짜: 2026-05-06 (P2-B 풀 세션) — **Epic 1B-Tone Phase 2-B 매장 톤 학습 완료** (PR #57 squash merge `c79081a`). 7-step 구현 (DB → DAL → Action → Prompt → Trigger → UI → Review). 사후 리뷰 2-agent 병렬 결과 fix 6건 적용 (Sec S1 rate limit 30/h, Code HIGH-2 catch 주석, MEDIUM-1 null 가드, LOW-1 onChange clear, HIGH-1은 message-view key prop 패턴 위임, lint 1 error fix). vitest 466 passed (+26 신규) + 40 skipped. type-check 6/6 + lint Done. auto-merge 라벨 2회 연속 검증 ✅. **prod migration `0015_store_tone_examples.sql` 수동 적용 보류 (Jayden)**.
 - 날짜: 2026-05-06 세션 시작 — **PR #56 자동 머지 검증 ✅** (auto-merge 라벨 + workflow_run 트리거 첫 동작 성공: validate + e2e-smoke + Vercel + Vercel Preview Comments 모두 SUCCESS → squash merge `6730140` + 브랜치 자동 삭제). main + origin/main 완전 동기화. 다음 Task: Phase 2-B 매장 톤 학습.
 - 날짜: 2026-05-05 심야 후속 — **워크플로우 인프라 (CI 병렬화 + Playwright cache + auto-merge.yml) + Epic 1B-Tone Phase 2-A 구현 (PR #56 open with auto-merge 라벨)**. main SHA `725e437`. learnings L-062 (auto-merge silent ignore), L-063 (Playwright cache) 추가.
