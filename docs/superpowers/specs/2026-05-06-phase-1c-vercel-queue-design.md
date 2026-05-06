@@ -64,14 +64,14 @@ type ProcessInboundJob = {
 };
 ```
 
-**Worker response → Vercel Queue 동작**:
+**Worker response → Vercel Queue 동작 (D6 callback workaround 적용)**:
 
-| 상황                                                 | HTTP | Queue 동작                         |
-| ---------------------------------------------------- | ---- | ---------------------------------- |
-| `generateAndStoreReply` 성공                         | 200  | 완료                               |
-| Skip (`already_responded`, `invalid_store_name` 등)  | 200  | 정상 흐름, retry X (멱등)          |
-| Transient throw (Anthropic 502, DB connection lost)  | 5xx  | retry (3회 exp backoff: 1s/5s/30s) |
-| Permanent fail (Zod payload invalid, UUID malformed) | 4xx  | DLQ 즉시 (retry 무의미)            |
+| 상황                                                | HTTP | Queue 동작                                                  |
+| --------------------------------------------------- | ---- | ----------------------------------------------------------- |
+| `generateAndStoreReply` 성공                        | 200  | 완료                                                        |
+| Skip (`already_responded`, `invalid_store_name` 등) | 200  | 정상 흐름, retry X (멱등)                                   |
+| Transient throw, deliveryCount 1~3                  | 5xx  | server-side visibility timeout(60s) 만료 후 자동 redelivery |
+| deliveryCount 4 도달                                | 200  | DLQ 격리 — Sentry capture + acknowledge (재시도 안 함)      |
 
 ### 2.4 Architecture 흐름도
 
@@ -111,12 +111,14 @@ Vercel Queue → POST /api/queue/inbox-process-inbound (별 process)
 - 트래픽 작은 베타 시점이라 베타 risk 무시 가능
 - 대안 (Upstash QStash GA / Inngest)은 외부 의존 또는 overkill
 
-### D2. Retry 정책: **3회 + exponential backoff (1s, 5s, 30s)**
+### D2. Retry 정책: **3회 + 60s 균일 (D6 callback workaround로 임시)**
 
-- 업계 표준 + Vercel default 패턴
-- Anthropic transient error(502, rate limit) 자동 복구
-- 영구 실패 ~36s 안에 DLQ 격리 → 비용 누수 방어
+- ~~3회 exponential backoff (1s, 5s, 30s)~~ — SDK 0.1.6 callback push 모드 결함으로 비활성. **D6 참조**.
+- 현재: 3회 retry, 간격은 server-side visibility timeout(60s) 균일. 4번째 시도 시 DLQ.
+- Anthropic transient error(502, rate limit) 자동 복구는 60s 후 재시도로 동일 효과
+- 영구 실패 ~3분 안에 DLQ 격리 → 비용 누수 방어 (1+5+30s = 36s 대비 5배 느림)
 - `markAIResponded` race-safe claim으로 멱등 보장 → retry 안전
+- SDK fix 후 1+5+30s 패턴 복구 예정 (별 PR)
 
 ### D3. DLQ 처리: **Sentry alert만**
 
@@ -135,6 +137,14 @@ Vercel Queue → POST /api/queue/inbox-process-inbound (별 process)
 - Meta retry 폭증 방어가 메시지 1건 누락보다 우선
 - enqueue 실패는 이론상 매우 드뭄 (Vercel infra)
 - enqueue 실패 빈도 모니터링 → 임계값 초과 시 alert (Sentry 자동)
+
+### D6. Callback retry workaround (`@vercel/queue` 0.1.6 결함)
+
+- **결함**: callback push 모드에서 retry handler가 `{ afterSeconds: N }` 반환 시 SDK가 `changeVisibility(PATCH /lease/{handle})`를 호출하나 server가 404 응답 → SDK가 silent catch 후 callback 200 응답 → server가 ack로 처리 → **메시지 1회 invoke 후 종결**
+- **진단**: SDK 소스 `dist/index.mjs` 라인 386-401 (catch 후 finalizePayload + return). 받은 receiptHandle은 v2beta callback의 `ce-vqsreceipthandle` 헤더에서 추출되며, polling 모드의 `lease` 엔드포인트와 호환되지 않음.
+- **Workaround**: retry handler에서 `deliveryCount < 4` 시 `undefined` 반환 → SDK가 throw 전파 → callback 5xx → server-side visibility timeout(60s) 만료 후 자동 redelivery. `deliveryCount === 4` 시 `{ acknowledge: true }`로 DLQ 진입.
+- **비용**: 의도한 1+5+30s 패턴 손실, 60s 균일 retry로 변경. 총 retry 시간 36s → ~3분.
+- **후속**: `vercel/sdk` repo에 issue 등록 (`docs/superpowers/specs/2026-05-06-vercel-queue-callback-retry-issue.md`). SDK fix 시 1+5+30s 복구.
 
 ---
 
@@ -183,6 +193,7 @@ Vercel Queue → POST /api/queue/inbox-process-inbound (별 process)
 | 위험                                    | 가능성 | 영향                                                              | 완화                                                                                                  |
 | --------------------------------------- | ------ | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | Vercel Queues beta 안정성               | 중     | 메시지 enqueue 실패 → Sentry alert + 사장 인박스 새로고침 안 보임 | 베타 시점 트래픽 작음. 문제 시 revert 빠름. enqueue 실패 시 webhook 200 OK는 그대로 (Meta retry 방어) |
+| SDK callback retry 결함 (D6)            | 확정   | 의도한 1+5+30s 백오프 → 60s 균일로 변경 (총 retry ~3분)           | D6 workaround로 retry 흐름 자체는 보장. SDK upstream fix 시 별 PR로 복구.                             |
 | Vercel Queue dev 환경 부재              | 중     | 로컬 개발 시 enqueue가 어떻게 동작?                               | dev에서는 SDK가 즉시 worker 호출 또는 mock. 검증은 preview 배포에서                                   |
 | Worker endpoint URL 보안                | 낮     | Vercel Queue가 호출하는 URL을 외부에서 직접 호출 가능?            | Vercel Queue가 보안 토큰 자동 inject (SDK가 검증). 추가 검토 필요                                     |
 | webhook → enqueue → worker 추가 latency | 낮     | AI 응답 도착 ~수백 ms~수 초 늦음                                  | 인박스 polling refresh로 자동 도착. 사장 인지 차이 0                                                  |
