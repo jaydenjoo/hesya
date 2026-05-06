@@ -1,10 +1,24 @@
 import { createHmac } from "node:crypto";
-import { describe, it, expect, beforeAll, beforeEach } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { createDbClient, type DbClient } from "@hesya/database";
 import { resetDb, seedStore, seedStoreIntegration } from "@/test-helpers/db";
 import { env } from "@/shared/config/env";
 import { GET, POST } from "./route";
+
+// vi.hoisted(): vi.mock 팩토리는 파일 최상단으로 hoist되기 때문에 일반 변수를
+// 참조하면 TDZ(Temporal Dead Zone) 에러 발생. vi.hoisted()로 선언된 값은
+// hoist와 함께 올라가므로 팩토리 안에서 안전하게 참조 가능.
+// mockResolvedValue(undefined): enqueueProcessInbound는 Promise<void>를 반환.
+// vi.fn() 기본값은 undefined(동기) → route에서 .catch() 호출 시 TypeError.
+// resolved Promise를 반환하도록 설정해야 webhook 흐름이 정상 진행된다.
+const { enqueueProcessInboundMock } = vi.hoisted(() => ({
+  enqueueProcessInboundMock: vi.fn().mockResolvedValue(undefined),
+}));
+vi.mock("@/lib/inbox/queue", () => ({
+  enqueueProcessInbound: enqueueProcessInboundMock,
+  INBOX_PROCESS_INBOUND_TOPIC: "inbox-process-inbound",
+}));
 
 const url = process.env.HESYA_TEST_DATABASE_URL;
 const hasDb = Boolean(url);
@@ -150,6 +164,8 @@ describe.skipIf(!hasDb)("webhook POST (integration)", () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(200);
+    expect(enqueueProcessInboundMock).toHaveBeenCalledTimes(1);
+    expect(enqueueProcessInboundMock).toHaveBeenCalledWith(expect.any(String));
   });
 
   it("HMAC OK + 매장 미연결 → 200 (무시)", async () => {
