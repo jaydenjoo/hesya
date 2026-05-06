@@ -11,7 +11,7 @@
 - **작업 브랜치**: `main` (PR #60 + #61 머지 + 작업 브랜치 자동 삭제 완료). origin 동기화 ✅.
 - **최근 main 직접 commit**: `503c16d` (ci 병렬화), `725e437` (auto-merge.yml). 둘 다 인프라 yml 변경 — 정책상 main 직접 push 적용 (코드 회귀 0).
 - **최근 머지된 PR**: [#61](https://github.com/jaydenjoo/hesya/pull/61) Sec MED-1 ig_profile_fetched — `auto-merge` 6회, squash `c59ff1d`, 8 파일 (0018 마이그 + schema + DAL + route + 5 fixture). 직전 [#60](https://github.com/jaydenjoo/hesya/pull/60) Code MED-3 Bearer header — squash `9733f1e`, 1 파일 2 함수 (1 신규 회귀 테스트).
-- **prod migration**: `0014` ✅ / `0015` ✅ / `0016` ✅ / `0017` ✅ / **`0018_customers_ig_profile_fetched.sql` 미적용 — Jayden 명시 승인 대기** (NOT NULL DEFAULT false → backfill 안전, 머지 전후 순서 무관). 남은 advisor performance: 16 INFO `unindexed_foreign_keys` + 8 INFO `unused_index` + 1 INFO `auth_db_connections_absolute` (모두 INFO).
+- **prod migration**: `0014` ✅ / `0015` ✅ / `0016` ✅ / `0017` ✅ / **`0018_customers_ig_profile_fetched.sql` 적용 ✅** (이번 세션 MCP, Jayden 명시 승인). customers 컬럼 12→13 (`ig_profile_fetched boolean default false`). advisor 회귀 0. 남은 advisor performance: 16 INFO `unindexed_foreign_keys` + 8 INFO `unused_index` + 1 INFO `auth_db_connections_absolute` (모두 INFO).
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -110,7 +110,8 @@
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-06 (Customer follow-up 2 PR 머지) — **PR #60 (Code MED-3) + PR #61 (Sec MED-1) squash merge ✅** (auto-merge 6회 연속). main `c59ff1d`. vitest 491 → **495** (+4 신규). type-check 6/6 + lint clean. **0018 prod 적용 미진행 (Jayden 명시 승인 대기)**.
+- 날짜: 2026-05-06 (0018 prod 적용) — **0018 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). `customers.ig_profile_fetched boolean NOT NULL DEFAULT false` 컬럼 추가. list_tables verbose로 컬럼 검증 ✅. security advisor 회귀 0 (기존 RLS no_policy INFO + function_search_path WARN + extension_in_public WARN만, 0018과 무관).
+- 날짜: 2026-05-06 (Customer follow-up 2 PR 머지) — **PR #60 (Code MED-3) + PR #61 (Sec MED-1) squash merge ✅** (auto-merge 6회 연속). main `c59ff1d`. vitest 491 → **495** (+4 신규). type-check 6/6 + lint clean.
 - 날짜: 2026-05-06 (0017 prod 적용) — **0017 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). advisor performance `auth_rls_initplan` 5 WARN → **0건 검증 완료**. RLS hot path 성능 안전망 확보 (향후 anon 키 사용 시점 효과).
 - 날짜: 2026-05-06 (RLS InitPlan 최적화) — **PR #59 머지 ✅** (auto-merge 4회 연속, squash `1f7f869`, SQL only). 5 테이블 RLS policy `auth.uid()` → `(select auth.uid())` InitPlan 패턴. application 회귀 0 (service_role bypass).
 - 날짜: 2026-05-06 (Customer 확장 + 0016 prod 적용) — **0016 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). customers 컬럼 11→14 (name/allergy_note/preferred_designer + 2 CHECK 2000자). 모든 P2-B/Customer 확장 기능 prod 동작 가능. 차단 요소 없음.
