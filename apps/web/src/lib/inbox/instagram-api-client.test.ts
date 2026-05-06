@@ -51,6 +51,21 @@ describe("fetchInstagramApiClient — env-based BASE URL", () => {
     const url = fetchSpy.mock.calls[0][0] as string;
     expect(url).toMatch(/^http:\/\/localhost:4201\/me/);
   });
+
+  // Code MED-3: getMe도 Authorization Bearer header (URL access_token 노출 방어)
+  it("getMe → access_token은 Authorization header (URL 미노출)", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: "u1", username: "alice" }),
+    });
+    await fetchInstagramApiClient.getMe("secret-token");
+    const url = fetchSpy.mock.calls[0][0] as string;
+    expect(url).not.toMatch(/access_token=/);
+    const init = fetchSpy.mock.calls[0][1] as RequestInit;
+    expect(init.headers).toMatchObject({
+      authorization: "Bearer secret-token",
+    });
+  });
 });
 
 describe("fetchInstagramApiClient.fetchUserProfile (CC-3)", () => {
@@ -73,9 +88,11 @@ describe("fetchInstagramApiClient.fetchUserProfile (CC-3)", () => {
       locale: "en_US",
     });
     const url = fetchSpy.mock.calls[0][0] as string;
-    expect(url).toMatch(
-      /\/12345\?.*fields=name,profile_pic,locale.*access_token=tok/,
-    );
+    expect(url).toMatch(/\/12345\?.*fields=name,profile_pic,locale/);
+    // Code MED-3: access_token은 URL이 아닌 Authorization Bearer header로 (CWE-598 방어)
+    expect(url).not.toMatch(/access_token=/);
+    const init = fetchSpy.mock.calls[0][1] as RequestInit;
+    expect(init.headers).toMatchObject({ authorization: "Bearer tok" });
   });
 
   it("일부 필드 누락 (privacy 정책) → 누락은 null로 graceful", async () => {

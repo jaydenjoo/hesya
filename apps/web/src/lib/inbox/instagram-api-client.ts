@@ -102,9 +102,9 @@ export const fetchInstagramApiClient: InstagramApiClient = {
   },
 
   async getMe(accessToken) {
-    const res = await fetch(
-      `${getBase()}/me?fields=id,username&access_token=${encodeURIComponent(accessToken)}`,
-    );
+    const res = await fetch(`${getBase()}/me?fields=id,username`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
     if (!res.ok) {
       throw new ExternalApiError("IG /me 조회 실패", {
         status: res.status,
@@ -138,7 +138,10 @@ export const fetchInstagramApiClient: InstagramApiClient = {
 
   async fetchUserProfile({ igUserId, accessToken }) {
     const res = await fetch(
-      `${getBase()}/${igUserId}?fields=name,profile_pic,locale&access_token=${encodeURIComponent(accessToken)}`,
+      `${getBase()}/${igUserId}?fields=name,profile_pic,locale`,
+      {
+        headers: { authorization: `Bearer ${accessToken}` },
+      },
     );
     if (!res.ok) {
       throw new ExternalApiError("IG 사용자 프로필 조회 실패", {
