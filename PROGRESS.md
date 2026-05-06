@@ -11,7 +11,7 @@
 - **작업 브랜치**: 3개 오픈 (chore/pr7-advisor-0020-fk-indexes, chore/pr8-code-low-7-preferred-designer-100, chore/pr9-phase-b5-e2e-pg-ci) — 머지 후 자동 삭제.
 - **최근 main 직접 commit**: `503c16d` (ci 병렬화), `725e437` (auto-merge.yml). 둘 다 인프라 yml 변경 — 정책상 main 직접 push 적용 (코드 회귀 0).
 - **최근 머지된 PR**: [#65](https://github.com/jaydenjoo/hesya/pull/65) S3 Sentry truncate — `auto-merge` 10회, squash `24e22f8`. 이번 세션 6 PR (#60~65) 모두 squash merge.
-- **prod migration**: `0014`~`0019` ✅ / **`0020_advisor_cleanup.sql` + `0021_customers_preferred_designer_100.sql` 미적용 — Jayden 명시 승인 대기** (PR #66 #67 머지 후). advisor 적용 후 예상: security WARN 2→1 (extension_in_public만 잔존), performance `unindexed_foreign_keys` 16→0.
+- **prod migration**: `0014`~`0019` ✅ / **`0020` + `0021` 적용 ✅** (이번 세션 MCP, Jayden 명시 승인). advisor: security WARN **2→1** (function_search_path 정리, extension_in_public만 잔존), performance `unindexed_foreign_keys` **16→0** ✅. 신규 `unused_index` 16건 추가 (방금 추가한 FK 인덱스 — 트래픽 0이라 즉시 unused 표시, 베타 시점 자동 사용 예상). 0021은 preferred_designer CHECK 2000→100자.
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -120,6 +120,7 @@
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-06 (0020 + 0021 prod 적용) — **0020 + 0021 prod 적용 ✅** (MCP `apply_migration` × 2, Jayden 명시 승인). advisor: security WARN 2→**1** (function_search_path 정리), performance `unindexed_foreign_keys` 16→**0** ✅. PR #68 e2e-integration 첫 실행 결과: **fail (advisory)** — supabase start 성공, migration 미적용으로 `relation "messages" does not exist`. continue-on-error 패턴 정상 작동 (auto-merge 차단 X). 다음 PR (#68b) plan: `psql -f packages/database/migrations/*.sql` step 추가.
 - 날짜: 2026-05-06 (세션 종료 — 9 PR 누적, 3 오픈) — **이번 세션 6 PR 머지 (#60~65) + 3 PR 오픈 (#66~68) CI 진행 중**. main `73759fa` (직전 0019 prod 적용 docs). 다음 세션 즉시: 3 PR 머지 확인 + 작업 브랜치 3개 정리 + 0020/0021 prod 적용 승인 + PR #68 e2e-integration 첫 실행 결과 분석. vitest 491 → **504** (+13 신규 누적). type-check 6/6 + lint clean.
 - 날짜: 2026-05-06 (0019 prod 적용) — **0019 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). 16 RLS 정책 일괄 추가 (owner-scoped 7 + indirect FK 4 + user-scoped 3 + service-only USING(false) 2). advisor `rls_enabled_no_policy` **16 INFO → 0건** 검증 ✅. application 회귀 0 (service_role bypass). future anon 키 사용 시점에 차단선 + 의도 명세 확보.
 - 날짜: 2026-05-06 (4 후속 PR 머지) — **PR #62 D6 + #63 Sec-M-3 + #64 S2 + #65 S3 squash merge ✅** (auto-merge 7~10회 연속). main `24e22f8`. vitest 495 → **498** (+3 신규: D6 2 + S2 2 + S3 2 — 일부 helper 마이그). type-check 6/6 + lint clean.
