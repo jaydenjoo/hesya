@@ -94,6 +94,42 @@ describe("test-helpers/db", () => {
     );
   });
 
+  it("seedMessage forwards customerId when provided (production webhook path 일관성)", async () => {
+    const returningSpy = vi.fn(() => Promise.resolve([{ id: "msg_2" }]));
+    const valuesSpy = vi.fn(() => ({ returning: returningSpy }));
+    const insertSpy = vi.fn(() => ({ values: valuesSpy }));
+    const fakeDb = { insert: insertSpy } as unknown as DbClient;
+
+    await helpers.seedMessage(fakeDb, {
+      conversationId: "conv_1",
+      customerId: "cust_42",
+      direction: "inbound",
+      text: "Hello",
+    });
+
+    expect(valuesSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ customerId: "cust_42" }),
+    );
+  });
+
+  it("seedMessage forwards storeId when provided (RAG 검색 storeId 의존)", async () => {
+    const returningSpy = vi.fn(() => Promise.resolve([{ id: "msg_3" }]));
+    const valuesSpy = vi.fn(() => ({ returning: returningSpy }));
+    const insertSpy = vi.fn(() => ({ values: valuesSpy }));
+    const fakeDb = { insert: insertSpy } as unknown as DbClient;
+
+    await helpers.seedMessage(fakeDb, {
+      conversationId: "conv_1",
+      storeId: "store_99",
+      direction: "inbound",
+      text: "Hi",
+    });
+
+    expect(valuesSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ storeId: "store_99" }),
+    );
+  });
+
   it("seedUser id override → 명시 id로 INSERT 가능 (E2E_AUTH_USER_ID 동기화용)", async () => {
     const returningSpy = vi.fn(() => Promise.resolve([{ id: "fixed_id" }]));
     const valuesSpy = vi.fn(() => ({ returning: returningSpy }));

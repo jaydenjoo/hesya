@@ -51,6 +51,7 @@ describe.skipIf(!hasDb)("generateAndStoreReply (integration)", () => {
     });
     const inboundId = await seedMessage(db, {
       conversationId: convId,
+      customerId: customer!.id,
       direction: "inbound",
       text: "Hello",
     });
@@ -161,6 +162,8 @@ describe.skipIf(!hasDb)("generateAndStoreReply (integration)", () => {
     });
     const inboundId = await seedMessage(db, {
       conversationId: convId,
+      customerId: customer!.id,
+      storeId,
       direction: "inbound",
       text: "단발 가능한가요?",
     });
