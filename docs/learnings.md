@@ -2527,3 +2527,39 @@ PR #73의 CI/머지 단계에서 이 미스매치가 잡히지 않는다. valida
 - 메타: PR가 한 commit으로 squash되는 정책에선 "review를 끝내고 PR을 만든다" 흐름이 정공법. "PR 만들고 review로 fix 추가" 흐름은 auto-merge race를 만든다.
 
 **연관**: L-067 (병렬 PR 패턴), L-070 (advisory 5단계 closure — 큰 인프라 단계적 PR), L-074 (직전, callback retry workaround — 본 PR의 진단 학습). 본 세션 PR #76 + dangling commit `062bb77`.
+
+---
+
+### [2026-05-06] L-076 — Vercel Queue beta trigger registration silent fail은 vercel.json fix로 해결 안 될 수 있음. server-side 의심 시 fresh topic + Vercel staff 문의가 정공법.
+
+**증상 / 상황**: Phase 1C Task 13 PR #76 머지 후 prod 검증 시 `inbox-process-inbound` topic에 publish는 정상 (Throughput spike + Consumer Group 등록 ✅), 단 worker invoke 0건. Dashboard `Received: 0`. 3차 publish (`N-`, `C-`, `G-` prefix 다른 messageId 형식) 모두 invoke 안 됨. PR #77로 vercel.json `retryAfterSeconds`/`initialDelaySeconds` 옵션 제거 + 새 deployment에서도 동일 fail. PR #74 시점엔 같은 vercel.json으로 worker invoke 1회 확인됐던 history 있음.
+
+**원인 (가설, 미확정)**:
+
+1. (가장 유력) **Vercel queue beta infra server-side 변경** — 같은 vercel.json이 시점에 따라 다르게 동작. PR #74 시점(2026-05-06 오후)과 본 세션(같은 날 밤) 사이 Vercel 측 silent change 가능성. beta product의 일반적 risk.
+2. (가능) **자동 redeploy 사이 trigger registration race** — 본 세션 8개 commit + PR #76/#77 squash 머지로 deployment 3회 변경. 매번 trigger 재등록 처리되며 일부 fail.
+3. (낮음) **vercel.json 비표준 옵션** — PR #77로 제거했지만 여전히 fail이라 폐기.
+
+**해결 (해결 못 함, closure 보류)**:
+
+본 세션은 시간 제약으로 Vercel staff 문의 + fresh project test까지 진행 못 함. 다음 세션에서:
+
+- (a) Vercel `vercel/sdk` repo에 issue 등록 — Queue trigger registration silent fail 보고 (callback retry 결함과 별 issue)
+- (b) Vercel queue dashboard에서 trigger registration 상태를 직접 보는 방법 docs 확인
+- (c) Fresh test topic + minimal vercel.json으로 isolate test — Hesya project 자체 문제인지, 베타 인프라 문제인지 분리
+
+**규칙** ⭐:
+
+1. **Vercel queue beta 같은 베타 인프라는 시점 의존적으로 동작 변경 가능. 한 번 작동했다고 영구 작동 보장 X.** PR diff에 vercel.json 변경이 없어도 상위 인프라 변경으로 trigger registration이 silent fail 될 수 있음. 주기적 검증 필요.
+2. **dashboard `Received: 0`이 trigger 미등록 결정적 신호 (L-072 재확인)**. 단 fix 시도가 항상 효과 있는 건 아님 — vercel.json options/위치 fix가 불충분이면 server-side 의심.
+3. **fix 가설이 1회 이상 효과 없으면 staff 문의 또는 fresh project isolation test로 전환**. 같은 fix 반복 시도(deployment 또 trigger)는 시간 낭비. 서비스 측 근본 원인은 customer-side patch로 해결 안 되는 케이스가 베타 product에 흔함.
+4. **베타 product 의존 PR은 prod 검증을 항상 PR diff 외 별도 운영 단계로 명시.** PROGRESS에 검증 결과 기록 + 차단 시 fallback 인프라(QStash, Inngest 등) 미리 검토.
+5. **검증 스크립트(`scripts/verify-*.ts`)는 PR 본문에 명시 — 향후 동일 검증을 빠르게 재실행 가능하게.** 본 세션 `verify-dlq-publish.ts`처럼 일회용처럼 보여도 실 운영 인프라 검증에 재사용됨.
+
+**확인 방법**:
+
+- 자동: dashboard Received 0이 30분+ 지속하면 silent fail 알림 (Sentry custom alert 또는 cron 검사 후보).
+- 인간 리뷰: 베타 SDK PR diff에 prod 운영 검증 단계가 명시되어 있고 staff 문의/fallback 인프라 정보가 PROGRESS에 있는지.
+- 메타: 같은 fix 시도 2회 effort 없으면 가설 자체 의심. 단순 patch가 아니라 서비스 layer 진단 필요.
+
+**연관**: L-072 (직전, monorepo vercel.json 위치 fix — 그땐 client-side fix가 효과 있었음), L-074 (callback retry SDK 결함 — 같은 베타 product 결함 흐름), L-075 (auto-merge race로 review fix dangling). 본 세션 PR #77 (가설 검증, fix 효과 없음 확인).

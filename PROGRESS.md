@@ -28,14 +28,14 @@ Workaround (D6):
 후속:
 
 - ⏸ **Vercel SDK GitHub issue 등록 (Jayden manual)** — `docs/superpowers/specs/2026-05-06-vercel-queue-callback-retry-issue.md` (paste-ready)
-- 🔴 **prod 검증 차단점 발견 — Trigger 미등록 (L-072 재발 패턴)**:
-  - prod 배포: `dpl_FEynJsv8Do9dwfkm6C8x6xJNtGj7` (1차) ✅, `dpl_4DMLiFyoEYxJUWF9hcCstLYDDxiq` (auto-deploy로 재배포) ✅
-  - publish 1차: `N-1M17xkvmgN5d4Era6I0FaX8IrjmQEB1O` (~22:14 KST, region iad1, unpinned)
-  - publish 2차: `C-1M1ALFgifp6YZMOHvRP6WUYhCWX7KDac` (~22:30 KST, 새 deployment 안정화 후)
+- 🔴 **prod 검증 차단점 — Trigger registration silent fail (Vercel queue beta server-side 추정)**:
+  - prod 배포 흐름: `dpl_FEy...` (1차) → `dpl_4DML...` (auto-redeploy) → `dpl_EPax...` (PR #77 fix 후) — **3 deployment 모두 trigger 등록 silent fail**
+  - publish 3회: `N-1M17...` `C-1M1A...` `G-1M1A...` — 모두 invoke 0건
+  - PR #77 머지 (`5c8de10`) — vercel.json `retryAfterSeconds`/`initialDelaySeconds` 옵션 제거 → docs example 형식과 동일하게 정렬했으나 **fix 효과 없음**
   - 검증 스크립트: `apps/web/scripts/verify-dlq-publish.ts` (commit `8d8644d`)
-  - **Dashboard 결과 (Last 12h)**: Throughput spike 1회 (publish 시점) ✅, Consumer Group `src_Sapp_Sapi_Squeue_Sinbox-process-inbound_Sroute_Dts` 등록 ✅, **Received: 0 ❌** = worker invoke 0건. Vercel CLI logs에도 `/api/queue/inbox-process-inbound` invoke 0건 확인.
-  - **유력 가설**: PR #74 시점엔 같은 vercel.json으로 worker invoke 1회 확인됐으나 본 세션엔 silent fail. (a) Vercel beta queue infra server-side 변경 (b) 8개 commit 사이 자동 redeploy로 trigger registration race (c) `retryAfterSeconds`/`initialDelaySeconds` 옵션이 docs example엔 없음 (이전엔 작동, 지금은 안 되는 inconsistency).
-  - **남은 단계**: (1) 두 번째 publish 결과 ~3분 후 dashboard 재확인 (2) 안 되면 vercel.json 옵션 제거 PR로 가설 검증 (3) 그래도 안 되면 Vercel staff 문의
+  - **Dashboard 결과**: Throughput spike (publish 시점) ✅, Consumer Group 등록 ✅, **Received: 0 ❌** (3 publish 모두). Vercel CLI logs `/api/queue/inbox-process-inbound` invoke 0건.
+  - **결론**: vercel.json 옵션 변경은 trigger 등록 실패 원인 아님. PR #74 시점엔 작동했으나 지금은 silent fail — **Vercel queue beta server-side 변경 또는 quota/feature flag 가능성** 가장 유력.
+  - **다음 단계 (다음 세션)**: (1) Vercel staff 문의 (support 채널 또는 GitHub `vercel/sdk` issue) (2) Vercel queue 다른 topic으로 fresh project 시도하여 인프라 측 문제인지 확인 (3) 필요 시 Phase 1C를 별 큐 인프라(Inngest, QStash) 검토
 - ⏸ **Review fix 별 PR** — commit `062bb77` (mock 한계 주석 + 테스트명 분리 + spec 라인 통일 + Section 2.4/5.3 갱신 + return 인라인 주석). dangling 상태, 다음 세션 정리.
 
 ## Task 10 prod 검증 결과 (이번 세션)
