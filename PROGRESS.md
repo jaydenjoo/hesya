@@ -28,11 +28,14 @@ Workaround (D6):
 후속:
 
 - ⏸ **Vercel SDK GitHub issue 등록 (Jayden manual)** — `docs/superpowers/specs/2026-05-06-vercel-queue-callback-retry-issue.md` (paste-ready)
-- 🟡 **prod 검증 진행 중** — 본 세션 publish 완료, dashboard 결과 대기:
-  - prod 배포: `dpl_FEynJsv8Do9dwfkm6C8x6xJNtGj7` → `https://hesya-web.vercel.app` ✅
-  - publish: messageId `N-1M17xkvmgN5d4Era6I0FaX8IrjmQEB1O` (region: iad1 default, deploymentId: unpinned)
+- 🔴 **prod 검증 차단점 발견 — Trigger 미등록 (L-072 재발 패턴)**:
+  - prod 배포: `dpl_FEynJsv8Do9dwfkm6C8x6xJNtGj7` (1차) ✅, `dpl_4DMLiFyoEYxJUWF9hcCstLYDDxiq` (auto-deploy로 재배포) ✅
+  - publish 1차: `N-1M17xkvmgN5d4Era6I0FaX8IrjmQEB1O` (~22:14 KST, region iad1, unpinned)
+  - publish 2차: `C-1M1ALFgifp6YZMOHvRP6WUYhCWX7KDac` (~22:30 KST, 새 deployment 안정화 후)
   - 검증 스크립트: `apps/web/scripts/verify-dlq-publish.ts` (commit `8d8644d`)
-  - **남은 dashboard 확인 (Jayden)**: (a) Vercel Functions logs 4 invoke + deliveryCount 1-based 검증 (b) Sentry DLQ alert 도달
+  - **Dashboard 결과 (Last 12h)**: Throughput spike 1회 (publish 시점) ✅, Consumer Group `src_Sapp_Sapi_Squeue_Sinbox-process-inbound_Sroute_Dts` 등록 ✅, **Received: 0 ❌** = worker invoke 0건. Vercel CLI logs에도 `/api/queue/inbox-process-inbound` invoke 0건 확인.
+  - **유력 가설**: PR #74 시점엔 같은 vercel.json으로 worker invoke 1회 확인됐으나 본 세션엔 silent fail. (a) Vercel beta queue infra server-side 변경 (b) 8개 commit 사이 자동 redeploy로 trigger registration race (c) `retryAfterSeconds`/`initialDelaySeconds` 옵션이 docs example엔 없음 (이전엔 작동, 지금은 안 되는 inconsistency).
+  - **남은 단계**: (1) 두 번째 publish 결과 ~3분 후 dashboard 재확인 (2) 안 되면 vercel.json 옵션 제거 PR로 가설 검증 (3) 그래도 안 되면 Vercel staff 문의
 - ⏸ **Review fix 별 PR** — commit `062bb77` (mock 한계 주석 + 테스트명 분리 + spec 라인 통일 + Section 2.4/5.3 갱신 + return 인라인 주석). dangling 상태, 다음 세션 정리.
 
 ## Task 10 prod 검증 결과 (이번 세션)
