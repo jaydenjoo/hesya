@@ -2389,3 +2389,48 @@ jobs:
 - 인간 리뷰: subagent commit log + `git diff HEAD~N..HEAD --stat`에서 SDK install 흔적이 있는데 lockfile 변경 없으면 누락.
 
 **연관**: L-066 (TDD-guard implementation revert도 차단), L-070 (큰 인프라 작업 단계적 closure), L-050 (TDD-guard hook 우회 — source code grep test). 이번 세션 PR #73 (Phase 1C subagent-driven 8 task + 1 fix).
+
+---
+
+### [2026-05-06] L-072 — Monorepo + Vercel project Root Directory ↔ vercel.json 위치 미스매치 = trigger silent 미등록
+
+**증상**: Phase 1C (Vercel Queue 분리) PR #73 머지 + prod 배포 성공 후 의도적 invalid payload publish로 DLQ 검증 시도 중 다음 패턴 관찰.
+
+- Vercel Queue dashboard `inbox-process-inbound` row: ✅ Queued = 1
+- Worker invocation (`Received`): ❌ 0 (영원)
+- DLQ Sentry capture: ❌ 안 발생 (worker invoke 자체 없으니 retry/DLQ 진입 불가)
+- `Production` 환경 필터에선 row 안 보임, `All environments`에서만 보임 (deployment 매핑 미스매치 신호)
+
+publish API는 200 OK + message ID 발급되는데 실제로는 **누구도 lease하지 않는 큐**에 24h TTL 후 expire될 운명으로 쌓이고만 있었다.
+
+**원인**: Vercel project의 **Root Directory** 설정이 `apps/web`인데 `vercel.json`은 **레포 root**에 있었다. Vercel은 빌드 시 project Root Directory 내부의 `vercel.json`만 인식하므로 root vercel.json은 통째로 무시. 결과:
+
+- Next.js 라우트 자체는 정상 deploy (App Router의 파일 시스템 라우팅)
+- `experimentalTriggers`는 Vercel 인프라 wiring → vercel.json 누락이면 등록 X
+- → publish 받지만 push delivery target 없어 메시지 unconsumed
+
+PR #73에서 `apps/web/`를 prefix로 한 `functions` path("apps/web/src/app/api/queue/inbox-process-inbound/route.ts")를 root vercel.json에 두었기에 이중으로 잘못됨 — (a) 위치 자체가 root이라 인식 X (b) path도 apps/web 기준이 아니라 root 기준이라 등록되더라도 함수 매칭 실패.
+
+PR #73의 CI/머지 단계에서 이 미스매치가 잡히지 않는다. validate(typecheck/lint/build)는 vercel.json을 evaluate하지 않고, e2e도 trigger 등록 여부 확인 X. Vercel 빌드 자체는 vercel.json 없어도 성공이라 deploy도 green. **build pass ≠ wiring works**.
+
+**해결 (PR #74)**:
+
+1. `apps/web/vercel.json` 신규 — `functions` path를 `src/app/api/queue/inbox-process-inbound/route.ts` (apps/web 기준, prefix 제거). `experimentalTriggers`/`crons` 그대로 보존
+2. 레포 root `vercel.json` 삭제 (이중 인식 위험 회피)
+3. `pnpm --filter @hesya/web build` clean 통과 확인 후 PR + auto-merge
+
+**규칙** ⭐:
+
+1. **Vercel monorepo에서 vercel.json은 반드시 Vercel project의 Root Directory 안에 둔다.** Root Directory가 `apps/web`이면 `apps/web/vercel.json`이고, root는 깨끗이 비운다. 두 곳 동시 배치 시 동작 미정의 위험.
+2. **vercel.json의 `functions` path는 Vercel project Root Directory 기준의 상대 경로다.** project root가 `apps/web`이면 `src/app/api/...`로 시작해야지 `apps/web/src/app/...`로 시작 X. 공식 docs quickstart 예시도 `app/api/queues/...`로 일관.
+3. **새 `experimentalTriggers`/`crons`/runtime config 추가 후엔 머지 후 반드시 prod에서 등록 검증.** Vercel CLI `vercel inspect <prod-url>` 또는 dashboard → Functions 탭에서 trigger 표시 확인. build pass는 wiring 검증이 아니다.
+4. **"외부 직접 POST 시 가드(400)가 작동"은 trigger 등록 검증이 아니다.** Vercel Queue push consumer는 외부에서 air-gapped이므로 외부 POST 응답은 trigger의 internal queue infra wiring과 무관. PROGRESS.md에 "POST → 400 정상"으로 적힌 게 trigger 등록을 의미하는 게 아니었다.
+5. **Vercel Queue dashboard에서 `Received: 0`은 trigger 미등록의 결정적 신호.** publish는 됐는데 worker가 안 받으면 (a) trigger 미등록 (b) consumer group 미생성 둘 중 하나, 둘 다 vercel.json 인식 실패와 직결.
+
+**확인 방법**:
+
+- 자동: PR validate에 "vercel.json이 project Root Directory에 있고 functions path가 그 기준인지" 정적 체크 hook 추가 가능 (5줄 script, .vercel/project.json + jq). **Phase 1Cd로 후속 task 만들 가치 있음.**
+- 인간 리뷰: 새 vercel.json 변경 PR 시 위치 + path prefix 둘 다 점검.
+- 운영: 새 trigger/cron 머지 + prod redeploy 직후 즉시 `vercel inspect <prod-url>` 또는 dashboard 캡처로 등록 확인. 이번처럼 24h TTL 지나야 발견되면 너무 늦다.
+
+**연관**: PR #73 (Phase 1C 머지, wiring 누락된 채 머지됨), PR #74 (이 fix), Vercel Queues concept docs ("Push mode consumers are configured at deploy time via `vercel.json`"). 또 root vercel.json에 있던 `crons` (분기별 stores revalidate, 첫 실행 7월 1일)도 같이 미등록 상태였을 가능성 — 시간 지나야 발견될 silent miss였음.
