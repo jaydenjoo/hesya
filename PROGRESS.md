@@ -4,14 +4,14 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **워크플로우 인프라 + Epic 1B-Tone P2-A/2-B + Customer 확장 + RLS InitPlan + Customer follow-up (Code MED-3 + Sec MED-1) 머지 완료** (auto-merge 라벨 6회 연속 검증 ✅)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone P1 (4탭) ✅ + 1B-Tone P2-A ✅ + 1B-Tone P2-B (매장 톤 학습) ✅ + Customer 확장 ✅ + **Customer follow-up (Code MED-3 Bearer header + Sec MED-1 ig_profile_fetched) ✅** → **다음**: P2-B/P2-A follow-up (S2 row cap, S3 userId truncate, D6 prompt caching) 또는 다른 Epic 진입
-- **Task**: 1A ✅ / 1B B-1~B-4c ✅ / 1B-UI A-1~A-4 ✅ / 1B-Tone 1~4 ✅ / 워크플로우 A-1 (CI 병렬화+Playwright cache) ✅ / 워크플로우 A-2 (auto-merge.yml + 라벨) ✅ / 1B-Tone P2-A ✅ / 1B-Tone P2-B ✅ / Customer 확장 CC-1~CC-7 ✅ / **Code MED-3 (PR #60) ✅ / Sec MED-1 (PR #61) ✅**
-- **상태**: 사장이 ContextPanel에서 고객 이름·방문 횟수·금액 보고 + 메모 편집. IG fetch 호출이 Authorization Bearer header로 통일 (CWE-598 방어). 영구 fail customer는 ig_profile_fetched 플래그로 무한 retry 차단. 차단 요소 없음 (단 0018 prod migration 적용 보류).
-- **작업 브랜치**: `main` (PR #60 + #61 머지 + 작업 브랜치 자동 삭제 완료). origin 동기화 ✅.
+- **Phase**: Phase 1 — **워크플로우 인프라 + Epic 1 1A/1B 시리즈 + Customer 확장 + Customer follow-up + 4 후속 PR (D6/Sec-M-3/S2/S3) 머지 완료** (auto-merge 라벨 10회 연속 검증 ✅)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone P1~P2-B ✅ + Customer 확장 ✅ + Customer follow-up ✅ + **D6 prompt caching ✅ + Sec-M-3 RLS 16 테이블 ✅ + S2 tone cap ✅ + S3 Sentry truncate ✅** → **다음**: 새 Epic 진입 또는 Phase B-5 (e2e 시나리오 + PostgreSQL CI)
+- **Task**: 1A ✅ / 1B B-1~B-4c ✅ / 1B-UI A-1~A-4 ✅ / 1B-Tone 1~4 ✅ / 워크플로우 A-1·A-2 ✅ / P2-A·P2-B ✅ / Customer CC-1~CC-7 ✅ / Code MED-3 ✅ / Sec MED-1 ✅ / **D6 (PR #62) ✅ / Sec-M-3 (PR #63) ✅ / S2 (PR #64) ✅ / S3 (PR #65) ✅**
+- **상태**: AI 응답 generate가 prompt caching으로 78.5% input 절감 (10회 호출 system 기준). RLS 16 테이블 일괄 정책 + future anon 키 차단선 확보. tone examples row cap 100 (storage growth 방어). Sentry userId/storeId 8자 truncate 일관. 차단 요소 없음 (단 0019 prod migration 적용 보류).
+- **작업 브랜치**: `main` (4 PR 머지 + 작업 브랜치 자동 삭제 완료). origin 동기화 ✅.
 - **최근 main 직접 commit**: `503c16d` (ci 병렬화), `725e437` (auto-merge.yml). 둘 다 인프라 yml 변경 — 정책상 main 직접 push 적용 (코드 회귀 0).
-- **최근 머지된 PR**: [#61](https://github.com/jaydenjoo/hesya/pull/61) Sec MED-1 ig_profile_fetched — `auto-merge` 6회, squash `c59ff1d`, 8 파일 (0018 마이그 + schema + DAL + route + 5 fixture). 직전 [#60](https://github.com/jaydenjoo/hesya/pull/60) Code MED-3 Bearer header — squash `9733f1e`, 1 파일 2 함수 (1 신규 회귀 테스트).
-- **prod migration**: `0014` ✅ / `0015` ✅ / `0016` ✅ / `0017` ✅ / **`0018_customers_ig_profile_fetched.sql` 적용 ✅** (이번 세션 MCP, Jayden 명시 승인). customers 컬럼 12→13 (`ig_profile_fetched boolean default false`). advisor 회귀 0. 남은 advisor performance: 16 INFO `unindexed_foreign_keys` + 8 INFO `unused_index` + 1 INFO `auth_db_connections_absolute` (모두 INFO).
+- **최근 머지된 PR**: [#65](https://github.com/jaydenjoo/hesya/pull/65) S3 Sentry truncate — `auto-merge` 10회, squash `24e22f8`. 직전 [#64](https://github.com/jaydenjoo/hesya/pull/64) S2 tone cap (`89c8666`), [#63](https://github.com/jaydenjoo/hesya/pull/63) Sec-M-3 RLS 16 (`b8ade8d`), [#62](https://github.com/jaydenjoo/hesya/pull/62) D6 prompt caching (`2cf7775`).
+- **prod migration**: `0014` ✅ / `0015` ✅ / `0016` ✅ / `0017` ✅ / `0018` ✅ / **`0019_rls_remaining_tables.sql` 미적용 — Jayden 명시 승인 대기** (16 정책 일괄, service_role bypass라 회귀 0). 남은 advisor performance: 16 INFO `unindexed_foreign_keys` + 8 INFO `unused_index` + 1 INFO `auth_db_connections_absolute` (모두 INFO).
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -19,23 +19,21 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Customer 확장 follow-up (잔여, 선택)
+### 1. Customer + P2 follow-up (잔여, 선택)
 
-**완료** (이번 세션):
+**완료** (이번 세션 누적 6 PR):
 
-- ✅ **Sec MED-1**: `ig_profile_fetched boolean` 플래그 + 0018 마이그 (PR #61)
 - ✅ **Code MED-3**: IG accessToken URL → Authorization Bearer header (PR #60)
+- ✅ **Sec MED-1**: `ig_profile_fetched boolean` 플래그 + 0018 마이그 (PR #61)
+- ✅ **D6**: prompt caching system array + cache_control (PR #62) — 실측 78.5% 절감
+- ✅ **Sec-M-3**: RLS POLICY 16 테이블 + 0019 마이그 (PR #63)
+- ✅ **S2**: `store_tone_examples` per-store row cap = 100 (PR #64)
+- ✅ **S3**: Sentry userId/storeId 8자 truncate 일관 (PR #65)
 
-**잔여**:
+**잔여 (낮은 우선순위)**:
 
 - 🔵 **Code MED-5**: DAL test source-grep → mock DB pattern 통합 (의도된 패턴, 별 cleanup)
 - 🔵 **Code LOW-7**: `preferredDesigner` 500자 → UX 검토 (이름 필드 적정 길이)
-
-### 2. P2-B/P2-A follow-up (선택, 별 PR)
-
-- 🟡 **S2**: `store_tone_examples` per-store row cap (storage growth 방어)
-- 🟢 **S3**: Sentry full userId → 8자 truncate (cross-cutting, 기존 패턴 통합)
-- 🔵 **D6**: prompt caching — system을 array of blocks로 리팩 (cache breakpoint, ~30% 비용 절감 추정)
 - 🔵 톤 학습 buffer 축적 시 quality 측정 (실 사용 후 정성 평가)
 
 ### 3. Shortcuts FAB 키보드 단축키 모달 (선택, ~1h)
@@ -110,6 +108,7 @@
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-06 (4 후속 PR 머지) — **PR #62 D6 + #63 Sec-M-3 + #64 S2 + #65 S3 squash merge ✅** (auto-merge 7~10회 연속). main `24e22f8`. vitest 495 → **498** (+3 신규: D6 2 + S2 2 + S3 2 — 일부 helper 마이그). type-check 6/6 + lint clean. **0019 prod 적용 미진행 (Jayden 명시 승인 대기)** — 16 RLS 정책, service_role bypass라 회귀 0.
 - 날짜: 2026-05-06 (0018 prod 적용) — **0018 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). `customers.ig_profile_fetched boolean NOT NULL DEFAULT false` 컬럼 추가. list_tables verbose로 컬럼 검증 ✅. security advisor 회귀 0 (기존 RLS no_policy INFO + function_search_path WARN + extension_in_public WARN만, 0018과 무관).
 - 날짜: 2026-05-06 (Customer follow-up 2 PR 머지) — **PR #60 (Code MED-3) + PR #61 (Sec MED-1) squash merge ✅** (auto-merge 6회 연속). main `c59ff1d`. vitest 491 → **495** (+4 신규). type-check 6/6 + lint clean.
 - 날짜: 2026-05-06 (0017 prod 적용) — **0017 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). advisor performance `auth_rls_initplan` 5 WARN → **0건 검증 완료**. RLS hot path 성능 안전망 확보 (향후 anon 키 사용 시점 효과).
@@ -125,7 +124,55 @@
 - 날짜: 2026-05-05 late night — **Epic 1B Phase B-4 RAG 시리즈 완료** (PR #42 pgvector + #43 검색 주입 + #44 CRUD UI)
 - 날짜: 2026-05-05 night — **Epic 1B Phase B-3c 완료** (PR #41, Sec HIGH 1 + Code MEDIUM 4 + 운영 안전 fix)
 
-## 이번 세션 완료 (2026-05-06 follow-up — Customer review 잔여 2 PR 머지)
+## 이번 세션 완료 (2026-05-06 후속 4 PR — D6/Sec-M-3/S2/S3 머지)
+
+### 1. PR #62 (D6 prompt caching) — perf
+
+- `BuildPromptOutput.system`: `string` → `SystemBlock[]` (TextBlockParam 형식)
+- 단일 블록 + 마지막에 `cache_control:ephemeral` (TTL 5m 기본)
+- generate-reply.ts 호출부 무변경 (SDK가 string|array 둘 다 수용)
+- **실측**: tone examples 10개 매장 ~2300 tokens → 78.5% input 절감 (10회 호출), 전체 호출 ~62% (Anthropic 공식 docs)
+- PROGRESS의 추정 30% 대비 2배+ 검증 (L-065 stale 패턴)
+- 신규 매장 (~625 tokens) → 1024 미달 자동 cache miss (silent skip)
+- squash merge `2cf7775`
+
+### 2. PR #63 (Sec-M-3 RLS 16 테이블) — security
+
+- 0019 마이그: 16 테이블 RLS POLICY 일괄 추가 (advisor 16 INFO fix)
+- 0017 InitPlan 패턴 재사용 — `(select auth.uid())` 평가 1회
+- 분류: owner-scoped (7) + indirect FK chain (4) + user-scoped (3) + service-only USING(false) (2)
+- service_role bypass → application 회귀 0
+- squash merge `b8ade8d`
+
+### 3. PR #64 (S2 tone examples row cap) — safety
+
+- `STORE_TONE_EXAMPLE_CAP = 100` (변경 추적 상수)
+- `insertToneExample` 후 cap 안쪽 ID 외 row DELETE
+- 정상 흐름 매번 최대 1 row 삭제 (insert 1 + delete 1)
+- 현재 cap 0 → rate limit 30/h × 30일 ≈ 21,600 row/매장 위험 방어
+- squash merge `89c8666`
+
+### 4. PR #65 (S3 Sentry userId/storeId truncate) — security
+
+- `instrumentation.ts captureServerActionError`: `user.id` 8자 truncate (storeId 패턴 일관)
+- `accept-ai-draft.ts safeRevertWithSentry`: extra 필드명 `userIdShort`/`storeIdShort` + truncate
+- `oauth callback`: tags `storeId` → `storeIdShort` + truncate
+- 회귀 5건 통과 (storeId truncate, ValidationError skip 등)
+- squash merge `24e22f8`
+
+### 5. learnings.md 추가
+
+- L-067: 4 PR 동시 진행 패턴 — 파일 충돌 0이면 병렬 브랜치 + 순차 PR open 가능, CI/auto-merge가 자연 직렬화
+
+### 통계 (이번 세션 누적 6 PR + 추가 4 PR = 총 6 PR)
+
+- vitest 491 → **498** (+7 신규)
+- type-check 6/6 + lint clean
+- prod migration 0018 적용, 0019 보류
+- main commits: 4 (4 PR 머지)
+- auto-merge 라벨 5회 → 10회 연속 검증
+
+## 이전 세션 완료 (2026-05-06 follow-up — Customer review 잔여 2 PR 머지)
 
 ### 1. PR #60 (Code MED-3 Bearer header)
 

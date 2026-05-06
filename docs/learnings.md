@@ -2242,3 +2242,36 @@ jobs:
 - 인간 리뷰: PR diff에 "test 변경 commit이 implementation 변경 commit보다 먼저"인지 확인 (single commit이면 commit 안에서 test가 더 위에 있는지).
 
 **연관**: L-050 (source-grep test로 RED 만들기), L-052 (TDD baby-step), 글로벌 CLAUDE.md 4원칙 4번 (Goal-Driven Execution). Customer follow-up PR #60.
+
+---
+
+### [2026-05-06] L-067 — 4 PR 동시 진행 패턴: 파일 충돌 0이면 병렬 브랜치 + 순차 PR open
+
+**증상 / 상황**: 한 세션에서 4개의 follow-up 후보 (D6 prompt caching, Sec-M-3 RLS 16 테이블, S2 tone cap, S3 Sentry truncate)를 처리해야 했다. 직렬로 1 PR 만들고 머지 대기(~5분) 후 다음 PR 시작하면 4 PR × 5분 = 20분 머지 대기. 그러나 4 PR이 만지는 파일이 모두 다름 → 병렬 가능.
+
+**원인 / 패턴**: GitHub auto-merge.yml workflow_run 트리거 + `auto-merge` 라벨 인프라(L-062)가 이미 있어, 동시 4개 PR open해도 각자 CI 끝나는 순서대로 squash merge. 사람 개입 0.
+
+**해결 (이번 세션 패턴)**:
+
+1. **사전 영향 매핑** (Explore agent): 4 후보의 변경 파일 사전 점검 → 모두 다른 파일 확인
+2. **순차 브랜치 + PR open** (병렬 머지):
+   - main → branch A → 변경 → push → PR open + auto-merge label
+   - main → branch B → 변경 → push → PR open + auto-merge label (A는 CI 진행 중)
+   - 동일 반복
+3. **CI/auto-merge가 자연 직렬화**: 각 PR이 main 머지 시점에 base가 변경됐으면 GitHub가 자동으로 conflict 검사. 충돌 0이면 그대로 머지.
+4. **머지 후 일괄 정리**: main pull + 작업 브랜치 4개 한 번에 삭제 + PROGRESS/learnings 한 번에 갱신
+
+**규칙** ⭐:
+
+1. **3+ PR 후보 시 파일 충돌 사전 점검 필수**. Explore agent로 각 후보의 변경 파일 매핑 → 겹치면 직렬, 안 겹치면 병렬 가능.
+2. **병렬 진행 시 base는 항상 main** (다른 PR 브랜치 base 안 함). PR 간 의존성 0으로 머지 순서 무관 보장.
+3. **auto-merge.yml workflow_run + `auto-merge` 라벨 사전 구축** 필요(L-062). 없으면 직렬 + 사람 개입.
+4. **머지 후 정리 (PROGRESS/learnings/브랜치)는 한 번에**. 각 PR마다 docs commit 분리하면 main 노이즈 증가 + 토큰 낭비.
+5. **4 PR 정도가 한 세션 상한**. 그 이상은 (a) 영향 매핑 비용 ↑ (b) 사후 리뷰 수렴 어려움 (c) 회귀 발생 시 어떤 PR 원인 식별 비용 ↑.
+
+**확인 방법**:
+
+- 자동: `gh pr list --state open --json` 출력의 PR 수가 한 세션에 4 초과면 review skill 강제 발동 (skill 자동화 후보).
+- 인간 리뷰: PR 4개의 squash merge SHA 시간 간격이 ≤ 10분이면 "병렬 진행 패턴" 적용 — PROGRESS에 명시.
+
+**연관**: L-062 (auto-merge workflow_run), L-063 (Playwright cache로 e2e ~1.5분 단축이 병렬 가능 전제), L-065 (PROGRESS stale 검증 → D6 작업 실제 가치 78.5% 발견). 이번 세션 PR #62~#65.
