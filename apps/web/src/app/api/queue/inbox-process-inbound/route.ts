@@ -13,15 +13,23 @@ import type { ProcessInboundJob } from "@/lib/inbox/queue";
  * 비유: 우체국 배달부(Vercel Queue)가 소포(messageId)를 가지고 이 문(route)을
  * 두드리면, 문지기(worker)가 소포를 받아 처리 함수에 전달한다.
  *
- * Retry 정책 (D2): 3회 exponential backoff (1s/5s/30s). 4회째 deliveryCount
- * 도달 시 acknowledge → DLQ 격리 (application-level — Vercel Queues는
- * built-in DLQ 없음). Sentry alert는 Task 7에서 추가.
+ * Retry 정책 (D2 + D6 callback workaround):
+ * - SDK 0.1.6 callback push 모드에서 `{ afterSeconds }` directive가
+ *   `MessageNotFoundError` (404 changeVisibility)로 silent fail → 메시지가
+ *   1회 invoke 후 종결되는 베타 결함이 있다. 우리는 directive를 반환하지
+ *   않고 SDK가 throw를 전파하도록 두어, callback이 5xx 응답 → server-side
+ *   visibility timeout(60s) 만료 후 자동 redelivery로 retry를 구현한다.
+ * - deliveryCount 1~3: undefined 반환 → throw 전파 → 60s 후 재시도
+ * - deliveryCount 4: DLQ 격리 → Sentry alert + acknowledge (D3)
+ * - 1+5+30s 지수 백오프 패턴은 SDK 결함이 fix될 때 복구. 자세한 진단:
+ *   docs/superpowers/specs/2026-05-06-vercel-queue-callback-retry-issue.md
  */
 const payloadSchema = z.object({
   messageId: z.string().uuid(),
 });
 
-const RETRY_BACKOFFS_SECONDS = [1, 5, 30] as const;
+const MAX_DELIVERY_COUNT = 4;
+const VISIBILITY_TIMEOUT_SECONDS = 60;
 
 export const POST = handleCallback(
   async (rawMessage: unknown) => {
@@ -31,12 +39,11 @@ export const POST = handleCallback(
     await generateAndStoreReply(messageId);
   },
   {
+    visibilityTimeoutSeconds: VISIBILITY_TIMEOUT_SECONDS,
     retry: (err, metadata) => {
-      const idx = metadata.deliveryCount - 1;
-      if (idx < RETRY_BACKOFFS_SECONDS.length) {
-        return { afterSeconds: RETRY_BACKOFFS_SECONDS[idx] };
+      if (metadata.deliveryCount < MAX_DELIVERY_COUNT) {
+        return;
       }
-      // DLQ 진입 — Sentry alert 후 acknowledge (D3 정책)
       Sentry.captureException(err, {
         tags: { phase: "queue:inbox.process-inbound:dlq" },
         extra: {
