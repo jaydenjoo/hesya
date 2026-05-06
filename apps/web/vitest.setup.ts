@@ -46,6 +46,13 @@ for (const [k, v] of Object.entries(stubs)) {
     process.env[k] = v;
   }
 }
+// 통합 테스트 모드: CI e2e-integration job의 env에 이미 dummy DATABASE_URL이
+// set되어 있어 위 stub fallback이 skip됨. HESYA_TEST_DATABASE_URL이 있으면
+// 무조건 DATABASE_URL을 supabase URL로 override (webhook route 등 module-level
+// createDbClient(env.DATABASE_URL) 호출이 같은 로컬 supabase에 연결되도록).
+if (process.env.HESYA_TEST_DATABASE_URL) {
+  process.env.DATABASE_URL = process.env.HESYA_TEST_DATABASE_URL;
+}
 
 import "@testing-library/jest-dom/vitest";
 import { afterEach } from "vitest";
