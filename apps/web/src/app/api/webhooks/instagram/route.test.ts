@@ -194,3 +194,26 @@ describe("webhook route source-level (CC-4 customer profile enrichment)", () => 
     expect(src).toMatch(/customer\.id\.slice\(\s*0\s*,\s*8\s*\)/);
   });
 });
+
+describe("webhook route source-level (Sec MED-1 ig_profile_fetched)", () => {
+  // 영구 fail customer가 매 inbound마다 IG fetch 무한 retry 도는 것 방어.
+  // try 성공/catch 실패 양쪽에서 마크해야 retry stop이 완결된다.
+  it("guard: !customer.igProfileFetched 추가 (영구 fail retry 방어)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile(
+      "src/app/api/webhooks/instagram/route.ts",
+      "utf-8",
+    );
+    expect(src).toMatch(/!customer\.igProfileFetched/);
+  });
+
+  it("성공/실패 모두 igProfileFetched: true 마크 (try + catch 양쪽)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile(
+      "src/app/api/webhooks/instagram/route.ts",
+      "utf-8",
+    );
+    const trueMarks = src.match(/igProfileFetched:\s*true/g) ?? [];
+    expect(trueMarks.length).toBeGreaterThanOrEqual(2);
+  });
+});

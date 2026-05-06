@@ -80,6 +80,7 @@ export async function getCustomerById(
       name: customers.name,
       allergyNote: customers.allergyNote,
       preferredDesigner: customers.preferredDesigner,
+      igProfileFetched: customers.igProfileFetched,
     })
     .from(customers)
     .where(eq(customers.id, customerId))
@@ -110,6 +111,10 @@ export async function getCustomerPreferredLanguage(
  * **사용 시점**: process-inbound가 새 customer 생성 후 IG `/me?fields=name,locale`
  * fetch 성공 시 1회 호출. 기존 customer는 backfill 보류 (별 follow-up).
  *
+ * **igProfileFetched (Sec MED-1)**: 영구 fail retry 방어용. webhook이 try
+ * 성공 시 patch에 합쳐 atomic update, catch 실패 시 단독 `{igProfileFetched: true}`
+ * 호출로 마크. 다음 inbound부터 guard에서 fetch 진입 차단.
+ *
  * **patch 비어있으면 no-op**: DB 호출 자체 회피 (caller가 부분 데이터 보낼
  * 때 무의미한 UPDATE 방어).
  *
@@ -119,7 +124,11 @@ export async function getCustomerPreferredLanguage(
 export async function updateCustomerProfile(
   db: DbClient,
   customerId: string,
-  patch: { name?: string | null; preferredLanguage?: string | null },
+  patch: {
+    name?: string | null;
+    preferredLanguage?: string | null;
+    igProfileFetched?: boolean;
+  },
 ): Promise<Customer | null> {
   if (Object.keys(patch).length === 0) return null;
   const updated = await db

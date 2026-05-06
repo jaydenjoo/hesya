@@ -94,7 +94,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       // 신규 customer + 기존 customer (name 미설정 backfill 대상) 모두 처리.
       // 실패 silent skip + Sentry tag — 메시지 처리 흐름 차단 X.
       // PII 방어: customer.id는 8자만 노출 (storeId 패턴 일관).
-      if (customer.name === null) {
+      // Sec MED-1: igProfileFetched 플래그로 영구 fail retry 방어. try 성공/
+      // catch 실패 양쪽에서 마크 → 다음 inbound부터 guard 진입 차단.
+      if (customer.name === null && !customer.igProfileFetched) {
         const integration = await getIntegration(db, store.id, "instagram");
         if (integration) {
           try {
@@ -106,6 +108,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             await updateCustomerProfile(db, customer.id, {
               name: profile.name,
               ...(language !== null ? { preferredLanguage: language } : {}),
+              igProfileFetched: true,
             });
           } catch (profileErr) {
             // Sentry tag에 storeId 8자 포함 (Code MED-4 사후 리뷰) — 매장별
@@ -116,6 +119,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 storeIdShort: store.id.slice(0, 8),
               },
               extra: { customerIdShort: customer.id.slice(0, 8) },
+            });
+            // Sec MED-1: 실패해도 마크 — 영구 fail customer가 매 메시지마다
+            // 같은 retry 비용 누수하는 것 방어. mark 자체 실패는 다음 inbound
+            // 에서 자연스럽게 재시도 (별 가드 X).
+            await updateCustomerProfile(db, customer.id, {
+              igProfileFetched: true,
             });
           }
         }

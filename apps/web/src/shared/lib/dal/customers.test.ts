@@ -166,4 +166,25 @@ describe("dal.customers (pure)", () => {
       /updateCustomerProfile[\s\S]*?Object\.keys\(\s*patch\s*\)\.length\s*===?\s*0/,
     );
   });
+
+  // ─── Sec MED-1: ig_profile_fetched 플래그 ───
+  // 영구 fail customer가 매 inbound마다 IG fetch 무한 retry 도는 것 방어.
+
+  it("updateCustomerProfile: igProfileFetched 옵셔널 patch 지원 (Sec MED-1)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/customers.ts", "utf-8");
+    // 시그니처에 igProfileFetched?: boolean 옵셔널 추가
+    expect(src).toMatch(
+      /updateCustomerProfile[\s\S]*?igProfileFetched\?:\s*boolean/,
+    );
+  });
+
+  it("getCustomerById: igProfileFetched 컬럼 select (Sec MED-1)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const src = await readFile("src/shared/lib/dal/customers.ts", "utf-8");
+    // ContextPanel 등 caller가 retry 상태 보일 수 있도록 명시 select 포함
+    expect(src).toMatch(
+      /getCustomerById[\s\S]*?igProfileFetched:\s*customers\.igProfileFetched/,
+    );
+  });
 });

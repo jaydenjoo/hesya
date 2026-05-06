@@ -1,5 +1,12 @@
 import { sql } from "drizzle-orm";
-import { integer, pgTable, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  integer,
+  pgTable,
+  text,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 export const customers = pgTable(
   "customers",
@@ -22,6 +29,12 @@ export const customers = pgTable(
     allergyNote: text("allergy_note"),
     /** Epic Customer 확장 (CC-1) — 사장 메모: 선호 디자이너/스태프 이름. */
     preferredDesigner: text("preferred_designer"),
+    /**
+     * Sec MED-1 — IG profile fetch 시도 여부 플래그 (영구 fail retry 방어).
+     * webhook이 try 성공/catch 실패 양쪽에서 true로 마크 → 다음 inbound부터
+     * fetchUserProfile 진입 차단. 0018 마이그로 NOT NULL DEFAULT false 보장.
+     */
+    igProfileFetched: boolean("ig_profile_fetched").notNull().default(false),
   },
   (table) => [
     uniqueIndex("idx_customers_channel_external")
