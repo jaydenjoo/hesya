@@ -4,12 +4,33 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Phase 1C 머지 ✅ (Vercel Queue 분리)**. PR #73 (8 commits + SDK fix). auto-merge **18회** 연속.
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C Vercel Queue ✅** → **다음**: Task 10 prod 검증 (Jayden manual deploy + Vercel Queue dashboard) 또는 Phase 1D / 1Cb (E2E) / 1Cc (Admin DLQ UI).
-- **Task**: PR #73 머지 ✅ — Phase 1C: webhook fire-and-forget → Vercel Queue push mode. webhook ACK 3-5s → 200-500ms (Meta 5s 안전마진 10x). 3회 exp backoff retry + DLQ Sentry alert. 비즈니스 로직 무변경.
-- **상태**: 코드 머지 완료 + **prod 배포 성공** ✅ (`hesya-pjrn9hnt4` Ready, Seoul icn1, 1m duration). Vercel 자동 배포 ON 전환 + Ignored Build Step "Automatic" 적용 + Redeploy 트리거. Worker endpoint 라이브 검증 (POST `/api/queue/inbox-process-inbound` → 400 CloudEvents 가드 정상). 차단 요소 없음.
-- **작업 브랜치**: `main` (PR #73 머지 + 자동 삭제). origin 동기화 ✅ (`e533b3f`).
-- **최근 머지된 PR**: [#73](https://github.com/jaydenjoo/hesya/pull/73) Phase 1C — `auto-merge` 18회, squash `e533b3f`. validate + e2e-smoke + e2e-integration **enforced** 모두 SUCCESS 후 머지.
+- **Phase**: Phase 1 — **Phase 1C 머지 ✅ + Task 11 wiring fix ✅ (PR #74)**. auto-merge **19회** 연속.
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C Vercel Queue ✅** + Task 11 vercel.json fix ✅ → **다음**: 별 이슈 — `MessageNotFoundError` (retry reschedule) 진단 또는 Phase 1D / 1Cb (E2E) / 1Cc (Admin DLQ UI).
+- **Task**: PR #74 머지 ✅ — Phase 1C trigger 등록 누락 fix. `vercel.json`을 레포 root → `apps/web/`로 이동 (Vercel project Root Directory 매칭). functions path를 `src/app/api/...` 기준으로 변경.
+- **상태**: PR #73 + #74 머지 완료. Prod redeploy `hesya-esra9g1py` Ready (post-fix). v4 publish 검증 — **worker invocation 확인** (`λ POST /api/queue/inbox-process-inbound` 21:15:32 prod logs). Trigger 등록 정상 작동 ✅.
+- **작업 브랜치**: `main`. 머지 commit `6387a13` (#74).
+- **최근 머지된 PR**: [#74](https://github.com/jaydenjoo/hesya/pull/74) Phase 1C wiring fix — `auto-merge` 19회, squash `6387a13`. CI green 후 자동 머지.
+
+## Task 10 prod 검증 결과 (이번 세션)
+
+- **(a) Vercel Queue topic + enqueue 흐름**: ✅ 확정. `inbox-process-inbound` topic dashboard 등장, post-fix publish는 `Production` 필터에서 정상 매핑.
+- **(b) DLQ Sentry alert**: 🟡 부분 확인. Worker invoke ✅ (logs), 단 retry handler가 `MessageNotFoundError`로 reschedule 실패 — Sentry capture 도달은 visibility timeout 기반 redelivery로 시간 더 필요. 별 이슈로 후속 진단 필요.
+- **(c) Webhook ACK ≤ 500ms**: ⏸ Jayden manual (실 IG DM 필요). 본 세션 미진행.
+
+### Task 11 — vercel.json 위치 fix (PR #74)
+
+```
+변경 1: apps/web/vercel.json 신규 (functions path: src/app/api/queue/inbox-process-inbound/route.ts)
+변경 2: 레포 root vercel.json 삭제
+검증:    pnpm build clean, prod redeploy 후 worker invoke 확인 (logs)
+```
+
+발견 경위: Task 10 (a)/(b) 검증 중 dashboard에서 `Queued: 1, Received: 0` 패턴 + `Production` 필터 누락 → monorepo project root (`apps/web`) ↔ root vercel.json 미스매치 가설 → 확정 → PR #74. L-072 학습 기록.
+
+### 별 이슈 (후속 진단 필요)
+
+- 🟡 **Retry reschedule MessageNotFoundError**: `Q-1M0z...` publish 후 worker invoke 시 SDK 내부 reschedule API 호출 fail. visibility timeout 60s 기반 redelivery로는 동작하나 의도한 1+5+30s exp backoff은 깨진 상태. PR #75 후보.
+- 🟡 **Vercel Queue dashboard observability lag**: post-fix publish에도 Queued/Received/Deleted 메트릭이 0으로 표시됨 (logs는 명확히 invoke 확인). beta product indexing 지연 가능성. 정상화 시점 모니터링 필요.
 
 ## Phase 1C — Vercel Queue 분리 완료 ✅ (subagent-driven 8 task)
 
