@@ -123,6 +123,57 @@
 - 날짜: 2026-05-05 late night — **Epic 1B Phase B-4 RAG 시리즈 완료** (PR #42 pgvector + #43 검색 주입 + #44 CRUD UI)
 - 날짜: 2026-05-05 night — **Epic 1B Phase B-3c 완료** (PR #41, Sec HIGH 1 + Code MEDIUM 4 + 운영 안전 fix)
 
+## 이번 세션 완료 (2026-05-06 풀 세션 — 4 PR + 3 prod 마이그 + advisor cleanup)
+
+### 1. PR #56 (Phase 2-A) 자동 머지 검증
+
+- 직전 세션 open PR이 auto-merge 라벨 + workflow_run 트리거 정상 동작 → squash `6730140` + 브랜치 자동 삭제
+- auto-merge 인프라 첫 동작 검증
+
+### 2. PR #57 (Phase 2-B 매장 톤 학습)
+
+- 7-step (DB → DAL → Action → Prompt → Trigger → UI → Review)
+- D1~D5 결정 (명시 학습만 / Composer textarea / 최근 10개 / 빈 매장 no-op / 1~500자)
+- 사후 리뷰 2-agent fix 6건 (Sec S1 rate limit 30/h, Code HIGH-2 catch, MEDIUM-1 null 가드, LOW-1 onChange clear, HIGH-1 위임, lint 1 fix)
+- vitest 466 passed (+26 신규)
+- 0015 prod 적용 ✅ (MCP)
+
+### 3. PR #58 (Customer 확장)
+
+- 7-step (CC-1~CC-7): 0016 마이그 + DAL 3 함수 + IG fetchUserProfile + locale-to-language helper + webhook 자동 enrichment + Server Action updateCustomerNotes + ContextPanel Notes 편집 form
+- C1~C5 결정 (3 컬럼 / IG 1회 fetch / locale 자동 매핑 / 메모 form 편집 / fetch 실패 silent skip)
+- memory stale 검증 결과 작업량 4-6h → 3.5h 단축
+- 사후 리뷰 2-agent fix 5건 (Sec MED-2 명시 select, LOW-3 DB CHECK, Code HIGH-1 NotesForm key prop+caller reset, HIGH-2 unknown cast, MED-4 Sentry storeId tag)
+- vitest 491 passed (+25 신규)
+- 0016 prod 적용 ✅ (MCP, 명시 승인)
+
+### 4. PR #59 (0017 RLS InitPlan 최적화)
+
+- advisor `auth_rls_initplan` 5 WARN 발견 → 마이그 1개로 일괄 fix
+- 5 RLS policy `auth.uid()` → `(select auth.uid())` 변경 (의미 동일, planner InitPlan 1회 평가)
+- SQL only — application 회귀 0 (service_role bypass)
+- 0017 prod 적용 ✅ (MCP, 명시 승인)
+- advisor performance auth_rls_initplan WARN: 5건 → **0건** 검증 ✅
+
+### 5. 인프라 검증
+
+- auto-merge 라벨 4회 연속 검증 (PR #56 / #57 / #58 / #59)
+- Playwright cache 효과 유지 (e2e-smoke ~1.5분)
+- 4.5분 ScheduleWakeup 패턴 (CI cache window 안)
+
+### 6. learnings.md 추가
+
+- L-064: 사후 리뷰 agent 권장 vs framework lint 충돌 시 lint 우선 (React 19 useEffect anti-pattern)
+- L-065: PROGRESS memory stale 가능성, 큰 작업 시작 전 prod/code 실제 검증 (list_tables verbose + grep)
+
+### 통계 (이번 세션 누적)
+
+- 4 PR 머지 / 3 prod 마이그 적용 (0015, 0016, 0017)
+- vitest 440 → **491** (+51 신규)
+- type-check + lint 6/6 packages 모두 Done
+- advisor performance WARN 5 → 0 (auth_rls_initplan)
+- main commits: 16건 (4 머지 + 12 docs/main 직접)
+
 ## 이번 세션 완료 (2026-05-05 심야 후속 — 워크플로우 인프라 + Phase 2-A)
 
 ### 1. 워크플로우 정책 결정 + 메모리화

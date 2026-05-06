@@ -2136,3 +2136,76 @@ jobs:
 **확인 방법**: GitHub Actions 로그에서 "Install Playwright browsers" step 시간 측정. 캐시 적중 시 "Cache restored from key: ..." 메시지 + 5초 미만.
 
 **연관**: 503c16d (ci.yml 병렬화 + Playwright cache). 워크플로우 인프라 옵션 A-1 구현.
+
+---
+
+### [2026-05-06] L-064 — 사후 리뷰 agent 권장 vs framework lint 충돌 시 lint 우선
+
+**증상**: Customer 확장 PR Code review의 HIGH-1 권장: "NotesForm stale state 방어용으로 conversationId 변경 시 useEffect로 setState 리셋." 적용 → React 19 `react-hooks/set-state-in-effect` lint error 발생 (cascading render 안티패턴). lint --max-warnings 0 강제 환경에서 commit 차단 직전.
+
+**원인**:
+
+1. 사후 리뷰 agent (security-reviewer / code-reviewer)는 일반 코드 패턴/이슈는 잘 짚지만 framework-specific lint rule (특히 React 19 신규 룰)을 인지하지 못한다.
+2. agent 권장이 framework 룰과 충돌할 때 false positive로 작용 — agent는 옳은 우려를 제기하나 해결 방법이 framework가 금지한 패턴.
+3. 본 케이스에서 stale state 우려 자체는 valid — 다만 해결을 useEffect로 하는 게 React 19 안티패턴.
+
+**해결** (lint 우선):
+
+1. useEffect 제거
+2. caller(message-view, inbox-client) wrapper + `key={customer.id}` 패턴으로 위임 (PROGRESS L293에 이미 명시된 회귀 패턴)
+3. NotesForm에 `key={customer.id}` 추가 → React가 자동 unmount/remount → useState 초기값 자동 reset
+4. inbox-client에서 conversation 전환 시 `setActiveCustomer(null)` 즉시 reset (다음 poll까지 stale 차단)
+5. 테스트 — 충돌 케이스 테스트(rerender 직접) 제거, message-view 책임으로 위임 명시 주석
+
+**규칙** ⭐:
+
+1. **사후 리뷰 fix 적용 후 즉시 `pnpm lint` 실행 (commit 전)** — lint-staged + husky가 잡지만 빠른 피드백.
+2. **agent 권장과 lint 충돌 시 lint 우선**. framework 룰은 강제, agent 권장은 가이드라인.
+3. **충돌 시 caller 위임 패턴 (key prop, props down) 검토** — React에서 unmount/remount는 stale state의 정석. useEffect로 setState는 React 19 명시 안티패턴.
+4. **agent 권장의 "우려"는 valid해도 "해결책"은 lint·framework 컨텍스트에서 재해석**. agent가 제시한 코드를 그대로 쓰는 게 아니라 의도만 차용.
+
+**확인 방법**:
+
+- 자동: lint-staged + husky pre-commit hook이 `pnpm eslint --max-warnings 0` 실행 → fail 시 commit 차단
+- 인간 리뷰: framework version-specific 룰 (React 19, Next.js 15, etc.) 신규 도입 시 agent 권장 적용 신중
+
+**연관**: PR #58 Customer 확장 사후 리뷰 fix. PROGRESS L293 message-view wrapper + key prop 패턴.
+
+---
+
+### [2026-05-06] L-065 — PROGRESS memory stale 가능성, 큰 작업 시작 전 prod/code 실제 검증
+
+**증상**: Customer 확장 plan 단계에서 PROGRESS memory가 "5 컬럼 미존재 (고객 이름/국적 flag/사용 금액/선호 디자이너/알러지)"라고 명시. 검증 결과 4개는 이미 prod customers 테이블에 존재 (`nationality`, `preferred_language`, `payment_method_preferred`, `total_visits`, `ltv_krw`). 실제 미존재만 3개 (`name`, `allergy_note`, `preferred_designer`). 작업량 추정 4-6h → 3.5h 단축.
+
+**또한**: `list_migrations` 호출이 `0014` `0015` `0016` 미반환했으나 `list_tables verbose`로 확인 결과 messages.metadata 컬럼 / store_tone_examples 테이블 / customers 새 컬럼 모두 실제 존재. → SQL Editor 직접 적용 또는 MCP `apply_migration` 후 schema_migrations 동기화 차이.
+
+**원인**:
+
+1. PROGRESS.md memory는 작성 시점 정보로 frozen. 후속 세션의 prod 변경/코드 진화를 미반영 가능.
+2. 글로벌 CLAUDE.md "memory records can become stale over time" 룰이 정확.
+3. Supabase `list_migrations` ≠ 실제 schema. `list_tables verbose`만 정확한 prod 컬럼 ground truth.
+4. agent 권장(plan 작성)이 stale memory를 그대로 쓰면 작업 범위 over-estimate + 중복 작업 위험.
+
+**해결** (이번 세션 패턴):
+
+1. 큰 작업(≥1h plan) 시작 전 — Plan 단계 직전 또는 implementation 직전 — prod/code 실제 상태 verify
+2. 검증 도구 조합:
+   - `mcp__claude_ai_Supabase__list_tables verbose` (실제 컬럼)
+   - `mcp__claude_ai_Supabase__get_advisors security/performance` (실제 lint, migration 적용 여부 간접 확인)
+   - codebase grep (코드 패턴, 함수 export, schema)
+3. memory가 stale로 판명되면 plan을 검증 정보 기반으로 재작성 + 결과를 사용자에게 보고 (memory stale 부분 명시)
+4. PROGRESS.md를 즉시 갱신해 다음 세션에 일관
+
+**규칙** ⭐:
+
+1. **PROGRESS plan 기반 큰 작업 시작 전 prod/code 실제 상태 verify** — list_tables / get_advisors / grep
+2. **`list_migrations` 결과를 schema 진실로 신뢰 금지** — SQL Editor 직접 적용 마이그는 미등록. `list_tables verbose`로 컬럼 직접 확인.
+3. **memory stale 발견 시 plan 재작성 + PROGRESS 즉시 갱신** — 다음 세션 stale 누적 방지
+4. **사용자 시간 절약**: 검증 후 작업량 추정 갱신 (4-6h → 3.5h 같은 단축은 사용자 가치). 단, 추가 작업 발견 시도 즉시 보고.
+
+**확인 방법**:
+
+- 자동화 후보: Plan 모드 진입 시 list_tables + get_advisors 호출이 default (skill 또는 hook)
+- 인간 리뷰: 큰 PR plan에 "prod/code 실제 검증" 항목이 명시되어 있는지
+
+**연관**: Customer 확장 작업 시작 시 검증 (이번 세션). 글로벌 CLAUDE.md "Before recommending from memory" 섹션.
