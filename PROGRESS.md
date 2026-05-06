@@ -28,7 +28,11 @@ Workaround (D6):
 후속:
 
 - ⏸ **Vercel SDK GitHub issue 등록 (Jayden manual)** — `docs/superpowers/specs/2026-05-06-vercel-queue-callback-retry-issue.md` (paste-ready)
-- ⏸ **prod 검증** — 의도적 invalid payload publish → 60s × 4 invoke + DLQ Sentry alert + deliveryCount 1-based 가정 검증
+- 🟡 **prod 검증 진행 중** — 본 세션 publish 완료, dashboard 결과 대기:
+  - prod 배포: `dpl_FEynJsv8Do9dwfkm6C8x6xJNtGj7` → `https://hesya-web.vercel.app` ✅
+  - publish: messageId `N-1M17xkvmgN5d4Era6I0FaX8IrjmQEB1O` (region: iad1 default, deploymentId: unpinned)
+  - 검증 스크립트: `apps/web/scripts/verify-dlq-publish.ts` (commit `8d8644d`)
+  - **남은 dashboard 확인 (Jayden)**: (a) Vercel Functions logs 4 invoke + deliveryCount 1-based 검증 (b) Sentry DLQ alert 도달
 - ⏸ **Review fix 별 PR** — commit `062bb77` (mock 한계 주석 + 테스트명 분리 + spec 라인 통일 + Section 2.4/5.3 갱신 + return 인라인 주석). dangling 상태, 다음 세션 정리.
 
 ## Task 10 prod 검증 결과 (이번 세션)
