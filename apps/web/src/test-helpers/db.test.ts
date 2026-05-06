@@ -17,11 +17,17 @@ describe("test-helpers/db", () => {
   });
 
   it("seedStoreIntegration calls db.insert with provided storeId/channel/externalAccountId", async () => {
-    // seedStoreIntegration은 db.insert(table).values(row)만 사용 (.returning() 호출 X).
+    // seedStoreIntegration은 db.insert + db.execute(vault.create_secret) 사용.
     // mock chain은 실제 함수의 awaitable 결과를 정확히 흉내냄.
     const valuesSpy = vi.fn(() => Promise.resolve());
     const insertSpy = vi.fn(() => ({ values: valuesSpy }));
-    const fakeDb = { insert: insertSpy } as unknown as DbClient;
+    const executeSpy = vi.fn(() =>
+      Promise.resolve([{ id: "00000000-0000-0000-0000-000000000001" }]),
+    );
+    const fakeDb = {
+      insert: insertSpy,
+      execute: executeSpy,
+    } as unknown as DbClient;
 
     await helpers.seedStoreIntegration(fakeDb, {
       storeId: "s_1",
@@ -37,6 +43,34 @@ describe("test-helpers/db", () => {
         externalAccountId: "ig_acc_1",
       }),
     );
+  });
+
+  it("seedStoreIntegration uses vault encryptToken → 16-byte UUID buffer (production parity)", async () => {
+    // production webhook/oauth는 encryptToken으로 vault.create_secret 호출 후
+    // 16-byte UUID buffer 저장. helper도 동일 흐름 → decryptToken 정상 작동.
+    let captured: { accessTokenEncrypted: Buffer } | undefined;
+    const valuesSpy = vi.fn((row: { accessTokenEncrypted: Buffer }) => {
+      captured = row;
+      return Promise.resolve();
+    });
+    const insertSpy = vi.fn(() => ({ values: valuesSpy }));
+    const executeSpy = vi.fn(() =>
+      Promise.resolve([{ id: "11111111-2222-3333-4444-555555555555" }]),
+    );
+    const fakeDb = {
+      insert: insertSpy,
+      execute: executeSpy,
+    } as unknown as DbClient;
+
+    await helpers.seedStoreIntegration(fakeDb, {
+      storeId: "s_1",
+      channel: "instagram",
+      externalAccountId: "ig_acc_1",
+    });
+
+    expect(executeSpy).toHaveBeenCalledTimes(1);
+    expect(captured?.accessTokenEncrypted).toBeInstanceOf(Buffer);
+    expect(captured?.accessTokenEncrypted.length).toBe(16);
   });
 
   it("exports seedConversation function", () => {

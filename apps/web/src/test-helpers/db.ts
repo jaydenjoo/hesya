@@ -12,6 +12,7 @@ import {
   users,
   type DbClient,
 } from "@hesya/database";
+import { encryptToken } from "@/shared/lib/dal/pgsodium-helpers";
 
 /**
  * 통합 테스트 격리용 DB 헬퍼.
@@ -100,12 +101,16 @@ export async function seedStoreIntegration(
     externalPageId?: string;
   },
 ): Promise<void> {
+  // Production parity (PR #71): vault.create_secret으로 16-byte UUID buffer 생성.
+  // 이전 raw bytes(Buffer.from("test_tok_encrypted") 18-byte) 시드는 decryptToken
+  // 16-byte UUID 가드와 충돌 → webhook integration test 500 → 200 회복.
+  const accessTokenEncrypted = await encryptToken(db, "test_tok_decrypted");
   await db.insert(storeIntegrations).values({
     storeId: input.storeId,
     channel: input.channel,
     externalAccountId: input.externalAccountId,
     externalPageId: input.externalPageId,
-    accessTokenEncrypted: Buffer.from("test_tok_encrypted"),
+    accessTokenEncrypted,
     scopes: ["instagram_business_basic", "instagram_business_manage_messages"],
   });
 }

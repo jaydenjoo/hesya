@@ -33,5 +33,13 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     css: false,
     reporters: ["default", new VitestReporter({ projectRoot })],
+    // Phase B-5d: integration test (HESYA_TEST_DATABASE_URL set 시) 다수 test
+    // file이 같은 supabase DB를 공유. 병렬 worker fork가 resetDb/insert 중 race
+    // → cross-file fail (단독 통과). singleFork로 직렬화. 단위 test는 cost 작음.
+    pool: "forks",
+    // vitest 4의 InlineConfig type 정의에 `poolOptions`이 누락 (runtime은 정상 수용).
+    // 신규 major(v4) 마이그레이션 중인 type 갭 — 의도적 ts-expect-error.
+    // @ts-expect-error vitest 4 type def에 poolOptions 누락
+    poolOptions: { forks: { singleFork: true } },
   },
 });
