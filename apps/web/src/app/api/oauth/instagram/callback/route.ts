@@ -71,8 +71,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       new URL(`/ko/store/inbox?connected=instagram`, baseUrl),
     );
   } catch (err) {
+    // S3: PII 최소화 — storeId 8자 short (다른 Sentry tag와 일관 패턴).
     Sentry.captureException(err, {
-      tags: { route: "oauth:instagram", storeId: session.storeId },
+      tags: {
+        route: "oauth:instagram",
+        storeIdShort: session.storeId.slice(0, 8),
+      },
     });
     // err.message는 Sentry로만 — URL에는 안전한 카테고리 코드만 노출.
     return NextResponse.redirect(
