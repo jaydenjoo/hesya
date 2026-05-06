@@ -4,15 +4,23 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **PR #69 + #70 머지 ✅** (B-5b migration 적용 + B-5c ai-trigger 3건 fix). auto-merge 라벨 **15회** 연속 검증 ✅.
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + D6/Sec-M-3/S2/S3 + advisor 0020/0021 + B-5 advisory + **B-5b migration ✅** + **B-5c ai-trigger 3건 fix ✅** → **다음**: PR #71 (webhook decryptToken 정공법 fix) 또는 새 Epic.
-- **Task**: PR #70 머지 ✅ — 로컬 supabase 재현으로 정확한 원인 4건 진단:
-  - happy path 'en'→'ko' fallback: `seedMessage` helper에 `customerId` 누락 → `messages.customer_id NULL` → `getCustomerPreferredLanguage` NULL → 'ko' fallback. **Fix**: helper sig + test에서 `customer.id` 전달.
-  - 시나리오 3 RAG `relatedFAQs: undefined`: `msg.storeId NULL` → if 분기 skip. **Fix**: helper sig + `storeId` 전달.
-  - webhook 2건 (decryptToken expected 16-byte UUID, got 18): `seedStoreIntegration` raw bytes vs vault 16-byte UUID. **임시 fix**: `vi.mock("@/shared/lib/dal/pgsodium-helpers")` test scope. CI 단독 통과 검증되나 dal cross-file mock leak 가능성 → **PR #71 정공법 fix 필요**.
-- **상태**: B-5 advisory 2단계 closure ✅ (4 fail → **2 fail**, 50% reduction). 3단계 (webhook 정공법 + enforced 전환) PR #71에서. 차단 요소 없음.
-- **작업 브랜치**: `main` (PR #70 머지 + 자동 삭제). origin 동기화 ✅ (`549d701`).
-- **최근 머지된 PR**: [#70](https://github.com/jaydenjoo/hesya/pull/70) B-5c ai-trigger fix — `auto-merge` 15회, squash `549d701`. vitest 540 → **544** (+4: ai-trigger 3 GREEN + db.test.ts RED-first 2 신규).
+- **Phase**: Phase 1 — **B-5 closure ✅ (5단계 advisory 패턴 완주)**. PR #69~#72 모두 머지. auto-merge 라벨 **17회** 연속 검증 ✅.
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + D6/Sec-M-3/S2/S3 + advisor 0020/0021 + **B-5 enforced 전환 완료 ✅** → **다음**: 새 Epic 진입 (Phase 1C Vercel Queue / 1D 다채널) 또는 잔여 ✋ 정리.
+- **Task**: PR #72 머지 ✅ — `vitest.setup.ts`에 `HESYA_TEST_DATABASE_URL` 무조건 `DATABASE_URL` override (CI dummy URL 우회) + `ci.yml continue-on-error: true` 제거 (enforced 전환). **e2e-integration 0 fail 검증 후 머지 → 진정한 gate**.
+- **상태**: B-5 5단계 closure 완료. 통합 테스트 36건이 enforced gate. 차단 요소 없음.
+- **작업 브랜치**: `main` (PR #72 머지 + 자동 삭제). origin 동기화 ✅ (`58b9419`).
+- **최근 머지된 PR**: [#72](https://github.com/jaydenjoo/hesya/pull/72) B-5e DATABASE_URL override + enforced — `auto-merge` 17회, squash `58b9419`. e2e-integration 모든 job SUCCESS 후 머지.
+
+## B-5 advisory 5단계 closure 완료 ✅
+
+```
+1단계 PR #68: spec + ci.yml advisory (continue-on-error:true) ✅
+2단계 PR #69: migration psql -f step (vitest 504→540, +36 unblocked) ✅
+3단계 PR #70: ai-trigger 3건 fix (seedMessage customerId/storeId helper) ✅
+4단계 PR #71: webhook vault parity (seedStoreIntegration encryptToken) ✅
+5단계 PR #72: DATABASE_URL unconditional override + enforced 전환 ✅
+```
+
 - **prod migration**: `0014`~`0019` ✅ / **`0020` + `0021` 적용 ✅** (이번 세션 MCP, Jayden 명시 승인). advisor: security WARN **2→1** (function_search_path 정리, extension_in_public만 잔존), performance `unindexed_foreign_keys` **16→0** ✅. 신규 `unused_index` 16건 추가 (방금 추가한 FK 인덱스 — 트래픽 0이라 즉시 unused 표시, 베타 시점 자동 사용 예상). 0021은 preferred_designer CHECK 2000→100자.
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
@@ -23,15 +31,9 @@
 
 ### 0. 다음 세션 후보 (택1)
 
-- 🟢 **PR #71 — B-5d webhook 정공법 fix + enforced 전환** (~1-2h)
-  - **남은 fail 2건**: `route.test.ts:152, 172` (decryptToken vault 16-byte UUID expected, raw bytes received). 현재 PR #70의 `vi.mock` 우회는 단독 통과지만 dal cross-file mock leak 가능성.
-  - **정공법 옵션**:
-    - (a) **vault helper**: `seedStoreIntegration`이 `pgsodium.create_key` + `vault.create_secret` 후 16-byte UUID 시드 (production 흐름 재현, 정합성 ✅)
-    - (b) **db inject 패턴**: webhook route를 `createDbClient(env.DATABASE_URL)` → 모듈 레벨 default + test inject (architectural 변경, 시간 소요)
-    - (c) `seedStoreIntegration`이 `accessTokenEncrypted: null` 옵션 + webhook route에서 null 처리 (production 흐름 분기)
-  - **추천 (a)**: 정합성 가장 강함, helper만 변경 1 파일, 다음 PR webhook fix까지 묶음.
-  - **D. enforced 전환**: webhook 2건 GREEN 후 `ci.yml:179` `continue-on-error: true` 제거 commit (B-5 3단계 closure 완료).
-- 🟢 **새 Epic 진입** — Phase 1C (Vercel Queue, fire-and-forget processInbound) 또는 1D (multi-channel WhatsApp/Kakao) — 사장 결정 필요
+- 🟢 **새 Epic 진입** — **Phase 1C** (Vercel Queue, fire-and-forget processInbound 큐 분리, ~3-5h) 또는 **Phase 1D** (multi-channel WhatsApp/Kakao adapter 추가, ~5-8h) — 사장 결정 필요
+- 🟢 **B-5 follow-up (선택)**: e2e 시나리오 신규 추가 (AI 응답→번역→발송 end-to-end), 또는 통합 테스트 36건 외 추가 시나리오 작성. 베타 직전 안전망.
+- 🔵 **PR #71 임시 우회 정리**: webhook test의 `vi.mock(pgsodium-helpers)` 제거 (PR #71에 이미 적용됨) ✅
 - 🔵 advisor `extension_in_public` (vector schema) — Supabase 관리형 제한 가능성, 보류 권장
 - 🔵 advisor `unused_index` 24건 — 트래픽 0이라 판단 어려움, 베타 후 재평가
 - 🔵 advisor `auth_db_connections_absolute` — Supabase 대시보드에서 직접 변경 (5분, 코드 X)
@@ -130,6 +132,7 @@
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-06 (B-5 closure 5단계 완주 — PR #71 + #72 머지) — **B-5 advisory 패턴 5단계 closure 완료 ✅**. PR #71(`284497a`) vault parity 정공법(`seedStoreIntegration` `encryptToken`) + integration 인프라(singleFork pool/setup sync). PR #72(`58b9419`) `DATABASE_URL` unconditional override + `continue-on-error: true` 제거 → **enforced 전환**. e2e-integration 모든 job SUCCESS 후 머지 (advisory 차단 없음). vitest 547 → **548** (+1 RED-first vault parity). type-check 7/7 + lint clean. auto-merge 17회 연속 검증. 차단 요소 없음.
 - 날짜: 2026-05-06 (B-5c ai-trigger 3건 fix 1 PR 머지) — **PR #70 squash merge ✅** (`549d701`, auto-merge 15회 연속). 로컬 supabase 재현으로 정밀 분석. **fail 4 → 2 (50% reduction)**. seedMessage helper에 customerId/storeId 옵셔널 추가 (RED-first TDD 2건 db.test.ts). vitest 540 → **544** (+4 신규: ai-trigger 3 GREEN + helper RED-first 2). webhook 2건 (decryptToken vault UUID)은 `vi.mock` test scope 임시 우회 — PR #71 정공법 fix 필요. continue-on-error: true 그대로 유지. 차단 요소 없음.
 - 날짜: 2026-05-06 (B-5b migration 자동 적용 1 PR 머지) — **PR #69 squash merge ✅** (`9f9b729`, auto-merge 14회 연속). `psql -f` step 1개 추가 (10줄). e2e-integration **첫 실 활성화: vitest 504 → 540 (+36)**. test files 69 pass / 2 fail, tests 540 pass / 4 fail (89% green). 4건 fail은 단순 stale 아닌 환경/시드/스키마 정합성 이슈 (happy path customerLanguage 'en'→'ko' fallback / RAG 0 hit / webhook 500). 추측 코딩 회피 → docker desktop + 로컬 supabase 재현 후 정밀 분석 (PR #70 다음 세션). `continue-on-error: true` 그대로 유지 (advisory 단계 closure는 PR #70에서). 차단 요소 없음.
 - 날짜: 2026-05-06 (세션 종료 — 9 PR + 4 prod 마이그 + advisor 38건 정리) — **하루 누적**: PR #60~68 모두 머지, prod 0018/0019/0020/0021 적용, advisor `rls_no_policy 16→0` + `function_search_path 1→0` + `unindexed_fk 16→0`. 잔존 advisor: security 1 WARN (extension_in_public, 보류), performance 25 INFO (unused_index 24 + auth_db_connections 1). vitest 491→504 (+13). main `31e5b7a`. 차단 요소 없음. 다음 세션 후보: PR #68b 또는 새 Epic.

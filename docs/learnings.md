@@ -2333,3 +2333,35 @@ jobs:
 - 인간 리뷰: PROGRESS에 4건 fail 분류가 명시되어 있고, fix 시 로컬 재현 흔적(`supabase start` 실행 로그 등)이 PR description에 있는지.
 
 **연관**: L-068 (advisory 패턴 1·2단계 분리), L-065 (PROGRESS stale 검증), L-058 (race-safe claim — DB 상태 의존 디버깅 패턴). 이번 세션 PR #69 머지 + PR #70 보류.
+
+---
+
+### [2026-05-06] L-070 — Advisory 패턴 5단계 closure 완주: 큰 인프라 작업은 단계적 PR 분할이 정공법
+
+**증상 / 상황**: Phase B-5 (PostgreSQL CI integration job) 도입은 단일 PR로 끝낼 수 없었다. 의존성: Supabase CLI 설치 → migration 자동 적용 → 테스트 코드 stale → DB seeding 정합성 → CI env override. 각 단계마다 새로운 fail 패턴이 노출됐고, 단일 PR에 다 묶었으면 디버깅 사이클이 폭증했을 것.
+
+**원인**: 큰 인프라 작업은 **각 단계가 다음 단계의 fail을 가린다**. 예: PR #69 migration step 없으면 vitest 자체가 안 돌아 ai-trigger fail 패턴 못 봄. PR #70 seedMessage helper 없으면 ai-trigger 'ko' fallback 못 진단. PR #71 vault parity 없으면 webhook 500 못 진단. PR #72 DATABASE_URL override 없으면 webhook GREEN 못 검증. **단계마다 advisory(continue-on-error) 유지로 머지 차단 없이 전진**.
+
+**해결 (5단계 패턴)**:
+
+| 단계 | PR  | 기능                                    | 검증 결과                             |
+| ---- | --- | --------------------------------------- | ------------------------------------- |
+| 1    | #68 | spec + ci.yml advisory job 도입         | 첫 실행 fail (예상: migration 없음)   |
+| 2    | #69 | `psql -f migration` step                | 4 fail (vitest 활성화, +36 unblocked) |
+| 3    | #70 | ai-trigger 3건 fix (seedMessage helper) | 2 fail (50% reduction)                |
+| 4    | #71 | vault parity (encryptToken 정공법)      | 2 fail (CI env override 누락)         |
+| 5    | #72 | DATABASE_URL override + enforced        | **0 fail → enforced 전환 closure**    |
+
+**규칙** ⭐:
+
+1. **큰 인프라 작업 (CI/CD, Docker, DB extension 등)은 advisory 도입 후 단계적 closure 권장** — 단일 PR에 모두 묶으면 디버깅 사이클 폭증. 각 단계가 다음 단계의 fail을 가리는 의존성 있음.
+2. **각 단계 PR에 명확한 closure 기준 + 검증 결과 (fail 수 변화) 명시** — 다음 PR이 어디서 시작할지 명확.
+3. **마지막 단계에서 enforced 전환 commit 추가**. 그 commit은 advisory job CI가 실제 통과한 직후 같은 PR에 추가. fail 시 머지 차단 (real gate).
+4. **새 commit 후 PR head sha 확인**. auto-merge가 직전 commit에서 이미 머지하면 새 commit은 dangling — 별 PR로 재진입.
+
+**확인 방법**:
+
+- 자동: PR #N의 closure step에 "B-5 단계 X/Y" 명시 → 자동 추적.
+- 인간 리뷰: PROGRESS에 단계별 표 + 각 PR의 fail 수 변화 + 최종 enforced 전환 commit SHA 기록.
+
+**연관**: L-068 (advisory 패턴 1·2단계 분리), L-069 (통합 test 첫 활성화 시 multi-issue 노출), L-049 (multi-agent 사후 리뷰), L-067 (병렬 PR). 이번 세션 PR #68~#72.
