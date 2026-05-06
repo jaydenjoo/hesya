@@ -169,14 +169,14 @@ jobs:
     # smoke와 별 job이라 wall time 영향 X (smoke ~1.5분 유지). supabase start
     # ~120s + integration test ~3~5분 = job 총 ~6~7분.
     #
-    # **continue-on-error: true** — 초기 도입이라 supabase init/migration
-    # 자동 적용 단계가 미완성. fail이어도 auto-merge 차단 X (advisory).
-    # 첫 PR 머지 후 점진적 fix → 안정화되면 본 플래그 제거하여 강제.
+    # **B-5 enforced 전환 완료 (PR #72)**: 초기 advisory(continue-on-error: true)
+    # 단계적 closure — PR #69 migration step → PR #70 ai-trigger 3건 fix → PR #71
+    # vault parity 정공법 → PR #72 DATABASE_URL override → 0 fail. 이제 fail 시
+    # auto-merge 차단.
     #
-    # 신규 e2e 시나리오(AI 응답→번역→발송)는 별 PR (PR 9b)에서 추가.
+    # 신규 e2e 시나리오(AI 응답→번역→발송)는 별 PR에서 추가.
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    continue-on-error: true
     # ⚠️ env는 validate/e2e-smoke와 동일 패턴 (yaml anchor 미지원). DATABASE_URL은
     #    supabase status로 동적 override되므로 dummy 유지 OK.
     env:
