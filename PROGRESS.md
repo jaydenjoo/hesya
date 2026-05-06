@@ -7,7 +7,7 @@
 - **Phase**: Phase 1 — **Phase 1C 머지 ✅ (Vercel Queue 분리)**. PR #73 (8 commits + SDK fix). auto-merge **18회** 연속.
 - **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C Vercel Queue ✅** → **다음**: Task 10 prod 검증 (Jayden manual deploy + Vercel Queue dashboard) 또는 Phase 1D / 1Cb (E2E) / 1Cc (Admin DLQ UI).
 - **Task**: PR #73 머지 ✅ — Phase 1C: webhook fire-and-forget → Vercel Queue push mode. webhook ACK 3-5s → 200-500ms (Meta 5s 안전마진 10x). 3회 exp backoff retry + DLQ Sentry alert. 비즈니스 로직 무변경.
-- **상태**: 코드 머지 완료. **prod 검증 미실행** (Jayden manual deploy 필요 — 메모리: Vercel 자동 배포 OFF). 차단 요소 없음.
+- **상태**: 코드 머지 완료 + **prod 배포 성공** ✅ (`hesya-pjrn9hnt4` Ready, Seoul icn1, 1m duration). Vercel 자동 배포 ON 전환 + Ignored Build Step "Automatic" 적용 + Redeploy 트리거. Worker endpoint 라이브 검증 (POST `/api/queue/inbox-process-inbound` → 400 CloudEvents 가드 정상). 차단 요소 없음.
 - **작업 브랜치**: `main` (PR #73 머지 + 자동 삭제). origin 동기화 ✅ (`e533b3f`).
 - **최근 머지된 PR**: [#73](https://github.com/jaydenjoo/hesya/pull/73) Phase 1C — `auto-merge` 18회, squash `e533b3f`. validate + e2e-smoke + e2e-integration **enforced** 모두 SUCCESS 후 머지.
 
