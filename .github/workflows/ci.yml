@@ -234,6 +234,16 @@ jobs:
           fi
           echo "HESYA_TEST_DATABASE_URL=$DB_URL" >> $GITHUB_ENV
           echo "Extracted DB URL host: $(echo $DB_URL | sed 's|.*@||' | cut -d/ -f1)"
+      - name: Apply migrations (psql -f, alphanumeric order)
+        # packages/database/migrations/*.sql 22개를 0000부터 순차 적용.
+        # supabase start가 pgsodium/pgvector/auth 사전 활성화 → SQL 그대로 적용 가능.
+        # ON_ERROR_STOP=1: 한 파일이라도 fail 시 즉시 중단 (advisory job이라 CI green 영향 X).
+        run: |
+          for f in packages/database/migrations/*.sql; do
+            echo "::group::Applying $f"
+            psql "$HESYA_TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"
+            echo "::endgroup::"
+          done
       - name: Run integration test (vitest skipped 자동 활성화)
         run: pnpm --filter @hesya/web test
       - name: Upload Supabase logs on failure
