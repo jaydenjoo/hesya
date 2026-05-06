@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { handleCallback } from "@vercel/queue";
 import { z } from "zod";
 import { generateAndStoreReply } from "@/features/inbox/ai/generate-and-store-reply";
@@ -30,11 +31,19 @@ export const POST = handleCallback(
     await generateAndStoreReply(messageId);
   },
   {
-    retry: (_err, metadata) => {
+    retry: (err, metadata) => {
       const idx = metadata.deliveryCount - 1;
       if (idx < RETRY_BACKOFFS_SECONDS.length) {
         return { afterSeconds: RETRY_BACKOFFS_SECONDS[idx] };
       }
+      // DLQ 진입 — Sentry alert 후 acknowledge (D3 정책)
+      Sentry.captureException(err, {
+        tags: { phase: "queue:inbox.process-inbound:dlq" },
+        extra: {
+          queueMessageId: metadata.messageId,
+          deliveryCount: metadata.deliveryCount,
+        },
+      });
       return { acknowledge: true };
     },
   },

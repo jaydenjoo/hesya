@@ -4,13 +4,19 @@ import { NextRequest } from "next/server";
 // vitest 4는 vi.mock() factory를 파일 최상단으로 hoist함 → 일반 const는
 // 초기화 전 참조됨(temporal dead zone). vi.hoisted()로 mock 변수도 함께
 // hoist하여 안전. queue.test.ts 패턴과 동일.
-const { generateAndStoreReplyMock, handleCallbackImpl } = vi.hoisted(() => ({
-  generateAndStoreReplyMock: vi.fn(),
-  handleCallbackImpl: vi.fn(),
-}));
+const { generateAndStoreReplyMock, handleCallbackImpl, sentryCaptureMock } =
+  vi.hoisted(() => ({
+    generateAndStoreReplyMock: vi.fn(),
+    handleCallbackImpl: vi.fn(),
+    sentryCaptureMock: vi.fn(),
+  }));
 
 vi.mock("@/features/inbox/ai/generate-and-store-reply", () => ({
   generateAndStoreReply: generateAndStoreReplyMock,
+}));
+
+vi.mock("@sentry/nextjs", () => ({
+  captureException: sentryCaptureMock,
 }));
 
 // @vercel/queue handleCallback이 받은 handler를 직접 호출하도록 stub.
@@ -102,5 +108,30 @@ describe("worker /api/queue/inbox-process-inbound", () => {
     // deliveryCount 4 → DLQ acknowledge
     const r4 = opts!.retry(new Error("permanent"), { deliveryCount: 4 });
     expect(r4).toEqual({ acknowledge: true });
+  });
+
+  it("deliveryCount 4 (DLQ 진입) → Sentry capture + acknowledge", () => {
+    sentryCaptureMock.mockReset();
+    const opts = handleCallbackImpl.mock.calls[0]?.[1] as
+      | {
+          retry: (
+            err: Error,
+            meta: { deliveryCount: number; messageId: string },
+          ) => unknown;
+        }
+      | undefined;
+    const result = opts!.retry(new Error("permanent fail"), {
+      deliveryCount: 4,
+      messageId: "q_msg_x",
+    });
+    expect(result).toEqual({ acknowledge: true });
+    expect(sentryCaptureMock).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({
+        tags: expect.objectContaining({
+          phase: "queue:inbox.process-inbound:dlq",
+        }),
+      }),
+    );
   });
 });
