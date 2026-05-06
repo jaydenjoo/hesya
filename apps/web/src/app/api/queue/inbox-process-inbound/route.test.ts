@@ -79,4 +79,28 @@ describe("worker /api/queue/inbox-process-inbound", () => {
     expect(res.status).toBe(500);
     expect(generateAndStoreReplyMock).not.toHaveBeenCalled();
   });
+
+  it("handleCallback에 retry option 전달 — 3회 exp backoff + 4회째 acknowledge", () => {
+    expect(handleCallbackImpl).toHaveBeenCalled();
+    const opts = handleCallbackImpl.mock.calls[0]?.[1] as
+      | { retry: (err: Error, meta: { deliveryCount: number }) => unknown }
+      | undefined;
+    expect(typeof opts?.retry).toBe("function");
+
+    // deliveryCount 1 → 1s 후 retry
+    const r1 = opts!.retry(new Error("transient"), { deliveryCount: 1 });
+    expect(r1).toEqual({ afterSeconds: 1 });
+
+    // deliveryCount 2 → 5s
+    const r2 = opts!.retry(new Error("transient"), { deliveryCount: 2 });
+    expect(r2).toEqual({ afterSeconds: 5 });
+
+    // deliveryCount 3 → 30s
+    const r3 = opts!.retry(new Error("transient"), { deliveryCount: 3 });
+    expect(r3).toEqual({ afterSeconds: 30 });
+
+    // deliveryCount 4 → DLQ acknowledge
+    const r4 = opts!.retry(new Error("permanent"), { deliveryCount: 4 });
+    expect(r4).toEqual({ acknowledge: true });
+  });
 });
