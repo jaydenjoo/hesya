@@ -4,14 +4,14 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **워크플로우 인프라 + Epic 1B-Tone P2-A/2-B + Customer 확장 머지 완료** (auto-merge 라벨 3회 연속 검증 ✅)
+- **Phase**: Phase 1 — **워크플로우 인프라 + Epic 1B-Tone P2-A/2-B + Customer 확장 + RLS InitPlan 최적화 머지 완료** (auto-merge 라벨 4회 연속 검증 ✅)
 - **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone P1 (4탭) ✅ + 1B-Tone P2-A ✅ + 1B-Tone P2-B (매장 톤 학습) ✅ + **Customer 확장 (IG profile + ContextPanel name/notes 편집) ✅** → **다음**: P2-B/P2-A follow-up (S2 row cap, S3 userId truncate, D6 prompt caching, Sec MED-1 IG fetch retry) 또는 다른 Epic 진입
 - **Task**: 1A ✅ / 1B B-1~B-4c ✅ / 1B-UI A-1~A-4 ✅ / 1B-Tone 1~4 ✅ / 워크플로우 A-1 (CI 병렬화+Playwright cache) ✅ / 워크플로우 A-2 (auto-merge.yml + 라벨) ✅ / 1B-Tone P2-A ✅ / 1B-Tone P2-B ✅ / **Customer 확장 CC-1~CC-7 (DB+DAL+IG fetch+webhook+Server Action+ContextPanel UI) ✅**
 - **상태**: 사장이 ContextPanel에서 고객 이름(IG 자동 fetch) + 방문 횟수 + 사용 금액 보고, 알러지·선호 디자이너 메모 편집·저장. PR #58 머지 검증 결과 auto-merge 인프라 정상 (validate + e2e-smoke + Vercel 모두 SUCCESS → squash merge `7ceeaff` + 브랜치 자동 삭제). 차단 요소 없음 (단 0016 prod migration 적용 보류).
 - **작업 브랜치**: `main` (Customer 확장 머지 + 작업 브랜치 자동 삭제 완료). origin 동기화 ✅.
 - **최근 main 직접 commit**: `503c16d` (ci 병렬화), `725e437` (auto-merge.yml). 둘 다 인프라 yml 변경 — 정책상 main 직접 push 적용 (코드 회귀 0).
-- **최근 머지된 PR**: [#58](https://github.com/jaydenjoo/hesya/pull/58) Customer 확장 — `auto-merge` 라벨 3회 사용, squash merge `7ceeaff`, 25 신규 테스트, 491/491 + 40 skipped, 사후 리뷰 fix 5건 (Sec MED-2 명시 select, LOW-3 DB CHECK, Code HIGH-1 NotesForm key, HIGH-2 unknown cast, MED-4 Sentry storeId tag).
-- **prod migration**: `0014_messages_tone_metadata.sql` 적용 완료 (SQL Editor) / **`0015_store_tone_examples.sql` 적용 ✅** (이번 세션 MCP `apply_migration`) / **`0016_customers_profile.sql` 적용 ✅** (이번 세션 MCP, Jayden 명시 승인 후). customers 컬럼 11→14 (`name`/`allergy_note`/`preferred_designer` + 2 CHECK 2000자 제약). 모든 P2-B/Customer 확장 기능 prod 동작 가능 상태.
+- **최근 머지된 PR**: [#59](https://github.com/jaydenjoo/hesya/pull/59) RLS InitPlan 최적화 — `auto-merge` 라벨 4회, squash merge `1f7f869`, 5 policy DROP+CREATE, SQL only (회귀 0). 직전 [#58](https://github.com/jaydenjoo/hesya/pull/58) Customer 확장 — squash merge `7ceeaff`, 25 신규 테스트, 491/491.
+- **prod migration**: `0014` ✅ (SQL Editor) / `0015` ✅ (MCP) / `0016` ✅ (MCP, Jayden 명시 승인) / **`0017_rls_initplan_optimization.sql` 미적용 — Jayden 명시 승인 대기** (코드 머지 자체는 안전, advisor `auth_rls_initplan` 5 WARN 잔존 — 적용 후 0건 검증 필요).
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -110,6 +110,7 @@
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-06 (RLS InitPlan 최적화) — **PR #59 머지 ✅** (auto-merge 4회 연속, squash `1f7f869`, SQL only). 5 테이블 RLS policy `auth.uid()` → `(select auth.uid())` InitPlan 패턴. application 회귀 0 (service_role bypass). **0017 prod 적용 보류 — Jayden 명시 승인 대기**. 적용 후 advisor performance `auth_rls_initplan` 5 WARN 0건 검증 예정.
 - 날짜: 2026-05-06 (Customer 확장 + 0016 prod 적용) — **0016 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). customers 컬럼 11→14 (name/allergy_note/preferred_designer + 2 CHECK 2000자). 모든 P2-B/Customer 확장 기능 prod 동작 가능. 차단 요소 없음.
 - 날짜: 2026-05-06 (Customer 확장 풀 세션) — **Customer 확장 7-step 완료** (PR #58 squash merge `7ceeaff`). 0015 prod 적용 ✅ (MCP). DB 0016 마이그 + DAL 3 함수 + IG fetchUserProfile + locale-to-language helper + webhook 자동 enrichment + Server Action updateCustomerNotes + ContextPanel Notes 편집 form. 사후 리뷰 2-agent 병렬 결과 fix 5건 적용 (Sec MED-2 명시 select, LOW-3 DB CHECK, Code HIGH-1 NotesForm key prop+caller reset, HIGH-2 unknown cast, MED-4 Sentry storeId tag). vitest 491 passed (+25 신규) + 40 skipped. type-check 6/6 + lint Done. auto-merge 라벨 3회 연속 검증 ✅. **prod migration `0016_customers_profile.sql` 미적용 — Jayden 명시 승인 대기**.
 - 날짜: 2026-05-06 (P2-B 풀 세션) — **Epic 1B-Tone Phase 2-B 매장 톤 학습 완료** (PR #57 squash merge `c79081a`). 7-step 구현 (DB → DAL → Action → Prompt → Trigger → UI → Review). 사후 리뷰 2-agent 병렬 결과 fix 6건 적용 (Sec S1 rate limit 30/h, Code HIGH-2 catch 주석, MEDIUM-1 null 가드, LOW-1 onChange clear, HIGH-1은 message-view key prop 패턴 위임, lint 1 error fix). vitest 466 passed (+26 신규) + 40 skipped. type-check 6/6 + lint Done. auto-merge 라벨 2회 연속 검증 ✅. **prod migration `0015_store_tone_examples.sql` 수동 적용 보류 (Jayden)**.
