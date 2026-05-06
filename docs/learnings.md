@@ -2365,3 +2365,27 @@ jobs:
 - 인간 리뷰: PROGRESS에 단계별 표 + 각 PR의 fail 수 변화 + 최종 enforced 전환 commit SHA 기록.
 
 **연관**: L-068 (advisory 패턴 1·2단계 분리), L-069 (통합 test 첫 활성화 시 multi-issue 노출), L-049 (multi-agent 사후 리뷰), L-067 (병렬 PR). 이번 세션 PR #68~#72.
+
+---
+
+### [2026-05-06] L-071 — TDD-guard로 amend 발생 시 working tree 미정리 → 의존성 commit 누락
+
+**증상 / 상황**: Phase 1C Task 1 (subagent-driven-development) 실행 중, implementer가 `pnpm add @vercel/queue`로 SDK 설치 후 RED-first 차단으로 amend 진행. 결과: queue.ts + queue.test.ts는 commit됐으나 **package.json + pnpm-lock.yaml 변경은 working tree에만 남음**. 이후 Task 2~8 commits에 `import { send } from "@vercel/queue"` 코드는 있지만 SDK 자체는 commit 누락. PR push 후 CI validate fail (`Cannot find module '@vercel/queue'`). dangling 의존성이 8 commits 동안 발견 안 됨.
+
+**원인**: `git commit --amend --no-edit`는 **현재 staging area에 있는 변경만 amend**. amend 직전에 새로 변경된 파일(자동 install된 lockfile, 의존성 변경 등)은 `git add` 안 했으면 working tree에만 남음. Subagent가 `git status` 확인 안 하고 amend 진행 → 누락 + 다음 task로 이동.
+
+**해결**: 별 commit으로 SDK deps 추가 (`fix(deps): @vercel/queue 0.1.6 commit (Task 1에서 누락)`, `0c2c3e1`) → push → CI validate 정상.
+
+**규칙** ⭐:
+
+1. **TDD-guard 차단으로 amend 흐름 진입 시 항상 `git status` 확인** — staging되지 않은 working tree 변경(특히 lockfile, package.json, schema)이 amend에서 누락될 위험.
+2. **의존성 추가(`pnpm add`, `npm install`)는 별 commit으로 분리 권장** — code commit과 묶지 않음. amend 사이클에서 가장 누락되기 쉬운 카테고리.
+3. **subagent prompt에 "amend 시 git status 검증 step" 명시** — `git commit --amend` 후 `git diff HEAD --stat`로 의도한 변경만 포함됐는지 확인.
+4. **Long subagent task chain일수록 첫 commit에 의존성을 묶지 말 것** — 후속 task가 import만 추가하고 정작 dependency manifest는 누락된 채 진행될 위험.
+
+**확인 방법**:
+
+- 자동: PR push 후 CI validate fail → "Cannot find module" 에러 메시지 → 즉시 working tree 의존성 누락 의심.
+- 인간 리뷰: subagent commit log + `git diff HEAD~N..HEAD --stat`에서 SDK install 흔적이 있는데 lockfile 변경 없으면 누락.
+
+**연관**: L-066 (TDD-guard implementation revert도 차단), L-070 (큰 인프라 작업 단계적 closure), L-050 (TDD-guard hook 우회 — source code grep test). 이번 세션 PR #73 (Phase 1C subagent-driven 8 task + 1 fix).
