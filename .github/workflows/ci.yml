@@ -163,3 +163,79 @@ jobs:
           name: playwright-report
           path: apps/web/playwright-report
           retention-days: 7
+
+  e2e-integration:
+    # Phase B-5: PostgreSQL + pgsodium + pgvector + auth.uid() 통합 환경.
+    # smoke와 별 job이라 wall time 영향 X (smoke ~1.5분 유지). supabase start
+    # ~120s + integration test ~3~5분 = job 총 ~6~7분.
+    #
+    # **continue-on-error: true** — 초기 도입이라 supabase init/migration
+    # 자동 적용 단계가 미완성. fail이어도 auto-merge 차단 X (advisory).
+    # 첫 PR 머지 후 점진적 fix → 안정화되면 본 플래그 제거하여 강제.
+    #
+    # 신규 e2e 시나리오(AI 응답→번역→발송)는 별 PR (PR 9b)에서 추가.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    # ⚠️ env는 validate/e2e-smoke와 동일 패턴 (yaml anchor 미지원). DATABASE_URL은
+    #    supabase status로 동적 override되므로 dummy 유지 OK.
+    env:
+      NEXT_PUBLIC_APP_URL: http://localhost:4200
+      NEXT_PUBLIC_SUPABASE_URL: https://x.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy_anon_key_for_ci_build_xxxxxxx
+      SUPABASE_SERVICE_ROLE_KEY: dummy_service_role_for_ci_build_xxxx
+      DATABASE_URL: postgres://x:x@x.pooler.supabase.com:6543/postgres
+      BETTER_AUTH_SECRET: ci_dummy_secret_minimum_32_chars_long_xxx
+      BETTER_AUTH_URL: http://localhost:4200
+      GOOGLE_CLIENT_ID: ci-dummy-google-client-id
+      GOOGLE_CLIENT_SECRET: ci-dummy-google-client-secret
+      SENTRY_DSN: https://x@x.ingest.sentry.io/0
+      NEXT_PUBLIC_SENTRY_DSN: https://x@x.ingest.sentry.io/0
+      NEXT_PUBLIC_POSTHOG_KEY: phc_dummy_for_ci_build
+      NEXT_PUBLIC_POSTHOG_HOST: https://eu.i.posthog.com
+      KOREA_NTS_API_KEY: ci_dummy_korea_nts_key_xxxxxxxxxxxxxx
+      KOREA_LOCALDATA_API_KEY: ci_dummy_korea_localdata_key_xxxxxxxx
+      ADMIN_EMAILS: ci-dummy-admin@example.com
+      CRON_SECRET: ci_dummy_cron_secret_xxxxxxxxxxxxxxxxxxxxxxxx
+      RESEND_API_KEY: re_ci_dummy_resend_api_key
+      RESEND_FROM_EMAIL: ci-dummy@resend.dev
+      ANTHROPIC_API_KEY: sk-ant-ci-dummy-anthropic-api-key-xxxxxxxx
+      OPENAI_API_KEY: sk-ci-dummy-openai-api-key-xxxxxxxx
+      IG_APP_ID: stub-ig-app-id
+      IG_APP_SECRET: stub-ig-app-secret
+      IG_WEBHOOK_VERIFY_TOKEN: stub-ig-verify-token
+      IG_REDIRECT_URI: https://stub.example.com/api/oauth/instagram/callback
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start Supabase (PG + pgsodium + pgvector + auth)
+        run: supabase start
+      - name: Extract HESYA_TEST_DATABASE_URL from supabase status
+        run: |
+          # supabase status -o env 출력에서 DB_URL 라인 추출.
+          # 예: DB_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+          DB_URL=$(supabase status --output env | grep '^DB_URL=' | cut -d= -f2- | tr -d '"')
+          if [ -z "$DB_URL" ]; then
+            echo "ERROR: Failed to extract DB URL from supabase status"
+            supabase status
+            exit 1
+          fi
+          echo "HESYA_TEST_DATABASE_URL=$DB_URL" >> $GITHUB_ENV
+          echo "Extracted DB URL host: $(echo $DB_URL | sed 's|.*@||' | cut -d/ -f1)"
+      - name: Run integration test (vitest skipped 자동 활성화)
+        run: pnpm --filter @hesya/web test
+      - name: Upload Supabase logs on failure
+        if: failure()
+        run: supabase status || true
