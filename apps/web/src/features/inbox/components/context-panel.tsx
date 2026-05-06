@@ -278,7 +278,7 @@ function NotesForm({
           id="ctx-preferred-designer"
           value={preferredDesigner}
           onChange={(e) => setPreferredDesigner(e.target.value)}
-          maxLength={500}
+          maxLength={100}
           disabled={isSaving}
           className="kr mt-1 w-full rounded border border-hesya-peach-200 bg-white p-2 text-sm text-hesya-navy-900"
         />

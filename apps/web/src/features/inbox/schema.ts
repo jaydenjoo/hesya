@@ -29,12 +29,15 @@ export type LearnStoreToneInput = z.infer<typeof learnStoreToneInputSchema>;
  * Customer 확장 (CC-6) — 사장이 ContextPanel에서 customer 메모 편집.
  * conversationId는 ownership 검증용 (customer→conv→store join), customerId는
  * 실제 update 대상. 둘 다 UUID 강제. allergyNote/preferredDesigner 옵셔널 nullable.
+ *
+ * **Code LOW-7**: preferredDesigner는 이름 필드 표준 100자 (3-layer 통일:
+ * Zod + DB CHECK + UI maxLength). allergyNote는 메모 자유 입력 500자 유지.
  */
 export const updateCustomerNotesInputSchema = z.object({
   conversationId: z.uuid(),
   customerId: z.uuid(),
   allergyNote: z.string().max(500).nullable().optional(),
-  preferredDesigner: z.string().max(500).nullable().optional(),
+  preferredDesigner: z.string().max(100).nullable().optional(),
 });
 
 export type UpdateCustomerNotesInput = z.infer<
