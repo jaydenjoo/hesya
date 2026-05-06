@@ -126,6 +126,7 @@ describe("updateCustomerNotes action (CC-6)", () => {
       ltvKrw: 0,
       allergyNote: "땅콩",
       preferredDesigner: "민지",
+      igProfileFetched: true,
     });
 
     const r = await updateCustomerNotes({

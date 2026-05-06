@@ -148,6 +148,7 @@ describe("ContextPanel (Epic 1B-UI A-4)", () => {
           ltvKrw: 0,
           allergyNote: null,
           preferredDesigner: null,
+          igProfileFetched: false,
         }}
       />,
     );
@@ -171,6 +172,7 @@ describe("ContextPanel (Epic 1B-UI A-4)", () => {
           ltvKrw: 245000,
           allergyNote: null,
           preferredDesigner: null,
+          igProfileFetched: false,
         }}
       />,
     );
@@ -196,6 +198,7 @@ describe("ContextPanel (Epic 1B-UI A-4)", () => {
           ltvKrw: 0,
           allergyNote: "땅콩 알러지",
           preferredDesigner: "민지",
+          igProfileFetched: true,
         }}
       />,
     );
@@ -223,6 +226,7 @@ describe("ContextPanel (Epic 1B-UI A-4)", () => {
           ltvKrw: 0,
           allergyNote: "이전 메모",
           preferredDesigner: "이전",
+          igProfileFetched: true,
         }}
       />,
     );
