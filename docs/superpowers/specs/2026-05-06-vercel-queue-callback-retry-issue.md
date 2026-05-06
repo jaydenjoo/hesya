@@ -5,16 +5,14 @@
 
 ---
 
-## Title
+## Title (paste 그대로)
 
-```
-@vercel/queue 0.1.6 — callback push mode `{ afterSeconds }` retry directive
-silently fails with MessageNotFoundError 404, message ends after 1 invoke
-```
+`@vercel/queue 0.1.6 — callback push mode { afterSeconds } retry directive silently fails with MessageNotFoundError 404, message ends after 1 invoke`
 
-## Body (copy-paste 그대로)
+---
 
-````markdown
+## Body (아래 "Summary"부터 끝까지 통째로 paste)
+
 ### Summary
 
 In callback (push) mode using `handleCallback` from `@vercel/queue@0.1.6`, returning a `{ afterSeconds: N }` directive from the `retry` handler causes `changeVisibility` to fail with `MessageNotFoundError` (404). The SDK swallows this error and the callback returns 200, which the server interprets as ack. As a result, **the message is never retried** — neither via the requested backoff, nor via visibility-timeout-based redelivery.
@@ -30,7 +28,7 @@ This breaks application-level retry policies built on `{ afterSeconds }` directi
 
 ### Repro
 
-Worker route (`apps/web/src/app/api/queue/inbox-process-inbound/route.ts`):
+Worker route:
 
 ```ts
 import { handleCallback } from "@vercel/queue";
@@ -41,14 +39,12 @@ export const POST = handleCallback(
   },
   {
     retry: (err, metadata) => {
-      // first attempt → reschedule after 1s
       if (metadata.deliveryCount === 1) return { afterSeconds: 1 };
       return { acknowledge: true };
     },
   },
 );
 ```
-````
 
 `vercel.json`:
 
@@ -64,15 +60,13 @@ export const POST = handleCallback(
 }
 ```
 
-Publish a message → worker invoke fires once → handler throws → SDK calls `changeVisibility(receiptHandle, 1)` → server returns 404 → SDK throws `MessageNotFoundError` internally, catches it, logs `console.warn("Failed to reschedule message for retry: ...")`, and returns 200.
+Publish a message → worker invoke fires once → handler throws → SDK calls `changeVisibility(receiptHandle, 1)` → server returns 404 → SDK throws `MessageNotFoundError` internally, catches it, logs `Failed to reschedule message for retry: ...`, and returns 200.
 
 Server treats the 200 response as ack. Message is gone. No retry ever happens.
 
 ### Observed log line
 
-```
-Failed to reschedule message for retry: MessageNotFoundError: Message s.Q.<msgId>.<lease-suffix> not found
-```
+`Failed to reschedule message for retry: MessageNotFoundError: Message s.Q.<msgId>.<lease-suffix> not found`
 
 The ID in the error is the **receiptHandle** (lease token), not the messageId returned by `send()`. They differ in format:
 
@@ -90,9 +84,9 @@ The ID in the error is the **receiptHandle** (lease token), not the messageId re
     let directive;
     try {
       directive = options.retry(error, metadata);
-    } catch (retryError) { ... }
+    } catch (retryError) { /* ... */ }
     if (directive) {
-      ...
+      // ...
       if ("afterSeconds" in directive && typeof directive.afterSeconds === "number") {
         try {
           await this.client.changeVisibility({
@@ -119,13 +113,17 @@ The ID in the error is the **receiptHandle** (lease token), not the messageId re
 ```js
 const response = await this.fetch(
   this.buildUrl(queueName, "consumer", consumerGroup, "lease", receiptHandle),
-  { method: "PATCH", headers, body: JSON.stringify({ visibilityTimeoutSeconds }) }
+  {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify({ visibilityTimeoutSeconds }),
+  },
 );
 if (!response.ok) {
   if (response.status === 404) {
     throw new MessageNotFoundError(receiptHandle);
   }
-  ...
+  // ...
 }
 ```
 
@@ -144,16 +142,15 @@ One of the following:
 - **(b)** The SDK rethrows on `changeVisibility` failure so the callback returns 5xx and the server falls back to visibility-timeout-based redelivery.
 - **(c)** The docs explicitly state that `{ afterSeconds }` is unsupported in callback mode and recommend returning `undefined` to fall back to visibility-timeout redelivery.
 
-### Current workaround (Hesya)
+### Current workaround
 
-Return `undefined` from the retry handler for `deliveryCount < N`, so the SDK rethrows and the callback returns 5xx. The server then redelivers based on `visibilityTimeoutSeconds` (we set 60s explicitly). On `deliveryCount === N` we return `{ acknowledge: true }` to enter our application-level DLQ (Sentry capture).
+Return `undefined` from the retry handler for `deliveryCount < N`, so the SDK rethrows and the callback returns 5xx. The server then redelivers based on `visibilityTimeoutSeconds` (we set 60s explicitly). On `deliveryCount === N` we return `{ acknowledge: true }` to enter our application-level DLQ.
 
 ```ts
 export const POST = handleCallback(handler, {
   visibilityTimeoutSeconds: 60,
   retry: (err, metadata) => {
     if (metadata.deliveryCount < 4) return; // throw propagates → callback 5xx → server redelivers
-    Sentry.captureException(err, { ... });
     return { acknowledge: true };
   },
 });
@@ -172,14 +169,11 @@ Anyone using `{ afterSeconds }` directives in callback mode is currently getting
 
 Happy to test a fix in our environment if helpful.
 
-```
-
 ---
 
 ## 등록 절차 (Jayden manual)
 
 1. https://github.com/vercel/sdk/issues 에서 새 issue 생성
-2. 위 Title + Body 그대로 paste
+2. 위 Title 한 줄 + Body의 "### Summary"부터 "Happy to test a fix..."까지 paste
 3. 등록 후 issue URL을 PROGRESS.md `## Phase 1C 후속 issue` 섹션에 기록
 4. SDK fix가 머지되면 → Hesya에서 SDK upgrade + retry handler를 1+5+30s exp backoff으로 복구 (별 PR)
-```
