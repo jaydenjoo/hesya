@@ -84,7 +84,14 @@ describe("generateReply (1B-Tone-2: 4 tone tool use)", () => {
     expect(createMock).toHaveBeenCalledWith(
       expect.objectContaining({
         model: "claude-sonnet-4-6",
-        system: expect.stringContaining("강남미용실"),
+        // D6 prompt caching: system은 TextBlockParam[] 배열 (cache_control 적용 가능)
+        system: expect.arrayContaining([
+          expect.objectContaining({
+            type: "text",
+            text: expect.stringContaining("강남미용실"),
+            cache_control: { type: "ephemeral" },
+          }),
+        ]),
         messages: [{ role: "user", content: "단발 가능?" }],
         tools: expect.arrayContaining([
           expect.objectContaining({ name: "generate_tone_variations" }),
