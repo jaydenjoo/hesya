@@ -11,7 +11,7 @@
 - **작업 브랜치**: `main` (4 PR 머지 + 작업 브랜치 자동 삭제 완료). origin 동기화 ✅.
 - **최근 main 직접 commit**: `503c16d` (ci 병렬화), `725e437` (auto-merge.yml). 둘 다 인프라 yml 변경 — 정책상 main 직접 push 적용 (코드 회귀 0).
 - **최근 머지된 PR**: [#65](https://github.com/jaydenjoo/hesya/pull/65) S3 Sentry truncate — `auto-merge` 10회, squash `24e22f8`. 직전 [#64](https://github.com/jaydenjoo/hesya/pull/64) S2 tone cap (`89c8666`), [#63](https://github.com/jaydenjoo/hesya/pull/63) Sec-M-3 RLS 16 (`b8ade8d`), [#62](https://github.com/jaydenjoo/hesya/pull/62) D6 prompt caching (`2cf7775`).
-- **prod migration**: `0014` ✅ / `0015` ✅ / `0016` ✅ / `0017` ✅ / `0018` ✅ / **`0019_rls_remaining_tables.sql` 미적용 — Jayden 명시 승인 대기** (16 정책 일괄, service_role bypass라 회귀 0). 남은 advisor performance: 16 INFO `unindexed_foreign_keys` + 8 INFO `unused_index` + 1 INFO `auth_db_connections_absolute` (모두 INFO).
+- **prod migration**: `0014` ✅ / `0015` ✅ / `0016` ✅ / `0017` ✅ / `0018` ✅ / **`0019_rls_remaining_tables.sql` 적용 ✅** (이번 세션 MCP, Jayden 명시 승인). 16 RLS 정책 일괄, service_role bypass로 application 회귀 0. advisor `rls_enabled_no_policy` **16 INFO → 0건** 검증 완료. 남은 advisor security: 1 WARN `function_search_path_mutable` (prevent_kyc_log_modification) + 1 WARN `extension_in_public` (vector) — 0019 무관 기존 항목. 남은 advisor performance: 16 INFO `unindexed_foreign_keys` + 8 INFO `unused_index` + 1 INFO `auth_db_connections_absolute` (모두 INFO).
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -108,7 +108,8 @@
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-06 (4 후속 PR 머지) — **PR #62 D6 + #63 Sec-M-3 + #64 S2 + #65 S3 squash merge ✅** (auto-merge 7~10회 연속). main `24e22f8`. vitest 495 → **498** (+3 신규: D6 2 + S2 2 + S3 2 — 일부 helper 마이그). type-check 6/6 + lint clean. **0019 prod 적용 미진행 (Jayden 명시 승인 대기)** — 16 RLS 정책, service_role bypass라 회귀 0.
+- 날짜: 2026-05-06 (0019 prod 적용) — **0019 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). 16 RLS 정책 일괄 추가 (owner-scoped 7 + indirect FK 4 + user-scoped 3 + service-only USING(false) 2). advisor `rls_enabled_no_policy` **16 INFO → 0건** 검증 ✅. application 회귀 0 (service_role bypass). future anon 키 사용 시점에 차단선 + 의도 명세 확보.
+- 날짜: 2026-05-06 (4 후속 PR 머지) — **PR #62 D6 + #63 Sec-M-3 + #64 S2 + #65 S3 squash merge ✅** (auto-merge 7~10회 연속). main `24e22f8`. vitest 495 → **498** (+3 신규: D6 2 + S2 2 + S3 2 — 일부 helper 마이그). type-check 6/6 + lint clean.
 - 날짜: 2026-05-06 (0018 prod 적용) — **0018 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). `customers.ig_profile_fetched boolean NOT NULL DEFAULT false` 컬럼 추가. list_tables verbose로 컬럼 검증 ✅. security advisor 회귀 0 (기존 RLS no_policy INFO + function_search_path WARN + extension_in_public WARN만, 0018과 무관).
 - 날짜: 2026-05-06 (Customer follow-up 2 PR 머지) — **PR #60 (Code MED-3) + PR #61 (Sec MED-1) squash merge ✅** (auto-merge 6회 연속). main `c59ff1d`. vitest 491 → **495** (+4 신규). type-check 6/6 + lint clean.
 - 날짜: 2026-05-06 (0017 prod 적용) — **0017 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). advisor performance `auth_rls_initplan` 5 WARN → **0건 검증 완료**. RLS hot path 성능 안전망 확보 (향후 anon 키 사용 시점 효과).
