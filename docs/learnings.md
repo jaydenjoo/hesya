@@ -2209,3 +2209,36 @@ jobs:
 - 인간 리뷰: 큰 PR plan에 "prod/code 실제 검증" 항목이 명시되어 있는지
 
 **연관**: Customer 확장 작업 시작 시 검증 (이번 세션). 글로벌 CLAUDE.md "Before recommending from memory" 섹션.
+
+---
+
+### [2026-05-06] L-066 — TDD-guard hook이 implementation revert도 차단 → 정상 TDD 사이클 강제
+
+**증상**: Code MED-3 (Bearer header 전환) 작업 중 첫 Edit (`getMe`)는 통과했으나, 두 번째 Edit (`fetchUserProfile`)는 차단됨. 그 다음 첫 Edit를 revert(원복)하려고 시도하니 그것도 차단. "All tests are passing" 메시지로 두 방향 모두 막힘.
+
+**원인**:
+
+1. `tdd-guard-filtered.sh` hook은 "implementation 변경 + 기존 테스트 모두 통과 = TDD 위반"으로 판단. 코드 의미가 변경됐는지가 아니라 "테스트가 RED를 보이는가"로 판정.
+2. `getMe` 변경 후에도 기존 테스트(URL prefix만 검증)는 여전히 통과 → hook은 변경을 정당화할 RED 테스트를 요구.
+3. revert도 같은 논리: "기존 테스트가 다 통과하는 상태"에서 코드만 바꾸면 RED 없는 implementation change → 차단.
+
+**해결**:
+
+1. revert 시도 멈춤. 정상 TDD 사이클로 진입.
+2. `fetchUserProfile` 테스트의 URL regex 검증을 새 동작 기준 (access_token 부재 + Bearer header 검증)으로 교체 → 코드 미변경 상태에서 RED 발생.
+3. RED 확인 후 `fetchUserProfile` 구현 변경 → GREEN.
+4. `getMe`도 새 회귀 방어 테스트 1건 추가 (이미 변경된 코드는 GREEN으로 통과).
+
+**규칙** ⭐:
+
+1. **TDD-guard hook 차단 시 우회 시도 금지 — 차단 자체가 정상 TDD 강제 신호**. 임시로 hook 비활성하면 동일 실수 반복.
+2. **첫 Edit가 우연히 통과해도 안심 금지** — 기존 테스트 검증 범위가 좁아 코드 변경을 못 잡았을 가능성. 의도한 새 동작을 검증하는 회귀 테스트를 반드시 추가.
+3. **revert도 implementation change** — "원래대로 돌리기"도 RED 정당화 필요. revert 대신 "테스트 먼저 작성 → RED → 구현 변경 → GREEN" 사이클로 진입.
+4. **source-grep test 패턴**(L-050 재활용)이 가장 빠른 RED 진입로. DAL/route 같은 비즈니스 로직 변경에도 효과.
+
+**확인 방법**:
+
+- 자동: `tdd-guard-filtered.sh`가 implementation 변경 시 차단 메시지 표시 → 그 자체가 검증.
+- 인간 리뷰: PR diff에 "test 변경 commit이 implementation 변경 commit보다 먼저"인지 확인 (single commit이면 commit 안에서 test가 더 위에 있는지).
+
+**연관**: L-050 (source-grep test로 RED 만들기), L-052 (TDD baby-step), 글로벌 CLAUDE.md 4원칙 4번 (Goal-Driven Execution). Customer follow-up PR #60.

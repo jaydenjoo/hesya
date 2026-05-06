@@ -4,14 +4,14 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **워크플로우 인프라 + Epic 1B-Tone P2-A/2-B + Customer 확장 + RLS InitPlan 최적화 머지 완료** (auto-merge 라벨 4회 연속 검증 ✅)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone P1 (4탭) ✅ + 1B-Tone P2-A ✅ + 1B-Tone P2-B (매장 톤 학습) ✅ + **Customer 확장 (IG profile + ContextPanel name/notes 편집) ✅** → **다음**: P2-B/P2-A follow-up (S2 row cap, S3 userId truncate, D6 prompt caching, Sec MED-1 IG fetch retry) 또는 다른 Epic 진입
-- **Task**: 1A ✅ / 1B B-1~B-4c ✅ / 1B-UI A-1~A-4 ✅ / 1B-Tone 1~4 ✅ / 워크플로우 A-1 (CI 병렬화+Playwright cache) ✅ / 워크플로우 A-2 (auto-merge.yml + 라벨) ✅ / 1B-Tone P2-A ✅ / 1B-Tone P2-B ✅ / **Customer 확장 CC-1~CC-7 (DB+DAL+IG fetch+webhook+Server Action+ContextPanel UI) ✅**
-- **상태**: 사장이 ContextPanel에서 고객 이름(IG 자동 fetch) + 방문 횟수 + 사용 금액 보고, 알러지·선호 디자이너 메모 편집·저장. PR #58 머지 검증 결과 auto-merge 인프라 정상 (validate + e2e-smoke + Vercel 모두 SUCCESS → squash merge `7ceeaff` + 브랜치 자동 삭제). 차단 요소 없음 (단 0016 prod migration 적용 보류).
-- **작업 브랜치**: `main` (Customer 확장 머지 + 작업 브랜치 자동 삭제 완료). origin 동기화 ✅.
+- **Phase**: Phase 1 — **워크플로우 인프라 + Epic 1B-Tone P2-A/2-B + Customer 확장 + RLS InitPlan + Customer follow-up (Code MED-3 + Sec MED-1) 머지 완료** (auto-merge 라벨 6회 연속 검증 ✅)
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A ✅ + 1B B-1~B-4c ✅ + 1B-UI ✅ + 1B-Tone P1 (4탭) ✅ + 1B-Tone P2-A ✅ + 1B-Tone P2-B (매장 톤 학습) ✅ + Customer 확장 ✅ + **Customer follow-up (Code MED-3 Bearer header + Sec MED-1 ig_profile_fetched) ✅** → **다음**: P2-B/P2-A follow-up (S2 row cap, S3 userId truncate, D6 prompt caching) 또는 다른 Epic 진입
+- **Task**: 1A ✅ / 1B B-1~B-4c ✅ / 1B-UI A-1~A-4 ✅ / 1B-Tone 1~4 ✅ / 워크플로우 A-1 (CI 병렬화+Playwright cache) ✅ / 워크플로우 A-2 (auto-merge.yml + 라벨) ✅ / 1B-Tone P2-A ✅ / 1B-Tone P2-B ✅ / Customer 확장 CC-1~CC-7 ✅ / **Code MED-3 (PR #60) ✅ / Sec MED-1 (PR #61) ✅**
+- **상태**: 사장이 ContextPanel에서 고객 이름·방문 횟수·금액 보고 + 메모 편집. IG fetch 호출이 Authorization Bearer header로 통일 (CWE-598 방어). 영구 fail customer는 ig_profile_fetched 플래그로 무한 retry 차단. 차단 요소 없음 (단 0018 prod migration 적용 보류).
+- **작업 브랜치**: `main` (PR #60 + #61 머지 + 작업 브랜치 자동 삭제 완료). origin 동기화 ✅.
 - **최근 main 직접 commit**: `503c16d` (ci 병렬화), `725e437` (auto-merge.yml). 둘 다 인프라 yml 변경 — 정책상 main 직접 push 적용 (코드 회귀 0).
-- **최근 머지된 PR**: [#59](https://github.com/jaydenjoo/hesya/pull/59) RLS InitPlan 최적화 — `auto-merge` 라벨 4회, squash merge `1f7f869`, 5 policy DROP+CREATE, SQL only (회귀 0). 직전 [#58](https://github.com/jaydenjoo/hesya/pull/58) Customer 확장 — squash merge `7ceeaff`, 25 신규 테스트, 491/491.
-- **prod migration**: `0014` ✅ / `0015` ✅ / `0016` ✅ / **`0017_rls_initplan_optimization.sql` 적용 ✅** (이번 세션 MCP, Jayden 명시 승인). advisor performance `auth_rls_initplan` 5 WARN → 0건 검증 완료. 남은 advisor performance: 16 INFO `unindexed_foreign_keys` + 8 INFO `unused_index` + 1 INFO `auth_db_connections_absolute` (모두 INFO, 즉시 fix 불요).
+- **최근 머지된 PR**: [#61](https://github.com/jaydenjoo/hesya/pull/61) Sec MED-1 ig_profile_fetched — `auto-merge` 6회, squash `c59ff1d`, 8 파일 (0018 마이그 + schema + DAL + route + 5 fixture). 직전 [#60](https://github.com/jaydenjoo/hesya/pull/60) Code MED-3 Bearer header — squash `9733f1e`, 1 파일 2 함수 (1 신규 회귀 테스트).
+- **prod migration**: `0014` ✅ / `0015` ✅ / `0016` ✅ / `0017` ✅ / **`0018_customers_ig_profile_fetched.sql` 미적용 — Jayden 명시 승인 대기** (NOT NULL DEFAULT false → backfill 안전, 머지 전후 순서 무관). 남은 advisor performance: 16 INFO `unindexed_foreign_keys` + 8 INFO `unused_index` + 1 INFO `auth_db_connections_absolute` (모두 INFO).
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
@@ -19,15 +19,15 @@
 
 ## 다음 세션 할 일 (우선순위)
 
-### 1. Customer 확장 follow-up (선택, 별 PR)
+### 1. Customer 확장 follow-up (잔여, 선택)
 
-**Security review 잔여**:
+**완료** (이번 세션):
 
-- 🟡 **Sec MED-1**: `ig_profile_fetched boolean` 플래그 + 0017 마이그 — 영구 fail customer 무한 retry 방어
+- ✅ **Sec MED-1**: `ig_profile_fetched boolean` 플래그 + 0018 마이그 (PR #61)
+- ✅ **Code MED-3**: IG accessToken URL → Authorization Bearer header (PR #60)
 
-**Code review 잔여**:
+**잔여**:
 
-- 🟡 **Code MED-3**: IG accessToken URL → Authorization header (모든 IG endpoint 영향, 큰 변경)
 - 🔵 **Code MED-5**: DAL test source-grep → mock DB pattern 통합 (의도된 패턴, 별 cleanup)
 - 🔵 **Code LOW-7**: `preferredDesigner` 500자 → UX 검토 (이름 필드 적정 길이)
 
@@ -110,6 +110,7 @@
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-06 (Customer follow-up 2 PR 머지) — **PR #60 (Code MED-3) + PR #61 (Sec MED-1) squash merge ✅** (auto-merge 6회 연속). main `c59ff1d`. vitest 491 → **495** (+4 신규). type-check 6/6 + lint clean. **0018 prod 적용 미진행 (Jayden 명시 승인 대기)**.
 - 날짜: 2026-05-06 (0017 prod 적용) — **0017 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). advisor performance `auth_rls_initplan` 5 WARN → **0건 검증 완료**. RLS hot path 성능 안전망 확보 (향후 anon 키 사용 시점 효과).
 - 날짜: 2026-05-06 (RLS InitPlan 최적화) — **PR #59 머지 ✅** (auto-merge 4회 연속, squash `1f7f869`, SQL only). 5 테이블 RLS policy `auth.uid()` → `(select auth.uid())` InitPlan 패턴. application 회귀 0 (service_role bypass).
 - 날짜: 2026-05-06 (Customer 확장 + 0016 prod 적용) — **0016 prod 적용 ✅** (MCP `apply_migration`, Jayden 명시 승인). customers 컬럼 11→14 (name/allergy_note/preferred_designer + 2 CHECK 2000자). 모든 P2-B/Customer 확장 기능 prod 동작 가능. 차단 요소 없음.
@@ -123,7 +124,42 @@
 - 날짜: 2026-05-05 late night — **Epic 1B Phase B-4 RAG 시리즈 완료** (PR #42 pgvector + #43 검색 주입 + #44 CRUD UI)
 - 날짜: 2026-05-05 night — **Epic 1B Phase B-3c 완료** (PR #41, Sec HIGH 1 + Code MEDIUM 4 + 운영 안전 fix)
 
-## 이번 세션 완료 (2026-05-06 풀 세션 — 4 PR + 3 prod 마이그 + advisor cleanup)
+## 이번 세션 완료 (2026-05-06 follow-up — Customer review 잔여 2 PR 머지)
+
+### 1. PR #60 (Code MED-3 Bearer header)
+
+- `instagram-api-client.ts` 1 파일, `getMe` + `fetchUserProfile` 2 함수
+- `?access_token=...` URL → `Authorization: Bearer <token>` 헤더
+- 같은 파일 `sendMessage` / `subscribeWebhook`은 이미 Bearer → 일관성 회복
+- OAuth 교환 endpoint (exchangeShort/Long)는 OAuth spec상 query param 필수 — 미변경
+- TDD RED-GREEN: 기존 URL regex 검증 → access_token 부재 + Bearer header 검증 교체 → 구현
+- 회귀 테스트 1건 신규 (getMe Authorization 헤더 검증)
+- squash merge `9733f1e`
+
+### 2. PR #61 (Sec MED-1 ig_profile_fetched 플래그)
+
+- 영구 fail customer가 매 inbound마다 IG fetch 무한 retry 도는 것 방어
+- 0018 마이그: `customers.ig_profile_fetched BOOLEAN NOT NULL DEFAULT false`
+- schema + DAL `updateCustomerProfile` 시그니처 확장 (`igProfileFetched?: boolean`)
+- DAL `getCustomerById` 명시 select 목록에 igProfileFetched 추가
+- webhook guard: `name === null && !igProfileFetched` + try 성공/catch 실패 양쪽에서 mark
+- TDD RED-GREEN: customers.test + route.test source-grep 4건 RED → 구현 → GREEN
+- 기존 fixture 5건 (update-customer-notes + context-panel) NOT NULL 컬럼 보강
+- squash merge `c59ff1d`
+
+### 3. 추가 검증 패턴
+
+- 세션 시작 시 PROGRESS "큰 변경" 표현 검증 — 실측 1 파일 (Code MED-3) (L-065 강화)
+- TDD-guard hook이 implementation revert도 차단 → 우회 안 하고 정상 TDD 사이클 진입
+
+### 통계 (이번 세션)
+
+- 2 PR 머지 (auto-merge 5, 6회 연속)
+- vitest 491 → **495** (+4 신규)
+- type-check 6/6 + lint clean
+- 0018 prod 미적용 (Jayden 승인 대기)
+
+## 이전 세션 완료 (2026-05-06 풀 세션 — 4 PR + 3 prod 마이그 + advisor cleanup)
 
 ### 1. PR #56 (Phase 2-A) 자동 머지 검증
 
