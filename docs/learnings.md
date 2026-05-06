@@ -2303,3 +2303,33 @@ jobs:
 - 인간 리뷰: ci.yml에 `continue-on-error: true` 라인 grep → 각 job별로 enforced 전환 시점이 spec에 있는지 확인.
 
 **연관**: L-049 (multi-agent 사후 리뷰), L-062 (auto-merge workflow_run), L-067 (병렬 PR 패턴). 이번 세션 PR #68.
+
+---
+
+### [2026-05-06] L-069 — 통합 테스트 첫 활성화 시 단순 stale 아닌 환경/시드/스키마 정합성 이슈 동시 노출 → 추측 fix 회피, 로컬 재현 우선
+
+**증상 / 상황**: PR #69로 `psql -f migration` step 추가하여 e2e-integration job에서 36개 DB-gated 통합 테스트 첫 활성화. 결과 32 pass / 4 fail. 4건 fail 패턴이 다양: (a) `customerLanguage:'en'` 기대→`'ko'` fallback 받음, (b) `relatedFAQs` 기대→`undefined` 받음, (c) webhook 200 기대→500 받음. CI 로그만으로는 정확한 원인 식별 어려움.
+
+**원인 (추정 분류)**:
+
+1. (a) — `upsertCustomer({preferredLanguage:'en'})` insert 후 row의 `preferred_language`가 'en'으로 저장되지 않음. drizzle/migration column 매핑 또는 onConflictDoNothing 동작 추정.
+2. (b) — pgvector 검색이 0 hit. embed stub 미주입 또는 vector index 미생성 추정.
+3. (c) — webhook 처리 중 unhandled exception. store_integrations vault encrypt column 또는 NOT NULL 컬럼 schema mismatch 추정.
+
+세 시나리오 모두 **단순 test stale (objectContaining로 fix)이 아니라 실제 DB 상태/스키마/시드 동작 검증 필요**.
+
+**해결**: surgical fix 시도하지 않고 **PR 보류 → 다음 세션 docker desktop + `supabase start`로 로컬 재현 → 정확한 원인 잡고 fix**. PROGRESS에 4건 분류 + 추정 원인 + 재현 방법 명시 (L-065 미래 세션 컨텍스트 보존).
+
+**규칙** ⭐:
+
+1. **통합 테스트 첫 활성화 시 fail이 다양하면 단순 stale 가정 금지** — 환경/시드/스키마 정합성 이슈 동시 노출 가능성 높음. CI 로그 stack trace만으로 fix 시도하면 추측 코딩 (4원칙 1번 위반).
+2. **fix 전 로컬 재현 우선** — supabase start 약 2분 + migration 적용 + vitest run으로 직접 디버깅. 추측 PR 사이클 (push → CI 7분 대기 → fail → 또 push) 대비 빠르고 정확.
+3. **advisory 1단계 closure (인프라 step)와 2단계 closure (실 fix + enforced)는 분리 PR이 안전** — L-068 보강. 1단계만 머지하면 다음 세션이 안정된 base에서 작업 가능.
+4. **CI 로그에서 진짜 원인이 안 보이면 진단 step 추가도 옵션** (예: migration 후 `psql -c "\d customers"`, vault 컬럼 dump). 단, advisory 1단계 PR이 머지되어 main에 들어간 경우만.
+
+**확인 방법**:
+
+- 자동: e2e-integration job fail 시 GitHub Actions 로그에서 stderr/Sentry capture 출력이 빈 경우 → 진단 step 추가 후보.
+- 인간 리뷰: PROGRESS에 4건 fail 분류가 명시되어 있고, fix 시 로컬 재현 흔적(`supabase start` 실행 로그 등)이 PR description에 있는지.
+
+**연관**: L-068 (advisory 패턴 1·2단계 분리), L-065 (PROGRESS stale 검증), L-058 (race-safe claim — DB 상태 의존 디버깅 패턴). 이번 세션 PR #69 머지 + PR #70 보류.

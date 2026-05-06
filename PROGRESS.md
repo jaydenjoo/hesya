@@ -4,13 +4,13 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **세션 누적 9 PR 머지 (#60~68) + prod migration 4건 적용 (0018~0021)** (auto-merge 라벨 13회 연속 검증 ✅)
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + D6/Sec-M-3/S2/S3 + advisor 0020/0021 + Phase B-5 spec(advisory) ✅ → **다음**: PR #68b (B-5 supabase migration 자동 적용 + advisory 제거) 또는 새 Epic 진입 (Phase 1C/1D 협의 필요).
-- **Task**: 직전 9 PR 모두 머지 ✅ / 4 prod 마이그 적용 ✅ / advisor 정리 (rls_no_policy 16→0, function_search_path 1→0, unindexed_fk 16→0)
-- **상태**: 모든 follow-up + advisor cleanup 완료. PR #68 B-5 첫 실행이 fail (예상 — migration 미적용)이라도 advisory 패턴 정상 작동 검증. 차단 요소 없음.
-- **작업 브랜치**: `main` (모두 머지 + 자동 삭제). origin 동기화 ✅ (`31e5b7a`).
+- **Phase**: Phase 1 — **PR #69 머지 ✅ (B-5b migration 자동 적용)** + 직전 누적 9 PR (#60~68) + prod migration 4건 (0018~0021). auto-merge 라벨 14회 연속 검증 ✅.
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + D6/Sec-M-3/S2/S3 + advisor 0020/0021 + B-5 advisory + **B-5b migration 자동 적용 ✅** → **다음**: PR #70 (4건 fail 정밀 분석 + enforced 전환) 또는 새 Epic 진입.
+- **Task**: PR #69 머지 ✅ — `supabase start` 후 `psql -f packages/database/migrations/*.sql` 22개 순차 적용. **vitest 504 → 540 (+36 DB-gated 활성화)**. 4건 fail (advisory 유지) — 다음 세션 정밀 분석.
+- **상태**: B-5 advisory 1단계 closure ✅ (migration step). 2단계 (4건 fail fix + enforced 전환) 보류 — 추측 코딩 회피, docker desktop + 로컬 supabase 재현 필요. 차단 요소 없음.
+- **작업 브랜치**: `main` (PR #69 머지 + 자동 삭제). origin 동기화 ✅ (`9f9b729`).
 - **최근 main 직접 commit**: `503c16d` (ci 병렬화), `725e437` (auto-merge.yml). 둘 다 인프라 yml 변경 — 정책상 main 직접 push 적용 (코드 회귀 0).
-- **최근 머지된 PR**: [#65](https://github.com/jaydenjoo/hesya/pull/65) S3 Sentry truncate — `auto-merge` 10회, squash `24e22f8`. 이번 세션 6 PR (#60~65) 모두 squash merge.
+- **최근 머지된 PR**: [#69](https://github.com/jaydenjoo/hesya/pull/69) B-5b migration step — `auto-merge` 14회, squash `9f9b729`. e2e-integration advisory job fail이어도 자동 머지 정상 작동 검증.
 - **prod migration**: `0014`~`0019` ✅ / **`0020` + `0021` 적용 ✅** (이번 세션 MCP, Jayden 명시 승인). advisor: security WARN **2→1** (function_search_path 정리, extension_in_public만 잔존), performance `unindexed_foreign_keys` **16→0** ✅. 신규 `unused_index` 16건 추가 (방금 추가한 FK 인덱스 — 트래픽 0이라 즉시 unused 표시, 베타 시점 자동 사용 예상). 0021은 preferred_designer CHECK 2000→100자.
 - **Meta App**: `Hesya-IG` (App ID `898424353214958`), Development mode, OAuth Redirect URI 등록 완료, Test User 미등록(베타 시점)
 - **Prod URL**: `https://hesya-web.vercel.app` (Vercel project `jaydens-projects-f5e92399/hesya-web`)
@@ -21,7 +21,12 @@
 
 ### 0. 다음 세션 후보 (택1)
 
-- 🟢 **PR #68b** — B-5 follow-up: `psql -f packages/database/migrations/*.sql` step 추가 → integration test 36건 자동 활성화 → `continue-on-error: true` 제거 enforced 전환 (~1-2h)
+- 🟢 **PR #70 — B-5c 4건 fail 정밀 분석 + enforced 전환** (~1-2h, docker desktop 필요)
+  - **준비**: `supabase start` 로컬 재현 → migration 적용 → vitest 통합 테스트 직접 실행
+  - **A. happy path** (`generate-and-store-reply.integration.test.ts:78`): expected `customerLanguage:'en'` vs received `'ko'`. `upsertCustomer({preferredLanguage:'en'})`이 row에 저장되는지 schema/drizzle 확인. 추가로 `relatedFAQs/storeToneExamples` 인자 → `objectContaining`로
+  - **B. RAG 시나리오 3** (`:196`): `relatedFAQs: undefined` — pgvector 검색 0 hit. embed stub 주입 또는 vector index 검증
+  - **C. webhook 500 → 200** (`route.test.ts:152, 172`): 500 unhandled exception. store_integrations vault encrypt column 또는 NOT NULL 컬럼 schema mismatch 가능성
+  - **D. enforced 전환**: 4건 green 후 `ci.yml:179` `continue-on-error: true` 제거 commit
 - 🟢 **새 Epic 진입** — Phase 1C (Vercel Queue, fire-and-forget processInbound) 또는 1D (multi-channel WhatsApp/Kakao) — 사장 결정 필요
 - 🔵 advisor `extension_in_public` (vector schema) — Supabase 관리형 제한 가능성, 보류 권장
 - 🔵 advisor `unused_index` 24건 — 트래픽 0이라 판단 어려움, 베타 후 재평가
@@ -121,6 +126,7 @@
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-06 (B-5b migration 자동 적용 1 PR 머지) — **PR #69 squash merge ✅** (`9f9b729`, auto-merge 14회 연속). `psql -f` step 1개 추가 (10줄). e2e-integration **첫 실 활성화: vitest 504 → 540 (+36)**. test files 69 pass / 2 fail, tests 540 pass / 4 fail (89% green). 4건 fail은 단순 stale 아닌 환경/시드/스키마 정합성 이슈 (happy path customerLanguage 'en'→'ko' fallback / RAG 0 hit / webhook 500). 추측 코딩 회피 → docker desktop + 로컬 supabase 재현 후 정밀 분석 (PR #70 다음 세션). `continue-on-error: true` 그대로 유지 (advisory 단계 closure는 PR #70에서). 차단 요소 없음.
 - 날짜: 2026-05-06 (세션 종료 — 9 PR + 4 prod 마이그 + advisor 38건 정리) — **하루 누적**: PR #60~68 모두 머지, prod 0018/0019/0020/0021 적용, advisor `rls_no_policy 16→0` + `function_search_path 1→0` + `unindexed_fk 16→0`. 잔존 advisor: security 1 WARN (extension_in_public, 보류), performance 25 INFO (unused_index 24 + auth_db_connections 1). vitest 491→504 (+13). main `31e5b7a`. 차단 요소 없음. 다음 세션 후보: PR #68b 또는 새 Epic.
 - 날짜: 2026-05-06 (0020 + 0021 prod 적용) — **0020 + 0021 prod 적용 ✅** (MCP `apply_migration` × 2, Jayden 명시 승인). advisor: security WARN 2→**1** (function_search_path 정리), performance `unindexed_foreign_keys` 16→**0** ✅. PR #68 e2e-integration 첫 실행 결과: **fail (advisory)** — supabase start 성공, migration 미적용으로 `relation "messages" does not exist`. continue-on-error 패턴 정상 작동 (auto-merge 차단 X). 다음 PR (#68b) plan: `psql -f packages/database/migrations/*.sql` step 추가.
 - 날짜: 2026-05-06 (세션 종료 — 9 PR 누적, 3 오픈) — **이번 세션 6 PR 머지 (#60~65) + 3 PR 오픈 (#66~68) CI 진행 중**. main `73759fa` (직전 0019 prod 적용 docs). 다음 세션 즉시: 3 PR 머지 확인 + 작업 브랜치 3개 정리 + 0020/0021 prod 적용 승인 + PR #68 e2e-integration 첫 실행 결과 분석. vitest 491 → **504** (+13 신규 누적). type-check 6/6 + lint clean.
