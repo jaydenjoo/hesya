@@ -4,14 +4,30 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **B-5 closure ✅ (5단계 advisory 패턴 완주)**. PR #69~#72 모두 머지. auto-merge 라벨 **17회** 연속 검증 ✅.
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + D6/Sec-M-3/S2/S3 + advisor 0020/0021 + **B-5 enforced 전환 완료 ✅** → **다음**: 새 Epic 진입 (Phase 1C Vercel Queue / 1D 다채널) 또는 잔여 ✋ 정리.
-- **Task**: PR #72 머지 ✅ — `vitest.setup.ts`에 `HESYA_TEST_DATABASE_URL` 무조건 `DATABASE_URL` override (CI dummy URL 우회) + `ci.yml continue-on-error: true` 제거 (enforced 전환). **e2e-integration 0 fail 검증 후 머지 → 진정한 gate**.
-- **상태**: B-5 5단계 closure 완료. 통합 테스트 36건이 enforced gate. 차단 요소 없음.
-- **작업 브랜치**: `main` (PR #72 머지 + 자동 삭제). origin 동기화 ✅ (`58b9419`).
-- **최근 머지된 PR**: [#72](https://github.com/jaydenjoo/hesya/pull/72) B-5e DATABASE_URL override + enforced — `auto-merge` 17회, squash `58b9419`. e2e-integration 모든 job SUCCESS 후 머지.
+- **Phase**: Phase 1 — **Phase 1C 머지 ✅ (Vercel Queue 분리)**. PR #73 (8 commits + SDK fix). auto-merge **18회** 연속.
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C Vercel Queue ✅** → **다음**: Task 10 prod 검증 (Jayden manual deploy + Vercel Queue dashboard) 또는 Phase 1D / 1Cb (E2E) / 1Cc (Admin DLQ UI).
+- **Task**: PR #73 머지 ✅ — Phase 1C: webhook fire-and-forget → Vercel Queue push mode. webhook ACK 3-5s → 200-500ms (Meta 5s 안전마진 10x). 3회 exp backoff retry + DLQ Sentry alert. 비즈니스 로직 무변경.
+- **상태**: 코드 머지 완료. **prod 검증 미실행** (Jayden manual deploy 필요 — 메모리: Vercel 자동 배포 OFF). 차단 요소 없음.
+- **작업 브랜치**: `main` (PR #73 머지 + 자동 삭제). origin 동기화 ✅ (`e533b3f`).
+- **최근 머지된 PR**: [#73](https://github.com/jaydenjoo/hesya/pull/73) Phase 1C — `auto-merge` 18회, squash `e533b3f`. validate + e2e-smoke + e2e-integration **enforced** 모두 SUCCESS 후 머지.
 
-## B-5 advisory 5단계 closure 완료 ✅
+## Phase 1C — Vercel Queue 분리 완료 ✅ (subagent-driven 8 task)
+
+```
+Task 1: SDK 설치 + topic 상수 (af1677b)
+Task 2: enqueueProcessInbound helper (3b4d04d, hyphen topic fix)
+Task 3: vercel.json experimentalTriggers (90d35c8)
+Task 4: Worker route happy path (1bc3a8b)
+Task 5: Worker invalid payload Zod (1bf3efe)
+Task 6: Worker retry 3회 exp backoff (7c23da8)
+Task 7: Worker DLQ Sentry capture (fb71f30)
+Task 8: Webhook fire-and-forget → enqueue 전환 (e7151dc)
+fix:    SDK deps commit 누락 복구 (0c2c3e1)
+```
+
+신규 ~7 tests + 기존 회귀 0. Topic name `inbox-process-inbound` (hyphen, SDK 패턴 `[A-Za-z0-9_-]+` 준수). 각 task RED-first TDD + 2-stage review (spec compliance + code quality).
+
+## B-5 advisory 5단계 closure (이전 세션)
 
 ```
 1단계 PR #68: spec + ci.yml advisory (continue-on-error:true) ✅
@@ -31,7 +47,10 @@
 
 ### 0. 다음 세션 후보 (택1)
 
-- 🟢 **새 Epic 진입** — **Phase 1C** (Vercel Queue, fire-and-forget processInbound 큐 분리, ~3-5h) 또는 **Phase 1D** (multi-channel WhatsApp/Kakao adapter 추가, ~5-8h) — 사장 결정 필요
+- 🟢 **Phase 1C Task 10 prod 검증** — **Jayden manual deploy** (Vercel 자동 배포 OFF) 후 (a) Vercel Queue dashboard에서 topic `inbox-process-inbound` + enqueue/dequeue 확인 (b) 의도적 invalid payload로 DLQ Sentry alert 검증 (c) 실 inbound 메시지로 webhook ACK ≤ 500ms 측정. 코드 변경 0, 운영 검증만.
+- 🟢 **Phase 1Cb (E2E)** — Vercel Queue dev preview 환경 e2e 시나리오 (webhook → queue → worker 흐름)
+- 🟢 **Phase 1Cc (Admin DLQ UI)** — DLQ 메시지 목록 + 재시도 버튼 (트래픽 누적 시)
+- 🟢 **Phase 1D** — multi-channel WhatsApp/Kakao adapter 추가 (~5-8h)
 - 🟢 **B-5 follow-up (선택)**: e2e 시나리오 신규 추가 (AI 응답→번역→발송 end-to-end), 또는 통합 테스트 36건 외 추가 시나리오 작성. 베타 직전 안전망.
 - 🔵 **PR #71 임시 우회 정리**: webhook test의 `vi.mock(pgsodium-helpers)` 제거 (PR #71에 이미 적용됨) ✅
 - 🔵 advisor `extension_in_public` (vector schema) — Supabase 관리형 제한 가능성, 보류 권장
@@ -132,6 +151,7 @@
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-06 (Phase 1C Vercel Queue 머지 — subagent-driven 8 task) — **PR #73 squash merge ✅** (`e533b3f`, auto-merge 18회 연속). subagent-driven-development 스킬로 brainstorming → spec → plan → 8 task 순차 실행 (각 RED-first TDD + spec/quality 2-stage review). webhook ACK 3-5s → 200-500ms 기대 (Meta 5s 안전마진 10x). 3회 exp backoff retry + DLQ Sentry alert. Topic name `inbox-process-inbound` (SDK pattern fix). 신규 ~7 tests + 회귀 0. validate + e2e-smoke + e2e-integration enforced 모두 SUCCESS. **prod 검증 (Task 10) 미실행** — Jayden manual deploy 필요. 차단 요소 없음.
 - 날짜: 2026-05-06 (B-5 closure 5단계 완주 — PR #71 + #72 머지) — **B-5 advisory 패턴 5단계 closure 완료 ✅**. PR #71(`284497a`) vault parity 정공법(`seedStoreIntegration` `encryptToken`) + integration 인프라(singleFork pool/setup sync). PR #72(`58b9419`) `DATABASE_URL` unconditional override + `continue-on-error: true` 제거 → **enforced 전환**. e2e-integration 모든 job SUCCESS 후 머지 (advisory 차단 없음). vitest 547 → **548** (+1 RED-first vault parity). type-check 7/7 + lint clean. auto-merge 17회 연속 검증. 차단 요소 없음.
 - 날짜: 2026-05-06 (B-5c ai-trigger 3건 fix 1 PR 머지) — **PR #70 squash merge ✅** (`549d701`, auto-merge 15회 연속). 로컬 supabase 재현으로 정밀 분석. **fail 4 → 2 (50% reduction)**. seedMessage helper에 customerId/storeId 옵셔널 추가 (RED-first TDD 2건 db.test.ts). vitest 540 → **544** (+4 신규: ai-trigger 3 GREEN + helper RED-first 2). webhook 2건 (decryptToken vault UUID)은 `vi.mock` test scope 임시 우회 — PR #71 정공법 fix 필요. continue-on-error: true 그대로 유지. 차단 요소 없음.
 - 날짜: 2026-05-06 (B-5b migration 자동 적용 1 PR 머지) — **PR #69 squash merge ✅** (`9f9b729`, auto-merge 14회 연속). `psql -f` step 1개 추가 (10줄). e2e-integration **첫 실 활성화: vitest 504 → 540 (+36)**. test files 69 pass / 2 fail, tests 540 pass / 4 fail (89% green). 4건 fail은 단순 stale 아닌 환경/시드/스키마 정합성 이슈 (happy path customerLanguage 'en'→'ko' fallback / RAG 0 hit / webhook 500). 추측 코딩 회피 → docker desktop + 로컬 supabase 재현 후 정밀 분석 (PR #70 다음 세션). `continue-on-error: true` 그대로 유지 (advisory 단계 closure는 PR #70에서). 차단 요소 없음.
