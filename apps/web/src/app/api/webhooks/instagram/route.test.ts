@@ -1,17 +1,9 @@
 import { createHmac } from "node:crypto";
-import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
 import { createDbClient, type DbClient } from "@hesya/database";
 import { resetDb, seedStore, seedStoreIntegration } from "@/test-helpers/db";
 import { env } from "@/shared/config/env";
-
-// 통합 테스트 scope 한정 mock — seedStoreIntegration이 시드한 raw bytes는
-// 실제 pgsodium vault key UUID가 아니므로 decryptToken throw. webhook flow
-// 자체(HMAC + DB 저장)가 검증 대상이라 vault 검증은 별 unit test 책임.
-vi.mock("@/shared/lib/dal/pgsodium-helpers", () => ({
-  decryptToken: vi.fn().mockResolvedValue("test_access_token_decrypted"),
-}));
-
 import { GET, POST } from "./route";
 
 const url = process.env.HESYA_TEST_DATABASE_URL;

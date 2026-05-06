@@ -33,5 +33,10 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     css: false,
     reporters: ["default", new VitestReporter({ projectRoot })],
+    // Phase B-5d: integration test (HESYA_TEST_DATABASE_URL set 시) 다수 test
+    // file이 같은 supabase DB를 공유. 병렬 worker fork가 resetDb/insert 중 race
+    // → cross-file fail (단독 통과). singleFork로 직렬화. 단위 test는 cost 작음.
+    pool: "forks",
+    poolOptions: { forks: { singleFork: true } },
   },
 });

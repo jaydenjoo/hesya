@@ -13,7 +13,13 @@ const stubs: Record<string, string> = {
   NEXT_PUBLIC_SUPABASE_URL: "http://localhost:54321",
   NEXT_PUBLIC_SUPABASE_ANON_KEY: "stub-anon-key-aaaaaaaaaaaaaaaaaa",
   SUPABASE_SERVICE_ROLE_KEY: "stub-service-key-aaaaaaaaaaaaaaaaaa",
-  DATABASE_URL: "postgres://stub:stub@localhost:5432/stub",
+  // 통합 테스트 (HESYA_TEST_DATABASE_URL 셋업 시): webhook route 등이 직접
+  // createDbClient(env.DATABASE_URL) 호출하는 곳도 같은 로컬 supabase에 연결되도록
+  // DATABASE_URL을 동기화. 미설정이면 stub URL (단위 테스트는 connect X).
+  // env.ts는 module-level zod parse라 import 직전에 process.env 채워야 함.
+  DATABASE_URL:
+    process.env.HESYA_TEST_DATABASE_URL ??
+    "postgres://stub:stub@localhost:5432/stub",
   BETTER_AUTH_SECRET: "stub-secret-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   BETTER_AUTH_URL: "http://localhost:4200",
   GOOGLE_CLIENT_ID: "stub-google-client-id",
