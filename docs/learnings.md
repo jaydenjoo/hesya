@@ -2470,3 +2470,60 @@ PR #73의 CI/머지 단계에서 이 미스매치가 잡히지 않는다. valida
 - 메타 학습: 진단 명령에 fallback을 넣고, "파일이 없다" 같은 결론 전에 두 번째 검증 명령 (`find`/`git ls-files`)으로 cross-check 한다.
 
 **연관**: PR #75 (이 wizard revert + 가치 있는 부분 cherry-pick), L-072 (직전, monorepo vercel.json), Task 13 (예정, retry reschedule MessageNotFoundError 진단). Sentry wizard 본문 — Sentry SaaS Next.js 통합 자동 setup. Hesya init-project.sh 시점에 Sentry SDK + instrumentation 자동 추가됐던 흔적이 있어서 처음 진단 잘못이 더 컸음.
+
+---
+
+### [2026-05-06] L-074 — 베타 SDK 결함은 source 직접 읽기 + 4단계 가설로 빠르게 격리. callback 모드의 retry/lease 모델이 polling 모드와 다르다는 시나리오를 항상 의심.
+
+**증상 / 상황**: Phase 1C Task 13에서 `@vercel/queue` 0.1.6 callback 모드의 retry handler가 `{ afterSeconds: N }` directive를 반환해도 retry가 안 일어나고 메시지가 1회 invoke 후 종결되는 현상. 에러 로그 `MessageNotFoundError: Message s.Q.<msgId>.<lease-suffix> not found`만 보고는 messageId/receiptHandle 어느 쪽 ID인지 즉시 명확하지 않음. SDK GitHub issues에 동일 보고 없음.
+
+**원인**: SDK `dist/index.mjs` 직접 읽기로 4단계 가설 진단 → 4번째에서 결정적 발견.
+
+1. (가설 1, 폐기) SDK 업그레이드로 해결 — 현재 0.1.6이 npm latest, 폐기.
+2. (가설 2, 폐기) 단순 envelope ID 변환 누락 — 우리 코드는 retry directive만 반환하고 ID는 SDK가 internal로 처리, 우리 책임 X.
+3. (가설 3, 부분 발견) Visibility timeout 기반 자동 redelivery로 우회 가능 — 부분적으로 맞으나 핵심 결함 미파악.
+4. (가설 4, 결정적) **callback push 모드와 polling 모드의 lease 모델이 다름**. SDK `processMessage` 라인 386-401: `{ afterSeconds }` directive 시 `changeVisibility(PATCH /lease/{receiptHandle})` 호출 → v2beta callback의 receiptHandle은 server-managed lease여서 polling 모드 lease API와 호환 X → 404 → SDK silent catch + return → callback 200 응답 → server가 ack로 처리 → 메시지 종결. 의도한 retry가 영원히 일어나지 않음.
+
+**해결 (workaround)**: retry handler에서 `deliveryCount < N` 시 `undefined` 반환 → SDK throw 전파 → callback 5xx → server visibility timeout 만료 후 자동 redelivery. `deliveryCount === N` 시 `{ acknowledge: true }`로 DLQ. `visibilityTimeoutSeconds: 60`을 명시해서 retry 간격 제어. 1+5+30s exp backoff 패턴 손실, 60s 균일로 변경 (총 retry ~3분). PR #76.
+
+**규칙** ⭐:
+
+1. **베타 SDK 동작이 docs와 다를 때는 GitHub issue 검색 전에 dist 소스를 직접 읽는다.** 베타는 issue가 아직 없을 가능성 높음. d.ts(=공개 인터페이스)와 실제 구현(dist/index.mjs)의 gap이 핵심 정보. `node_modules/.pnpm/<name>@<ver>/node_modules/<name>/dist/`에서 grep + 라인 인용으로 최단 경로.
+2. **callback push 모드와 polling 모드의 mental model이 다르다는 가설을 항상 한 번 의심한다.** 같은 SDK라도 client model에 따라 server-side semantics(lease 관리, retry 주체, ack 시점)가 완전히 다를 수 있음. d.ts에 `PollingQueueClient.receive`와 `QueueClient.handleCallback`이 별도 메서드로 정의되어 있으면 시그니처는 비슷해도 동작 가정이 다를 가능성 큼.
+3. **에러 메시지 ID가 publish 반환 ID와 형태가 다르면 envelope/lease/handle 가능성을 즉시 의심한다.** publish 반환 `Q-<base32>` vs 에러 `s.Q.<base32>.<suffix>` 같은 prefix/suffix 추가는 lease/wrapper 토큰 시그널. messageId라고 단정하지 말 것. SDK 코드에서 `throw new MessageNotFoundError(<varname>)` grep으로 진짜 정체 확인 (`receiptHandle` vs `messageId`).
+4. **베타 SDK retry directive를 사용할 때는 directive 무시 + visibility timeout 의존 전략을 fallback으로 미리 검토한다.** SDK가 retry를 silent fail하는 경우가 있으므로 throw 전파 + server-managed redelivery가 가장 안전한 default. directive는 SDK가 polling 모드에서만 안정적으로 동작한다고 가정.
+5. **워크어라운드 적용 후 반드시 GitHub issue 등록 + spec에 결함/근거/복구 시점 명시.** issue body에 SDK 라인 번호 인용 + repro + suggested fix가 있으면 SDK 팀 트리아지가 빠름. 본 사례는 `docs/superpowers/specs/2026-05-06-vercel-queue-callback-retry-issue.md`에 paste-ready로 준비.
+
+**확인 방법**:
+
+- 자동: 베타 SDK(`@*/queue@0.x`, `@*/<beta>@0.x`) 사용 시 `package.json`에 명시 + spec에 베타 결함 발견 가능성 항목 + retry/error handling test가 mock이 아니라 통합 레벨에서 검증되는지. 단위 테스트 mock이 SDK 내부 path를 우회하면 결함을 덮음.
+- 인간 리뷰: 베타 SDK PR diff에 SDK 소스 라인 인용이 있는지(없으면 진단 부족), workaround가 server-side 동작에 의존하면 prod 검증 항목이 spec에 있는지.
+- 메타: source 읽기 30분 안에 결정적 단서 안 나오면 가설 자체를 의심. callback vs polling 모델 차이 가설은 d.ts에 별도 클라이언트 클래스가 있으면 1순위.
+
+**연관**: L-073 (zsh glob + Sentry wizard 함정 — 직전 세션 진단 메타 학습), L-072 (vercel.json wiring silent fail — Phase 1C 인프라 결함), L-070 (advisory 5단계 closure — 큰 인프라 단계적 진행). 본 세션 PR #76.
+
+---
+
+### [2026-05-06] L-075 — auto-merge race: review fix가 첫 push CI 통과보다 늦으면 dangling
+
+**증상 / 상황**: PR #76 본 세션 흐름 — 첫 push 후 self-review로 code-reviewer subagent 실행 → 발견 이슈 반영하여 review fix commit `062bb77` push. 그러나 main의 squash merge commit (`49a7460`, `13:15:29Z`)은 review fix 직전 commit (`184027e`)까지만 포함. review fix push (KST 22:18)가 머지(KST 22:15)보다 3분 늦음 → review fix commit은 origin 브랜치에만 dangling. main에 적용 안 됨.
+
+**원인**: 본 PR이 처음부터 `auto-merge` 라벨 + 빠른 CI(~5-7분)였기 때문에 첫 push의 CI가 통과하자마자 auto-merge.yml이 squash merge를 즉시 실행. 이때 후속 commit이 push되어도 PR이 이미 closed 상태라 squash 대상에 포함되지 않음. PR을 재오픈하지 않는 한 dangling.
+
+**해결 (사후)**: review fix는 LOW/MED + 코드 동작 영향 0(주석/문서/테스트명만)이라 prod 영향 없음. 다음 세션 별 PR로 cherry-pick하여 정리하기로 결정. PROGRESS에 `Review fix 별 PR` 후속 항목 명시.
+
+**규칙** ⭐:
+
+1. **`auto-merge` 라벨은 첫 push 직전에만 붙인다.** Review (self/subagent)가 끝나서 더 이상 commit이 안 추가될 확신이 있을 때만 라벨. 라벨 후 commit 푸시는 race condition.
+2. **Self-review를 PR 작성 전에 한다.** 즉 (a) 코드 작성 → (b) self-review (code-reviewer subagent) → (c) review fix까지 commit → (d) push + auto-merge 라벨. review를 push 후에 하면 race risk. 본 세션처럼 push 후 review가 흘러간 경우는 라벨을 잠시 떼고 fix commit push 후 다시 라벨이 안전.
+3. **Review fix가 fix commit으로 분리된 경우에는 PR 본문에 "after auto-merge label" 주의 명시 + 라벨 보류.** 또는 `[draft]` 상태 유지 후 review fix까지 합친 후 ready-for-review 전환.
+4. **Squash merge는 PR head 시점만 보존**. amend 같은 force-push는 race를 더 악화시키므로 fix는 항상 새 commit + 라벨 보류.
+5. **Dangling fix가 LOW/MED + 코드 동작 영향 0이면 별 PR로 정리한다**. main에 직접 cherry-pick은 코드/PR 정책 위반(메모리 기반 main 직접 push는 docs only).
+
+**확인 방법**:
+
+- 자동: PR 머지 직후 origin/<branch>의 HEAD가 main의 squash sha를 포함하는지 검사. 누락 commit이 있으면 dangling 알림 (5줄 script 후보).
+- 인간 리뷰: code-reviewer 실행 시점이 PR 머지 시점보다 빨랐는지 메타데이터 확인. self-review 흐름은 PR 작성 직전이 default.
+- 메타: PR가 한 commit으로 squash되는 정책에선 "review를 끝내고 PR을 만든다" 흐름이 정공법. "PR 만들고 review로 fix 추가" 흐름은 auto-merge race를 만든다.
+
+**연관**: L-067 (병렬 PR 패턴), L-070 (advisory 5단계 closure — 큰 인프라 단계적 PR), L-074 (직전, callback retry workaround — 본 PR의 진단 학습). 본 세션 PR #76 + dangling commit `062bb77`.

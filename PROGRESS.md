@@ -4,12 +4,32 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Phase 1C 머지 ✅ + Task 11/12 fix ✅ (PR #74 + #75)**. auto-merge **20회** 연속.
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C Vercel Queue ✅** + Task 11 vercel.json wiring fix ✅ + Task 12 Sentry MCP/global-error ✅ → **다음 (Task 13)**: retry reschedule `MessageNotFoundError` 진단 (Phase 1C exp backoff 무효화 차단점).
-- **Task**: PR #74/#75 머지 ✅. Phase 1C trigger 등록은 정상 작동, 단 SDK retry reschedule 호출 시 `MessageNotFoundError`로 worker가 단 1회 invoke 후 종결되는 별 이슈 발견.
-- **상태**: 본 세션 PR 2건 머지 완료. v4 publish 검증으로 worker invocation 1회 + Consumer Group 등록 확인. DLQ branch 도달은 retry reschedule 이슈로 차단됨 — Task 13에서 진단.
-- **작업 브랜치**: `main`. 머지 commit `79e701f` (#75) `6387a13` (#74).
-- **최근 머지된 PR**: [#75](https://github.com/jaydenjoo/hesya/pull/75) Sentry MCP + global-error boundary | [#74](https://github.com/jaydenjoo/hesya/pull/74) vercel.json monorepo fix.
+- **Phase**: Phase 1 — **Task 13 retry workaround 머지 ✅ (PR #76)**. auto-merge **21회** 연속.
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C Vercel Queue ✅** + Task 11 vercel.json fix ✅ + Task 12 Sentry MCP/global-error ✅ + **Task 13 callback retry workaround ✅ (D6)** → **다음**: prod 검증 + (선택) Phase 1Cd hook / 1D multi-channel.
+- **Task**: PR #76 머지 ✅ (`49a7460`). 단, review fix commit `062bb77`이 auto-merge race로 누락됨 → 다음 세션 별 PR로 정리 (LOW/MED, 코드 동작 영향 0, 주석/문서만).
+- **상태**: 진단 완료 + workaround 적용 + 머지. SDK 0.1.6 callback push 모드 결함 우회. 다음은 Jayden manual prod redeploy + 검증.
+- **작업 브랜치**: `main`. 머지 commit `49a7460` (#76).
+- **최근 머지된 PR**: [#76](https://github.com/jaydenjoo/hesya/pull/76) callback retry workaround D6 | [#75](https://github.com/jaydenjoo/hesya/pull/75) Sentry MCP + global-error | [#74](https://github.com/jaydenjoo/hesya/pull/74) vercel.json monorepo fix.
+
+## Task 13 closure — Callback retry workaround (이번 세션)
+
+진단 결과: `@vercel/queue` 0.1.6 callback push 모드에서 retry handler가 `{ afterSeconds: N }` 반환 시 SDK가 `changeVisibility(PATCH /lease/{handle})` 호출 → server 404 → SDK silent catch → callback 200 응답 → server가 ack로 처리 → **메시지 1회 invoke 후 종결**.
+
+- **에러 ID 정체**: `s.Q.<msgId>.<lease-suffix>`는 messageId가 아니라 v2beta callback `ce-vqsreceipthandle` 헤더의 receiptHandle (lease 토큰). polling 모드 lease API와 호환되지 않음.
+- **SDK 소스 라인**: `dist/index.mjs` 363-407 `processMessage` catch 블록 (afterSeconds 분기 386-401, finalizePayload + return 400-401), `changeVisibility` 1864-1914 (404 → MessageNotFoundError throw).
+
+Workaround (D6):
+
+- `deliveryCount < 4` → `undefined` 반환 → SDK throw 전파 → callback 5xx → server visibility timeout(60s) 만료 후 자동 redelivery
+- `deliveryCount === 4` → `{ acknowledge: true }` → DLQ Sentry capture + ack
+- `visibilityTimeoutSeconds: 60` 옵션으로 retry 간격 명시
+- 비용: 1+5+30s exp backoff 손실, 60s 균일로 변경 (총 retry ~3분)
+
+후속:
+
+- ⏸ **Vercel SDK GitHub issue 등록 (Jayden manual)** — `docs/superpowers/specs/2026-05-06-vercel-queue-callback-retry-issue.md` (paste-ready)
+- ⏸ **prod 검증** — 의도적 invalid payload publish → 60s × 4 invoke + DLQ Sentry alert + deliveryCount 1-based 가정 검증
+- ⏸ **Review fix 별 PR** — commit `062bb77` (mock 한계 주석 + 테스트명 분리 + spec 라인 통일 + Section 2.4/5.3 갱신 + return 인라인 주석). dangling 상태, 다음 세션 정리.
 
 ## Task 10 prod 검증 결과 (이번 세션)
 
@@ -72,7 +92,8 @@ fix:    SDK deps commit 누락 복구 (0c2c3e1)
 
 ### 0. 다음 세션 후보 (택1)
 
-- 🟢 **Phase 1C Task 10 prod 검증** — **Jayden manual deploy** (Vercel 자동 배포 OFF) 후 (a) Vercel Queue dashboard에서 topic `inbox-process-inbound` + enqueue/dequeue 확인 (b) 의도적 invalid payload로 DLQ Sentry alert 검증 (c) 실 inbound 메시지로 webhook ACK ≤ 500ms 측정. 코드 변경 0, 운영 검증만.
+- 🔴 **Task 13 prod 검증 + Review fix 별 PR** ⭐ 우선 — Jayden manual prod redeploy 결과 받아서 (a) DLQ Sentry alert 도달 확인 (b) deliveryCount 1-based 검증 (c) webhook ACK ≤ 500ms. 동시에 review fix dangling commit `062bb77`을 새 PR로 정리.
+- 🟢 **Phase 1Cd (정적 체크 hook)** — vercel.json 위치/path/triggers 자동 검증 hook (L-072 후속, build pass ≠ wiring works). PR validate에 5줄 script 추가.
 - 🟢 **Phase 1Cb (E2E)** — Vercel Queue dev preview 환경 e2e 시나리오 (webhook → queue → worker 흐름)
 - 🟢 **Phase 1Cc (Admin DLQ UI)** — DLQ 메시지 목록 + 재시도 버튼 (트래픽 누적 시)
 - 🟢 **Phase 1D** — multi-channel WhatsApp/Kakao adapter 추가 (~5-8h)
