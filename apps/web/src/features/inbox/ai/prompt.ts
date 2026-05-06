@@ -5,6 +5,13 @@
  * Anthropic SDK의 `messages.create({ system, messages })` 시그니처에 그대로 투입 가능.
  *
  * 자동 번역(Phase B-3)은 별도 — 본 모듈은 항상 한국어 초안만 생성.
+ *
+ * **D6 prompt caching**: system을 단일 TextBlockParam[] 배열로 반환하고
+ * 마지막(=유일) 블록에 `cache_control: ephemeral` 적용. Anthropic이 1024
+ * token 이상이면 cache 활성화(읽기 비용 10%, 쓰기 +25%). tone examples
+ * 있는 매장(~2300 token)은 78.5% 절감. 1024 미만 신규 매장은 자동 cache
+ * miss(에러 X). caller(generate-reply.ts)는 SDK가 string|array 모두
+ * 수용하므로 시그니처 변경 0.
  */
 
 export type CustomerLanguage = "ko" | "en" | "zh" | "ja" | "vi";
@@ -38,8 +45,18 @@ export type AnthropicMessage = {
   content: string;
 };
 
+/**
+ * D6 — Anthropic SDK `TextBlockParam` 형식 (cache_control 포함).
+ * SDK 의존성 노출 회피 위해 인라인 타입 (필요한 필드만).
+ */
+export type SystemBlock = {
+  type: "text";
+  text: string;
+  cache_control?: { type: "ephemeral" };
+};
+
 export type BuildPromptOutput = {
-  system: string;
+  system: SystemBlock[];
   messages: AnthropicMessage[];
 };
 
@@ -149,5 +166,13 @@ ${toneExamples.map((e) => sanitizeToneExample(e)).join("\n---\n")}
     content: m.text,
   }));
 
-  return { system, messages };
+  // D6 prompt caching: 단일 블록 + 마지막에 cache_control:ephemeral.
+  // tone/FAQ 미포함 매장은 1024 token 미만이라 Anthropic이 자동으로 cache
+  // skip (silent, no error). 데이터 누적되면 자동 활성화.
+  return {
+    system: [
+      { type: "text", text: system, cache_control: { type: "ephemeral" } },
+    ],
+    messages,
+  };
 }
