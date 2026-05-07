@@ -40,6 +40,9 @@ const stubs: Record<string, string> = {
   IG_APP_SECRET: "stub-ig-app-secret",
   IG_WEBHOOK_VERIFY_TOKEN: "stub-ig-verify-token",
   IG_REDIRECT_URI: "https://stub.example.com/api/oauth/instagram/callback",
+  QSTASH_TOKEN: "stub-qstash-token-aaaaaaaaaaaaaaaaaa",
+  QSTASH_CURRENT_SIGNING_KEY: "stub-qstash-current-aaaaaaaaaaaaaaaaaa",
+  QSTASH_NEXT_SIGNING_KEY: "stub-qstash-next-aaaaaaaaaaaaaaaaaa",
 };
 for (const [k, v] of Object.entries(stubs)) {
   if (process.env[k] == null || process.env[k] === "") {

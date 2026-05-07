@@ -91,6 +91,15 @@ const envSchema = z.object({
   // E2E 또는 self-hosted Meta 호환 환경에서 base URL override.
   // prod 기본값은 Instagram Graph API 공식 endpoint.
   IG_API_BASE_URL: z.url().default("https://graph.instagram.com/v24.0"),
+
+  // ─── Phase 1C QStash (Vercel Marketplace integration prov, L-077) ───
+  // Vercel Queue beta deployment pinning 결함으로 QStash(Upstash GA) 전환.
+  // Marketplace integration 연결 시 환경변수 자동 prov.
+  // - QSTASH_TOKEN: publish 인증 (server-only)
+  // - QSTASH_CURRENT_SIGNING_KEY / QSTASH_NEXT_SIGNING_KEY: 서명 검증 (rotation 대비)
+  QSTASH_TOKEN: z.string().min(20),
+  QSTASH_CURRENT_SIGNING_KEY: z.string().min(20),
+  QSTASH_NEXT_SIGNING_KEY: z.string().min(20),
 });
 
 /**
