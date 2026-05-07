@@ -136,16 +136,30 @@ fix:    SDK deps commit 누락 복구 (0c2c3e1)
 - **Supabase prod**: `bnlyzlfsxtjpzzydjjuv` (hesya-prod, Northeast Asia Seoul) — schema v0011 적용 완료
 - **백업 태그**: `backup/before-monorepo-2026-04-30`
 
-## 다음 세션 할 일 (우선순위)
+## 다음 세션 할 일 (우선순위 — 2026-05-07 갱신)
 
-### 0. 다음 세션 후보 (택1)
+### 0. 다음 세션 후보 (Phase 1D 사업자 보류로 우선순위 재정렬)
 
-- 🔴 **Task 13 prod 검증 + Review fix 별 PR** ⭐ 우선 — Jayden manual prod redeploy 결과 받아서 (a) DLQ Sentry alert 도달 확인 (b) deliveryCount 1-based 검증 (c) webhook ACK ≤ 500ms. 동시에 review fix dangling commit `062bb77`을 새 PR로 정리.
-- 🟢 **Phase 1Cd (정적 체크 hook)** — vercel.json 위치/path/triggers 자동 검증 hook (L-072 후속, build pass ≠ wiring works). PR validate에 5줄 script 추가.
-- 🟢 **Phase 1Cb (E2E)** — Vercel Queue dev preview 환경 e2e 시나리오 (webhook → queue → worker 흐름)
-- 🟢 **Phase 1Cc (Admin DLQ UI)** — DLQ 메시지 목록 + 재시도 버튼 (트래픽 누적 시)
-- 🟢 **Phase 1D** — multi-channel WhatsApp/Kakao adapter 추가 (~5-8h)
-- 🟢 **B-5 follow-up (선택)**: e2e 시나리오 신규 추가 (AI 응답→번역→발송 end-to-end), 또는 통합 테스트 36건 외 추가 시나리오 작성. 베타 직전 안전망.
+- 🔴 **Epic 12 Admin Panel** ⭐ 1순위 — P0 MVP, GTM 차단 해소 (PRD § 1049). 8종 운영자 플로우 spec 작성 → 매장 KYC 승인 + onboarding 우선. 사업자 무관. 8~16h ÷ 여러 세션.
+- 🟡 **Phase 1 closure 직전** — Claude Opus 4.7 Vision 사진 분석 (4h, PRD ⚠️ v1.2 갱신) + 응답 정확도 검증 베타 50건 (8h).
+- 🟡 **디자인 시스템 v4.1 적용 (잔여 페이지)** — `docs/design/reference/` 80개 디자인 ref 중 Phase 1A/1B 외 미적용 페이지 (매장 등록, 설정, 통계 등). 4~8h.
+- 🟡 **Epic 11 다국어 SEO 매장 페이지** (P1, Day 30~60) — 매장별 다국어 공개 페이지 + SEO crawler index. 사업자 무관, GTM 후 트래픽 확보.
+- ⏸ **Phase 1D multi-channel** — WhatsApp/Kakao/LINE Business API 연동. **Jayden 사업자 등록 후 진행** (memory: project_phase_1d_blocked).
+- ⏸ **Epic 2 결제 통합** — 사업자 + PG 등록 필요. Phase 1D와 같이 보류.
+
+### 0-A. 작은 보조 작업 (병렬 가능)
+
+- 🔵 **TDD-guard 폐기 후속** — vitest --coverage CI gate 도입 (옵션 B-3). 1~2h.
+- 🔵 **Phase 1Cd hook 재정의** — QStash worker URL 일치 검증 5줄 hook. 30m.
+- 🔵 **옛 Vercel Queue stuck 메시지 cleanup** — Jayden manual: vercel/sdk GitHub issue + support@vercel.com (paste-ready 영문 본문은 `2026-05-07-vercel-queue-trigger-pinning-issue.md`).
+- 🔵 advisor `extension_in_public` (vector schema) — Supabase 관리형 제한 가능성, 보류 권장
+- 🔵 advisor `unused_index` 24건 — 트래픽 0이라 판단 어려움, 베타 후 재평가
+- 🔵 advisor `auth_db_connections_absolute` — Supabase 대시보드에서 직접 변경 (5분, 코드 X)
+
+### 0-B. 정책 (메모리 저장됨)
+
+- **Token rotation**: 개발 완료 후 일괄 신규 발급 (베타 출시 직전). 개발 중 노출돼도 즉시 rotate 안 함.
+- **사업자 의존 작업 보류**: Phase 1D + Epic 2.
 - 🔵 **PR #71 임시 우회 정리**: webhook test의 `vi.mock(pgsodium-helpers)` 제거 (PR #71에 이미 적용됨) ✅
 - 🔵 advisor `extension_in_public` (vector schema) — Supabase 관리형 제한 가능성, 보류 권장
 - 🔵 advisor `unused_index` 24건 — 트래픽 0이라 판단 어려움, 베타 후 재평가
@@ -268,6 +282,54 @@ fix:    SDK deps commit 누락 복구 (0c2c3e1)
 - 날짜: 2026-05-05 late night+ — **B-4 followup 흡수** (PR #45: countStoreKnowledge DAL + advisory lock TOCTOU 차단 + lock_timeout)
 - 날짜: 2026-05-05 late night — **Epic 1B Phase B-4 RAG 시리즈 완료** (PR #42 pgvector + #43 검색 주입 + #44 CRUD UI)
 - 날짜: 2026-05-05 night — **Epic 1B Phase B-3c 완료** (PR #41, Sec HIGH 1 + Code MEDIUM 4 + 운영 안전 fix)
+
+## 이번 세션 완료 (2026-05-07 — Task 13 QStash 마이그 + L-077 영구 해결, PR #78 머지)
+
+**핵심 성과**: Vercel Queue beta deployment pinning 결함(L-077)을 진단하고 QStash로 영구 전환 + G1~G4 prod 검증 모두 통과. Task 13 완전 closure.
+
+**진행 흐름**:
+
+1. TDD-guard hook 비활성화 (옵션 B-2, L-078) — 16회 patch + 0건 ROI 폐기
+2. Method 1 진단 (코드 변경 0) — `vercel logs --no-branch -q queue`로 옛 deployment(`hesya-esra9g1py`)가 13시간째 무한 retry 확인 → trigger registration이 server-side에 stuck (L-077)
+3. PR #78: QStash 마이그 (`@upstash/qstash` Client + `verifySignatureAppRouter` worker, retry/DLQ 정책 `Upstash-Retried` 헤더 기반)
+4. self-review HIGH fix 1건 (`Number.isFinite` NaN 방어, commit `923ee3e`)
+5. CI fix 1건 (ci.yml 3개 job env에 QSTASH\_\* dummy, commit `e673c2f`)
+6. PR #78 머지 (auto-merge 22회 연속)
+7. Vercel Marketplace QStash integration 연결 + 환경변수 4개 자동 prov + prod redeploy
+8. `verify-qstash.ts` prod 실행 — G2 (worker invoke alias 정상) + G3 (Sentry DLQ alert 도달) 통과
+
+**검증 결과**:
+
+- (G1 ✅) caller `webhooks/instagram/route.ts` 무수정
+- (G2 ✅) worker invoke `hesya-web.vercel.app` alias 도달 (L-077 영구 해결 결정적 증거)
+- (G3 ✅) Sentry alert tag `phase=queue:inbox.process-inbound:dlq` + extra `retried=3` + ZodError "Invalid UUID" + Trace `3d8fd5a352b34bfbb0f52d1b3fa7c8c6`
+- (G4 ✅) `vercel.json` `experimentalTriggers` 완전 제거
+
+**PR + commit**:
+
+- PR #78 — QStash 마이그 (squash merge `f6d81e5`, base commit `74cb848`)
+- main commits: `923ee3e` (NaN fix), `e673c2f` (CI fix), `7adf700` (G2 + paste-ready), `0bfbd93` (G3 closure)
+
+**학습 추가**:
+
+- L-077: Vercel Queue beta trigger registration deployment pinning 결함 + `vercel logs --no-branch`가 결정적 단서
+- L-078: TDD-guard hook 폐기 결정 근거 (16회 patch + 0건 ROI)
+
+**메모리 추가 (글로벌)**:
+
+- `project_phase_1d_blocked.md` — Phase 1D 사업자 보류
+- `feedback_token_rotation_policy.md` — 개발 완료 후 일괄 rotation
+
+**미완료 (Jayden manual, 시간 날 때)**:
+
+- ⏸ 옛 Vercel Queue beta stuck 메시지 cleanup (vercel/sdk GitHub issue + support@vercel.com, paste-ready 영문 본문 `2026-05-07-vercel-queue-trigger-pinning-issue.md`)
+- ⏸ Sentry issue Resolved 처리 (의도된 검증 alert)
+
+**차단 요소**: 없음. Phase 1D는 사업자 미보유로 보류.
+
+**마지막 업데이트**: 2026-05-07
+
+---
 
 ## 이번 세션 완료 (2026-05-06 후속 — Quick Wins + Phase B-5 advisory, 3 PR 오픈)
 
