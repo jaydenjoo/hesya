@@ -26,6 +26,8 @@ export async function insertMessage(
     metadata?: MessageMetadata;
     /** AI 응답 시 사용 모델 (예: "claude-sonnet-4-6"). Phase 1.5 비용 분석용. */
     aiModel?: string;
+    /** Phase 1-β Task D — bot_mode=false 매장에서 'pending_review'로 표기. */
+    draftStatus?: "pending_review" | "approved" | "sent" | "skipped" | "direct";
   },
 ): Promise<Message | null> {
   const defaultStatus =
@@ -42,6 +44,7 @@ export async function insertMessage(
       status: defaultStatus,
       metadata: input.metadata,
       aiModel: input.aiModel,
+      draftStatus: input.draftStatus,
     })
     .onConflictDoNothing()
     .returning();

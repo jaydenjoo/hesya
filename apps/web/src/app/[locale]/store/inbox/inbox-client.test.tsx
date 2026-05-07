@@ -18,6 +18,21 @@ vi.mock("@/components/ui/resizable", () => {
   };
 });
 
+// Server actions transitively imported via BotModeToggle / DraftReviewPanel —
+// jsdom에서 "use server" + server-only 모듈 로드 차단.
+vi.mock("@/features/inbox/actions/toggle-bot-mode", () => ({
+  toggleBotMode: vi.fn(async () => ({ ok: true })),
+}));
+vi.mock("@/features/inbox/actions/approve-draft", () => ({
+  approveDraft: vi.fn(async () => ({ ok: true })),
+}));
+vi.mock("@/features/inbox/actions/edit-and-send", () => ({
+  editAndSend: vi.fn(async () => ({ ok: true })),
+}));
+vi.mock("@/features/inbox/actions/skip-draft", () => ({
+  skipDraft: vi.fn(async () => ({ ok: true })),
+}));
+
 const { fetchMock } = vi.hoisted(() => ({ fetchMock: vi.fn() }));
 
 beforeEach(() => {
@@ -56,9 +71,15 @@ function makeConv(id: string, preview: string): Conversation {
 }
 
 describe("InboxClient", () => {
+  const baseProps = {
+    storeId: "11111111-1111-4111-8111-111111111111",
+    storeBotMode: false,
+  };
+
   it("hasIgIntegration=false → ThreadListConnectCTA 렌더 (notConnected key)", () => {
     render(
       <InboxClient
+        {...baseProps}
         initialConversations={[]}
         hasIgIntegration={false}
         igTokenExpiresAt={null}
@@ -77,6 +98,7 @@ describe("InboxClient", () => {
     await act(async () => {
       render(
         <InboxClient
+          {...baseProps}
           initialConversations={[conv]}
           hasIgIntegration={true}
           igTokenExpiresAt={null}
@@ -91,6 +113,7 @@ describe("InboxClient", () => {
     await act(async () => {
       render(
         <InboxClient
+          {...baseProps}
           initialConversations={[]}
           hasIgIntegration={true}
           igTokenExpiresAt={past}
@@ -110,6 +133,7 @@ describe("InboxClient", () => {
     await act(async () => {
       render(
         <InboxClient
+          {...baseProps}
           initialConversations={[]}
           hasIgIntegration={true}
           igTokenExpiresAt={null}
@@ -134,6 +158,7 @@ describe("InboxClient", () => {
     await act(async () => {
       render(
         <InboxClient
+          {...baseProps}
           initialConversations={[]}
           hasIgIntegration={true}
           igTokenExpiresAt={null}

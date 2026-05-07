@@ -50,7 +50,10 @@ import {
   markAIResponded,
   markTranslated,
 } from "@/shared/lib/dal/messages";
-import { findStoreNameByConversationId } from "@/shared/lib/dal/stores";
+import {
+  findStoreNameByConversationId,
+  getStoreBotMode,
+} from "@/shared/lib/dal/stores";
 import { getCustomerPreferredLanguage } from "@/shared/lib/dal/customers";
 import { searchSimilarKnowledge as defaultSearchSimilarKnowledge } from "@/shared/lib/dal/store-knowledge";
 import { listRecentToneExamples as defaultListRecentToneExamples } from "@/shared/lib/dal/store-tone-examples";
@@ -285,6 +288,17 @@ export async function generateAndStoreReply(
           : {}),
       }
     : undefined;
+  // Phase 1-β Task D — bot_mode 분기.
+  // bot_mode=false (기본): owner 검수·승인 모드. draft_status='pending_review' 마킹 →
+  // DraftReviewPanel이 표시되어 사장 승인 후 전송. 본 함수는 전송 자체를 호출하지
+  // 않으므로 caller 흐름 영향 0 (B-3c accept-ai-draft가 사장 액션 시점에 IG send).
+  // bot_mode=true: 기존 흐름 유지 (draft_status=NULL) → 기존 AIAssist UI에서
+  // 사장이 그대로 보내기 클릭 가능. Phase 1-β 자동전송은 미도입 — H1 학습 데이터
+  // (edited_from_ai 분포)는 review 모드에서 수집.
+  const botMode = msg.storeId
+    ? await getStoreBotMode(db, msg.storeId).catch(() => false)
+    : false;
+  const draftStatus = botMode ? undefined : "pending_review";
   const stored = await insertMessage(db, {
     conversationId: msg.conversationId,
     channel,
@@ -293,6 +307,7 @@ export async function generateAndStoreReply(
     status: "ai_draft",
     aiModel: GENERATE_REPLY_MODEL,
     ...(metadata ? { metadata } : {}),
+    ...(draftStatus ? { draftStatus } : {}),
   });
   if (!stored) {
     return { stored: false, reason: "insert_failed" };

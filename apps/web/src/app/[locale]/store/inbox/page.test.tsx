@@ -8,6 +8,9 @@ const { listByStoreMock } = vi.hoisted(() => ({ listByStoreMock: vi.fn() }));
 const { getIntegrationMock } = vi.hoisted(() => ({
   getIntegrationMock: vi.fn(),
 }));
+const { getStoreBotModeMock } = vi.hoisted(() => ({
+  getStoreBotModeMock: vi.fn(async () => false),
+}));
 
 vi.mock("next/navigation", () => ({
   redirect: redirectMock,
@@ -23,6 +26,10 @@ vi.mock("@/shared/lib/dal/conversations", () => ({
 
 vi.mock("@/shared/lib/dal/store-integrations", () => ({
   getIntegration: getIntegrationMock,
+}));
+
+vi.mock("@/shared/lib/dal/stores", () => ({
+  getStoreBotMode: getStoreBotModeMock,
 }));
 
 vi.mock("@hesya/database", () => ({
@@ -42,6 +49,8 @@ beforeEach(() => {
   requireStoreOwnerAuthMock.mockReset();
   listByStoreMock.mockReset();
   getIntegrationMock.mockReset();
+  getStoreBotModeMock.mockReset();
+  getStoreBotModeMock.mockResolvedValue(false);
 });
 
 describe("InboxPage", () => {
