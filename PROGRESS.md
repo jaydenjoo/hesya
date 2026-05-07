@@ -4,24 +4,26 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1-β (Beta-Ready Slice) — **Task A~E 5종 모두 구현 완료 ✅** (이번 세션, 2026-05-07).
-- **Epic**: Phase 1-β = Owner sign-up + KYC + Admin 큐 + Inbox 검수·승인 + E2E + runbook → **다음**: PR 생성 + 베타 매장 1곳 수동 onboarding (`docs/runbook.md` §4 절차) + 1주 운영 + H1 수정률 회고.
-- **Task**: A schema(0022 + DAL) / B owner KYC 폼·pending / C admin 검토 큐 / D Inbox 검수·승인 + Bot 토글 / E E2E + runbook + PROGRESS.
-- **상태**: 5 Task 코드 PASS — tsc / lint / vitest 567 통과 (regression 0). Phase 1-β E2E `phase-1-beta.spec.ts` 작성 완료, `playwright --list` 4 tests OK. 0022 마이그 prod 적용 ✅ (Task A 세션). PR 생성은 controller 별도 진행.
-- **작업 브랜치**: `feat/phase-1-beta` (commits 69b24ce → 0a8b879 → b86c2c1 → ae208e0 → [Task E commit]).
+- **Phase**: Phase 1-β (Beta-Ready Slice) — **Task A~E 5종 + final fix 모두 완료 ✅, PR #81 생성 + auto-merge label** (이번 세션, 2026-05-07).
+- **Epic**: Phase 1-β = Owner sign-up + KYC + Admin 큐 + Inbox 검수·승인 + E2E + runbook → **다음**: CI 통과 자동 머지 → 베타 매장 1곳 수동 onboarding (`docs/runbook.md` §4 절차) + 1주 운영 + H1 수정률 회고.
+- **Task**: A schema(0022 + DAL) / B owner KYC 폼·pending / C admin 검토 큐 / D Inbox 검수·승인 + Bot 토글 / E E2E + runbook / final fix 3 Important.
+- **상태**: 7 commits 코드 PASS — tsc / lint / vitest **568 통과** (regression 0) / build PASS / playwright `--list` 4 tests OK. 0022 마이그 prod 적용 ✅. Subagent-Driven Development로 5x spec compliance + 5x code quality + 1x final review 모두 통과, **11 fix iteration** 사전 차단.
+- **작업 브랜치**: `feat/phase-1-beta` (commits 69b24ce → 0a8b879 → b86c2c1 → ae208e0 → 6593f68 → 7361cde).
+- **이번 세션 PR**: [#81](https://github.com/jaydenjoo/hesya/pull/81) **Phase 1-β Beta-Ready Slice (Task A~E)** auto-merge label 활성, CI 대기.
 - **최근 머지된 PR**: [#80](https://github.com/jaydenjoo/hesya/pull/80) **aiModel 저장 + 타입 통합** | [#79](https://github.com/jaydenjoo/hesya/pull/79) 5-Layer CLAUDE.md + L-079 | [#78](https://github.com/jaydenjoo/hesya/pull/78) QStash 전환.
 
 ## 이번 세션 (2026-05-07) — Phase 1-β Beta-Ready Slice 5 Task 구현
 
 ### 결과
 
-| Task | 산출물                                                                                                          | commit  |
-| ---- | --------------------------------------------------------------------------------------------------------------- | ------- |
-| A    | 0022 마이그 (stores.bot_mode + messages.draft_status/reviewed_by/edited_from_ai) + DAL helper (stores/messages) | 69b24ce |
-| B    | `/onboarding/kyc` 폼 + `/onboarding/pending` 폴링 + `submitKycApplication` 트랜잭션 + `/api/store/me/status`    | 0a8b879 |
-| C    | `/admin/store-verifications` 큐 + `[id]` 상세 + `approveStoreKyc`/`rejectStoreKyc` action                       | b86c2c1 |
-| D    | Inbox 검수·승인 모드 — Bot/Owner 토글 + DraftReviewPanel + approveDraft/editAndSend/skipDraft                   | ae208e0 |
-| E    | `phase-1-beta.spec.ts` E2E + `docs/runbook.md` §4 onboarding 절차 + PROGRESS trace                              | (이번)  |
+| Task          | 산출물                                                                                                          | commit  |
+| ------------- | --------------------------------------------------------------------------------------------------------------- | ------- |
+| A             | 0022 마이그 (stores.bot_mode + messages.draft_status/reviewed_by/edited_from_ai) + DAL helper (stores/messages) | 69b24ce |
+| B             | `/onboarding/kyc` 폼 + `/onboarding/pending` 폴링 + `submitKycApplication` 트랜잭션 + `/api/store/me/status`    | 0a8b879 |
+| C             | `/admin/store-verifications` 큐 + `[id]` 상세 + `approveStoreKyc`/`rejectStoreKyc` action                       | b86c2c1 |
+| D             | Inbox 검수·승인 모드 — Bot/Owner 토글 + DraftReviewPanel + approveDraft/editAndSend/skipDraft                   | ae208e0 |
+| E             | `phase-1-beta.spec.ts` E2E + `docs/runbook.md` §4 onboarding 절차 + PROGRESS trace                              | 6593f68 |
+| **final fix** | Sentry capture 누락 (admin actions) + DraftReviewPanel stuck state guard + 24h window 만료 test 1건             | 7361cde |
 
 ### Task E 세부
 
@@ -31,11 +33,24 @@
 - **runbook §4 추가**: 베타 매장 onboarding 절차 (pre-flight / owner / admin / 매일 SQL 모니터링 — H1 수정률 산출).
 - **vitest helper**: `seedMessage`에 `draftStatus` 필드 옵션 추가 (backward-compatible additive).
 
+### Final review 결과 (cross-task holistic)
+
+Critical 0 / Important 3 / Minor 3:
+
+| #   | Issue                                                                                                                       | Fix (commit `7361cde`)                                                                          |
+| --- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| 1   | Admin actions (approveStoreKyc/rejectStoreKyc) catch 블록이 DB 에러를 silently swallow                                      | `captureServerActionError` 추가 — 다른 inbox actions 패턴과 일치                                |
+| 2   | `approveDraft` send 실패 시 `draftStatus='approved'`로 stuck — `pickPendingReview` 필터링 안 되고 legacy AIAssist UI에 빠짐 | option (b) — `pickAIDraft`에 `draftStatus IN ('approved','sent','skipped')` 가드 추가 (1줄 fix) |
+| 3   | `approve-draft.test.ts` 24h messagingWindow 만료 케이스 미테스트 (베타 가장 흔한 실패 모드)                                 | 만료 + send_failed 검증 1건 추가                                                                |
+
+Minor 3 (backlog): `text-blue-600` 토큰화 / `skip-draft` outer catch error literal / `PendingStatus auto_approved router.push`.
+
 ### 차단/잠재 리스크
 
 - 🟡 E2E `phase-1-beta.spec.ts` **로컬 실제 실행은 본 세션에서 미검증** (env.local 읽기 권한 미보유로 dev 서버 기동 불가). `--list` 컴파일 OK + 코드 흐름은 inbox.spec.ts 기존 패턴과 동일. 베타 1곳 onboarding 직전 Jayden이 `pnpm --filter @hesya/web e2e phase-1-beta.spec.ts` 1회 수동 실행 권장.
 - 🟡 `submitKycApplication` + `requireAdminEmail`은 Better Auth 세션 직접 의존 (E2E bypass 없음). E2E full path로 가려면 Better Auth 테스트 세션 cookie 생성 인프라 별도 작업 필요 (Phase 2 후보).
 - ⚠️ 0022 마이그 prod 적용 ✅ — bot_mode 기본 false, 기존 매장 모두 검수 모드 진입 (의도).
+- ⏸ 다음 세션 시작 시 PR #81 머지 확인 + main pull.
 
 ## 이전 세션 (2026-05-07) — Conformance Audit + 5-Layer 문서 + audit fix
 
