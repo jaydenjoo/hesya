@@ -12,6 +12,7 @@ import {
   findStoreByExternalAccount,
   findStoreNameByConversationId,
   getStoreBotMode,
+  getStoreVerificationDetail,
   listStoresPendingReview,
   rejectStore,
   setStoreBotMode,
@@ -35,6 +36,7 @@ describe("dal.stores (pure)", () => {
     expect(typeof dalStores.listStoresPendingReview).toBe("function");
     expect(typeof dalStores.approveStore).toBe("function");
     expect(typeof dalStores.rejectStore).toBe("function");
+    expect(typeof dalStores.getStoreVerificationDetail).toBe("function");
   });
 
   it("approveStore + rejectStore use db.transaction (atomicity)", async () => {
@@ -206,6 +208,48 @@ describe.skipIf(!hasDb)("dal.stores (integration)", () => {
       expect(v?.status).toBe("auto_approved");
       expect(v?.reviewedBy).toBe(reviewerId);
       expect(v?.reviewedAt).toBeInstanceOf(Date);
+    });
+
+    it("getStoreVerificationDetail: store + verification 둘 다 있을 때 join 결과 반환", async () => {
+      const storeId = await seedStore(db, { name: "검수상세 매장" });
+      const [verRow] = await db
+        .insert(storeVerifications)
+        .values({
+          storeId,
+          businessNumber: "0000000099",
+          representativeName: "Detail Rep",
+          declarationNoMassage: true,
+          declarationNoMedicalDevice: true,
+          declarationNoOrientalMedicine: true,
+          verificationStatus: "manual_review",
+        })
+        .returning({ id: storeVerifications.id });
+      if (!verRow) throw new Error("verification seed failed");
+
+      const detail = await getStoreVerificationDetail(db, storeId);
+      expect(detail).not.toBeNull();
+      expect(detail?.store.id).toBe(storeId);
+      expect(detail?.store.name).toBe("검수상세 매장");
+      expect(detail?.verification.id).toBe(verRow.id);
+      expect(detail?.verification.businessNumber).toBe("0000000099");
+      expect(detail?.verification.representativeName).toBe("Detail Rep");
+      expect(detail?.verification.declarationNoMassage).toBe(true);
+      expect(detail?.verification.declarationNoMedicalDevice).toBe(true);
+      expect(detail?.verification.declarationNoOrientalMedicine).toBe(true);
+    });
+
+    it("getStoreVerificationDetail: store 미존재 → null", async () => {
+      const detail = await getStoreVerificationDetail(
+        db,
+        "00000000-0000-0000-0000-000000000000",
+      );
+      expect(detail).toBeNull();
+    });
+
+    it("getStoreVerificationDetail: store는 있지만 verification 없으면 → null", async () => {
+      const storeId = await seedStore(db);
+      const detail = await getStoreVerificationDetail(db, storeId);
+      expect(detail).toBeNull();
     });
 
     it("rejectStore: stores + storeVerifications atomically rejected + reason", async () => {

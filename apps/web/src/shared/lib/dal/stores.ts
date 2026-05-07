@@ -11,6 +11,7 @@ import {
 } from "@hesya/database";
 
 type Store = typeof stores.$inferSelect;
+type StoreVerification = typeof storeVerifications.$inferSelect;
 
 /**
  * 외부 채널 계정 ID로 매장 1건 조회.
@@ -107,6 +108,74 @@ export async function listStoresPendingReview(
     })
     .from(stores)
     .where(eq(stores.verificationStatus, "manual_review"));
+}
+
+/**
+ * Phase 1-β — admin KYC 검토 상세 페이지가 사용하는 단일 round-trip 조회.
+ *
+ * `stores ⨝ storeVerifications` innerJoin으로 1회 쿼리.
+ * 매장이 없거나 verification 행이 없으면 `null` (caller가 `notFound()` 결정).
+ *
+ * - 페이지가 실제 표시하는 컬럼만 projection (CLAUDE.md: `select('*')` 금지).
+ * - 한 store에 여러 verification 행이 가능하지만 Phase 1-β는 1:1 (Task B
+ *   트랜잭션이 1건만 INSERT) → `limit(1)`로 첫 행 반환.
+ */
+export async function getStoreVerificationDetail(
+  db: DbClient,
+  storeId: string,
+): Promise<{
+  store: Pick<
+    Store,
+    "id" | "name" | "phone" | "address" | "businessLicenseImageUrl"
+  >;
+  verification: Pick<
+    StoreVerification,
+    | "id"
+    | "businessNumber"
+    | "representativeName"
+    | "declarationNoMassage"
+    | "declarationNoMedicalDevice"
+    | "declarationNoOrientalMedicine"
+  >;
+} | null> {
+  const rows = await db
+    .select({
+      storeId: stores.id,
+      storeName: stores.name,
+      phone: stores.phone,
+      address: stores.address,
+      businessLicenseImageUrl: stores.businessLicenseImageUrl,
+      verificationId: storeVerifications.id,
+      businessNumber: storeVerifications.businessNumber,
+      representativeName: storeVerifications.representativeName,
+      declarationNoMassage: storeVerifications.declarationNoMassage,
+      declarationNoMedicalDevice: storeVerifications.declarationNoMedicalDevice,
+      declarationNoOrientalMedicine:
+        storeVerifications.declarationNoOrientalMedicine,
+    })
+    .from(stores)
+    .innerJoin(storeVerifications, eq(storeVerifications.storeId, stores.id))
+    .where(eq(stores.id, storeId))
+    .limit(1);
+  const row = rows[0];
+  if (!row) return null;
+  return {
+    store: {
+      id: row.storeId,
+      name: row.storeName,
+      phone: row.phone,
+      address: row.address,
+      businessLicenseImageUrl: row.businessLicenseImageUrl,
+    },
+    verification: {
+      id: row.verificationId,
+      businessNumber: row.businessNumber,
+      representativeName: row.representativeName,
+      declarationNoMassage: row.declarationNoMassage,
+      declarationNoMedicalDevice: row.declarationNoMedicalDevice,
+      declarationNoOrientalMedicine: row.declarationNoOrientalMedicine,
+    },
+  };
 }
 
 /**
