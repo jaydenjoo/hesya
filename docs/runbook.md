@@ -58,3 +58,51 @@ ngrok http --url=<your-assigned-name>.ngrok-free.app 3000
 
 - Development mode = 25 test users만 webhook 수신
 - 1A G1~G10 검증은 dev mode + Jayden 외부 IG 1개 test user로 충분
+
+## 4. 베타 매장 onboarding 절차 (Phase 1-β)
+
+### Pre-flight (Jayden)
+
+1. `ADMIN_EMAILS`에 Jayden 이메일 등록 확인 (Vercel prod env)
+2. Supabase prod에 0022 마이그 적용 확인:
+   `SELECT bot_mode FROM stores LIMIT 1;` (0이상이면 OK, 컬럼 없으면 마이그 미적용)
+3. Sentry `phase=onboarding:*` alert 채널 활성
+
+### 매장 owner 시점
+
+1. 매장 owner 컨택 → 사전 인터뷰 30분 → 동의서 → URL 전달:
+   `https://hesya-web.vercel.app/sign-in?next=/onboarding/kyc`
+2. Google OAuth 로그인 → 폼 채움:
+   - 매장명 / 사업자번호 (10자리) / 대표자 / 전화 / 주소
+   - 영업신고증 사진 URL (Supabase Storage 또는 외부 호스팅)
+   - 자기신고 3건 모두 체크
+3. 제출 → "검토 중" 화면 (30s 폴링)
+
+### Jayden (admin) 시점
+
+1. 신청 알림 (Sentry 또는 매뉴얼 모니터링)
+2. `/admin/store-verifications` → 상세 → 영업신고증 이미지 육안 검토
+3. 사업자번호 국세청 홈택스 직접 조회 (자동 안 함)
+4. 미용업 5종 + 자유업 4종 카테고리 적합 시 "승인", 마사지/의료기기/한방
+   의심 시 "거절" + 사유
+
+### 매장 owner — 승인 후
+
+1. "승인됨" 화면 → "Instagram 연결" 링크 → OAuth flow
+2. 외국 고객 DM 수신 대기 → AI 초안 → 검수·승인 모드 (default)
+3. 1주 + 메시지 10건+ 누적 후 회고 인터뷰
+
+### 운영 모니터링 (Jayden, 매일 SQL)
+
+```sql
+SELECT
+  COUNT(*) FILTER (WHERE draft_status='pending_review') AS pending,
+  COUNT(*) FILTER (WHERE draft_status='sent' AND (edited_from_ai IS NOT TRUE)) AS sent_no_edit,
+  COUNT(*) FILTER (WHERE draft_status='sent' AND edited_from_ai=true) AS sent_edited,
+  COUNT(*) FILTER (WHERE draft_status='skipped') AS skipped
+FROM messages WHERE store_id=$BETA_STORE_ID;
+```
+
+> Note: `approveDraft` server action transitions `pending_review → approved → sent` sequentially within a single action, so successful approvals never linger at `approved`. Only `editAndSend` sets `edited_from_ai=true`; `approveDraft` leaves it as default (NULL), counted via `IS NOT TRUE`.
+
+H1 수정률 = `sent_edited / (sent_no_edit + sent_edited)`.
