@@ -2667,3 +2667,58 @@ PR #73의 CI/머지 단계에서 이 미스매치가 잡히지 않는다. valida
 - 메타: 같은 가정 깨짐이 다음 3개월 안에 재발하지 않으면 본 5-Layer 구조 효과 입증
 
 **연관**: L-001 (모노레포 골격 마이그), L-002 (TDD-guard hook 도입), L-077 (Vercel Queue beta 이탈 → QStash), L-078 (TDD-guard ROI 음수), 글로벌 CLAUDE.md v3.1 → v3.2 갱신.
+
+---
+
+### [2026-05-07] L-080 — RSC Date 직렬화: Server→Client prop 전달 시 Date는 string으로 강제 변환된다 (production-critical)
+
+**증상 / 상황**: Phase 1-β 베타 매장 onboarding 가상 시뮬 (Playwright `phase-1-beta.spec.ts`) 실행 중 thread render → 클릭 → DraftReviewPanel 단계가 5+ 곳에서 연속 throw:
+
+- `thread-item.tsx:32` → "d.getTime is not a function"
+- `window-utils.ts:23` → "expiresAt.getTime is not a function"
+- `message-bubble.tsx:69` → "created.toISOString is not a function"
+- `context-panel.tsx:173` → "Invalid time value" (RangeError from `Intl.DateTimeFormat.format(string)`)
+- `context-panel.tsx:HistoryTab` 정렬 → 동일 패턴
+
+타입 시그니처는 모두 `Date | null`이었으나 **실제 런타임 값은 ISO string**. 베타 매장 owner inbox 첫 진입 = 즉시 깨짐 = production-critical.
+
+**원인 (root cause)**: Next.js 15+ App Router에서 Server Component → Client Component prop 전달 시 props는 `JSON.stringify`-호환 형식으로 직렬화 강제. **Date 객체 → ISO string으로 자동 변환**. `"use client"` 컴포넌트가 `Date` 타입으로 받지만 실제 런타임은 string. TypeScript 타입과 런타임 값의 ABI 불일치 — 컴파일러가 못 잡는 구조적 함정.
+
+기여 요인:
+
+- 컴포넌트 단위 작성 시 Server/Client 경계가 시각적으로 안 보임 (dir 트리에 `"use client"` 표시 없음)
+- DAL 반환 타입 (drizzle `$inferSelect.createdAt: Date`)을 그대로 client component prop type으로 재사용 → 타입은 옳지만 boundary 무시
+- 실제 사용자 경로에서만 발견 (vitest는 Next.js RSC 직렬화를 시뮬 안 함, unit test로 잡히지 않음)
+- Phase 1-β E2E spec까지 도달해야 첫 노출
+
+**해결**:
+
+1. `apps/web/src/shared/lib/date-utils.ts` 신규 helper:
+   - `type MaybeDate = Date | string | null | undefined`
+   - `toDate(MaybeDate): Date | null` — 정규화 + invalid Date(NaN) 차단
+   - `safeFormat(MaybeDate, formatter, fallback): string` — `Intl.DateTimeFormat.format` invalid 안전 wrapper
+2. 4개 client component 통일 (thread-item / context-panel / message-bubble / window-utils)
+3. unit test 9건 (date-utils.test.ts) — null/undefined/empty/Date/ISO/garbage/NaN-Date 전수
+4. Playwright `phase-1-beta.spec.ts` 통과 검증 (DraftReviewPanel 렌더 + 승인+전송 + DB sent 확정 8.9s)
+
+PR #82, vitest 577 passed (regression 0).
+
+**규칙** ⭐ (다음 세션부터 영구 적용):
+
+1. **`"use client"` 컴포넌트의 Date prop type은 `Date | string | null | undefined`로 선언**. server-side `Date` 타입 그대로 가져오면 안 됨 (런타임 불일치).
+2. **Date method 직접 호출 금지** in client components. 항상 `toDate(d)` 또는 `safeFormat(d, fmt)` 경유.
+3. **Server → Client boundary에서 Date를 만나면 두 가지 옵션**:
+   - 옵션 A (현재): client에서 `MaybeDate` 받고 helper 정규화 (과도기 안전망)
+   - 옵션 B (정공법, backlog): server side (page.tsx)에서 명시적 `.toISOString()` 변환 → client는 항상 string만 받음 (가장 깔끔)
+4. **타입은 ABI를 보장하지 않는다 — 특히 RSC boundary에서**. drizzle `$inferSelect`를 client prop type으로 그대로 재사용 시 직렬화 영향 항상 의식.
+5. **Playwright E2E를 unit test의 보완재가 아닌 필수 보안망으로 인식**. unit test는 RSC 직렬화 시뮬 안 함 → 실제 사용자 경로 테스트 없으면 production-critical 버그 미검출. 베타 출시 전 golden-path E2E 1개는 의무.
+6. **첫 fail 발견 시 동일 패턴 grep 의무** (이번 사례: `getTime\|toISOString\|FMT\.format\|FORMATTER\.format` in `"use client"` files). 한 번 발견되면 codebase 다른 곳에 보통 5+ 건 잠복. surgical 1건 fix가 아닌 system-wide 정리가 정공법.
+
+**확인 방법**:
+
+- 자동 (후보): ESLint custom rule — `"use client"` 파일에서 Date method 직접 호출 시 `safeFormat`/`toDate` 권장 warning
+- 자동 (후보): codemod — 새 Date 타입 prop이 client component에 추가될 때 `MaybeDate`로 자동 widening 제안
+- 인간 리뷰: PR에 `"use client"` 파일에서 Date 다루는 코드 추가 시 helper 사용 여부 체크리스트
+- 메타: 다음 3개월 같은 패턴 fail이 production에 도달하면 옵션 B (server-side ISO 변환) 정식 도입
+
+**연관**: L-001 (모노레포), Phase 1-β PR #81 (Beta-Ready Slice), PR #82 (본 fix), Next.js 15+ App Router RSC 직렬화 메커니즘.
