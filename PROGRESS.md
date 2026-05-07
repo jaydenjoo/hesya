@@ -4,12 +4,12 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Task 13 retry workaround 머지 ✅ (PR #76)**. auto-merge **21회** 연속.
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C Vercel Queue ✅** + Task 11 vercel.json fix ✅ + Task 12 Sentry MCP/global-error ✅ + **Task 13 callback retry workaround ✅ (D6)** → **다음**: prod 검증 + (선택) Phase 1Cd hook / 1D multi-channel.
-- **Task**: PR #76 머지 ✅ (`49a7460`). 단, review fix commit `062bb77`이 auto-merge race로 누락됨 → 다음 세션 별 PR로 정리 (LOW/MED, 코드 동작 영향 0, 주석/문서만).
-- **상태**: 진단 완료 + workaround 적용 + 머지. SDK 0.1.6 callback push 모드 결함 우회. 다음은 Jayden manual prod redeploy + 검증.
-- **작업 브랜치**: `main`. 머지 commit `49a7460` (#76).
-- **최근 머지된 PR**: [#76](https://github.com/jaydenjoo/hesya/pull/76) callback retry workaround D6 | [#75](https://github.com/jaydenjoo/hesya/pull/75) Sentry MCP + global-error | [#74](https://github.com/jaydenjoo/hesya/pull/74) vercel.json monorepo fix.
+- **Phase**: Phase 1 — **Task 13 QStash 마이그 PR 작업 중** (Vercel Queue beta 영구 이탈).
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C Vercel Queue → QStash 전환 진행** + Task 11 vercel.json fix ✅ + Task 12 Sentry MCP/global-error ✅ + Task 13 callback retry workaround D6(폐기, 베타 전체 이탈) → **다음**: PR 머지 + Vercel Marketplace 연결(Jayden manual) + prod 검증.
+- **Task**: 본 세션 QStash 마이그 PR 작업. L-077 (Vercel Queue beta deployment pinning 결함) + L-078 (TDD-guard hook 폐기) 학습 기록.
+- **상태**: Method 1 진단 완료 (vercel logs `--no-branch -q queue`로 옛 deployment(`hesya-esra9g1py`)가 13시간째 무한 retry 확인 → 베타 인프라 server-side 결함 결정적). 코드 변경 완료 + tsc/lint/vitest/build 모두 통과. 머지 + Marketplace 연결 후 prod 검증 대기.
+- **작업 브랜치**: `task/13-qstash-migration`.
+- **최근 머지된 PR**: [#76](https://github.com/jaydenjoo/hesya/pull/76) callback retry workaround D6 (본 마이그로 폐기) | [#75](https://github.com/jaydenjoo/hesya/pull/75) Sentry MCP + global-error | [#74](https://github.com/jaydenjoo/hesya/pull/74) vercel.json monorepo fix.
 
 ## Task 13 closure — Callback retry workaround (이번 세션)
 

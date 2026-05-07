@@ -2563,3 +2563,61 @@ PR #73의 CI/머지 단계에서 이 미스매치가 잡히지 않는다. valida
 - 메타: 같은 fix 시도 2회 effort 없으면 가설 자체 의심. 단순 patch가 아니라 서비스 layer 진단 필요.
 
 **연관**: L-072 (직전, monorepo vercel.json 위치 fix — 그땐 client-side fix가 효과 있었음), L-074 (callback retry SDK 결함 — 같은 베타 product 결함 흐름), L-075 (auto-merge race로 review fix dangling). 본 세션 PR #77 (가설 검증, fix 효과 없음 확인).
+
+---
+
+### [2026-05-07] L-077 — Vercel Queue beta는 trigger registration이 새 deployment로 migration 안 됨. alias만 봐서는 안 보이고 vercel logs의 deployment URL이 결정적 단서.
+
+**증상 / 상황**: Phase 1C Task 13 PR #76 머지 + prod 배포 후 publish 시도 시 worker invoke가 안 보이거나 옛 코드(D6 workaround 이전)로 처리됨. dashboard `Received` 추적은 모호하지만 `vercel logs --no-branch`로 24h 추적 시 **메시지 1건이 13시간째 정확히 15분 간격으로 무한 retry — 모두 500 응답**이 발견됨. 결정적: invoke되는 deployment URL이 `hesya-esra9g1py` (PR #76 머지 전, D6 workaround 없는 옛 deployment)였고, `hesya-web.vercel.app` alias가 가리키는 최신 deployment(`hesya-aj554w05l`)와 다름.
+
+**원인**: Vercel Queue beta의 trigger registration은 deployment에 한 번 pin되면 후속 deployment에 자동 migration되지 않음. `vercel.json` `experimentalTriggers`가 새 deployment 빌드에 포함되어도 server-side trigger 상태는 옛 deployment를 계속 가리킴. customer-side patch (`vercel.json` 수정, redeploy, env 갱신) 모두 해결 안 됨 — 베타 인프라 server-side 결함.
+
+**해결 (workaround 아닌 영구 전환)**: QStash(Upstash, GA, Vercel Marketplace native)로 마이그. URL 기반 라우팅이라 `hesya-web.vercel.app` alias가 항상 최신 deployment를 가리킴 → deployment migration 자동. 본 세션 PR (예정).
+
+**규칙** ⭐:
+
+1. **`hesya-web.vercel.app` 같은 alias가 최신 deployment 가리킨다고 trigger도 최신 가리키는 게 아님**. 두 메타데이터가 분리됨. 진단 시 `vercel logs --no-branch -q "queue"`로 invoke되는 **deployment URL**을 직접 확인할 것.
+2. **베타 인프라가 두 번 silent fail하면 customer fix 폐기 + GA 인프라 즉시 전환이 정공법**. 같은 하위 인프라(Vercel Queue beta)에서 L-072 + L-074 + L-076 = 3건 누적이면 4번째는 "발생 시간 문제"라 보고 baseline 전환 결정.
+3. **Vercel logs는 default가 현재 git branch filter** — main 브랜치 prod logs 검사 시 `--no-branch` 필수. 누락 시 "logs 0건" 잘못된 결론.
+4. **abstraction layer가 사실상 함수 1개로 구성된 publisher라면 별도 interface 도입 없이도 내부 구현 교체로 마이그 가능**. 본 케이스 `enqueueProcessInbound(messageId)` 함수 1개 → caller(`webhooks/instagram/route.ts`) 코드 무수정. 마이그 비용 낮은 시그널.
+5. **베타 상품 의존 PR은 "13시간째 무한 retry" 같은 비용 leak 패턴 가능 — 운영 모니터링에 retry 횟수 임계값 alert 추가 후속 후보**. Sentry "phase=queue:\*:dlq" tag와 별도, raw 500 retry 빈도 alert.
+
+**확인 방법**:
+
+- 자동: 베타 인프라 의존 PR 머지 후 24h 안에 `vercel logs --no-branch -q "<route-path>"`로 invoke되는 deployment URL이 최신 prod deployment와 일치하는지 검사 (5줄 script 후보).
+- 인간 리뷰: 베타 인프라 PR diff에 prod 운영 검증 단계 명시 + 검증 결과를 PROGRESS에 기록 + GA fallback abstraction 검토.
+- 메타: 같은 fix 시도 1회 무효 시 즉시 customer-side가 아닌 서비스 layer 의심 (L-076 규칙 5의 보강).
+
+**연관**: L-072 (vercel.json wiring fix — 그땐 client fix 효과), L-074 (callback retry SDK 결함 — workaround), L-076 (직전, server-side fail 가설 제시), L-075 (auto-merge race). 본 세션 QStash 마이그 PR.
+
+---
+
+### [2026-05-07] L-078 — TDD-guard hook은 declarative wiring 비대 프로젝트(외부 SDK heavy)에서 ROI 음수. 16회 patch 추가 = 정책 미스매치 시그널.
+
+**증상 / 상황**: Phase 1C Task 13 isolation test 시도 중 `apps/web/src/app/api/queue/isolation-test/route.ts`(일회용 진단 worker) Write가 tdd-guard hook에 차단됨. 검증 결과 `.claude/hooks/tdd-guard-filtered.sh`는 **16회 커밋에 걸쳐 patch**됐고 (총 59개 면제 패턴), learnings.md 67줄 hook 관련 언급 중 **TDD-guard가 막아 실제 버그 예방한 사례 0건** 명시. 매 카테고리 첫 진입 시 round-trip 마찰 + L-019 메타 학습("와일드카드로 처음부터") 적용 후에도 5회 더 같은 사이클 재발.
+
+**원인**: 본 프로젝트 특성과 TDD 강제 정책 미스매치.
+
+- 외부 SDK heavy (Better Auth, Drizzle, next-intl, Sentry, Vercel Queue, QStash, Resend) → thin wrapper가 대부분 → 면제 카테고리 비대
+- Server Action + Route Handler 중심 (mock-heavy) → unit test 가치 낮음, integration test가 정공법
+- 비개발자(Jayden) + AI 코딩 → "test 먼저" 결정을 매번 묻는 마찰
+- 1인 다코딩 + 빠른 iteration → 매 PR마다 hook patch round-trip이 cumulative 부담
+
+2026 best practice 컨센서스도 "Heavy tests → CI only, pre-commit → fast deterministic checks". 본 hook은 정확히 안티 패턴.
+
+**해결**: `.claude/settings.json`에서 PreToolUse Write|Edit|MultiEdit 매처 entry 제거. TDD 강제는 향후 CI coverage gate(vitest --coverage + 임계값 80%)로 이전 (별 spec).
+
+**규칙** ⭐:
+
+1. **TDD-guard 같은 PreToolUse 차단형 hook은 "실제 막아서 버그 예방한 사례"가 learnings에 기록되는지 정량 추적할 것**. 16회 patch + 0건 ROI = 즉시 폐기 시그널.
+2. **외부 SDK heavy 프로젝트(thin wrapper 비중 30%+)는 unit test 우선 강제 정책 자체가 부적합**. integration/E2E + CI coverage gate로 이전이 정공법.
+3. **Hook 메타 학습이 "처음부터 와일드카드"인데 같은 사이클이 계속 재발하면 정책 자체가 too restrictive**. 정책 갈아끼우는 게 패턴 추가하는 것보다 효율.
+4. **"마찰을 줄이려고 wrapper 복잡도를 올리는" 안티 패턴 주의**. allow-list 뒤집기(옵션 1) 같은 inversion은 wrapper 복잡도만 증가시키고 본질 안 바꿈. 차라리 끄거나 CI로 이전.
+
+**확인 방법**:
+
+- 자동: hook 면제 패턴이 분기당 5회 이상 추가되면 정책 재검토 trigger.
+- 인간 리뷰: hook patch 커밋이 feature PR에 묶여 추가되는 빈도 추적.
+- 메타: hook이 "잡은 진짜 사례" 1건 = 적합. 0건 + patch 16회 = 폐기.
+
+**연관**: L-002 (hook 도입), L-005, L-019 (메타 학습 — 와일드카드), L-027 (verify-\* 패턴), 본 세션 settings.json 변경.

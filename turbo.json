@@ -33,7 +33,10 @@
         "IG_WEBHOOK_VERIFY_TOKEN",
         "IG_REDIRECT_URI",
         "IG_API_BASE_URL",
-        "E2E_AUTH_USER_ID"
+        "E2E_AUTH_USER_ID",
+        "QSTASH_TOKEN",
+        "QSTASH_CURRENT_SIGNING_KEY",
+        "QSTASH_NEXT_SIGNING_KEY"
       ]
     },
     "dev": {

@@ -1,57 +1,72 @@
 import * as Sentry from "@sentry/nextjs";
-import { handleCallback } from "@vercel/queue";
+import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 import { z } from "zod";
 import { generateAndStoreReply } from "@/features/inbox/ai/generate-and-store-reply";
 import type { ProcessInboundJob } from "@/lib/inbox/queue";
 
 /**
- * Phase 1C — Vercel Queue worker for inbound message processing.
+ * Phase 1C — QStash worker for inbound message processing.
  *
- * Push 모드: Vercel Queue가 자동 호출. vercel.json `experimentalTriggers`
- * 의 topic `inbox-process-inbound`와 매핑.
+ * 전환 배경 (L-076 → L-077): Vercel Queue beta deployment pinning 결함으로
+ * QStash(Upstash GA)로 전환. URL 기반 라우팅이라 deployment migration 자동.
  *
- * 비유: 우체국 배달부(Vercel Queue)가 소포(messageId)를 가지고 이 문(route)을
- * 두드리면, 문지기(worker)가 소포를 받아 처리 함수에 전달한다.
+ * 비유: 우체국 배달부(QStash)가 소포(messageId)를 가지고 이 문(route)을
+ * 두드리면, 문지기(verifySignatureAppRouter)가 정품 서명 확인 후 처리
+ * 함수에 전달한다.
  *
- * Retry 정책 (D2 + D6 callback workaround):
- * - SDK 0.1.6 callback push 모드에서 `{ afterSeconds }` directive가
- *   `MessageNotFoundError` (404 changeVisibility)로 silent fail → 메시지가
- *   1회 invoke 후 종결되는 베타 결함이 있다. 우리는 directive를 반환하지
- *   않고 SDK가 throw를 전파하도록 두어, callback이 5xx 응답 → server-side
- *   visibility timeout(60s) 만료 후 자동 redelivery로 retry를 구현한다.
- * - deliveryCount 1~3: undefined 반환 → throw 전파 → 60s 후 재시도
- * - deliveryCount 4: DLQ 격리 → Sentry alert + acknowledge (D3)
- * - 1+5+30s 지수 백오프 패턴은 SDK 결함이 fix될 때 복구. 자세한 진단:
- *   docs/superpowers/specs/2026-05-06-vercel-queue-callback-retry-issue.md
+ * Retry 정책 (publish 측 `retries: 3`과 페어링):
+ * - `Upstash-Retried` header: 0(첫 시도), 1, 2, 3
+ * - retried < 3 + handler throw → 500 응답 → QStash 자동 retry (exp backoff)
+ * - retried === 3 + handler throw → Sentry alert + 200 OK 종결 (DLQ 우리
+ *   alert만 사용, QStash native DLQ는 보존)
+ * - retried 무관 + 정상 처리 → 200 OK
+ *
+ * 자세한 마이그 진단/근거: docs/superpowers/specs/2026-05-07-qstash-migration.md
  */
 const payloadSchema = z.object({
   messageId: z.string().uuid(),
 });
 
-const MAX_DELIVERY_COUNT = 4;
-const VISIBILITY_TIMEOUT_SECONDS = 60;
+const MAX_RETRIES = 3;
 
-export const POST = handleCallback(
-  async (rawMessage: unknown) => {
-    const { messageId } = payloadSchema.parse(
-      rawMessage,
-    ) satisfies ProcessInboundJob;
-    await generateAndStoreReply(messageId);
-  },
-  {
-    visibilityTimeoutSeconds: VISIBILITY_TIMEOUT_SECONDS,
-    retry: (err, metadata) => {
-      if (metadata.deliveryCount < MAX_DELIVERY_COUNT) {
-        return;
-      }
-      Sentry.captureException(err, {
-        tags: { phase: "queue:inbox.process-inbound:dlq" },
-        extra: {
-          queueMessageId: metadata.messageId,
-          deliveryCount: metadata.deliveryCount,
-        },
-      });
-      return { acknowledge: true };
-    },
-  },
-);
+async function handler(request: Request): Promise<Response> {
+  // QStash가 정상적으로 정수 문자열을 보내지만, 헤더 누락·비정상 값(NaN)일 때
+  // `NaN >= 3` 이 false → 영구 retry 루프(DLQ 종결 불가)로 빠질 수 있어 방어.
+  const retriedRaw = Number(request.headers.get("Upstash-Retried") ?? "0");
+  const retried = Number.isFinite(retriedRaw) ? retriedRaw : 0;
+  const rawBody = (await request.json()) as unknown;
+
+  let payload: ProcessInboundJob;
+  try {
+    payload = payloadSchema.parse(rawBody) satisfies ProcessInboundJob;
+  } catch (err) {
+    return handleFailure(err, retried, undefined);
+  }
+
+  try {
+    await generateAndStoreReply(payload.messageId);
+    return Response.json({ ok: true });
+  } catch (err) {
+    return handleFailure(err, retried, payload.messageId);
+  }
+}
+
+function handleFailure(
+  err: unknown,
+  retried: number,
+  messageId: string | undefined,
+): Response {
+  if (retried >= MAX_RETRIES) {
+    Sentry.captureException(err, {
+      tags: { phase: "queue:inbox.process-inbound:dlq" },
+      extra: {
+        messageId,
+        retried,
+      },
+    });
+    return Response.json({ ok: false, dlq: true }, { status: 200 });
+  }
+  return Response.json({ ok: false }, { status: 500 });
+}
+
+export const POST = verifySignatureAppRouter(handler);

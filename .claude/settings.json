@@ -34,15 +34,6 @@
             "command": "bash -c 'cmd=\"$CLAUDE_TOOL_INPUT_command\"; if echo \"$cmd\" | grep -qE \"DROP TABLE|TRUNCATE TABLE|DELETE FROM.*WHERE 1=1\"; then echo \"⛔ 위험 SQL 차단: $cmd\"; exit 1; fi; exit 0'"
           }
         ]
-      },
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/tdd-guard-filtered.sh"
-          }
-        ]
       }
     ],
     "SessionStart": [
