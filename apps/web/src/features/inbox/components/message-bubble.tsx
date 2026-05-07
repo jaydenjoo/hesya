@@ -15,6 +15,7 @@
 
 import { useTranslations } from "next-intl";
 import type { Message } from "../types";
+import { toDate } from "@/shared/lib/date-utils";
 
 const HOUR_MIN_FORMATTER = new Intl.DateTimeFormat(undefined, {
   hour: "2-digit",
@@ -26,7 +27,7 @@ export function MessageBubble({ message }: { message: Message }) {
   const isOutbound = message.direction === "outbound";
   const isFailed = message.status === "failed";
   const isAIDraft = message.status === "ai_draft";
-  const created = message.createdAt ?? new Date();
+  const created = toDate(message.createdAt) ?? new Date();
 
   const bubbleClass = isOutbound
     ? "bg-hesya-amber-500 text-white"

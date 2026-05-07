@@ -4,15 +4,63 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1-β (Beta-Ready Slice) — **Task A~E 5종 + final fix 모두 완료 ✅, PR #81 생성 + auto-merge label** (이번 세션, 2026-05-07).
-- **Epic**: Phase 1-β = Owner sign-up + KYC + Admin 큐 + Inbox 검수·승인 + E2E + runbook → **다음**: CI 통과 자동 머지 → 베타 매장 1곳 수동 onboarding (`docs/runbook.md` §4 절차) + 1주 운영 + H1 수정률 회고.
-- **Task**: A schema(0022 + DAL) / B owner KYC 폼·pending / C admin 검토 큐 / D Inbox 검수·승인 + Bot 토글 / E E2E + runbook / final fix 3 Important.
-- **상태**: 7 commits 코드 PASS — tsc / lint / vitest **568 통과** (regression 0) / build PASS / playwright `--list` 4 tests OK. 0022 마이그 prod 적용 ✅. Subagent-Driven Development로 5x spec compliance + 5x code quality + 1x final review 모두 통과, **11 fix iteration** 사전 차단.
-- **작업 브랜치**: `feat/phase-1-beta` (commits 69b24ce → 0a8b879 → b86c2c1 → ae208e0 → 6593f68 → 7361cde).
-- **이번 세션 PR**: [#81](https://github.com/jaydenjoo/hesya/pull/81) **Phase 1-β Beta-Ready Slice (Task A~E)** auto-merge label 활성, CI 대기.
-- **최근 머지된 PR**: [#80](https://github.com/jaydenjoo/hesya/pull/80) **aiModel 저장 + 타입 통합** | [#79](https://github.com/jaydenjoo/hesya/pull/79) 5-Layer CLAUDE.md + L-079 | [#78](https://github.com/jaydenjoo/hesya/pull/78) QStash 전환.
+- **Phase**: Phase 1-β (Beta-Ready Slice) — Task A~E + final fix 모두 머지 (PR #81), **L-080 RSC Date 직렬화 fix PR #82** auto-merge 대기 (이번 세션 후반, 2026-05-07).
+- **Epic**: Phase 1-β = Owner sign-up + KYC + Admin 큐 + Inbox 검수·승인 + E2E + runbook → **다음**: PR #82 머지 → 베타 매장 1곳 수동 onboarding (`docs/runbook.md` §4 절차) + 1주 운영 + H1 수정률 회고.
+- **상태**: PR #82 코드 PASS — tsc / lint / vitest **577 통과** (regression 0, +9 date-utils.test) / Playwright `phase-1-beta.spec.ts` **8.9s 통과** (DraftReviewPanel 렌더 + 승인+전송 + DB sent 확정 검증).
+- **작업 브랜치**: `fix/rsc-date-l080` (commit 9862c0a, off origin/main).
+- **이번 세션 PR**: [#82](https://github.com/jaydenjoo/hesya/pull/82) **fix(inbox): RSC Date 직렬화 안전 변환 (L-080)** auto-merge label.
+- **최근 머지된 PR**: [#81](https://github.com/jaydenjoo/hesya/pull/81) **Phase 1-β Beta-Ready Slice (Task A~E)** ✅ | [#80](https://github.com/jaydenjoo/hesya/pull/80) aiModel | [#79](https://github.com/jaydenjoo/hesya/pull/79) 5-Layer CLAUDE.md.
 
-## 이번 세션 (2026-05-07) — Phase 1-β Beta-Ready Slice 5 Task 구현
+## 이번 세션 후반 (2026-05-07) — L-080 RSC Date 직렬화 fix (PR #82)
+
+### 배경 — 베타 가상 onboarding 시뮬
+
+PR #81 머지 후 Jayden 요청 _"가상으로 베타 onboarding 진행"_ 에 따라 Playwright `phase-1-beta.spec.ts`로 실제 사용자 경로 시뮬. thread render → 클릭 → DraftReviewPanel 단계가 5+ 곳에서 연속 throw → **production-critical 버그** 발견.
+
+### 발견 — Server→Client Date prop 직렬화 함정
+
+Next.js 15+ App Router에서 Server Component → Client Component prop 전달 시 props는 JSON 직렬화 강제. **Date 객체 → ISO string으로 자동 변환**. TypeScript는 `Date | null`로 정확히 타이핑되지만 런타임 값은 string. ABI 불일치 = 컴파일러 못 잡음.
+
+| 파일                         | 깨진 호출                      | 에러                              |
+| ---------------------------- | ------------------------------ | --------------------------------- |
+| thread-item.tsx:32           | `d.getTime()`                  | "d.getTime is not a function"     |
+| window-utils.ts:23           | `expiresAt.getTime()`          | 동일                              |
+| message-bubble.tsx:69        | `created.toISOString()`        | "created.toISOString is not a fn" |
+| context-panel.tsx:173        | `DATE_FMT.format(createdAt)`   | "Invalid time value" (RangeError) |
+| context-panel.tsx HistoryTab | `TIME_FMT.format(m.createdAt)` | 동일                              |
+
+### 해결 — 단일 helper system-wide 통일
+
+`apps/web/src/shared/lib/date-utils.ts` 신규:
+
+- `type MaybeDate = Date | string | null | undefined`
+- `toDate(d): Date | null` — 정규화 + invalid Date(NaN) 차단
+- `safeFormat(d, formatter, fallback): string` — Intl.DateTimeFormat invalid 안전 wrapper
+
+4개 client component (thread-item / context-panel / message-bubble / window-utils) 전수 helper 사용으로 통일. unit test 9건 (date-utils.test.ts) 추가.
+
+### 검증
+
+- vitest **577 passed** | 58 skipped (regression 0, +9 date-utils.test)
+- tsc + lint clean
+- **Playwright phase-1-beta.spec.ts 통과 (8.9s)** — DraftReviewPanel 렌더 + 승인+전송 + DB `messages.status='sent' + draft_status='sent'` 확정 + 패널 사라짐 검증
+
+### L-080 (docs/learnings.md)
+
+규칙 6개 도출:
+
+1. `"use client"` 컴포넌트의 Date prop type은 `MaybeDate`로 선언 (server-side `Date` 타입 그대로 가져오지 말 것)
+2. Date method 직접 호출 금지 in client — 항상 `toDate` / `safeFormat` 경유
+3. Server → Client boundary 옵션 A (현재 helper 정규화) vs B (server-side ISO 변환, backlog)
+4. 타입은 ABI 보장 안 함 — 특히 RSC boundary에서
+5. Playwright E2E를 unit test의 보완재가 아닌 필수 보안망으로 인식 (vitest는 RSC 직렬화 시뮬 안 함)
+6. 첫 fail 발견 시 동일 패턴 grep 의무 — 보통 5+ 건 잠복, system-wide 정리가 정공법
+
+backlog 후보: ESLint custom rule (`"use client"`에서 Date method 직접 호출 시 helper 권장), server-side ISO 변환 정공법 도입.
+
+---
+
+## 이번 세션 전반 (2026-05-07) — Phase 1-β Beta-Ready Slice 5 Task 구현 (PR #81 ✅ merged)
 
 ### 결과
 

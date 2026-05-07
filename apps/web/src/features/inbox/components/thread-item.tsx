@@ -14,6 +14,7 @@
  */
 
 import type { Conversation } from "../types";
+import { safeFormat } from "@/shared/lib/date-utils";
 
 const CHANNEL_ICONS: Record<string, string> = {
   instagram: "📱",
@@ -23,14 +24,11 @@ const CHANNEL_ICONS: Record<string, string> = {
   messenger: "📘",
 };
 
-function formatTime(d: Date | null): string {
-  if (!d) return "";
-  return new Intl.DateTimeFormat(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(d);
-}
+const TIME_FMT = new Intl.DateTimeFormat(undefined, {
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
 
 function avatarChar(customerId: string): string {
   return (customerId.charAt(0) || "?").toUpperCase();
@@ -47,7 +45,7 @@ export function ThreadItem({
 }) {
   const hasUnread = conversation.unreadCount > 0;
   const channelIcon = CHANNEL_ICONS[conversation.channel] ?? "💬";
-  const time = formatTime(conversation.lastMessageAt);
+  const time = safeFormat(conversation.lastMessageAt, TIME_FMT, "");
 
   return (
     <button
