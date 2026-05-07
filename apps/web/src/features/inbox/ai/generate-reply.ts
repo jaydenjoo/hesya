@@ -18,7 +18,7 @@ import type { ToneVerification } from "@hesya/database";
 import { env } from "@/shared/config/env";
 import { buildPrompt, type BuildPromptInput } from "./prompt";
 
-const MODEL = "claude-sonnet-4-6";
+export const MODEL = "claude-sonnet-4-6";
 // 한국어 4 tone 각 ~150 tokens × 4 + 여유 + verifications ~50 tokens × 4 = 1500.
 // Phase 2-A에서 MAX_TOKENS 증액 불필요 (verifications는 라벨+짧은 reason).
 const MAX_TOKENS = 1500;

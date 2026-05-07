@@ -29,6 +29,7 @@ import { env } from "@/shared/config/env";
 import * as Sentry from "@sentry/nextjs";
 import {
   generateReply as defaultGenerateReply,
+  MODEL as GENERATE_REPLY_MODEL,
   type GenerateReplyInput,
   type GenerateReplyOutput,
 } from "./generate-reply";
@@ -290,6 +291,7 @@ export async function generateAndStoreReply(
     direction: "outbound",
     originalText: result.reply,
     status: "ai_draft",
+    aiModel: GENERATE_REPLY_MODEL,
     ...(metadata ? { metadata } : {}),
   });
   if (!stored) {
