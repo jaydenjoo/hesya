@@ -24,6 +24,8 @@ export async function insertMessage(
     status?: string;
     /** Epic 1B-Tone-1 — 4 tone variations 포함 (1B-Tone-3에서 채워짐). */
     metadata?: MessageMetadata;
+    /** AI 응답 시 사용 모델 (예: "claude-sonnet-4-6"). Phase 1.5 비용 분석용. */
+    aiModel?: string;
   },
 ): Promise<Message | null> {
   const defaultStatus =
@@ -39,6 +41,7 @@ export async function insertMessage(
       externalMessageId: input.externalMessageId,
       status: defaultStatus,
       metadata: input.metadata,
+      aiModel: input.aiModel,
     })
     .onConflictDoNothing()
     .returning();

@@ -265,7 +265,7 @@
 - Instagram Graph API, WhatsApp Business API, 카카오 비즈니스 메시지, LINE Messaging API
 - 단일 매장 대시보드 통합
 - AI 1차 자동 응답 (Claude Sonnet 4.6 + 매장별 RAG)
-- 사장 한국어 답변 → 자동 번역 → 고객 언어 발송
+- 사장 한국어 답변 → 자동 번역 → 고객 언어 발송 ⚠️ **MVP 결정 (2026-05, Phase B-3a/B-3b)**: `originalText`(한국어) 직접 발송. `translatedText`는 사장 검수 보조 표시 (chained LLM injection 방어 — L-031 참조). **Phase 2**: 다국어 직접 발송 전환 검토. 근거 PROGRESS:618.
 - 사진 업로드 시 **Claude Opus 4.7 Vision (2,576px 고해상도)** 시술 가능 여부 판단 🆕
 
 ### 모듈 2. 결제 통합 위젯 🔴 P0 (MVP)
