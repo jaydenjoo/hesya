@@ -56,6 +56,9 @@ jobs:
       IG_APP_SECRET: stub-ig-app-secret
       IG_WEBHOOK_VERIFY_TOKEN: stub-ig-verify-token
       IG_REDIRECT_URI: https://stub.example.com/api/oauth/instagram/callback
+      QSTASH_TOKEN: ci_dummy_qstash_token_xxxxxxxxxxxxxxxx
+      QSTASH_CURRENT_SIGNING_KEY: ci_dummy_qstash_current_xxxxxxxxxxxxxxxx
+      QSTASH_NEXT_SIGNING_KEY: ci_dummy_qstash_next_xxxxxxxxxxxxxxxx
     steps:
       - uses: actions/checkout@v4
         with:
@@ -125,6 +128,9 @@ jobs:
       IG_APP_SECRET: stub-ig-app-secret
       IG_WEBHOOK_VERIFY_TOKEN: stub-ig-verify-token
       IG_REDIRECT_URI: https://stub.example.com/api/oauth/instagram/callback
+      QSTASH_TOKEN: ci_dummy_qstash_token_xxxxxxxxxxxxxxxx
+      QSTASH_CURRENT_SIGNING_KEY: ci_dummy_qstash_current_xxxxxxxxxxxxxxxx
+      QSTASH_NEXT_SIGNING_KEY: ci_dummy_qstash_next_xxxxxxxxxxxxxxxx
       # smoke만 실행 — inbox.spec.ts는 HESYA_TEST_DATABASE_URL 없어 자동 skip.
       # 실 시나리오는 PostgreSQL service container + migration이 필요해
       # 별도 인프라 작업으로 분리. 본 e2e-smoke는 dev 서버 + Playwright 자체 작동만 보장.
@@ -205,6 +211,9 @@ jobs:
       IG_APP_SECRET: stub-ig-app-secret
       IG_WEBHOOK_VERIFY_TOKEN: stub-ig-verify-token
       IG_REDIRECT_URI: https://stub.example.com/api/oauth/instagram/callback
+      QSTASH_TOKEN: ci_dummy_qstash_token_xxxxxxxxxxxxxxxx
+      QSTASH_CURRENT_SIGNING_KEY: ci_dummy_qstash_current_xxxxxxxxxxxxxxxx
+      QSTASH_NEXT_SIGNING_KEY: ci_dummy_qstash_next_xxxxxxxxxxxxxxxx
     steps:
       - uses: actions/checkout@v4
       - name: Setup pnpm
