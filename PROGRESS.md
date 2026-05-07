@@ -4,11 +4,11 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Task 13 QStash 마이그 머지 ✅ + G2 검증 통과 + G3 검증 진행 중**.
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C QStash 전환 ✅ (PR #78 머지)** + Task 11 vercel.json fix ✅ + Task 12 Sentry MCP/global-error ✅ + Task 13 callback retry workaround D6(폐기, 베타 전체 이탈) + L-077 영구 해결 ✅ → **다음**: G3 Sentry alert 도착 확인 (~30분) + Phase 1Cd hook / 1D multi-channel.
-- **Task**: PR #78 머지 + Vercel Marketplace QStash integration 연결 + prod 검증 진행 중.
-- **상태**: G2 검증 완료 (worker invoke가 `hesya-web.vercel.app` alias로 정상 호출 — L-077 deployment pinning 결함 영구 해결 확정). G3 검증 진행 중 (invalid-shape publish가 QStash 12s/2m28s/30m8s exp backoff retry 중, 최종 retried=3 시점 Sentry DLQ alert 도달 예상).
-- **작업 브랜치**: `main` (PR #78 squash merge `49a7460` 후속 + `e673c2f` CI fix).
+- **Phase**: Phase 1 — **Task 13 QStash 마이그 + G1~G4 검증 모두 통과 ✅ — Task 13 완전 closure**.
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C QStash 전환 ✅ (PR #78 머지 + prod 검증 완료)** + Task 11 vercel.json fix ✅ + Task 12 Sentry MCP/global-error ✅ + Task 13 callback retry workaround D6(폐기, 베타 전체 이탈) + L-077 영구 해결 ✅ → **다음**: Epic 12 Admin Panel (P0 MVP, Phase 1D 사업자 보류로 우선순위 변경) 또는 Phase 1 closure (Vision + 베타 검증).
+- **Task**: PR #78 머지 + Vercel Marketplace QStash integration 연결 + prod 검증 G1~G4 모두 통과.
+- **상태**: G2 통과 (worker invoke `hesya-web.vercel.app` alias 정상). G3 통과 (Sentry DLQ alert 도달, tag `phase=queue:inbox.process-inbound:dlq`, extra `retried=3`, ZodError invalid UUID). Trace ID `3d8fd5a352b34bfbb0f52d1b3fa7c8c6`. **Task 13 closure**.
+- **작업 브랜치**: `main` (PR #78 squash merge + 후속 docs commit `7adf700`).
 - **최근 머지된 PR**: [#78](https://github.com/jaydenjoo/hesya/pull/78) **QStash 전환 (L-077 영구 해결)** | [#76](https://github.com/jaydenjoo/hesya/pull/76) callback retry workaround D6 (폐기) | [#75](https://github.com/jaydenjoo/hesya/pull/75) Sentry MCP + global-error.
 
 ## Task 13 closure — QStash 전환 (이번 세션)
@@ -24,12 +24,13 @@
 - self-review HIGH fix 1건 (Number NaN 방어, commit `923ee3e`)
 - CI fix 1건 (`ci.yml` env에 QSTASH dummy 추가, commit `e673c2f`)
 
-**Prod 검증 (G2 통과 + G3 진행 중)**:
+**Prod 검증 (G1~G4 모두 통과 ✅)**:
 
-- (G2 ✅) `verify-qstash.ts` valid-shape publish → worker 200 응답 (host: `hesya-web.vercel.app` alias)
-- (G2 ✅) invalid-shape publish → 첫 시도 500 + 14초 후 첫 retry 500 → QStash exp backoff 정확 작동
-- (G3 진행) ~30분 후 retried=3 시점 Sentry `phase=queue:inbox.process-inbound:dlq` alert 도달 예상
-- (G4 ✅) `vercel.json` `experimentalTriggers` 완전 제거 — 새 deployment에 베타 trigger registration 없음
+- (G1 ✅) `enqueueProcessInbound(messageId)` 인터페이스 무수정 — caller `webhooks/instagram/route.ts` 코드 0 변경
+- (G2 ✅) `verify-qstash.ts` valid-shape publish → worker 200 응답 (host: `hesya-web.vercel.app` alias 정상 — L-077 deployment pinning 결함 영구 해결 결정적 증거)
+- (G2 ✅) invalid-shape publish → QStash exp backoff retry 정확 작동
+- (G3 ✅) **Sentry DLQ alert 도달**: tag `phase=queue:inbox.process-inbound:dlq` + `environment=vercel-production` + extra `retried=3` + ZodError "Invalid UUID" path `messageId` + Trace ID `3d8fd5a352b34bfbb0f52d1b3fa7c8c6`. 우리 코드 `Sentry.captureException` 의도된 capture.
+- (G4 ✅) `vercel.json` `experimentalTriggers` 완전 제거
 
 **closure 후속 (별 작업)**:
 
