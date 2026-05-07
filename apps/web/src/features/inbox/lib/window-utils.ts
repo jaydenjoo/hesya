@@ -1,3 +1,5 @@
+import { type MaybeDate, toDate } from "@/shared/lib/date-utils";
+
 export type WindowState = "no-inbound" | "open" | "closing-soon" | "expired";
 
 export interface WindowStatus {
@@ -15,9 +17,10 @@ const ONE_HOUR_MS = 60 * 60 * 1000;
  * - `closing-soon`: 1시간 미만 남음
  * - `expired`: 24시간 경과 — 답변 불가
  */
-export function getWindowStatus(expiresAt: Date | null): WindowStatus {
-  if (!expiresAt) return { state: "no-inbound" as const, remainingMs: null };
-  const remainingMs = expiresAt.getTime() - Date.now();
+export function getWindowStatus(expiresAt: MaybeDate): WindowStatus {
+  const date = toDate(expiresAt);
+  if (!date) return { state: "no-inbound" as const, remainingMs: null };
+  const remainingMs = date.getTime() - Date.now();
   if (remainingMs <= 0) return { state: "expired" as const, remainingMs: 0 };
   if (remainingMs < ONE_HOUR_MS)
     return { state: "closing-soon" as const, remainingMs };

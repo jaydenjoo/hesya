@@ -20,6 +20,7 @@
 import { useState, useTransition } from "react";
 import type { Conversation, Customer, Message } from "../types";
 import { updateCustomerNotes } from "../actions/update-customer-notes";
+import { safeFormat, toDate } from "@/shared/lib/date-utils";
 
 type Tab = "info" | "history" | "notes" | "risk";
 
@@ -170,7 +171,7 @@ function InfoTab({
       <div>
         <dt className="text-xs font-semibold text-gray-500">첫 대화일</dt>
         <dd className="mono mt-0.5 text-hesya-navy-900">
-          {DATE_FMT.format(conversation.createdAt)}
+          {safeFormat(conversation.createdAt, DATE_FMT)}
         </dd>
       </div>
     </dl>
@@ -307,12 +308,10 @@ function NotesForm({
 
 function HistoryTab({ messages }: { messages: Message[] }) {
   // 최신순 5개 — 디자인 ref ix-ctx-history 패턴.
+  const toMs = (d: Date | string | null | undefined): number =>
+    toDate(d)?.getTime() ?? 0;
   const recent = [...messages]
-    .sort((a, b) => {
-      const ta = a.createdAt?.getTime() ?? 0;
-      const tb = b.createdAt?.getTime() ?? 0;
-      return tb - ta;
-    })
+    .sort((a, b) => toMs(b.createdAt) - toMs(a.createdAt))
     .slice(0, 5);
 
   if (recent.length === 0) {
@@ -338,7 +337,7 @@ function HistoryTab({ messages }: { messages: Message[] }) {
               {m.originalText}
             </p>
             <p className="mono mt-1 text-[10px] text-gray-500">
-              {m.createdAt ? TIME_FMT.format(m.createdAt) : ""}
+              {safeFormat(m.createdAt, TIME_FMT, "")}
             </p>
           </div>
         </li>
