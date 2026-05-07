@@ -2621,3 +2621,49 @@ PR #73의 CI/머지 단계에서 이 미스매치가 잡히지 않는다. valida
 - 메타: hook이 "잡은 진짜 사례" 1건 = 적합. 0건 + patch 16회 = 폐기.
 
 **연관**: L-002 (hook 도입), L-005, L-019 (메타 학습 — 와일드카드), L-027 (verify-\* 패턴), 본 세션 settings.json 변경.
+
+---
+
+### [2026-05-07] L-079 — PRD-only planning 함정 (기존 코드베이스 위 신규 기능 시 가정 3연속 깨짐)
+
+**증상 / 상황**: Epic 12 / E12-1 (Admin 라우트 + 인증 가드) plan 작성 중 가정이 연속 3번 깨짐.
+
+- Plan v1 (PRD § 1074만 보고 작성): "Supabase Auth `auth.users` 참조" 가정 → 실제는 Better Auth (`@hesya/auth`)
+- Plan v2 (lib/auth.ts 1줄만 본 후 수정): "drizzle-kit generate로 SQL 자동 생성" 가정 → 실제는 0011 이후 manual SQL hybrid. db:generate 실행 시 conversations·store_integrations·store_knowledge 등 기존 테이블을 다시 만드는 SQL을 생성 (apply 시 충돌·데이터 손실 위험)
+- Plan v2: "middleware.ts 수정" 가정 → 실제는 **Next.js 16에서 `middleware.ts` → `src/proxy.ts`로 rename** (AGENTS.md 1줄 *"This is NOT the Next.js you know"*가 정확히 가리키던 사실). next-intl middleware는 `src/proxy.ts`에 등록, `src/i18n/request.ts`는 `getRequestConfig`로 메시지 로딩만 담당.
+- Plan v2 폐기 직전 검증: **`requireAdminEmail()` 가드가 이미 존재 + 8군데+ 사용 중** (`apps/web/src/shared/lib/admin-guard.ts`). plan v2의 핵심 신규 항목이 모두 이미 구현됨.
+
+→ db:generate가 만든 위험한 SQL은 apply 전 발견·되돌렸으나 30분 손실 + plan 2회 폐기.
+
+**원인 (root cause)**: 글로벌 CLAUDE.md v3.1 행동 규칙 *"계획/설계 요청 시 코드베이스 탐색 금지 (명시적 요청 없는 한). 제공된 스펙/PRD/MD 파일에서 직접 작업"*이 **기존 코드베이스 위 신규 기능** 케이스에 잘못 적용됨. 본 규칙은 백지 PRD 작성 단계에는 옳지만, 6개월 PRD vs 6주 진척 코드 차이가 누적된 시점에서는 PRD가 더 이상 진실 아님. 코드 토폴로지 무지 → 가정 표면화만 하고 검증 안 함 → plan 폐기.
+
+추가 기여 요인:
+
+- 프로젝트 루트 `CLAUDE.md`가 `@AGENTS.md` 1줄만 → LLM이 토폴로지 정보 0
+- `AGENTS.md`도 1줄 ("This is NOT the Next.js you know") → 너무 추상적
+- `packages/database/`에 hybrid 상태 명문화 문서 0 → db:generate 함정 차단선 0
+
+**해결**: 5-Layer 문서 구조 도입 (방안 B 적용, 본 세션):
+
+1. **글로벌 `~/.claude/CLAUDE.md` v3.2** — 행동 규칙 "코드 탐색 금지"를 컨텍스트 분기로 수정 (백지 vs 기존 코드 위). 작업 프로토콜 6단계 → 7단계 (0. Inventory 추가)
+2. **`~/.claude/rules/inventory-protocol.md` 신규** — 5분 인벤토리 절차 + Plan v1 의무 섹션 양식
+3. **`<repo>/CLAUDE.md` 확장** (Hesya: 1줄 → ~110줄) — Tech Stack 토폴로지 + 핵심 자산 인덱스 + Pre-Plan Inventory 의무
+4. **`packages/database/CLAUDE.md` 신규** — Hybrid 마이그 함정 명문화 + 새 테이블 추가 절차 (manual SQL)
+5. **`apps/web/src/shared/lib/CLAUDE.md` 신규** — 4종 가드 + DAL 인덱스 (lazy-load, 해당 폴더 진입 시)
+
+**규칙** ⭐ (다음 세션부터 영구 적용):
+
+1. **기존 코드베이스 위 신규 기능 plan 작성 전 5분 인벤토리 의무**. 키워드 grep + 작업 영역 ls + 최근 마이그/스키마 5건. 결과를 Plan v1의 "기존 자산 검색 결과" 섹션에 첨부. 비어 있으면 plan 미완성 = 승인 요청 금지.
+2. **PRD ≠ 현재 코드**. PRD는 6개월 청사진, 코드는 빠르게 진척. PRD 기반 가정은 항상 검증 의무.
+3. **모노레포는 nested CLAUDE.md 패턴 활용**. 함정 영역(예: `packages/database/`)에 lazy-load CLAUDE.md를 두면 Claude가 그 폴더 작업 시 자동으로 차단선 로드.
+4. **Hybrid 마이그 상태 같은 함정은 명문화 즉시**. drizzle 0010 / manual 0011~ 같은 상태는 README 한 줄로 영구 차단 가능. (boundary 정확히: `0010_round_metal_master.sql`은 drizzle auto-name, `0011_inbox_conversations.sql`부터 human-named manual)
+5. **자동 도구 실행 전 결과물 첫 5줄 검토**. db:generate 결과가 신규 1개 테이블만이 아니라 기존 5개 테이블 재생성이면 즉시 멈춤·되돌림.
+6. **임시 솔루션 주석은 plan 의도 신호**. `requireAdminEmail` 주석 *"Epic 12 도입 시 교체"*는 "현재 Task가 그 교체인가?" 확인 trigger.
+
+**확인 방법**:
+
+- 자동: PR diff에 새 함수/테이블 추가 시 같은 이름·목적 기존 자산 검색 결과 첨부 의무 (PR 템플릿 갱신 후보)
+- 인간 리뷰: plan v1에 "기존 자산 검색 결과" 섹션 존재 여부 = plan 완성도 첫 체크
+- 메타: 같은 가정 깨짐이 다음 3개월 안에 재발하지 않으면 본 5-Layer 구조 효과 입증
+
+**연관**: L-001 (모노레포 골격 마이그), L-002 (TDD-guard hook 도입), L-077 (Vercel Queue beta 이탈 → QStash), L-078 (TDD-guard ROI 음수), 글로벌 CLAUDE.md v3.1 → v3.2 갱신.
