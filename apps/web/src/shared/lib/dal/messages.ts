@@ -229,3 +229,69 @@ export async function revertAiDraftClaim(
     .set({ status: "ai_draft" })
     .where(and(eq(messages.id, messageId), eq(messages.status, "sending")));
 }
+
+/**
+ * Phase 1-β — bot_mode=false 매장의 검수 대기 초안 목록.
+ *
+ * `direction='outbound'` + `draft_status='pending_review'` 조건으로 사장이
+ * 승인·전송 대기 중인 AI 초안만 조회. 작성 시각(ASC) 순서로 반환 (오래된
+ * 초안 먼저 처리하도록).
+ */
+export async function listPendingDrafts(
+  db: DbClient,
+  storeId: string,
+): Promise<Message[]> {
+  return db
+    .select()
+    .from(messages)
+    .where(
+      and(
+        eq(messages.storeId, storeId),
+        eq(messages.direction, "outbound"),
+        eq(messages.draftStatus, "pending_review"),
+      ),
+    )
+    .orderBy(asc(messages.createdAt));
+}
+
+/**
+ * Phase 1-β — 초안 상태 전환 (사장 검수 결과 기록).
+ *
+ * `pending_review` → `approved` | `sent` | `skipped`. reviewedBy도 함께 기록
+ * (감사 로그). 본 함수는 status 가드 없음 — caller가 race·재처리 방어 책임.
+ */
+export async function updateDraftStatus(
+  db: DbClient,
+  input: {
+    messageId: string;
+    nextStatus: "approved" | "sent" | "skipped";
+    reviewerId: string;
+  },
+): Promise<void> {
+  await db
+    .update(messages)
+    .set({
+      draftStatus: input.nextStatus,
+      reviewedBy: input.reviewerId,
+    })
+    .where(eq(messages.id, input.messageId));
+}
+
+/**
+ * Phase 1-β — 사장이 AI 초안을 수정한 경우 본문 갱신 + edited_from_ai=true.
+ *
+ * H1 수정률 분석 (AI 초안 vs 실제 전송 텍스트 차이) 트래킹용. 멱등 — 같은
+ * messageId 재호출 시 단순 overwrite.
+ */
+export async function markDraftEdited(
+  db: DbClient,
+  input: { messageId: string; newText: string },
+): Promise<void> {
+  await db
+    .update(messages)
+    .set({
+      originalText: input.newText,
+      editedFromAi: true,
+    })
+    .where(eq(messages.id, input.messageId));
+}

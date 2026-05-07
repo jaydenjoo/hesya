@@ -66,12 +66,19 @@ export const messages = pgTable(
     aiResponded: boolean("ai_responded").default(false),
     aiModel: text("ai_model"),
     metadata: jsonb("metadata").$type<MessageMetadata>(),
+    draftStatus: text("draft_status"),
+    reviewedBy: uuid("reviewed_by"),
+    editedFromAi: boolean("edited_from_ai"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
   (table) => [
     check(
       "messages_direction_check",
       sql`${table.direction} IN ('inbound','outbound')`,
+    ),
+    check(
+      "messages_draft_status_check",
+      sql`${table.draftStatus} IS NULL OR ${table.draftStatus} IN ('pending_review','approved','sent','skipped','direct')`,
     ),
     index("idx_messages_conv_created").on(
       table.conversationId,

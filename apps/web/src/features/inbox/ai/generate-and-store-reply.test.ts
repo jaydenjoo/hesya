@@ -66,6 +66,9 @@ const baseInbound: Message = {
   aiResponded: false,
   aiModel: null,
   metadata: null,
+  draftStatus: null,
+  reviewedBy: null,
+  editedFromAi: null,
   createdAt: new Date(),
 };
 
