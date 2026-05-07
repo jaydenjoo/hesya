@@ -53,6 +53,7 @@ import {
   findMessageById,
   claimAiDraftForSend,
   markMessageSent,
+  revertAiDraftClaim,
   updateDraftStatus,
 } from "@/shared/lib/dal/messages";
 import { getConversationById } from "@/shared/lib/dal/conversations";
@@ -156,5 +157,28 @@ describe("approveDraft", () => {
     // approved + sent 2회 호출
     const calls = vi.mocked(updateDraftStatus).mock.calls.map((c) => c[1]);
     expect(calls.map((c) => c.nextStatus)).toEqual(["approved", "sent"]);
+  });
+
+  it("24h messagingWindow 만료 → send_failed, revert 호출, IG send 호출 안 함", async () => {
+    // 베타에서 가장 흔한 실패 모드: 오너가 AI 초안 생성 5h+ 후 review.
+    vi.mocked(findMessageById).mockResolvedValue(mockMessage() as never);
+    vi.mocked(getConversationById).mockResolvedValue(
+      mockConv({
+        messagingWindowExpiresAt: new Date(Date.now() - 60 * 1000),
+      }) as never,
+    );
+    vi.mocked(claimAiDraftForSend).mockResolvedValue(mockMessage() as never);
+
+    const r = await approveDraft({ messageId: MSG_ID });
+    expect(r).toEqual({ ok: false, error: "send_failed" });
+    expect(sendOutboundMock).not.toHaveBeenCalled();
+    expect(markMessageSent).not.toHaveBeenCalled();
+    expect(revertAiDraftClaim).toHaveBeenCalledWith(expect.anything(), MSG_ID);
+    // option b: draftStatus는 'approved' 그대로 유지 (DAL revert 안 함).
+    // message-view.tsx pickAIDraft가 draftStatus='approved'면 legacy AIAssist 차단.
+    const statusCalls = vi
+      .mocked(updateDraftStatus)
+      .mock.calls.map((c) => c[1]);
+    expect(statusCalls.map((c) => c.nextStatus)).toEqual(["approved"]);
   });
 });

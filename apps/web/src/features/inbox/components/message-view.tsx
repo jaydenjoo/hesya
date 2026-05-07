@@ -19,9 +19,18 @@ function pickAIDraft(message: Message | null): AIDraftMessage | null {
   if (message.direction !== "outbound") return null;
   if (message.status !== "ai_draft") return null;
   if (!message.originalText) return null;
-  // Phase 1-β Task D — draft_status='pending_review'는 DraftReviewPanel 전용 흐름.
-  // 기존 AIAssist는 legacy ai_draft (bot_mode=true 또는 1B 메시지)만 처리.
-  if (message.draftStatus === "pending_review") return null;
+  // Phase 1-β Task D — review-flow draftStatus 값은 모두 DraftReviewPanel 소유.
+  // legacy AIAssist는 draftStatus===null/undefined (bot_mode=true 또는 1B 메시지)만 처리.
+  // approveDraft 발송 실패 후 status=ai_draft로 revert되더라도 draftStatus='approved'가
+  // 남아있으면 legacy AIAssist에 빠지는 stuck-state를 차단 (Phase 1-β post-review fix).
+  if (
+    message.draftStatus === "pending_review" ||
+    message.draftStatus === "approved" ||
+    message.draftStatus === "sent" ||
+    message.draftStatus === "skipped"
+  ) {
+    return null;
+  }
   return message as AIDraftMessage;
 }
 

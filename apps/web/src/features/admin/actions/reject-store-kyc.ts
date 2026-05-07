@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createDbClient } from "@hesya/database";
 import { env } from "@/shared/config/env";
+import { captureServerActionError } from "@/instrumentation";
 import { requireAdminEmail } from "@/shared/lib/admin-guard";
 import { rejectStore } from "@/shared/lib/dal/stores";
 
@@ -52,7 +53,12 @@ export async function rejectStoreKyc(input: {
     });
     revalidatePath("/admin/store-verifications");
     return { ok: true };
-  } catch {
+  } catch (err) {
+    captureServerActionError(err, {
+      action: "admin.rejectStoreKyc",
+      userId: guard.userId,
+      storeId: input.storeId,
+    });
     return { ok: false, error: "internal" };
   }
 }
