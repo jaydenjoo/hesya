@@ -4,14 +4,54 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Task 13 QStash 마이그 PR 작업 중** (Vercel Queue beta 영구 이탈).
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C Vercel Queue → QStash 전환 진행** + Task 11 vercel.json fix ✅ + Task 12 Sentry MCP/global-error ✅ + Task 13 callback retry workaround D6(폐기, 베타 전체 이탈) → **다음**: PR 머지 + Vercel Marketplace 연결(Jayden manual) + prod 검증.
-- **Task**: 본 세션 QStash 마이그 PR 작업. L-077 (Vercel Queue beta deployment pinning 결함) + L-078 (TDD-guard hook 폐기) 학습 기록.
-- **상태**: Method 1 진단 완료 (vercel logs `--no-branch -q queue`로 옛 deployment(`hesya-esra9g1py`)가 13시간째 무한 retry 확인 → 베타 인프라 server-side 결함 결정적). 코드 변경 완료 + tsc/lint/vitest/build 모두 통과. 머지 + Marketplace 연결 후 prod 검증 대기.
-- **작업 브랜치**: `task/13-qstash-migration`.
-- **최근 머지된 PR**: [#76](https://github.com/jaydenjoo/hesya/pull/76) callback retry workaround D6 (본 마이그로 폐기) | [#75](https://github.com/jaydenjoo/hesya/pull/75) Sentry MCP + global-error | [#74](https://github.com/jaydenjoo/hesya/pull/74) vercel.json monorepo fix.
+- **Phase**: Phase 1 — **Task 13 QStash 마이그 머지 ✅ + G2 검증 통과 + G3 검증 진행 중**.
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C QStash 전환 ✅ (PR #78 머지)** + Task 11 vercel.json fix ✅ + Task 12 Sentry MCP/global-error ✅ + Task 13 callback retry workaround D6(폐기, 베타 전체 이탈) + L-077 영구 해결 ✅ → **다음**: G3 Sentry alert 도착 확인 (~30분) + Phase 1Cd hook / 1D multi-channel.
+- **Task**: PR #78 머지 + Vercel Marketplace QStash integration 연결 + prod 검증 진행 중.
+- **상태**: G2 검증 완료 (worker invoke가 `hesya-web.vercel.app` alias로 정상 호출 — L-077 deployment pinning 결함 영구 해결 확정). G3 검증 진행 중 (invalid-shape publish가 QStash 12s/2m28s/30m8s exp backoff retry 중, 최종 retried=3 시점 Sentry DLQ alert 도달 예상).
+- **작업 브랜치**: `main` (PR #78 squash merge `49a7460` 후속 + `e673c2f` CI fix).
+- **최근 머지된 PR**: [#78](https://github.com/jaydenjoo/hesya/pull/78) **QStash 전환 (L-077 영구 해결)** | [#76](https://github.com/jaydenjoo/hesya/pull/76) callback retry workaround D6 (폐기) | [#75](https://github.com/jaydenjoo/hesya/pull/75) Sentry MCP + global-error.
 
-## Task 13 closure — Callback retry workaround (이번 세션)
+## Task 13 closure — QStash 전환 (이번 세션)
+
+**진단 (Method 1, 코드 변경 0)**: `vercel logs --no-branch -q queue`로 trigger registration이 옛 deployment(`hesya-esra9g1py`, PR #76 머지 전, D6 workaround 없음)에 stuck → 메시지 1건이 13시간째 무한 retry 확인. `hesya-web.vercel.app` alias는 최신 deployment 가리키지만 trigger registration이 별 server-side 상태로 분리됨. customer-side fix 불가능 → QStash 전환 결정.
+
+**전환 결과 (PR #78)**:
+
+- `@vercel/queue` → `@upstash/qstash` (publish: `Client.publishJSON({ url, retries: 3 })`, worker: `verifySignatureAppRouter` + `Upstash-Retried` header 기반 retry/DLQ)
+- `vercel.json` `experimentalTriggers` 완전 제거 (URL 기반 라우팅)
+- 환경변수 `QSTASH_TOKEN/CURRENT_SIGNING_KEY/NEXT_SIGNING_KEY` 추가 (Vercel Marketplace 자동 prov)
+- 검증 완료: tsc / lint / vitest 518 / build 모두 통과
+- self-review HIGH fix 1건 (Number NaN 방어, commit `923ee3e`)
+- CI fix 1건 (`ci.yml` env에 QSTASH dummy 추가, commit `e673c2f`)
+
+**Prod 검증 (G2 통과 + G3 진행 중)**:
+
+- (G2 ✅) `verify-qstash.ts` valid-shape publish → worker 200 응답 (host: `hesya-web.vercel.app` alias)
+- (G2 ✅) invalid-shape publish → 첫 시도 500 + 14초 후 첫 retry 500 → QStash exp backoff 정확 작동
+- (G3 진행) ~30분 후 retried=3 시점 Sentry `phase=queue:inbox.process-inbound:dlq` alert 도달 예상
+- (G4 ✅) `vercel.json` `experimentalTriggers` 완전 제거 — 새 deployment에 베타 trigger registration 없음
+
+**closure 후속 (별 작업)**:
+
+- ⏸ 옛 Vercel Queue beta stuck 메시지 정리 — `Q-1M0zeW2mOqC8I12gNUJP13GZZr7Sdnxi` 무한 retry 중. 옛 deployment(`hesya-esra9g1py`)에서만 발생. 운영 영향 0 (alias가 새 deployment 가리킴). 자연 expire 또는 Vercel staff 문의로 정리.
+- ✅ L-075 dangling commit `062bb77` — 자연 무효화 (D6 workaround 코드가 PR #78에서 완전 교체됨, review fix가 적용될 코드 자체가 없어짐). 별 PR 불필요.
+- ⏸ Token rotation 권장 — 본 세션 채팅에 token 노출. 검증 완료 후 Upstash console에서 rotate.
+- ⏸ TDD-guard 폐기 후속 — vitest --coverage CI gate (별 spec).
+
+**학습 추가 (이번 세션)**:
+
+- L-077: Vercel Queue beta trigger registration deployment pinning 결함 + `vercel logs --no-branch`가 결정적 단서
+- L-078: TDD-guard hook 폐기 결정 근거 (16회 patch + 0건 ROI)
+
+---
+
+## 이전 세션 진단 (참조용 — D6 workaround, 폐기됨)
+
+PR #76 시점 진단: `@vercel/queue` 0.1.6 callback push 모드에서 retry handler가 `{ afterSeconds: N }` 반환 시 SDK가 `changeVisibility(PATCH /lease/{handle})` 호출 → server 404 → SDK silent catch → callback 200 응답 → server가 ack로 처리 → **메시지 1회 invoke 후 종결**.
+
+## Task 13 closure — Callback retry workaround (이전 세션, 폐기됨)
+
+> **2026-05-07 update**: D6 workaround는 본 세션 QStash 전환으로 폐기됨. 아래 내용은 historical reference (`docs/superpowers/specs/2026-05-06-phase-1c-vercel-queue-design.md` 참조).
 
 진단 결과: `@vercel/queue` 0.1.6 callback push 모드에서 retry handler가 `{ afterSeconds: N }` 반환 시 SDK가 `changeVisibility(PATCH /lease/{handle})` 호출 → server 404 → SDK silent catch → callback 200 응답 → server가 ack로 처리 → **메시지 1회 invoke 후 종결**.
 

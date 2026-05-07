@@ -1,8 +1,13 @@
 # Phase 1C — fire-and-forget processInbound을 Vercel Queue로 분리
 
-> 작성일: 2026-05-06 | 상태: design 승인 (구현 미시작)
+> ⚠️ **DEPRECATED (2026-05-07)**: 본 spec은 historical reference. Vercel Queue beta의
+> trigger registration deployment pinning 결함(L-077)으로 QStash로 영구 전환됨.
+> **현행 spec**: [`2026-05-07-qstash-migration.md`](./2026-05-07-qstash-migration.md).
+> D6 workaround도 PR #78에서 완전 교체됨.
+>
+> 작성일: 2026-05-06 | 상태: ~~design 승인~~ → **superseded**
 > 의존: Epic 1 1A/1B/Customer/follow-up + B-5 enforced 머지 완료 (PR #68~#72)
-> 후속: Phase 1D (multi-channel) 시 같은 queue 패턴을 채널별로 확장
+> 후속: Phase 1D (multi-channel) 시 QStash 패턴을 채널별로 확장
 
 ---
 
