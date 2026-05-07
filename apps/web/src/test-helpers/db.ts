@@ -8,6 +8,7 @@ import {
   storeIntegrations,
   storeKnowledge,
   storeOwners,
+  storeVerifications,
   stores,
   users,
   type DbClient,
@@ -35,6 +36,7 @@ export async function resetDb(db: DbClient): Promise<void> {
   await db.delete(storeIntegrations);
   await db.delete(storeKnowledge);
   await db.delete(storeOwners);
+  await db.delete(storeVerifications);
   await db.delete(customers);
   await db.delete(stores);
 }
@@ -151,7 +153,9 @@ export async function seedMessage(
     customerId?: string;
     storeId?: string;
     channel?: "instagram" | "whatsapp" | "kakao" | "line" | "messenger";
-    status?: "delivered" | "sent" | "failed";
+    status?: "delivered" | "sent" | "failed" | "ai_draft";
+    // Phase 1-β Task E — pending_review 초안 시뮬용 (E2E DraftReviewPanel 렌더 검증)
+    draftStatus?: "pending_review" | "approved" | "sent" | "skipped" | "direct";
   },
 ): Promise<string> {
   const [row] = await db
@@ -164,6 +168,7 @@ export async function seedMessage(
       direction: input.direction,
       originalText: input.text,
       status: input.status ?? "delivered",
+      draftStatus: input.draftStatus,
     })
     .returning({ id: messages.id });
   if (!row) throw new Error("seedMessage: insert returned no row");

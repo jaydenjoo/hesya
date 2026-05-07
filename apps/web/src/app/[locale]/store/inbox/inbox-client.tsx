@@ -6,6 +6,7 @@ import {
   ThreadListConnectCTA,
   MessageView,
   TokenExpiredBanner,
+  BotModeToggle,
   getWindowStatus,
 } from "@/features/inbox";
 import { InboxShell } from "@/features/inbox/components/inbox-shell";
@@ -18,10 +19,14 @@ export function InboxClient({
   initialConversations,
   hasIgIntegration,
   igTokenExpiresAt,
+  storeId,
+  storeBotMode,
 }: {
   initialConversations: Conversation[];
   hasIgIntegration: boolean;
   igTokenExpiresAt: Date | null;
+  storeId: string;
+  storeBotMode: boolean;
 }) {
   const [conversations, setConversations] =
     useState<Conversation[]>(initialConversations);
@@ -88,6 +93,12 @@ export function InboxClient({
   return (
     <div className="flex h-screen flex-col">
       {tokenExpired ? <TokenExpiredBanner /> : null}
+      <div
+        data-testid="inbox-store-header"
+        className="flex items-center justify-end border-b border-hesya-peach-200 bg-white px-4 py-2"
+      >
+        <BotModeToggle storeId={storeId} initialValue={storeBotMode} />
+      </div>
       <div className="flex-1 overflow-hidden">
         <InboxShell
           threadColumn={

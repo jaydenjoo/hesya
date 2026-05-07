@@ -6,6 +6,7 @@ import {
   storeIntegrations,
   storeKnowledge,
   storeOwners,
+  storeVerifications,
   customers,
   stores,
   type DbClient,
@@ -211,6 +212,7 @@ describe("test-helpers/db", () => {
       storeIntegrations,
       storeKnowledge,
       storeOwners,
+      storeVerifications,
       customers,
       stores,
     ]);

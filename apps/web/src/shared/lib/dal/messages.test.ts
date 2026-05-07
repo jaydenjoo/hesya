@@ -3,11 +3,14 @@ import { createDbClient, type DbClient } from "@hesya/database";
 import {
   insertMessage,
   listByConversation,
+  listPendingDrafts,
   listRecentByConversation,
+  markDraftEdited,
   markFailed,
+  updateDraftStatus,
 } from "./messages";
 import { upsertConversation } from "./conversations";
-import { resetDb, seedStore, seedCustomer } from "@/test-helpers/db";
+import { resetDb, seedStore, seedCustomer, seedUser } from "@/test-helpers/db";
 
 const url = process.env.HESYA_TEST_DATABASE_URL;
 const hasDb = Boolean(url);
@@ -168,6 +171,129 @@ describe.skipIf(!hasDb)("dal.messages (integration)", () => {
     const list = await listByConversation(db, conversationId);
     expect(list[0]?.status).toBe("failed");
   });
+
+  describe("Phase 1-β draft helpers", () => {
+    it("listPendingDrafts: outbound + draft_status='pending_review'만 반환", async () => {
+      const storeId = await seedStore(db, { name: "draft-store" });
+      const customerId = await seedCustomer(db, {
+        channel: "instagram",
+        externalId: "igsid_draft",
+      });
+      const conv = await upsertConversation(db, {
+        storeId,
+        customerId,
+        channel: "instagram",
+      });
+      // pending draft
+      const { messages: messagesTable } = await import("@hesya/database");
+      const [pending] = await db
+        .insert(messagesTable)
+        .values({
+          conversationId: conv.id,
+          storeId,
+          channel: "instagram",
+          direction: "outbound",
+          originalText: "초안 메시지",
+          draftStatus: "pending_review",
+        })
+        .returning();
+      // not pending — already approved
+      await db.insert(messagesTable).values({
+        conversationId: conv.id,
+        storeId,
+        channel: "instagram",
+        direction: "outbound",
+        originalText: "이미 승인됨",
+        draftStatus: "approved",
+      });
+      // inbound — should not match even with same draftStatus
+      await db.insert(messagesTable).values({
+        conversationId: conv.id,
+        storeId,
+        channel: "instagram",
+        direction: "inbound",
+        originalText: "고객 메시지",
+        draftStatus: "pending_review",
+      });
+
+      const list = await listPendingDrafts(db, storeId);
+      expect(list.map((m) => m.id)).toEqual([pending!.id]);
+    });
+
+    it("updateDraftStatus: pending_review → approved, reviewedBy 기록", async () => {
+      const storeId = await seedStore(db, { name: "draft-store-2" });
+      const customerId = await seedCustomer(db, {
+        channel: "instagram",
+        externalId: "igsid_draft_2",
+      });
+      const conv = await upsertConversation(db, {
+        storeId,
+        customerId,
+        channel: "instagram",
+      });
+      const reviewerId = await seedUser(db, {
+        email: `draft-rev-${Date.now()}@test.local`,
+      });
+      const { messages: messagesTable } = await import("@hesya/database");
+      const [m] = await db
+        .insert(messagesTable)
+        .values({
+          conversationId: conv.id,
+          storeId,
+          channel: "instagram",
+          direction: "outbound",
+          originalText: "초안",
+          draftStatus: "pending_review",
+        })
+        .returning();
+
+      await updateDraftStatus(db, {
+        messageId: m!.id,
+        nextStatus: "approved",
+        reviewerId,
+      });
+
+      const list = await listByConversation(db, conv.id);
+      const updated = list.find((x) => x.id === m!.id);
+      expect(updated?.draftStatus).toBe("approved");
+      expect(updated?.reviewedBy).toBe(reviewerId);
+    });
+
+    it("markDraftEdited: originalText 갱신 + edited_from_ai=true", async () => {
+      const storeId = await seedStore(db, { name: "draft-store-3" });
+      const customerId = await seedCustomer(db, {
+        channel: "instagram",
+        externalId: "igsid_draft_3",
+      });
+      const conv = await upsertConversation(db, {
+        storeId,
+        customerId,
+        channel: "instagram",
+      });
+      const { messages: messagesTable } = await import("@hesya/database");
+      const [m] = await db
+        .insert(messagesTable)
+        .values({
+          conversationId: conv.id,
+          storeId,
+          channel: "instagram",
+          direction: "outbound",
+          originalText: "AI 초안 원본",
+          draftStatus: "pending_review",
+        })
+        .returning();
+
+      await markDraftEdited(db, {
+        messageId: m!.id,
+        newText: "사장 수정 텍스트",
+      });
+
+      const list = await listByConversation(db, conv.id);
+      const updated = list.find((x) => x.id === m!.id);
+      expect(updated?.originalText).toBe("사장 수정 텍스트");
+      expect(updated?.editedFromAi).toBe(true);
+    });
+  });
 });
 
 describe("dal.messages (pure)", () => {
@@ -191,6 +317,13 @@ describe("dal.messages (pure)", () => {
     expect(typeof mod.claimAiDraftForSend).toBe("function");
     expect(typeof mod.markMessageSent).toBe("function");
     expect(typeof mod.revertAiDraftClaim).toBe("function");
+  });
+
+  it("module exports Phase 1-β draft helpers", async () => {
+    const mod = await import("./messages");
+    expect(typeof mod.listPendingDrafts).toBe("function");
+    expect(typeof mod.updateDraftStatus).toBe("function");
+    expect(typeof mod.markDraftEdited).toBe("function");
   });
 
   it("claimAiDraftForSend: race-safe conditional UPDATE WHERE status='ai_draft' (B-3c)", async () => {

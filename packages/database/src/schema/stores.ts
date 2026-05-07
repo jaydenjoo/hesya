@@ -22,6 +22,7 @@ export const stores = pgTable(
     businessLicenseImageUrl: text("business_license_image_url"),
     taxRefundRegistered: boolean("tax_refund_registered").default(false),
     verificationStatus: text("verification_status"),
+    botMode: boolean("bot_mode").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
   (table) => [

@@ -9,6 +9,7 @@ vi.mock("@/shared/lib/dal/messages", () => ({
 }));
 vi.mock("@/shared/lib/dal/stores", () => ({
   findStoreNameByConversationId: vi.fn(),
+  getStoreBotMode: vi.fn(async () => false),
 }));
 vi.mock("@/shared/lib/dal/customers", () => ({
   getCustomerPreferredLanguage: vi.fn(),
@@ -40,7 +41,10 @@ import {
   markAIResponded,
   markTranslated,
 } from "@/shared/lib/dal/messages";
-import { findStoreNameByConversationId } from "@/shared/lib/dal/stores";
+import {
+  findStoreNameByConversationId,
+  getStoreBotMode,
+} from "@/shared/lib/dal/stores";
 import { getCustomerPreferredLanguage } from "@/shared/lib/dal/customers";
 import * as Sentry from "@sentry/nextjs";
 
@@ -66,6 +70,9 @@ const baseInbound: Message = {
   aiResponded: false,
   aiModel: null,
   metadata: null,
+  draftStatus: null,
+  reviewedBy: null,
+  editedFromAi: null,
   createdAt: new Date(),
 };
 
@@ -946,6 +953,89 @@ describe("generateAndStoreReply (B-2)", () => {
     );
     const call = generateReplyMock.mock.calls[0]?.[0];
     expect(call?.storeToneExamples).toBeUndefined();
+  });
+
+  // ─── Phase 1-β Task D: bot_mode 분기 ───
+
+  it("Phase 1-β: storeId 있음 + bot_mode=false → draftStatus='pending_review' 마킹", async () => {
+    const STORE_ID = "66666666-6666-4666-8666-666666666666";
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      storeId: STORE_ID,
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
+    vi.mocked(getCustomerPreferredLanguage).mockResolvedValue("ko");
+    vi.mocked(getStoreBotMode).mockResolvedValue(false);
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    generateReplyMock.mockResolvedValue({
+      reply: "응답",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, deps);
+
+    expect(getStoreBotMode).toHaveBeenCalledWith(fakeDb, STORE_ID);
+    expect(insertMessage).toHaveBeenCalledWith(
+      fakeDb,
+      expect.objectContaining({
+        status: "ai_draft",
+        draftStatus: "pending_review",
+      }),
+    );
+  });
+
+  it("Phase 1-β: storeId 있음 + bot_mode=true → draftStatus 미설정 (기존 흐름 유지)", async () => {
+    const STORE_ID = "77777777-7777-4777-8777-777777777777";
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      storeId: STORE_ID,
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
+    vi.mocked(getCustomerPreferredLanguage).mockResolvedValue("ko");
+    vi.mocked(getStoreBotMode).mockResolvedValue(true);
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    generateReplyMock.mockResolvedValue({
+      reply: "응답",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, deps);
+
+    const args = vi.mocked(insertMessage).mock.calls.at(-1)?.[1] as Record<
+      string,
+      unknown
+    >;
+    expect(args.status).toBe("ai_draft");
+    expect(args).not.toHaveProperty("draftStatus");
+  });
+
+  it("Phase 1-β: getStoreBotMode 실패 → bot_mode=false fallback (안전 기본값, draftStatus='pending_review')", async () => {
+    const STORE_ID = "88888888-8888-4888-8888-888888888888";
+    vi.mocked(findMessageById).mockResolvedValue({
+      ...baseInbound,
+      storeId: STORE_ID,
+    });
+    vi.mocked(listRecentByConversation).mockResolvedValue([baseInbound]);
+    vi.mocked(findStoreNameByConversationId).mockResolvedValue("가게");
+    vi.mocked(getCustomerPreferredLanguage).mockResolvedValue("ko");
+    vi.mocked(getStoreBotMode).mockRejectedValue(new Error("DB error"));
+    vi.mocked(markAIResponded).mockResolvedValue(true);
+    generateReplyMock.mockResolvedValue({
+      reply: "응답",
+      tokensUsed: { input: 1, output: 1 },
+    });
+    vi.mocked(insertMessage).mockResolvedValue({ ...baseInbound, id: "x" });
+
+    await generateAndStoreReply(VALID_UUID, deps);
+
+    expect(insertMessage).toHaveBeenCalledWith(
+      fakeDb,
+      expect.objectContaining({ draftStatus: "pending_review" }),
+    );
   });
 
   it("module exports generateAndStoreReply (pure)", async () => {

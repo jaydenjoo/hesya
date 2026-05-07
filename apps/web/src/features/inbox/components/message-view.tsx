@@ -10,6 +10,7 @@ import { ThreadHeader } from "./thread-header";
 import { MessageList } from "./message-list";
 import { ReplyComposer } from "./reply-composer";
 import { AIAssist } from "./ai-assist";
+import { DraftReviewPanel } from "./draft-review-panel";
 
 type AIDraftMessage = Message & { originalText: string };
 
@@ -17,6 +18,26 @@ function pickAIDraft(message: Message | null): AIDraftMessage | null {
   if (!message) return null;
   if (message.direction !== "outbound") return null;
   if (message.status !== "ai_draft") return null;
+  if (!message.originalText) return null;
+  // Phase 1-β Task D — review-flow draftStatus 값은 모두 DraftReviewPanel 소유.
+  // legacy AIAssist는 draftStatus===null/undefined (bot_mode=true 또는 1B 메시지)만 처리.
+  // approveDraft 발송 실패 후 status=ai_draft로 revert되더라도 draftStatus='approved'가
+  // 남아있으면 legacy AIAssist에 빠지는 stuck-state를 차단 (Phase 1-β post-review fix).
+  if (
+    message.draftStatus === "pending_review" ||
+    message.draftStatus === "approved" ||
+    message.draftStatus === "sent" ||
+    message.draftStatus === "skipped"
+  ) {
+    return null;
+  }
+  return message as AIDraftMessage;
+}
+
+function pickPendingReview(message: Message | null): AIDraftMessage | null {
+  if (!message) return null;
+  if (message.direction !== "outbound") return null;
+  if (message.draftStatus !== "pending_review") return null;
   if (!message.originalText) return null;
   return message as AIDraftMessage;
 }
@@ -64,6 +85,7 @@ function MessageViewActive({
 
   const lastMessage = messages[messages.length - 1] ?? null;
   const aiDraft = pickAIDraft(dismissed ? null : lastMessage);
+  const pendingReview = pickPendingReview(dismissed ? null : lastMessage);
 
   function handleEditDraft() {
     if (!aiDraft) return;
@@ -100,7 +122,12 @@ function MessageViewActive({
       <div className="flex-1 overflow-y-auto">
         <MessageList messages={messages} />
       </div>
-      {aiDraft ? (
+      {pendingReview ? (
+        <DraftReviewPanel
+          messageId={pendingReview.id}
+          aiText={pendingReview.originalText}
+        />
+      ) : aiDraft ? (
         <AIAssist
           draftText={aiDraft.originalText}
           tones={aiDraft.metadata?.tones}

@@ -4,10 +4,14 @@ import {
   conversations,
   eq,
   storeIntegrations,
+  storeVerifications,
   stores,
   type Channel,
   type DbClient,
 } from "@hesya/database";
+
+type Store = typeof stores.$inferSelect;
+type StoreVerification = typeof storeVerifications.$inferSelect;
 
 /**
  * 외부 채널 계정 ID로 매장 1건 조회.
@@ -54,4 +58,184 @@ export async function findStoreNameByConversationId(
     .where(eq(conversations.id, conversationId))
     .limit(1);
   return rows[0]?.name ?? null;
+}
+
+/**
+ * Phase 1-β — 매장의 bot_mode 토글 조회.
+ *
+ * `false`(기본) → owner 검수·승인 모드 (AI 초안을 사장이 확인 후 전송).
+ * `true`         → AI 자동 모드 (Phase 1-β 학습 가설 H1 검증용).
+ *
+ * 매장이 존재하지 않으면 `false` 반환 (안전한 기본값 — bot 자동 전송 회피).
+ */
+export async function getStoreBotMode(
+  db: DbClient,
+  storeId: string,
+): Promise<boolean> {
+  const rows = await db
+    .select({ botMode: stores.botMode })
+    .from(stores)
+    .where(eq(stores.id, storeId))
+    .limit(1);
+  return rows[0]?.botMode ?? false;
+}
+
+/**
+ * Phase 1-β — 매장의 bot_mode 토글 설정.
+ */
+export async function setStoreBotMode(
+  db: DbClient,
+  storeId: string,
+  value: boolean,
+): Promise<void> {
+  await db.update(stores).set({ botMode: value }).where(eq(stores.id, storeId));
+}
+
+/**
+ * Phase 1-β — verification_status='manual_review' 상태인 매장 목록.
+ * Admin 검수 대시보드가 사용.
+ *
+ * - 필요한 컬럼만 `select` (CLAUDE.md: `select('*')` 금지).
+ */
+export async function listStoresPendingReview(
+  db: DbClient,
+): Promise<Pick<Store, "id" | "name" | "createdAt">[]> {
+  return db
+    .select({
+      id: stores.id,
+      name: stores.name,
+      createdAt: stores.createdAt,
+    })
+    .from(stores)
+    .where(eq(stores.verificationStatus, "manual_review"));
+}
+
+/**
+ * Phase 1-β — admin KYC 검토 상세 페이지가 사용하는 단일 round-trip 조회.
+ *
+ * `stores ⨝ storeVerifications` innerJoin으로 1회 쿼리.
+ * 매장이 없거나 verification 행이 없으면 `null` (caller가 `notFound()` 결정).
+ *
+ * - 페이지가 실제 표시하는 컬럼만 projection (CLAUDE.md: `select('*')` 금지).
+ * - 한 store에 여러 verification 행이 가능하지만 Phase 1-β는 1:1 (Task B
+ *   트랜잭션이 1건만 INSERT) → `limit(1)`로 첫 행 반환.
+ */
+export async function getStoreVerificationDetail(
+  db: DbClient,
+  storeId: string,
+): Promise<{
+  store: Pick<
+    Store,
+    "id" | "name" | "phone" | "address" | "businessLicenseImageUrl"
+  >;
+  verification: Pick<
+    StoreVerification,
+    | "id"
+    | "businessNumber"
+    | "representativeName"
+    | "declarationNoMassage"
+    | "declarationNoMedicalDevice"
+    | "declarationNoOrientalMedicine"
+  >;
+} | null> {
+  const rows = await db
+    .select({
+      storeId: stores.id,
+      storeName: stores.name,
+      phone: stores.phone,
+      address: stores.address,
+      businessLicenseImageUrl: stores.businessLicenseImageUrl,
+      verificationId: storeVerifications.id,
+      businessNumber: storeVerifications.businessNumber,
+      representativeName: storeVerifications.representativeName,
+      declarationNoMassage: storeVerifications.declarationNoMassage,
+      declarationNoMedicalDevice: storeVerifications.declarationNoMedicalDevice,
+      declarationNoOrientalMedicine:
+        storeVerifications.declarationNoOrientalMedicine,
+    })
+    .from(stores)
+    .innerJoin(storeVerifications, eq(storeVerifications.storeId, stores.id))
+    .where(eq(stores.id, storeId))
+    .limit(1);
+  const row = rows[0];
+  if (!row) return null;
+  return {
+    store: {
+      id: row.storeId,
+      name: row.storeName,
+      phone: row.phone,
+      address: row.address,
+      businessLicenseImageUrl: row.businessLicenseImageUrl,
+    },
+    verification: {
+      id: row.verificationId,
+      businessNumber: row.businessNumber,
+      representativeName: row.representativeName,
+      declarationNoMassage: row.declarationNoMassage,
+      declarationNoMedicalDevice: row.declarationNoMedicalDevice,
+      declarationNoOrientalMedicine: row.declarationNoOrientalMedicine,
+    },
+  };
+}
+
+/**
+ * Phase 1-β — 매장 수동 승인.
+ *
+ * stores.verification_status='auto_approved'와 storeVerifications 행
+ * (verification_status, reviewedBy, reviewedAt)을 동일 트랜잭션에서 갱신.
+ * 한 쪽만 갱신되면 admin UI/cron 재검증과 상태 mismatch → 트랜잭션 필수.
+ */
+export async function approveStore(
+  db: DbClient,
+  input: { storeId: string; verificationId: string; reviewerId: string },
+): Promise<void> {
+  await db.transaction(async (tx) => {
+    const reviewedAt = new Date();
+    await tx
+      .update(stores)
+      .set({ verificationStatus: "auto_approved" })
+      .where(eq(stores.id, input.storeId));
+    await tx
+      .update(storeVerifications)
+      .set({
+        verificationStatus: "auto_approved",
+        reviewedBy: input.reviewerId,
+        reviewedAt,
+      })
+      .where(eq(storeVerifications.id, input.verificationId));
+  });
+}
+
+/**
+ * Phase 1-β — 매장 수동 거부.
+ *
+ * stores.verification_status='rejected'와 storeVerifications 행
+ * (verification_status, reviewedBy, reviewedAt, rejectionReason)을 동일
+ * 트랜잭션에서 갱신.
+ */
+export async function rejectStore(
+  db: DbClient,
+  input: {
+    storeId: string;
+    verificationId: string;
+    reviewerId: string;
+    reason: string;
+  },
+): Promise<void> {
+  await db.transaction(async (tx) => {
+    const reviewedAt = new Date();
+    await tx
+      .update(stores)
+      .set({ verificationStatus: "rejected" })
+      .where(eq(stores.id, input.storeId));
+    await tx
+      .update(storeVerifications)
+      .set({
+        verificationStatus: "rejected",
+        reviewedBy: input.reviewerId,
+        reviewedAt,
+        rejectionReason: input.reason,
+      })
+      .where(eq(storeVerifications.id, input.verificationId));
+  });
 }

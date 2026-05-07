@@ -15,6 +15,17 @@ vi.mock("../actions/accept-ai-draft", () => ({
   acceptAiDraft: vi.fn(async () => ({ ok: true, externalMessageId: "out_1" })),
 }));
 
+// Phase 1-β Task D — DraftReviewPanel가 import하는 server actions 차단.
+vi.mock("../actions/approve-draft", () => ({
+  approveDraft: vi.fn(async () => ({ ok: true })),
+}));
+vi.mock("../actions/edit-and-send", () => ({
+  editAndSend: vi.fn(async () => ({ ok: true })),
+}));
+vi.mock("../actions/skip-draft", () => ({
+  skipDraft: vi.fn(async () => ({ ok: true })),
+}));
+
 import { MessageView } from "./message-view";
 import { acceptAiDraft } from "../actions/accept-ai-draft";
 import type { Conversation, Message } from "../types";

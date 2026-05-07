@@ -14,10 +14,16 @@ export { ThreadHeader } from "./components/thread-header";
 export { ReplyComposer } from "./components/reply-composer";
 export { TokenExpiredBanner } from "./components/token-expired-banner";
 export { WindowStatus } from "./components/window-status";
+export { BotModeToggle } from "./components/bot-mode-toggle";
+export { DraftReviewPanel } from "./components/draft-review-panel";
 
 // Server Actions
 export { sendOutbound } from "./actions/send-outbound";
 export { getInstagramOAuthUrl } from "./actions/connect-instagram";
+export { approveDraft } from "./actions/approve-draft";
+export { editAndSend } from "./actions/edit-and-send";
+export { skipDraft } from "./actions/skip-draft";
+export { toggleBotMode } from "./actions/toggle-bot-mode";
 
 // Types
 export type {
