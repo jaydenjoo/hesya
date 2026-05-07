@@ -4,12 +4,47 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1-β (Beta-Ready Slice) — Task A~E + final fix 모두 머지 (PR #81), **L-080 RSC Date 직렬화 fix PR #82** auto-merge 대기 (이번 세션 후반, 2026-05-07).
-- **Epic**: Phase 1-β = Owner sign-up + KYC + Admin 큐 + Inbox 검수·승인 + E2E + runbook → **다음**: PR #82 머지 → 베타 매장 1곳 수동 onboarding (`docs/runbook.md` §4 절차) + 1주 운영 + H1 수정률 회고.
-- **상태**: PR #82 코드 PASS — tsc / lint / vitest **577 통과** (regression 0, +9 date-utils.test) / Playwright `phase-1-beta.spec.ts` **8.9s 통과** (DraftReviewPanel 렌더 + 승인+전송 + DB sent 확정 검증).
-- **작업 브랜치**: `fix/rsc-date-l080` (commit 9862c0a, off origin/main).
-- **이번 세션 PR**: [#82](https://github.com/jaydenjoo/hesya/pull/82) **fix(inbox): RSC Date 직렬화 안전 변환 (L-080)** auto-merge label.
-- **최근 머지된 PR**: [#81](https://github.com/jaydenjoo/hesya/pull/81) **Phase 1-β Beta-Ready Slice (Task A~E)** ✅ | [#80](https://github.com/jaydenjoo/hesya/pull/80) aiModel | [#79](https://github.com/jaydenjoo/hesya/pull/79) 5-Layer CLAUDE.md.
+- **Phase**: Phase 1-β (Beta-Ready Slice) — **PR #81 (Task A~E) + PR #82 (L-080 fix) 모두 머지 ✅**. 코드는 베타 출시 준비 완료, 다음은 운영자/사장 화면 가상 시연 인프라 구축.
+- **다음 세션 우선**: **베타 데모 시드 + ngrok 4 Task 구현** (Plan v1 Jayden 승인 대기 중, 본 세션에서 작성). 본인 PC + 휴대폰 둘 다에서 가상 매장/사장/고객 화면 클릭 가능하게.
+- **상태**: 작업 브랜치 정리 완료, main 동기화. main HEAD = `eb09ab7` (PR #82 squash).
+- **최근 머지된 PR**: [#82](https://github.com/jaydenjoo/hesya/pull/82) **L-080 RSC Date fix** ✅ | [#81](https://github.com/jaydenjoo/hesya/pull/81) **Phase 1-β Task A~E** ✅ | [#80](https://github.com/jaydenjoo/hesya/pull/80) aiModel | [#79](https://github.com/jaydenjoo/hesya/pull/79) 5-Layer CLAUDE.md.
+
+## 다음 세션 (대기) — 베타 데모 시드 + ngrok (Plan v1 승인 대기)
+
+### 배경
+
+베타 매장/사장/외국인 고객이 모두 가상인 단계 (Jayden 사업자 미보유). Phase 1-β 코드는 머지됐으나 실제 사용자 입장으로 화면 클릭 시연이 안 됨. **Vercel Preview는 prod DB라 시드 데이터 없음** → 본인 PC에서 시드 + 로컬 dev 서버, 그리고 휴대폰 시연을 위한 ngrok 터널이 정공법.
+
+### Plan v1 (4 Task, ~30~40분)
+
+| #   | 산출물                                 | 핵심                                                                                                                                  |
+| --- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `apps/web/scripts/seed-beta-demo.ts`   | 매장 1 (auto_approved) + manual_review 매장 1 + 사장 1 + 고객 3명 (영/일/중) + IG inbound + AI 초안 6건. **e2e fixtures 헬퍼 재활용** |
+| 2   | pnpm scripts (`seed:demo`, `dev:demo`) | 시드 자동 실행 + dev 서버 + 브라우저 자동 오픈                                                                                        |
+| 3   | `pnpm tunnel` (ngrok)                  | `ngrok http 4200` 1줄. 휴대폰에서 ngrok URL 입력해 동일 화면 접근                                                                     |
+| 4   | `docs/demo-guide.md`                   | Jayden 친화 매뉴얼 (한국어 + 비유 + ⚠️ 안전 4줄)                                                                                      |
+
+### ⚠️ 안전 (Plan에 명문화)
+
+- ngrok 노출 동안 **누구나 사장 입장 접근 가능** (E2E_AUTH_USER_ID bypass)
+- 반드시 로컬 Supabase만 (`HESYA_TEST_DATABASE_URL`), prod DB 절대 금지
+- IG 토큰은 mock 문자열 (실제 Instagram API 호출 차단)
+- 시연 끝나면 ngrok 즉시 Ctrl+C
+
+### Out of Scope
+
+- ngrok 고정 URL (유료)
+- 외국인 고객용 페이지 (구조상 없음 — 고객은 인스타에서 메시지 보냄)
+- Vercel Preview에 시드 (별도 인프라)
+- 베타 매장 실제 데이터
+
+### 인벤토리 결과 (요약)
+
+- ✅ `apps/web/e2e/fixtures/db.ts` 시드 헬퍼 8개 완비 — 재활용 가능
+- ❌ pnpm scripts에 seed/demo/tunnel 없음 — 신규
+- ❌ ngrok 설정 없음 — 신규
+
+## 이번 세션 후반 (2026-05-07) — L-080 RSC Date 직렬화 fix (PR #82 ✅ merged)
 
 ## 이번 세션 후반 (2026-05-07) — L-080 RSC Date 직렬화 fix (PR #82)
 
