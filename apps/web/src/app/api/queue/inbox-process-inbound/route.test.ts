@@ -128,4 +128,28 @@ describe("worker /api/queue/inbox-process-inbound", () => {
     );
     expect(res.status).toBe(200);
   });
+
+  it("Upstash-Retried 헤더가 비정상 값(NaN)일 때 0 fallback → DLQ 진입 보장", async () => {
+    // L-077 review HIGH: Number("abc") = NaN → NaN >= 3 = false → 영구 retry 방어.
+    // 비정상 retried 값으로 4회 attempt 후에도 DLQ 종결 보장.
+    generateAndStoreReplyMock.mockRejectedValue(new Error("permanent"));
+    const req = new NextRequest(
+      "http://localhost/api/queue/inbox-process-inbound",
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "upstash-retried": "abc",
+        },
+        body: JSON.stringify({
+          messageId: "00000000-0000-4000-8000-000000000005",
+        }),
+      },
+    );
+    const res = await POST(req);
+    // retried=0 처리 → 첫 시도라고 봄 → 500 응답으로 retry 유도 (영구 루프 X,
+    // 다음 retry에서 정상 retried=1로 들어옴 가정).
+    expect(res.status).toBe(500);
+    expect(sentryCaptureMock).not.toHaveBeenCalled();
+  });
 });

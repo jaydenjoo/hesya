@@ -30,7 +30,10 @@ const payloadSchema = z.object({
 const MAX_RETRIES = 3;
 
 async function handler(request: Request): Promise<Response> {
-  const retried = Number(request.headers.get("Upstash-Retried") ?? "0");
+  // QStash가 정상적으로 정수 문자열을 보내지만, 헤더 누락·비정상 값(NaN)일 때
+  // `NaN >= 3` 이 false → 영구 retry 루프(DLQ 종결 불가)로 빠질 수 있어 방어.
+  const retriedRaw = Number(request.headers.get("Upstash-Retried") ?? "0");
+  const retried = Number.isFinite(retriedRaw) ? retriedRaw : 0;
   const rawBody = (await request.json()) as unknown;
 
   let payload: ProcessInboundJob;
