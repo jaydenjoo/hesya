@@ -4,12 +4,67 @@
 
 ## 현재 위치
 
-- **Phase**: Phase 1 — **Task 13 QStash 마이그 + G1~G4 검증 모두 통과 ✅ — Task 13 완전 closure**.
-- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C QStash 전환 ✅ (PR #78 머지 + prod 검증 완료)** + Task 11 vercel.json fix ✅ + Task 12 Sentry MCP/global-error ✅ + Task 13 callback retry workaround D6(폐기, 베타 전체 이탈) + L-077 영구 해결 ✅ → **다음**: Epic 12 Admin Panel (P0 MVP, Phase 1D 사업자 보류로 우선순위 변경) 또는 Phase 1 closure (Vision + 베타 검증).
-- **Task**: PR #78 머지 + Vercel Marketplace QStash integration 연결 + prod 검증 G1~G4 모두 통과.
-- **상태**: G2 통과 (worker invoke `hesya-web.vercel.app` alias 정상). G3 통과 (Sentry DLQ alert 도달, tag `phase=queue:inbox.process-inbound:dlq`, extra `retried=3`, ZodError invalid UUID). Trace ID `3d8fd5a352b34bfbb0f52d1b3fa7c8c6`. **Task 13 closure**.
-- **작업 브랜치**: `main` (PR #78 squash merge + 후속 docs commit `7adf700`).
+- **Phase**: Phase 1 — **Conformance Audit (PRD ↔ Code) + 5-Layer 문서 + audit fix 완료 ✅** (이번 세션, 2026-05-07).
+- **Epic**: **Epic 1 통합 다국어 인박스** — 1A/1B/Customer/follow-up + B-5 enforced + **1C QStash 전환 ✅** + Task 11~13 ✅ + L-077 영구 해결 ✅ + **Conformance Audit + 5-Layer 인프라 문서 ✅ (PR #79, #80)** → **다음**: Phase 1.5 정의 brainstorming (매장 owner Sign-in/Dashboard 신규 — Hesya 핵심 모순 해소: "Inbox 작동 + 진입 경로 0").
+- **Task**: Audit 6 영역 병렬 (Epic 1/9/12/3+4/11/인프라/디자인) → Top 15 Critical Gaps + audit fix B+C'+E 적용.
+- **상태**: PR #79 (5-Layer CLAUDE.md + L-079) + PR #80 (audit fix B+C'+E) 둘 다 auto-merge 라벨, CI 대기. tsc/lint/vitest 518 모두 통과 (regression 0).
+- **작업 브랜치**: `main` (다음 세션 시작 전 PR 머지 확인 + pull).
 - **최근 머지된 PR**: [#78](https://github.com/jaydenjoo/hesya/pull/78) **QStash 전환 (L-077 영구 해결)** | [#76](https://github.com/jaydenjoo/hesya/pull/76) callback retry workaround D6 (폐기) | [#75](https://github.com/jaydenjoo/hesya/pull/75) Sentry MCP + global-error.
+- **이번 세션 PR**: [#79](https://github.com/jaydenjoo/hesya/pull/79) **docs(meta): 5-Layer CLAUDE.md + L-079** | [#80](https://github.com/jaydenjoo/hesya/pull/80) **feat(inbox): aiModel 저장 + 타입 통합 + PRD §268 명문화**
+
+## 이번 세션 (2026-05-07) — Conformance Audit + 5-Layer 문서 + audit fix
+
+### 메타 발견 (L-079)
+
+PRD-only planning 함정으로 Plan v1 → v2 → v3 가정 3연속 깨짐:
+
+- v1: "Supabase Auth `auth.users` 참조" → 실제 Better Auth
+- v2: "drizzle-kit generate로 SQL 생성" → 실제 0011~ manual SQL hybrid (db:generate 시 conversations/store_integrations 등 기존 테이블 재생성 SQL 생성, apply 직전 회피)
+- v2: "middleware.ts 수정" → 실제 Next.js 16에서 `proxy.ts`로 rename
+- v2 폐기 직전 발견: `requireAdminEmail` 가드가 이미 8군데+ 사용 중 — 핵심 신규 항목 모두 이미 구현됨
+
+### 영구 방지 (5-Layer 문서, PR #79)
+
+- **글로벌 `~/.claude/CLAUDE.md` v3.2** (별 위치): 행동 규칙 컨텍스트 분기 + 작업 프로토콜 0.Inventory 추가
+- **`~/.claude/rules/inventory-protocol.md`** (별 위치, 신규): 5분 인벤토리 절차
+- **`<repo>/CLAUDE.md`** (1줄 → 109줄): Tech Stack 토폴로지 + 자산 인덱스 + Pre-Plan Inventory 의무
+- **`packages/database/CLAUDE.md`** (신규): drizzle hybrid 함정 명문화 + db:generate 절대 금지
+- **`apps/web/src/shared/lib/CLAUDE.md`** (신규): 가드 4종 (stub 2 표시) + DAL 인덱스
+- **`docs/learnings.md`**: L-079 entry 추가
+
+### Conformance Audit 결과 (6 영역 병렬 subagent)
+
+| 영역            | Coverage | 핵심 발견                                      |
+| --------------- | -------- | ---------------------------------------------- |
+| Epic 1 인박스   | **62%**  | Inbox/AI/RAG 작동, Vision 사진/Follow-up 봇 ❌ |
+| Epic 9 KYC      | **83%**  | 트리거+cron+OCR ✅, admin 처리 UI ❌           |
+| Epic 12 관리자  | **18%**  | 8 플로우 중 트리거 2/8, 처리 UI 0/8            |
+| Epic 3 예약     | **~10%** | Schema만                                       |
+| Epic 4 대시보드 | **~5%**  | 디자인 8개 대기                                |
+| Epic 11 SEO     | **~5%**  | next-intl 인프라만                             |
+| 인프라          | **82%**  | Tech Stack 7일치/2진화/1갭                     |
+| 디자인 ↔ UI     | **~18%** | Store 영역 9% (가장 위험)                      |
+
+**핵심 모순**: Inbox 작동하지만 매장 owner sign-in/dashboard 부재 → 베타 1곳 진입 경로 0.
+
+### Audit-driven fix (PR #80)
+
+- **B**: `messages.ai_model` INSERT 시 저장 (Phase 1.5 비용 분석)
+- **C'**: `CustomerLanguage` ↔ `SupportedLanguage` single source 통합
+- **E**: PRD §268 MVP 결정 (B-3a/B-3b 일관) 인라인 명문화
+
+검증: tsc ✅ / lint ✅ / vitest 518 ✅ (regression 0).
+
+### 다음 세션 후보 (우선순위)
+
+1. **#1 (다음 세션)** — Phase 1.5 brainstorming: "베타 1곳 minimum" 정의 + Task 분해. Epic 12 관리자 UI vs 매장 owner Sign-in/Dashboard 우선순위.
+2. **#2** — N1+N3 묶음 (~1.5h, 단일 PR): 0012 messages RLS InitPlan 마이그 0022 (🔴 Jayden 수동 apply) + PRD §6.2/§7 갱신 (Better Auth + 21 테이블).
+3. **#3~6** — 매장 owner Sign-in/Dashboard 신규 구현 (~16h, 3 세션).
+
+### 차단/잠재 리스크
+
+- ⚠️ Better Auth ↔ Supabase RLS `auth.uid()` 브릿지 부재 — 현재 service_role bypass라 무문제, anon/authenticated 키 사용 시 P0 (Phase 2 후보).
+- ⚠️ Hybrid 마이그 baseline squash 결정 — 베타 5곳 후 Phase 2.
 
 ## Task 13 closure — QStash 전환 (이번 세션)
 
