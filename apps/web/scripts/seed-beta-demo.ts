@@ -34,7 +34,13 @@ import path from "node:path";
 
 config({ path: path.resolve(__dirname, "../.env.local") });
 
-import { conversations, eq, stores, storeVerifications } from "@hesya/database";
+import {
+  conversations,
+  eq,
+  stores,
+  storeVerifications,
+  users,
+} from "@hesya/database";
 import {
   createTestDb,
   resetDb,
@@ -115,6 +121,11 @@ async function main(): Promise<void> {
 
   console.log("[demo-seed] DB reset 중...");
   await resetDb(db);
+
+  // resetDb는 users 테이블을 안 지움 (Better Auth 로그인으로 만들어진 다른 user
+  // 보존 의도). 두 번째 실행 시 demo user PK 충돌 방지를 위해 명시 삭제 —
+  // 이 시점엔 storeOwners/customers/messages 등 user FK 의존 row가 모두 비워졌음.
+  await db.delete(users).where(eq(users.id, DEMO_USER_ID));
 
   // 1. 사장 사용자 (E2E_AUTH_USER_ID와 동일한 고정 UUID)
   await seedUser(db, {
