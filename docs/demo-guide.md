@@ -102,10 +102,11 @@ Forwarding   https://abcd-1234-5678.ngrok-free.app -> http://localhost:4200
 
 ### B. 운영자 입장 — KYC 수동 심사
 
-1. `/ko/admin/store-verifications` 진입.
-   - ⚠️ 이 페이지는 `requireAdminEmail` 가드 (Better Auth 세션 + `ADMIN_EMAILS` env 화이트리스트). dev 서버에서 시연하려면 `.env.local`의 `ADMIN_EMAILS`에 본인 Better Auth 계정 이메일을 넣고 별도 로그인 필요. 단순 시연 목적이면 시드된 데이터를 직접 SQL 또는 Supabase Studio로 확인.
+1. `/ko/admin/store-verifications` 진입 → 사장 inbox와 동일하게 **로그인 우회** (`pnpm dev:demo`가 `E2E_ADMIN_EMAIL`을 자동 주입해 `requireAdminEmail` 가드 통과).
 2. 큐에 `manual_review` 상태 매장 1건 (Hesya 데모 네일샵) 노출.
 3. 클릭 → 사업자 정보 + 자가 선언 4건 + 승인/거부 버튼.
+
+> ⚠️ 데모상 사장 계정과 운영자 계정이 같은 user (`demo-owner@hesya.local`)로 시뮬됨. 실제 베타에서는 분리된 두 계정 필요. `NODE_ENV !== "production"` 가드로 prod에서는 절대 작동 안 함.
 
 ---
 

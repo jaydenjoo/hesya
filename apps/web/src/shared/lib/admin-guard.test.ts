@@ -16,7 +16,7 @@ vi.mock("@/lib/auth", () => ({
 }));
 
 vi.mock("@/shared/config/env", () => ({
-  env: { ADMIN_EMAILS: "" },
+  env: { ADMIN_EMAILS: "", NODE_ENV: "test" },
 }));
 
 vi.mock("next/headers", () => ({
@@ -31,6 +31,8 @@ const getSessionMock = vi.mocked(auth.api.getSession);
 
 afterEach(() => {
   vi.clearAllMocks();
+  delete process.env.E2E_ADMIN_EMAIL;
+  delete process.env.E2E_AUTH_USER_ID;
 });
 
 describe("requireAdminEmail", () => {
@@ -98,6 +100,60 @@ describe("requireAdminEmail", () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error).toBe("forbidden");
+  });
+});
+
+describe("requireAdminEmail — E2E/데모 bypass", () => {
+  it("NODE_ENV=development + E2E_ADMIN_EMAIL + E2E_AUTH_USER_ID set → ok (Better Auth 우회)", async () => {
+    env.NODE_ENV = "development";
+    process.env.E2E_ADMIN_EMAIL = "demo-owner@hesya.local";
+    process.env.E2E_AUTH_USER_ID = "00000000-0000-0000-0000-000000000001";
+
+    const result = await requireAdminEmail();
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.userId).toBe("00000000-0000-0000-0000-000000000001");
+    expect(result.email).toBe("demo-owner@hesya.local");
+    expect(getSessionMock).not.toHaveBeenCalled();
+  });
+
+  it("NODE_ENV=production이면 bypass 무시 (prod 차단)", async () => {
+    env.NODE_ENV = "production";
+    process.env.E2E_ADMIN_EMAIL = "demo-owner@hesya.local";
+    process.env.E2E_AUTH_USER_ID = "00000000-0000-0000-0000-000000000001";
+    getSessionMock.mockResolvedValueOnce(null);
+    env.ADMIN_EMAILS = "real-admin@example.com";
+
+    const result = await requireAdminEmail();
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toBe("unauthorized");
+    expect(getSessionMock).toHaveBeenCalled();
+  });
+
+  it("E2E_ADMIN_EMAIL set + E2E_AUTH_USER_ID 미set → unauthorized (잘못된 환경 검출)", async () => {
+    env.NODE_ENV = "development";
+    process.env.E2E_ADMIN_EMAIL = "demo-owner@hesya.local";
+
+    const result = await requireAdminEmail();
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toBe("unauthorized");
+    expect(getSessionMock).not.toHaveBeenCalled();
+  });
+
+  it("E2E_ADMIN_EMAIL 미set이면 정상 Better Auth 흐름", async () => {
+    env.NODE_ENV = "development";
+    getSessionMock.mockResolvedValueOnce(null);
+    env.ADMIN_EMAILS = "real-admin@example.com";
+
+    const result = await requireAdminEmail();
+
+    expect(result.ok).toBe(false);
+    expect(getSessionMock).toHaveBeenCalled();
   });
 });
 
