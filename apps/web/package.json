@@ -12,7 +12,9 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "e2e": "playwright test",
-    "e2e:ui": "playwright test --ui"
+    "e2e:ui": "playwright test --ui",
+    "seed:demo": "pnpm --filter @hesya/database exec tsx ../../apps/web/scripts/seed-beta-demo.ts",
+    "dev:demo": "E2E_AUTH_USER_ID=00000000-0000-0000-0000-000000000001 next dev -p 4200"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.92.0",

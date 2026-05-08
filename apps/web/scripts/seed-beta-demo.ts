@@ -1,0 +1,208 @@
+/**
+ * 베타 데모 시드 스크립트.
+ *
+ * 본인 PC + 휴대폰 시연용 — 가상 매장/사장/외국인 고객으로 사장 입장 클릭
+ * 시뮬을 가능케 함. e2e/fixtures/db.ts 헬퍼 8종 + phase-1-beta.spec.ts의
+ * `lastMessagePreview` set 패턴 재활용.
+ *
+ * ⚠️ 안전:
+ *   - `HESYA_TEST_DATABASE_URL` 필요 (localhost / 127.0.0.1 / test / supabase.local만 허용)
+ *   - prod DB 절대 금지 — fixture가 URL 검증 후 throw
+ *   - IG 토큰은 mock 문자열 (실제 Instagram API 호출 차단)
+ *   - 실행 시 매번 `resetDb` → 로컬 DB 데이터 전부 삭제 (전제: 이 DB는 데모/테스트 전용)
+ *
+ * 시드 내용:
+ *   - 사장 1명 (id = `DEMO_USER_ID`, `E2E_AUTH_USER_ID`로 dev 서버에 동일 값 주입 필요)
+ *   - 매장 2개:
+ *     * #1 auto_approved (`bot_mode=false` 검수·승인 모드 — 기본값)
+ *     * #2 manual_review (admin 큐 데모용, 사장 연결 없음)
+ *   - storeVerifications 1건 (#2용)
+ *   - IG integration 1건 (#1, mock token)
+ *   - 고객 3명 (영어 / 일본어 / 중국어)
+ *   - 각 고객당 inbound 1 + AI `pending_review` 초안 1 = 메시지 6건
+ *
+ * 실행:
+ *   pnpm seed:demo
+ *
+ * 다음:
+ *   pnpm dev:demo   # http://localhost:4200/ko/store/inbox
+ */
+import { config } from "dotenv";
+import path from "node:path";
+
+config({ path: path.resolve(__dirname, "../.env.local") });
+
+import { conversations, eq, stores, storeVerifications } from "@hesya/database";
+import {
+  createTestDb,
+  resetDb,
+  seedConversation,
+  seedCustomer,
+  seedMessage,
+  seedStore,
+  seedStoreIntegration,
+  seedStoreOwner,
+  seedUser,
+} from "../e2e/fixtures/db";
+
+/**
+ * 데모 사장 user id. dev 서버 기동 시 `E2E_AUTH_USER_ID`로 동일 값을 주입하면
+ * `requireStoreOwnerAuth`가 이 user로 bypass 인증 (NODE_ENV !== "production"
+ * + dev 서버 모두 만족 시).
+ */
+const DEMO_USER_ID = "00000000-0000-0000-0000-000000000001";
+
+interface DemoCustomer {
+  language: "en" | "ja" | "zh";
+  externalId: string;
+  inbound: string;
+  draft: string;
+}
+
+const DEMO_CUSTOMERS: DemoCustomer[] = [
+  {
+    language: "en",
+    externalId: "demo_en_alice",
+    inbound: "Hi! Do you have time for a haircut today at 3pm?",
+    draft:
+      "Hello! Yes, 3pm is available today. Could I have your name to confirm the booking?",
+  },
+  {
+    language: "ja",
+    externalId: "demo_ja_haruka",
+    inbound: "こんにちは!明日カットの予約は可能ですか?",
+    draft:
+      "こんにちは!明日のカットご予約、承れます。ご希望の時間帯はございますか?",
+  },
+  {
+    language: "zh",
+    externalId: "demo_zh_xiaohua",
+    inbound: "你好,今天下午4点可以做烫发吗?",
+    draft: "您好!今天下午4点烫发可以预约,请问您的姓名?",
+  },
+];
+
+async function main(): Promise<void> {
+  const db = createTestDb();
+
+  console.log("[demo-seed] DB reset 중...");
+  await resetDb(db);
+
+  // 1. 사장 사용자 (E2E_AUTH_USER_ID와 동일한 고정 UUID)
+  await seedUser(db, {
+    id: DEMO_USER_ID,
+    email: "demo-owner@hesya.local",
+    name: "데모 사장",
+  });
+
+  // 2-a. auto_approved 매장 — 실제 inbox/검수 모드 시연 대상
+  const autoStoreId = await seedStore(db, {
+    name: "Hesya 데모 헤어샵 (강남)",
+  });
+  await db
+    .update(stores)
+    .set({
+      verificationStatus: "auto_approved",
+      category: "hair_general",
+      region: "서울 강남구",
+    })
+    .where(eq(stores.id, autoStoreId));
+  await seedStoreOwner(db, {
+    userId: DEMO_USER_ID,
+    storeId: autoStoreId,
+    role: "owner",
+  });
+  await seedStoreIntegration(db, {
+    storeId: autoStoreId,
+    channel: "instagram",
+    externalAccountId: "ig_demo_auto",
+    externalPageId: "page_demo_auto",
+  });
+
+  // 2-b. manual_review 매장 — 운영자 큐 시연 대상 (사장 연결 없음)
+  const reviewStoreId = await seedStore(db, {
+    name: "Hesya 데모 네일샵 (수동 심사 대기)",
+  });
+  await db
+    .update(stores)
+    .set({
+      verificationStatus: "manual_review",
+      category: "nail",
+      region: "서울 마포구",
+    })
+    .where(eq(stores.id, reviewStoreId));
+  await db.insert(storeVerifications).values({
+    storeId: reviewStoreId,
+    businessNumber: "1234567890",
+    representativeName: "데모 대표",
+    declarationNoMassage: true,
+    declarationNoMedicalDevice: true,
+    declarationNoOrientalMedicine: true,
+    selfDeclarationSignedAt: new Date(),
+    verificationStatus: "manual_review",
+  });
+
+  // 3. 고객 3명 + 각자 conversation + inbound + pending_review 초안
+  const expiresAt = new Date(Date.now() + 23 * 60 * 60 * 1000);
+  const lastInboundAt = new Date(Date.now() - 60 * 60 * 1000);
+
+  for (const c of DEMO_CUSTOMERS) {
+    const customerId = await seedCustomer(db, {
+      channel: "instagram",
+      externalId: c.externalId,
+    });
+    const convId = await seedConversation(db, {
+      storeId: autoStoreId,
+      customerId,
+      channel: "instagram",
+      externalThreadId: `thread_demo_${c.language}`,
+      messagingWindowExpiresAt: expiresAt,
+      lastInboundAt,
+    });
+    await seedMessage(db, {
+      conversationId: convId,
+      customerId,
+      storeId: autoStoreId,
+      direction: "inbound",
+      text: c.inbound,
+    });
+    await seedMessage(db, {
+      conversationId: convId,
+      customerId,
+      storeId: autoStoreId,
+      direction: "outbound",
+      text: c.draft,
+      status: "ai_draft",
+      draftStatus: "pending_review",
+    });
+    // ThreadItem이 conversations.lastMessagePreview를 표시 — 시드에서 직접 set
+    // (production 흐름에서는 updateLastMessage DAL이 메시지 처리 시 갱신).
+    await db
+      .update(conversations)
+      .set({
+        lastMessagePreview: c.draft,
+        lastMessageAt: new Date(),
+      })
+      .where(eq(conversations.id, convId));
+  }
+
+  console.log("[demo-seed] ✓ 시드 완료");
+  console.log("");
+  console.log("  데모 사장 user id  :", DEMO_USER_ID);
+  console.log("  매장 #1 (사장 inbox):", autoStoreId);
+  console.log("  매장 #2 (운영자 큐) :", reviewStoreId);
+  console.log("");
+  console.log("  사장 inbox     : http://localhost:4200/ko/store/inbox");
+  console.log(
+    "  운영자 큐      : http://localhost:4200/ko/admin/store-verifications",
+  );
+  console.log("");
+  console.log("  다음: pnpm dev:demo");
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((err: unknown) => {
+    console.error("[demo-seed] 실패:", err);
+    process.exit(1);
+  });

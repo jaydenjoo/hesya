@@ -8,7 +8,10 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
-    "prepare": "husky"
+    "prepare": "husky",
+    "seed:demo": "pnpm --filter @hesya/web seed:demo",
+    "dev:demo": "pnpm --filter @hesya/web dev:demo",
+    "tunnel": "ngrok http 4200"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.3",
