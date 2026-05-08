@@ -20,6 +20,8 @@
  *   - IG integration 1건 (#1, mock token)
  *   - 고객 3명 (영어 / 일본어 / 중국어)
  *   - 각 고객당 inbound 1 + AI `pending_review` 초안 1 = 메시지 6건
+ *   - PRD §268 일관: outbound originalText 한국어 + translatedText 외국어,
+ *     inbound originalText 외국어 + translatedText 한국어 (사장 검수 보조)
  *
  * 실행:
  *   pnpm seed:demo
@@ -52,33 +54,59 @@ import {
  */
 const DEMO_USER_ID = "00000000-0000-0000-0000-000000000001";
 
+/**
+ * PRD §268 (MVP 결정): outbound `originalText`는 한국어, `translatedText`는
+ * 외국어 검수용 보조. inbound는 외국어 원문 + 한국어 번역. 사장 inbox에서는
+ * 둘 다 표시되어 외국어 못 읽는 사장도 의미 파악 + 외국 고객 입장 미리보기 가능.
+ */
 interface DemoCustomer {
   language: "en" | "ja" | "zh";
   externalId: string;
-  inbound: string;
-  draft: string;
+  inbound: { foreign: string; korean: string };
+  draft: { korean: string; foreign: string };
 }
 
 const DEMO_CUSTOMERS: DemoCustomer[] = [
   {
     language: "en",
     externalId: "demo_en_alice",
-    inbound: "Hi! Do you have time for a haircut today at 3pm?",
-    draft:
-      "Hello! Yes, 3pm is available today. Could I have your name to confirm the booking?",
+    inbound: {
+      foreign: "Hi! Do you have time for a haircut today at 3pm?",
+      korean: "안녕하세요! 오늘 오후 3시에 머리 자를 시간 있나요?",
+    },
+    draft: {
+      korean:
+        "안녕하세요! 네, 오후 3시 예약 가능합니다. 성함 알려주시면 예약 확정해드릴게요.",
+      foreign:
+        "Hello! Yes, 3pm is available. Could I have your name to confirm the booking?",
+    },
   },
   {
     language: "ja",
     externalId: "demo_ja_haruka",
-    inbound: "こんにちは!明日カットの予約は可能ですか?",
-    draft:
-      "こんにちは!明日のカットご予約、承れます。ご希望の時間帯はございますか?",
+    inbound: {
+      foreign: "こんにちは!明日カットの予約は可能ですか?",
+      korean: "안녕하세요! 내일 커트 예약 가능한가요?",
+    },
+    draft: {
+      korean:
+        "안녕하세요! 내일 커트 예약 가능합니다. 희망하시는 시간대가 있으신가요?",
+      foreign:
+        "こんにちは!明日のカットご予約、承れます。ご希望の時間帯はございますか?",
+    },
   },
   {
     language: "zh",
     externalId: "demo_zh_xiaohua",
-    inbound: "你好,今天下午4点可以做烫发吗?",
-    draft: "您好!今天下午4点烫发可以预约,请问您的姓名?",
+    inbound: {
+      foreign: "你好,今天下午4点可以做烫发吗?",
+      korean: "안녕하세요, 오늘 오후 4시에 펌이 가능할까요?",
+    },
+    draft: {
+      korean:
+        "안녕하세요! 오늘 오후 4시 펌 예약 가능합니다. 성함을 알려주시겠어요?",
+      foreign: "您好!今天下午4点烫发可以预约,请问您的姓名?",
+    },
   },
 ];
 
@@ -164,23 +192,25 @@ async function main(): Promise<void> {
       customerId,
       storeId: autoStoreId,
       direction: "inbound",
-      text: c.inbound,
+      text: c.inbound.foreign,
+      translatedText: c.inbound.korean,
     });
     await seedMessage(db, {
       conversationId: convId,
       customerId,
       storeId: autoStoreId,
       direction: "outbound",
-      text: c.draft,
+      text: c.draft.korean,
+      translatedText: c.draft.foreign,
       status: "ai_draft",
       draftStatus: "pending_review",
     });
-    // ThreadItem이 conversations.lastMessagePreview를 표시 — 시드에서 직접 set
-    // (production 흐름에서는 updateLastMessage DAL이 메시지 처리 시 갱신).
+    // ThreadItem이 conversations.lastMessagePreview를 표시 — 사장이 보는
+    // 마지막 메시지 미리보기는 한국어 (originalText)로.
     await db
       .update(conversations)
       .set({
-        lastMessagePreview: c.draft,
+        lastMessagePreview: c.draft.korean,
         lastMessageAt: new Date(),
       })
       .where(eq(conversations.id, convId));
