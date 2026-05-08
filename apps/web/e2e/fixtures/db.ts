@@ -201,6 +201,7 @@ export async function seedMessage(
     channel?: "instagram" | "whatsapp" | "kakao" | "line" | "messenger";
     status?: "delivered" | "sent" | "failed" | "ai_draft";
     draftStatus?: "pending_review" | "approved" | "sent" | "skipped" | "direct";
+    translatedText?: string | null;
   },
 ): Promise<string> {
   const [row] = await db
@@ -212,6 +213,7 @@ export async function seedMessage(
       channel: input.channel ?? "instagram",
       direction: input.direction,
       originalText: input.text,
+      translatedText: input.translatedText ?? null,
       status: input.status ?? "delivered",
       draftStatus: input.draftStatus,
     })
