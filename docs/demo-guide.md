@@ -61,7 +61,7 @@ pnpm dev:demo
 ```
 
 - `seed:demo`: 가상 매장 2개, 사장 1명, 외국인 고객 3명 (영/일/중), AI 초안 6건을 로컬 DB에 시드.
-- `dev:demo`: Next.js dev 서버 기동 (`http://localhost:4200`). `E2E_AUTH_USER_ID` 환경변수가 자동 주입되어 사장 인증을 우회.
+- `dev:demo`: IG mock 서버(port 4201) 백그라운드 기동 + Next.js dev 서버(port 4200) foreground. `E2E_AUTH_USER_ID` / `E2E_ADMIN_EMAIL` / `IG_API_BASE_URL` 자동 주입 → 사장 + 운영자 인증 모두 우회 + IG 발송이 mock으로 향함. Ctrl+C 시 mock 서버도 같이 종료.
 
 브라우저에서:
 
@@ -130,13 +130,15 @@ Forwarding   https://abcd-1234-5678.ngrok-free.app -> http://localhost:4200
 
 ## 트러블슈팅
 
-| 증상                                             | 원인 / 해결                                                                                    |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| `HESYA_TEST_DATABASE_URL은 localhost/...만 허용` | `.env.local`이 prod URL을 가리키는 중. 위 2번 세팅 확인.                                       |
-| 시드는 됐는데 inbox가 비어 있음                  | dev 서버에 `E2E_AUTH_USER_ID`가 안 박힘 → `pnpm dev:demo`가 아닌 `pnpm dev`로 실행했을 가능성. |
-| AI 초안 승인 클릭 시 "메시징 윈도우 만료" 에러   | 시드 후 24시간 이상 경과 → `pnpm seed:demo` 재실행.                                            |
-| ngrok URL 접속 시 ERR_NGROK_3200                 | ngrok 무료 플랜 동시 터널 1개 제한. 다른 ngrok 프로세스 종료 후 재시도.                        |
-| `vault.create_secret` 에러                       | 로컬 Supabase가 안 켜졌거나 vault extension 누락. `supabase status` 확인 후 `supabase start`.  |
+| 증상                                             | 원인 / 해결                                                                                                                                                                                                                                                                                                                      |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `HESYA_TEST_DATABASE_URL은 localhost/...만 허용` | `.env.local`이 prod URL을 가리키는 중. 위 2번 세팅 확인.                                                                                                                                                                                                                                                                         |
+| 시드는 됐는데 inbox가 비어 있음                  | dev 서버에 `E2E_AUTH_USER_ID`가 안 박힘 → `pnpm dev:demo`가 아닌 `pnpm dev`로 실행했을 가능성.                                                                                                                                                                                                                                   |
+| AI 초안 승인 클릭 시 "메시징 윈도우 만료" 에러   | 시드 후 24시간 이상 경과 → `pnpm seed:demo` 재실행.                                                                                                                                                                                                                                                                              |
+| ngrok URL 접속 시 ERR_NGROK_3200                 | ngrok 무료 플랜 동시 터널 1개 제한. 다른 ngrok 프로세스 종료 후 재시도.                                                                                                                                                                                                                                                          |
+| `vault.create_secret` 에러                       | 로컬 Supabase가 안 켜졌거나 vault extension 누락. `supabase status` 확인 후 `supabase start`.                                                                                                                                                                                                                                    |
+| 승인+전송 클릭 후 panel 사라지지 않고 stuck      | IG mock 서버 미가동 → `accept-ai-draft`가 실 IG API 호출 fail → `draft_status='approved'` stuck. `pnpm dev:demo`로 띄우면 mock(port 4201)이 자동 기동. 이미 stuck된 row는 시드 재실행 또는 SQL `UPDATE messages SET draft_status='pending_review' WHERE direction='outbound' AND status='ai_draft' AND draft_status='approved';` |
+| `pnpm seed:demo` 시 connection slots 부족        | dev 서버 + Supabase Studio가 connection 점유. 시드 전 dev 서버 일시 종료(Ctrl+C) 후 시드 → 재시작.                                                                                                                                                                                                                               |
 
 ---
 

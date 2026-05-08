@@ -80,9 +80,27 @@ pnpm --filter @hesya/web build        # 경고 0건 목표
 1. **키워드 grep**: `grep -rn "<키워드>" apps/web/src/lib/ apps/web/src/shared/lib/ apps/web/src/features/`
 2. **작업 영역 ls**: 만들려는 파일이 갈 폴더 + 인접 폴더
 3. **최근 마이그/스키마**: `ls packages/database/migrations | tail -5` + 관련 schema
-4. **결과를 Plan v1의 "기존 자산 검색 결과" 섹션에 첨부** (0건이라도 명시)
+4. **시연 prerequisite 검증** (L-082): 새 기능이 실제 사용자 흐름에서 작동하려면 어떤 환경 전제 필요? 데모 환경(`pnpm dev:demo`)에서 그 전제가 자동 충족되는가? fixture가 cover하는 영역 ≠ 데모 환경 — 명시 검증.
+5. **결과를 Plan v1의 "기존 자산 검색 결과" 섹션에 첨부** (0건이라도 명시)
 
 세부 절차: `~/.claude/rules/inventory-protocol.md`
+
+## PROGRESS 자기평가 검증 규칙 (L-082, 2026-05-08 도입) ⭐
+
+**% 표시는 "코드 머지 완료"가 아닌 "사용자 입장 e2e 시연 가능 여부"로 정의**.
+
+| 상태                                        | 표시                   |
+| ------------------------------------------- | ---------------------- |
+| end-to-end 시연 한 번도 못 함 (코드만 머지) | **0%** 또는 "스키마만" |
+| 부분 흐름 e2e 통과 (단일 경로)              | **30~60%**             |
+| 통합 흐름 e2e 통과 (여러 사용자 단계)       | **70~85%**             |
+| 통합 e2e + 디자인 적용 + a11y/perf 검증     | **90%+**               |
+
+**자기평가 갱신 시 의무**:
+
+1. 근거 첨부 (PR + e2e 결과 또는 subagent 진단)
+2. P0 Epic은 senior-engineer + code-explorer subagent로 객관화
+3. 같은 영역 PR 3개+ 누적 시 즉시 회고 trigger (plan 인벤토리 부실 시그널)
 
 ## Workflow
 
@@ -97,6 +115,10 @@ pnpm --filter @hesya/web build        # 경고 0건 목표
 - ❌ `requireAuth()`, `requireAdmin()` (`auth-guard.ts`)는 stub — 항상 throw. 현재 admin 가드는 `requireAdminEmail` (`admin-guard.ts`).
 - ⚠️ `requireAdminEmail`은 임시 솔루션 (kyc/actions.ts 주석: _"Epic 12 admin panel 도입 시 정식 owner guard로 교체"_). ADMIN_EMAILS env는 첫 운영자 1~2명용.
 - ⚠️ Next.js 16에서 `middleware.ts` 만들면 무시됨. `proxy.ts`가 middleware 자리.
+- ⚠️ **rate-limit.ts는 in-memory Map** — Vercel Serverless 인스턴스 분산 환경에서 무력화. `startRateLimitGC()` 호출처도 0건 (dead code). **베타 출시 전 Upstash Redis 교체 필수** (Phase 1-γ.0 차단 fix #1).
+- ⚠️ **`auth-guard.ts`는 stub** (`requireAuth` / `requireAdmin` 모두 throw). 사용처 0건이지만 살아있어 실수 import 위험. **Phase 1-γ.0 차단 fix #2로 삭제 예정**.
+- ⚠️ **`sign-in/page.tsx`는 임시 검증 페이지** — 주석에 "Better Auth + Google OAuth 동작 검증용 임시 페이지" 명시. 베타 사용자 노출됨. **Phase 1-γ.0 차단 fix #3로 정식화 예정**.
+- ⚠️ **PROGRESS 자기평가는 e2e 시연 기준** (L-082) — 코드 머지 완료 ≠ 시연 가능. 새 기능 plan 시 시연 prerequisite 검증 의무.
 
 ## Documents
 
