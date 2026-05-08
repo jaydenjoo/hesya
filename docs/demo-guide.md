@@ -40,7 +40,17 @@ DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
 
 > 비유 — `HESYA_TEST_DATABASE_URL`은 "안전 라벨이 붙은 테스트 DB 주소". 시드 스크립트가 이 라벨을 확인하고 prod 주소면 거부함. `DATABASE_URL`은 Next.js 서버가 평소 보는 주소.
 
-### 3. ngrok 설치 (휴대폰 시연용)
+### 3. 마이그레이션 적용 (한 번만)
+
+```bash
+pnpm db:apply
+```
+
+24개 SQL 마이그레이션을 로컬 Supabase에 일괄 적용 (테이블/RLS/인덱스 등). `supabase start` 직후 한 번만 실행하면 됨. `supabase stop` 후 다시 켜거나 `supabase db reset`을 실행하면 다시 한 번 필요.
+
+> 비유 — `supabase start`는 빈 DB 서버 기동, `pnpm db:apply`는 그 위에 hesya 스키마 (테이블 + RLS 정책)를 그려넣는 단계. 두 단계는 별개.
+
+### 4. ngrok 설치 (휴대폰 시연용)
 
 ```bash
 brew install ngrok/ngrok/ngrok
@@ -136,6 +146,7 @@ Forwarding   https://abcd-1234-5678.ngrok-free.app -> http://localhost:4200
 | AI 초안 승인 클릭 시 "메시징 윈도우 만료" 에러   | 시드 후 24시간 이상 경과 → `pnpm seed:demo` 재실행.                                            |
 | ngrok URL 접속 시 ERR_NGROK_3200                 | ngrok 무료 플랜 동시 터널 1개 제한. 다른 ngrok 프로세스 종료 후 재시도.                        |
 | `vault.create_secret` 에러                       | 로컬 Supabase가 안 켜졌거나 vault extension 누락. `supabase status` 확인 후 `supabase start`.  |
+| `relation "messages" does not exist`             | 마이그 미적용. `pnpm db:apply` 먼저 실행 후 `pnpm seed:demo` 재시도.                           |
 
 ---
 
