@@ -6,9 +6,8 @@
  * 사용:
  *   import { checkRateLimit } from '@/shared/lib/rate-limit'
  *
- *   export async function callAI(prompt: string) {
- *     const session = await requireAuth()
- *     await checkRateLimit(`ai:${session.userId}`, { max: 10, windowSec: 60 })
+ *   export async function callAI(userId: string, prompt: string) {
+ *     await checkRateLimit(`ai:${userId}`, { max: 10, windowSec: 60 })
  *     // ...
  *   }
  */

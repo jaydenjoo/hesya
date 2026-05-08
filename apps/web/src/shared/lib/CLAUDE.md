@@ -2,16 +2,16 @@
 
 이 폴더는 모든 feature가 의존하는 공유 라이브러리입니다. **변경 전 영향 범위 확인 필수**.
 
-## Auth Guards (4종)
+## Auth Guards (2종)
 
 ⚠️ 신규 가드/인증 함수 만들기 전 이 표 + `grep -rn "require\|guard" .` 필수.
 
-| 함수                         | 파일                   | 용도                                                                                               | 사용처             |
-| ---------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------- | ------------------ |
-| ⚠️ `requireAuth()` _(stub)_  | `auth-guard.ts`        | **미구현 — 항상 `throw UnauthorizedError`**. Better Auth 정식 가드로 교체 예정. **사용 금지**      | 0건 (stub)         |
-| ⚠️ `requireAdmin()` _(stub)_ | `auth-guard.ts`        | **미구현** (`requireAuth` 의존 → 같이 throw). 현재 admin은 `requireAdminEmail` 사용. **사용 금지** | 0건 (stub)         |
-| ✅ `requireAdminEmail()`     | `admin-guard.ts`       | `ADMIN_EMAILS` env 화이트리스트 (Better Auth `auth.api.getSession`)                                | KYC actions 8군데+ |
-| ✅ `requireStoreOwnerAuth()` | `store-owner-guard.ts` | 매장 owner (`store_owners` 테이블 join)                                                            | 매장 actions       |
+| 함수                         | 파일                   | 용도                                                                | 사용처             |
+| ---------------------------- | ---------------------- | ------------------------------------------------------------------- | ------------------ |
+| ✅ `requireAdminEmail()`     | `admin-guard.ts`       | `ADMIN_EMAILS` env 화이트리스트 (Better Auth `auth.api.getSession`) | KYC actions 8군데+ |
+| ✅ `requireStoreOwnerAuth()` | `store-owner-guard.ts` | 매장 owner (`store_owners` 테이블 join)                             | 매장 actions       |
+
+> 과거 `auth-guard.ts` (`requireAuth` / `requireAdmin` stub)는 항상 throw하는 미구현 상태였고 사용처 0건이라 **2026-05-08 Phase 1-γ.0 fix #2로 삭제됨**. 향후 정식 Better Auth 가드 도입 시 `admin-guard.ts` / `store-owner-guard.ts`와 같은 명명 패턴으로 새 파일에 작성. `auth-guard.ts` 이름은 stub 트라우마로 사용 금지(혼란 방지).
 
 ### 임시 → 정식 교체 예정
 
@@ -19,7 +19,7 @@
 
 ### 가드 return 패턴
 
-- `requireAuth/requireAdmin/requireStoreOwnerAuth` → Session 객체 직접 반환 (실패 시 throw/redirect)
+- `requireStoreOwnerAuth` → Session 객체 직접 반환 (실패 시 throw/redirect)
 - `requireAdminEmail` → `{ ok: true | false }` 객체 반환 (호출자가 분기)
 
 → 새 가드 만들 때 위 두 패턴 중 하나 선택. **혼합 금지**.
