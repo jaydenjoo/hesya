@@ -2765,3 +2765,60 @@ PR #82, vitest 577 passed (regression 0).
 - 메타: 데모 환경에서 prod 데이터 1건도 노출되면 즉시 옵션 C 격리 강화 필요
 
 **연관**: 글로벌 메모 "외부 서비스 리소스 생성 전 명시 승인 필수", PRD 보안 등급 🔴 RED, Phase 1-β plan v1 (로컬 시드 + ngrok), Phase 2 후보.
+
+---
+
+### [2026-05-08] L-082 — PROGRESS 자기평가 ≠ 실제 완성도. 본 세션 데모 시연 인프라 작업에서 PR 6개 누적 = 통합 시연 검증 공백의 표면 증상
+
+**상황 / 메타 발견**: 베타 데모 시연 인프라(Plan v1, PR #83) 작성 후 시연 시도 중 6개 갭 연속 발견:
+
+1. 마이그 적용 절차 부재 → PR #84 (`relation messages does not exist`)
+2. 시드 번역 NULL + PRD §268 위반 → PR #85
+3. 시드 idempotency (resetDb가 users 안 지움) → PR #86
+4. admin guard mock bypass 부재 (사장만 우회, 운영자 sign-in 강제) → PR #87
+5. IG mock 서버 자동 기동 부재 → fix/dev-demo-ig-mock (보류)
+6. dev-demo.sh trap + .env.local ANTHROPIC_API_KEY 형식 → 추가 발견
+
+각 PR이 머지된 후에도 다음 클릭에서 또 갭 발견. Jayden 우려: "까먹고 잘못하는 느낌". senior-engineer + code-explorer subagent 진단 결과:
+
+- 코드 품질 자체는 7/10 (DAL/타입/일관성 양호)
+- 보안 8/10 (Better Auth + RLS + pgsodium 정확)
+- **E2E 통합 시연 커버리지 5/10 ⚠️** — `phase-1-beta.spec.ts`가 의도적으로 scope out한 영역 4개(KYC 제출, admin 클릭, IG OAuth 콜백, QStash webhook)에서 갭 발생
+- 더 큰 발견: PROGRESS.md 자기평가와 실제 완성도 불일치 — E2(결제) "후속" → 실측 17%(스키마만), E3(예약) "~10%" → 17%, E4(대시보드) "~5%" → 8%(Recharts 의존성도 없음)
+
+**원인 (root cause, L-079보다 한 layer 위)**:
+
+PRD-only planning(L-079)을 fixture-only planning이 대체한 형태. e2e fixtures가 cover하는 영역 = e2e 환경(playwright.config.ts가 mock 자동 기동, NODE_ENV 자동 설정, Better Auth 세션 시뮬 우회)에서만 작동. 데모 환경(`pnpm dev:demo`)은 그 전제를 자동으로 따라가지 않음. → 인벤토리에서 e2e fixtures **의존성**(production 흐름 prerequisite) 검증 안 함.
+
+더 본질적: **PROGRESS.md 자기평가 (% 표시)가 "코드 작성 완료"를 의미할 뿐 "사용자 흐름 시연 가능"을 의미하지 않음**. `phase-1-beta.spec.ts`가 통과하는 것 = "AI 초안 → 승인" 한 단일 경로일 뿐. 매장 onboarding(KYC 제출 → admin 승인 → integration 연결 → inbox 진입)의 통합 흐름은 한 번도 e2e 통과한 적 없음.
+
+**해결 (영구 규칙)**:
+
+1. **PROGRESS.md 자기평가는 e2e 시연 가능 여부로만 정의**:
+   - ❌ "코드 머지 완료" = X% (작성 기반)
+   - ✅ "사용자 입장 클릭으로 검증된 영역" = X% (시연 기반)
+   - 기준선: end-to-end 시연 한 번도 못 한 영역은 **0%로 표시**, 부분 시연은 **"부분 50%"**, 통합 e2e 통과는 **80%+**
+
+2. **Plan v1 인벤토리에 "시연 prerequisite" 의무 항목 추가**:
+   - 시드 후 dev:demo 띄우고 사용자 흐름 한 번 실행해야 plan 완성
+   - 시연 안 하면 plan 미완성 = 승인 요청 금지
+   - **fixture가 cover하는 환경 ≠ 데모 환경** 명시 검증
+
+3. **CLAUDE.md "self-claim 검증 규칙" 추가**: AI가 PROGRESS.md 자기평가 갱신 시 "어떤 e2e/사용자 시연으로 검증했는가" 근거 제시 의무
+
+4. **메타 학습 강화**: L-079 + L-082 결합 = "PRD ≠ fixture ≠ 데모 환경". 각 layer 검증 의무.
+
+**확인 방법**:
+
+- 자동: PR 갱신 시 PROGRESS.md %가 변경되면 e2e/playwright 시뮬 결과 첨부 의무 (PR 템플릿)
+- 인간 리뷰: Epic별 시연 영상 또는 캡처가 PR description에 있는지
+- 메타: 다음 세션부터 PR 누적 패턴(같은 영역에서 3+ PR 연속) 발견 시 즉시 회고 + plan 폐기 + 영역 재진단
+
+**규칙** ⭐:
+
+1. **PROGRESS.md 자기평가는 e2e 시연 가능 여부로 정의** (코드 머지 완료가 아님). senior-engineer/code-explorer subagent 진단 결과를 PROGRESS의 권위 있는 출처로 사용.
+2. **fixture-only / e2e-only 검증은 데모/prod 흐름 검증을 대체할 수 없음**. e2e가 의도적으로 scope out한 영역이 있으면 plan 인벤토리에 명시 + 별도 시연 검증 단계 추가.
+3. **PR이 같은 영역에서 3개+ 연속 누적되면 즉시 회고 trigger**. 각 PR이 직전 PR의 fix면 plan 자체가 잘못된 시그널 (인벤토리 부실).
+4. **PROGRESS 갱신은 외부 검증 후에만**. AI 자체 평가 → 객관적 측정(grep/test count/실제 시연)으로 항상 교차 검증.
+
+**연관**: L-079 (PRD-only 함정), L-080 (RSC Date 직렬화 production-critical), L-081 (데모 환경 4 옵션 매트릭스), 본 세션 PR #83~#87 + fix/session-cleanup, senior-engineer/code-explorer subagent 진단 보고서.
