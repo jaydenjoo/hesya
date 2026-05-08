@@ -45,15 +45,15 @@ pnpm --filter @hesya/web build        # 경고 0건 목표
 
 ## 핵심 자산 인덱스 (Pre-Plan 검색 시작점)
 
-### Auth Guards (4종 — 신규 만들기 전 표 확인 ⚠️ stub 2개 주의)
+### Auth Guards (2종 — 신규 만들기 전 표 확인)
 
-| 함수                         | 파일                                           | 상태 / 용도                                                                                        |
-| ---------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| ⚠️ `requireAuth()` _(stub)_  | `apps/web/src/shared/lib/auth-guard.ts`        | **미구현 — 항상 `throw UnauthorizedError`**. Better Auth 정식 가드로 교체 예정. **사용 금지**      |
-| ⚠️ `requireAdmin()` _(stub)_ | `apps/web/src/shared/lib/auth-guard.ts`        | **미구현** (`requireAuth` 의존 → 같이 throw). 현재 admin은 `requireAdminEmail` 사용. **사용 금지** |
-| ✅ `requireAdminEmail()`     | `apps/web/src/shared/lib/admin-guard.ts`       | `ADMIN_EMAILS` env 화이트리스트 (Better Auth session). KYC actions 8군데+ 사용                     |
-| ✅ `requireStoreOwnerAuth()` | `apps/web/src/shared/lib/store-owner-guard.ts` | 매장 owner (`store_owners` 테이블 join)                                                            |
+| 함수                         | 파일                                           | 상태 / 용도                                                                    |
+| ---------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------ |
+| ✅ `requireAdminEmail()`     | `apps/web/src/shared/lib/admin-guard.ts`       | `ADMIN_EMAILS` env 화이트리스트 (Better Auth session). KYC actions 8군데+ 사용 |
+| ✅ `requireStoreOwnerAuth()` | `apps/web/src/shared/lib/store-owner-guard.ts` | 매장 owner (`store_owners` 테이블 join)                                        |
 
+> 과거 `auth-guard.ts` (`requireAuth` / `requireAdmin` stub)는 사용처 0건의 미구현 코드라 2026-05-08 Phase 1-γ.0 fix #2로 삭제됨. 정식 Better Auth 가드는 Epic 12 admin panel 도입 시 `admin-guard.ts` 진화 또는 신규 파일로 추가.
+>
 > **신규 가드/인증 함수 만들기 전 의무**: `grep -rn "guard\|require" apps/web/src/shared/lib/`
 
 ### DAL (Data Access Layer)
@@ -112,11 +112,9 @@ pnpm --filter @hesya/web build        # 경고 0건 목표
 - ❌ `pnpm --filter @hesya/database db:generate` 실행 = **위험**. conversations/store_integrations 등 manual 마이그 테이블을 다시 만들려 시도. → `packages/database/CLAUDE.md` 절차 따르기.
 - ❌ `app/(admin)/` route group을 `[locale]` **밖**에 만들면 i18n과 충돌. admin은 `app/[locale]/admin/<sub>/` 안에.
 - ❌ DAL을 `apps/web/src/lib/dal/`에 새로 만들면 중복. 기존 `apps/web/src/shared/lib/dal/` 사용.
-- ❌ `requireAuth()`, `requireAdmin()` (`auth-guard.ts`)는 stub — 항상 throw. 현재 admin 가드는 `requireAdminEmail` (`admin-guard.ts`).
 - ⚠️ `requireAdminEmail`은 임시 솔루션 (kyc/actions.ts 주석: _"Epic 12 admin panel 도입 시 정식 owner guard로 교체"_). ADMIN_EMAILS env는 첫 운영자 1~2명용.
 - ⚠️ Next.js 16에서 `middleware.ts` 만들면 무시됨. `proxy.ts`가 middleware 자리.
 - ⚠️ **rate-limit.ts는 in-memory Map** — Vercel Serverless 인스턴스 분산 환경에서 무력화. `startRateLimitGC()` 호출처도 0건 (dead code). **베타 출시 전 Upstash Redis 교체 필수** (Phase 1-γ.0 차단 fix #1).
-- ⚠️ **`auth-guard.ts`는 stub** (`requireAuth` / `requireAdmin` 모두 throw). 사용처 0건이지만 살아있어 실수 import 위험. **Phase 1-γ.0 차단 fix #2로 삭제 예정**.
 - ⚠️ **`sign-in/page.tsx`는 임시 검증 페이지** — 주석에 "Better Auth + Google OAuth 동작 검증용 임시 페이지" 명시. 베타 사용자 노출됨. **Phase 1-γ.0 차단 fix #3로 정식화 예정**.
 - ⚠️ **PROGRESS 자기평가는 e2e 시연 기준** (L-082) — 코드 머지 완료 ≠ 시연 가능. 새 기능 plan 시 시연 prerequisite 검증 의무.
 
