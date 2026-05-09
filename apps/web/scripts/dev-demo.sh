@@ -35,7 +35,23 @@ for i in {1..10}; do
   sleep 0.5
 done
 
-# 3. Next.js dev 서버 (background) — pnpm hoisting 회피 위해 .bin 직접 호출
+# 3. DATABASE_URL을 시연 전용 로컬 DB(HESYA_TEST_DATABASE_URL)로 강제 override.
+#
+# .env.local의 DATABASE_URL이 prod Supabase를 가리키면 seed:demo(로컬 DB에 시드)와
+# dev 서버(prod DB 조회)가 서로 다른 DB를 보게 됨 → owner row 미발견 → sign-in
+# redirect. 시연은 격리 환경에서만 의미 있으므로 dev:demo 시작 시 강제 동기화.
+#
+# dotenv 사용 — 따옴표/escape 처리 안전.
+HESYA_TEST_URL="$(node -e "require('dotenv').config({path:'.env.local'}); process.stdout.write(process.env.HESYA_TEST_DATABASE_URL || '')")"
+if [ -z "$HESYA_TEST_URL" ]; then
+  echo "[dev:demo] ✗ HESYA_TEST_DATABASE_URL이 apps/web/.env.local에 없습니다."
+  echo "[dev:demo]   시연용 로컬 DB URL을 .env.local에 추가하고 다시 실행하세요."
+  exit 1
+fi
+echo "[dev:demo] ✓ DATABASE_URL → HESYA_TEST_DATABASE_URL override (시연용 로컬 DB)"
+
+# 4. Next.js dev 서버 (background) — pnpm hoisting 회피 위해 .bin 직접 호출
+DATABASE_URL="$HESYA_TEST_URL" \
 IG_API_BASE_URL=http://localhost:4201 \
 E2E_AUTH_USER_ID=00000000-0000-0000-0000-000000000001 \
 E2E_ADMIN_EMAIL=demo-owner@hesya.local \
