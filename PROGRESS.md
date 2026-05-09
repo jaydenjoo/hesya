@@ -5,10 +5,10 @@
 
 ## 현재 위치 (2026-05-09 세션 종료 시점)
 
-- **Phase**: **Phase 1-γ.0 완료** → Phase 1-γ.1 (Epic 12 잔여 5 Task) 진입 직전
+- **Phase**: **Phase 1-γ.1 진입** (Epic 12 잔여 5 Task 중 첫 번째 = γ.1.1 E12-4 backend 머지 대기)
 - **시나리오**: B (풀 P0 베타 — PRD 원안)
-- **베타 5곳 출시 가능 시점**: 약 9~11주 추가 (γ.0 완료로 1주 단축)
-- **본 세션 종료**: PR #91 ✅ 머지 완료 (main `73215ed`) + 분산 e2e 시연 검증 통과 (8/10 객관 근거 확보)
+- **베타 5곳 출시 가능 시점**: 약 9~11주 (γ.0 완료로 1주 단축, γ.1.1 backend 진행 중)
+- **본 세션 종료**: PR #91 ✅ + PR #92 (E12-4 backend) ⏳ auto-merge + `~/.claude/docs/mattpocock-skills-guide.md` 글로벌 reference 저장
 
 ## P0 Epic 객관 완성도 (subagent 검증 — PRD §4 기준, 본 세션 변동 없음)
 
@@ -34,7 +34,32 @@
 | E2E 통합 시연 커버리지                 | **5/10** (γ.2에서 Epic 1+9 통합 E2E로 ↑ 예정)                                      |
 | 종합                                   | **7/10** ↑ (이전 6.5/10)                                                           |
 
-## 본 세션 (2026-05-09) — Phase 1-γ.0 완료
+## 본 세션 (2026-05-09) — Phase 1-γ.0 완료 + γ.1.1 backend + 글로벌 reference
+
+### Phase 1-γ.1.1 진행 (E12-4 분쟁처리, PRD §1063, 🔴 RED)
+
+**Plan v1 인벤토리 결과**: dispute/분쟁/complaint 코드 0건 (깨끗한 신규).
+ADR된 디렉토리 `app/[locale]/admin/disputes/` (DECISIONS:201). 기존 패턴 (kyc/store-reports) 그대로 재사용.
+
+**Plan-v2-scenario-B Q1~Q4 결정 (Jayden 추천 채택)**:
+
+1. 사장이 매장 UI에서 분쟁 신고 (`filed_by_user_id`로 추적)
+2. 5 상태 (`open` → `in_review` → `resolved`/`rejected`/`sla_exceeded`)
+3. 단순 영업일 (월~금, 공휴일 무시 — 베타 MVP)
+4. 이메일만 (Resend, kyc-result 패턴)
+
+**[PR #92](https://github.com/jaydenjoo/hesya/pull/92)** (auto-merge 대기) — Backend layer 7 파일 757줄:
+
+- Schema + migration `0023_disputes.sql` (manual SQL, ROLLBACK 주석)
+- DAL + 11 tests (3 단위 + 8 integration)
+- Server Actions (사장 측 submit / admin 측 setInReview·resolve·reject)
+- 알림 (`dispute-result.ts` — terminal 전이 시 사장 이메일)
+
+검증 ✅: type-check 0, lint 0, **591 tests passed (+3 신규, regression 0)**.
+
+**후속 (다음 세션)**: UI(사장 폼 + admin 큐) + dev:demo seed + 시연 → L-082 충족 후 Epic 12 % 갱신.
+
+### Phase 1-γ.0 완료 (직전)
 
 ### 작업 흐름
 
@@ -75,9 +100,16 @@
 
 📄 **상세 plan**: `docs/Plan-v2-scenario-B.md`
 
+### 다음 세션 첫 행동
+
+1. PR #92 머지 통과 확인 + 마이그 `0023_disputes.sql` Jayden Supabase Studio 적용 (🔴 수동)
+2. **`feat/e12-4-disputes-ui`** 브랜치 생성 — UI layer (사장 분쟁 신고 폼 + admin 큐 list/detail) ~3~4시간
+3. dev:demo seed에 분쟁 1건 추가 + 시연 e2e (L-082 충족) ~1시간
+4. PROGRESS Epic 12 % 갱신 + γ.1.1 종료 → γ.1.2 진입
+
 ### Phase 1-γ.1 — Epic 12 완성 (다음 1~1.5주, P0 RED)
 
-E12 현재 40% → 100% 목표. 5 Task + 통합 E2E:
+E12 현재 40% → 100% 목표. 5 Task + 통합 E2E (γ.1.1 backend 진행 중):
 
 | #     | Task                               | 영역                     | 예상  |
 | ----- | ---------------------------------- | ------------------------ | ----- |
@@ -152,3 +184,4 @@ demo.hesya.com Phase 2 도입 (L-081 옵션 C) + 베타 1~2곳 onboarding.
 - 글로벌 규칙: `~/.claude/CLAUDE.md` v3.2
 - 인벤토리 절차: `~/.claude/rules/inventory-protocol.md`
 - 프로젝트 규칙: `CLAUDE.md` (5-Layer 문서 구조, L-079 도입)
+- **신규 글로벌 reference**: `~/.claude/docs/mattpocock-skills-guide.md` (mattpocock/skills 검증 결과 + 신규 프로젝트 도입 가이드, 2026-05-09)
