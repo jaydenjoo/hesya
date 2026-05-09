@@ -16,6 +16,7 @@ import {
   conversations,
   createDbClient,
   customers,
+  disputes,
   messages,
   sql,
   storeIntegrations,
@@ -25,6 +26,7 @@ import {
   stores,
   users,
   type DbClient,
+  type DisputeCategory,
 } from "@hesya/database";
 import { randomUUID } from "node:crypto";
 
@@ -62,6 +64,7 @@ export function createTestDb() {
 // ---------- inline helpers (test-helpers/db.ts와 동일 의도, server-only 우회) ----------
 
 export async function resetDb(db: DbClient): Promise<void> {
+  await db.delete(disputes);
   await db.delete(messages);
   await db.delete(conversations);
   await db.delete(storeIntegrations);
@@ -121,6 +124,41 @@ export async function seedStoreOwner(
   input: { userId: string; storeId: string; role: "owner" | "manager" },
 ): Promise<void> {
   await db.insert(storeOwners).values(input);
+}
+
+/**
+ * Epic 12.4 시연용 분쟁 1건 seed.
+ *
+ * `dal/disputes.ts`의 `createDispute`는 `import "server-only"`로 막혀
+ * tsx/playwright에서 직접 호출 불가 → 본 fixture에서 inline insert로 우회.
+ *
+ * SLA는 단순 +5일(달력일) — 데모용 정확도 충분. 운영 흐름의 정확한 영업일
+ * 계산은 Server Action(`submitDisputeAction` → `computeSlaDueAt`)이 담당.
+ */
+export async function seedDispute(
+  db: DbClient,
+  input: {
+    storeId: string;
+    filedByUserId: string;
+    category: DisputeCategory;
+    description: string;
+  },
+): Promise<string> {
+  const slaDueAt = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+  const inserted = await db
+    .insert(disputes)
+    .values({
+      storeId: input.storeId,
+      filedByUserId: input.filedByUserId,
+      category: input.category,
+      description: input.description,
+      slaDueAt,
+    })
+    .returning({ id: disputes.id });
+  if (!inserted[0]) {
+    throw new Error("seedDispute: insert returned 0 rows");
+  }
+  return inserted[0].id;
 }
 
 /**
