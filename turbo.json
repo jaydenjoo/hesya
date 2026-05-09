@@ -36,7 +36,9 @@
         "E2E_AUTH_USER_ID",
         "QSTASH_TOKEN",
         "QSTASH_CURRENT_SIGNING_KEY",
-        "QSTASH_NEXT_SIGNING_KEY"
+        "QSTASH_NEXT_SIGNING_KEY",
+        "UPSTASH_REDIS_KV_REST_API_URL",
+        "UPSTASH_REDIS_KV_REST_API_TOKEN"
       ]
     },
     "dev": {
