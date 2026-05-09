@@ -52,6 +52,7 @@ import {
   seedStoreOwner,
   seedUser,
 } from "../e2e/fixtures/db";
+import { createDispute } from "../src/shared/lib/dal/disputes";
 
 /**
  * 데모 사장 user id. dev 서버 기동 시 `E2E_AUTH_USER_ID`로 동일 값을 주입하면
@@ -227,16 +228,28 @@ async function main(): Promise<void> {
       .where(eq(conversations.id, convId));
   }
 
+  // 4. 분쟁 1건 (Epic 12.4 시연용 — 매장 #1, status=open)
+  const seededDispute = await createDispute(db, {
+    storeId: autoStoreId,
+    filedByUserId: DEMO_USER_ID,
+    category: "complaint",
+    description:
+      "데모용 분쟁: 외국인 손님이 시술 후 불만을 제기했고 환불을 요구했습니다. 운영팀 검토를 요청드립니다.",
+  });
+
   console.log("[demo-seed] ✓ 시드 완료");
   console.log("");
   console.log("  데모 사장 user id  :", DEMO_USER_ID);
   console.log("  매장 #1 (사장 inbox):", autoStoreId);
   console.log("  매장 #2 (운영자 큐) :", reviewStoreId);
+  console.log("  분쟁 #1            :", seededDispute.id);
   console.log("");
   console.log("  사장 inbox     : http://localhost:4200/ko/store/inbox");
+  console.log("  사장 분쟁      : http://localhost:4200/ko/store/disputes");
   console.log(
     "  운영자 큐      : http://localhost:4200/ko/admin/store-verifications",
   );
+  console.log("  운영자 분쟁 큐  : http://localhost:4200/ko/admin/disputes");
   console.log("");
   console.log("  다음: pnpm dev:demo");
 }

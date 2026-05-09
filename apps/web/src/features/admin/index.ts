@@ -4,6 +4,8 @@
 // Components
 export { StoreVerificationsList } from "./components/store-verifications-list";
 export { StoreVerificationDetail } from "./components/store-verification-detail";
+export { DisputesList } from "./components/disputes-list";
+export { DisputeDetail } from "./components/dispute-detail";
 
 // Server Actions
 export {
