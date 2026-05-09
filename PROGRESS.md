@@ -8,7 +8,7 @@
 - **Phase**: **Phase 1-γ.0 완료** → Phase 1-γ.1 (Epic 12 잔여 5 Task) 진입 직전
 - **시나리오**: B (풀 P0 베타 — PRD 원안)
 - **베타 5곳 출시 가능 시점**: 약 9~11주 추가 (γ.0 완료로 1주 단축)
-- **본 세션 종료**: PR #91(rate-limit Upstash) auto-merge 대기 + PROGRESS/learnings 갱신
+- **본 세션 종료**: PR #91 ✅ 머지 완료 (main `73215ed`) + 분산 e2e 시연 검증 통과 (8/10 객관 근거 확보)
 
 ## P0 Epic 객관 완성도 (subagent 검증 — PRD §4 기준, 본 세션 변동 없음)
 
@@ -25,14 +25,14 @@
 
 ## 코드 품질 (본 세션 변동 — Upstash 교체로 분산 안정성 ↑)
 
-| 항목                                   | 점수                                             |
-| -------------------------------------- | ------------------------------------------------ |
-| 코드 품질 (DAL/타입/일관성)            | **7/10**                                         |
-| 보안 (Auth/RLS/암호화)                 | **8/10**                                         |
-| **분산 안정성 (rate-limit)**           | **8/10** ↑ (이전 4/10, in-memory 무력화 → Redis) |
-| 기술 부채 (TODO 2건, 임시 솔루션 명시) | **6/10**                                         |
-| E2E 통합 시연 커버리지                 | **5/10** (γ.2에서 Epic 1+9 통합 E2E로 ↑ 예정)    |
-| 종합                                   | **7/10** ↑ (이전 6.5/10)                         |
+| 항목                                   | 점수                                                                               |
+| -------------------------------------- | ---------------------------------------------------------------------------------- |
+| 코드 품질 (DAL/타입/일관성)            | **7/10**                                                                           |
+| 보안 (Auth/RLS/암호화)                 | **8/10**                                                                           |
+| **분산 안정성 (rate-limit)**           | **8/10** ↑ (이전 4/10) — Upstash Redis e2e 시연 검증 (#11 BLOCKED, retryAfter=55s) |
+| 기술 부채 (TODO 2건, 임시 솔루션 명시) | **6/10**                                                                           |
+| E2E 통합 시연 커버리지                 | **5/10** (γ.2에서 Epic 1+9 통합 E2E로 ↑ 예정)                                      |
+| 종합                                   | **7/10** ↑ (이전 6.5/10)                                                           |
 
 ## 본 세션 (2026-05-09) — Phase 1-γ.0 완료
 
@@ -48,11 +48,11 @@
 
 ### 머지된 PR (본 세션) — Phase 1-γ.0 차단 fix 3개
 
-| PR                                                | Task                                         | 상태               |
-| ------------------------------------------------- | -------------------------------------------- | ------------------ |
-| [#89](https://github.com/jaydenjoo/hesya/pull/89) | γ.0.2 — auth-guard.ts stub 삭제 (사용처 0건) | ✅ 머지            |
-| [#90](https://github.com/jaydenjoo/hesya/pull/90) | γ.0.3 — sign-in 매장 사장 디자인 적용        | ✅ 머지            |
-| [#91](https://github.com/jaydenjoo/hesya/pull/91) | **γ.0.1 — rate-limit Upstash Redis 교체**    | ⏳ auto-merge 대기 |
+| PR                                                | Task                                                                                        | 상태                       |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------- |
+| [#89](https://github.com/jaydenjoo/hesya/pull/89) | γ.0.2 — auth-guard.ts stub 삭제 (사용처 0건)                                                | ✅ 머지                    |
+| [#90](https://github.com/jaydenjoo/hesya/pull/90) | γ.0.3 — sign-in 매장 사장 디자인 적용                                                       | ✅ 머지                    |
+| [#91](https://github.com/jaydenjoo/hesya/pull/91) | **γ.0.1 — rate-limit Upstash Redis 교체** + 부수 fix (turbo.json + ci.yml UPSTASH env 누락) | ✅ 머지 (squash `73215ed`) |
 
 ### 글로벌 환경 변경 (모든 프로젝트 적용)
 
@@ -65,6 +65,11 @@
 - `pnpm --filter @hesya/web type-check` ✅ tsc 0 errors
 - `pnpm --filter @hesya/web test` ✅ **588 passed** (+7 신규 rate-limit tests, regression 0)
 - `pnpm --filter @hesya/web lint` ✅ 0 issues
+- **CI 전체 통과** (validate / e2e-smoke / e2e-integration / Vercel) — 부수 fix 2건 후
+- **분산 e2e 시연 검증** (실 Upstash 호출, 임시 스크립트) ✅
+  - #1~#10 OK (remaining 9→0 카운트다운)
+  - #11~#12 BLOCKED (retryAfter=55s)
+  - sliding window 강제 + retryAfter 정확 + atomic increment 모두 입증
 
 ## 다음 세션 가이드 — Phase 1-γ.1 (Epic 12 완성)
 
@@ -107,22 +112,27 @@ demo.hesya.com Phase 2 도입 (L-081 옵션 C) + 베타 1~2곳 onboarding.
 
 ## 차단 요소
 
-없음. Phase 1-γ.0 모든 차단 fix 완료 → Phase 1-γ.1 진입 가능.
+없음. Phase 1-γ.0 모든 차단 fix + 분산 시연 검증까지 완료 → Phase 1-γ.1 진입 가능.
 
-⚠️ 다음 세션 시작 시 검증 필요:
+✅ **시연 검증 완료** (2026-05-09 본 세션):
 
-- PR #91 auto-merge 통과 + Vercel deploy 후 분산 환경 시연 (Jayden측)
-- `pnpm dev:demo` 또는 preview 환경에서 빠른 11회 호출 → 11번째 RateLimitError 확인
+- PR #91 ✅ 머지 (`73215ed`) + 부수 fix 2건 (turbo.json + ci.yml UPSTASH env 누락) squash
+- 옵션 B (직접 호출 검증 스크립트, 임시 → 실행 후 즉시 삭제) → Upstash sliding window e2e 통과
+- L-082 충족: 코드 머지 + 사용자 흐름 시연 둘 다 → 분산 안정성 8/10 객관 근거 확보
+
+(보너스 옵션 A `pnpm dev:demo` UI 시연은 베타 직전 단계로 보류 — B로 인프라 단위 충분)
 
 ## 컨텍스트 관리 강화 — 영구 도입 (본 세션 추가)
 
-직전 세션 (L-082) + 본 세션 (L-083) 합산:
+직전 세션 (L-082) + 본 세션 (L-083, L-084) 합산:
 
 1. **PROGRESS 자기평가는 e2e 시연 기준** (L-082)
 2. **destructive CLI 명령 글로벌 정밀화** (L-083) — `Bash(vercel env*)` → `*ls*`/`*get *`만
 3. **VS Code Local History 복구 경로** 확보 (L-083)
 4. **subagent 진단 의무화**: P0 Epic 작업 전 senior-engineer + code-explorer
 5. **PR 같은 영역 3개+ 누적 시 회고 trigger** (L-082)
+6. **새 env 도입 PR 5-layer 정합성 의무** (L-084) — env.ts / .env.example / Vercel / turbo.json / CI workflow 동시 갱신
+7. **검증 스크립트는 lib wrapper 우회** (L-084) — 무관한 env validation 실패에 발목 안 잡히도록 라이브러리 직접 호출
 
 ## 알려진 환경 이슈 (본 세션 scope 밖, 별도 처리)
 
@@ -138,7 +148,7 @@ demo.hesya.com Phase 2 도입 (L-081 옵션 C) + 베타 1~2곳 onboarding.
 - 디자인: `docs/design/` (참조), `docs/DESIGN-PLAN.md`
 - 데모 가이드: `docs/demo-guide.md`
 - ADR: `docs/DECISIONS.md`
-- 교훈: `docs/learnings.md` (L-001~**L-083**)
+- 교훈: `docs/learnings.md` (L-001~**L-084**)
 - 글로벌 규칙: `~/.claude/CLAUDE.md` v3.2
 - 인벤토리 절차: `~/.claude/rules/inventory-protocol.md`
 - 프로젝트 규칙: `CLAUDE.md` (5-Layer 문서 구조, L-079 도입)

@@ -2867,3 +2867,71 @@ PRD-only planning(L-079)을 fixture-only planning이 대체한 형태. e2e fixtu
 - 메타: 향후 3개월 destructive CLI 사고 0건이면 글로벌 정밀화 정책 유효성 입증 → 다른 도구 (`supabase db reset`, `aws s3 rm` 등)에도 동일 패턴 확장
 
 **연관**: L-079 (PRD-only planning 함정), L-082 (PROGRESS 자기평가 e2e 시연 기준), 글로벌 `~/.claude/CLAUDE.md` v3.1 "Git 안전 규칙" 정신 확장. Anthropic 공식 docs (code.claude.com/docs/en/{hooks,permissions,settings,skills}.md, 2026-05-09 업데이트) 기반.
+
+---
+
+### [2026-05-09] L-084 — 새 환경변수 도입 PR은 5-layer 정합성 인벤토리 의무 (Zod schema / .env.local / Vercel / turbo.json / CI workflow). PR #91 머지 시도 시 turbo.json + CI dummy env 누락으로 build/CI 2단계 fail.
+
+**증상 / 상황**: PR #91 (rate-limit Upstash 교체) merge 직전, Vercel build + e2e-smoke + validate 3개 동시 fail. 표면 에러는 동일 ZodError:
+
+```
+UPSTASH_REDIS_KV_REST_API_URL: invalid_type, received undefined
+UPSTASH_REDIS_KV_REST_API_TOKEN: invalid_type, received undefined
+```
+
+순차 진단:
+
+1. **Vercel build fail** → turbo warning이 명시: "환경변수가 Vercel project에 있으나 turbo.json `passThroughEnv` 누락 → build에 전달 안 됨". `turbo.json` `tasks.build.env`에 2개 추가 → 통과
+2. **CI validate + e2e-smoke fail** → ci.yml의 dummy env block 3개 job(validate / e2e-smoke / e2e-integration) 모두 신규 변수 미정의. 3곳 동일 패턴으로 dummy 추가 → 통과
+3. 누락된 layer 발견 패턴: 각 layer가 다른 fail 시그널을 냄 — Vercel은 turbo warning, CI는 build job ZodError, 로컬은 그대로 작동(.env.local에 있으니까).
+
+**원인 (root cause)**: 새 환경변수 도입 시 갱신 의무 layer가 5종이고 한 곳만 빠져도 부분적으로 동작 → 점진적으로 fail이 표면화. 본 PR 작성 시 인벤토리에 다음 layer 매트릭스 명시 안 됨:
+
+| Layer                                       | 위치                                | 본 PR 갱신 여부                 |
+| ------------------------------------------- | ----------------------------------- | ------------------------------- |
+| 1. Zod schema                               | `apps/web/src/shared/config/env.ts` | ✅ (의도적)                     |
+| 2. 로컬 `.env.local` / `.env.example`       | Jayden 머신 + 문서                  | ✅ (Vercel pull)                |
+| 3. Vercel project env                       | Production/Preview/Development      | ✅ (Upstash 통합 자동 주입)     |
+| **4. `turbo.json` `tasks.build.env`**       | monorepo 루트                       | ❌ **누락** → Vercel build fail |
+| **5. `.github/workflows/ci.yml` env block** | 3개 job 별도                        | ❌ **누락** → CI fail           |
+
+L-079(PRD-only planning)의 인벤토리 부실 패턴이 monorepo + CI 환경에서 특정 형태로 재발. fixture/CI 환경 ≠ production build 환경 (L-082) 정신과 동일 — 환경 layer 격리에 대한 의무 명시 부족.
+
+**부산물 — 검증 스크립트의 env validation 우회 패턴**: 옵션 B 분산 시연 검증 스크립트 작성 시 `@/shared/lib/rate-limit.ts` import → 그 파일이 `@/shared/config/env`를 import → `envSchema.parse(process.env)` 전체 트리거 → 무관한 `ANTHROPIC_API_KEY` prefix 검증 실패로 스크립트 실행 차단. 우회: 검증 스크립트는 lib wrapper 의존 X, 라이브러리(`@upstash/ratelimit`) 직접 호출. 동일 prefix(`hesya:rl`) + 동일 sliding window 설정으로 동등 검증.
+
+**해결 (영구 규칙)**:
+
+1. **새 환경변수 도입 PR의 인벤토리에 5-layer 정합성 매트릭스 의무 첨부**:
+   ```
+   - [ ] env.ts Zod schema (validation)
+   - [ ] .env.example (문서)
+   - [ ] Vercel project env (Production/Preview/Development 3개)
+   - [ ] turbo.json tasks.build.env (monorepo build)
+   - [ ] .github/workflows/ci.yml env block (3개 job 모두)
+   ```
+2. **신규 env 도입 시 grep checklist 자동 실행**:
+   ```bash
+   VAR="UPSTASH_REDIS_KV_REST_API_URL"
+   grep -c "$VAR" apps/web/src/shared/config/env.ts  # 1+ 기대
+   grep -c "$VAR" turbo.json                          # 1+ 기대
+   grep -c "$VAR" .github/workflows/ci.yml            # 3+ 기대 (job 3개)
+   grep -c "$VAR" .env.example 2>/dev/null            # 1+ 기대 (있으면)
+   ```
+3. **검증 스크립트 작성 시 lib wrapper 우회**: 인프라 검증(Redis 통신, sliding window 등)은 lib wrapper의 비즈니스 로직과 무관 → 라이브러리 직접 호출. wrapper의 env import 의존성에 발목 잡히지 않음. 임시 스크립트는 `apps/web/scripts/verify-*.ts` 명명 + 검증 후 즉시 삭제(4원칙 3번).
+4. **CI dummy env 값 형식**: Zod schema의 형식 제약(prefix, min length, URL format)을 만족해야 함. 예: `z.url()` → `https://ci-dummy-<svc>.example.com`, `z.string().min(20)` → 20자 이상 dummy.
+
+**확인 방법**:
+
+- 자동 (후보): PR template에 "신규 env 도입 시 5-layer 매트릭스" 체크박스 추가
+- 자동 (후보): pre-commit hook으로 `git diff env.ts`에 새 z.\* 추가 감지 시 turbo.json + ci.yml 동반 변경 확인
+- 인간 리뷰: 동일 PR에 같은 변수명이 5개 layer에 대응 등장하는지 grep으로 확인
+- 메타: 향후 3개월 새 env 도입 PR에서 build/CI fail 0건이면 영구 패턴 정착
+
+**규칙** ⭐:
+
+1. **새 환경변수 도입 PR은 5-layer (env.ts Zod / .env.example / Vercel / turbo.json passThroughEnv / CI workflow dummy)에 동시 갱신 의무**. Plan 인벤토리 단계에 매트릭스 첨부.
+2. **monorepo + CI 환경에서 "로컬 작동 = 통과" 가정 금지**. 로컬은 `.env.local`이 모든 layer를 우회하므로 가장 약한 검증. 진짜 검증은 Vercel build + CI dummy env block.
+3. **검증 스크립트는 lib wrapper 우회 + 라이브러리 직접 호출**. wrapper가 의존하는 글로벌 env import가 무관한 검증 실패를 일으킬 수 있음.
+4. **CI dummy 값은 Zod schema 형식 제약 준수**. z.url()은 `https://ci-dummy-*.example.com`, z.string().min(N)은 N자 이상 더미. 형식 미준수 시 build fail.
+
+**연관**: L-079 (PRD-only planning 함정), L-082 (PROGRESS 자기평가 e2e 시연 기준), L-083 (destructive CLI 글로벌 정밀화), 본 세션 PR #91 squash `73215ed` (부수 commit `b7a733f` turbo.json + `e8fb003` ci.yml).
