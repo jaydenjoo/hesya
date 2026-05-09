@@ -46,13 +46,13 @@ import {
   resetDb,
   seedConversation,
   seedCustomer,
+  seedDispute,
   seedMessage,
   seedStore,
   seedStoreIntegration,
   seedStoreOwner,
   seedUser,
 } from "../e2e/fixtures/db";
-import { createDispute } from "../src/shared/lib/dal/disputes";
 
 /**
  * 데모 사장 user id. dev 서버 기동 시 `E2E_AUTH_USER_ID`로 동일 값을 주입하면
@@ -229,7 +229,7 @@ async function main(): Promise<void> {
   }
 
   // 4. 분쟁 1건 (Epic 12.4 시연용 — 매장 #1, status=open)
-  const seededDispute = await createDispute(db, {
+  const seededDisputeId = await seedDispute(db, {
     storeId: autoStoreId,
     filedByUserId: DEMO_USER_ID,
     category: "complaint",
@@ -242,7 +242,7 @@ async function main(): Promise<void> {
   console.log("  데모 사장 user id  :", DEMO_USER_ID);
   console.log("  매장 #1 (사장 inbox):", autoStoreId);
   console.log("  매장 #2 (운영자 큐) :", reviewStoreId);
-  console.log("  분쟁 #1            :", seededDispute.id);
+  console.log("  분쟁 #1            :", seededDisputeId);
   console.log("");
   console.log("  사장 inbox     : http://localhost:4200/ko/store/inbox");
   console.log("  사장 분쟁      : http://localhost:4200/ko/store/disputes");
