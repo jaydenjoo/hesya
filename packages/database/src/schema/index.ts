@@ -4,6 +4,7 @@ export * from "./bookings";
 export * from "./channels";
 export * from "./conversations";
 export * from "./customers";
+export * from "./disputes";
 export * from "./kyc-verification-logs";
 export * from "./messages";
 export * from "./payments";
