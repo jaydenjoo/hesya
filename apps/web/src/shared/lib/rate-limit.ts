@@ -1,5 +1,5 @@
 /**
- * Rate Limiting 헬퍼
+ * Rate Limiting 헬퍼 (Phase 1-γ.0 fix #1, L-082 차단 사항 해소)
  *
  * 비싼 작업 (AI 호출, 결제, 이메일 발송)에 적용.
  *
@@ -10,7 +10,19 @@
  *     await checkRateLimit(`ai:${userId}`, { max: 10, windowSec: 60 })
  *     // ...
  *   }
+ *
+ * 구현:
+ * - Upstash Redis sliding window (`@upstash/ratelimit`)
+ * - prefix `hesya:rl` — 같은 Redis 인스턴스를 다른 hesya 캐시와 공유 시 키 격리
+ * - 인스턴스 캐시: (max, windowSec) 조합당 Ratelimit 1개 lazy 생성
+ *
+ * 이전 (in-memory Map) 구현은 Vercel Serverless 인스턴스 분산 환경에서 무력화 →
+ * Phase 1-γ.0 차단 fix #1로 Upstash Redis 교체.
  */
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+
+import { env } from "@/shared/config/env";
 
 interface RateLimitOptions {
   max: number; // 최대 요청 수
@@ -24,42 +36,41 @@ export class RateLimitError extends Error {
   }
 }
 
-// In-memory store (단일 인스턴스용)
-// 프로덕션: Upstash Redis 또는 Vercel KV로 교체 권장
-const store = new Map<string, { count: number; resetAt: number }>();
+const redis = new Redis({
+  url: env.UPSTASH_REDIS_KV_REST_API_URL,
+  token: env.UPSTASH_REDIS_KV_REST_API_TOKEN,
+});
+
+// (max, windowSec) 조합당 Ratelimit 인스턴스 캐시 — 호출자가 다양한 limit을
+// 사용하더라도 인스턴스 재생성 비용 없음.
+const limiterCache = new Map<string, Ratelimit>();
+
+function getLimiter(options: RateLimitOptions): Ratelimit {
+  const cacheKey = `${options.max}:${options.windowSec}`;
+  const cached = limiterCache.get(cacheKey);
+  if (cached) return cached;
+
+  const limiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(options.max, `${options.windowSec} s`),
+    prefix: "hesya:rl",
+    analytics: false, // 분석 데이터 저장 비용 절감
+  });
+  limiterCache.set(cacheKey, limiter);
+  return limiter;
+}
 
 export async function checkRateLimit(
   key: string,
   options: RateLimitOptions,
 ): Promise<void> {
-  const now = Date.now();
-  const entry = store.get(key);
-
-  if (!entry || entry.resetAt < now) {
-    store.set(key, { count: 1, resetAt: now + options.windowSec * 1000 });
-    return;
-  }
-
-  if (entry.count >= options.max) {
-    const retryAfterSec = Math.ceil((entry.resetAt - now) / 1000);
+  const limiter = getLimiter(options);
+  const result = await limiter.limit(key);
+  if (!result.success) {
+    const retryAfterSec = Math.max(
+      1,
+      Math.ceil((result.reset - Date.now()) / 1000),
+    );
     throw new RateLimitError(retryAfterSec);
   }
-
-  entry.count++;
-}
-
-/**
- * 메모리 정리 (1시간마다 만료된 항목 제거)
- * 서버 시작 시 setInterval로 등록
- */
-export function startRateLimitGC() {
-  setInterval(
-    () => {
-      const now = Date.now();
-      for (const [key, entry] of store.entries()) {
-        if (entry.resetAt < now) store.delete(key);
-      }
-    },
-    60 * 60 * 1000,
-  );
 }

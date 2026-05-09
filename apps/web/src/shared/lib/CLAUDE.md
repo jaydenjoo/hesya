@@ -46,13 +46,14 @@
 
 ## 기타
 
-| 파일                   | 용도                       |
-| ---------------------- | -------------------------- |
-| `errors.ts`            | 에러 응답 표준화           |
-| `errors.test.ts`       | 위 테스트                  |
-| `rate-limit.ts`        | 레이트 리밋 (Upstash 기반) |
-| `sanitize-url.ts`      | URL 검증/정제              |
-| `sanitize-url.test.ts` | 위 테스트                  |
+| 파일                   | 용도                                                                 |
+| ---------------------- | -------------------------------------------------------------------- |
+| `errors.ts`            | 에러 응답 표준화                                                     |
+| `errors.test.ts`       | 위 테스트                                                            |
+| `rate-limit.ts`        | 레이트 리밋 (`@upstash/ratelimit` sliding window, prefix `hesya:rl`) |
+| `rate-limit.test.ts`   | 위 테스트 (Upstash 라이브러리 mock)                                  |
+| `sanitize-url.ts`      | URL 검증/정제                                                        |
+| `sanitize-url.test.ts` | 위 테스트                                                            |
 
 ## 신규 추가 시 의무
 

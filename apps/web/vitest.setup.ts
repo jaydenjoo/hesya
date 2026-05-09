@@ -43,6 +43,8 @@ const stubs: Record<string, string> = {
   QSTASH_TOKEN: "stub-qstash-token-aaaaaaaaaaaaaaaaaa",
   QSTASH_CURRENT_SIGNING_KEY: "stub-qstash-current-aaaaaaaaaaaaaaaaaa",
   QSTASH_NEXT_SIGNING_KEY: "stub-qstash-next-aaaaaaaaaaaaaaaaaa",
+  UPSTASH_REDIS_KV_REST_API_URL: "https://stub-redis.upstash.io",
+  UPSTASH_REDIS_KV_REST_API_TOKEN: "stub-upstash-redis-aaaaaaaaaaaaaaaaaa",
 };
 for (const [k, v] of Object.entries(stubs)) {
   if (process.env[k] == null || process.env[k] === "") {

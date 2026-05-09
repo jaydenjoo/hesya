@@ -2822,3 +2822,48 @@ PRD-only planning(L-079)을 fixture-only planning이 대체한 형태. e2e fixtu
 4. **PROGRESS 갱신은 외부 검증 후에만**. AI 자체 평가 → 객관적 측정(grep/test count/실제 시연)으로 항상 교차 검증.
 
 **연관**: L-079 (PRD-only 함정), L-080 (RSC Date 직렬화 production-critical), L-081 (데모 환경 4 옵션 매트릭스), 본 세션 PR #83~#87 + fix/session-cleanup, senior-engineer/code-explorer subagent 진단 보고서.
+
+---
+
+### [2026-05-09] L-083 — destructive CLI 명령(`vercel env pull --yes`)이 글로벌 allow 와일드카드를 우회 → 사용자 `.env.local` 손실. VS Code Local History 복구 + 글로벌 settings.json 정밀화로 영구 차단.
+
+**증상 / 상황**: Phase 1-γ.0 fix #1 (rate-limit Upstash 교체) 진행 중, 환경변수 동기화 위해 `vercel env pull .env.local --yes` 실행. `--yes` 플래그가 confirmation prompt를 우회하여 **사용자 기존 `.env.local`을 백업 없이 즉시 덮어씀**. Jayden이 직접 VS Code Local History (`~/Library/Application Support/Code/User/History/-131dd635/ktDd.local`)에서 복구해야 했음. 약 30분 손실 + 사용자 신뢰 타격.
+
+**원인 (root cause)**: 글로벌 `~/.claude/settings.json` `permissions.allow` 리스트의 `Bash(vercel env*)` 와일드카드가 너무 광범위. 모든 `vercel env <subcommand>`가 자동 통과 — `ls`/`get` 같은 read-only뿐 아니라 `pull`/`add`/`rm`/`push` 같은 destructive write까지. 거기에 `--yes`/`--force` 플래그가 CLI 자체의 confirmation까지 우회.
+
+기여 요인:
+
+- 글로벌 `permissions.deny`에 `Bash(rm -rf *)`, `Bash(git reset --hard *)` 등은 있었으나 **CLI tool destructive (`vercel env pull --yes`, `cp .env*`, `mv .env*` 등)는 0건**
+- 프로젝트 PreToolUse hook은 SQL DDL (DROP/TRUNCATE) 만 검사 → file/CLI destructive 무방비
+- `.env*` 파일 자체는 Read/Edit deny되어 있지만 **Bash 통한 cp/mv/vercel pull 같은 file 영역 destructive는 deny 안 됨**
+- AI(Claude)가 명령 실행 전 백업 명령(`cp .env.local .env.local.bak`) 자동 출력하지 않음
+
+**해결**:
+
+1. **글로벌 `~/.claude/settings.json` allow 정밀화** (본 세션 즉시 적용):
+   - `Bash(vercel env*)` (모든 env 명령) **삭제**
+   - `Bash(vercel env ls*)` + `Bash(vercel env get *)` (read-only 2개) **추가**
+   - `vercel env pull/add/rm/push`는 매 호출 명시적 prompt → 사용자가 destructive 의도 확인
+   - 백업: `~/.claude/settings.json.bak.20260509_124259`
+   - 효과: hesya뿐 아니라 autovox/chatsio/pg-system 등 **모든 프로젝트 동시 보호**
+2. **복구 경로 명문화**: VS Code Local History (`~/Library/Application Support/Code/User/History/<hash>/`)는 .env.local 같은 git ignore 파일도 자동 백업 (사용자가 VS Code/Cursor에서 파일 열고 수정한 시점). entries.json에서 resource URI 매칭 → 가장 최근 timestamp 백업 파일 복구.
+3. **Anthropic 공식 docs 확인** (claude-code-guide subagent 위임): hooks.md/permissions.md/skills.md (2026-05-09) — PreToolUse hook + permissions wildcard 정밀화 + dynamic context injection 패턴이 공식 권장.
+
+**규칙** ⭐ (다음 세션부터 영구 적용):
+
+1. **CLI 자동 실행 권한은 read-only 명령으로만 좁게**. `*ls*`, `*get *`, `*list*`, `*show*`, `*status*`, `*describe*` 같은 패턴만 와일드카드 자동 통과 허용. **write/destructive (`pull`, `push`, `add`, `rm`, `delete`, `apply`, `deploy`, `migrate`)는 매 호출 명시적 prompt 의무**.
+2. **`--yes` / `--force` / `-y` / `-f` / `--no-verify` 플래그가 포함된 명령은 사용자 사전 승인 없이 실행 절대 금지**. AI가 명령 출력 전 플래그 검토 + 사용자에게 백업 여부 확인.
+3. **`.env*` 또는 secret 파일 destructive 작업 (cp/mv/rm/overwrite) 전 항상 백업 명령을 먼저 출력**. 예: `cp .env.local .env.local.bak.$(date +%s)` → 사용자 승인 → destructive 실행.
+4. **VS Code/Cursor Local History는 git ignore 파일도 자동 백업**. 위치: `~/Library/Application Support/{Code,Cursor}/User/History/`. 폴더 hash 안에 entries.json + timestamp 파일 다수. 복구 시 파일 시각 + 크기로 후보 식별 → 가장 최근 + 큰 파일이 1순위. 사용자에게 명확한 `cp` 명령 안내.
+5. **글로벌 settings.json 와일드카드 review 정기화**. 새 도구 (vercel/supabase/aws CLI 등) 추가 시 destructive subcommand 분리 검토. 한 번 와일드카드로 추가하면 모든 프로젝트 영향.
+6. **추측을 단정으로 표현 금지** (확신등급 표시 의무): 본 세션에서 "Free 플랜 안 보이는 이유는 다른 프로젝트 사용 중" 단정 → 실제로 Free가 보였음. 🟢/🟡/🔴 등급 + 출처 + 업데이트 날짜 명시 의무.
+7. **destructive 명령 사전 백업 자동화 (후속)**: PreToolUse hook으로 `--yes`/`--force` 또는 `.env*` destructive 패턴 감지 시 자동 차단 + 백업 명령 제안. 본 세션 fix #1(allow 정밀화)에 더해 hook 도입은 후속 PR.
+
+**확인 방법**:
+
+- 자동: 다음 세션 시작 시 `vercel env pull --yes` 시도 → 매 호출 명시적 prompt 발생 확인
+- 자동: `python3 -c "import json; json.load(open('~/.claude/settings.json'))"` ✅ JSON 유효성 (변경 시점 검증 완료)
+- 인간 리뷰: 본 세션 PR #91 description에 환경변수 자동 주입 흐름 명시
+- 메타: 향후 3개월 destructive CLI 사고 0건이면 글로벌 정밀화 정책 유효성 입증 → 다른 도구 (`supabase db reset`, `aws s3 rm` 등)에도 동일 패턴 확장
+
+**연관**: L-079 (PRD-only planning 함정), L-082 (PROGRESS 자기평가 e2e 시연 기준), 글로벌 `~/.claude/CLAUDE.md` v3.1 "Git 안전 규칙" 정신 확장. Anthropic 공식 docs (code.claude.com/docs/en/{hooks,permissions,settings,skills}.md, 2026-05-09 업데이트) 기반.

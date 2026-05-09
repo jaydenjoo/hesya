@@ -114,7 +114,7 @@ pnpm --filter @hesya/web build        # 경고 0건 목표
 - ❌ DAL을 `apps/web/src/lib/dal/`에 새로 만들면 중복. 기존 `apps/web/src/shared/lib/dal/` 사용.
 - ⚠️ `requireAdminEmail`은 임시 솔루션 (kyc/actions.ts 주석: _"Epic 12 admin panel 도입 시 정식 owner guard로 교체"_). ADMIN_EMAILS env는 첫 운영자 1~2명용.
 - ⚠️ Next.js 16에서 `middleware.ts` 만들면 무시됨. `proxy.ts`가 middleware 자리.
-- ⚠️ **rate-limit.ts는 in-memory Map** — Vercel Serverless 인스턴스 분산 환경에서 무력화. `startRateLimitGC()` 호출처도 0건 (dead code). **베타 출시 전 Upstash Redis 교체 필수** (Phase 1-γ.0 차단 fix #1).
+- ✅ **rate-limit.ts** — `@upstash/ratelimit` sliding window (Upstash Redis `hesya-rate-limit-prod`, Tokyo, Free tier 500K/월). prefix `hesya:rl`. env: `UPSTASH_REDIS_KV_REST_API_URL/TOKEN`. 2026-05-08 Phase 1-γ.0 fix #1로 in-memory Map → 분산 Redis 교체 완료.
 - ⚠️ **`sign-in/page.tsx`는 임시 검증 페이지** — 주석에 "Better Auth + Google OAuth 동작 검증용 임시 페이지" 명시. 베타 사용자 노출됨. **Phase 1-γ.0 차단 fix #3로 정식화 예정**.
 - ⚠️ **PROGRESS 자기평가는 e2e 시연 기준** (L-082) — 코드 머지 완료 ≠ 시연 가능. 새 기능 plan 시 시연 prerequisite 검증 의무.
 

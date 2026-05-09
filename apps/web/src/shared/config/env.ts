@@ -100,6 +100,15 @@ const envSchema = z.object({
   QSTASH_TOKEN: z.string().min(20),
   QSTASH_CURRENT_SIGNING_KEY: z.string().min(20),
   QSTASH_NEXT_SIGNING_KEY: z.string().min(20),
+
+  // ─── Phase 1-γ.0 fix #1 Upstash Redis (rate-limit) ───
+  // Vercel Marketplace 통합으로 hesya-rate-limit-prod (Tokyo, Free) 자동 prov.
+  // 이름 패턴이 길지만 prefix `UPSTASH_REDIS` + 통합 자체 suffix(`KV_REST_API_*`)
+  // 합성 결과. Standard `UPSTASH_REDIS_REST_*`와 다르므로 `Redis.fromEnv()` 자동
+  // 인식 안 됨 → rate-limit.ts에서 직접 주입.
+  // 사용 안 하는 변수 3개 (KV_URL / REDIS_URL / READ_ONLY_TOKEN)는 zod 등록 생략.
+  UPSTASH_REDIS_KV_REST_API_URL: z.url(),
+  UPSTASH_REDIS_KV_REST_API_TOKEN: z.string().min(20),
 });
 
 /**
