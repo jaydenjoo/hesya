@@ -56,7 +56,7 @@ export function DraftReviewPanel({
   return (
     <div
       data-testid="draft-review-panel"
-      className="border-t border-hesya-amber-500 bg-hesya-peach-100 px-4 py-3"
+      className="border-t border-hesya-amber-500 bg-hesya-peach-100 px-[18px] py-3 motion-safe:animate-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-200"
     >
       <div className="kr mb-2 text-[11px] font-semibold text-hesya-amber-600">
         <span aria-hidden="true">🤖 </span>AI 초안 검수 — 승인하시면 전송됩니다
@@ -74,7 +74,7 @@ export function DraftReviewPanel({
           type="button"
           onClick={onApprove}
           disabled={pending || !unchanged || empty}
-          className="kr rounded-md bg-emerald-500 px-3.5 py-2 text-xs font-semibold text-white not-disabled:cursor-pointer not-disabled:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+          className="kr rounded-md bg-hesya-amber-500 px-3.5 py-2 text-xs font-semibold text-white not-disabled:cursor-pointer not-disabled:hover:bg-hesya-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
           승인 + 전송
         </button>
@@ -90,7 +90,7 @@ export function DraftReviewPanel({
           type="button"
           onClick={onSkip}
           disabled={pending}
-          className="kr ml-auto rounded-md border border-hesya-peach-200 px-3.5 py-2 text-xs font-medium text-gray-700 not-disabled:cursor-pointer not-disabled:hover:border-hesya-amber-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className="kr ml-auto rounded-md border border-hesya-peach-200 bg-transparent px-3.5 py-2 text-xs font-medium text-gray-700 not-disabled:cursor-pointer not-disabled:hover:border-hesya-amber-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
           무시
         </button>

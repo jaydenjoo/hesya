@@ -123,4 +123,34 @@ describe("MessageBubble", () => {
     expect(container.firstChild).toHaveAttribute("data-status", "ai_draft");
     expect(screen.getByText(/AI 초안/)).toBeInTheDocument();
   });
+
+  it("γ.2.3.2: customer 버블은 peach-100 + 좌하단 4px corner (꼬리)", () => {
+    render(<MessageBubble message={makeMsg({ direction: "inbound" })} />);
+    const body = screen.getByTestId("message-bubble-body");
+    expect(body.className).toContain("bg-hesya-peach-100");
+    expect(body.className).toContain("rounded-bl-[4px]");
+  });
+
+  it("γ.2.3.2: owner 버블은 amber-500 + 우하단 4px corner (꼬리)", () => {
+    render(<MessageBubble message={makeMsg({ direction: "outbound" })} />);
+    const body = screen.getByTestId("message-bubble-body");
+    expect(body.className).toContain("bg-hesya-amber-500");
+    expect(body.className).toContain("rounded-br-[4px]");
+  });
+
+  it("γ.2.3.2: <time>이 버블 외부 (sibling)에 위치, 10px gray-500", () => {
+    const { container } = render(<MessageBubble message={makeMsg()} />);
+    const body = container.querySelector('[data-testid="message-bubble-body"]');
+    const timeEl = container.querySelector("time");
+    expect(timeEl).not.toBeNull();
+    expect(body?.contains(timeEl)).toBe(false);
+    expect(timeEl?.className).toContain("text-[10px]");
+    expect(timeEl?.className).toContain("text-gray-500");
+  });
+
+  it("γ.2.3.2: 메시지 wrapper에 max-w-[78%] (reference 정합)", () => {
+    const { container } = render(<MessageBubble message={makeMsg()} />);
+    const wrapper = container.querySelector(".max-w-\\[78\\%\\]");
+    expect(wrapper).not.toBeNull();
+  });
 });

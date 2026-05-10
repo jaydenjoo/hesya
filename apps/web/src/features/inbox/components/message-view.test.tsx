@@ -195,4 +195,18 @@ describe("MessageView", () => {
     );
     expect(screen.queryByText(/AI가 답변을 준비/)).not.toBeInTheDocument();
   });
+
+  it("γ.2.3.2: stream 영역이 peach-50 배경 + flex-1 overflow-y-auto", () => {
+    render(
+      <MessageView
+        conversation={conv}
+        messages={[makeMsg("m1", "안녕")]}
+        customerName="홍길동"
+      />,
+    );
+    const stream = screen.getByTestId("message-view-stream");
+    expect(stream.className).toContain("bg-hesya-peach-50");
+    expect(stream.className).toContain("flex-1");
+    expect(stream.className).toContain("overflow-y-auto");
+  });
 });

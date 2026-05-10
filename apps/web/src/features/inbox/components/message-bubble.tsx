@@ -1,16 +1,23 @@
 "use client";
 
 /**
- * Epic 1B-UI A-3a — MessageBubble 시각 hesya tone 통일.
+ * Epic 1B-UI A-3a + γ.2.3.2 — MessageBubble 시각 hesya tone + reference 정합.
  *
- * 디자인 ref(`docs/design/reference/inbox-app.jsx` ix-msg/ix-bubble) 색상.
- * 기능 무변경 — 색상 토큰만 shadcn 기본 → hesya tone (peach/amber/navy).
+ * 디자인 ref(`docs/design/reference/inbox-app.jsx` ix-msg/ix-bubble) 색상 + 형태.
+ * 기능 무변경 — 시각 토큰 + 비대칭 corner + 시간 버블 외부.
  *
  * 톤 매핑:
- * - outbound: amber-500 배경 + 흰 글씨 (사장 메시지 강조)
- * - inbound: peach-50 배경 + navy 글씨 (고객 메시지 부드러움)
+ * - outbound (owner): amber-500 배경 + 흰 글씨, 우측 정렬, 우하단 4px corner (꼬리)
+ * - inbound (customer): peach-100 배경 + navy 글씨, 좌측 정렬, 좌하단 4px corner (꼬리)
  * - ai_draft: amber dashed ring (사장이 검토 필요 시각 신호)
  * - failed: red ring
+ *
+ * γ.2.3.2 변경:
+ * - inbound bg peach-50 → peach-100 (reference 매칭)
+ * - max-w 75% → 78%
+ * - asymmetric corner (꼬리 효과): outbound 우하 4px, inbound 좌하 4px
+ * - <time>을 버블 외부로 분리 (ref `.ix-msg-time`: 10/gray-500, 버블 아래 별도 줄)
+ * - bubble-trans border 색: customer navy/10, owner white/25 (rgba 정합)
  */
 
 import { useTranslations } from "next-intl";
@@ -30,12 +37,11 @@ export function MessageBubble({ message }: { message: Message }) {
   const created = toDate(message.createdAt) ?? new Date();
 
   const bubbleClass = isOutbound
-    ? "bg-hesya-amber-500 text-white"
-    : "bg-hesya-peach-50 text-hesya-navy-900";
+    ? "bg-hesya-amber-500 text-white rounded-br-[4px]"
+    : "bg-hesya-peach-100 text-hesya-navy-900 rounded-bl-[4px]";
   const translatedClass = isOutbound
-    ? "border-white/30 text-white/90"
-    : "border-hesya-peach-200 text-gray-700";
-  const timeClass = isOutbound ? "text-white/80" : "text-gray-500";
+    ? "border-white/25 text-white/90"
+    : "border-hesya-navy-900/10 text-gray-700";
 
   return (
     <div
@@ -44,29 +50,38 @@ export function MessageBubble({ message }: { message: Message }) {
       className={`flex ${isOutbound ? "justify-end" : "justify-start"}`}
     >
       <div
-        className={`kr max-w-[75%] rounded-2xl px-4 py-2 text-sm shadow-sm ${bubbleClass} ${
-          isFailed ? "ring-1 ring-red-500" : ""
-        } ${isAIDraft ? "ring-1 ring-dashed ring-hesya-amber-500" : ""}`}
+        className={`flex max-w-[78%] flex-col ${
+          isOutbound ? "items-end" : "items-start"
+        }`}
       >
-        {isAIDraft ? (
-          <div className="kr mb-1 inline-flex items-center gap-1 rounded bg-hesya-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-hesya-amber-600">
-            🤖 AI 초안
-          </div>
-        ) : null}
-        <p className="whitespace-pre-wrap break-keep">{message.originalText}</p>
-        {message.translatedText ? (
-          <p
-            className={`kr mt-1 break-keep border-t pt-1 text-xs italic ${translatedClass}`}
-          >
-            <span className="mr-1 opacity-70" aria-hidden="true">
-              🌐
-            </span>
-            {message.translatedText}
+        <div
+          data-testid="message-bubble-body"
+          className={`kr rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed shadow-sm ${bubbleClass} ${
+            isFailed ? "ring-1 ring-red-500" : ""
+          } ${isAIDraft ? "ring-1 ring-dashed ring-hesya-amber-500" : ""}`}
+        >
+          {isAIDraft ? (
+            <div className="kr mb-1 inline-flex items-center gap-1 rounded bg-hesya-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-hesya-amber-600">
+              🤖 AI 초안
+            </div>
+          ) : null}
+          <p className="whitespace-pre-wrap break-keep">
+            {message.originalText}
           </p>
-        ) : null}
+          {message.translatedText ? (
+            <p
+              className={`kr mt-1 break-keep border-t pt-1 text-[11.5px] italic ${translatedClass}`}
+            >
+              <span className="mr-1 opacity-70" aria-hidden="true">
+                🌐
+              </span>
+              {message.translatedText}
+            </p>
+          ) : null}
+        </div>
         <time
           dateTime={created.toISOString()}
-          className={`mono mt-1 block text-xs ${timeClass}`}
+          className="mono mt-0.5 block px-1.5 text-[10px] text-gray-500"
         >
           {isFailed ? (
             <>

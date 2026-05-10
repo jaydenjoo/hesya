@@ -9,7 +9,6 @@
  */
 
 import { useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
 import { WindowStatus } from "./window-status";
 
 const CHANNEL_ICONS: Record<string, string> = {
@@ -39,12 +38,12 @@ export function ThreadHeader({
   const channelIcon = CHANNEL_ICONS[channel] ?? "💬";
 
   return (
-    <header className="flex flex-shrink-0 items-center justify-between border-b border-hesya-peach-200 bg-white px-4 py-3">
+    <header className="flex h-16 flex-shrink-0 items-center justify-between border-b border-hesya-peach-100 bg-white px-5">
       <div className="flex items-center gap-3">
         <div className="relative">
           <div
             data-testid="thread-header-avatar"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-hesya-peach-200 text-base font-semibold text-hesya-navy-900"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-hesya-peach-200 text-[13px] font-semibold text-hesya-navy-900"
           >
             {avatarChar(customerName)}
           </div>
@@ -56,16 +55,16 @@ export function ThreadHeader({
             {channelIcon}
           </div>
         </div>
-        <div className="flex flex-col">
-          <span className="kr text-base font-bold text-hesya-navy-900">
+        <div className="flex min-w-0 flex-col">
+          <span className="kr text-sm font-semibold text-hesya-navy-900">
             {customerName || "—"}
           </span>
-          <Badge
-            variant="secondary"
-            className="kr mt-0.5 w-fit text-[10px] font-normal"
+          <span
+            data-testid="thread-header-meta"
+            className="kr mt-0.5 text-[11px] text-gray-500"
           >
             {t(channelKey)}
-          </Badge>
+          </span>
         </div>
       </div>
       <WindowStatus expiresAt={windowExpiresAt} />
