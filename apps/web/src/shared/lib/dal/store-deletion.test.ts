@@ -255,6 +255,10 @@ describe.skipIf(!hasDb)("dal.store-deletion (integration)", () => {
       status: "purged",
     });
     expect(purgedReq).toHaveLength(1);
-    expect(purgedReq[0]?.storeId).toBe(expiredStore);
+    // FK ON DELETE SET NULL — purge 완료 후 storeId는 null이 됨 (stores cascade
+    // delete의 부수효과). storeName은 store_name_snapshot 컬럼이 보존하여
+    // admin 큐에서 라벨로 사용됨.
+    expect(purgedReq[0]?.storeId).toBeNull();
+    expect(purgedReq[0]?.storeName).toBe("should-purge");
   });
 });
