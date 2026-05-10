@@ -3,6 +3,9 @@ import {
   createDbClient,
   eq,
   storeDeletionRequests,
+  storeIntegrations,
+  storeOwners,
+  storeVerifications,
   stores,
   type DbClient,
 } from "@hesya/database";
@@ -34,7 +37,12 @@ describe.skipIf(!hasDb)("dal.store-deletion (integration)", () => {
   });
 
   beforeEach(async () => {
+    // stores 테이블 FK 의존 테이블 모두 cleanup. 다른 test 잔여 row가 stores
+    // delete를 막는 FK 위반(store_verifications_store_id_fk 등)을 차단.
     await db.delete(storeDeletionRequests);
+    await db.delete(storeVerifications);
+    await db.delete(storeOwners);
+    await db.delete(storeIntegrations);
     await db.delete(stores);
   });
 
