@@ -20,14 +20,17 @@ import {
   disputes,
   messages,
   sql,
+  storeDeletionRequests,
   storeIntegrations,
   storeKnowledge,
   storeOwners,
   storeVerifications,
   stores,
+  STORE_DELETION_GRACE_DAYS,
   users,
   type DbClient,
   type DisputeCategory,
+  type StoreDeletionSource,
 } from "@hesya/database";
 import { randomUUID } from "node:crypto";
 
@@ -69,6 +72,7 @@ export async function resetDb(db: DbClient): Promise<void> {
   await db.delete(disputes);
   await db.delete(messages);
   await db.delete(conversations);
+  await db.delete(storeDeletionRequests);
   await db.delete(storeIntegrations);
   await db.delete(storeKnowledge);
   await db.delete(storeOwners);
@@ -259,5 +263,54 @@ export async function seedMessage(
     })
     .returning({ id: messages.id });
   if (!row) throw new Error("seedMessage: insert returned no row");
+  return row.id;
+}
+
+export async function seedStoreDeletionRequest(
+  db: DbClient,
+  input: {
+    storeId: string;
+    source?: StoreDeletionSource;
+    requestedByEmail?: string;
+    requestedByUserId?: string;
+    reason?: string | null;
+    daysAgo?: number;
+    cancelled?: boolean;
+    purged?: boolean;
+  },
+): Promise<string> {
+  const daysAgo = input.daysAgo ?? 0;
+  const createdAt = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
+  const scheduledPurgeAt = new Date(
+    createdAt.getTime() + STORE_DELETION_GRACE_DAYS * 24 * 60 * 60 * 1000,
+  );
+
+  await db
+    .update(stores)
+    .set({
+      deletedAt: input.cancelled || input.purged ? null : createdAt,
+      deletionReason:
+        input.cancelled || input.purged ? null : (input.reason ?? null),
+    })
+    .where(sql`${stores.id} = ${input.storeId}`);
+
+  const [row] = await db
+    .insert(storeDeletionRequests)
+    .values({
+      storeId: input.storeId,
+      source: input.source ?? "owner",
+      requestedByEmail: input.requestedByEmail ?? "owner@example.com",
+      requestedByUserId: input.requestedByUserId ?? null,
+      reason: input.reason ?? null,
+      scheduledPurgeAt,
+      cancelledAt: input.cancelled ? new Date() : null,
+      cancelledByEmail: input.cancelled
+        ? (input.requestedByEmail ?? "owner@example.com")
+        : null,
+      purgedAt: input.purged ? new Date() : null,
+      createdAt,
+    })
+    .returning({ id: storeDeletionRequests.id });
+  if (!row) throw new Error("seedStoreDeletionRequest: insert returned no row");
   return row.id;
 }

@@ -3,6 +3,7 @@ import {
   and,
   conversations,
   eq,
+  isNull,
   storeIntegrations,
   storeVerifications,
   stores,
@@ -18,6 +19,9 @@ type StoreVerification = typeof storeVerifications.$inferSelect;
  *
  * Instagram webhook이 도착하면 `entry.id` (= IG 비즈니스 계정 ID)로 매장을
  * 라우팅한다. 미연결 매장의 webhook은 무시 (caller가 continue).
+ *
+ * E12-9 soft-delete: 30일 grace 진행 중 매장(`stores.deleted_at IS NOT NULL`)
+ * 은 외부 webhook 라우팅 대상에서 제외 (해지 신청 즉시 inbound 차단).
  */
 export async function findStoreByExternalAccount(
   db: DbClient,
@@ -34,6 +38,7 @@ export async function findStoreByExternalAccount(
       and(
         eq(storeIntegrations.channel, input.channel),
         eq(storeIntegrations.externalAccountId, input.externalAccountId),
+        isNull(stores.deletedAt),
       ),
     )
     .limit(1);

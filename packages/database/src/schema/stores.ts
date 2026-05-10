@@ -24,6 +24,8 @@ export const stores = pgTable(
     verificationStatus: text("verification_status"),
     botMode: boolean("bot_mode").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    deletionReason: text("deletion_reason"),
   },
   (table) => [
     check(

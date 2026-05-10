@@ -104,6 +104,39 @@ describe.skipIf(!hasDb)("dal.stores (integration)", () => {
       });
       expect(found).toBeNull();
     });
+
+    it("E12-9: stores.deletedAt IS NOT NULL → null (soft-deleted 매장 라우팅 차단)", async () => {
+      const { stores } = await import("@hesya/database");
+      const { eq } = await import("@hesya/database");
+      const storeId = await seedStore(db);
+      await upsertIntegration(db, {
+        storeId,
+        channel: "instagram",
+        externalAccountId: "ig_acc_deleted",
+        accessToken: "tok_test",
+        scopes: ["instagram_business_basic"],
+      });
+
+      // 정상 라우팅 baseline
+      expect(
+        await findStoreByExternalAccount(db, {
+          channel: "instagram",
+          externalAccountId: "ig_acc_deleted",
+        }),
+      ).toEqual({ id: storeId });
+
+      // soft-delete 표시 후 차단 확인
+      await db
+        .update(stores)
+        .set({ deletedAt: new Date() })
+        .where(eq(stores.id, storeId));
+
+      const found = await findStoreByExternalAccount(db, {
+        channel: "instagram",
+        externalAccountId: "ig_acc_deleted",
+      });
+      expect(found).toBeNull();
+    });
   });
 
   describe("findStoreNameByConversationId (B-2)", () => {

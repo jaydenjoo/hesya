@@ -12,6 +12,7 @@ export * from "./payments";
 export * from "./reviews";
 export * from "./services";
 export * from "./staff";
+export * from "./store-deletion-requests";
 export * from "./store-integrations";
 export * from "./store-knowledge";
 export * from "./store-owners";
