@@ -3094,3 +3094,158 @@ PR #99 시점에 `apps/web/src/shared/config/env.ts`에 `N8N_WEBHOOK_SECRET: z.s
 **비유**: 새 식기를 식당 메뉴에 추가할 때 — 메뉴판(env.ts) 수정만 하면 안 되고 본점(Production) + 분점들(Preview/Development) 주방 모두에 식기를 배치해야 함. 메뉴판에는 추가됐는데 분점 주방엔 식기가 없으면 그 분점에서 주문 들어왔을 때 "식기 없음" 에러. Vercel Dashboard 등록은 분점 식기 배치에 해당.
 
 **연관**: L-084 (env 도입 5-layer 정합성 — 본 L-087로 6/7-layer 확장), L-082 (e2e 시연 기준 — Vercel prod 배포 성공이 시연 전제), Jayden 메모리 "외부 서비스 리소스 생성 전 명시 승인 필수" + "토큰 rotation 정책", 본 세션 PR #99 prod fail (`eb40da4` Vercel `dpl_5heGodvzDuKYuJ43JWdMSaw3Xzw9`) + PR #100 prod fail (`4387501` Vercel `dpl_AbSTShZFHpTRW6hruMCoQXA7Uv7b`) → Jayden 환경변수 등록 후 redeploy success.
+
+### [2026-05-10] L-088 — Vercel Dashboard에서 secret 등록 후 "값이 사라진 것처럼" 보임은 정상. Encrypted/Sensitive 정책상 Save 후 마스킹.
+
+**증상**:
+
+PR #101 머지 후 Vercel Production+Preview+Development에 `N8N_WEBHOOK_SECRET` 등록 작업. 입력 + Save 누른 후 같은 변수 Edit 클릭하면 입력 필드가 빈칸 — "값이 사라졌어 이유 알려줘" Jayden 질문. 실수로 다시 입력 → 또 빈칸 → 또 등록 시도하는 루프 위험.
+
+**원인**:
+
+Vercel은 환경변수를 "Sensitive" 또는 "Encrypted"로 저장하면 보안 정책상 **Save 후 값을 다시 표시하지 않음** (UI에서 가져오기 차단). 다음 Edit 클릭 시 input 빈칸으로 보이지만 DB에는 저장돼 있음. 새 값 입력 안 하면 기존 값 유지.
+
+비유 — ATM에서 비밀번호 등록 후 화면에 다시 표시 안 되는 것과 같음. UI 마스킹은 정상 보안 패턴.
+
+**해결**:
+
+`vercel env ls preview | grep N8N_WEBHOOK_SECRET` → `Encrypted ... Preview ... 10m ago` 확인으로 등록 상태 검증. 빈칸 보여도 다시 입력 금지.
+
+**규칙** ⭐:
+
+1. **Vercel UI에서 secret을 Save하면 다음 Edit 클릭 시 빈칸이 정상**. 값 다시 입력 금지 (실수로 빈 값 저장 위험).
+2. **등록 검증은 CLI로** — `vercel env ls <environment>` 또는 `vercel env pull --environment=<env>` 후 grep. 단 pull은 secret 노출이라 즉시 삭제.
+3. **plan에 "Vercel UI 마스킹 정상" 명시 의무** — 새 env 도입 PR description에 Jayden 안내 한 줄 포함 ("Save 후 빈칸 보여도 정상 — `vercel env ls`로 검증").
+4. **빈 값 실수 저장 검증**: 등록 직후 `vercel env pull` 실행해 값 길이/존재 즉시 확인.
+
+**확인 방법**:
+
+- 자동 (후보): GitHub Actions에서 `vercel env ls` + 길이 검증 스크립트로 PR check 자동화
+- 인간 리뷰: env 도입 PR description에 "Vercel UI 마스킹 안내" 표준 문구 포함
+- 메타: 향후 3개월 "값이 사라졌다" 질문 0건이면 영구 패턴 정착
+
+**비유**: 도서관 비밀번호 등록 — 한 번 등록하면 사서가 안 보여줌. 잊으면 새로 발급. UI에 빈 칸 보여도 시스템에는 저장돼 있음.
+
+**연관**: L-087 (Vercel 3환경 등록 의무 — 본 L-088는 그 등록 작업의 UI 함정), Jayden 메모리 "토큰 rotation 정책", 본 세션 PR #101 등록 작업 중 발견.
+
+### [2026-05-10] L-089 — Vercel 환경변수 갱신만으로는 자동 redeploy 안 됨. 새 commit push 또는 Dashboard manual Redeploy 의무 + GitHub PR check는 직전 deployment 결과 stale 유지.
+
+**증상**:
+
+PR #101 빌드 fail("Too small >=32") → Jayden가 N8N_WEBHOOK_SECRET을 32자 이상 base64로 갱신(`LW0d...44자`). 갱신 완료 후 GitHub PR check의 Vercel 줄은 여전히 fail 상태 + 직전 deployment ID(`HivSU...`) 그대로 표시. 5분 기다려도 자동 redeploy 안 됨.
+
+**원인**:
+
+1. **Vercel 환경변수 갱신은 deployment trigger가 아님** — 새 commit push만 자동 deployment 시작. env 갱신은 다음 deployment부터 적용.
+2. **GitHub PR check의 Vercel 줄은 마지막 deployment 결과**: env 갱신 시점에 active deployment가 없으면 마지막 fail 결과를 stale로 유지.
+3. **자동 redeploy 가정 깨짐** — Jayden 직관 "값 등록했으니 자동으로 다시 빌드"는 작동 안 함.
+
+**해결**:
+
+세 옵션:
+
+- A. 새 commit push (가장 흔한 패턴 — 본 PR #101에서 채택. test cleanup fix 같은 trivial commit이 새 deployment 트리거)
+- B. Vercel Dashboard → Deployments 탭 → 최신 commit 행 → "Redeploy" 버튼 클릭
+- C. `vercel deploy` CLI
+
+**규칙** ⭐:
+
+1. **env 갱신 후 자동 redeploy 기대 금지**. 갱신 직후 Jayden에게 명시적으로 "Vercel Dashboard에서 Redeploy 버튼 클릭" 또는 "trivial commit push" 안내.
+2. **GitHub PR check Vercel 줄은 stale 가능성 명시** — 진단 시 Vercel Dashboard "Latest" 줄 직접 확인이 정확.
+3. **plan 인벤토리에 "env 도입 PR redeploy 트리거 단계" 의무 첨부** — env.ts 변경 PR의 "Jayden 수동 단계" 섹션에 "갱신 후 Redeploy" 체크박스.
+4. **Vercel Dashboard Deployments 탭 access 패턴** — Deployments → 행 우측 ⋯ → Redeploy → "Use existing Build Cache" 체크 해제 → Redeploy.
+
+**확인 방법**:
+
+- 자동 (후보): GitHub Actions hook으로 env 변경 감지 시 "Redeploy 안내" 라벨 자동 부착
+- 자동 (후보): Vercel webhook으로 env 변경 → 자동 trigger redeploy (Vercel 정책상 secret만 트리거 활성화 어려움)
+- 인간 리뷰: env 도입 PR의 머지 후 체크리스트에 "Vercel Redeploy 클릭" 표준화
+- 메타: 향후 3개월 env 갱신 후 stale CI 사고 0건이면 영구 패턴 정착
+
+**비유**: 도서관 회원증 갱신 — 회원증 정보(env) 바꾸고 도서관 시스템에 등록해도, 다음에 빌릴 책(deployment)부터 적용. 이미 빌려간 책(직전 build)은 갱신 전 정보 그대로. 새 책 빌리려면 카운터(Redeploy) 가야 함.
+
+**연관**: L-087 (env 6/7-layer 등록 의무 — 본 L-089는 등록 후 트리거 누락 함정), L-082 (PROGRESS 자기평가 e2e 시연 기준 — stale CI는 시연 가능 여부 판단 흐림), 본 세션 PR #101 5번 push 사고 일부 (Vercel `Cn1LFKQuMVnMSU566RPuQcr1UErF` → `HivSUWqBKStHEro2Y7zJYqhg47pU` → `AK5M6iS1S3h9A1Gc61EfA8Fuwriw` deployment ID 변경 추적).
+
+### [2026-05-10] L-090 — gitleaks `generic-api-key` 패턴이 high entropy fake test key 차단. `vi.hoisted` env mock에 명시적 placeholder 형식 의무.
+
+**증상**:
+
+PR #104(γ.2.2 KYC edge case)의 `nts-client.test.ts`에 fake test key (`test_key_` + 숫자 20자리) 사용. gitleaks pre-commit hook이 `generic-api-key` 패턴(entropy 3.96)으로 차단:
+
+```
+Finding:     envMock: { KOREA_NTS_API_KEY: "<HIGH_ENTROPY_FAKE_VALUE>" }
+RuleID:      generic-api-key
+Entropy:     3.96+
+File:        apps/web/src/lib/kyc/nts-client.test.ts:21
+```
+
+진짜 secret이 아니지만 패턴이 비슷해 false positive. commit 전체 차단.
+
+**원인**:
+
+1. gitleaks의 `generic-api-key` 룰은 **고엔트로피 alphanumeric string** 검출. fake test key가 우연히 entropy 3.96으로 임계값 초과.
+2. test 코드라 `.gitleaks.toml` allowlist 추가도 가능하나, 실수로 진짜 키 통과시킬 위험.
+3. `vi.hoisted` env mock에 fake 키 직접 박는 패턴이 흔함 → 같은 사고 반복 가능.
+
+**해결**:
+
+placeholder 형식으로 변경:
+
+```ts
+// gitleaks bypass: 명백한 placeholder (real key 아님). 실 검증은 staging에서.
+const { envMock } = vi.hoisted(() => ({
+  envMock: { KOREA_NTS_API_KEY: "REPLACE_ME_FAKE_TEST_KEY_PLACEHOLDER" },
+}));
+```
+
+`REPLACE_ME_*` prefix가 일반 영어 단어 조합이라 entropy 낮음 → gitleaks 통과. + 보는 사람이 "fake임을 즉시 인지".
+
+**규칙** ⭐:
+
+1. **test mock의 fake secret은 `REPLACE_ME_FAKE_*_PLACEHOLDER` 형식 의무**. random alphanumeric 금지 (entropy 트리거).
+2. **vi.hoisted env mock 컨벤션** — 새 fake secret 추가 시 본 패턴 따라 작성 (KEY/TOKEN/SECRET 모두 동일).
+3. **gitleaks .toml allowlist 사용 자제** — 패턴 변경이 더 안전 (allowlist는 실수 통과 위험).
+4. **plan에 "fake secret placeholder 컨벤션" 명시** — KYC/외부 API mock 도입 PR의 인벤토리 항목에 추가.
+
+**확인 방법**:
+
+- 자동 (후보): pre-commit hook에 "vi.hoisted/vi.mock 안 fake secret 형식 검증" 룰 추가
+- 인간 리뷰: test 코드 review 시 fake secret 형식 점검
+- 메타: 향후 3개월 gitleaks 차단 사고 0건이면 영구 패턴 정착
+
+**비유**: 영화 소품 — 진짜 신용카드처럼 보이는 소품을 영화에 쓰면 위변조 의심. "MOVIE PROP — NOT REAL" 라벨이 명시된 가짜 카드를 써야 함. test fake secret도 같은 원칙.
+
+**연관**: L-086 (PR 머지 BEFORE 보안 review — 본 L-090은 그 review의 자동화 일부), L-087 (env 등록 의무 — fake와 real 구분 명시), 본 세션 PR #104 첫 push 차단 + placeholder 변경 후 통과.
+
+### [2026-05-10] L-087 정확화 — `min(32)` Zod 통과 위해 `openssl rand -base64 32` 출력값(44자) 사용 의무. raw 32바이트 ≠ base64 32자.
+
+**증상**:
+
+PR #101 Vercel build에서 `N8N_WEBHOOK_SECRET` 1차 등록값이 32자 미만이라 `Too small: expected string to have >=32 characters` Zod fail. L-087 본문에 "32바이트 random 임시값"이라 적었지만 모호함:
+
+- raw 32바이트(binary) → base64 인코딩 후 44자
+- "32자 string" 의도면 32 ASCII chars
+- Zod schema는 `z.string().min(32)` → string length 기준
+
+**원인**:
+
+`openssl rand -base64 32` 출력은 raw 32바이트(256-bit random)를 base64로 인코딩 → 44자 string (마지막 `=` padding 포함). L-087 본문 "32바이트"가 실제 string length(44)와 헷갈림.
+
+**해결**:
+
+L-087에 다음 추가:
+
+- "값은 `openssl rand -base64 32` 출력값(44자) 사용 의무"
+- "raw 32바이트 ≠ base64 32자 — Zod min(32)는 string length 기준"
+- 다른 길이 옵션:
+  - `openssl rand -hex 32` → 64자 (hex 인코딩)
+  - `openssl rand -base64 24` → 32자 (raw 24바이트)
+  - 권장: `-base64 32` (44자, 보안 마진 12자)
+
+**규칙** ⭐:
+
+1. **secret 길이는 string length로 명시** — "32바이트" 같은 모호한 표현 금지.
+2. **`openssl rand -base64 32` 출력값(44자) 표준** — Zod `min(32)` 대비 보안 마진 12자.
+3. **plan에 "secret 생성 명령 + 예상 길이" 명시 의무** — env 도입 PR의 인벤토리 섹션에 적시.
+
+**연관**: L-087 (Vercel env 6/7-layer — 본 L-087 정확화는 그 등록값 형식 표준화), 본 세션 PR #101 Vercel `dpl_HivSUWqBKStHEro2Y7zJYqhg47pU` "Too small" fail.
