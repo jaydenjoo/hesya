@@ -119,7 +119,10 @@ function MessageViewActive({
         channel={conversation.channel}
         windowExpiresAt={conversation.messagingWindowExpiresAt}
       />
-      <div className="flex-1 overflow-y-auto">
+      <div
+        data-testid="message-view-stream"
+        className="flex-1 overflow-y-auto bg-hesya-peach-50"
+      >
         <MessageList messages={messages} />
       </div>
       {pendingReview ? (

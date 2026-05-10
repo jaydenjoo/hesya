@@ -76,4 +76,35 @@ describe("ThreadHeader", () => {
       screen.getByTestId("thread-header-channel-icon"),
     ).toBeInTheDocument();
   });
+
+  it("γ.2.3.2: 헤더 64px 높이 + peach-100 하단 border + 36px avatar (reference 정합)", () => {
+    const { container } = render(
+      <ThreadHeader
+        customerName="홍길동"
+        channel="instagram"
+        windowExpiresAt={null}
+      />,
+    );
+    const header = container.querySelector("header");
+    expect(header?.className).toContain("h-16");
+    expect(header?.className).toContain("border-hesya-peach-100");
+
+    const avatar = screen.getByTestId("thread-header-avatar");
+    expect(avatar.className).toContain("h-9");
+    expect(avatar.className).toContain("w-9");
+  });
+
+  it("γ.2.3.2: 채널 라벨이 meta row 스타일 (11px gray-500)로 렌더 — Badge 제거", () => {
+    render(
+      <ThreadHeader
+        customerName="홍길동"
+        channel="instagram"
+        windowExpiresAt={null}
+      />,
+    );
+    const meta = screen.getByTestId("thread-header-meta");
+    expect(meta).toHaveTextContent("channelInstagram");
+    expect(meta.className).toContain("text-[11px]");
+    expect(meta.className).toContain("text-gray-500");
+  });
 });

@@ -86,4 +86,25 @@ describe("DraftReviewPanel", () => {
       expect(skipDraft).toHaveBeenCalledWith({ messageId: MSG_ID });
     });
   });
+
+  it("γ.2.3.2: 패널이 motion-safe slide-in 애니메이션 + amber-500 상단 border (reference 정합)", () => {
+    render(<DraftReviewPanel messageId={MSG_ID} aiText="안녕" />);
+    const panel = screen.getByTestId("draft-review-panel");
+    expect(panel.className).toContain("motion-safe:animate-in");
+    expect(panel.className).toContain("motion-safe:slide-in-from-bottom-2");
+    expect(panel.className).toContain("border-hesya-amber-500");
+  });
+
+  it("γ.2.3.2: 승인+전송 / 수정 후 전송은 amber-500 primary, 무시는 ghost (peach-200 border)", () => {
+    render(<DraftReviewPanel messageId={MSG_ID} aiText="안녕" />);
+    const approveBtn = screen.getByRole("button", { name: "승인 + 전송" });
+    const editBtn = screen.getByRole("button", { name: "수정 후 전송" });
+    const skipBtn = screen.getByRole("button", { name: "무시" });
+
+    expect(approveBtn.className).toContain("bg-hesya-amber-500");
+    expect(approveBtn.className).not.toContain("bg-emerald-500");
+    expect(editBtn.className).toContain("bg-hesya-amber-500");
+    expect(skipBtn.className).toContain("border-hesya-peach-200");
+    expect(skipBtn.className).toContain("bg-transparent");
+  });
 });
