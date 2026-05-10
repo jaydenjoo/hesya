@@ -32,9 +32,23 @@ export default async function KycPage({
   }
 
   return (
-    <main className="container py-12">
-      <h1 className="mb-6 text-3xl font-bold">매장 등록</h1>
-      <KycForm onSubmit={onSubmit} />
+    <main
+      data-testid="kyc-submit-page"
+      className="min-h-screen bg-hesya-peach-50 px-4 py-10 sm:py-14"
+    >
+      <div className="mx-auto max-w-xl">
+        <header className="mb-6">
+          <h1 className="kr text-2xl font-bold tracking-tight text-hesya-navy-900 sm:text-[28px]">
+            매장 등록
+          </h1>
+          <p className="kr mt-1 text-sm text-gray-600">
+            영업신고증 정보를 확인 후 24~48시간 내 검토 결과를 안내드립니다.
+          </p>
+        </header>
+        <div className="rounded-2xl border border-hesya-peach-100 bg-white p-5 shadow-sm sm:p-7">
+          <KycForm onSubmit={onSubmit} />
+        </div>
+      </div>
     </main>
   );
 }
