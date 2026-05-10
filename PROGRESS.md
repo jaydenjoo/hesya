@@ -151,7 +151,7 @@ demo.hesya.com Phase 2 도입 + 베타 1~2곳 onboarding.
 
 ## 알려진 환경 이슈 (다음 세션 scope 밖)
 
-- `apps/web/.env.local`의 `ANTHROPIC_API_KEY` — `sk-ant-` prefix 형식 점검 필요 (Jayden 환경)
+- ~~`apps/web/.env.local`의 `ANTHROPIC_API_KEY` — `sk-ant-` prefix 형식 점검 필요 (Jayden 환경)~~ → **2026-05-10 L-091로 정정**: Jayden .env.local 정상 (`sk-ant-api03...` 108자). 실 원인은 **Claude Code CLI host가 subshell에 `ANTHROPIC_API_KEY=""` (빈 문자열) 자동 inject** + `@next/env`는 process.env에 이미 있는 키 skip → .env.local의 정상 값을 못 읽음. **Claude Code 안에서 dev 띄울 때**만 `unset ANTHROPIC_API_KEY` 필요. 정상 터미널에선 작동.
 - 베타·prod 출시 직전 일괄 secret rotation 예정 (N8N_WEBHOOK_SECRET 임시값 포함)
 - Vercel Production 본 세션 PR (#101~#104) 자동 배포는 main 머지 후 진행되나, **L-089 적용 시 다음 세션에서 명시적 검증 권장**
 
@@ -164,7 +164,7 @@ demo.hesya.com Phase 2 도입 + 베타 1~2곳 onboarding.
 - 디자인 가이드: `docs/DESIGN-PLAN.md`
 - 데모 가이드: `docs/demo-guide.md`
 - ADR: `docs/DECISIONS.md`
-- 교훈: `docs/learnings.md` (L-001~**L-090**)
+- 교훈: `docs/learnings.md` (L-001~**L-091**)
 - 글로벌 규칙: `~/.claude/CLAUDE.md` v3.2
 - 인벤토리 절차: `~/.claude/rules/inventory-protocol.md`
 - 프로젝트 규칙: `CLAUDE.md` (5-Layer 문서 구조)

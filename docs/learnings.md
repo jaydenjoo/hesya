@@ -3249,3 +3249,60 @@ L-087에 다음 추가:
 3. **plan에 "secret 생성 명령 + 예상 길이" 명시 의무** — env 도입 PR의 인벤토리 섹션에 적시.
 
 **연관**: L-087 (Vercel env 6/7-layer — 본 L-087 정확화는 그 등록값 형식 표준화), 본 세션 PR #101 Vercel `dpl_HivSUWqBKStHEro2Y7zJYqhg47pU` "Too small" fail.
+
+### [2026-05-10] L-091 — Claude Code CLI host가 subshell에 `ANTHROPIC_API_KEY=""` (빈 문자열) 자동 inject. `@next/env`는 process.env에 이미 있는 키 skip → .env.local 정상 값 못 읽어서 zod fail. PROGRESS.md "알려진 환경 이슈" 후속 진단(.env.local 형식 탓)은 오진단.
+
+**증상**:
+
+γ.2.3.1 디자인 검증을 위해 Claude Code 안에서 `pnpm dev:demo` 실행 → instrumentation hook에서 ZodError 2개 동시 발생:
+
+```
+- ANTHROPIC_API_KEY: invalid_format / "must start with sk-ant-"
+- N8N_WEBHOOK_SECRET: invalid_type / "expected string, received undefined"
+```
+
+Jayden은 .env.local에 두 값 모두 정상 등록 확인 (`sk-ant-api03...` 108자, N8N_WEBHOOK_SECRET 44자). PROGRESS.md "알려진 환경 이슈" 섹션에 _"`ANTHROPIC_API_KEY` `sk-ant-` prefix 형식 점검 필요 (Jayden 환경)"_ 으로 적혀 있어 처음에는 .env.local 형식 문제로 오진단.
+
+**원인**:
+
+1. **Claude Code CLI host가 모든 Bash 도구 호출 subshell에 `ANTHROPIC_API_KEY=""` (빈 문자열)을 inject**. `env | grep` 확인 결과 `CLAUDE_CODE_*` 환경변수 다수와 함께 노출.
+2. **`@next/env`의 의도된 동작 — process.env에 이미 있는 키는 .env 파일 로딩 시 skip** (overwrite 방지). 빈 문자열도 "정의됨"으로 간주.
+3. → Next.js dev가 .env.local의 정상 ANTHROPIC_API_KEY를 못 읽음 → zod `startsWith("sk-ant-")` 실패.
+4. **N8N_WEBHOOK_SECRET 보고는 false alarm** — instrumentation hook의 zod parse가 fail-fast 안 하고 모든 필드 검증 후 종합 리포트 → ANTHROPIC_API_KEY 처음 fail이 다른 키 보고에 영향. 직접 `loadEnvConfig()` 호출 시 N8N_WEBHOOK_SECRET 정상 로드 확인.
+5. **정상 터미널 (Claude Code 밖)에서는 ANTHROPIC_API_KEY 미설정 → @next/env가 .env.local에서 정상 로드 → 작동 OK**.
+
+**해결**:
+
+dev 띄울 때 한 줄:
+
+```bash
+unset ANTHROPIC_API_KEY && pnpm dev:demo
+```
+
+또는 dev-demo.sh 자체에 첫 줄 추가 (모든 사용자 보호, 정상 터미널에서도 무해):
+
+```bash
+# Claude Code 안에서 실행 시 빈 ANTHROPIC_API_KEY가 .env.local 값을 가리는 것 차단.
+unset ANTHROPIC_API_KEY
+```
+
+PROGRESS.md "알려진 환경 이슈" 항목 정정 — Jayden .env.local 탓이 아닌 Claude Code shell 특수성.
+
+**규칙** ⭐:
+
+1. **`@next/env`는 process.env에 이미 있는 키 skip** — 의도된 보호 동작. 빈 문자열도 "정의됨"으로 간주. zod schema가 require하는 키는 환경에 잠재 빈 값 있으면 .env 파일 무력화.
+2. **Claude Code CLI host는 subshell에 `ANTHROPIC_API_KEY=""` 등 자체 환경변수 inject** — agent 안에서 dev/build/test 띄울 때 인지. 진단 명령: `env | grep -E "^(ANTHROPIC|CLAUDE)"`.
+3. **dev 시작 스크립트에 inherited env override 가드 추가 권장** — `unset ANTHROPIC_API_KEY` 또는 명시적 env reset (`dev-demo.sh` 후속 PR로).
+4. **zod parse fail-aggregate 동작 인지** — instrumentation hook의 envSchema.parse는 모든 필드 검증 후 종합 에러. 첫 에러가 다른 키 undefined 보고를 만들 수 있음 → 진단 시 "여러 에러" 동시 등장하면 root cause 1개일 가능성 검토.
+5. **PROGRESS.md "알려진 환경 이슈" 섹션은 추측 진단 금지** — 실제 root cause 확정 후만 기재. 본 L-091은 그 정정.
+
+**확인 방법**:
+
+- 자동 (후보): `dev-demo.sh` 첫 줄 `unset ANTHROPIC_API_KEY` 추가 — Claude Code 사용자만 해당하는 가드라 universal 적용 OK
+- 자동 (후보): `scripts/diagnose-env.ts` — process.env vs .env.local diff 출력해 override 즉시 식별
+- 인간 리뷰: PROGRESS.md "알려진 환경 이슈" 섹션 매 세션 시작 시 점검 (오진단 누적 방지)
+- 메타: 향후 3개월 동일 진단 함정 0건이면 영구 패턴 정착
+
+**비유**: 카페 와이파이 — 가게 라우터(`.env.local`)는 정상 비밀번호 갖고 있는데, 손님 노트북에 "이전 와이파이" 캐시(`process.env` 빈 값)가 있어 라우터 비밀번호를 무시하고 캐시로 시도 → 인증 실패. 캐시 비우면(unset) 라우터 비밀번호로 정상 연결. Claude Code shell이 그 캐시를 만든다.
+
+**연관**: L-082 (PROGRESS 자기평가 e2e 시연 기준 — 본 L-091은 시연 prerequisite 검증 단계의 함정), L-087 (env 도입 6/7-layer — 본 L-091은 그 등록 값과 process.env 충돌 별 함정), Jayden 메모리 "토큰 rotation 정책" + ".env.local 손대지 말 것", PROGRESS.md "알려진 환경 이슈" 섹션 정정 trigger, 본 세션 γ.2.3.1 시각 검증 prerequisite.
