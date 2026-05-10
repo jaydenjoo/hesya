@@ -21,3 +21,6 @@ export const payments = pgTable("payments", {
   feeSaasKrw: integer("fee_saas_krw"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
+
+export type Payment = typeof payments.$inferSelect;
+export type NewPayment = typeof payments.$inferInsert;
