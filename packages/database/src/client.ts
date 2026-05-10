@@ -13,4 +13,14 @@ export * from "./schema";
 
 // 자주 쓰이는 SQL operator만 facade로 노출 (apps/web에 drizzle-orm 직접
 // 의존성 추가 회피, layered architecture 유지)
-export { and, asc, desc, eq, gte, isNotNull, lte, sql } from "drizzle-orm";
+export {
+  and,
+  asc,
+  desc,
+  eq,
+  gte,
+  inArray,
+  isNotNull,
+  lte,
+  sql,
+} from "drizzle-orm";
