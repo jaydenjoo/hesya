@@ -830,6 +830,26 @@ export async function extractOcrFromLicenseAction(
   });
 
   if (!result.ok) {
+    // γ.2.2 — vision_error / vision_invalid_response audit log (PRD §1083 immutable
+    // trail). verification row 존재 보장됨 (line 816 가드 통과 후). 다른 fail
+    // 케이스(invalid_input/image_too_large/verification_not_found)는 verification
+    // FK 미충족 가능 → audit scope OUT.
+    //
+    // PII 보호: result.message는 외부 Vision API 응답 일부(base64 prefix 등) 포함
+    // 가능 → audit_log에 error code만 기록. 상세 message는 호출자(action result)
+    // 에만 반환되어 server log/Sentry에서 확인 가능.
+    await logKycEvent({
+      repo: auditRepo,
+      verificationId: parsed.data.verificationId,
+      eventType: "ocr_extract",
+      eventData: {
+        result: "failed",
+        error: result.error,
+        mediaType: parsed.data.mediaType,
+        base64ByteSize: parsed.data.imageBase64.length,
+      },
+      actorUserId: guard.userId,
+    });
     return result;
   }
 
@@ -842,16 +862,19 @@ export async function extractOcrFromLicenseAction(
     })
     .where(eq(storeVerifications.id, parsed.data.verificationId));
 
+  // PII 2차 저장 회피: result.extracted(사업자번호/대표자명/주소)는 이미
+  // storeVerifications.ocrExtractedData 컬럼에 저장됨 (line 838~843).
+  // audit_log에는 메타데이터만 — confidence/autoExtracted/mediaType/byteSize.
   await logKycEvent({
     repo: auditRepo,
     verificationId: parsed.data.verificationId,
     eventType: "ocr_extract",
     eventData: {
+      result: "ok",
       confidence: result.confidence,
       autoExtracted: result.autoExtracted,
       mediaType: parsed.data.mediaType,
       base64ByteSize: parsed.data.imageBase64.length,
-      extracted: result.extracted,
     },
     actorUserId: guard.userId,
   });
