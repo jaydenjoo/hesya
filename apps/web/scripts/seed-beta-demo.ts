@@ -35,6 +35,7 @@ import path from "node:path";
 config({ path: path.resolve(__dirname, "../.env.local") });
 
 import {
+  apiPolicyAlerts,
   conversations,
   eq,
   stores,
@@ -237,12 +238,24 @@ async function main(): Promise<void> {
       "데모용 분쟁: 외국인 손님이 시술 후 불만을 제기했고 환불을 요구했습니다. 운영팀 검토를 요청드립니다.",
   });
 
+  // 5. API 정책 변경 알림 1건 (Epic 12.8 시연용 — admin 큐 1건 표시)
+  await db.insert(apiPolicyAlerts).values({
+    source: "meta-blog",
+    title:
+      "Instagram Graph API: messaging policy update (sample seed for demo)",
+    link: "https://developers.facebook.com/blog/post/sample-policy-update",
+    guid: "demo-seed-meta-2026-05-10",
+    pubDate: new Date("2026-05-08T00:00:00Z"),
+    status: "new",
+  });
+
   console.log("[demo-seed] ✓ 시드 완료");
   console.log("");
   console.log("  데모 사장 user id  :", DEMO_USER_ID);
   console.log("  매장 #1 (사장 inbox):", autoStoreId);
   console.log("  매장 #2 (운영자 큐) :", reviewStoreId);
   console.log("  분쟁 #1            :", seededDisputeId);
+  console.log("  API 정책 알림 #1   : meta-blog / demo-seed-meta-2026-05-10");
   console.log("");
   console.log("  사장 inbox     : http://localhost:4200/ko/store/inbox");
   console.log("  사장 분쟁      : http://localhost:4200/ko/store/disputes");
@@ -250,6 +263,9 @@ async function main(): Promise<void> {
     "  운영자 큐      : http://localhost:4200/ko/admin/store-verifications",
   );
   console.log("  운영자 분쟁 큐  : http://localhost:4200/ko/admin/disputes");
+  console.log(
+    "  API 정책 큐    : http://localhost:4200/ko/admin/api-policy-alerts",
+  );
   console.log("");
   console.log("  다음: pnpm dev:demo");
 }

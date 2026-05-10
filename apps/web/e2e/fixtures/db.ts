@@ -13,6 +13,7 @@
  * 우회. seedStoreIntegration의 토큰 암호화는 vault SQL 직접 호출.
  */
 import {
+  apiPolicyAlerts,
   conversations,
   createDbClient,
   customers,
@@ -64,6 +65,7 @@ export function createTestDb() {
 // ---------- inline helpers (test-helpers/db.ts와 동일 의도, server-only 우회) ----------
 
 export async function resetDb(db: DbClient): Promise<void> {
+  await db.delete(apiPolicyAlerts);
   await db.delete(disputes);
   await db.delete(messages);
   await db.delete(conversations);
