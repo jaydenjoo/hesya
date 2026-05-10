@@ -5,10 +5,10 @@ import {
   asc,
   desc,
   eq,
+  gt,
   isNotNull,
   isNull,
   lte,
-  sql,
   storeDeletionRequests,
   stores,
   STORE_DELETION_GRACE_DAYS,
@@ -63,8 +63,23 @@ export interface ListDeletionRequestsFilter {
   status?: "pending" | "expired" | "cancelled" | "purged" | "all";
 }
 
-export interface DeletionRequestRow extends StoreDeletionRequest {
+/**
+ * admin 큐가 표시하는 row — storeId는 purge 후 NULL이지만 storeName은
+ * store_name_snapshot으로 항상 보존.
+ */
+export interface DeletionRequestRow {
+  id: string;
+  storeId: string | null;
   storeName: string;
+  source: string;
+  requestedByEmail: string;
+  requestedByUserId: string | null;
+  reason: string | null;
+  scheduledPurgeAt: Date;
+  cancelledAt: Date | null;
+  cancelledByEmail: string | null;
+  purgedAt: Date | null;
+  createdAt: Date;
 }
 
 export class StoreDeletionConflictError extends Error {
@@ -119,7 +134,7 @@ export async function requestStoreDeletion(
         deletionReason: input.reason ?? null,
       })
       .where(eq(stores.id, input.storeId))
-      .returning({ id: stores.id });
+      .returning({ id: stores.id, name: stores.name });
 
     if (!updatedStore[0]) {
       throw new StoreDeletionNotFoundError(input.storeId);
@@ -129,6 +144,7 @@ export async function requestStoreDeletion(
       .insert(storeDeletionRequests)
       .values({
         storeId: input.storeId,
+        storeNameSnapshot: updatedStore[0].name,
         source: input.source,
         requestedByEmail: input.requestedByEmail,
         requestedByUserId: input.requestedByUserId ?? null,
@@ -215,7 +231,7 @@ export async function listDeletionRequestsForAdmin(
     conditions.push(
       isNull(storeDeletionRequests.cancelledAt),
       isNull(storeDeletionRequests.purgedAt),
-      sql`${storeDeletionRequests.scheduledPurgeAt} > ${now}`,
+      gt(storeDeletionRequests.scheduledPurgeAt, now),
     );
   } else if (status === "expired") {
     conditions.push(
@@ -229,6 +245,8 @@ export async function listDeletionRequestsForAdmin(
     conditions.push(isNotNull(storeDeletionRequests.purgedAt));
   }
 
+  // purge 후 storeId NULL이라 stores join이 매칭 안 됨 → store_name_snapshot
+  // 컬럼이 자체 라벨 보존. innerJoin/leftJoin 모두 불필요.
   return db
     .select({
       id: storeDeletionRequests.id,
@@ -242,10 +260,9 @@ export async function listDeletionRequestsForAdmin(
       cancelledByEmail: storeDeletionRequests.cancelledByEmail,
       purgedAt: storeDeletionRequests.purgedAt,
       createdAt: storeDeletionRequests.createdAt,
-      storeName: stores.name,
+      storeName: storeDeletionRequests.storeNameSnapshot,
     })
     .from(storeDeletionRequests)
-    .innerJoin(stores, eq(storeDeletionRequests.storeId, stores.id))
     .where(conditions.length ? and(...conditions) : undefined)
     .orderBy(desc(storeDeletionRequests.createdAt));
 }
@@ -279,6 +296,7 @@ export async function purgeExpiredStoreDeletions(
     .from(storeDeletionRequests)
     .where(
       and(
+        isNotNull(storeDeletionRequests.storeId),
         isNull(storeDeletionRequests.cancelledAt),
         isNull(storeDeletionRequests.purgedAt),
         lte(storeDeletionRequests.scheduledPurgeAt, now),
@@ -291,23 +309,26 @@ export async function purgeExpiredStoreDeletions(
   const failedStoreIds: string[] = [];
 
   for (const row of expired) {
+    // isNotNull 필터로 type narrowing — null 케이스는 이미 위 query에서 제외.
+    if (!row.storeId) continue;
+    const storeId = row.storeId;
     try {
       await db.transaction(async (tx) => {
-        await tx.delete(stores).where(eq(stores.id, row.storeId));
+        await tx.delete(stores).where(eq(stores.id, storeId));
         await tx
           .update(storeDeletionRequests)
           .set({ purgedAt: now })
           .where(eq(storeDeletionRequests.id, row.id));
       });
-      purgedStoreIds.push(row.storeId);
+      purgedStoreIds.push(storeId);
     } catch (err) {
       // 한 매장 실패해도 다음 매장 계속 (DAL 주석의 "도중 실패 시 다음 매장 계속"
       // 의도 보장). 실패 storeId는 별도 수집해 cron 응답에 카운트 노출.
       console.error(
-        `[purgeExpiredStoreDeletions] failed for storeId=${row.storeId}:`,
+        `[purgeExpiredStoreDeletions] failed for storeId=${storeId}:`,
         err,
       );
-      failedStoreIds.push(row.storeId);
+      failedStoreIds.push(storeId);
     }
   }
 

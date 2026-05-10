@@ -11,9 +11,12 @@ import { stores } from "./stores";
 
 export const storeDeletionRequests = pgTable("store_deletion_requests", {
   id: uuid("id").primaryKey().defaultRandom(),
-  storeId: uuid("store_id")
-    .notNull()
-    .references(() => stores.id, { onDelete: "cascade" }),
+  // ON DELETE SET NULL — purge 후 stores cascade delete되어도 request row 보존.
+  // store_name_snapshot이 사람이 읽는 라벨 역할.
+  storeId: uuid("store_id").references(() => stores.id, {
+    onDelete: "set null",
+  }),
+  storeNameSnapshot: text("store_name_snapshot").notNull(),
   source: text("source").notNull(),
   requestedByEmail: text("requested_by_email").notNull(),
   requestedByUserId: uuid("requested_by_user_id"),

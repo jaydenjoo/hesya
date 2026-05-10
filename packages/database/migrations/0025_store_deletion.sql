@@ -36,7 +36,10 @@ COMMENT ON COLUMN stores.deletion_reason IS
 
 CREATE TABLE IF NOT EXISTS store_deletion_requests (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  store_id uuid NOT NULL REFERENCES stores(id) ON DELETE CASCADE,
+  -- ON DELETE SET NULL — purge 완료 후 stores cascade로 사라져도 request row는
+  -- 보존 (admin 'purged' 큐 + audit). store_name_snapshot이 사람이 읽는 라벨 보존.
+  store_id uuid REFERENCES stores(id) ON DELETE SET NULL,
+  store_name_snapshot text NOT NULL,
   source text NOT NULL CHECK (source IN ('owner', 'admin')),
   requested_by_email text NOT NULL,
   requested_by_user_id uuid,
@@ -48,19 +51,25 @@ CREATE TABLE IF NOT EXISTS store_deletion_requests (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
+-- 활성 요청 1개 보장 (store_id가 SET NULL 처리될 수 있어 NULL 행 다수 허용 —
+-- purge 완료 후의 historical row는 store_id NULL이므로 unique 충돌 없음).
 CREATE UNIQUE INDEX IF NOT EXISTS store_deletion_requests_active_unique
   ON store_deletion_requests (store_id)
-  WHERE cancelled_at IS NULL AND purged_at IS NULL;
+  WHERE store_id IS NOT NULL AND cancelled_at IS NULL AND purged_at IS NULL;
 
 CREATE INDEX IF NOT EXISTS store_deletion_requests_purge_due_idx
   ON store_deletion_requests (scheduled_purge_at)
-  WHERE cancelled_at IS NULL AND purged_at IS NULL;
+  WHERE store_id IS NOT NULL AND cancelled_at IS NULL AND purged_at IS NULL;
 
 CREATE INDEX IF NOT EXISTS store_deletion_requests_store_idx
   ON store_deletion_requests (store_id);
 
 COMMENT ON TABLE store_deletion_requests IS
   '매장 해지 요청 이력 — Epic 12.9 (PRD §1068, SLA 30일 grace, PIPA §21).';
+COMMENT ON COLUMN store_deletion_requests.store_id IS
+  'stores.id FK ON DELETE SET NULL — purge 완료 후 NULL이 됨. store_name_snapshot으로 이력 보존.';
+COMMENT ON COLUMN store_deletion_requests.store_name_snapshot IS
+  '요청 시점 stores.name 스냅샷 — purge 후 admin 큐에서 사람이 읽는 라벨로 사용.';
 COMMENT ON COLUMN store_deletion_requests.source IS
   'owner=자가해지, admin=강제해지(약관 위반 등).';
 COMMENT ON COLUMN store_deletion_requests.scheduled_purge_at IS

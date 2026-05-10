@@ -285,19 +285,23 @@ export async function seedStoreDeletionRequest(
     createdAt.getTime() + STORE_DELETION_GRACE_DAYS * 24 * 60 * 60 * 1000,
   );
 
-  await db
+  const updated = await db
     .update(stores)
     .set({
       deletedAt: input.cancelled || input.purged ? null : createdAt,
       deletionReason:
         input.cancelled || input.purged ? null : (input.reason ?? null),
     })
-    .where(sql`${stores.id} = ${input.storeId}`);
+    .where(sql`${stores.id} = ${input.storeId}`)
+    .returning({ name: stores.name });
+
+  const storeNameSnapshot = updated[0]?.name ?? "Test Store";
 
   const [row] = await db
     .insert(storeDeletionRequests)
     .values({
       storeId: input.storeId,
+      storeNameSnapshot,
       source: input.source ?? "owner",
       requestedByEmail: input.requestedByEmail ?? "owner@example.com",
       requestedByUserId: input.requestedByUserId ?? null,

@@ -17,7 +17,8 @@ import {
  */
 export interface AdminDeletionRow {
   id: string;
-  storeId: string;
+  /** purge 완료 후 NULL — store_name_snapshot으로 라벨만 보존 */
+  storeId: string | null;
   storeName: string;
   source: "owner" | "admin" | string;
   requestedByEmail: string;
@@ -218,17 +219,21 @@ export function AdminDeletionQueue({
                     <span>
                       예정 삭제일: {purgeAt.toLocaleDateString("ko-KR")}
                     </span>
-                    <span className="mx-2">·</span>
-                    <span className="font-mono">{row.storeId}</span>
+                    {row.storeId && (
+                      <>
+                        <span className="mx-2">·</span>
+                        <span className="font-mono">{row.storeId}</span>
+                      </>
+                    )}
                   </div>
                   {row.reason && (
                     <p className="text-sm text-gray-700">사유: {row.reason}</p>
                   )}
-                  {!row.cancelledAt && !row.purgedAt && (
+                  {!row.cancelledAt && !row.purgedAt && row.storeId && (
                     <div className="flex items-center gap-3 pt-1">
                       <button
                         type="button"
-                        onClick={() => onCancelRow(row.storeId, row.id)}
+                        onClick={() => onCancelRow(row.storeId!, row.id)}
                         disabled={pending}
                         className="rounded border border-gray-300 bg-white px-3 py-1 text-sm hover:bg-gray-50 disabled:opacity-40"
                       >
