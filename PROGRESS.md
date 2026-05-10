@@ -3,100 +3,98 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-09 세션 종료 시점)
+## 현재 위치 (2026-05-10 세션 종료 시점)
 
-- **Phase**: **Phase 1-γ.1.1 완료** (Epic 12 잔여 5 Task 중 첫 번째 = γ.1.1 E12-4 분쟁처리 e2e 시연 통과)
+- **Phase**: **Phase 1-γ.1.4 완료** (Epic 12 잔여 5 Task 중 1~4번째 — γ.1.1~γ.1.4 모두 머지 + Vercel prod 배포 성공)
 - **시나리오**: B (풀 P0 베타 — PRD 원안)
-- **베타 5곳 출시 가능 시점**: 약 9~11주 (γ.1.1 시연 통과 → γ.1.2 진입 가능)
-- **본 세션 머지 PR**: #92 (backend), #93 (UI), #94 (seed fix), #95 (dev:demo DATABASE_URL override)
-- **Playwright e2e 시연**: 8단계 모두 ✅ — 사장 신고 → admin 검토 → 해결 처리 → 사장 측 동기화
+- **베타 5곳 출시 가능 시점**: 약 8~10주 (γ.1 거의 마무리 → γ.1.5 E12-9 + 통합 E2E만 남음)
+- **본 세션 머지 PR**: #96 (dev:demo dotenv fix), #97 (E12-6 결제이상), #98 (E12-7 AI정확도), #99 (E12-8 API정책 RSS), #100 (PR #99 보안 fix 누락분 재머지)
+- **Vercel prod 배포**: `4387501` success (08:10:39Z, Jayden 수동 redeploy 후) — N8N_WEBHOOK_SECRET 등록 누락이 원인
+- **본 세션 시연**: admin 페이지 4종(`payment-monitoring`, `ai-accuracy`, `api-policy-alerts`, 기존 분쟁) screenshot + n8n webhook curl 통과
 
-## P0 Epic 객관 완성도 (Epic 12 갱신 — Playwright e2e 시연 통과 근거)
+## P0 Epic 객관 완성도 (Epic 12 — γ.1.2~γ.1.4 머지 반영, 통합 E2E 미완)
 
-| Epic                | 실측 (직전) | 실측 (본 세션)      | 갭                                                               |
-| ------------------- | ----------- | ------------------- | ---------------------------------------------------------------- |
-| E1 인박스           | 65%         | **65%** (변동 없음) | Instagram 단채널만, WhatsApp/카카오/LINE 0% (타입 정의만)        |
-| **E2 결제 위젯** 🔴 | 17%         | **17%** (변동 없음) | DB 스키마만. Stripe/Alipay/WeChat 코드 0건                       |
-| **E3 예약 시스템**  | 17%         | **17%** (변동 없음) | DB 스키마만. DAL/Server Action/UI 0건                            |
-| **E4 대시보드**     | 8%          | **8%** (변동 없음)  | Recharts 의존성 자체 없음, KPI 집계 테이블 없음                  |
-| E9 KYC 🔴           | 88%         | **88%** (변동 없음) | admin 검수 E2E 흐름만 차단 (Better Auth 세션 시뮬 한계)          |
-| **E12 관리자** 🔴   | 40%         | **50%** ↑           | E12-1,2,3,4,5,10 완료 (E12-4 시연 통과) / E12-6,7,8,9 미완 (4개) |
+| Epic                | 실측 (직전) | 실측 (본 세션)      | 갭                                                              |
+| ------------------- | ----------- | ------------------- | --------------------------------------------------------------- |
+| E1 인박스           | 65%         | **65%** (변동 없음) | Instagram 단채널만, WhatsApp/카카오/LINE 0%                     |
+| **E2 결제 위젯** 🔴 | 17%         | **17%** (변동 없음) | DB 스키마만. Stripe/Alipay/WeChat 코드 0건                      |
+| **E3 예약 시스템**  | 17%         | **17%** (변동 없음) | DB 스키마만                                                     |
+| **E4 대시보드**     | 8%          | **8%** (변동 없음)  | Recharts 미설치                                                 |
+| E9 KYC 🔴           | 88%         | **88%** (변동 없음) | admin 검수 E2E 흐름만 차단                                      |
+| **E12 관리자** 🔴   | 50%         | **75%** ↑           | E12-1~8,10 완료 / E12-9 (해지·삭제) + 통합 E2E 미완 (시연 부분) |
 
-**P0 평균: 39% → 41%** (E12 +10, 다른 Epic 변동 없음).
+**P0 평균: 41% → 45%** (E12 +25, 다른 Epic 변동 없음).
 
-## 코드 품질 (본 세션 변동 — UI feature/dispute 추가 + dev:demo 격리 보강)
+> ⚠️ E12-6/7/8은 admin 페이지 visual + curl 시연만 통과. **production 시나리오 (실제 결제 anomaly trigger / 실 메시지 정확도 측정 / 실 RSS 수신) e2e 시연은 미실시** — L-082 기준 부분 시연.
 
-| 항목                                   | 점수 (직전) | 점수 (본 세션)                                         |
-| -------------------------------------- | ----------- | ------------------------------------------------------ |
-| 코드 품질 (DAL/타입/일관성)            | 7/10        | **7/10** (UI 신규 7파일 + 기존 패턴 일관)              |
-| 보안 (Auth/RLS/암호화)                 | 8/10        | **8/10**                                               |
-| 분산 안정성 (rate-limit)               | 8/10        | **8/10**                                               |
-| 기술 부채 (TODO 2건, 임시 솔루션 명시) | 6/10        | **6/10**                                               |
-| **E2E 통합 시연 커버리지**             | 5/10        | **6/10** ↑ (Epic 12.4 8단계 Playwright 자동 시연 통과) |
-| 종합                                   | 7/10        | **7/10** (E2E ↑로 베이스라인 안정)                     |
+## 본 세션 (2026-05-10) — Phase 1-γ.1.2~γ.1.4 머지 + 보안 fix 재진입
 
-## 본 세션 (2026-05-09) — Phase 1-γ.1.1 e2e 시연 통과
+### 머지된 PR (5개)
 
-### 머지된 PR (4개, 같은 영역 누적 → L-082 회고 trigger 발동)
+| PR                                                  | Task                                                              | 상태              |
+| --------------------------------------------------- | ----------------------------------------------------------------- | ----------------- |
+| [#96](https://github.com/jaydenjoo/hesya/pull/96)   | dev:demo dotenv require 의존성 제거 (bash native parsing)         | ✅ 머지 (7e05f36) |
+| [#97](https://github.com/jaydenjoo/hesya/pull/97)   | γ.1.2 E12-6 결제이상 모니터링 (thresholds + DAL + admin 페이지)   | ✅ 머지 (68cbce3) |
+| [#98](https://github.com/jaydenjoo/hesya/pull/98)   | γ.1.3 E12-7 AI 정확도 모니터링 (drafts editedFromAi 비율 + admin) | ✅ 머지 (ed2ae85) |
+| [#99](https://github.com/jaydenjoo/hesya/pull/99)   | γ.1.4 E12-8 API정책 n8n RSS → webhook → admin 큐                  | ✅ 머지 (eb40da4) |
+| [#100](https://github.com/jaydenjoo/hesya/pull/100) | PR #99 보안 review fix 누락분 재머지 (CRITICAL 3 + HIGH 4)        | ✅ 머지 (4387501) |
 
-| PR                                                | Task                                                                  | 상태              |
-| ------------------------------------------------- | --------------------------------------------------------------------- | ----------------- |
-| [#92](https://github.com/jaydenjoo/hesya/pull/92) | E12-4 backend (직전 세션 작업, 본 세션 시작 시 자동 머지 확인)        | ✅ 머지 (b429245) |
-| [#93](https://github.com/jaydenjoo/hesya/pull/93) | E12-4 UI (사장 폼 + admin 큐 + features 7파일)                        | ✅ 머지 (5ece42b) |
-| [#94](https://github.com/jaydenjoo/hesya/pull/94) | seed fix (createDispute server-only → seedDispute fixture helper)     | ✅ 머지 (766076e) |
-| [#95](https://github.com/jaydenjoo/hesya/pull/95) | dev:demo DATABASE_URL override (.env.local의 HESYA_TEST_DATABASE_URL) | ✅ 머지           |
+### Vercel Production 배포 흐름 (실패 → 성공)
 
-### 작업 흐름 회고 (같은 영역 PR 4개째 → plan 인벤토리 부실 시그널 — L-085)
+| 시각 (UTC)              | 이벤트                                                      | 상태                                      |
+| ----------------------- | ----------------------------------------------------------- | ----------------------------------------- |
+| 05:49 (PR #99 머지)     | Vercel auto-deploy `eb40da4`                                | ❌ ZodError: N8N_WEBHOOK_SECRET undefined |
+| 07:08 (PR #100 머지)    | Vercel auto-deploy `4387501`                                | ❌ 같은 원인                              |
+| 08:10 (Jayden redeploy) | Vercel Dashboard에 N8N_WEBHOOK_SECRET 등록(3환경) 후 재배포 | ✅ success                                |
 
-1. **PR #93 plan 단계**: 인벤토리에서 dispute UI 0건 확인했지만, **시연 prerequisite 3-layer (마이그 / seed / dev:demo DATABASE_URL) 격리 검증 누락**.
-2. **#94 fix**: seed가 server-only DAL을 직접 import → tsx에서 throw. fixture inline 패턴 (server-only 우회 의도) 미준수.
-3. **#95 fix**: dev:demo의 next dev가 `.env.local` DATABASE_URL(prod) 그대로 사용 → seed가 들어간 로컬 DB와 불일치. dotenv로 .env.local 파싱 + DATABASE_URL inline override.
-4. **시연 통과**: PR #95 머지 후 dev:demo 재시작 → Playwright 8단계 모두 통과.
+→ **L-087 신규 (env 도입은 Vercel 등록까지 6-layer)**.
 
-### Playwright e2e 시연 (L-082 충족 핵심)
+### PR #99 보안 review 후 fix 누락 사고 (L-086)
 
-| 단계 | 검증                                                          | 결과 |
-| ---- | ------------------------------------------------------------- | ---- |
-| 1    | 사장 페이지 진입 + seed 분쟁 1건 보임 (컴플레인 / 접수 / D-5) | ✅   |
-| 2    | 신규 분쟁 폼 진입 (`/store/disputes/new`)                     | ✅   |
-| 3    | 환불 분쟁 신규 신고 → list 복귀 (2건)                         | ✅   |
-| 4    | admin 큐 진입 (분쟁 2건 + D-day 표시 D-5/D-6)                 | ✅   |
-| 5    | status 필터 동작 (`?status=in_review` → 0건)                  | ✅   |
-| 6    | "검토 시작" → `open` → `in_review` 전이                       | ✅   |
-| 7    | resolution 입력 + "해결 처리" → `in_review` → `resolved`      | ✅   |
-| 8    | 사장 측 list에서 "해결됨" 동기화 표시, terminal detail 정상   | ✅   |
+- PR #99 squash merge = 초기 커밋 `8a90aae` 1건만 통합. 보안 fix 커밋 `79b0b9e`는 PR closed **이후** push → main 도달 실패.
+- 결과: prod 코드에 CRITICAL(timing-safe 비교, link XSS, alertId 노출) 패치 없음.
+- 처리: 새 브랜치 `fix/api-policy-alerts-security-review` + PR #100으로 재진입, auto-merge 라벨 → CI 그린 후 자동 머지.
+- **L-086 신규 (PR open 상태에서 fix push + CI 그린 + 머지 직전 main HEAD 검증 의무)**.
 
-영업일 vs 달력일 SLA 차이 자연스럽게 검증 (5/15 vs 5/14). 스크린샷 3장 (`apps/web/demo-step{1,3,8}-*.png`).
+### 작업 흐름 (γ.1.2 → γ.1.3 → γ.1.4)
 
-### 검증 통과 (PR #95 기준)
+1. **γ.1.2 E12-6**: payments DAL + thresholds(refund_rate=0.3, mismatch=10K KRW) + admin page. drizzle facade에 `gte` 추가.
+2. **γ.1.3 E12-7**: ai-accuracy DAL + thresholds(accuracy=0.9, sample=10) + admin page. 분모 = outbound + draftStatus IN(sent,skipped) / 분자 = sent AND editedFromAi != true. drizzle facade에 `inArray` 추가.
+3. **γ.1.4 E12-8**: api-policy-alerts 마이그(0024 manual SQL) + DAL + webhook receiver(`/api/webhooks/n8n-rss`) + admin page + n8n 2.16.0 호환 워크플로 JSON.
+4. **PR #99 보안 review** (subagent): CRITICAL 3건(timing-safe / link XSS / alertId 노출) + HIGH 4건(min(32) / body size / drizzle CHECK / .select() 명시) 발견 → fix 커밋 push했으나 PR 머지 직후라 main 미반영 → PR #100 별도 진입.
 
-- `pnpm --filter @hesya/web type-check` ✅ tsc 0 errors
-- `pnpm --filter @hesya/web lint` ✅ 0 issues
-- `pnpm --filter @hesya/web test` ✅ **591 passed** (regression 0)
-- **Playwright e2e 자동 시연** ✅ 8단계 통과
+### 검증
 
-## 다음 세션 가이드 — Phase 1-γ.1.2 (Epic 12 잔여)
+- `pnpm type-check` ✅ tsc 0 errors (모든 PR)
+- `pnpm lint` ✅ 0 issues
+- `pnpm --filter @hesya/web test` ✅ 본 PR scope 19/19 통과 (γ.1.4 기준, 환경 drift는 기준 main과 동일)
+- admin 페이지 4종 screenshot 시연 (`apps/web/demo-e12-{6,7,8}-*.png`)
+- n8n webhook curl: 신규 → `inserted=true`, 중복 → `inserted=false` ✅
+- **Vercel Production 배포 ✅** (`4387501`, 08:10:39Z)
+
+## 다음 세션 가이드 — Phase 1-γ.1.5 (Epic 12 잔여 1개 + 통합 E2E)
 
 📄 **상세 plan**: `docs/Plan-v2-scenario-B.md`
 
 ### 다음 세션 첫 행동
 
-1. PROGRESS.md 본 파일 확인 (현재 위치 = γ.1.2 진입)
-2. **L-085 추가** docs/learnings.md (본 세션 회고 — 같은 영역 PR 4개+ 누적 + 시연 prerequisite 3-layer 검증 의무)
-3. γ.1.2 E12-6 결제이상 모니터링 plan v1 작성 (Pre-Plan Inventory 의무)
+1. PROGRESS.md 본 파일 확인 (현재 위치 = γ.1.5 진입)
+2. **L-086 / L-087 확인** docs/learnings.md (PR squash merge timing 누락 + Vercel env 6-layer)
+3. γ.1.5 E12-9 해지/데이터삭제 plan v1 작성 (Pre-Plan Inventory 의무)
+4. **새 env 도입 시 Vercel 등록까지 6-layer 체크리스트 명시 의무** (L-087)
 
 ### Phase 1-γ.1 — Epic 12 완성 (다음 1주, P0 RED)
 
-E12 현재 50% → 100% 목표. 4 Task + 통합 E2E 남음:
+E12 현재 75% → 100% 목표. 1 Task + 통합 E2E 남음:
 
-| #         | Task                               | 영역                     | 예상  |
-| --------- | ---------------------------------- | ------------------------ | ----- |
-| ~~γ.1.1~~ | ~~E12-4 분쟁처리~~                 | ✅ 완료 (본 세션)        | 1일   |
-| γ.1.2     | E12-6 결제이상 모니터링 (인프라만) | 모니터링 hook            | 0.5일 |
-| γ.1.3     | E12-7 AI 정확도 모니터링           | metrics 수집 + dashboard | 1일   |
-| γ.1.4     | E12-8 API정책 n8n RSS              | 외부 RSS 파싱 + 알림     | 0.5일 |
-| γ.1.5     | E12-9 해지/데이터삭제              | DAL + cascade 설계 + UI  | 1일   |
-| γ.1.6     | Epic 12 통합 E2E                   | 통합 검증                | 0.5일 |
+| #         | Task                                 | 영역                    | 상태             |
+| --------- | ------------------------------------ | ----------------------- | ---------------- |
+| ~~γ.1.1~~ | ~~E12-4 분쟁처리~~                   | ✅ 완료 (전 세션)       | Playwright 8단계 |
+| ~~γ.1.2~~ | ~~E12-6 결제이상 모니터링 (인프라)~~ | ✅ 완료 (본 세션)       | admin + curl     |
+| ~~γ.1.3~~ | ~~E12-7 AI 정확도 모니터링~~         | ✅ 완료 (본 세션)       | admin + curl     |
+| ~~γ.1.4~~ | ~~E12-8 API정책 n8n RSS~~            | ✅ 완료 (본 세션)       | admin + curl     |
+| γ.1.5     | E12-9 해지/데이터삭제                | DAL + cascade 설계 + UI | 1일 예상         |
+| γ.1.6     | Epic 12 통합 E2E (Playwright)        | E12-4~9 통합            | 0.5일 예상       |
 
 ### Phase 1-γ.2 — Epic 9 마무리 + Epic 1 통합 E2E (1주)
 
@@ -122,23 +120,29 @@ demo.hesya.com Phase 2 도입 + 베타 1~2곳 onboarding.
 
 ## 차단 요소
 
-없음. Phase 1-γ.1.1 완료 + 시연 통과 → γ.1.2 진입 가능.
+없음. Phase 1-γ.1.4 완료 + Vercel prod 배포 성공 → γ.1.5 진입 가능.
 
-## 컨텍스트 관리 강화 — 누적 (L-082 → L-085)
+## 마지막 업데이트
+
+- 날짜: 2026-05-10
+- 본 세션 작업 시간: ~6h (γ.1.2~γ.1.4 + PR #100 보안 fix 재진입 + Vercel env 진단)
+
+## 컨텍스트 관리 강화 — 누적 (L-082 → L-087)
 
 1. **PROGRESS 자기평가는 e2e 시연 기준** (L-082)
-2. **destructive CLI 명령 글로벌 정밀화** (L-083) — `Bash(vercel env*)` → `*ls*`/`*get *`만
-3. **VS Code Local History 복구 경로** 확보 (L-083)
-4. **subagent 진단 의무화**: P0 Epic 작업 전 senior-engineer + code-explorer
-5. **PR 같은 영역 3개+ 누적 시 회고 trigger** (L-082) — 본 세션 4개째 발동 → L-085 추가
-6. **새 env 도입 PR 5-layer 정합성 의무** (L-084)
-7. **검증 스크립트는 lib wrapper 우회** (L-084)
-8. **시연 prerequisite 3-layer (마이그 / seed / dev:demo DATABASE_URL) 격리 검증 의무** (L-085 신규)
+2. **destructive CLI 명령 글로벌 정밀화** (L-083)
+3. **subagent 진단 의무화**: P0 Epic 작업 전 senior-engineer + code-explorer
+4. **PR 같은 영역 3개+ 누적 시 회고 trigger** (L-082)
+5. **새 env 도입 PR 5-layer → 6-layer 정합성 의무** (L-084 → L-087 확장)
+6. **시연 prerequisite 3-layer 격리 검증 의무** (L-085)
+7. **PR 머지 직전 main HEAD 검증 의무** (L-086 신규 — squash merge timing fix 누락 차단)
+8. **새 env 도입은 Vercel Production+Preview+Development 3환경 등록까지** (L-087 신규)
 
 ## 알려진 환경 이슈 (본 세션 scope 밖)
 
 - pnpm v10.28.2 환경 차이로 `pnpm-lock.yaml` quote style reformat 발생 (별도 cleanup PR 가능)
 - `apps/web/.env.local`의 `ANTHROPIC_API_KEY` — `sk-ant-` prefix 형식 점검 필요 (Jayden 환경)
+- 베타·prod 출시 직전 일괄 secret rotation 예정 (N8N_WEBHOOK_SECRET 임시값 포함)
 
 ## 관련 문서
 
@@ -148,7 +152,7 @@ demo.hesya.com Phase 2 도입 + 베타 1~2곳 onboarding.
 - 디자인: `docs/design/` (참조), `docs/DESIGN-PLAN.md`
 - 데모 가이드: `docs/demo-guide.md`
 - ADR: `docs/DECISIONS.md`
-- 교훈: `docs/learnings.md` (L-001~**L-085**)
+- 교훈: `docs/learnings.md` (L-001~**L-087**)
 - 글로벌 규칙: `~/.claude/CLAUDE.md` v3.2
 - 인벤토리 절차: `~/.claude/rules/inventory-protocol.md`
 - 프로젝트 규칙: `CLAUDE.md` (5-Layer 문서 구조)
