@@ -68,7 +68,19 @@ export async function insertApiPolicyAlert(
 
   // 충돌(중복)이라 row가 안 나옴 — 기존 row 조회해서 반환
   const existing = await db
-    .select()
+    .select({
+      id: apiPolicyAlerts.id,
+      source: apiPolicyAlerts.source,
+      title: apiPolicyAlerts.title,
+      link: apiPolicyAlerts.link,
+      guid: apiPolicyAlerts.guid,
+      pubDate: apiPolicyAlerts.pubDate,
+      receivedAt: apiPolicyAlerts.receivedAt,
+      status: apiPolicyAlerts.status,
+      notes: apiPolicyAlerts.notes,
+      reviewedByUserId: apiPolicyAlerts.reviewedByUserId,
+      reviewedAt: apiPolicyAlerts.reviewedAt,
+    })
     .from(apiPolicyAlerts)
     .where(
       and(
@@ -94,7 +106,19 @@ export async function listAlertsForAdmin(
     : undefined;
 
   return db
-    .select()
+    .select({
+      id: apiPolicyAlerts.id,
+      source: apiPolicyAlerts.source,
+      title: apiPolicyAlerts.title,
+      link: apiPolicyAlerts.link,
+      guid: apiPolicyAlerts.guid,
+      pubDate: apiPolicyAlerts.pubDate,
+      receivedAt: apiPolicyAlerts.receivedAt,
+      status: apiPolicyAlerts.status,
+      notes: apiPolicyAlerts.notes,
+      reviewedByUserId: apiPolicyAlerts.reviewedByUserId,
+      reviewedAt: apiPolicyAlerts.reviewedAt,
+    })
     .from(apiPolicyAlerts)
     .where(where)
     .orderBy(desc(apiPolicyAlerts.receivedAt));

@@ -61,7 +61,7 @@ jobs:
       QSTASH_NEXT_SIGNING_KEY: ci_dummy_qstash_next_xxxxxxxxxxxxxxxx
       UPSTASH_REDIS_KV_REST_API_URL: https://ci-dummy-upstash.upstash.io
       UPSTASH_REDIS_KV_REST_API_TOKEN: ci_dummy_upstash_kv_rest_token_xxxxxxxx
-      N8N_WEBHOOK_SECRET: ci_dummy_n8n_webhook_secret_xxxxxxxx
+      N8N_WEBHOOK_SECRET: ci_dummy_n8n_webhook_secret_xxxxxxxxxxxxxxxx
     steps:
       - uses: actions/checkout@v4
         with:
@@ -136,7 +136,7 @@ jobs:
       QSTASH_NEXT_SIGNING_KEY: ci_dummy_qstash_next_xxxxxxxxxxxxxxxx
       UPSTASH_REDIS_KV_REST_API_URL: https://ci-dummy-upstash.upstash.io
       UPSTASH_REDIS_KV_REST_API_TOKEN: ci_dummy_upstash_kv_rest_token_xxxxxxxx
-      N8N_WEBHOOK_SECRET: ci_dummy_n8n_webhook_secret_xxxxxxxx
+      N8N_WEBHOOK_SECRET: ci_dummy_n8n_webhook_secret_xxxxxxxxxxxxxxxx
       # smoke만 실행 — inbox.spec.ts는 HESYA_TEST_DATABASE_URL 없어 자동 skip.
       # 실 시나리오는 PostgreSQL service container + migration이 필요해
       # 별도 인프라 작업으로 분리. 본 e2e-smoke는 dev 서버 + Playwright 자체 작동만 보장.
@@ -222,7 +222,7 @@ jobs:
       QSTASH_NEXT_SIGNING_KEY: ci_dummy_qstash_next_xxxxxxxxxxxxxxxx
       UPSTASH_REDIS_KV_REST_API_URL: https://ci-dummy-upstash.upstash.io
       UPSTASH_REDIS_KV_REST_API_TOKEN: ci_dummy_upstash_kv_rest_token_xxxxxxxx
-      N8N_WEBHOOK_SECRET: ci_dummy_n8n_webhook_secret_xxxxxxxx
+      N8N_WEBHOOK_SECRET: ci_dummy_n8n_webhook_secret_xxxxxxxxxxxxxxxx
     steps:
       - uses: actions/checkout@v4
       - name: Setup pnpm

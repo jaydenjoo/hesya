@@ -7,7 +7,9 @@
  *
  * R1 완화 인프라: 5채널 분산이 근본 완화이고, 본 알림은 변경 조기 감지.
  */
+import { sql } from "drizzle-orm";
 import {
+  check,
   index,
   pgTable,
   text,
@@ -40,6 +42,11 @@ export const apiPolicyAlerts = pgTable(
       table.receivedAt.desc(),
     ),
     index("api_policy_alerts_source_idx").on(table.source),
+    // SQL 마이그(0024)의 CHECK와 일치 — Drizzle Studio / 직접 쿼리 시 동일 제약.
+    check(
+      "api_policy_alerts_status_check",
+      sql`${table.status} IN ('new', 'reviewed', 'resolved', 'ignored')`,
+    ),
   ],
 );
 

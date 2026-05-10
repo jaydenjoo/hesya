@@ -50,6 +50,16 @@
                 "operation": "notEmpty",
                 "singleValue": true
               }
+            },
+            {
+              "id": "01959001-0000-7000-8000-00000000000a",
+              "leftValue": "={{ $json.link }}",
+              "rightValue": "^https?://",
+              "operator": {
+                "type": "string",
+                "operation": "regex",
+                "singleValue": true
+              }
             }
           ],
           "combinator": "and"
@@ -57,7 +67,7 @@
         "options": {}
       },
       "id": "01959001-0000-7000-8000-000000000004",
-      "name": "Has GUID or Link",
+      "name": "Has GUID + http(s) link",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [680, 300]
@@ -111,14 +121,14 @@
       "main": [
         [
           {
-            "node": "Has GUID or Link",
+            "node": "Has GUID + http(s) link",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Has GUID or Link": {
+    "Has GUID + http(s) link": {
       "main": [
         [
           {
