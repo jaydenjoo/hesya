@@ -47,6 +47,10 @@ next-env.d.ts
 # claude code tooling caches
 .claude/tdd-guard/
 .claude/scheduled_tasks.lock
+.claude/worktrees/
+
+# playwright e2e test artifacts
+**/test-results/
 
 # supabase local-only config (CI는 supabase start로 동적 default 사용)
 /supabase/

@@ -140,7 +140,6 @@ demo.hesya.com Phase 2 도입 + 베타 1~2곳 onboarding.
 
 ## 알려진 환경 이슈 (본 세션 scope 밖)
 
-- pnpm v10.28.2 환경 차이로 `pnpm-lock.yaml` quote style reformat 발생 (별도 cleanup PR 가능)
 - `apps/web/.env.local`의 `ANTHROPIC_API_KEY` — `sk-ant-` prefix 형식 점검 필요 (Jayden 환경)
 - 베타·prod 출시 직전 일괄 secret rotation 예정 (N8N_WEBHOOK_SECRET 임시값 포함)
 
