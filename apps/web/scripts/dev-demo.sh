@@ -41,8 +41,10 @@ done
 # dev 서버(prod DB 조회)가 서로 다른 DB를 보게 됨 → owner row 미발견 → sign-in
 # redirect. 시연은 격리 환경에서만 의미 있으므로 dev:demo 시작 시 강제 동기화.
 #
-# dotenv 사용 — 따옴표/escape 처리 안전.
-HESYA_TEST_URL="$(node -e "require('dotenv').config({path:'.env.local'}); process.stdout.write(process.env.HESYA_TEST_DATABASE_URL || '')")"
+# bash native parsing — apps/web에 dotenv dependency 없음 (packages/database
+# 전용). 스크립트 헤더 "의존성 0" 원칙과 일치. 첫 매칭 줄만 사용 + 양쪽
+# 따옴표(", ') 제거.
+HESYA_TEST_URL="$(grep -E '^HESYA_TEST_DATABASE_URL=' .env.local 2>/dev/null | head -1 | sed -E 's/^[^=]+=//; s/^"(.*)"$/\1/; s/^'\''(.*)'\''$/\1/')"
 if [ -z "$HESYA_TEST_URL" ]; then
   echo "[dev:demo] ✗ HESYA_TEST_DATABASE_URL이 apps/web/.env.local에 없습니다."
   echo "[dev:demo]   시연용 로컬 DB URL을 .env.local에 추가하고 다시 실행하세요."
