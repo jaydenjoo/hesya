@@ -1,13 +1,15 @@
 import { describe, it, expect, vi } from "vitest";
 import * as helpers from "./db";
 import {
+  bookings,
   messages,
   conversations,
+  customers,
+  payments,
   storeIntegrations,
   storeKnowledge,
   storeOwners,
   storeVerifications,
-  customers,
   stores,
   type DbClient,
 } from "@hesya/database";
@@ -213,6 +215,8 @@ describe("test-helpers/db", () => {
       storeKnowledge,
       storeOwners,
       storeVerifications,
+      payments,
+      bookings,
       customers,
       stores,
     ]);

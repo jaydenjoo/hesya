@@ -19,6 +19,10 @@ import {
  *
  * SLA: PRD §1063 매일. 1일 1회 호출 가정. 호출 측이 (Epic 2 시점) 24h 윈도우 지정.
  *
+ * 현재 호출처 0건 — Epic 2 도입 시 `app/api/cron/payment-anomalies/route.ts`
+ * 또는 QStash schedule에서 매일 1회 호출 예정. admin 페이지(monitoring/page.tsx)는
+ * threshold 시각화만 담당, 실제 alert 발송은 본 함수가 cron route에서.
+ *
  * @returns 검사 결과. anomalies 배열 비어 있으면 정상.
  */
 export interface PaymentAnomaly {

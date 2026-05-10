@@ -3,10 +3,12 @@ import {
   bookings,
   createDbClient,
   payments,
-  stores,
   type DbClient,
   type NewPayment,
+  type Payment,
 } from "@hesya/database";
+
+import { resetDb, seedStore } from "@/test-helpers/db";
 
 import { aggregateMetrics, getPaymentMetrics } from "./payments";
 
@@ -68,17 +70,8 @@ describe.skipIf(!hasDb)("dal.payments (integration)", () => {
   });
 
   beforeEach(async () => {
-    await db.delete(payments);
-    await db.delete(bookings);
-    await db.delete(stores);
-
-    const [s] = await db
-      .insert(stores)
-      .values({ name: "Payment Test Store" })
-      .returning({ id: stores.id });
-    if (!s) throw new Error("seed store failed");
-    storeId = s.id;
-
+    await resetDb(db);
+    storeId = await seedStore(db, { name: "Payment Test Store" });
     const [b] = await db
       .insert(bookings)
       .values({
@@ -136,19 +129,7 @@ function mockRows(
   count: number,
   status: string,
   amountKrw: number | null,
-): Array<{
-  id: string;
-  bookingId: string | null;
-  amountKrw: number | null;
-  amountForeign: string | null;
-  currencyForeign: string | null;
-  exchangeRate: string | null;
-  provider: string | null;
-  providerTransactionId: string | null;
-  status: string | null;
-  feeSaasKrw: number | null;
-  createdAt: Date | null;
-}> {
+): Payment[] {
   return Array.from({ length: count }, (_, i) => ({
     id: `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`,
     bookingId: null,

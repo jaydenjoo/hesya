@@ -52,6 +52,9 @@ export interface PaymentMetricsFilter {
  * 수준이라 row 수가 적음. Epic 2 안정화 + 데이터량 증가 시점에 SQL
  * aggregate(count/sum)로 마이그레이션 예정.
  *
+ * TODO(Epic2): payments 일 1000건 넘기면 row fetch + JS 집계 → drizzle
+ * `count()` / `sum()` aggregate로 교체. 현재 0건 단계 인프라.
+ *
  * @returns 0건 안전 — refundRate 분모 0이면 0 반환 (NaN 차단)
  */
 export async function getPaymentMetrics(
