@@ -34,6 +34,27 @@ describe("KycForm", () => {
     expect(button).not.toBeDisabled();
   });
 
+  it("γ.2.3.3: submit 버튼이 amber-500 primary (검은 버튼 → Hesya 토큰)", () => {
+    render(<KycForm onSubmit={() => {}} />);
+    const button = screen.getByTestId("kyc-form-submit");
+    expect(button.className).toContain("bg-hesya-amber-500");
+    expect(button.className).not.toContain("bg-black");
+  });
+
+  it("γ.2.3.3: input field가 peach-200 border + amber-500 focus ring (Hesya 토큰)", () => {
+    const { container } = render(<KycForm onSubmit={() => {}} />);
+    const input = container.querySelector('input[type="text"]');
+    expect(input?.className).toContain("border-hesya-peach-200");
+    expect(input?.className).toContain("focus:border-hesya-amber-500");
+  });
+
+  it("γ.2.3.3: 자기신고 fieldset이 peach-50 bg + peach-200 border (Hesya 토큰)", () => {
+    const { container } = render(<KycForm onSubmit={() => {}} />);
+    const fieldset = container.querySelector("fieldset");
+    expect(fieldset?.className).toContain("bg-hesya-peach-50");
+    expect(fieldset?.className).toContain("border-hesya-peach-200");
+  });
+
   it("submit calls onSubmit with current field values", () => {
     const onSubmit = vi.fn();
     const { container } = render(<KycForm onSubmit={onSubmit} />);

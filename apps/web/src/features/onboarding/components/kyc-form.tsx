@@ -47,7 +47,7 @@ export function KycForm({ onSubmit, pending }: Props) {
           declarationNoOrientalMedicine: decl3 ? true : undefined,
         });
       }}
-      className="max-w-lg space-y-4"
+      className="space-y-5"
     >
       <Field
         label="매장명"
@@ -77,8 +77,10 @@ export function KycForm({ onSubmit, pending }: Props) {
         required
         type="url"
       />
-      <fieldset className="space-y-2 rounded border p-4">
-        <legend className="font-medium">자기신고 (모두 체크 필수)</legend>
+      <fieldset className="space-y-2.5 rounded-xl border border-hesya-peach-200 bg-hesya-peach-50/60 p-4">
+        <legend className="kr px-1 text-[13px] font-semibold text-hesya-navy-900">
+          자기신고 (모두 체크 필수)
+        </legend>
         <Check
           label="마사지업·안마시술소 영업하지 않습니다"
           checked={decl1}
@@ -98,7 +100,8 @@ export function KycForm({ onSubmit, pending }: Props) {
       <button
         type="submit"
         disabled={!declsOk || pending}
-        className="rounded bg-black px-4 py-2 text-white disabled:opacity-40"
+        data-testid="kyc-form-submit"
+        className="kr w-full rounded-md bg-hesya-amber-500 px-4 py-2.5 text-sm font-semibold text-white not-disabled:cursor-pointer not-disabled:hover:bg-hesya-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {pending ? "제출 중..." : "제출"}
       </button>
@@ -116,14 +119,16 @@ function Field(props: {
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm">{props.label}</span>
+      <span className="kr mb-1.5 block text-[13px] font-medium text-hesya-navy-900">
+        {props.label}
+      </span>
       <input
         type={props.type ?? "text"}
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
         required={props.required}
         pattern={props.pattern}
-        className="w-full rounded border px-3 py-2"
+        className="kr w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 text-[13px] text-hesya-navy-900 outline-none focus:border-hesya-amber-500 focus:ring-2 focus:ring-hesya-amber-500/20"
       />
     </label>
   );
@@ -135,13 +140,14 @@ function Check(props: {
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex items-center gap-2">
+    <label className="kr flex cursor-pointer items-center gap-2.5 text-[13px] text-hesya-navy-900">
       <input
         type="checkbox"
         checked={props.checked}
         onChange={(e) => props.onChange(e.target.checked)}
+        className="h-4 w-4 cursor-pointer accent-hesya-amber-500"
       />
-      <span>{props.label}</span>
+      <span className="break-keep">{props.label}</span>
     </label>
   );
 }

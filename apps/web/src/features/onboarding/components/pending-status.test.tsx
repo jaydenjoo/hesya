@@ -61,4 +61,36 @@ describe("PendingStatus", () => {
     const signInLink = screen.getByRole("link", { name: "다시 로그인하세요" });
     expect(signInLink).toHaveAttribute("href", "/sign-in");
   });
+
+  it("γ.2.3.3: manual_review → warn tone 카드 (amber-500 border + peach-100 bg)", () => {
+    render(<PendingStatus initialStatus="manual_review" />);
+    const card = screen.getByTestId("pending-status-card");
+    expect(card.dataset.tone).toBe("warn");
+    expect(card.className).toContain("border-hesya-amber-500");
+    expect(card.className).toContain("bg-hesya-peach-100");
+  });
+
+  it("γ.2.3.3: auto_approved → success tone 카드 + amber primary CTA", () => {
+    render(<PendingStatus initialStatus="auto_approved" />);
+    const card = screen.getByTestId("pending-status-card");
+    expect(card.dataset.tone).toBe("success");
+    expect(card.className).toContain("border-emerald-500");
+    const cta = screen.getByRole("link", { name: "Instagram 연결" });
+    expect(cta.className).toContain("bg-hesya-amber-500");
+  });
+
+  it("γ.2.3.3: rejected → error tone 카드 (red-500 border + red-50 bg)", () => {
+    render(<PendingStatus initialStatus="rejected" />);
+    const card = screen.getByTestId("pending-status-card");
+    expect(card.dataset.tone).toBe("error");
+    expect(card.className).toContain("border-red-500");
+    expect(card.className).toContain("bg-red-50");
+  });
+
+  it("γ.2.3.3: pending → neutral tone 카드", () => {
+    render(<PendingStatus initialStatus="pending" />);
+    const card = screen.getByTestId("pending-status-card");
+    expect(card.dataset.tone).toBe("neutral");
+    expect(card.className).toContain("border-hesya-peach-200");
+  });
 });
