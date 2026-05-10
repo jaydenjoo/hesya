@@ -102,4 +102,54 @@ describe("ThreadItem (A-2 시각 풍부화)", () => {
     );
     expect(screen.getByTestId("thread-channel-icon")).toBeInTheDocument();
   });
+
+  // γ.2.3.1 — 디자인 정합성 (active 좌측 amber bar + unread bg subtle)
+  it("isActive=true → 좌측 amber bar (before:bg-hesya-amber-500)", () => {
+    render(
+      <ThreadItem conversation={conv} isActive={true} onClick={() => {}} />,
+    );
+    const button = screen.getByRole("button");
+    expect(button.className).toMatch(/before:bg-hesya-amber-500/);
+  });
+
+  it("isActive=false → 좌측 amber bar 없음", () => {
+    render(
+      <ThreadItem conversation={conv} isActive={false} onClick={() => {}} />,
+    );
+    const button = screen.getByRole("button");
+    expect(button.className).not.toMatch(/before:bg-hesya-amber-500/);
+  });
+
+  it("unreadCount > 0 && !isActive → bg subtle (peach-100/40)", () => {
+    render(
+      <ThreadItem
+        conversation={{ ...conv, unreadCount: 2 }}
+        isActive={false}
+        onClick={() => {}}
+      />,
+    );
+    const button = screen.getByRole("button");
+    expect(button.className).toMatch(/bg-hesya-peach-100\/40/);
+  });
+
+  it("avatar bg는 customerId 해시 기반 4색 cycling — 같은 id는 같은 색", () => {
+    const { rerender } = render(
+      <ThreadItem
+        conversation={{ ...conv, customerId: "cust_aaa" }}
+        isActive={false}
+        onClick={() => {}}
+      />,
+    );
+    const cls1 = screen.getByTestId("thread-avatar").className;
+    rerender(
+      <ThreadItem
+        conversation={{ ...conv, customerId: "cust_aaa" }}
+        isActive={false}
+        onClick={() => {}}
+      />,
+    );
+    const cls2 = screen.getByTestId("thread-avatar").className;
+    expect(cls1).toBe(cls2); // deterministic
+    expect(cls1).toMatch(/bg-(hesya-peach|trust-rose)/);
+  });
 });

@@ -31,8 +31,8 @@ export function ThreadList({
 
   return (
     <>
-      <header className="flex flex-shrink-0 items-baseline justify-between border-b border-hesya-peach-200 bg-white px-4 py-3">
-        <h2 className="kr text-base font-bold text-hesya-navy-900">
+      <header className="flex flex-shrink-0 items-baseline justify-between border-b border-hesya-peach-100 bg-white px-4 py-3">
+        <h2 className="kr text-lg font-bold tracking-tight text-hesya-navy-900">
           통합 인박스
         </h2>
         <span
@@ -45,7 +45,7 @@ export function ThreadList({
       {conversations.length === 0 ? (
         <ThreadListEmpty />
       ) : (
-        <ul className="flex-1 divide-y divide-hesya-peach-200 overflow-y-auto">
+        <ul className="flex-1 divide-y divide-hesya-peach-100 overflow-y-auto">
           {conversations.map((c) => (
             <li key={c.id}>
               <ThreadItem
