@@ -45,8 +45,11 @@ const SENT_STATUS = "sent";
 /**
  * messages 테이블에서 draftStatus + editedFromAi 두 컬럼만 select하는 minimal row.
  * Drizzle `$inferSelect` 전체 타입 노출 회피 (DAL 외부 의존성 최소화).
+ *
+ * test 파일(`ai-accuracy.test.ts`)에서 mock row 구성에 재사용 — 중복 선언으로
+ * 인한 silent drift 방지를 위해 export.
  */
-type DraftSignalRow = {
+export type DraftSignalRow = {
   draftStatus: string | null;
   editedFromAi: boolean | null;
 };

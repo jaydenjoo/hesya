@@ -8,12 +8,11 @@ import {
 
 import { resetDb, seedConversation, seedStore } from "@/test-helpers/db";
 
-import { aggregateAccuracy, getAccuracyMetrics } from "./ai-accuracy";
-
-type DraftSignalRow = {
-  draftStatus: string | null;
-  editedFromAi: boolean | null;
-};
+import {
+  aggregateAccuracy,
+  getAccuracyMetrics,
+  type DraftSignalRow,
+} from "./ai-accuracy";
 
 describe("aggregateAccuracy (unit, no DB)", () => {
   it("0건: accuracy=0, 모든 카운트 0 (NaN 차단)", () => {

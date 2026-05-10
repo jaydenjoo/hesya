@@ -5,12 +5,12 @@ import type { DbClient } from "@hesya/database";
 
 import { getAccuracyMetrics } from "@/shared/lib/dal/ai-accuracy";
 
-import { ACCURACY_THRESHOLD, MIN_SAMPLE_SIZE } from "./thresholds";
+import { ACCURACY_THRESHOLD, ACCURACY_MIN_SAMPLE_SIZE } from "./thresholds";
 
 /**
  * E12-7 AI 응답 정확도 모니터링 — 임계치 미달 감지 + Sentry warning 발송.
  *
- * Phase 1-γ.1.3 인프라 단계 — 본 함수는 호출 자체 가능. 표본이 MIN_SAMPLE_SIZE
+ * Phase 1-γ.1.3 인프라 단계 — 본 함수는 호출 자체 가능. 표본이 ACCURACY_MIN_SAMPLE_SIZE
  * 미만이면 평가 skip (1~2건만으로 정확도 noise).
  *
  * 현재 호출처 0건 — Epic 1 운영 데이터 누적 후 호출 timing 결정 (cron vs N건마다
@@ -44,7 +44,7 @@ export async function checkAiAccuracyAnomaly(
   const metrics = await getAccuracyMetrics(db, options);
   const anomalies: AccuracyAnomaly[] = [];
 
-  const evaluated = metrics.sampleSize >= MIN_SAMPLE_SIZE;
+  const evaluated = metrics.sampleSize >= ACCURACY_MIN_SAMPLE_SIZE;
   if (evaluated && metrics.accuracy < ACCURACY_THRESHOLD) {
     anomalies.push({
       metric: "accuracy",

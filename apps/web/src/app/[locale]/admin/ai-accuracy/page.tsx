@@ -4,7 +4,7 @@ import { createDbClient } from "@hesya/database";
 import { env } from "@/shared/config/env";
 import {
   ACCURACY_THRESHOLD,
-  MIN_SAMPLE_SIZE,
+  ACCURACY_MIN_SAMPLE_SIZE,
 } from "@/lib/ai-accuracy/thresholds";
 import { getAccuracyMetrics } from "@/shared/lib/dal/ai-accuracy";
 import { requireAdminEmail } from "@/shared/lib/admin-guard";
@@ -13,7 +13,7 @@ import { requireAdminEmail } from "@/shared/lib/admin-guard";
  * E12-7 AI 응답 정확도 모니터링 — admin 대시보드 (Phase 1-γ.1.3 인프라 단계).
  *
  * 24h 윈도우 — 어제 자정~지금 (PRD §1063 "즉시 알림" 정신, 단 호출 timing은
- * Epic 1 운영 후 결정). 표본 < MIN_SAMPLE_SIZE면 "표본 부족" 카드만 표시.
+ * Epic 1 운영 후 결정). 표본 < ACCURACY_MIN_SAMPLE_SIZE면 "표본 부족" 카드만 표시.
  *
  * 정확도 1차 정의: sent (no edit) / (sent + skipped). 자세한 산출 근거는
  * `dal/ai-accuracy.ts` JSDoc 참조.
@@ -29,6 +29,8 @@ export default async function AdminAiAccuracyPage({
     redirect(`/${locale}/sign-in`);
   }
 
+  // ISR 도입 시 revalidate interval과 24h window 크기 일치시킬 것 — 안 그러면
+  // 캐시된 페이지가 stale window를 보여줌. 현재는 dynamic 렌더(매 요청마다 평가).
   const now = new Date();
   const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
   const db = createDbClient(env.DATABASE_URL);
@@ -37,7 +39,7 @@ export default async function AdminAiAccuracyPage({
     toDate: now,
   });
 
-  const evaluated = metrics.sampleSize >= MIN_SAMPLE_SIZE;
+  const evaluated = metrics.sampleSize >= ACCURACY_MIN_SAMPLE_SIZE;
   const accuracyExceeded = evaluated && metrics.accuracy < ACCURACY_THRESHOLD;
 
   return (
@@ -47,7 +49,7 @@ export default async function AdminAiAccuracyPage({
         <p className="text-sm text-gray-600">
           24시간 윈도우. 정확도 = (사장이 그대로 보낸 초안) / (sent + skipped).
           {(ACCURACY_THRESHOLD * 100).toFixed(0)}% 미만 시 Sentry warning. 표본
-          최소 {MIN_SAMPLE_SIZE}건 이상일 때만 평가.
+          최소 {ACCURACY_MIN_SAMPLE_SIZE}건 이상일 때만 평가.
         </p>
         <p className="text-xs text-gray-500">최근 검사: {now.toISOString()}</p>
       </header>
@@ -58,9 +60,9 @@ export default async function AdminAiAccuracyPage({
             표본 부족 — 평가 보류
           </h2>
           <p className="mt-1 text-sm text-amber-800">
-            현재 표본 {metrics.sampleSize}건 (최소 {MIN_SAMPLE_SIZE}건 필요).
-            베타 운영 데이터 누적 시 자동 활성화됩니다. AI 초안 결과(sent /
-            skipped)가 누적되어야 정확도 평가 가능 — pending_review 단계
+            현재 표본 {metrics.sampleSize}건 (최소 {ACCURACY_MIN_SAMPLE_SIZE}건
+            필요). 베타 운영 데이터 누적 시 자동 활성화됩니다. AI 초안 결과(sent
+            / skipped)가 누적되어야 정확도 평가 가능 — pending_review 단계
             메시지는 표본에 포함되지 않습니다.
           </p>
         </section>
@@ -79,13 +81,13 @@ export default async function AdminAiAccuracyPage({
           label="표본 크기 (24h)"
           value={metrics.sampleSize.toString()}
           unit="건"
-          subtext={`최소 ${MIN_SAMPLE_SIZE}건 필요`}
+          subtext={`최소 ${ACCURACY_MIN_SAMPLE_SIZE}건 필요`}
         />
         <MetricCard
           label="그대로 승인"
           value={metrics.acceptedCount.toString()}
           unit="건"
-          subtext="editedFromAi=false"
+          subtext="수정 없이 원문 발송"
         />
         <MetricCard
           label="수정 / 무시"

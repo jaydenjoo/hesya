@@ -21,4 +21,4 @@ export const ACCURACY_THRESHOLD = 0.9;
  * 표본이 적으면 정확도가 noise. 1건 수정/skip만으로 100% → 0% 폭주.
  * 베타 운영 데이터 누적 후 재조정 (P50 일일 결과 30~50건 이상 가정).
  */
-export const MIN_SAMPLE_SIZE = 10;
+export const ACCURACY_MIN_SAMPLE_SIZE = 10;
