@@ -266,6 +266,44 @@ export async function seedMessage(
   return row.id;
 }
 
+/**
+ * KYC manual_review 상태 매장 seed (Epic 9 / γ.2.1 통합 e2e용).
+ *
+ * stores.verification_status = 'manual_review' + store_verifications 1건 INSERT.
+ * 호출자가 미리 seedStore + seedStoreOwner 한 후 storeId 전달. 자기신고 3종은
+ * default true (KYC 폼 통과 기본값).
+ */
+export async function seedManualReviewVerification(
+  db: DbClient,
+  input: {
+    storeId: string;
+    businessNumber?: string;
+    representativeName?: string;
+  },
+): Promise<string> {
+  await db
+    .update(stores)
+    .set({ verificationStatus: "manual_review" })
+    .where(sql`${stores.id} = ${input.storeId}`);
+
+  const [row] = await db
+    .insert(storeVerifications)
+    .values({
+      storeId: input.storeId,
+      businessNumber: input.businessNumber ?? "1234567890",
+      representativeName: input.representativeName ?? "테스트 대표",
+      declarationNoMassage: true,
+      declarationNoMedicalDevice: true,
+      declarationNoOrientalMedicine: true,
+      selfDeclarationSignedAt: new Date(),
+      verificationStatus: "manual_review",
+    })
+    .returning({ id: storeVerifications.id });
+  if (!row)
+    throw new Error("seedManualReviewVerification: insert returned 0 rows");
+  return row.id;
+}
+
 export async function seedStoreDeletionRequest(
   db: DbClient,
   input: {
