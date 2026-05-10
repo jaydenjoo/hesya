@@ -113,8 +113,9 @@ const envSchema = z.object({
   // ─── Phase 1-γ.1.4 (E12-8) n8n RSS webhook secret ───
   // n8n 워크플로(api-policy-rss)가 본 hesya webhook으로 POST 시 X-Webhook-Secret
   // 헤더에 동일 값 전송. instagram webhook의 HMAC보다 단순화 (RSS 발신자 단일).
-  // 권장 길이: 32+ (openssl rand -base64 32). prod에선 secret manager로 rotate.
-  N8N_WEBHOOK_SECRET: z.string().min(20),
+  // 길이 32+ enforce — 256bit 엔트로피 (openssl rand -base64 32 권장).
+  // prod에선 secret manager로 rotate.
+  N8N_WEBHOOK_SECRET: z.string().min(32),
 });
 
 /**

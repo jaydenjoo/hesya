@@ -42,6 +42,17 @@ function parseStatusFilter(
   return "all";
 }
 
+/**
+ * DB의 status text를 안전하게 ApiPolicyAlertStatus 또는 fallback으로 narrow.
+ * runtime check 후에만 narrow 단언 — invalid status 발견 시 'new'로 표시.
+ */
+function narrowStatus(raw: string | null): ApiPolicyAlertStatus {
+  if (raw && (API_POLICY_ALERT_STATUSES as readonly string[]).includes(raw)) {
+    return raw as ApiPolicyAlertStatus;
+  }
+  return "new";
+}
+
 export default async function AdminApiPolicyAlertsPage({
   params,
   searchParams,
@@ -103,14 +114,14 @@ export default async function AdminApiPolicyAlertsPage({
             </thead>
             <tbody className="divide-y divide-gray-200">
               {rows.map((alert) => {
-                const statusKey = alert.status as ApiPolicyAlertStatus;
+                const statusKey = narrowStatus(alert.status);
                 return (
                   <tr key={alert.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3">
                       <span
-                        className={`inline-block rounded border px-2 py-0.5 text-xs font-medium ${STATUS_BADGE_COLORS[statusKey] ?? STATUS_BADGE_COLORS.new}`}
+                        className={`inline-block rounded border px-2 py-0.5 text-xs font-medium ${STATUS_BADGE_COLORS[statusKey]}`}
                       >
-                        {STATUS_LABELS[statusKey] ?? alert.status}
+                        {STATUS_LABELS[statusKey]}
                       </span>
                     </td>
                     <td className="px-4 py-3 font-mono text-xs">
