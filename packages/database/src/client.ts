@@ -18,9 +18,11 @@ export {
   asc,
   desc,
   eq,
+  gt,
   gte,
   inArray,
   isNotNull,
+  isNull,
   lte,
   sql,
 } from "drizzle-orm";
