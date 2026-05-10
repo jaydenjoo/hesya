@@ -2,6 +2,7 @@ import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
   apiPolicyAlerts,
   createDbClient,
+  eq,
   type DbClient,
 } from "@hesya/database";
 
@@ -113,21 +114,31 @@ describe.skipIf(!hasDb)("dal.api-policy-alerts (integration)", () => {
     expect(reviewedOnly[0]?.title).toBe("to be reviewed");
   });
 
-  it("listAlertsForAdmin: receivedAt desc 정렬", async () => {
-    await insertApiPolicyAlert(db, {
+  it("listAlertsForAdmin: receivedAt desc 정렬 (pubDate로 명시)", async () => {
+    // setTimeout race 회피 — pubDate를 명시 차등 (실제 receivedAt은 다 동일 ms일 수 있음).
+    // receivedAt 기반 정렬을 검증하기 위해 pubDate가 아닌 sleep 대신 SQL `now()` 진행 후
+    // 명시적으로 두 번째 row의 receivedAt을 미래로 update.
+    const r1 = await insertApiPolicyAlert(db, {
       source: "meta-blog",
       title: "first",
       link: "https://example.com/1",
       guid: "g1",
     });
-    // 명시적 timing — 두 번째 insert가 더 늦은 receivedAt
-    await new Promise((r) => setTimeout(r, 10));
-    await insertApiPolicyAlert(db, {
+    const r2 = await insertApiPolicyAlert(db, {
       source: "meta-blog",
       title: "second",
       link: "https://example.com/2",
       guid: "g2",
     });
+    if (!r1.alert || !r2.alert) throw new Error("seed failed");
+
+    // r2의 receivedAt을 명시적으로 r1보다 1초 뒤로 갱신 (정렬 결정성 보장)
+    await db
+      .update(apiPolicyAlerts)
+      .set({
+        receivedAt: new Date(r1.alert.receivedAt.getTime() + 1000),
+      })
+      .where(eq(apiPolicyAlerts.id, r2.alert.id));
 
     const list = await listAlertsForAdmin(db);
     expect(list).toHaveLength(2);
