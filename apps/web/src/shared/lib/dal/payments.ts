@@ -97,3 +97,33 @@ export function aggregateMetrics(rows: Payment[]): PaymentMetrics {
     refundedAmountKrw,
   };
 }
+
+/**
+ * Plan v3 M2.6 — payments row insert. Mock 또는 실 결제 양쪽 호출.
+ *
+ * `tx`는 caller가 booking 동시 insert 시 동일 트랜잭션을 보장하기 위해 전달.
+ * Drizzle의 tx 객체는 DbClient와 호환 (insert/select 시그니처 동일).
+ */
+export async function insertPayment(
+  tx: DbClient,
+  input: {
+    bookingId: string;
+    amountKrw: number;
+    provider: string;
+    providerTransactionId: string;
+    status: string;
+  },
+): Promise<{ id: string }> {
+  const [row] = await tx
+    .insert(payments)
+    .values({
+      bookingId: input.bookingId,
+      amountKrw: input.amountKrw,
+      provider: input.provider,
+      providerTransactionId: input.providerTransactionId,
+      status: input.status,
+    })
+    .returning({ id: payments.id });
+  if (!row) throw new Error("insertPayment: insert returned no row");
+  return row;
+}

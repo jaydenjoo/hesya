@@ -96,14 +96,14 @@ export default async function StoreMockPayPage({
   }
 
   const transit = {
-    service: sp.service,
-    staff: sp.staff,
-    date: sp.date,
-    time: sp.time,
-    name: sp.name,
-    email: sp.email,
+    service: sp.service as string,
+    staff: sp.staff as string,
+    date: sp.date as string,
+    time: sp.time as string,
+    name: sp.name as string,
+    email: sp.email as string,
     ...(sp.message ? { message: sp.message } : {}),
-  };
+  } as const;
 
   return (
     <main className="mx-auto max-w-xl px-6 py-12">
@@ -131,6 +131,7 @@ export default async function StoreMockPayPage({
 
       <MockPaymentForm
         storeId={store.id}
+        locale={locale}
         transit={transit}
         labels={{
           methodLabel: t("methodLabel"),
@@ -144,6 +145,7 @@ export default async function StoreMockPayPage({
           amountLabel: t("amountLabel"),
           amountValue: `₩${svcRow.priceKrw.toLocaleString("ko-KR")}`,
           submit: t("submit"),
+          errorGeneric: "결제 처리 중 오류가 발생했습니다.",
         }}
       />
     </main>

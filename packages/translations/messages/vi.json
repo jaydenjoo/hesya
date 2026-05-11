@@ -204,5 +204,16 @@
     "mockWarningBody": "Không có thẻ/tài khoản thật bị tính phí. Đây là môi trường thử nghiệm.",
     "disabledTitle": "Hệ thống thanh toán chưa sẵn sàng",
     "disabledBody": "Biến môi trường MOCK_PAYMENT chưa được kích hoạt."
+  },
+  "BookSuccess": {
+    "eyebrow": "Đặt lịch thành công",
+    "heading": "Đặt lịch của bạn đã được xác nhận",
+    "subheading": "Cửa hàng sẽ gửi tin nhắn xác nhận sớm",
+    "bookingId": "Mã đặt lịch",
+    "service": "Dịch vụ",
+    "staff": "Stylist",
+    "datetime": "Khi nào",
+    "savedNote": "Sau khi cửa hàng xác nhận, bạn sẽ nhận được tin nhắn.",
+    "backToStore": "Quay lại cửa hàng"
   }
 }

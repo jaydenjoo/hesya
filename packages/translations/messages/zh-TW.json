@@ -204,5 +204,16 @@
     "mockWarningBody": "不會向真實卡/帳戶收費。這是沙盒模擬。",
     "disabledTitle": "付款系統準備中",
     "disabledBody": "MOCK_PAYMENT 環境變數未啟用。"
+  },
+  "BookSuccess": {
+    "eyebrow": "預約完成",
+    "heading": "您的預約已確認",
+    "subheading": "門市將很快發送確認訊息",
+    "bookingId": "預約編號",
+    "service": "服務",
+    "staff": "設計師",
+    "datetime": "時間",
+    "savedNote": "門市確認後，您會在收件匣收到訊息。",
+    "backToStore": "返回門市"
   }
 }

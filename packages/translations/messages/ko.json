@@ -204,5 +204,16 @@
     "mockWarningBody": "실제 카드/계정 정보가 청구되지 않습니다. 외부 데모 환경 시뮬레이션입니다.",
     "disabledTitle": "결제 시스템 준비 중",
     "disabledBody": "MOCK_PAYMENT 환경 변수가 활성화되지 않았습니다. 정식 결제사 KYB 후 활성화됩니다."
+  },
+  "BookSuccess": {
+    "eyebrow": "예약 완료",
+    "heading": "예약이 확정되었습니다",
+    "subheading": "매장에서 곧 확인 메시지를 보내드릴 예정입니다",
+    "bookingId": "예약 번호",
+    "service": "시술",
+    "staff": "디자이너",
+    "datetime": "일시",
+    "savedNote": "매장 사장이 예약을 확인하면 인박스에서 메시지가 도착합니다.",
+    "backToStore": "매장으로 돌아가기"
   }
 }

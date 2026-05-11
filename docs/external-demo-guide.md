@@ -91,10 +91,16 @@
 - `MOCK_PAYMENT=false`면 "결제 시스템 준비 중" 안내 노출
 - "Mock 모드" 경고 배너 표시 (실 결제 발생 안 함 명시)
 
-### 5-6. 결제 완료 stub (M2.6 다음 milestone)
+### 5-6. 예약 + 결제 완료 (M2.6 ✅)
 
-- `/c/store/<UUID>/pay/success` — 전달 데이터 echo + 가짜 transaction ID
-- 실 booking DB insert + payments row + 가짜 IG 메시지 발송은 M2.6 server action에서 atomic 처리
+- `/c/store/<UUID>/pay/success?bookingId=<UUID>` — 실 DB insert 완료 후 도래
+- `createBookingAction` server action: zod 검증 + storeId/serviceId/staffId match + `auto_approved` 확인 + rate-limit 5분/3회 (email 기준)
+- Drizzle transaction: `bookings` row + `payments` row atomic insert
+- 손님 정보 (이름·이메일·메시지)는 `bookings.notesMultilang` jsonb에 저장 — 사장 inbox에서 view 가능
+- 페이지에 예약 번호 + 시술 + 디자이너 + 일시 표시 (다국어)
+- 사장 측 `/store/bookings`에서 새 예약 즉시 표시 확인 가능
+
+> 가짜 IG 메시지 자동 발송은 향후 milestone (M4.x — multi-channel Mock + customer row 정식 식별)에서 추가 예정.
 
 ### 6. owner-side 예약 관리 시뮬 (customer-side는 M2 이후 활성화)
 

@@ -204,5 +204,16 @@
     "mockWarningBody": "不会向真实卡/账户收费。这是沙盒模拟。",
     "disabledTitle": "支付系统准备中",
     "disabledBody": "MOCK_PAYMENT 环境变量未启用。"
+  },
+  "BookSuccess": {
+    "eyebrow": "预约完成",
+    "heading": "您的预约已确认",
+    "subheading": "门店将很快发送确认消息",
+    "bookingId": "预约编号",
+    "service": "服务",
+    "staff": "设计师",
+    "datetime": "时间",
+    "savedNote": "门店确认后，您会在收件箱收到消息。",
+    "backToStore": "返回门店"
   }
 }

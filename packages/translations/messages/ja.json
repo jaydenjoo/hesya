@@ -204,5 +204,16 @@
     "mockWarningBody": "実際のカード/アカウントには請求されません。デモ用シミュレーションです。",
     "disabledTitle": "決済システム準備中",
     "disabledBody": "MOCK_PAYMENT環境変数が無効です。本決済サービス連携後に有効化されます。"
+  },
+  "BookSuccess": {
+    "eyebrow": "ご予約完了",
+    "heading": "ご予約が確定しました",
+    "subheading": "お店から確認メッセージをお送りいたします",
+    "bookingId": "予約番号",
+    "service": "メニュー",
+    "staff": "スタイリスト",
+    "datetime": "日時",
+    "savedNote": "お店の確認後、メッセージが届きます。",
+    "backToStore": "お店に戻る"
   }
 }

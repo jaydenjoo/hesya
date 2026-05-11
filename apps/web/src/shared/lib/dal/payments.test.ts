@@ -10,6 +10,7 @@ import {
 
 import { resetDb, seedStore } from "@/test-helpers/db";
 
+import * as dalPayments from "./payments";
 import { aggregateMetrics, getPaymentMetrics } from "./payments";
 
 describe("aggregateMetrics (unit, no DB)", () => {
@@ -54,6 +55,10 @@ describe("aggregateMetrics (unit, no DB)", () => {
     const m = aggregateMetrics(rows);
     expect(m.totalCount).toBe(5);
     expect(m.totalAmountKrw).toBe(30_000);
+  });
+
+  it("module exports M2.6 insertPayment", () => {
+    expect(typeof dalPayments.insertPayment).toBe("function");
   });
 });
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { createBookingAction } from "@/lib/booking/customer-actions";
 import { useRouter } from "@/i18n/navigation";
 
 type PaymentMethod = "stripe" | "alipay" | "wechat";
@@ -18,11 +19,21 @@ export interface MockPaymentLabels {
   readonly amountLabel: string;
   readonly amountValue: string;
   readonly submit: string;
+  readonly errorGeneric: string;
 }
 
 interface Props {
   readonly storeId: string;
-  readonly transit: Readonly<Record<string, string>>;
+  readonly locale: string;
+  readonly transit: Readonly<{
+    service: string;
+    staff: string;
+    date: string;
+    time: string;
+    name: string;
+    email: string;
+    message?: string;
+  }>;
   readonly labels: MockPaymentLabels;
 }
 
@@ -30,24 +41,38 @@ const FAKE_CARD_DISPLAY = "4242 4242 4242 4242";
 const FAKE_EXPIRY = "12 / 28";
 const FAKE_CVC = "123";
 
-export function MockPaymentForm({ storeId, transit, labels }: Props) {
+export function MockPaymentForm({ storeId, locale, transit, labels }: Props) {
   const router = useRouter();
   const [method, setMethod] = useState<PaymentMethod>("stripe");
   const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setProcessing(true);
-    // 가짜 결제 라운드트립을 흉내내려고 800ms 후 success 페이지로 이동.
-    // 실제 booking insert + payments row insert는 M2.6 server action 책임.
-    setTimeout(() => {
-      const params = new URLSearchParams({
-        ...transit,
-        method,
-        mockTxId: `mock_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      });
-      router.push(`/c/store/${storeId}/pay/success?${params.toString()}`);
-    }, 800);
+    setError(null);
+    const mockTxId = `mock_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const result = await createBookingAction({
+      storeId,
+      serviceId: transit.service,
+      staffId: transit.staff,
+      date: transit.date,
+      time: transit.time,
+      name: transit.name,
+      email: transit.email,
+      message: transit.message,
+      locale,
+      paymentMethod: method,
+      mockTxId,
+    });
+    if (!result.ok) {
+      setError(result.message || labels.errorGeneric);
+      setProcessing(false);
+      return;
+    }
+    router.push(
+      `/c/store/${storeId}/pay/success?bookingId=${result.bookingId}`,
+    );
   };
 
   return (
@@ -138,6 +163,15 @@ export function MockPaymentForm({ storeId, transit, labels }: Props) {
           {labels.amountValue}
         </span>
       </div>
+
+      {error && (
+        <p
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700"
+        >
+          {error}
+        </p>
+      )}
 
       <button
         type="submit"

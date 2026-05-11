@@ -204,5 +204,16 @@
     "mockWarningBody": "No real card/account will be charged. This is a sandbox simulation.",
     "disabledTitle": "Payments not ready",
     "disabledBody": "MOCK_PAYMENT env is disabled. Enables after real KYB completes."
+  },
+  "BookSuccess": {
+    "eyebrow": "Booking confirmed",
+    "heading": "Your booking is confirmed",
+    "subheading": "The store will send you a confirmation message shortly",
+    "bookingId": "Booking ID",
+    "service": "Service",
+    "staff": "Stylist",
+    "datetime": "When",
+    "savedNote": "Once the store reviews, you will receive a message in your inbox.",
+    "backToStore": "Back to store"
   }
 }
