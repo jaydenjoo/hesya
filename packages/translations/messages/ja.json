@@ -141,7 +141,16 @@
     "bookComingSoon": "決済機能 準備中",
     "notFoundTitle": "お店が見つかりません",
     "notFoundBody": "閉店または非公開の可能性があります。",
-    "viewPhotos": "写真ギャラリー →"
+    "viewPhotos": "写真ギャラリー →",
+    "kVerifiedShort": "K-Verified",
+    "safetyKVerifiedLabel": "認証",
+    "safetyKVerifiedValue": "K-V",
+    "safetyHoursLabel": "営業時間",
+    "safetyStaffLabel": "スタイリスト",
+    "safetyLangLabel": "対応言語",
+    "favoriteLabel": "保存",
+    "chatLabel": "メッセージ",
+    "heroPlaceholderAlt": "店舗写真は準備中です"
   },
   "StorePhotos": {
     "eyebrow": "写真",

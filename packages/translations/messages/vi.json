@@ -141,7 +141,16 @@
     "bookComingSoon": "Thanh toán đang chuẩn bị",
     "notFoundTitle": "Không tìm thấy cửa hàng",
     "notFoundBody": "Cửa hàng có thể đã đóng cửa hoặc không công khai.",
-    "viewPhotos": "Xem ảnh →"
+    "viewPhotos": "Xem ảnh →",
+    "kVerifiedShort": "K-Verified",
+    "safetyKVerifiedLabel": "Xác minh",
+    "safetyKVerifiedValue": "K-V",
+    "safetyHoursLabel": "Giờ mở",
+    "safetyStaffLabel": "Stylist",
+    "safetyLangLabel": "Ngôn ngữ",
+    "favoriteLabel": "Lưu",
+    "chatLabel": "Nhắn tin",
+    "heroPlaceholderAlt": "Ảnh cửa hàng sắp có"
   },
   "StorePhotos": {
     "eyebrow": "Ảnh",

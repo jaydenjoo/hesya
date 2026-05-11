@@ -141,7 +141,16 @@
     "bookComingSoon": "Payment flow coming soon",
     "notFoundTitle": "Store not found",
     "notFoundBody": "The store may have closed or be unlisted.",
-    "viewPhotos": "View photos →"
+    "viewPhotos": "View photos →",
+    "kVerifiedShort": "K-Verified",
+    "safetyKVerifiedLabel": "Verified",
+    "safetyKVerifiedValue": "K-V",
+    "safetyHoursLabel": "Hours",
+    "safetyStaffLabel": "Stylists",
+    "safetyLangLabel": "Languages",
+    "favoriteLabel": "Save",
+    "chatLabel": "Message",
+    "heroPlaceholderAlt": "Store photos coming soon"
   },
   "StorePhotos": {
     "eyebrow": "Photos",

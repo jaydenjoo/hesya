@@ -141,7 +141,16 @@
     "bookComingSoon": "支付功能即將上線",
     "notFoundTitle": "未找到門市",
     "notFoundBody": "門市可能已關閉或未公開。",
-    "viewPhotos": "查看照片 →"
+    "viewPhotos": "查看照片 →",
+    "kVerifiedShort": "K-Verified",
+    "safetyKVerifiedLabel": "認證",
+    "safetyKVerifiedValue": "K-V",
+    "safetyHoursLabel": "營業時間",
+    "safetyStaffLabel": "設計師",
+    "safetyLangLabel": "服務語言",
+    "favoriteLabel": "收藏",
+    "chatLabel": "詢問",
+    "heroPlaceholderAlt": "門市照片即將上架"
   },
   "StorePhotos": {
     "eyebrow": "照片",

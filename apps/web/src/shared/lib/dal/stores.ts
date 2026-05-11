@@ -314,6 +314,7 @@ export type PublicStore = {
   category: string | null;
   region: string | null;
   address: unknown;
+  businessHours: BusinessHours | null;
 };
 
 /**
@@ -335,6 +336,7 @@ export async function getStorePublicById(
       category: stores.category,
       region: stores.region,
       address: stores.address,
+      businessHours: stores.businessHours,
     })
     .from(stores)
     .where(
