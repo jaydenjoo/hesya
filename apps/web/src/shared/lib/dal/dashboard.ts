@@ -86,6 +86,23 @@ export async function getDisputeLoad(
   };
 }
 
+/**
+ * 이번 달 시작/끝 — Asia/Seoul 기준. dashboard 기간 필터의 1차 stub
+ * (week/quarter는 별 PR).
+ */
+export function getCurrentMonthRange(now = new Date()): {
+  fromDate: Date;
+  toDate: Date;
+} {
+  const fromDate = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0),
+  );
+  const toDate = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59),
+  );
+  return { fromDate, toDate };
+}
+
 export type KycVerificationStatus =
   | "pending"
   | "auto_approved"

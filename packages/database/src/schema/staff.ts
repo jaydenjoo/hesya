@@ -9,3 +9,6 @@ export const staff = pgTable("staff", {
   portfolioUrls: text("portfolio_urls").array(),
   nonAsianWorks: boolean("non_asian_works").default(false),
 });
+
+export type Staff = (typeof staff)["$inferSelect"];
+export type NewStaff = (typeof staff)["$inferInsert"];

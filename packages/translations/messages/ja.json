@@ -36,6 +36,49 @@
     },
     "footerNote": "Epic 2・3導入後、12個のKPIすべてがリアルタイム表示されます。"
   },
+  "Bookings": {
+    "title": "予約",
+    "subtitle": "Epic 3 — 外国人顧客の予約管理(顧客セルフ予約・決済はEpic 2 / ベータマッチング後)",
+    "filterAll": "すべて",
+    "filtersByStatus": {
+      "scheduled": "予定",
+      "completed": "完了",
+      "cancelled": "キャンセル",
+      "no_show": "ノーショー"
+    },
+    "columnScheduled": "予約日時",
+    "columnService": "施術",
+    "columnStaff": "デザイナー",
+    "columnPrice": "金額",
+    "columnStatus": "状態",
+    "empty": "予約はまだありません",
+    "detail": "詳細 →",
+    "statuses": {
+      "scheduled": "予定",
+      "completed": "完了",
+      "cancelled": "キャンセル",
+      "no_show": "ノーショー"
+    },
+    "detailPage": {
+      "headers": { "info": "予約情報", "actions": "状態変更" },
+      "fields": {
+        "scheduled": "予約日時",
+        "service": "施術",
+        "staff": "デザイナー",
+        "price": "金額",
+        "deposit": "予約金",
+        "paymentMethod": "決済方法",
+        "status": "状態"
+      },
+      "actions": {
+        "markCompleted": "完了にする",
+        "markNoShow": "ノーショーにする",
+        "markCancelled": "キャンセルにする",
+        "processing": "処理中...",
+        "terminalNote": "この予約は終了済みです。"
+      }
+    }
+  },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",

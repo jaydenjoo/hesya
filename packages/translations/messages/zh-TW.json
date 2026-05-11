@@ -36,6 +36,49 @@
     },
     "footerNote": "Epic 2、3 資料上線後,全部 12 個 KPI 將即時顯示。"
   },
+  "Bookings": {
+    "title": "預約",
+    "subtitle": "Epic 3 — 外國顧客預約管理(顧客自助預約和付款將隨 Epic 2 / Beta 媒合上線)",
+    "filterAll": "全部",
+    "filtersByStatus": {
+      "scheduled": "已預約",
+      "completed": "已完成",
+      "cancelled": "已取消",
+      "no_show": "爽約"
+    },
+    "columnScheduled": "預約時間",
+    "columnService": "項目",
+    "columnStaff": "設計師",
+    "columnPrice": "金額",
+    "columnStatus": "狀態",
+    "empty": "暫無預約",
+    "detail": "詳情 →",
+    "statuses": {
+      "scheduled": "已預約",
+      "completed": "已完成",
+      "cancelled": "已取消",
+      "no_show": "爽約"
+    },
+    "detailPage": {
+      "headers": { "info": "預約資訊", "actions": "更新狀態" },
+      "fields": {
+        "scheduled": "預約時間",
+        "service": "項目",
+        "staff": "設計師",
+        "price": "金額",
+        "deposit": "訂金",
+        "paymentMethod": "付款方式",
+        "status": "狀態"
+      },
+      "actions": {
+        "markCompleted": "標記完成",
+        "markNoShow": "標記爽約",
+        "markCancelled": "標記取消",
+        "processing": "處理中...",
+        "terminalNote": "該預約已結束。"
+      }
+    }
+  },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",

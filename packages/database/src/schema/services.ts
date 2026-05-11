@@ -14,3 +14,6 @@ export const services = pgTable("services", {
   durationMinutes: integer("duration_minutes"),
   category: text("category"),
 });
+
+export type Service = (typeof services)["$inferSelect"];
+export type NewService = (typeof services)["$inferInsert"];

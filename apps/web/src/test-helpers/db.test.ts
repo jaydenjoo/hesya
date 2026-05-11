@@ -6,6 +6,8 @@ import {
   conversations,
   customers,
   payments,
+  services,
+  staff,
   storeIntegrations,
   storeKnowledge,
   storeOwners,
@@ -217,6 +219,8 @@ describe("test-helpers/db", () => {
       storeVerifications,
       payments,
       bookings,
+      services,
+      staff,
       customers,
       stores,
     ]);

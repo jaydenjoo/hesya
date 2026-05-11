@@ -36,6 +36,52 @@
     },
     "footerNote": "Tất cả 12 KPI sẽ hoạt động khi dữ liệu Epic 2 & 3 đã có."
   },
+  "Bookings": {
+    "title": "Đặt lịch",
+    "subtitle": "Epic 3 — Quản lý đặt lịch của khách nước ngoài (khách tự đặt + thanh toán đến với Epic 2 / matchmaking beta)",
+    "filterAll": "Tất cả",
+    "filtersByStatus": {
+      "scheduled": "Đã đặt",
+      "completed": "Hoàn thành",
+      "cancelled": "Đã hủy",
+      "no_show": "Không đến"
+    },
+    "columnScheduled": "Thời gian",
+    "columnService": "Dịch vụ",
+    "columnStaff": "Thợ",
+    "columnPrice": "Giá",
+    "columnStatus": "Trạng thái",
+    "empty": "Chưa có lịch đặt",
+    "detail": "Chi tiết →",
+    "statuses": {
+      "scheduled": "Đã đặt",
+      "completed": "Hoàn thành",
+      "cancelled": "Đã hủy",
+      "no_show": "Không đến"
+    },
+    "detailPage": {
+      "headers": {
+        "info": "Thông tin đặt lịch",
+        "actions": "Cập nhật trạng thái"
+      },
+      "fields": {
+        "scheduled": "Thời gian",
+        "service": "Dịch vụ",
+        "staff": "Thợ",
+        "price": "Giá",
+        "deposit": "Đặt cọc",
+        "paymentMethod": "Phương thức thanh toán",
+        "status": "Trạng thái"
+      },
+      "actions": {
+        "markCompleted": "Đánh dấu hoàn thành",
+        "markNoShow": "Đánh dấu không đến",
+        "markCancelled": "Đánh dấu đã hủy",
+        "processing": "Đang xử lý...",
+        "terminalNote": "Đặt lịch này đã kết thúc."
+      }
+    }
+  },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",

@@ -25,3 +25,6 @@ export const bookings = pgTable("bookings", {
   notesMultilang: jsonb("notes_multilang"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
+
+export type Booking = (typeof bookings)["$inferSelect"];
+export type NewBooking = (typeof bookings)["$inferInsert"];

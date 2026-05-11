@@ -36,6 +36,49 @@
     },
     "footerNote": "Epic 2·3 도입 후 12개 KPI 모두 실시간 표시됩니다."
   },
+  "Bookings": {
+    "title": "예약",
+    "subtitle": "Epic 3 — 외국인 손님 예약 관리 (고객 셀프 예약 + 결제는 Epic 2/베타 매칭 후)",
+    "filterAll": "전체",
+    "filtersByStatus": {
+      "scheduled": "예정",
+      "completed": "완료",
+      "cancelled": "취소",
+      "no_show": "노쇼"
+    },
+    "columnScheduled": "예약 일시",
+    "columnService": "시술",
+    "columnStaff": "디자이너",
+    "columnPrice": "금액",
+    "columnStatus": "상태",
+    "empty": "예약이 없습니다",
+    "detail": "상세 →",
+    "statuses": {
+      "scheduled": "예정",
+      "completed": "완료",
+      "cancelled": "취소",
+      "no_show": "노쇼"
+    },
+    "detailPage": {
+      "headers": { "info": "예약 정보", "actions": "상태 변경" },
+      "fields": {
+        "scheduled": "예약 일시",
+        "service": "시술",
+        "staff": "디자이너",
+        "price": "금액",
+        "deposit": "예약금",
+        "paymentMethod": "결제 방법",
+        "status": "상태"
+      },
+      "actions": {
+        "markCompleted": "완료 처리",
+        "markNoShow": "노쇼 처리",
+        "markCancelled": "취소 처리",
+        "processing": "처리 중...",
+        "terminalNote": "이미 종료된 예약입니다."
+      }
+    }
+  },
   "Inbox": {
     "title": "통합 인박스",
     "empty": "아직 메시지가 없습니다",
