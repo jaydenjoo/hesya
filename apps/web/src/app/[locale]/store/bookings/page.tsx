@@ -7,6 +7,8 @@ import {
   buildServiceLabels,
   buildStaffLabels,
 } from "@/features/booking";
+import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
+import { OwnerShell } from "@/features/shell/owner-shell";
 import { env } from "@/shared/config/env";
 import {
   BOOKING_STATUSES,
@@ -20,10 +22,10 @@ import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 
 /**
- * Epic 3 (δ phase) — 매장 예약 목록 (owner-side).
+ * Epic 3 (δ) / Phase D4-D3 — 매장 예약 목록 (owner-side).
  *
+ * OwnerShell wrap + Operator pill + Fraunces italic header (chrome 일관성).
  * ?status=<scheduled|completed|cancelled|no_show> 쿼리로 필터.
- * 가드 실패 → /sign-in.
  */
 export default async function StoreBookingsPage({
   params,
@@ -51,11 +53,14 @@ export default async function StoreBookingsPage({
       : "all";
 
   const db = createDbClient(env.DATABASE_URL);
-  const [rows, servicesList, staffList] = await Promise.all([
+  const [rows, servicesList, staffList, shell] = await Promise.all([
     listBookingsByStore(db, session.storeId, { filter }),
     listServicesByStore(db, session.storeId),
     listStaffByStore(db, session.storeId),
+    getOwnerShellData(),
   ]);
+
+  if (!shell) redirect(`/${locale}/sign-in`);
 
   const t = await getTranslations({ locale, namespace: "Bookings" });
 
@@ -84,21 +89,31 @@ export default async function StoreBookingsPage({
   };
 
   return (
-    <main className="container py-12">
-      <header className="mb-6 space-y-1">
-        <h1 className="text-2xl font-bold tracking-[-0.01em] text-hesya-navy-900">
-          {t("title")}
-        </h1>
-        <p className="text-sm text-hesya-navy-900/65">{t("subtitle")}</p>
-      </header>
-      <BookingsList
-        locale={locale}
-        rows={rows}
-        filter={filter}
-        serviceLabels={buildServiceLabels(servicesList, locale)}
-        staffLabels={buildStaffLabels(staffList)}
-        labels={labels}
-      />
-    </main>
+    <OwnerShell
+      currentLocale={locale}
+      storeName={shell.storeName}
+      userName={shell.userName}
+      userInitial={shell.userInitial}
+    >
+      <div className="mx-auto max-w-6xl px-6 py-10">
+        <header className="mb-6 space-y-1">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+            Operator · Bookings
+          </p>
+          <h1 className="font-heading text-3xl font-semibold italic tracking-tight text-hesya-navy-900">
+            {t("title")}
+          </h1>
+          <p className="text-sm text-hesya-navy-900/65">{t("subtitle")}</p>
+        </header>
+        <BookingsList
+          locale={locale}
+          rows={rows}
+          filter={filter}
+          serviceLabels={buildServiceLabels(servicesList, locale)}
+          staffLabels={buildStaffLabels(staffList)}
+          labels={labels}
+        />
+      </div>
+    </OwnerShell>
   );
 }
