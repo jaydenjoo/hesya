@@ -3,31 +3,30 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-11 세션 7 종료 시점)
+## 현재 위치 (2026-05-11 세션 8 종료 시점)
 
-- **Phase**: **Phase 1-δ Epic 3 owner-side 완료** (γ.1 100% + γ.2 완료 + ε Epic 4 35% + **δ Epic 3 50%**)
+- **Phase**: **Phase 1-ζ Prep — 베타 매칭 docs 준비 완료** (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 50% + **ζ prep 시작**)
 - **시나리오**: B (풀 P0 베타 — PRD 원안)
-- **베타 5곳 출시 가능 시점**: 약 2~4주 (γ.2.3 + ε shell + δ Epic 3 owner-side 완료 → δ Epic 2 결제 + ζ 베타 매칭)
-- **세션 7 머지**: [#111](https://github.com/jaydenjoo/hesya/pull/111) Epic 3 owner-side bookings + Dashboard KPI wire (`c9704bf`)
-- **세션 7 시연**:
-  - δ Epic 3 owner: `unset ANTHROPIC_API_KEY && pnpm seed:demo && pnpm dev:demo` + Playwright `/ko/store/bookings` 데스크탑 10건 + 모바일 overflow-x 캡처. 5 status pill + status badge tone 4종 + amber 상세 링크 정합성 통과.
-  - δ Epic 3 detail: `/ko/store/bookings/[id]` — 정보 7행 (예약일시/시술/디자이너/금액/예약금/결제방법/상태) + 3 액션 버튼 (완료/노쇼/취소, amber primary + peach borders). terminal 시 hide.
-  - ε Epic 4 wire: dashboard 시술 분포 + 디자이너 분포 KPI active (Recharts donut, hesya 팔레트 6색). 12 KPI 중 5개 active / 7개 coming-soon.
-  - L-082 prerequisite: seed:demo가 services 5종 + staff 3명 + bookings 10건 자동 시드 → store-owner 가드 자동 충족 ✅
-- **누적 교훈**: L-001 ~ **L-092** (세션 7 추가 1건 — resetDb 다중 위치 동기화 누락)
+- **베타 5곳 출시 가능 시점**: 약 2~4주 (δ Epic 2 결제 + ζ 베타 매칭 — Jayden 사업자 등록이 critical path)
+- **세션 8 머지**: docs only (main 직접 — 메모리 `feedback_workflow_main_vs_branch.md`)
+- **세션 8 산출물**:
+  - `docs/demo-guide.md` 갱신 — 시드 명세 표에 시술 5종 / 디자이너 3명 / 예약 10건 / 분쟁 1건 / API 정책 알림 1건 행 추가 + **시나리오 C (예약 관리) / D (대시보드 KPI)** 신규. Phase 2 예고 섹션에 ζ.1 trigger 3-조건 (사업자 등록 / 베타 후보 확보 / 결제 인프라 진입) 명시.
+  - `docs/beta-onboarding-checklist.md` 신규 — 5 단계 (사전 준비 / 매장 측 자료 / Hesya 측 시퀀스 / 베타 5곳 확대 / 정식 진입) + 비상 절차 5 상황.
+  - L-089 prod 배포 검증: `9d66efd` + `c9704bf` Vercel Production **success** ✅ (수동 redeploy 불필요).
+- **누적 교훈**: L-001 ~ **L-092** (세션 8 신규 0건 — docs only)
 
-## P0 Epic 객관 완성도 (Epic 3 owner-side + Epic 4 wire 머지 반영)
+## P0 Epic 객관 완성도 (세션 8 ζ prep docs only — 코드 변동 없음)
 
-| Epic                | 직전 % | 본 세션 %         | 갭                                                                                                                |
-| ------------------- | ------ | ----------------- | ----------------------------------------------------------------------------------------------------------------- |
-| E1 인박스           | 71%    | **71%** (변동 X)  | 디자인 정합성 2/5 단계 (좌측 + Col 2 메인 thread + draft) 시연 통과. WhatsApp/카카오/LINE 0%                      |
-| **E2 결제 위젯** 🔴 | 17%    | **17%** (변동 X)  | DB 스키마만. Stripe/Alipay/WeChat 코드 0건                                                                        |
-| **E3 예약 시스템**  | 17%    | **50%** ↑↑↑       | owner-side CRUD 완료 (list + detail + 3 terminal action). customer-side 셀프 예약·결제는 phase ζ + Epic 2         |
-| **E4 대시보드**     | 25%    | **35%** ↑         | ε shell + 실측 5 KPI active (미응답/분쟁/KYC + **시술 분포** + **디자이너 분포** with donut chart). 7개 wire 대기 |
-| E9 KYC 🔴           | 93%    | **93%** (변동 X)  | γ.2.3.3 KYC submit/pending Hesya 토큰 정합성 (단위 테스트 갈음). 시연 prerequisite 한계 ⚠️                        |
-| **E12 관리자** 🔴   | 100%   | **100%** (변동 X) | E12-1~10 완료 + 통합 E2E + γ.2.3.4 8큐 디자인 정합성 (5종 시그널, 시연 통과)                                      |
+| Epic                | 세션 7 % | 본 세션 8 %       | 갭                                                                        |
+| ------------------- | -------- | ----------------- | ------------------------------------------------------------------------- |
+| E1 인박스           | 71%      | **71%** (변동 X)  | 디자인 정합성 2/5 단계. WhatsApp/카카오/LINE 0% (사업자 미보유 보류)      |
+| **E2 결제 위젯** 🔴 | 17%      | **17%** (변동 X)  | DB 스키마만. Stripe/Alipay/WeChat 코드 0건. 베타 출시 critical path       |
+| **E3 예약 시스템**  | 50%      | **50%** (변동 X)  | owner-side CRUD 완료. customer-side 셀프 예약·결제는 phase ζ + Epic 2     |
+| **E4 대시보드**     | 35%      | **35%** (변동 X)  | ε shell + 실측 5 KPI active. 7개 wire 대기 (Epic 2/3 도입 시 자연 활성화) |
+| E9 KYC 🔴           | 93%      | **93%** (변동 X)  | γ.2.3.3 디자인 정합. 시연 prerequisite 한계 ⚠️                            |
+| **E12 관리자** 🔴   | 100%     | **100%** (변동 X) | E12-1~10 완료 + 통합 E2E + γ.2.3.4 8큐 디자인 정합성                      |
 
-**P0 평균: 54% → 61%** (E3 +33, E4 +10). 다음은 δ Epic 2 (Stripe + Alipay + WeChat 결제) 또는 ζ 베타 매칭 prep.
+**P0 평균: 61%** (변동 없음, docs only). 다음은 δ Epic 2 (Stripe + Alipay + WeChat 결제) 또는 ζ.4/ζ.5 코드 작업.
 
 ### Public surfaces (P0 Epic 외 신규 카테고리, γ.2.3.5)
 
@@ -41,7 +40,70 @@
 > ⚠️ E9 +1은 시각 정합성만 (단위 테스트 className 기반). KYC submit/pending demo 시연은 미인증 user seed 보강 후 가능 — 별 PR 후보.
 > ✅ γ.2.3.4/5 시연 prerequisite는 dev-demo.sh가 E2E_ADMIN_EMAIL inject로 자동 충족 (admin) / public route로 자동 충족 (landing) — 별 PR 불요.
 
-## 본 세션 7 (2026-05-11) — Phase 1-δ (Epic 3 예약 owner-side + Dashboard KPI wire)
+## 본 세션 8 (2026-05-11) — Phase 1-ζ Prep (베타 매칭 docs 준비)
+
+### Scope (docs only — 코드 변경 없음)
+
+세션 7 (Epic 3 owner-side + Dashboard KPI wire) 직후, 베타 출시 critical path 진입을 위한 docs 준비. **외부 리소스 생성 (ζ.1/ζ.2 Supabase·Vercel) + 베타 매장 onboarding 실행 (ζ.7)** 은 Jayden 사업자 등록 완료 후 → 본 세션 scope 밖. 사업자 등록과 무관한 사전 작성 가능 docs에 집중.
+
+### L-089 prod 배포 검증
+
+세션 7 머지 (`9d66efd` docs / `c9704bf` PR #111) Vercel Production:
+
+- `9d66efd` Production **success** (2026-05-11 07:45)
+- `c9704bf` Production **success** (2026-05-11 07:42)
+- → 수동 redeploy 불필요. L-089 자동 통과.
+
+### 산출물
+
+#### 1. `docs/demo-guide.md` 갱신
+
+- **시드 데이터 명세 표** — 세션 7에서 추가된 시드 5종 행 신규:
+  - 시술 5종 (커트 35,000 / 펌 120,000 / 염색 95,000 / 트리트먼트 55,000 / 두피 케어 70,000)
+  - 디자이너 3명 (A ko·en / B ko·ja / C ko)
+  - 예약 10건 (상태 mix: scheduled 3 / completed 5 / no_show 1 / cancelled 1)
+  - 분쟁 1건 (Epic 12.4 시연용)
+  - API 정책 알림 1건 (Epic 12.8 admin 큐 시연용)
+- **시연 시나리오 신규 2개**:
+  - **C. 사장 — 예약 관리** (`/ko/store/bookings` + `/[id]`): 5-status filter pill + detail 7행 + 3 terminal action
+  - **D. 사장 — 대시보드 KPI** (`/ko/store/dashboard`): 12 KPI 중 5 active (미응답 / 분쟁 / KYC / 시술 분포 donut / 디자이너 분포 donut) + 7 coming-soon
+  - 두 시나리오 연계 시연 팁: C에서 예약 `completed` 변경 → D 새로고침 시 donut 즉시 반영
+- **Phase 2 예고 섹션** — ζ.1 trigger 3-조건 명시 (사업자 등록 / 베타 후보 1~2곳 확보 / Stripe Connect 1매장 진입). 외부 리소스 = Jayden 명시 승인 필수 재차 명기.
+
+#### 2. `docs/beta-onboarding-checklist.md` 신규
+
+베타 매장 사장과 함께 점검하는 항목을 5 단계로 분해:
+
+- **0. Jayden 측 사전 준비** — 사업자 등록 / demo.hesya.com 인프라 / 약정서 초안 / 데모 영상
+- **1. 매장 측 사전 자료** — 사업자등록증 / IG 비즈니스 계정 전환 / 시술 정보 (선택)
+- **2. Hesya onboarding 시퀀스** — 계정 생성 → KYC 심사 → IG 연동 → 첫 워크스루 → 1주차 daily 점검
+- **3. 베타 5곳 확대 트리거** (ζ.8 진입 조건)
+- **4. 베타 종료 시** (정식 출시 진입 전 약정 v2 갱신)
+- **5. 비상 절차 5 상황** — Sentry critical / IG webhook 끊김 / 응답 시간 > 3분 / 사장 중단 요청 / KYC 자동 승인률 < 60%
+
+베타 SLA 명시: 메시지 응답 < 3분 (자동), 다운 시 6시간 내 복구, 결제 위젯 미포함 (베타 중반 도입).
+
+### 다음 세션 분기 (사업자 등록 시점 의존)
+
+| 분기                       | 조건                          | 예상  | 비고                                                |
+| -------------------------- | ----------------------------- | ----- | --------------------------------------------------- |
+| **(B) δ Epic 2 결제**      | 사업자 등록 미완 OK           | 2~3주 | 🔴 RED. Stripe 인프라 (DB·테스트 키)부터 진입 가능  |
+| **(D) ζ.4 stress test**    | 사업자 등록 미완 OK           | 1일   | 50+ 메시지/매장 통합 부하 + Sentry tag 보강         |
+| **(D) ζ.5 monitoring**     | 사업자 등록 미완 OK           | 1일   | PostHog 이벤트 인벤토리 + 누락 보강                 |
+| **(D) ζ.1 demo.hesya.com** | **사업자 등록 후**            | 2일   | Supabase/Vercel 신규 — Jayden 명시 승인 + 예산 합의 |
+| **(D) ζ.7 베타 onboard**   | **사업자 등록 후 + ζ.1 완료** | 1주   | 본 체크리스트 실행                                  |
+
+### 변경 파일
+
+- `docs/demo-guide.md` (+~50 / -~10)
+- `docs/beta-onboarding-checklist.md` 신규 (+~110)
+- `PROGRESS.md` (세션 8 섹션 추가 + 헤더 갱신)
+
+### Vercel 배포
+
+- docs only — Vercel 자동 배포 트리거 (production deployment 진행)
+
+## 직전 세션 7 (2026-05-11) — Phase 1-δ (Epic 3 예약 owner-side + Dashboard KPI wire)
 
 ### 머지된 PR
 
@@ -445,19 +507,26 @@ demo 환경에 미인증 user seed 부재 → 직접 접근 시 sign-in redirect
 
 ### 다음 세션 첫 행동
 
-1. PROGRESS.md 본 파일 확인 (현재 위치 = **ε Epic 4 인프라 완료**, 다음 분기 선택)
+1. PROGRESS.md 본 파일 확인 (현재 위치 = **ζ prep docs 완료**, 다음 분기 선택)
 2. **L-091 확인** docs/learnings.md — Claude Code shell이 `ANTHROPIC_API_KEY=""` inject. dev 띄울 때 `unset ANTHROPIC_API_KEY &&` prefix 의무.
-3. **PR #110 prod 배포 검증** — main 머지 후 자동 배포 확인 (Vercel deployment)
-4. **분기 결정**:
-   - **(B) δ Epic 2 결제** (Stripe + Alipay + WeChat) — 2~3주 예상. 🔴 RED 보안 등급. Jayden 수동 검증 필수. Recharts wire (월 매출 / 객단가 / 환불률) 도 동반 가능.
-   - **(B') δ Epic 3 예약 시스템** — 1~2주 예상. 다국어 예약 페이지 + booking DB wire + 디자이너·시술 분포 KPI wire 가능.
-   - **(D) ζ 베타 매칭 prep** — 0.5~1일. demo.hesya.com 환경 점검 + 베타 1~2곳 onboarding 준비.
-   - **(A) γ.3 Epic 1 채널 확장** (WhatsApp / 카카오 / LINE) — ⚠️ Jayden 사업자 미보유 (메모리 `project_phase_1d_blocked.md`) → 보류 유지.
-   - 권장 순서: **(B') Epic 3 예약** 먼저 (Epic 2보다 보안 부담 적음 + 디자이너/시술 KPI wire 가능) → (B) Epic 2 결제 → (D) ζ → (A) γ.3 사업자 등록 후
+3. **세션 8 docs 배포 검증** — main 머지 후 자동 배포 확인 (Vercel deployment, L-089). docs only라 critical 영향 X.
+4. **분기 결정** (사업자 등록 시점에 따라 진로 달라짐):
+   - **(B) δ Epic 2 결제 Phase 1** (Stripe DB + 테스트 키 인프라) — 1~2일 예상. 🔴 RED 보안. 실 결제 X, 인프라만. 사업자 등록 무관.
+   - **(D) ζ.4 통합 stress test** — 1일. 50+ 메시지/매장 부하 시드 + Sentry tag 보강. 사업자 등록 무관.
+   - **(D) ζ.5 monitoring 강화** — 1일. PostHog 이벤트 인벤토리 + 누락 보강. 사업자 등록 무관.
+   - **(B+D 권장 순서)**: ζ.4 → ζ.5 → δ Epic 2 결제 본격 진입 → 사업자 등록 후 ζ.1/ζ.7
+   - **(A) γ.3 Epic 1 채널 확장** (WhatsApp / 카카오 / LINE) — ⚠️ Jayden 사업자 미보유 → 보류 유지
+   - **(D) ζ.1 demo.hesya.com Phase 2** — ⚠️ 사업자 등록 + 외부 리소스 Jayden 명시 승인 필요 → 보류
 5. 선택한 phase의 plan v1 작성 (Pre-Plan Inventory 의무):
    - 작업 영역 grep + 키워드 검색
    - 시연 prerequisite 검증 (L-082)
    - 인벤토리 결과 plan v1 첨부
+
+### 베타 onboarding 자료 준비 완료 ✅
+
+- `docs/demo-guide.md` 시나리오 A~D + 시드 명세 갱신
+- `docs/beta-onboarding-checklist.md` 5-단계 체크리스트 + 비상 절차 5 상황
+- Jayden 사업자 등록 완료 시 ζ.7 본격 실행 가능
 
 ### Phase 1-γ.2.3 — 디자인 정합성 5-split ✅ **마무리 완료**
 
@@ -498,11 +567,11 @@ demo.hesya.com Phase 2 도입 + 베타 1~2곳 onboarding.
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-11 (세션 6)
-- 세션 6 작업 시간: ~2.5h (Epic 4 인벤토리 + Recharts 설치 + DAL + i18n + components + page route + Playwright 데스크탑/모바일 검증 + PR 머지) — PROGRESS 예상 1주 대비 매우 빠름 (Scope C 채택 — 인프라/shell만 + 실측 가능 KPI 3개)
-- 세션 6 누적 머지: 1 PR (#110 Epic 4 `3976a55`)
-- 세션 6 누적 변경: 18 files / +1207/-11 / 신규 unit tests 13개
-- **Epic 4 8% → 25%** — UI shell + 실측 3 KPI 활성화. Epic 2/3 도입 후 자연 활성화 9 KPI 대기
+- 날짜: 2026-05-11 (세션 8)
+- 세션 8 작업 시간: ~1.5h (인벤토리 + demo-guide 갱신 + beta-onboarding-checklist 신규 + PROGRESS 갱신) — docs only, 코드 변경 없음
+- 세션 8 누적 머지: 0 PR (main 직접 docs, 메모리 정책)
+- 세션 8 누적 변경: 3 docs files (demo-guide + beta-onboarding + PROGRESS)
+- **P0 평균 변동 없음 (61%)** — 베타 onboarding 자료 사전 작성 완료. 사업자 등록 후 ζ.7 즉시 실행 가능 상태.
 
 ## 컨텍스트 관리 강화 — 누적 (L-082 → L-091)
 

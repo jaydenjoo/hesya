@@ -108,21 +108,49 @@ Forwarding   https://abcd-1234-5678.ngrok-free.app -> http://localhost:4200
 
 > ⚠️ 데모상 사장 계정과 운영자 계정이 같은 user (`demo-owner@hesya.local`)로 시뮬됨. 실제 베타에서는 분리된 두 계정 필요. `NODE_ENV !== "production"` 가드로 prod에서는 절대 작동 안 함.
 
+### C. 사장 입장 — 예약 관리 (Phase 1-δ Epic 3 owner-side)
+
+1. `/ko/store/bookings` 진입 → 예약 10건 list. 컬럼 5개 (예약일시 / 시술 / 디자이너 / 금액 / 상태).
+2. **5-status filter pill**: `all / scheduled / completed / no_show / cancelled`. 클릭 시 query param 갱신 + 서버 재조회.
+3. row 클릭 → `/ko/store/bookings/[id]` 상세 진입 → 정보 7행 (예약일시 / 시술 / 디자이너 / 금액 / 예약금 / 결제방법 / 상태) + 3 terminal action 버튼.
+4. **3 terminal action**: 완료 (`completed`) / 노쇼 (`no_show`) / 취소 (`cancelled`). 클릭 시 `updateBookingStatusAction` 호출 → DB 갱신 → revalidate. 이미 terminal 상태면 액션 버튼 hide.
+
+> ✅ owner-side CRUD만 구현. **customer-side 셀프 예약 + 결제는 Phase 1-δ Epic 2/ζ 단계**.
+> ⚠️ 데모 예약은 모두 단일 첫 고객에게 round-robin. 베타에서는 IG DM 컨버전 후 실 고객 매칭.
+
+### D. 사장 입장 — 대시보드 KPI (Phase 1-ε Epic 4)
+
+1. `/ko/store/dashboard` 진입 → 12 KPI grid. 5개 active + 7개 coming-soon.
+2. **Active KPI 5종**:
+   - 미응답 메시지 (Epic 1 wire)
+   - 분쟁 (Epic 12.4 wire — 시드된 1건)
+   - KYC 상태 (Epic 9 wire — 매장 #1 `auto_approved`)
+   - **시술 분포 donut** (Recharts, hesya 6색 팔레트) — 본 월 예약 기반
+   - **디자이너 분포 donut** — 본 월 예약 기반
+3. coming-soon 7종: 월 매출 / 객단가 / 재방문률 / 노쇼율 / 국적 분포 등 — Epic 2/3 customer-side 도입 시 자연 활성화.
+
+> 💡 시나리오 C에서 예약 상태를 `completed`로 바꾼 후 D 새로고침 → 시술/디자이너 분포 donut에 즉시 반영됨. 같은 데이터셋의 2-route 활용 시연.
+
 ---
 
 ## 시드 데이터 명세
 
-| 항목          | 내용                                                             |
-| ------------- | ---------------------------------------------------------------- |
-| 사장 user id  | `00000000-0000-0000-0000-000000000001` (= `E2E_AUTH_USER_ID`)    |
-| 매장 #1       | "Hesya 데모 헤어샵 (강남)" — `auto_approved`, hair_general       |
-| 매장 #2       | "Hesya 데모 네일샵 (수동 심사 대기)" — `manual_review`, nail     |
-| IG 연동       | 매장 #1에만 (mock token, account `ig_demo_auto`)                 |
-| 고객 #1       | 영어 — "Hi! Do you have time for a haircut today at 3pm?"        |
-| 고객 #2       | 일본어 — "こんにちは!明日カットの予약は可能ですか?"              |
-| 고객 #3       | 중국어 — "你好,今天下午4点可以做烫发吗?"                         |
-| AI 초안       | 각 고객당 1개 (`status=ai_draft`, `draft_status=pending_review`) |
-| 메시징 윈도우 | 모든 conversation은 23시간 후 만료 (활성)                        |
+| 항목                   | 내용                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------ |
+| 사장 user id           | `00000000-0000-0000-0000-000000000001` (= `E2E_AUTH_USER_ID`)                                    |
+| 매장 #1                | "Hesya 데모 헤어샵 (강남)" — `auto_approved`, hair_general                                       |
+| 매장 #2                | "Hesya 데모 네일샵 (수동 심사 대기)" — `manual_review`, nail                                     |
+| IG 연동                | 매장 #1에만 (mock token, account `ig_demo_auto`)                                                 |
+| 고객 #1                | 영어 — "Hi! Do you have time for a haircut today at 3pm?"                                        |
+| 고객 #2                | 일본어 — "こんにちは!明日カットの予약は可能ですか?"                                              |
+| 고객 #3                | 중국어 — "你好,今天下午4点可以做烫发吗?"                                                         |
+| AI 초안                | 각 고객당 1개 (`status=ai_draft`, `draft_status=pending_review`)                                 |
+| 시술 5종 (매장 #1)     | 커트 35,000 / 펌 120,000 / 염색 95,000 / 트리트먼트 55,000 / 두피 케어 70,000 (₩, ko·en·ja 라벨) |
+| 디자이너 3명 (매장 #1) | A (ko·en) / B (ko·ja) / C (ko)                                                                   |
+| 예약 10건 (매장 #1)    | 시술·디자이너 round-robin, 상태 mix — scheduled 3 / completed 5 / no_show 1 / cancelled 1        |
+| 분쟁 #1 (매장 #1)      | `status=open`, category `complaint` (Epic 12.4 시연용)                                           |
+| API 정책 알림 #1       | `source=meta-blog`, `status=new` (Epic 12.8 admin 큐 시연용)                                     |
+| 메시징 윈도우          | 모든 conversation은 23시간 후 만료 (활성)                                                        |
 
 `pnpm seed:demo` 재실행 시 위 상태로 매번 reset됨.
 
@@ -142,12 +170,16 @@ Forwarding   https://abcd-1234-5678.ngrok-free.app -> http://localhost:4200
 
 ---
 
-## Phase 2 예고 — 외부인 데모 환경 (별도 인프라)
+## Phase 2 예고 — 외부인 데모 환경 (Phase 1-ζ.1/ζ.2)
 
 본 가이드는 **본인 PC 시연용**. 외부인이 직접 데모 URL을 클릭해 사장 입장을 시뮬해야 한다면 다른 인프라가 필요:
 
 - 옵션 C: `demo.hesya.com` + 신규 Supabase 프로젝트 + 매일 자정 cron 시드 리셋 (~$25/월)
-- 트리거: 베타 매장 매칭 직전
-- 사전 승인 필수: Supabase 신규 프로젝트 생성 = 외부 리소스 = Jayden 명시 승인
+- **트리거 조건** (3개 동시 충족 시 ζ.1 실행):
+  1. Jayden 사업자 등록 완료 (현재 보류 — `project_phase_1d_blocked.md`)
+  2. 베타 매장 후보 1~2곳 확보 (직접 미팅 또는 도큐먼트 공유)
+  3. δ Epic 2 결제 인프라 진입 (Stripe Connect onboarding 최소 1매장 완료)
+- **사전 승인 필수**: Supabase 신규 프로젝트 + Vercel 신규 프로젝트 생성 = 외부 리소스 = Jayden 명시 승인 (`feedback_no_unauthorized_resource_creation.md`)
+- 본 가이드는 ζ.1 도입 시 `demo.hesya.com` 도메인 + 매직링크 로그인 안내 섹션을 추가하는 방식으로 진화 예정.
 
 자세한 설계는 `docs/learnings.md` L-081 참조.
