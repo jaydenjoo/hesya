@@ -3,18 +3,19 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-11 세션 14 진행 중)
+## 현재 위치 (2026-05-11 세션 15 종료 시점) — **M2 phase 100% 완료**
 
-- **Phase**: **Plan v3 Mock-first M1 5/5 + M2.1~M2.6 머지** (M1 100% + M2 6/7) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + **δ Epic 3 90%** + **E2 결제 50%**)
-- **세션 10~14 머지**:
+- **Phase**: **Plan v3 M1 5/5 + M2 7/7 머지** (M1 100% + **M2 100%**) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + **δ Epic 3 95%** + **E2 결제 60%**)
+- **세션 10~15 머지** (M2 phase 전체):
   - **M2.1** `/c/store/[id]` public 매장 detail (`603272b`)
   - **M2.2** `/c/store/[id]/photos` 사진 gallery (`ca3903d`)
-  - **M2.3** `/c/store/[id]/book/schedule` 예약 일정 선택 (`87a07d1`) — 4-step UI + time-slots util
+  - **M2.3** `/c/store/[id]/book/schedule` 예약 일정 선택 (`87a07d1`)
   - **M2.4** `/c/store/[id]/book/confirm` 예약 확정 폼 (`3d1e065`)
-  - **M2.5** Mock 결제 UI (`c1f4e72`) — 3-tab toggle + `MOCK_PAYMENT` env 분기
-  - **M2.6** 예약 생성 atomic transaction (`a169d9f`) — `createBookingAction` server action + zod + rate-limit (email 5분/3회) + Drizzle tx (bookings + payments insert) + `pay/success` 정식 페이지 + `BookSuccess` 6 locale + 손님 정보 `notesMultilang` jsonb 저장
-  - 검증: type-check ✅ / lint ✅ / test 681 passed (+1) / build ✅ (6 customer routes 등록)
-  - 자기평가 (L-082): **완전한 흐름 e2e** (매장 → 상세 → 사진 → 예약 4-step → 확정 폼 → Mock 결제 → 실 DB insert → success 페이지) — **85~95% 범위**. 잔여: 다국어 가격 환산 (M2.7), 가짜 IG 메시지 자동 발송 (M4.x)
+  - **M2.5** Mock 결제 UI (`c1f4e72`) — 3-tab toggle (Stripe/Alipay/WeChat)
+  - **M2.6** 예약 생성 atomic transaction (`a169d9f`) — `createBookingAction` + Drizzle tx
+  - **M2.7** 다국어 가격 환산 (`8e1e1b9`) — `formatPriceForLocale` util + 5 위치 교체 (ko/en/ja/vi/zh-CN/zh-TW)
+  - 검증: type-check ✅ / lint ✅ / test **691 passed** (+10 currency) / build ✅ (6 customer routes)
+  - 자기평가 (L-082): **완전한 customer e2e 흐름** — **90~95% 범위**. 다국어 가격 표시까지 완비. 잔여: 가짜 IG 메시지 자동 발송 (M4.x), conflict 체크 (베타 출시 후)
 - **시나리오**: B (풀 P0 베타 — PRD 원안) 위에 **v3 Mock-first 5 phase 추가** (`docs/Plan-v3-mock-first.md`)
 - **베타 5곳 출시 가능 시점**: Plan v3 M2~M5 완료(4~6주) + Jayden 사업자 등록 + ζ.7~ζ.8 (2주) = **약 6~8주**
 - **세션 9 머지** (10건):
@@ -215,30 +216,29 @@ CI 비활성화 (main 직접 push):
 - `pnpm --filter @hesya/web test --run` ✅ 676 passed / 103 skipped (M1.2 +5 mock-nts + M1.2 +6 mock-localdata + M1.3 +4 connect-instagram-mock)
 - `pnpm --filter @hesya/web build` ✅ Compiled successfully
 
-### 다음 세션 가이드 — Plan v3 M2 진행 (6/7 완료, 1 남음)
+### 다음 세션 가이드 — Plan v3 M3 진입 (M2 100% 완료 → M3 시작)
 
-| Milestone                                 | 우선순위 | 예상 | 비고                                                            |
-| ----------------------------------------- | -------- | ---- | --------------------------------------------------------------- |
-| **M2.1 `/c/store/[id]/page`** ✅          | 완료     | -    | `603272b`                                                       |
-| **M2.2 `/c/store/[id]/photos`** ✅        | 완료     | -    | `ca3903d`                                                       |
-| **M2.3 `/c/store/[id]/book/schedule`** ✅ | 완료     | -    | `87a07d1`                                                       |
-| **M2.4 `/c/store/[id]/book/confirm`** ✅  | 완료     | -    | `3d1e065`                                                       |
-| **M2.5 Mock 결제 UI** ✅                  | 완료     | -    | `c1f4e72`                                                       |
-| **M2.6 createBookingAction** ✅           | 완료     | -    | 세션 14 머지 (`a169d9f`). atomic tx + zod + rate-limit          |
-| **M2.7 다국어 + 시술 라벨 보강**          | 🥇 1순위 | 1일  | 가격 다국어 환산 (JPY/USD/CNY) + 디자이너/시술 라벨 다국어 검수 |
+**M2 phase 7/7 완료**. customer-side 흐름 (매장 view → 예약 → Mock 결제 → 실 DB insert → 다국어 가격) 100% 시연 가능. 다음은 M3 (누락 사장 페이지 5종, ~1주).
 
-총 M2 phase 잔여 ~1일 (M2.7 후 → M3 진입).
+| Milestone                          | 우선순위 | 예상  | 비고                                                                                   |
+| ---------------------------------- | -------- | ----- | -------------------------------------------------------------------------------------- |
+| **M3.1 `/store/services`** (사장)  | 🥇 1순위 | 1일   | 시술 CRUD (이름·가격·소요시간·다국어 라벨). 사장이 직접 등록·수정·삭제                 |
+| **M3.2 `/store/customers`** (사장) | 2순위    | 1일   | 고객 list + 상세 (외국인 손님 누적 보기). 시드된 customers 25명 표시                   |
+| **M3.3 `/store/settings`** (사장)  | 3순위    | 1일   | 매장 영업시간/주소/연락처 설정. 영업시간 컬럼 신규 (M2.3 hard-code 교체)               |
+| **M3.4 `/store/mypage`** (사장)    | 4순위    | 0.5일 | 사장 프로필 (이름·이메일·언어). Better Auth `users` 테이블 + store_owners role 표시    |
+| **M3.5 `/store/photos`** (사장)    | 5순위    | 0.5일 | 사장 측 사진 업로드 (M2.2 customer view 대응). `stores.photo_urls` 컬럼 신규 도입 후보 |
 
-**M2.7 사전 인벤토리** (다음 세션 시작 시 의무):
+총 M3 phase 예상 ~4일.
 
-- 가격 표시는 현재 KRW만 (M2.1 + M2.4 + M2.5 + M2.6에 분산). 다국어 환산은 정적 (JPY/USD/CNY rates)
-- 환율 source: 정적 상수 (베타 출시 후 외부 API 도입) — 예: `KRW_PER_JPY = 0.11`, `KRW_PER_USD = 1450`, `KRW_PER_CNY = 200`
-- 환율 util 1개 (`apps/web/src/features/booking-customer/currency.ts` 또는 `shared/lib/`)
-- service/staff 다국어 라벨 검수: 시드 디자이너 이름이 한국어만 → 다국어 표기 통일성?
-- bookingCustomer namespace 자체는 이미 분산되어 있음 (StoreDetail/BookSchedule/BookConfirm/MockPayment/BookSuccess 통합) — 새 namespace 추가 불요
-- 외부 데모 가이드의 시연 흐름 6 단계 일관성 검수
+**M3.1 사전 인벤토리** (다음 세션 시작 시 의무):
 
-**M3 phase 진입 (M2 완료 후)** — 누락 사장 페이지 5종 (services/customers/settings/mypage/photos), ~1주 예상.
+- `services` schema 컬럼 (`nameKo/En/Ja/ZhCn/ZhTw/Vi`, `priceKrw`, `durationMinutes`, `category`) — 이미 다국어 라벨 지원
+- `listServicesByStore` DAL 재사용 + 신규 insert/update/delete DAL 추가 필요
+- 사장 인증: `requireStoreOwnerAuth` 패턴 재사용 (기존 owner-side bookings 페이지 참조)
+- 기존 사장 페이지 (`/store/inbox`, `/store/bookings`, `/store/dashboard` 등) UI 패턴 일관성 유지 (peach/amber/navy 토큰)
+- service category enum 확인 — 현재 schema에 `category: text("category")` 자유 입력. 사장이 입력하는 카테고리 통일성?
+- 시술 다국어 라벨 입력 UX: 6 locale 모두 입력 강요 vs ko 필수 + 나머지 선택 (Mock 데모: ko/en/ja만)
+- `feature-based` 폴더 컨벤션 (apps/web/src/features/store-services/ 신규 후보)
 
 ## 직전 세션 8 (2026-05-11) — Phase 1-ζ Prep (베타 매칭 docs 준비)
 
