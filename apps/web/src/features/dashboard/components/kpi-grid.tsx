@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { KpiCard, type KpiState } from "./kpi-card";
 
 export type KpiEntry = {
@@ -7,6 +8,8 @@ export type KpiEntry = {
   unit?: string;
   state: KpiState;
   subtext?: string;
+  /** active card에 chart slot 부착 (recharts 등). coming-soon은 무시. */
+  chart?: ReactNode;
 };
 
 type Props = {
@@ -35,6 +38,7 @@ export function KpiGrid({ entries, comingSoonNote }: Props) {
           state={e.state}
           subtext={e.subtext}
           comingSoonNote={comingSoonNote}
+          chart={e.state === "active" ? e.chart : undefined}
         />
       ))}
     </section>

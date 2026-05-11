@@ -36,6 +36,49 @@
     },
     "footerNote": "All 12 KPIs activate once Epic 2 & 3 data lands."
   },
+  "Bookings": {
+    "title": "Bookings",
+    "subtitle": "Epic 3 — Foreign customer reservations (customer self-booking + payment lands with Epic 2 / beta matchmaking)",
+    "filterAll": "All",
+    "filtersByStatus": {
+      "scheduled": "Scheduled",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "no_show": "No-show"
+    },
+    "columnScheduled": "Scheduled at",
+    "columnService": "Service",
+    "columnStaff": "Designer",
+    "columnPrice": "Price",
+    "columnStatus": "Status",
+    "empty": "No bookings yet",
+    "detail": "Detail →",
+    "statuses": {
+      "scheduled": "Scheduled",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "no_show": "No-show"
+    },
+    "detailPage": {
+      "headers": { "info": "Booking info", "actions": "Update status" },
+      "fields": {
+        "scheduled": "Scheduled at",
+        "service": "Service",
+        "staff": "Designer",
+        "price": "Price",
+        "deposit": "Deposit",
+        "paymentMethod": "Payment method",
+        "status": "Status"
+      },
+      "actions": {
+        "markCompleted": "Mark completed",
+        "markNoShow": "Mark no-show",
+        "markCancelled": "Mark cancelled",
+        "processing": "Processing...",
+        "terminalNote": "This booking is already closed."
+      }
+    }
+  },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",

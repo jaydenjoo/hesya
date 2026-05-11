@@ -36,6 +36,49 @@
     },
     "footerNote": "Epic 2、3 数据上线后,全部 12 个 KPI 将实时显示。"
   },
+  "Bookings": {
+    "title": "预约",
+    "subtitle": "Epic 3 — 外国顾客预约管理(顾客自助预约和支付将随 Epic 2 / Beta 匹配上线)",
+    "filterAll": "全部",
+    "filtersByStatus": {
+      "scheduled": "已预约",
+      "completed": "已完成",
+      "cancelled": "已取消",
+      "no_show": "爽约"
+    },
+    "columnScheduled": "预约时间",
+    "columnService": "项目",
+    "columnStaff": "设计师",
+    "columnPrice": "金额",
+    "columnStatus": "状态",
+    "empty": "暂无预约",
+    "detail": "详情 →",
+    "statuses": {
+      "scheduled": "已预约",
+      "completed": "已完成",
+      "cancelled": "已取消",
+      "no_show": "爽约"
+    },
+    "detailPage": {
+      "headers": { "info": "预约信息", "actions": "更新状态" },
+      "fields": {
+        "scheduled": "预约时间",
+        "service": "项目",
+        "staff": "设计师",
+        "price": "金额",
+        "deposit": "押金",
+        "paymentMethod": "支付方式",
+        "status": "状态"
+      },
+      "actions": {
+        "markCompleted": "标记完成",
+        "markNoShow": "标记爽约",
+        "markCancelled": "标记取消",
+        "processing": "处理中...",
+        "terminalNote": "该预约已结束。"
+      }
+    }
+  },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",

@@ -2,21 +2,35 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
-import { DashboardHeader, KpiGrid, type KpiEntry } from "@/features/dashboard";
+import {
+  DashboardHeader,
+  DistributionPie,
+  KpiGrid,
+  type DistributionSlice,
+  type KpiEntry,
+} from "@/features/dashboard";
 import { env } from "@/shared/config/env";
 import {
+  countBookingsByService,
+  countBookingsByStaff,
+} from "@/shared/lib/dal/bookings";
+import {
+  getCurrentMonthRange,
   getDisputeLoad,
   getInboxLoad,
   getKycStatus,
 } from "@/shared/lib/dal/dashboard";
+import { listServicesByStore } from "@/shared/lib/dal/services";
+import { listStaffByStore } from "@/shared/lib/dal/staff";
 import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 
 /**
  * Epic 4 (ε phase) — 매장 운영 대시보드.
  *
- * 가드 실패 → /sign-in. 실측 KPI 3개 + coming-soon placeholder 9개. Epic 2/3
- * 도입 후 placeholder는 별 PR로 활성화.
+ * 가드 실패 → /sign-in. 실측 KPI 5개 (미응답 / 분쟁 / KYC / 시술 분포 /
+ * 디자이너 분포) + coming-soon placeholder 7개. Epic 2 결제 도입 후 매출·객단가·
+ * 재방문률·노쇼율, ζ 베타 매칭 후 국적 분포가 활성화.
  *
  * **chrome 변경 0건**: 좌측 navigation 추가는 별 PR (E12 admin chrome과 동일
  * 패턴). 현재는 직접 URL 접근만.
@@ -39,15 +53,43 @@ export default async function StoreDashboardPage({
   }
 
   const db = createDbClient(env.DATABASE_URL);
-  const [inbox, dispute, kyc] = await Promise.all([
+  const monthRange = getCurrentMonthRange();
+  const [
+    inbox,
+    dispute,
+    kyc,
+    serviceCounts,
+    staffCounts,
+    servicesList,
+    staffList,
+  ] = await Promise.all([
     getInboxLoad(db, session.storeId),
     getDisputeLoad(db, session.storeId),
     getKycStatus(db, session.storeId),
+    countBookingsByService(db, session.storeId, monthRange),
+    countBookingsByStaff(db, session.storeId, monthRange),
+    listServicesByStore(db, session.storeId),
+    listStaffByStore(db, session.storeId),
   ]);
 
   const t = await getTranslations({ locale, namespace: "Dashboard" });
 
   const kycLabel = t(`kycStates.${kyc}` as const);
+
+  const serviceNameMap = new Map(
+    servicesList.map((s) => [s.id, s.nameKo] as const),
+  );
+  const staffNameMap = new Map(staffList.map((s) => [s.id, s.name] as const));
+
+  const treatmentSlices: ReadonlyArray<DistributionSlice> = serviceCounts.map(
+    (c) => ({ label: serviceNameMap.get(c.key) ?? "—", value: c.count }),
+  );
+  const designerSlices: ReadonlyArray<DistributionSlice> = staffCounts.map(
+    (c) => ({ label: staffNameMap.get(c.key) ?? "—", value: c.count }),
+  );
+
+  const treatmentTotal = treatmentSlices.reduce((sum, s) => sum + s.value, 0);
+  const designerTotal = designerSlices.reduce((sum, s) => sum + s.value, 0);
 
   const entries: ReadonlyArray<KpiEntry> = [
     {
@@ -112,14 +154,18 @@ export default async function StoreDashboardPage({
     {
       key: "treatmentMix",
       label: t("kpis.treatmentMix"),
-      value: "—",
-      state: "coming-soon",
+      value: String(treatmentTotal),
+      unit: t("units.count"),
+      state: "active",
+      chart: <DistributionPie data={treatmentSlices} />,
     },
     {
       key: "designerMix",
       label: t("kpis.designerMix"),
-      value: "—",
-      state: "coming-soon",
+      value: String(designerTotal),
+      unit: t("units.count"),
+      state: "active",
+      chart: <DistributionPie data={designerSlices} />,
     },
   ];
 

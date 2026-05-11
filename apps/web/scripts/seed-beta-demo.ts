@@ -36,8 +36,12 @@ config({ path: path.resolve(__dirname, "../.env.local") });
 
 import {
   apiPolicyAlerts,
+  bookings,
   conversations,
+  customers,
   eq,
+  services,
+  staff,
   stores,
   storeVerifications,
   users,
@@ -229,6 +233,89 @@ async function main(): Promise<void> {
       .where(eq(conversations.id, convId));
   }
 
+  // 3-b. 데모 시술 5종 (Epic 3 dashboard 분포 KPI 시연용)
+  const demoServices = [
+    { nameKo: "커트", nameEn: "Cut", nameJa: "カット", priceKrw: 35000 },
+    { nameKo: "펌", nameEn: "Perm", nameJa: "パーマ", priceKrw: 120000 },
+    { nameKo: "염색", nameEn: "Color", nameJa: "カラー", priceKrw: 95000 },
+    {
+      nameKo: "트리트먼트",
+      nameEn: "Treatment",
+      nameJa: "トリートメント",
+      priceKrw: 55000,
+    },
+    {
+      nameKo: "두피 케어",
+      nameEn: "Scalp Care",
+      nameJa: "頭皮ケア",
+      priceKrw: 70000,
+    },
+  ];
+  const serviceIds: string[] = [];
+  for (const s of demoServices) {
+    const [row] = await db
+      .insert(services)
+      .values({ ...s, storeId: autoStoreId })
+      .returning({ id: services.id });
+    if (!row) throw new Error("services seed: insert returned no row");
+    serviceIds.push(row.id);
+  }
+
+  // 3-c. 데모 디자이너 3명
+  const demoStaff = [
+    { name: "데모 디자이너 A", languages: ["ko", "en"] },
+    { name: "데모 디자이너 B", languages: ["ko", "ja"] },
+    { name: "데모 디자이너 C", languages: ["ko"] },
+  ];
+  const staffIds: string[] = [];
+  for (const s of demoStaff) {
+    const [row] = await db
+      .insert(staff)
+      .values({ ...s, storeId: autoStoreId })
+      .returning({ id: staff.id });
+    if (!row) throw new Error("staff seed: insert returned no row");
+    staffIds.push(row.id);
+  }
+
+  // 3-d. 데모 예약 10건 (시술/디자이너/고객/상태 mix — 분포 KPI 시각화)
+  const customerIdRow = await db
+    .select({ id: customers.id })
+    .from(customers)
+    .limit(1);
+  const firstCustomerId = customerIdRow[0]?.id ?? null;
+
+  const bookingStatuses = [
+    "scheduled",
+    "completed",
+    "completed",
+    "completed",
+    "scheduled",
+    "no_show",
+    "cancelled",
+    "completed",
+    "scheduled",
+    "completed",
+  ] as const;
+  const now = new Date();
+  for (let i = 0; i < 10; i += 1) {
+    const scheduledAt = new Date(now.getTime() + (i - 4) * 86400000);
+    const svc = demoServices[i % demoServices.length];
+    if (!svc) continue;
+    const svcId = serviceIds[i % serviceIds.length] ?? null;
+    const stfId = staffIds[i % staffIds.length] ?? null;
+    const status = bookingStatuses[i] ?? "scheduled";
+    await db.insert(bookings).values({
+      storeId: autoStoreId,
+      customerId: firstCustomerId,
+      serviceId: svcId,
+      staffId: stfId,
+      scheduledAt,
+      status,
+      totalPriceKrw: svc.priceKrw,
+      depositPaidKrw: Math.floor(svc.priceKrw * 0.3),
+    });
+  }
+
   // 4. 분쟁 1건 (Epic 12.4 시연용 — 매장 #1, status=open)
   const seededDisputeId = await seedDispute(db, {
     storeId: autoStoreId,
@@ -258,6 +345,8 @@ async function main(): Promise<void> {
   console.log("  API 정책 알림 #1   : meta-blog / demo-seed-meta-2026-05-10");
   console.log("");
   console.log("  사장 inbox     : http://localhost:4200/ko/store/inbox");
+  console.log("  사장 예약      : http://localhost:4200/ko/store/bookings");
+  console.log("  사장 대시보드  : http://localhost:4200/ko/store/dashboard");
   console.log("  사장 분쟁      : http://localhost:4200/ko/store/disputes");
   console.log(
     "  운영자 큐      : http://localhost:4200/ko/admin/store-verifications",

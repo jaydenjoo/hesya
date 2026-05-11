@@ -14,12 +14,15 @@
  */
 import {
   apiPolicyAlerts,
+  bookings,
   conversations,
   createDbClient,
   customers,
   disputes,
   messages,
+  services,
   sql,
+  staff,
   storeDeletionRequests,
   storeIntegrations,
   storeKnowledge,
@@ -70,6 +73,7 @@ export function createTestDb() {
 export async function resetDb(db: DbClient): Promise<void> {
   await db.delete(apiPolicyAlerts);
   await db.delete(disputes);
+  await db.delete(bookings);
   await db.delete(messages);
   await db.delete(conversations);
   await db.delete(storeDeletionRequests);
@@ -77,6 +81,8 @@ export async function resetDb(db: DbClient): Promise<void> {
   await db.delete(storeKnowledge);
   await db.delete(storeOwners);
   await db.delete(storeVerifications);
+  await db.delete(services);
+  await db.delete(staff);
   await db.delete(customers);
   await db.delete(stores);
 }
