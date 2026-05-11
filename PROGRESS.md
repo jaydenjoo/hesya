@@ -3,13 +3,14 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-11 세션 10 진행 중)
+## 현재 위치 (2026-05-11 세션 11 진행 중)
 
-- **Phase**: **Plan v3 Mock-first M1 5/5 완료 + M2.1 customer detail 머지** (M1 100% + M2 1/7) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 55%)
-- **세션 10 머지** (M2.1):
-  - **M2.1** `/c/store/[id]` public 매장 detail (main 직접 `603272b`) — DAL `getStorePublicById` + i18n `StoreDetail` 6 locale + Server Component 페이지 + external-demo-guide 5단계 보강
-  - 검증: type-check ✅ / lint ✅ / test 677 passed (+1) / build ✅ (`/[locale]/c/store/[id]` route 등록 확인)
-  - 자기평가 (L-082): **단일 경로 e2e 가능** (매장 #1 UUID 알면 view) — 30~60% 범위. 시술/디자이너 표시 OK, 사진/예약 흐름은 M2.2/M2.3에서 enable
+- **Phase**: **Plan v3 Mock-first M1 5/5 + M2.1+M2.2 머지** (M1 100% + M2 2/7) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 60%)
+- **세션 10~11 머지**:
+  - **M2.1** `/c/store/[id]` public 매장 detail (`603272b`) — DAL `getStorePublicById` + i18n `StoreDetail` 6 locale
+  - **M2.2** `/c/store/[id]/photos` public 사진 gallery (`ca3903d`) — `staff.portfolioUrls` 재사용 (DB schema 변경 0건) + placehold.co 15장 시드 + `StorePhotos` 6 locale + M2.1 페이지에 "사진 갤러리 →" 링크 추가
+  - 검증: type-check ✅ / lint ✅ / test 677 passed / build ✅ (2 신규 routes 등록 확인)
+  - 자기평가 (L-082): **단일 경로 e2e 가능** (매장 #1 UUID → 상세 + 사진 갤러리 view) — 40~65% 범위. 예약/결제는 M2.3~M2.5에서 enable
 - **시나리오**: B (풀 P0 베타 — PRD 원안) 위에 **v3 Mock-first 5 phase 추가** (`docs/Plan-v3-mock-first.md`)
 - **베타 5곳 출시 가능 시점**: Plan v3 M2~M5 완료(4~6주) + Jayden 사업자 등록 + ζ.7~ζ.8 (2주) = **약 6~8주**
 - **세션 9 머지** (10건):
@@ -210,25 +211,27 @@ CI 비활성화 (main 직접 push):
 - `pnpm --filter @hesya/web test --run` ✅ 676 passed / 103 skipped (M1.2 +5 mock-nts + M1.2 +6 mock-localdata + M1.3 +4 connect-instagram-mock)
 - `pnpm --filter @hesya/web build` ✅ Compiled successfully
 
-### 다음 세션 가이드 — Plan v3 M2 진행 (1/7 완료, 6 남음)
+### 다음 세션 가이드 — Plan v3 M2 진행 (2/7 완료, 5 남음)
 
-| Milestone                              | 우선순위 | 예상 | 비고                                                                                     |
-| -------------------------------------- | -------- | ---- | ---------------------------------------------------------------------------------------- |
-| **M2.1 `/c/store/[id]/page`** ✅       | 완료     | -    | 세션 10 머지 (`603272b`). UUID path + auto_approved 필터 + 6 locale `StoreDetail`        |
-| **M2.2 `/c/store/[id]/photos`**        | 🥇 1순위 | 1일  | 매장 사진 gallery (시드된 placeholder 5장 — store-knowledge `photoUrls` 또는 별 schema?) |
-| **M2.3 `/c/store/[id]/book/schedule`** | 2순위    | 2일  | 디자이너 선택 + 시술 선택 + 시간 슬롯 선택 (Asia/Seoul, 30분 grid)                       |
-| **M2.4 `/c/store/[id]/book/confirm`**  | 3순위    | 1일  | 예약 요약 + 손님 정보 폼 + "결제 진행" 버튼                                              |
-| **M2.5 `MOCK_PAYMENT=true` Mock UI**   | 4순위    | 2일  | 가짜 Stripe/Alipay/WeChat 결제 페이지 (즉시 succeeded 응답)                              |
-| **M2.6 createBookingAction**           | 5순위    | 1일  | customer-side 예약 생성 + 결제 record + 가짜 IG 메시지 발송 (alpha: 매장 #1 IG channel)  |
-| **M2.7 다국어 + 시술 라벨 보강**       | 6순위    | 1일  | 가격 다국어 환산 (JPY/USD/CNY) + 디자이너 언어 chip 라벨 + bookingCustomer namespace     |
+| Milestone                              | 우선순위 | 예상 | 비고                                                                                    |
+| -------------------------------------- | -------- | ---- | --------------------------------------------------------------------------------------- |
+| **M2.1 `/c/store/[id]/page`** ✅       | 완료     | -    | 세션 10 머지 (`603272b`). UUID path + auto_approved 필터 + 6 locale `StoreDetail`       |
+| **M2.2 `/c/store/[id]/photos`** ✅     | 완료     | -    | 세션 11 머지 (`ca3903d`). `staff.portfolioUrls` 재사용 + 15장 placeholder seed          |
+| **M2.3 `/c/store/[id]/book/schedule`** | 🥇 1순위 | 2일  | 디자이너 선택 + 시술 선택 + 시간 슬롯 선택 (Asia/Seoul, 30분 grid)                      |
+| **M2.4 `/c/store/[id]/book/confirm`**  | 2순위    | 1일  | 예약 요약 + 손님 정보 폼 + "결제 진행" 버튼                                             |
+| **M2.5 `MOCK_PAYMENT=true` Mock UI**   | 3순위    | 2일  | 가짜 Stripe/Alipay/WeChat 결제 페이지 (즉시 succeeded 응답)                             |
+| **M2.6 createBookingAction**           | 4순위    | 1일  | customer-side 예약 생성 + 결제 record + 가짜 IG 메시지 발송 (alpha: 매장 #1 IG channel) |
+| **M2.7 다국어 + 시술 라벨 보강**       | 5순위    | 1일  | 가격 다국어 환산 (JPY/USD/CNY) + 디자이너 언어 chip 라벨 + bookingCustomer namespace    |
 
-총 M2 phase 잔여 ~8일 (1.6주). 머지 방식: main 직접 push (작은 surgical change, L-093 비용 0) 또는 branch + PR (admin override squash). Mock 분기 패턴은 M1.2~M1.3 코드 (`env.MOCK_*` flag) 참고.
+총 M2 phase 잔여 ~7일 (1.4주). 머지 방식: main 직접 push (작은 surgical change, L-093 비용 0).
 
-**M2.2 사전 인벤토리** (다음 세션 시작 시 의무):
+**M2.3 사전 인벤토리** (다음 세션 시작 시 의무):
 
-- `grep "photo\|gallery\|image_url" packages/database/src/schema/`
-- 사진 URL 저장 위치 확인 (별 schema vs `store-knowledge` jsonb vs S3 직접 link)
-- 시드된 placeholder 5장이 어디 있는지 (seed-beta-demo / seed-stress-test)
+- 이미 존재하는 `bookings` schema 컬럼 확인 (`packages/database/src/schema/bookings.ts`)
+- owner-side `bookings/page.tsx` 라우트 패턴 (filter/status DAL 재사용 가능성)
+- 시간 슬롯 라이브러리 — 자체 30분 grid 작성 vs date-fns 사용 (이미 import 중인지)
+- "예약 가능 시간"의 conflict 체크: 같은 staff + scheduledAt overlap → 같은 슬롯 회피 로직 필요?
+- customer 세션 식별: customer-side는 인증 없음 → email 입력 시점에 customers row 생성 또는 익명 ID
 
 ## 직전 세션 8 (2026-05-11) — Phase 1-ζ Prep (베타 매칭 docs 준비)
 
