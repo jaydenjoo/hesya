@@ -2,17 +2,29 @@
 
 import { useState } from "react";
 import { createAuthClient } from "@hesya/auth/client";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 
 const authClient = createAuthClient();
 
-interface FormPanelProps {
-  callbackUrl: string;
-  localeLabel: string;
+interface LocaleOption {
+  readonly code: string;
+  readonly label: string;
 }
 
-export function FormPanel({ callbackUrl, localeLabel }: FormPanelProps) {
+interface FormPanelProps {
+  callbackUrl: string;
+  currentLocale: string;
+  locales: readonly LocaleOption[];
+}
+
+export function FormPanel({
+  callbackUrl,
+  currentLocale,
+  locales,
+}: FormPanelProps) {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -26,14 +38,30 @@ export function FormPanel({ callbackUrl, localeLabel }: FormPanelProps) {
     }
   };
 
+  const handleLocaleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLocale = e.target.value;
+    // next-intl 타입은 locale을 union으로 enforce — 6 locale 화이트리스트 안에서만
+    // 선택 가능하므로 cast 안전.
+    router.replace(pathname, { locale: newLocale as "ko" });
+  };
+
   return (
     <main className="sl-form">
       <div className="sl-form-top">
-        <button type="button" className="sl-lang-chip" disabled>
-          <span>🌐</span>
-          <span>{localeLabel}</span>
-          <span style={{ opacity: 0.4 }}>▾</span>
-        </button>
+        <label className="sl-lang-chip" aria-label="언어 선택">
+          <span aria-hidden="true">🌐</span>
+          <select
+            value={currentLocale}
+            onChange={handleLocaleChange}
+            className="sl-lang-select"
+          >
+            {locales.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.label}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       <div className="sl-form-stack">

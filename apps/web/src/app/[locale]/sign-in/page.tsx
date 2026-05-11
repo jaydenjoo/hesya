@@ -2,14 +2,14 @@ import { BrandPanel } from "./brand-panel";
 import { FormPanel } from "./form-panel";
 import "./sign-in.css";
 
-const LOCALE_LABEL: Record<string, string> = {
-  ko: "한국어",
-  en: "English",
-  ja: "日本語",
-  vi: "Tiếng Việt",
-  "zh-CN": "中文 (简体)",
-  "zh-TW": "中文 (繁體)",
-};
+const LOCALES = [
+  { code: "ko", label: "한국어" },
+  { code: "en", label: "English" },
+  { code: "ja", label: "日本語" },
+  { code: "vi", label: "Tiếng Việt" },
+  { code: "zh-CN", label: "中文 (简体)" },
+  { code: "zh-TW", label: "中文 (繁體)" },
+] as const;
 
 /**
  * Open redirect 방지 — 내부 경로만 허용 (`/`로 시작, `//` 차단).
@@ -32,12 +32,15 @@ export default async function SignInPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
   const { callbackUrl } = await searchParams;
   const safeCallback = sanitizeCallback(callbackUrl);
-  const localeLabel = LOCALE_LABEL[locale] ?? "한국어";
 
   return (
     <div className="sl-app" data-screen-label="Store Login">
       <BrandPanel />
-      <FormPanel callbackUrl={safeCallback} localeLabel={localeLabel} />
+      <FormPanel
+        callbackUrl={safeCallback}
+        currentLocale={locale}
+        locales={LOCALES}
+      />
     </div>
   );
 }

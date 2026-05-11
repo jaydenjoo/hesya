@@ -115,7 +115,7 @@ pnpm --filter @hesya/web build        # 경고 0건 목표
 - ⚠️ `requireAdminEmail`은 임시 솔루션 (kyc/actions.ts 주석: _"Epic 12 admin panel 도입 시 정식 owner guard로 교체"_). ADMIN_EMAILS env는 첫 운영자 1~2명용.
 - ⚠️ Next.js 16에서 `middleware.ts` 만들면 무시됨. `proxy.ts`가 middleware 자리.
 - ✅ **rate-limit.ts** — `@upstash/ratelimit` sliding window (Upstash Redis `hesya-rate-limit-prod`, Tokyo, Free tier 500K/월). prefix `hesya:rl`. env: `UPSTASH_REDIS_KV_REST_API_URL/TOKEN`. 2026-05-08 Phase 1-γ.0 fix #1로 in-memory Map → 분산 Redis 교체 완료.
-- ⚠️ **`sign-in/page.tsx`는 임시 검증 페이지** — 주석에 "Better Auth + Google OAuth 동작 검증용 임시 페이지" 명시. 베타 사용자 노출됨. **Phase 1-γ.0 차단 fix #3로 정식화 예정**.
+- ✅ **`sign-in/page.tsx`는 정식 페이지** — Hesya Store Login 디자인 적용 (brand panel + form panel + Google OAuth + trust badges + locale selector 6 locale). Plan v3 M1.4 (2026-05-11)에서 locale selector 활성화 + "임시 검증" 표기 정정 완료. admin/store 별도 분리는 보류 (현재 동일 페이지 + ADMIN_EMAILS 분기로 충분).
 - ⚠️ **PROGRESS 자기평가는 e2e 시연 기준** (L-082) — 코드 머지 완료 ≠ 시연 가능. 새 기능 plan 시 시연 prerequisite 검증 의무.
 
 ## Documents

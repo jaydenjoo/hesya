@@ -354,6 +354,34 @@
 .sl-lang-chip:hover {
   border-color: var(--hesya-amber-500);
 }
+.sl-lang-chip:focus-within {
+  outline: 2px solid var(--hesya-amber-500);
+  outline-offset: 2px;
+}
+.sl-lang-select {
+  appearance: none;
+  background: transparent;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  padding-right: 14px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    right 4px top 50%,
+    right 0 top 50%;
+  background-size:
+    5px 5px,
+    5px 5px;
+  background-repeat: no-repeat;
+  opacity: 0.8;
+}
+.sl-lang-select:focus {
+  outline: none;
+}
 
 .sl-form-stack {
   width: 100%;
