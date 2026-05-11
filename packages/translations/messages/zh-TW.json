@@ -165,5 +165,25 @@
     "tomorrow": "明天",
     "backToStore": "← 返回門市",
     "businessHoursNote": "營業時間 10:00–20:00 (Asia/Seoul)"
+  },
+  "BookConfirm": {
+    "eyebrow": "預約確認",
+    "heading": "您的資料",
+    "subheading": "請確認預約並填寫聯絡方式",
+    "summaryHeading": "預約摘要",
+    "service": "服務",
+    "staff": "設計師",
+    "datetime": "時間",
+    "formHeading": "聯絡方式",
+    "nameLabel": "姓名",
+    "namePlaceholder": "例: 王小明",
+    "emailLabel": "信箱",
+    "emailPlaceholder": "you@example.com",
+    "messageLabel": "留言 (選填)",
+    "messagePlaceholder": "如有特殊要求請填寫",
+    "submit": "前往付款 →",
+    "required": "* 必填",
+    "privacyNote": "您的資料僅用於預約處理。",
+    "incomplete": "請填寫姓名和信箱"
   }
 }

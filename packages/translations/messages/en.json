@@ -165,5 +165,25 @@
     "tomorrow": "Tomorrow",
     "backToStore": "← Back to store",
     "businessHoursNote": "Hours 10:00–20:00 (Asia/Seoul)"
+  },
+  "BookConfirm": {
+    "eyebrow": "Booking Confirmation",
+    "heading": "Your information",
+    "subheading": "Review your booking and enter your details",
+    "summaryHeading": "Booking summary",
+    "service": "Service",
+    "staff": "Stylist",
+    "datetime": "When",
+    "formHeading": "Contact",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Sarah Kim",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "messageLabel": "Message (optional)",
+    "messagePlaceholder": "Any special requests?",
+    "submit": "Proceed to payment →",
+    "required": "* Required",
+    "privacyNote": "Your information is used only for booking purposes.",
+    "incomplete": "Please enter your name and email"
   }
 }

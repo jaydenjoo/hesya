@@ -76,9 +76,16 @@
 - 모두 선택 시 "다음 단계 →" 활성화 → confirm 페이지로 URL search params 전달
 - conflict 체크는 M2.6 server action에서 atomic (race-safe)
 
-### 5-4. 예약 확정 stub (M2.4 다음 milestone)
+### 5-4. 예약 확정 폼 (M2.4 ✅)
 
-- `/c/store/<UUID>/book/confirm` — 현재 search params echo만 (정식 폼 + 결제 진행은 다음 세션)
+- `/c/store/<UUID>/book/confirm?service=...&staff=...&date=...&time=...`
+- 예약 요약 표시 (시술 + 디자이너 + 일시) + 손님 정보 폼 (이름·이메일·메시지)
+- 폼 제출 → `/c/store/<UUID>/pay?...`로 URL params 전달
+- 다른 매장 service/staff로 변조한 URL은 404 (storeId match 검증)
+
+### 5-5. 결제 stub (M2.5 다음 milestone)
+
+- `/c/store/<UUID>/pay` — 현재 전달 데이터 echo만 (Mock Stripe/Alipay/WeChat UI는 다음 세션)
 
 ### 6. owner-side 예약 관리 시뮬 (customer-side는 M2 이후 활성화)
 

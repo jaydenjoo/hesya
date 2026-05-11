@@ -165,5 +165,25 @@
     "tomorrow": "Ngày mai",
     "backToStore": "← Quay lại cửa hàng",
     "businessHoursNote": "Giờ mở cửa 10:00–20:00 (Asia/Seoul)"
+  },
+  "BookConfirm": {
+    "eyebrow": "Xác nhận đặt lịch",
+    "heading": "Thông tin của bạn",
+    "subheading": "Xác nhận lịch hẹn và nhập thông tin liên hệ",
+    "summaryHeading": "Tóm tắt đặt lịch",
+    "service": "Dịch vụ",
+    "staff": "Stylist",
+    "datetime": "Khi nào",
+    "formHeading": "Liên hệ",
+    "nameLabel": "Họ tên",
+    "namePlaceholder": "VD: Nguyễn Văn A",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "messageLabel": "Lời nhắn (tùy chọn)",
+    "messagePlaceholder": "Yêu cầu đặc biệt nếu có",
+    "submit": "Đến thanh toán →",
+    "required": "* Bắt buộc",
+    "privacyNote": "Thông tin chỉ được dùng cho mục đích đặt lịch.",
+    "incomplete": "Vui lòng nhập họ tên và email"
   }
 }

@@ -165,5 +165,25 @@
     "tomorrow": "明日",
     "backToStore": "← お店に戻る",
     "businessHoursNote": "営業時間 10:00～20:00 (Asia/Seoul)"
+  },
+  "BookConfirm": {
+    "eyebrow": "ご予約確認",
+    "heading": "お客様情報",
+    "subheading": "予約内容を確認してご連絡先を入力してください",
+    "summaryHeading": "予約内容",
+    "service": "メニュー",
+    "staff": "スタイリスト",
+    "datetime": "日時",
+    "formHeading": "ご連絡先",
+    "nameLabel": "お名前",
+    "namePlaceholder": "例: 田中花子",
+    "emailLabel": "メール",
+    "emailPlaceholder": "you@example.com",
+    "messageLabel": "メッセージ (任意)",
+    "messagePlaceholder": "ご要望があればご記入ください",
+    "submit": "お支払いへ →",
+    "required": "* 必須",
+    "privacyNote": "ご入力いただいた情報は予約処理のみに使用されます。",
+    "incomplete": "お名前とメールをご記入ください"
   }
 }

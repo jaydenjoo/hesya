@@ -165,5 +165,25 @@
     "tomorrow": "내일",
     "backToStore": "← 매장으로 돌아가기",
     "businessHoursNote": "영업 시간 10:00~20:00 (Asia/Seoul)"
+  },
+  "BookConfirm": {
+    "eyebrow": "예약 확정",
+    "heading": "손님 정보",
+    "subheading": "예약 정보를 확인하고 손님 정보를 입력해주세요",
+    "summaryHeading": "예약 요약",
+    "service": "시술",
+    "staff": "디자이너",
+    "datetime": "일시",
+    "formHeading": "연락처",
+    "nameLabel": "이름 (한글 또는 영문)",
+    "namePlaceholder": "예: Sarah Kim",
+    "emailLabel": "이메일",
+    "emailPlaceholder": "you@example.com",
+    "messageLabel": "메시지 (선택)",
+    "messagePlaceholder": "시술 관련 요청사항이 있다면 입력해주세요",
+    "submit": "결제 진행 →",
+    "required": "* 필수 항목",
+    "privacyNote": "입력하신 정보는 예약 처리 목적으로만 사용됩니다.",
+    "incomplete": "이름과 이메일을 입력해주세요"
   }
 }
