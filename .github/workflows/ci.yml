@@ -62,6 +62,13 @@ jobs:
       UPSTASH_REDIS_KV_REST_API_URL: https://ci-dummy-upstash.upstash.io
       UPSTASH_REDIS_KV_REST_API_TOKEN: ci_dummy_upstash_kv_rest_token_xxxxxxxx
       N8N_WEBHOOK_SECRET: ci_dummy_n8n_webhook_secret_xxxxxxxxxxxxxxxx
+      # Mock-first (Plan v3, M1.1) — CI build는 실 연동 검증 목적이라 false 고정.
+      # Vercel Preview env에 true로 등록되어 외부 데모 흐름 활성화 (Jayden UI 등록).
+      MOCK_KYC: "false"
+      MOCK_IG_OAUTH: "false"
+      MOCK_PAYMENT: "false"
+      MOCK_NOTIFICATION: "false"
+      MOCK_MULTI_CHANNEL: "false"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -137,6 +144,11 @@ jobs:
       UPSTASH_REDIS_KV_REST_API_URL: https://ci-dummy-upstash.upstash.io
       UPSTASH_REDIS_KV_REST_API_TOKEN: ci_dummy_upstash_kv_rest_token_xxxxxxxx
       N8N_WEBHOOK_SECRET: ci_dummy_n8n_webhook_secret_xxxxxxxxxxxxxxxx
+      MOCK_KYC: "false"
+      MOCK_IG_OAUTH: "false"
+      MOCK_PAYMENT: "false"
+      MOCK_NOTIFICATION: "false"
+      MOCK_MULTI_CHANNEL: "false"
       # smoke만 실행 — inbox.spec.ts는 HESYA_TEST_DATABASE_URL 없어 자동 skip.
       # 실 시나리오는 PostgreSQL service container + migration이 필요해
       # 별도 인프라 작업으로 분리. 본 e2e-smoke는 dev 서버 + Playwright 자체 작동만 보장.
@@ -223,6 +235,11 @@ jobs:
       UPSTASH_REDIS_KV_REST_API_URL: https://ci-dummy-upstash.upstash.io
       UPSTASH_REDIS_KV_REST_API_TOKEN: ci_dummy_upstash_kv_rest_token_xxxxxxxx
       N8N_WEBHOOK_SECRET: ci_dummy_n8n_webhook_secret_xxxxxxxxxxxxxxxx
+      MOCK_KYC: "false"
+      MOCK_IG_OAUTH: "false"
+      MOCK_PAYMENT: "false"
+      MOCK_NOTIFICATION: "false"
+      MOCK_MULTI_CHANNEL: "false"
     steps:
       - uses: actions/checkout@v4
       - name: Setup pnpm

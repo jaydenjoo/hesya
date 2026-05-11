@@ -20,6 +20,17 @@
  */
 import { z } from "zod";
 
+/**
+ * Mock env flag helper (Plan v3, M1.1) — process.env string → boolean.
+ *
+ * `"true"` 또는 `"1"`만 truthy. `undefined` / 빈 문자열 / 기타 모두 false.
+ * `z.coerce.boolean()`은 `"false"`도 truthy로 잘못 처리하므로 직접 transform.
+ */
+const mockFlag = z
+  .string()
+  .default("false")
+  .transform((v) => v === "true" || v === "1");
+
 const envSchema = z.object({
   // Node 환경
   NODE_ENV: z
@@ -116,6 +127,19 @@ const envSchema = z.object({
   // 길이 32+ enforce — 256bit 엔트로피 (openssl rand -base64 32 권장).
   // prod에선 secret manager로 rotate.
   N8N_WEBHOOK_SECRET: z.string().min(32),
+
+  // ─── Mock-first (Plan v3, M1.1) — 외부 데모 환경용 ───
+  // 사업자 등록 + 결제사 KYB 완료 전 외부인이 전 흐름 시뮬할 수 있도록 외부 연동 5종을
+  // Mock으로 추상화. 각 모듈은 lib/<module>/{real,mock}-*.ts + index.ts (env 분기) 패턴.
+  // - Production: 모두 false (실 운영)
+  // - Vercel Preview: 모두 true (외부 데모 — PR/branch URL 공유)
+  // - Local dev: 자유 toggle
+  // process.env는 string만 받으므로 "true"/"1"만 truthy, 나머지 false.
+  MOCK_KYC: mockFlag,
+  MOCK_IG_OAUTH: mockFlag,
+  MOCK_PAYMENT: mockFlag,
+  MOCK_NOTIFICATION: mockFlag,
+  MOCK_MULTI_CHANNEL: mockFlag,
 });
 
 /**
