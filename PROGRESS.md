@@ -3,9 +3,10 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-11 세션 15 종료 시점) — **M2 phase 100% 완료**
+## 현재 위치 (2026-05-11 세션 16 진행 중)
 
-- **Phase**: **Plan v3 M1 5/5 + M2 7/7 머지** (M1 100% + **M2 100%**) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + **δ Epic 3 95%** + **E2 결제 60%**)
+- **Phase**: **Plan v3 M1 5/5 + M2 7/7 + M3.1 머지** (M1 100% + M2 100% + **M3 1/5**) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 95% + E2 결제 60%)
+- **세션 16 머지**: **M3.1** 매장 시술 관리 CRUD (`91e6a21`) — services DAL CRUD 3 + 3 server actions + Client form + StoreServices 6 locale + 사용 중 booking 검사 (`countBookingsByService` wide range)
 - **세션 10~15 머지** (M2 phase 전체):
   - **M2.1** `/c/store/[id]` public 매장 detail (`603272b`)
   - **M2.2** `/c/store/[id]/photos` 사진 gallery (`ca3903d`)
@@ -216,29 +217,26 @@ CI 비활성화 (main 직접 push):
 - `pnpm --filter @hesya/web test --run` ✅ 676 passed / 103 skipped (M1.2 +5 mock-nts + M1.2 +6 mock-localdata + M1.3 +4 connect-instagram-mock)
 - `pnpm --filter @hesya/web build` ✅ Compiled successfully
 
-### 다음 세션 가이드 — Plan v3 M3 진입 (M2 100% 완료 → M3 시작)
+### 다음 세션 가이드 — Plan v3 M3 진행 (1/5 완료, 4 남음)
 
-**M2 phase 7/7 완료**. customer-side 흐름 (매장 view → 예약 → Mock 결제 → 실 DB insert → 다국어 가격) 100% 시연 가능. 다음은 M3 (누락 사장 페이지 5종, ~1주).
+| Milestone                            | 우선순위 | 예상  | 비고                                                                              |
+| ------------------------------------ | -------- | ----- | --------------------------------------------------------------------------------- |
+| **M3.1 `/store/services`** (사장) ✅ | 완료     | -     | 세션 16 머지 (`91e6a21`). CRUD + 사용 중 booking 검사                             |
+| **M3.2 `/store/customers`** (사장)   | 🥇 1순위 | 1일   | 고객 list + 상세 (외국인 손님 누적 보기). 시드된 customers 25명 표시              |
+| **M3.3 `/store/settings`** (사장)    | 2순위    | 1일   | 매장 영업시간/주소/연락처 설정. 영업시간 컬럼 신규 (M2.3 hard-code 교체)          |
+| **M3.4 `/store/mypage`** (사장)      | 3순위    | 0.5일 | 사장 프로필 (이름·이메일·언어). Better Auth `users` + store_owners role 표시      |
+| **M3.5 `/store/photos`** (사장)      | 4순위    | 0.5일 | 사장 측 사진 업로드 (M2.2 customer view 대응). `stores.photo_urls` 컬럼 도입 후보 |
 
-| Milestone                          | 우선순위 | 예상  | 비고                                                                                   |
-| ---------------------------------- | -------- | ----- | -------------------------------------------------------------------------------------- |
-| **M3.1 `/store/services`** (사장)  | 🥇 1순위 | 1일   | 시술 CRUD (이름·가격·소요시간·다국어 라벨). 사장이 직접 등록·수정·삭제                 |
-| **M3.2 `/store/customers`** (사장) | 2순위    | 1일   | 고객 list + 상세 (외국인 손님 누적 보기). 시드된 customers 25명 표시                   |
-| **M3.3 `/store/settings`** (사장)  | 3순위    | 1일   | 매장 영업시간/주소/연락처 설정. 영업시간 컬럼 신규 (M2.3 hard-code 교체)               |
-| **M3.4 `/store/mypage`** (사장)    | 4순위    | 0.5일 | 사장 프로필 (이름·이메일·언어). Better Auth `users` 테이블 + store_owners role 표시    |
-| **M3.5 `/store/photos`** (사장)    | 5순위    | 0.5일 | 사장 측 사진 업로드 (M2.2 customer view 대응). `stores.photo_urls` 컬럼 신규 도입 후보 |
+총 M3 잔여 ~3일.
 
-총 M3 phase 예상 ~4일.
+**M3.2 사전 인벤토리** (다음 세션 시작 시 의무):
 
-**M3.1 사전 인벤토리** (다음 세션 시작 시 의무):
-
-- `services` schema 컬럼 (`nameKo/En/Ja/ZhCn/ZhTw/Vi`, `priceKrw`, `durationMinutes`, `category`) — 이미 다국어 라벨 지원
-- `listServicesByStore` DAL 재사용 + 신규 insert/update/delete DAL 추가 필요
-- 사장 인증: `requireStoreOwnerAuth` 패턴 재사용 (기존 owner-side bookings 페이지 참조)
-- 기존 사장 페이지 (`/store/inbox`, `/store/bookings`, `/store/dashboard` 등) UI 패턴 일관성 유지 (peach/amber/navy 토큰)
-- service category enum 확인 — 현재 schema에 `category: text("category")` 자유 입력. 사장이 입력하는 카테고리 통일성?
-- 시술 다국어 라벨 입력 UX: 6 locale 모두 입력 강요 vs ko 필수 + 나머지 선택 (Mock 데모: ko/en/ja만)
-- `feature-based` 폴더 컨벤션 (apps/web/src/features/store-services/ 신규 후보)
+- `customers` schema 컬럼 (name/email/nationality/preferredLanguage/totalVisits/ltvKrw/allergyNote/preferredDesigner/igProfileFetched 등)
+- `customers` DAL: `getCustomerById`, `getCustomerPreferredLanguage`, `upsertCustomer`, `updateCustomerProfile`, `updateCustomerNotes` 이미 존재 → list/filter 패턴 필요
+- 시드된 customers 25명 (instagram channel, en/ja/zh/vi/th 5종) — list 표시에 충분
+- 사장 메모 (allergyNote / preferredDesigner) inline edit UX 후보
+- 외국인 손님 LTV 표시 (다국어 환산?)
+- M2.6에서 booker 정보를 `bookings.notesMultilang.booker`에 저장한 손님은 customers row 없음 — list에 어떻게 표시? (booking에서 join 가능 별 view)
 
 ## 직전 세션 8 (2026-05-11) — Phase 1-ζ Prep (베타 매칭 docs 준비)
 
