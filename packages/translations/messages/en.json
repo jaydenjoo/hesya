@@ -150,5 +150,20 @@
     "by": "— {name}",
     "empty": "No photos uploaded yet.",
     "backToStore": "← Back to store"
+  },
+  "BookSchedule": {
+    "eyebrow": "Booking",
+    "heading": "Select time",
+    "step1": "1. Choose service",
+    "step2": "2. Choose stylist",
+    "step3": "3. Choose date",
+    "step4": "4. Choose time",
+    "next": "Continue →",
+    "incomplete": "Please complete all steps",
+    "durationMinutes": "{minutes} min",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "backToStore": "← Back to store",
+    "businessHoursNote": "Hours 10:00–20:00 (Asia/Seoul)"
   }
 }

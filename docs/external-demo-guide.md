@@ -69,6 +69,17 @@
 - placeholder는 placehold.co (hesya peach/amber/navy 팔레트, 외부 의존 0건)
 - 실 운영에서는 사장이 사장 측 "사진 관리" 페이지(M3.5)에서 사진 업로드
 
+### 5-3. 예약 시간 선택 (M2.3 ✅)
+
+- 매장 detail 페이지에서 "예약 진행" 버튼 → `/c/store/<UUID>/book/schedule`
+- 4-step 선택: 시술 → 디자이너 → 날짜 (30일 chip) → 시간 (10:00~19:30, 30분 단위 20 chip)
+- 모두 선택 시 "다음 단계 →" 활성화 → confirm 페이지로 URL search params 전달
+- conflict 체크는 M2.6 server action에서 atomic (race-safe)
+
+### 5-4. 예약 확정 stub (M2.4 다음 milestone)
+
+- `/c/store/<UUID>/book/confirm` — 현재 search params echo만 (정식 폼 + 결제 진행은 다음 세션)
+
 ### 6. owner-side 예약 관리 시뮬 (customer-side는 M2 이후 활성화)
 
 - `/store/bookings` — 예약 리스트 (이미 시드된 50건)

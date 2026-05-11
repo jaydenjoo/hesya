@@ -150,5 +150,20 @@
     "by": "— {name}",
     "empty": "まだ写真がありません。",
     "backToStore": "← お店に戻る"
+  },
+  "BookSchedule": {
+    "eyebrow": "ご予約",
+    "heading": "時間を選択",
+    "step1": "1. メニュー選択",
+    "step2": "2. スタイリスト選択",
+    "step3": "3. 日付選択",
+    "step4": "4. 時間選択",
+    "next": "次へ →",
+    "incomplete": "すべての項目を選択してください",
+    "durationMinutes": "{minutes}分",
+    "today": "今日",
+    "tomorrow": "明日",
+    "backToStore": "← お店に戻る",
+    "businessHoursNote": "営業時間 10:00～20:00 (Asia/Seoul)"
   }
 }

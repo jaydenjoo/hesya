@@ -173,13 +173,13 @@ export default async function StoreDetailPage({
       </section>
 
       <div className="mt-12 flex items-center justify-between rounded-2xl bg-hesya-navy-900 px-6 py-5 text-hesya-peach-50">
-        <p className="text-sm">{t("bookComingSoon")}</p>
-        <span
-          aria-disabled="true"
-          className="cursor-not-allowed rounded-full bg-hesya-peach-50/20 px-5 py-2 text-sm font-semibold text-hesya-peach-50/80"
+        <p className="text-sm">{t("eyebrow")}</p>
+        <Link
+          href={`/c/store/${store.id}/book/schedule`}
+          className="rounded-full bg-hesya-amber-500 px-5 py-2 text-sm font-semibold text-hesya-navy-900 hover:bg-hesya-amber-400"
         >
           {t("bookCta")}
-        </span>
+        </Link>
       </div>
     </main>
   );

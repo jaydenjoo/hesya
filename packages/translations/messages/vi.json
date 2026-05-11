@@ -150,5 +150,20 @@
     "by": "— {name}",
     "empty": "Chưa có ảnh nào.",
     "backToStore": "← Quay lại cửa hàng"
+  },
+  "BookSchedule": {
+    "eyebrow": "Đặt lịch",
+    "heading": "Chọn thời gian",
+    "step1": "1. Chọn dịch vụ",
+    "step2": "2. Chọn stylist",
+    "step3": "3. Chọn ngày",
+    "step4": "4. Chọn giờ",
+    "next": "Tiếp tục →",
+    "incomplete": "Vui lòng hoàn thành tất cả các bước",
+    "durationMinutes": "{minutes} phút",
+    "today": "Hôm nay",
+    "tomorrow": "Ngày mai",
+    "backToStore": "← Quay lại cửa hàng",
+    "businessHoursNote": "Giờ mở cửa 10:00–20:00 (Asia/Seoul)"
   }
 }

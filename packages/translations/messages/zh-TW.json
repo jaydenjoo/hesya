@@ -150,5 +150,20 @@
     "by": "— {name}",
     "empty": "尚未上傳照片。",
     "backToStore": "← 返回門市"
+  },
+  "BookSchedule": {
+    "eyebrow": "預約",
+    "heading": "選擇時間",
+    "step1": "1. 選擇服務",
+    "step2": "2. 選擇設計師",
+    "step3": "3. 選擇日期",
+    "step4": "4. 選擇時間",
+    "next": "下一步 →",
+    "incomplete": "請完成所有步驟",
+    "durationMinutes": "{minutes}分鐘",
+    "today": "今天",
+    "tomorrow": "明天",
+    "backToStore": "← 返回門市",
+    "businessHoursNote": "營業時間 10:00–20:00 (Asia/Seoul)"
   }
 }
