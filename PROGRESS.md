@@ -3,17 +3,16 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-11 세션 8 종료 시점)
+## 현재 위치 (2026-05-11 세션 9 진행 중)
 
-- **Phase**: **Phase 1-ζ Prep — 베타 매칭 docs 준비 완료** (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 50% + **ζ prep 시작**)
+- **Phase**: **Phase 1-ζ.4 stress test 시드 완료** (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 50% + **ζ.4 stress test 시드 통과**)
 - **시나리오**: B (풀 P0 베타 — PRD 원안)
 - **베타 5곳 출시 가능 시점**: 약 2~4주 (δ Epic 2 결제 + ζ 베타 매칭 — Jayden 사업자 등록이 critical path)
-- **세션 8 머지**: docs only (main 직접 — 메모리 `feedback_workflow_main_vs_branch.md`)
-- **세션 8 산출물**:
-  - `docs/demo-guide.md` 갱신 — 시드 명세 표에 시술 5종 / 디자이너 3명 / 예약 10건 / 분쟁 1건 / API 정책 알림 1건 행 추가 + **시나리오 C (예약 관리) / D (대시보드 KPI)** 신규. Phase 2 예고 섹션에 ζ.1 trigger 3-조건 (사업자 등록 / 베타 후보 확보 / 결제 인프라 진입) 명시.
-  - `docs/beta-onboarding-checklist.md` 신규 — 5 단계 (사전 준비 / 매장 측 자료 / Hesya 측 시퀀스 / 베타 5곳 확대 / 정식 진입) + 비상 절차 5 상황.
-  - L-089 prod 배포 검증: `9d66efd` + `c9704bf` Vercel Production **success** ✅ (수동 redeploy 불필요).
-- **누적 교훈**: L-001 ~ **L-092** (세션 8 신규 0건 — docs only)
+- **세션 9 진행**: ζ.4 stress test 시드 + booking actions Sentry tag + stress-test-guide.md
+- **세션 9 시드 검증** (실 실행 통과):
+  - `unset ANTHROPIC_API_KEY && pnpm seed:stress-test` 성공
+  - 매장 5곳 + 메시지 250건 + 예약 50건 + 분쟁 5건 + API 정책 알림 3건 + admin KYC 큐 4건 시드 완료
+- **누적 교훈**: L-001 ~ **L-092** (세션 9 신규 0건)
 
 ## P0 Epic 객관 완성도 (세션 8 ζ prep docs only — 코드 변동 없음)
 
@@ -40,7 +39,75 @@
 > ⚠️ E9 +1은 시각 정합성만 (단위 테스트 className 기반). KYC submit/pending demo 시연은 미인증 user seed 보강 후 가능 — 별 PR 후보.
 > ✅ γ.2.3.4/5 시연 prerequisite는 dev-demo.sh가 E2E_ADMIN_EMAIL inject로 자동 충족 (admin) / public route로 자동 충족 (landing) — 별 PR 불요.
 
-## 본 세션 8 (2026-05-11) — Phase 1-ζ Prep (베타 매칭 docs 준비)
+## 본 세션 9 (2026-05-11) — Phase 1-ζ.4 (stress test 시드 + Sentry tag 보강)
+
+### Scope
+
+베타 출시 직전 stability watch용 통합 부하 시드 + booking actions Sentry tag 1 영역 보강. PostHog 이벤트는 ζ.5 scope (본 세션 밖).
+
+### 산출물
+
+#### 1. `apps/web/scripts/seed-stress-test.ts` 신규
+
+LLM 호출 0건 (직접 insert), HESYA_TEST_DATABASE_URL prod URL 가드 (fixture 재사용):
+
+- 매장 5곳: #1 `auto_approved` + IG + 사장 owner (inbox/dashboard stress) / #2~5 `manual_review` + storeVerifications (admin 큐 stress)
+- 사장 1명 (DEMO_USER_ID), 고객 25명 (en/ja/zh/vi/th 5종 × 5)
+- conversation 25개, **메시지 250건** (inbound 125 + outbound 125, status mix pending_review 75 / sent 25 / skipped 25)
+- 시술 5종 + 디자이너 3명 (매장 #1)
+- **예약 50건** (매장 #1, statusCycle 10-pattern)
+- **분쟁 5건** (매장 #1, category mix complaint 3 / refund 1 / no_show 1)
+- **API 정책 알림 3건**
+
+`pnpm seed:stress-test` 실 실행 통과 확인 ✅.
+
+#### 2. `apps/web/src/lib/booking/actions.ts` Sentry tag 보강
+
+surgical change (4원칙 3번):
+
+- import `* as Sentry from "@sentry/nextjs"` (1 line)
+- 인증 try-catch unknown error 분기에 `Sentry.captureException(err, { tags: { route: "action:booking-update", phase: "auth" } })`
+- rate-limit try-catch unknown error 분기에 동일 패턴 `phase: "rate-limit"`
+
+기존 패턴 재사용 (`webhook:instagram`, `queue:inbox-process-inbound` 등과 일관). dispute / kyc / store-cancellation actions는 ζ.5 보강 후보.
+
+#### 3. `docs/stress-test-guide.md` 신규
+
+- 시드 실행 절차 (L-091 unset ANTHROPIC_API_KEY prefix 의무)
+- 시드 데이터 표 + 검증 시나리오 4단계 (E1 inbox 250 / E9 KYC 4 / E12 분쟁 5 + 정책 3 / E4 대시보드 + 예약 50)
+- Core Web Vitals 2026 측정 기준 (LCP < 2.5s / INP < 200ms / CLS < 0.1)
+- Sentry tag 검증 절차 + 트러블슈팅 5건
+- ζ.8 stability watch 재실행 절차
+
+#### 4. package.json script 등록
+
+- `apps/web/package.json` — `"seed:stress-test"` 추가
+- root `package.json` — workspace forwarding script 추가
+
+### 검증
+
+- `pnpm --filter @hesya/web type-check` ✅ 0 errors
+- `pnpm --filter @hesya/web lint` ✅
+- `pnpm --filter @hesya/web test --run` ✅ 661 passed / 103 skipped (regression 0건)
+- `pnpm seed:stress-test` 실 실행 ✅ (DB 시드 console 출력 매칭)
+
+### Known Issue 발견 + 즉시 해결
+
+**증상**: 초기 시드 실행 시 dispute `category=system` PostgreSQL check constraint 23514 위반.
+**원인**: `disputes_category_check` enum은 `no_show / refund / complaint` 3종만 허용. `system` 카테고리 없음.
+**해결**: `system` → `no_show`로 교체. 동시에 docs도 동기화.
+**규칙**: 새 시드 작성 시 enum 값은 DB schema의 check constraint를 먼저 확인.
+
+### 변경 파일
+
+- `apps/web/scripts/seed-stress-test.ts` 신규 (+~370)
+- `apps/web/src/lib/booking/actions.ts` (+7)
+- `apps/web/package.json` (+1)
+- `package.json` (root, +1)
+- `docs/stress-test-guide.md` 신규 (+~100)
+- `PROGRESS.md` 세션 9 섹션
+
+## 직전 세션 8 (2026-05-11) — Phase 1-ζ Prep (베타 매칭 docs 준비)
 
 ### Scope (docs only — 코드 변경 없음)
 
@@ -567,11 +634,11 @@ demo.hesya.com Phase 2 도입 + 베타 1~2곳 onboarding.
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-11 (세션 8)
-- 세션 8 작업 시간: ~1.5h (인벤토리 + demo-guide 갱신 + beta-onboarding-checklist 신규 + PROGRESS 갱신) — docs only, 코드 변경 없음
-- 세션 8 누적 머지: 0 PR (main 직접 docs, 메모리 정책)
-- 세션 8 누적 변경: 3 docs files (demo-guide + beta-onboarding + PROGRESS)
-- **P0 평균 변동 없음 (61%)** — 베타 onboarding 자료 사전 작성 완료. 사업자 등록 후 ζ.7 즉시 실행 가능 상태.
+- 날짜: 2026-05-11 (세션 9)
+- 세션 9 작업 시간: ~2h (인벤토리 + seed-stress-test 작성 + 시드 실 실행 검증 + Sentry tag + docs + PROGRESS)
+- 세션 9 PR: feat/stress-test-zeta-4 (코드 변경, branch+PR 정책 적용)
+- 세션 9 누적 변경: seed-stress-test 신규 + booking actions Sentry tag + stress-test-guide 신규 + package.json forwarding
+- **P0 평균 변동 없음 (61%)** — ζ.4 stress test 인프라 추가 (베타 출시 직전 stability watch + ζ.8 재실행 도구 확보)
 
 ## 컨텍스트 관리 강화 — 누적 (L-082 → L-091)
 

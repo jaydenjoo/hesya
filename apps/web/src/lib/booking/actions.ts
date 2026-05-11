@@ -13,6 +13,7 @@
  */
 
 import { createDbClient } from "@hesya/database";
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
 import { env } from "@/shared/config/env";
@@ -67,6 +68,9 @@ export async function updateBookingStatusAction(input: {
     if (err instanceof ForbiddenError) {
       return { ok: false, error: "forbidden", message: err.message };
     }
+    Sentry.captureException(err, {
+      tags: { route: "action:booking-update", phase: "auth" },
+    });
     throw err;
   }
 
@@ -79,6 +83,9 @@ export async function updateBookingStatusAction(input: {
     if (err instanceof RateLimitError) {
       return { ok: false, error: "rate_limited", message: err.message };
     }
+    Sentry.captureException(err, {
+      tags: { route: "action:booking-update", phase: "rate-limit" },
+    });
     throw err;
   }
 
