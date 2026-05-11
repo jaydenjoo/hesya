@@ -320,7 +320,7 @@
     "langTabVi": "Tiếng Việt",
     "editorNameLabel": "Service name",
     "editorAiSuggestLabel": "AI translation",
-    "editorAiSuggestNote": "Auto-translation is coming soon. Please enter manually for now.",
+    "editorAiSuggestNote": "Enter the Korean name first — AI will translate automatically.",
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "Safety self-disclosure",
     "editorComplianceBody": "This service is provided within Korea's licensed beauty/personal-care scope. Medical procedures (filler, botox, etc.) cannot be registered.",

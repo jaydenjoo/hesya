@@ -10,7 +10,9 @@
  * 본 PR은 UI shell + 데이터 흐름만.
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
+
+import { suggestServiceTranslationAction } from "@/lib/store-services/ai-translate";
 
 export type EditorMode = "create" | "edit";
 
@@ -74,11 +76,15 @@ interface Props {
   readonly labels: EditorPanelLabels;
 }
 
+type LangKey = keyof Pick<
+  EditorFormValue,
+  "nameKo" | "nameEn" | "nameJa" | "nameZhCn" | "nameZhTw" | "nameVi"
+>;
+
+type TargetLang = "en" | "ja" | "zh-CN" | "zh-TW" | "vi";
+
 const LANG_TABS: ReadonlyArray<{
-  readonly key: keyof Pick<
-    EditorFormValue,
-    "nameKo" | "nameEn" | "nameJa" | "nameZhCn" | "nameZhTw" | "nameVi"
-  >;
+  readonly key: LangKey;
   readonly flag: string;
   readonly labelKey: keyof Pick<
     EditorPanelLabels,
@@ -90,13 +96,50 @@ const LANG_TABS: ReadonlyArray<{
     | "langTabVi"
   >;
   readonly required: boolean;
+  readonly targetLang: TargetLang | null;
 }> = [
-  { key: "nameKo", flag: "🇰🇷", labelKey: "langTabKo", required: true },
-  { key: "nameEn", flag: "🇺🇸", labelKey: "langTabEn", required: false },
-  { key: "nameJa", flag: "🇯🇵", labelKey: "langTabJa", required: false },
-  { key: "nameZhCn", flag: "🇨🇳", labelKey: "langTabZhCn", required: false },
-  { key: "nameZhTw", flag: "🇹🇼", labelKey: "langTabZhTw", required: false },
-  { key: "nameVi", flag: "🇻🇳", labelKey: "langTabVi", required: false },
+  {
+    key: "nameKo",
+    flag: "🇰🇷",
+    labelKey: "langTabKo",
+    required: true,
+    targetLang: null,
+  },
+  {
+    key: "nameEn",
+    flag: "🇺🇸",
+    labelKey: "langTabEn",
+    required: false,
+    targetLang: "en",
+  },
+  {
+    key: "nameJa",
+    flag: "🇯🇵",
+    labelKey: "langTabJa",
+    required: false,
+    targetLang: "ja",
+  },
+  {
+    key: "nameZhCn",
+    flag: "🇨🇳",
+    labelKey: "langTabZhCn",
+    required: false,
+    targetLang: "zh-CN",
+  },
+  {
+    key: "nameZhTw",
+    flag: "🇹🇼",
+    labelKey: "langTabZhTw",
+    required: false,
+    targetLang: "zh-TW",
+  },
+  {
+    key: "nameVi",
+    flag: "🇻🇳",
+    labelKey: "langTabVi",
+    required: false,
+    targetLang: "vi",
+  },
 ];
 
 export function EditorPanel({
@@ -112,8 +155,32 @@ export function EditorPanel({
 }: Props) {
   const [activeLang, setActiveLang] =
     useState<(typeof LANG_TABS)[number]["key"]>("nameKo");
+  const [aiPending, startAiTransition] = useTransition();
+  const [aiError, setAiError] = useState<string | null>(null);
 
   const close = useCallback(() => onClose(), [onClose]);
+
+  const activeTab = LANG_TABS.find((t) => t.key === activeLang) ?? LANG_TABS[0];
+  const canSuggest =
+    activeTab.targetLang !== null && value.nameKo.trim().length > 0;
+
+  const handleAiSuggest = () => {
+    if (!activeTab.targetLang || !value.nameKo.trim()) return;
+    setAiError(null);
+    const targetLang = activeTab.targetLang;
+    const langKey = activeTab.key;
+    startAiTransition(async () => {
+      const result = await suggestServiceTranslationAction({
+        nameKo: value.nameKo,
+        targetLang,
+      });
+      if (!result.ok) {
+        setAiError(result.message);
+        return;
+      }
+      onChange({ ...value, [langKey]: result.translation });
+    });
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -235,16 +302,28 @@ export function EditorPanel({
             <div className="mt-2">
               <button
                 type="button"
-                disabled
-                className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-full border border-hesya-peach-200 bg-hesya-peach-50/40 px-3 py-1 text-[11px] font-semibold text-hesya-navy-900/55"
-                title={labels.aiSuggestNote}
+                onClick={handleAiSuggest}
+                disabled={!canSuggest || aiPending}
+                className={[
+                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold transition",
+                  canSuggest && !aiPending
+                    ? "border-hesya-amber-500/40 bg-hesya-amber-50 text-hesya-navy-900 hover:border-hesya-amber-500 hover:bg-hesya-amber-100"
+                    : "cursor-not-allowed border-hesya-peach-200 bg-hesya-peach-50/40 text-hesya-navy-900/55",
+                ].join(" ")}
+                title={!value.nameKo.trim() ? labels.aiSuggestNote : undefined}
               >
-                <span aria-hidden="true">✦</span>
+                <span aria-hidden="true">{aiPending ? "…" : "✦"}</span>
                 {labels.aiSuggestLabel}
               </button>
-              <p className="mt-1 text-[10px] text-hesya-navy-900/50">
-                {labels.aiSuggestNote}
-              </p>
+              {aiError ? (
+                <p role="alert" className="mt-1 text-[10px] text-red-700">
+                  {aiError}
+                </p>
+              ) : !value.nameKo.trim() ? (
+                <p className="mt-1 text-[10px] text-hesya-navy-900/50">
+                  {labels.aiSuggestNote}
+                </p>
+              ) : null}
             </div>
           ) : null}
 

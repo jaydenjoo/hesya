@@ -320,7 +320,7 @@
     "langTabVi": "Tiếng Việt",
     "editorNameLabel": "服務名稱",
     "editorAiSuggestLabel": "AI 翻譯建議",
-    "editorAiSuggestNote": "自動翻譯即將推出。請先手動輸入。",
+    "editorAiSuggestNote": "先輸入韓文名稱,AI 會自動翻譯。",
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "安全自我申報",
     "editorComplianceBody": "本服務在韓國合法美容業/自由業範圍內提供。不可登記醫療行為(填充、肉毒等)。",

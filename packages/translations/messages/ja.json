@@ -320,7 +320,7 @@
     "langTabVi": "Tiếng Việt",
     "editorNameLabel": "メニュー名",
     "editorAiSuggestLabel": "AI翻訳提案",
-    "editorAiSuggestNote": "AI自動翻訳は近日提供予定です。今は手動で入力してください。",
+    "editorAiSuggestNote": "韓国語の名前を先に入力すると、AIが自動翻訳します。",
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "安全自己申告",
     "editorComplianceBody": "本メニューは韓国の美容業・自由業の範囲内で提供されます。医療行為(フィラー・ボトックス等)は登録できません。",

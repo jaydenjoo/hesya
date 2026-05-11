@@ -320,7 +320,7 @@
     "langTabVi": "Tiếng Việt",
     "editorNameLabel": "시술 이름",
     "editorAiSuggestLabel": "AI 번역 제안",
-    "editorAiSuggestNote": "AI 자동 번역은 곧 제공됩니다. 지금은 직접 입력해주세요.",
+    "editorAiSuggestNote": "한국어 이름을 먼저 입력하면 AI가 자동으로 번역해줍니다.",
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "안전 자기신고",
     "editorComplianceBody": "본 시술은 한국 미용업/자유업 범위 내에서 제공됩니다. 의료 행위(필러·보톡스 등)는 등록할 수 없습니다.",
