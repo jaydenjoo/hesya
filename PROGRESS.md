@@ -3,16 +3,17 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-11 세션 12 진행 중)
+## 현재 위치 (2026-05-11 세션 13 진행 중)
 
-- **Phase**: **Plan v3 Mock-first M1 5/5 + M2.1~M2.4 머지** (M1 100% + M2 4/7) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 70%)
-- **세션 10~12 머지**:
+- **Phase**: **Plan v3 Mock-first M1 5/5 + M2.1~M2.5 머지** (M1 100% + M2 5/7) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 75% + E2 결제 30%)
+- **세션 10~13 머지**:
   - **M2.1** `/c/store/[id]` public 매장 detail (`603272b`)
-  - **M2.2** `/c/store/[id]/photos` 사진 gallery (`ca3903d`) — `staff.portfolioUrls` 재사용 + 15장 placeholder
-  - **M2.3** `/c/store/[id]/book/schedule` 예약 일정 선택 (`87a07d1`) — 4-step UI + time-slots util + 3 unit tests
-  - **M2.4** `/c/store/[id]/book/confirm` 예약 확정 폼 (`3d1e065`) — 손님 정보 폼 (이름/이메일/메시지) + storeId match 검증 + `/pay` stub. `BookConfirm` 6 locale
-  - 검증: type-check ✅ / lint ✅ / test 680 passed / build ✅ (5 customer routes 등록)
-  - 자기평가 (L-082): **부분 흐름 e2e 가능** (매장 #1 → detail → photos → schedule → confirm 폼 작성 → /pay stub) — 60~75% 범위. Mock 결제 + booking insert는 M2.5/M2.6
+  - **M2.2** `/c/store/[id]/photos` 사진 gallery (`ca3903d`)
+  - **M2.3** `/c/store/[id]/book/schedule` 예약 일정 선택 (`87a07d1`) — 4-step UI + time-slots util
+  - **M2.4** `/c/store/[id]/book/confirm` 예약 확정 폼 (`3d1e065`) — 손님 정보 폼 + storeId match 검증
+  - **M2.5** Mock 결제 UI (`c1f4e72`) — `MOCK_PAYMENT` env 분기 + 3-tab toggle (Stripe/Alipay/WeChat) + 가짜 카드/QR + `pay/success` stub. `MockPayment` 6 locale
+  - 검증: type-check ✅ / lint ✅ / test 680 passed / build ✅ (6 customer routes 등록)
+  - 자기평가 (L-082): **거의 완전한 흐름 e2e** (매장 → 상세 → 사진 → 예약 4-step → 확정 폼 → Mock 결제 → success stub) — 70~85% 범위. 잔여: 실 DB insert (M2.6), 다국어 가격 환산 (M2.7)
 - **시나리오**: B (풀 P0 베타 — PRD 원안) 위에 **v3 Mock-first 5 phase 추가** (`docs/Plan-v3-mock-first.md`)
 - **베타 5곳 출시 가능 시점**: Plan v3 M2~M5 완료(4~6주) + Jayden 사업자 등록 + ζ.7~ζ.8 (2주) = **약 6~8주**
 - **세션 9 머지** (10건):
@@ -213,27 +214,29 @@ CI 비활성화 (main 직접 push):
 - `pnpm --filter @hesya/web test --run` ✅ 676 passed / 103 skipped (M1.2 +5 mock-nts + M1.2 +6 mock-localdata + M1.3 +4 connect-instagram-mock)
 - `pnpm --filter @hesya/web build` ✅ Compiled successfully
 
-### 다음 세션 가이드 — Plan v3 M2 진행 (4/7 완료, 3 남음)
+### 다음 세션 가이드 — Plan v3 M2 진행 (5/7 완료, 2 남음)
 
-| Milestone                                 | 우선순위 | 예상 | 비고                                                                               |
-| ----------------------------------------- | -------- | ---- | ---------------------------------------------------------------------------------- |
-| **M2.1 `/c/store/[id]/page`** ✅          | 완료     | -    | 세션 10 머지 (`603272b`)                                                           |
-| **M2.2 `/c/store/[id]/photos`** ✅        | 완료     | -    | 세션 11 머지 (`ca3903d`). `staff.portfolioUrls` 재사용                             |
-| **M2.3 `/c/store/[id]/book/schedule`** ✅ | 완료     | -    | 세션 11 머지 (`87a07d1`). 4-step 선택 + time-slots util + confirm stub             |
-| **M2.4 `/c/store/[id]/book/confirm`** ✅  | 완료     | -    | 세션 12 머지 (`3d1e065`). 손님 정보 폼 + storeId match 검증                        |
-| **M2.5 `MOCK_PAYMENT=true` Mock UI**      | 🥇 1순위 | 2일  | 가짜 Stripe/Alipay/WeChat 결제 페이지 (즉시 succeeded) + `MOCK_PAYMENT` env 분기   |
-| **M2.6 createBookingAction**              | 2순위    | 1일  | customer-side 예약 생성 atomic + conflict 체크 + customers upsert + 가짜 IG 메시지 |
-| **M2.7 다국어 + 시술 라벨 보강**          | 3순위    | 1일  | 가격 다국어 환산 + bookingCustomer namespace 다국어 검수                           |
+| Milestone                                 | 우선순위 | 예상 | 비고                                                                                 |
+| ----------------------------------------- | -------- | ---- | ------------------------------------------------------------------------------------ |
+| **M2.1 `/c/store/[id]/page`** ✅          | 완료     | -    | `603272b`                                                                            |
+| **M2.2 `/c/store/[id]/photos`** ✅        | 완료     | -    | `ca3903d`                                                                            |
+| **M2.3 `/c/store/[id]/book/schedule`** ✅ | 완료     | -    | `87a07d1`                                                                            |
+| **M2.4 `/c/store/[id]/book/confirm`** ✅  | 완료     | -    | `3d1e065`                                                                            |
+| **M2.5 Mock 결제 UI** ✅                  | 완료     | -    | 세션 13 머지 (`c1f4e72`). 3-tab + 가짜 카드/QR + pay/success stub                    |
+| **M2.6 createBookingAction**              | 🥇 1순위 | 1일  | customer-side 예약 생성 atomic + customers upsert + payments insert + 가짜 IG 메시지 |
+| **M2.7 다국어 + 시술 라벨 보강**          | 2순위    | 1일  | 가격 다국어 환산 + bookingCustomer namespace 다국어 검수                             |
 
-총 M2 phase 잔여 ~4일 (0.8주). 머지 방식: main 직접 push.
+총 M2 phase 잔여 ~2일 (0.4주). 머지 방식: main 직접 push.
 
-**M2.5 사전 인벤토리** (다음 세션 시작 시 의무):
+**M2.6 사전 인벤토리** (다음 세션 시작 시 의무):
 
-- `/c/store/[id]/pay/page.tsx` stub (세션 12) 정식 페이지로 교체
-- `MOCK_PAYMENT` env flag 분기 (M1.1 도입됨)
-- `payments` 테이블 schema 존재 여부 (`packages/database/src/schema/`)
-- Mock 결제 패턴: 결제 방식 토글 (Stripe/Alipay/WeChat) → 가짜 카드/QR placeholder → "결제 완료" → booking confirm로 redirect
-- 결제 → booking insert atomic transaction (M2.6에서 통합)
+- `payments` DAL insert 함수 없음 — 신규 `createBookingWithPayment(db, input)` atomic transaction 패턴 필요 (drizzle tx)
+- `customers.upsertCustomer` 시그니처: `channel + externalId` (M2.4에서 channel="web", externalId=email로 활용 가능?)
+  - 또는 새 channel 값 정의 필요 (예: "booking_form")
+- `bookings.status="scheduled"` 시 row insert + `payments.status="succeeded"` row insert + customers row 생성을 단일 transaction
+- IG 메시지 시뮬: 매장이 IG 연결되어 있다면 `messages` 테이블에 가짜 "예약 알림" message 1건 inbound row 추가 → 사장 inbox에 즉시 표시
+- L-092 (resetDb 3 위치) — 새 테이블 0건이라 영향 X
+- 본 server action은 보안 🔴: rate limit + 입력 zod 검증 + storeId match 의무
 
 ## 직전 세션 8 (2026-05-11) — Phase 1-ζ Prep (베타 매칭 docs 준비)
 
