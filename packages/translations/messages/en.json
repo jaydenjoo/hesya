@@ -215,5 +215,22 @@
     "datetime": "When",
     "savedNote": "Once the store reviews, you will receive a message in your inbox.",
     "backToStore": "Back to store"
+  },
+  "StoreServices": {
+    "title": "Services",
+    "subtitle": "Manage services offered by your store",
+    "addButton": "+ Add service",
+    "cancelButton": "Cancel",
+    "saveButton": "Save",
+    "editButton": "Edit",
+    "deleteButton": "Delete",
+    "nameKoLabel": "Name (Korean)",
+    "nameEnLabel": "Name (English)",
+    "nameJaLabel": "Name (Japanese)",
+    "priceKrwLabel": "Price (KRW)",
+    "durationLabel": "Duration (min)",
+    "categoryLabel": "Category",
+    "emptyText": "No services registered yet. Add your first service.",
+    "deleteConfirm": "Delete this service?"
   }
 }

@@ -215,5 +215,22 @@
     "datetime": "時間",
     "savedNote": "門市確認後，您會在收件匣收到訊息。",
     "backToStore": "返回門市"
+  },
+  "StoreServices": {
+    "title": "服務管理",
+    "subtitle": "管理門市提供的服務",
+    "addButton": "+ 新增服務",
+    "cancelButton": "取消",
+    "saveButton": "儲存",
+    "editButton": "編輯",
+    "deleteButton": "刪除",
+    "nameKoLabel": "名稱 (韓文)",
+    "nameEnLabel": "名稱 (English)",
+    "nameJaLabel": "名稱 (日本語)",
+    "priceKrwLabel": "價格 (₩)",
+    "durationLabel": "時長 (分鐘)",
+    "categoryLabel": "類別",
+    "emptyText": "尚未註冊任何服務。請新增第一項服務。",
+    "deleteConfirm": "確定刪除此服務?"
   }
 }

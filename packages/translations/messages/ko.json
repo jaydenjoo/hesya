@@ -215,5 +215,22 @@
     "datetime": "일시",
     "savedNote": "매장 사장이 예약을 확인하면 인박스에서 메시지가 도착합니다.",
     "backToStore": "매장으로 돌아가기"
+  },
+  "StoreServices": {
+    "title": "시술 관리",
+    "subtitle": "매장에서 제공하는 시술을 등록하고 관리하세요",
+    "addButton": "+ 시술 추가",
+    "cancelButton": "취소",
+    "saveButton": "저장",
+    "editButton": "수정",
+    "deleteButton": "삭제",
+    "nameKoLabel": "이름 (한국어)",
+    "nameEnLabel": "이름 (English)",
+    "nameJaLabel": "이름 (日本語)",
+    "priceKrwLabel": "가격 (₩)",
+    "durationLabel": "소요시간 (분)",
+    "categoryLabel": "카테고리",
+    "emptyText": "아직 등록된 시술이 없습니다. 첫 시술을 추가해보세요.",
+    "deleteConfirm": "정말 삭제하시겠습니까?"
   }
 }

@@ -215,5 +215,22 @@
     "datetime": "Khi nào",
     "savedNote": "Sau khi cửa hàng xác nhận, bạn sẽ nhận được tin nhắn.",
     "backToStore": "Quay lại cửa hàng"
+  },
+  "StoreServices": {
+    "title": "Quản lý dịch vụ",
+    "subtitle": "Quản lý các dịch vụ của cửa hàng",
+    "addButton": "+ Thêm dịch vụ",
+    "cancelButton": "Hủy",
+    "saveButton": "Lưu",
+    "editButton": "Sửa",
+    "deleteButton": "Xóa",
+    "nameKoLabel": "Tên (Tiếng Hàn)",
+    "nameEnLabel": "Tên (English)",
+    "nameJaLabel": "Tên (日本語)",
+    "priceKrwLabel": "Giá (KRW)",
+    "durationLabel": "Thời gian (phút)",
+    "categoryLabel": "Danh mục",
+    "emptyText": "Chưa có dịch vụ nào. Thêm dịch vụ đầu tiên.",
+    "deleteConfirm": "Xóa dịch vụ này?"
   }
 }

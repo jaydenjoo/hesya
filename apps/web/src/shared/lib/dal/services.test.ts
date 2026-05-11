@@ -2,7 +2,16 @@ import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createDbClient, services, type DbClient } from "@hesya/database";
 
 import { resetDb, seedStore } from "@/test-helpers/db";
+import * as dalServices from "./services";
 import { listServicesByIds, listServicesByStore } from "./services";
+
+describe("dal.services (pure)", () => {
+  it("module exports M3.1 CRUD functions", () => {
+    expect(typeof dalServices.createService).toBe("function");
+    expect(typeof dalServices.updateService).toBe("function");
+    expect(typeof dalServices.deleteService).toBe("function");
+  });
+});
 
 const url = process.env.HESYA_TEST_DATABASE_URL;
 const hasDb = Boolean(url);

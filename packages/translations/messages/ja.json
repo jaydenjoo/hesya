@@ -215,5 +215,22 @@
     "datetime": "日時",
     "savedNote": "お店の確認後、メッセージが届きます。",
     "backToStore": "お店に戻る"
+  },
+  "StoreServices": {
+    "title": "メニュー管理",
+    "subtitle": "お店で提供するメニューを登録・管理します",
+    "addButton": "+ メニュー追加",
+    "cancelButton": "キャンセル",
+    "saveButton": "保存",
+    "editButton": "編集",
+    "deleteButton": "削除",
+    "nameKoLabel": "名前 (韓国語)",
+    "nameEnLabel": "名前 (English)",
+    "nameJaLabel": "名前 (日本語)",
+    "priceKrwLabel": "料金 (₩)",
+    "durationLabel": "所要時間 (分)",
+    "categoryLabel": "カテゴリ",
+    "emptyText": "まだメニューがありません。最初のメニューを追加してください。",
+    "deleteConfirm": "本当に削除しますか?"
   }
 }
