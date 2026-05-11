@@ -3261,7 +3261,7 @@ L-087에 다음 추가:
 - N8N_WEBHOOK_SECRET: invalid_type / "expected string, received undefined"
 ```
 
-Jayden은 .env.local에 두 값 모두 정상 등록 확인 (`sk-ant-api03...` 108자, N8N_WEBHOOK_SECRET 44자). PROGRESS.md "알려진 환경 이슈" 섹션에 _"`ANTHROPIC_API_KEY` `sk-ant-` prefix 형식 점검 필요 (Jayden 환경)"_ 으로 적혀 있어 처음에는 .env.local 형식 문제로 오진단.
+Jayden은 .env.local에 두 값 모두 정상 등록 확인 (`sk-ant-api03...` 108자, N8N*WEBHOOK_SECRET 44자). PROGRESS.md "알려진 환경 이슈" 섹션에 *"`ANTHROPIC_API_KEY` `sk-ant-` prefix 형식 점검 필요 (Jayden 환경)"\_ 으로 적혀 있어 처음에는 .env.local 형식 문제로 오진단.
 
 **원인**:
 
@@ -3306,3 +3306,66 @@ PROGRESS.md "알려진 환경 이슈" 항목 정정 — Jayden .env.local 탓이
 **비유**: 카페 와이파이 — 가게 라우터(`.env.local`)는 정상 비밀번호 갖고 있는데, 손님 노트북에 "이전 와이파이" 캐시(`process.env` 빈 값)가 있어 라우터 비밀번호를 무시하고 캐시로 시도 → 인증 실패. 캐시 비우면(unset) 라우터 비밀번호로 정상 연결. Claude Code shell이 그 캐시를 만든다.
 
 **연관**: L-082 (PROGRESS 자기평가 e2e 시연 기준 — 본 L-091은 시연 prerequisite 검증 단계의 함정), L-087 (env 도입 6/7-layer — 본 L-091은 그 등록 값과 process.env 충돌 별 함정), Jayden 메모리 "토큰 rotation 정책" + ".env.local 손대지 말 것", PROGRESS.md "알려진 환경 이슈" 섹션 정정 trigger, 본 세션 γ.2.3.1 시각 검증 prerequisite.
+
+### [2026-05-11] L-092 — resetDb 류 helper가 production code + 단위 테스트 assertion에 동시에 정의되어 있을 때, 한 곳만 갱신하면 CI 두 단계 (e2e-integration + validate) 모두 깨진다.
+
+**상황**: PR #111 Epic 3 예약 시스템에서 새 테이블 `services` + `staff`를 도입. 두 테이블은 `stores`를 참조 (`services.store_id → stores.id`). resetDb 시 `stores` 삭제 전 `services`/`staff` 먼저 삭제하지 않으면 FK 위반 (`23503`).
+
+**증상 1차 (commit f2fb349)**:
+
+CI e2e-integration job 실패. 17개 integration test 중 5개 fail. 공통 에러:
+
+```
+PostgresError: update or delete on table "stores" violates foreign key constraint
+"services_store_id_stores_id_fk" on table "services"
+
+at resetDb src/test-helpers/db.ts:46
+delete from "stores"  <-- 여기
+```
+
+**1차 진단**: resetDb가 services/staff를 안 지움. 처음에 `apps/web/e2e/fixtures/db.ts`의 resetDb만 services/staff delete 추가 (a6f16af). 로컬 vitest 단위 테스트는 통과 (HESYA_TEST_DATABASE_URL 없어 integration skip).
+
+**증상 2차 (commit a6f16af)**:
+
+CI e2e-integration + validate **둘 다** 실패. 같은 단위 테스트 `resetDb deletes tables in FK-safe order (자식 → 부모)` (`src/test-helpers/db.test.ts:211`)가 assertion mismatch:
+
+```
+expected [ messages, conversations, …(11) ] to deeply equal
+        [ messages, conversations, …(9) ]
+```
+
+**2차 진단**: 두 가지 문제 동시 발생:
+
+1. **resetDb가 3 군데에 있음** — 처음에 1개만 갱신:
+   - ✅ `apps/web/e2e/fixtures/db.ts` (Playwright E2E용)
+   - ❌ `apps/web/src/test-helpers/db.ts` (vitest integration용) — 누락
+   - ❌ `apps/web/src/test-helpers/db.test.ts` (resetDb 호출 순서 검증 단위 테스트) — assertion에서도 누락
+2. **integration용 resetDb는 production code인 동시에 unit test의 검증 대상** — production 갱신 시 unit test assertion도 함께 갱신해야 함. 로컬에서 services/staff integration test만 돌리면 통과하지만 (db reset이 production helper를 안 쓰니까), unit test `resetDb deletes tables in FK-safe order`가 explicit array assertion으로 실패.
+
+**해결**: 158adef 단일 commit으로 두 위치 동시 갱신:
+
+- `apps/web/src/test-helpers/db.ts` resetDb에 `services` + `staff` delete 추가
+- `apps/web/src/test-helpers/db.test.ts` assertion array에도 동일 위치(`payments`, `bookings` 다음, `customers` 이전)에 services + staff 삽입
+
+**규칙** ⭐:
+
+1. **새 테이블 도입 시 resetDb 다중 위치 grep 의무**:
+   ```bash
+   grep -rn "export async function resetDb" apps/web/
+   grep -rn "delete(\w*)" apps/web/src/test-helpers apps/web/e2e/fixtures
+   ```
+   결과의 **모든 위치** 동시 갱신. 한 곳만 갱신하면 다른 테스트 단계에서 깨짐.
+2. **production helper의 호출 순서 검증 단위 테스트 인지** — `*.test.ts`가 production code의 explicit array를 expect하는 경우, production 변경 시 test assertion도 함께 변경해야 함. grep 시 helper 이름 + `expect.*toEqual` 동반 위치 확인.
+3. **로컬 vitest 통과 ≠ CI 통과** — HESYA_TEST_DATABASE_URL 없이 로컬에서 돌리면 integration test가 skip되어 resetDb 호출 자체가 안 됨. CI는 격리 DB를 띄우니 integration이 실 실행 → 거기서 FK violation 처음 노출. 새 테이블 도입 PR은 CI 통과 후에만 머지 확정.
+4. **Pre-Plan Inventory에 추가할 절차** (글로벌 inventory-protocol.md L-092 후속):
+   - 새 테이블 추가 시 `grep -rn "from \"@hesya/database\"" apps/web/e2e/fixtures apps/web/src/test-helpers` 결과의 모든 import 검토 → 그 import에 새 테이블 추가 필요한지 판단.
+
+**확인 방법**:
+
+- 자동 (후보): `pnpm` script `check:reset-db` — grep으로 resetDb 위치 enumerate + 각 위치의 delete 호출 테이블 셋이 동일한지 diff. CI step으로 추가 가능.
+- 인간 리뷰: 새 테이블 추가 PR diff에 test-helpers + fixtures 모두 변경 있는지 확인.
+- 메타: 향후 3개월 같은 함정 0건이면 영구 패턴 정착.
+
+**비유**: 가족 행사 때 "이번에 새 식기 5세트 사면 식기장 정리도 다 다시 해야 한다" — 식기장(`resetDb` production), 식기 목록표(unit test assertion), 손님용 임시 식기장(e2e fixture) 3 곳. 하나만 정리하면 다른 데서 "식기 안 맞아!" 사고. 한 번에 3곳 동기화 의무.
+
+**연관**: L-078 (Pre-Plan Inventory가 새 테이블 도입 시 인접 helper 영향 검색 누락), L-082 (PROGRESS 자기평가 e2e 시연 기준 — CI 실 실행이 진짜 시연 prerequisite), 글로벌 `inventory-protocol.md` 4단계 (해당 폴더 CLAUDE.md 절차 — 본 L-092 후속 patch 후보), 본 세션 PR #111 a6f16af + 158adef 2 추가 commit.

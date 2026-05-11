@@ -3,29 +3,31 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-11 세션 6 종료 시점)
+## 현재 위치 (2026-05-11 세션 7 종료 시점)
 
-- **Phase**: **Phase 1-ε 진입 — Epic 4 대시보드 인프라 + shell 완료** (γ.1 100% + γ.2 완료 + **ε Epic 4 25%**)
+- **Phase**: **Phase 1-δ Epic 3 owner-side 완료** (γ.1 100% + γ.2 완료 + ε Epic 4 35% + **δ Epic 3 50%**)
 - **시나리오**: B (풀 P0 베타 — PRD 원안)
-- **베타 5곳 출시 가능 시점**: 약 3~5주 (γ.2.3 + ε Epic 4 shell 완료 → δ Epic 2/3 + ζ 베타 매칭)
-- **세션 6 머지**: [#110](https://github.com/jaydenjoo/hesya/pull/110) Epic 4 대시보드 (`3976a55`)
-- **세션 6 시연**:
-  - ε Epic 4: `unset ANTHROPIC_API_KEY && pnpm seed:demo && pnpm dev:demo` + Playwright `/ko/store/dashboard` 데스크탑 4-col + 모바일 1-col 캡처. 활성 KPI 3개 (미응답 0건 / 처리 중 분쟁 1건 / KYC 자동 승인) 실 데이터 반영 + coming-soon 9개 dashed peach placeholder.
-  - L-082 prerequisite: dev-demo + seed:demo로 store-owner 자동 충족 ✅
-- **누적 교훈**: L-001 ~ **L-091** (세션 6 추가 항목 없음 — Scope C 채택 의사결정으로 plan v1 한계 안에서 진행)
+- **베타 5곳 출시 가능 시점**: 약 2~4주 (γ.2.3 + ε shell + δ Epic 3 owner-side 완료 → δ Epic 2 결제 + ζ 베타 매칭)
+- **세션 7 머지**: [#111](https://github.com/jaydenjoo/hesya/pull/111) Epic 3 owner-side bookings + Dashboard KPI wire (`c9704bf`)
+- **세션 7 시연**:
+  - δ Epic 3 owner: `unset ANTHROPIC_API_KEY && pnpm seed:demo && pnpm dev:demo` + Playwright `/ko/store/bookings` 데스크탑 10건 + 모바일 overflow-x 캡처. 5 status pill + status badge tone 4종 + amber 상세 링크 정합성 통과.
+  - δ Epic 3 detail: `/ko/store/bookings/[id]` — 정보 7행 (예약일시/시술/디자이너/금액/예약금/결제방법/상태) + 3 액션 버튼 (완료/노쇼/취소, amber primary + peach borders). terminal 시 hide.
+  - ε Epic 4 wire: dashboard 시술 분포 + 디자이너 분포 KPI active (Recharts donut, hesya 팔레트 6색). 12 KPI 중 5개 active / 7개 coming-soon.
+  - L-082 prerequisite: seed:demo가 services 5종 + staff 3명 + bookings 10건 자동 시드 → store-owner 가드 자동 충족 ✅
+- **누적 교훈**: L-001 ~ **L-092** (세션 7 추가 1건 — resetDb 다중 위치 동기화 누락)
 
-## P0 Epic 객관 완성도 (Epic 4 ε 단계 머지 반영)
+## P0 Epic 객관 완성도 (Epic 3 owner-side + Epic 4 wire 머지 반영)
 
-| Epic                | 직전 % | 본 세션 %         | 갭                                                                                           |
-| ------------------- | ------ | ----------------- | -------------------------------------------------------------------------------------------- |
-| E1 인박스           | 71%    | **71%** (변동 X)  | 디자인 정합성 2/5 단계 (좌측 + Col 2 메인 thread + draft) 시연 통과. WhatsApp/카카오/LINE 0% |
-| **E2 결제 위젯** 🔴 | 17%    | **17%** (변동 X)  | DB 스키마만. Stripe/Alipay/WeChat 코드 0건                                                   |
-| **E3 예약 시스템**  | 17%    | **17%** (변동 X)  | DB 스키마만                                                                                  |
-| **E4 대시보드**     | 8%     | **25%** ↑↑↑       | ε phase 인프라 (Recharts) + UI shell + 실측 3 KPI 활성화 (미응답/분쟁/KYC). 9개 wire 대기    |
-| E9 KYC 🔴           | 93%    | **93%** (변동 X)  | γ.2.3.3 KYC submit/pending Hesya 토큰 정합성 (단위 테스트 갈음). 시연 prerequisite 한계 ⚠️   |
-| **E12 관리자** 🔴   | 100%   | **100%** (변동 X) | E12-1~10 완료 + 통합 E2E + γ.2.3.4 8큐 디자인 정합성 (5종 시그널, 시연 통과)                 |
+| Epic                | 직전 % | 본 세션 %         | 갭                                                                                                                |
+| ------------------- | ------ | ----------------- | ----------------------------------------------------------------------------------------------------------------- |
+| E1 인박스           | 71%    | **71%** (변동 X)  | 디자인 정합성 2/5 단계 (좌측 + Col 2 메인 thread + draft) 시연 통과. WhatsApp/카카오/LINE 0%                      |
+| **E2 결제 위젯** 🔴 | 17%    | **17%** (변동 X)  | DB 스키마만. Stripe/Alipay/WeChat 코드 0건                                                                        |
+| **E3 예약 시스템**  | 17%    | **50%** ↑↑↑       | owner-side CRUD 완료 (list + detail + 3 terminal action). customer-side 셀프 예약·결제는 phase ζ + Epic 2         |
+| **E4 대시보드**     | 25%    | **35%** ↑         | ε shell + 실측 5 KPI active (미응답/분쟁/KYC + **시술 분포** + **디자이너 분포** with donut chart). 7개 wire 대기 |
+| E9 KYC 🔴           | 93%    | **93%** (변동 X)  | γ.2.3.3 KYC submit/pending Hesya 토큰 정합성 (단위 테스트 갈음). 시연 prerequisite 한계 ⚠️                        |
+| **E12 관리자** 🔴   | 100%   | **100%** (변동 X) | E12-1~10 완료 + 통합 E2E + γ.2.3.4 8큐 디자인 정합성 (5종 시그널, 시연 통과)                                      |
 
-**P0 평균: 51% → 54%** (E4 +17). 다음은 δ Epic 2/3 (Stripe + 예약) 또는 ζ 베타 매칭 prep.
+**P0 평균: 54% → 61%** (E3 +33, E4 +10). 다음은 δ Epic 2 (Stripe + Alipay + WeChat 결제) 또는 ζ 베타 매칭 prep.
 
 ### Public surfaces (P0 Epic 외 신규 카테고리, γ.2.3.5)
 
@@ -39,7 +41,108 @@
 > ⚠️ E9 +1은 시각 정합성만 (단위 테스트 className 기반). KYC submit/pending demo 시연은 미인증 user seed 보강 후 가능 — 별 PR 후보.
 > ✅ γ.2.3.4/5 시연 prerequisite는 dev-demo.sh가 E2E_ADMIN_EMAIL inject로 자동 충족 (admin) / public route로 자동 충족 (landing) — 별 PR 불요.
 
-## 본 세션 6 (2026-05-11) — Phase 1-ε (Epic 4 대시보드 인프라)
+## 본 세션 7 (2026-05-11) — Phase 1-δ (Epic 3 예약 owner-side + Dashboard KPI wire)
+
+### 머지된 PR
+
+| #                                                   | Task                                            | 상태                |
+| --------------------------------------------------- | ----------------------------------------------- | ------------------- |
+| [#111](https://github.com/jaydenjoo/hesya/pull/111) | Epic 3 owner-side bookings + Dashboard KPI wire | ✅ 머지 (`c9704bf`) |
+
+### Phase 1-δ — Epic 3 예약 시스템 (Scope B': owner-side CRUD + 디자이너/시술 KPI wire)
+
+**Scope 의사결정**: Plan v1에서 4개 옵션 비교 후 B' 채택.
+
+- ❌ A. Full PRD per spec (customer-side + 결제 + 다국어 페이지) — Epic 2 결제 0건이라 불가
+- ❌ B. owner-side만 (CRUD만, dashboard wire 없음) — 시연 가치 한계
+- ✅ **B'. owner-side CRUD + dashboard 분포 KPI wire** — 같은 데이터셋 2번 활용, "베타 매장이 IG DM 받은 예약 추적" 시연 가능
+- ❌ C. customer-side stub 우선 (결제 mock) — 결제 mock = 베타 출시 위험
+
+### Owner-side 구현
+
+**DAL** (`apps/web/src/shared/lib/dal/`):
+
+- `bookings.ts` — `listBookingsByStore` (filter), `getBooking`, `updateBookingStatus` (storeId match 이중 검증), `countBookingsByService`, `countBookingsByStaff` (월 분포 KPI용)
+- `services.ts` — `listServicesByStore` (nameKo asc), `listServicesByIds`
+- `staff.ts` — `listStaffByStore` (name asc), `listStaffByIds`
+- 단위 + integration tests (5 unit + 9 integration, HESYA_TEST_DATABASE_URL 게이트)
+
+**Server Action** (`apps/web/src/lib/booking/actions.ts`):
+
+- `updateBookingStatusAction` — zod 검증 + `requireStoreOwnerAuth` + `checkRateLimit` (30/60s, 분쟁 20/60s보다 완화) + storeId match (DAL + action 이중)
+
+**Routes**:
+
+- `/[locale]/store/bookings?status=…` — 5 status filter (all / scheduled / completed / no_show / cancelled)
+- `/[locale]/store/bookings/[id]` — 정보 + 3 terminal action (다른 storeId는 notFound로 위장)
+
+**Feature 컴포넌트** (`apps/web/src/features/booking/`):
+
+- `bookings-list.tsx` (server) — γ.2.3.4 5-signal pattern 재사용:
+  1. Filter pill 3-state (`border-gray-200` / hover `border-navy` / active `bg-hesya-navy-900 text-hesya-peach-50`)
+  2. Table row `border-hesya-peach-100` + hover `bg-hesya-peach-50/40`
+  3. Status badge tone 4종 (scheduled peach / completed emerald / no_show red / cancelled gray)
+  4. Detail link `text-hesya-amber-500 hover:underline`
+  5. `buildServiceLabels` locale-aware (ko/en/ja/zh-CN/zh-TW/vi)
+- `booking-detail.tsx` (client) — `useTransition` + 3 terminal action. amber primary + peach borders. terminal 시 액션 hide.
+
+### Dashboard KPI Wire
+
+`/[locale]/store/dashboard`:
+
+- coming-soon → active 2개 (시술 분포 / 디자이너 분포)
+- 신규 컴포넌트 `distribution-pie.tsx` (Recharts donut, hesya 6색 팔레트, h-24, innerRadius 20 / outerRadius 40)
+- `getCurrentMonthRange()` Asia/Seoul 월 범위
+- 12 KPI 현황: **5 active** (미응답 / 분쟁 / KYC / 시술 분포 / 디자이너 분포) + 7 coming-soon (월 매출 / 객단가 / 재방문률 / 노쇼율 / 국적 분포 등)
+
+### i18n Bookings namespace 6 locales
+
+`ko / en / ja / vi / zh-CN / zh-TW`: title / subtitle / filterAll / 4 status filter / 5 columns / 4 status label / empty / detail / 7 fields / 5 actions.
+
+### Demo seed 보강
+
+`apps/web/scripts/seed-beta-demo.ts`:
+
+- 시술 5종 (커트 / 펌 / 염색 / 트리트먼트 / 두피 케어, 다국어 라벨)
+- 디자이너 3명 (A/B/C, 언어 mix)
+- 예약 10건 status mix (scheduled 3 / completed 5 / no_show 1 / cancelled 1) — 분포 KPI 시연용
+
+`apps/web/e2e/fixtures/db.ts` resetDb 확장: services + staff delete 추가 (FK chain `bookings → services → stores`).
+
+### 검증
+
+- `pnpm type-check` ✅ 0 errors
+- `pnpm lint` ✅ 0 errors / 0 warnings
+- `pnpm --filter @hesya/web test` ✅ 661 passed / 103 skipped (integration DB gate)
+- `pnpm --filter @hesya/web build` ✅ Compiled successfully, 새 routes `/store/bookings`·`/store/bookings/[id]` 등록 확인
+- Playwright 4 캡처 (데스크탑 list + detail + dashboard wired KPI / 모바일 list) ✅
+- CI 4단 통과 (Vercel preview / e2e-smoke / e2e-integration / validate) → auto-merge
+
+3 commit (`f2fb349` 본체 + `a6f16af` resetDb FK fix + `158adef` 단위 테스트 동기화).
+
+총 30 files / +1718/-8 / 신규 unit/integration tests 18개.
+
+### L-092 — resetDb 다중 위치 동기화 누락
+
+**증상**: PR #111 CI e2e-integration + validate 둘 다 실패. FK violation `services_store_id_stores_id_fk on table services` + 단위 테스트 `resetDb deletes tables in FK-safe order` assertion mismatch.
+
+**원인**: resetDb가 **3 군데**에 있는데 1개만 갱신:
+
+1. ✅ `apps/web/e2e/fixtures/db.ts` (Playwright E2E용) — 처음에 services + staff 추가함
+2. ❌ `apps/web/src/test-helpers/db.ts` (vitest integration용) — 누락
+3. ❌ `apps/web/src/test-helpers/db.test.ts` (resetDb 호출 순서 단위 테스트) — assertion 누락
+
+**해결**: a6f16af / 158adef 2 PR-내 추가 commit으로 동기화.
+
+**규칙 (L-092)**: "production code의 resetDb 류 helper를 수정할 때, 같은 이름 함수가 **2곳 이상**에 있는지 grep 의무". `grep -rn "export async function resetDb" apps/web/` 결과 모든 위치 확인 → 동시 갱신 + 그 helper를 호출하는 단위 테스트 assertion도 함께 갱신.
+
+**Pre-Plan Inventory에 추가할 절차**: 새 테이블 추가 시 `grep -rn "delete(.*tables)" apps/web/src/test-helpers apps/web/e2e/fixtures` 의무.
+
+### Vercel 배포
+
+- PR #111 `c9704bf` → main 자동 배포 (Vercel deployment 진행)
+
+## 직전 세션 6 (2026-05-11) — Phase 1-ε (Epic 4 대시보드 인프라)
 
 ### 머지된 PR
 
