@@ -26,6 +26,8 @@ import { requireAdminEmail } from "@/shared/lib/admin-guard";
 import { checkRateLimit, RateLimitError } from "@/shared/lib/rate-limit";
 import { env } from "@/shared/config/env";
 import { LocaldataApiError, searchBeautyShops } from "./localdata-client";
+import { mockSearchBeautyShops } from "./mock-localdata-client";
+import { mockValidateBusinessNumber } from "./mock-nts-client";
 import { NtsApiError, validateBusinessNumber } from "./nts-client";
 import { computeMatchScore } from "./match-score";
 import { normalizeBusinessName } from "./normalize-business-name";
@@ -108,7 +110,9 @@ export async function verifyBusinessNumber(
 
   let ntsData;
   try {
-    ntsData = await validateBusinessNumber(parsed.data);
+    ntsData = env.MOCK_KYC
+      ? await mockValidateBusinessNumber(parsed.data)
+      : await validateBusinessNumber(parsed.data);
   } catch (err) {
     return {
       ok: false,
@@ -370,12 +374,15 @@ export async function matchStoreToLocaldata(
 
   let searchResult;
   try {
-    searchResult = await searchBeautyShops({
+    const searchInput = {
       bplcNm: parsed.data.bplcNm,
       roadNmAddr: parsed.data.roadNmAddr,
       pageNo: 1,
       numOfRows: 50,
-    });
+    };
+    searchResult = env.MOCK_KYC
+      ? await mockSearchBeautyShops(searchInput)
+      : await searchBeautyShops(searchInput);
   } catch (err) {
     return {
       ok: false,
