@@ -304,7 +304,11 @@
     "durationLabel": "Duration (min)",
     "categoryLabel": "Category",
     "emptyText": "No services registered yet. Add your first service.",
-    "deleteConfirm": "Delete this service?"
+    "deleteConfirm": "Delete this service?",
+    "allCategoryLabel": "All",
+    "translatedLabel": "translated",
+    "servicesCount": "{n} services",
+    "requiredError": "Korean name and price are required."
   },
   "StoreCustomers": {
     "title": "Customers",

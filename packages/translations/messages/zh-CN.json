@@ -304,7 +304,11 @@
     "durationLabel": "时长 (分钟)",
     "categoryLabel": "类别",
     "emptyText": "尚未注册任何服务。请添加第一项服务。",
-    "deleteConfirm": "确定删除此服务?"
+    "deleteConfirm": "确定删除此服务?",
+    "allCategoryLabel": "全部",
+    "translatedLabel": "翻译率",
+    "servicesCount": "{n} 项服务",
+    "requiredError": "韩文名称与价格为必填项。"
   },
   "StoreCustomers": {
     "title": "客户列表",

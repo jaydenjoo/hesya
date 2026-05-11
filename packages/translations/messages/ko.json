@@ -304,7 +304,11 @@
     "durationLabel": "소요시간 (분)",
     "categoryLabel": "카테고리",
     "emptyText": "아직 등록된 시술이 없습니다. 첫 시술을 추가해보세요.",
-    "deleteConfirm": "정말 삭제하시겠습니까?"
+    "deleteConfirm": "정말 삭제하시겠습니까?",
+    "allCategoryLabel": "전체",
+    "translatedLabel": "번역률",
+    "servicesCount": "{n} 시술",
+    "requiredError": "한글 이름과 가격은 필수입니다."
   },
   "StoreCustomers": {
     "title": "고객 목록",

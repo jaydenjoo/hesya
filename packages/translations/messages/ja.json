@@ -304,7 +304,11 @@
     "durationLabel": "所要時間 (分)",
     "categoryLabel": "カテゴリ",
     "emptyText": "まだメニューがありません。最初のメニューを追加してください。",
-    "deleteConfirm": "本当に削除しますか?"
+    "deleteConfirm": "本当に削除しますか?",
+    "allCategoryLabel": "全て",
+    "translatedLabel": "翻訳率",
+    "servicesCount": "{n} メニュー",
+    "requiredError": "韓国語名と価格は必須です。"
   },
   "StoreCustomers": {
     "title": "お客様一覧",

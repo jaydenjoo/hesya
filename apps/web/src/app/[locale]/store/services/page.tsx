@@ -48,6 +48,9 @@ export default async function StoreServicesPage({
     nameKo: r.nameKo,
     nameEn: r.nameEn,
     nameJa: r.nameJa,
+    nameZhCn: r.nameZhCn,
+    nameZhTw: r.nameZhTw,
+    nameVi: r.nameVi,
     priceKrw: r.priceKrw,
     durationMinutes: r.durationMinutes,
     category: r.category,
@@ -87,6 +90,10 @@ export default async function StoreServicesPage({
             categoryLabel: t("categoryLabel"),
             emptyText: t("emptyText"),
             deleteConfirm: t("deleteConfirm"),
+            allCategoryLabel: t("allCategoryLabel"),
+            translatedLabel: t("translatedLabel"),
+            servicesCount: t("servicesCount"),
+            requiredError: t("requiredError"),
           }}
         />
       </div>

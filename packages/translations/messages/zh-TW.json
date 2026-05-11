@@ -304,7 +304,11 @@
     "durationLabel": "時長 (分鐘)",
     "categoryLabel": "類別",
     "emptyText": "尚未註冊任何服務。請新增第一項服務。",
-    "deleteConfirm": "確定刪除此服務?"
+    "deleteConfirm": "確定刪除此服務?",
+    "allCategoryLabel": "全部",
+    "translatedLabel": "翻譯率",
+    "servicesCount": "{n} 項服務",
+    "requiredError": "韓文名稱與價格為必填。"
   },
   "StoreCustomers": {
     "title": "客戶列表",
