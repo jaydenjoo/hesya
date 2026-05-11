@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { createDbClient, eq } from "@hesya/database";
 import { services as servicesTable } from "@hesya/database";
 
+import { formatPriceForLocale } from "@/features/booking-customer/currency";
 import { MockPaymentForm } from "@/features/booking-customer/mock-payment-form";
 import { Link } from "@/i18n/navigation";
 import { env } from "@/shared/config/env";
@@ -143,7 +144,7 @@ export default async function StoreMockPayPage({
           cardCvcLabel: t("cardCvcLabel"),
           qrScanNote: t("qrScanNote"),
           amountLabel: t("amountLabel"),
-          amountValue: `₩${svcRow.priceKrw.toLocaleString("ko-KR")}`,
+          amountValue: formatPriceForLocale(svcRow.priceKrw, locale),
           submit: t("submit"),
           errorGeneric: "결제 처리 중 오류가 발생했습니다.",
         }}

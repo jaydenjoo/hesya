@@ -30,7 +30,7 @@ export interface ScheduleFormLabels {
   readonly next: string;
   readonly incomplete: string;
   readonly durationMinutes: (minutes: number) => string;
-  readonly priceKrw: (price: string) => string;
+  readonly formatPrice: (priceKrw: number) => string;
   readonly today: string;
   readonly tomorrow: string;
   readonly businessHoursNote: string;
@@ -98,7 +98,7 @@ export function BookScheduleForm({
             >
               <span className="font-medium">{s.label}</span>
               <span className="ml-2 text-xs opacity-70">
-                {labels.priceKrw(s.priceKrw.toLocaleString("ko-KR"))}
+                {labels.formatPrice(s.priceKrw)}
                 {s.durationMinutes &&
                   ` · ${labels.durationMinutes(s.durationMinutes)}`}
               </span>

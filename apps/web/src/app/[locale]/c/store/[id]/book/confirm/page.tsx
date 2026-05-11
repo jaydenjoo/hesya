@@ -5,6 +5,7 @@ import { services as servicesTable } from "@hesya/database";
 import { staff as staffTable } from "@hesya/database";
 
 import { BookConfirmForm } from "@/features/booking-customer/book-confirm-form";
+import { formatPriceForLocale } from "@/features/booking-customer/currency";
 import { combineToIso } from "@/features/booking-customer/time-slots";
 import { Link } from "@/i18n/navigation";
 import { env } from "@/shared/config/env";
@@ -149,10 +150,7 @@ export default async function StoreBookConfirmPage({
           <div className="flex justify-between gap-4">
             <dt className="text-hesya-navy-900/55">{t("service")}</dt>
             <dd className="text-right font-medium text-hesya-navy-900">
-              {serviceLabel} ·{" "}
-              {tStoreDetail("priceKrw", {
-                price: svcRow.priceKrw.toLocaleString("ko-KR"),
-              })}
+              {serviceLabel} · {formatPriceForLocale(svcRow.priceKrw, locale)}
             </dd>
           </div>
           <div className="flex justify-between gap-4">

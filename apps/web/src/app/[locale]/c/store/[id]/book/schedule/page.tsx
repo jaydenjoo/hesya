@@ -7,6 +7,7 @@ import {
   type ScheduleFormService,
   type ScheduleFormStaff,
 } from "@/features/booking-customer/book-schedule-form";
+import { formatPriceForLocale } from "@/features/booking-customer/currency";
 import { Link } from "@/i18n/navigation";
 import { env } from "@/shared/config/env";
 import { listServicesByStore } from "@/shared/lib/dal/services";
@@ -122,7 +123,7 @@ export default async function StoreBookSchedulePage({
           next: t("next"),
           incomplete: t("incomplete"),
           durationMinutes: (m) => t("durationMinutes", { minutes: m }),
-          priceKrw: (p) => tStoreDetail("priceKrw", { price: p }),
+          formatPrice: (priceKrw) => formatPriceForLocale(priceKrw, locale),
           today: t("today"),
           tomorrow: t("tomorrow"),
           businessHoursNote: t("businessHoursNote"),

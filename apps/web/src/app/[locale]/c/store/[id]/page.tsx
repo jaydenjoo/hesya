@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
+import { formatPriceForLocale } from "@/features/booking-customer/currency";
 import { Link } from "@/i18n/navigation";
 import { env } from "@/shared/config/env";
 import { listServicesByStore } from "@/shared/lib/dal/services";
@@ -128,9 +129,7 @@ export default async function StoreDetailPage({
                   )}
                 </div>
                 <p className="text-sm font-semibold text-hesya-amber-600">
-                  {t("priceKrw", {
-                    price: s.priceKrw.toLocaleString("ko-KR"),
-                  })}
+                  {formatPriceForLocale(s.priceKrw, locale)}
                 </p>
               </li>
             ))}

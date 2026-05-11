@@ -100,7 +100,18 @@
 - 페이지에 예약 번호 + 시술 + 디자이너 + 일시 표시 (다국어)
 - 사장 측 `/store/bookings`에서 새 예약 즉시 표시 확인 가능
 
-> 가짜 IG 메시지 자동 발송은 향후 milestone (M4.x — multi-channel Mock + customer row 정식 식별)에서 추가 예정.
+### 5-7. 다국어 가격 환산 (M2.7 ✅)
+
+5 위치에서 가격이 locale에 따라 자동 환산:
+
+- `ko` → KRW (`₩35,000`)
+- `en` → USD (`$25`)
+- `ja` → JPY (`¥3,850`)
+- `vi` → KRW fallback (`₩35,000`)
+- `zh-CN` / `zh-TW` → CNY (`¥186`)
+
+> 환율은 시연용 정적 상수 (`features/booking-customer/currency.ts`). 베타 출시 후 실시간 환율 API 도입 예정. 청구 통화는 항상 KRW.
+> 가짜 IG 메시지 자동 발송은 향후 milestone (M4.x — multi-channel Mock)에서 추가 예정.
 
 ### 6. owner-side 예약 관리 시뮬 (customer-side는 M2 이후 활성화)
 
