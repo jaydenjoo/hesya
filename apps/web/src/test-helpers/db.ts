@@ -7,6 +7,8 @@ import {
   customers,
   messages,
   payments,
+  services,
+  staff,
   storeIntegrations,
   storeKnowledge,
   storeOwners,
@@ -42,6 +44,8 @@ export async function resetDb(db: DbClient): Promise<void> {
   await db.delete(storeVerifications);
   await db.delete(payments);
   await db.delete(bookings);
+  await db.delete(services);
+  await db.delete(staff);
   await db.delete(customers);
   await db.delete(stores);
 }
