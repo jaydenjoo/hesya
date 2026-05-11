@@ -275,6 +275,12 @@
     "daySat": "周六",
     "daySun": "周日"
   },
+  "BookingProgress": {
+    "schedule": "日程",
+    "confirm": "确认",
+    "pay": "付款",
+    "done": "完成"
+  },
   "OwnerShell": {
     "brandPill": "OPERATOR",
     "searchPlaceholder": "搜索...",

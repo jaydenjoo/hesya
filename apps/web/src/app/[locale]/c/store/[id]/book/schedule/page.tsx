@@ -8,6 +8,8 @@ import {
   type ScheduleFormStaff,
 } from "@/features/booking-customer/book-schedule-form";
 import { formatPriceForLocale } from "@/features/booking-customer/currency";
+import { BookingProgressStrip } from "@/features/customer-frame/booking-progress-strip";
+import { CustomerFrame } from "@/features/customer-frame/customer-frame";
 import { Link } from "@/i18n/navigation";
 import { env } from "@/shared/config/env";
 import { listServicesByStore } from "@/shared/lib/dal/services";
@@ -76,6 +78,10 @@ export default async function StoreBookSchedulePage({
     locale,
     namespace: "StoreDetail",
   });
+  const tProgress = await getTranslations({
+    locale,
+    namespace: "BookingProgress",
+  });
 
   const serviceProps: ScheduleFormService[] = services.map((s) => ({
     id: s.id,
@@ -91,44 +97,52 @@ export default async function StoreBookSchedulePage({
   }));
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <header className="mb-10 space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
-          {t("eyebrow")}
-        </p>
-        <h1
-          className="text-3xl font-semibold text-hesya-navy-900"
-          style={{ fontFamily: "'Fraunces', serif", letterSpacing: "-0.02em" }}
-        >
-          {store.name} · {t("heading")}
-        </h1>
-        <Link
-          href={`/c/store/${store.id}`}
-          className="inline-block text-sm text-hesya-amber-600 hover:underline"
-        >
-          {tStoreDetail("title", { name: store.name })}
-        </Link>
-      </header>
-
-      <BookScheduleForm
-        storeId={store.id}
-        locale={locale}
-        services={serviceProps}
-        staffList={staffProps}
+    <CustomerFrame>
+      <BookingProgressStrip
+        current="schedule"
         labels={{
-          step1: t("step1"),
-          step2: t("step2"),
-          step3: t("step3"),
-          step4: t("step4"),
-          next: t("next"),
-          incomplete: t("incomplete"),
-          durationMinutes: (m) => t("durationMinutes", { minutes: m }),
-          formatPrice: (priceKrw) => formatPriceForLocale(priceKrw, locale),
-          today: t("today"),
-          tomorrow: t("tomorrow"),
-          businessHoursNote: t("businessHoursNote"),
+          schedule: tProgress("schedule"),
+          confirm: tProgress("confirm"),
+          pay: tProgress("pay"),
+          done: tProgress("done"),
         }}
       />
-    </main>
+      <div className="px-6 pb-8 pt-4">
+        <header className="mb-8 space-y-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+            {t("eyebrow")}
+          </p>
+          <h1 className="font-heading text-[26px] font-semibold italic leading-tight tracking-[-0.02em] text-hesya-navy-900">
+            {store.name} · {t("heading")}
+          </h1>
+          <Link
+            href={`/c/store/${store.id}`}
+            className="inline-block text-xs text-hesya-amber-600 hover:underline"
+          >
+            ← {tStoreDetail("title", { name: store.name })}
+          </Link>
+        </header>
+
+        <BookScheduleForm
+          storeId={store.id}
+          locale={locale}
+          services={serviceProps}
+          staffList={staffProps}
+          labels={{
+            step1: t("step1"),
+            step2: t("step2"),
+            step3: t("step3"),
+            step4: t("step4"),
+            next: t("next"),
+            incomplete: t("incomplete"),
+            durationMinutes: (m) => t("durationMinutes", { minutes: m }),
+            formatPrice: (priceKrw) => formatPriceForLocale(priceKrw, locale),
+            today: t("today"),
+            tomorrow: t("tomorrow"),
+            businessHoursNote: t("businessHoursNote"),
+          }}
+        />
+      </div>
+    </CustomerFrame>
   );
 }

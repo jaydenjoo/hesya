@@ -275,6 +275,12 @@
     "daySat": "T7",
     "daySun": "CN"
   },
+  "BookingProgress": {
+    "schedule": "Lịch",
+    "confirm": "Xác nhận",
+    "pay": "Thanh toán",
+    "done": "Hoàn tất"
+  },
   "OwnerShell": {
     "brandPill": "OPERATOR",
     "searchPlaceholder": "Tìm kiếm...",

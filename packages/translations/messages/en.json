@@ -275,6 +275,12 @@
     "daySat": "Sat",
     "daySun": "Sun"
   },
+  "BookingProgress": {
+    "schedule": "Schedule",
+    "confirm": "Confirm",
+    "pay": "Pay",
+    "done": "Done"
+  },
   "OwnerShell": {
     "brandPill": "OPERATOR",
     "searchPlaceholder": "Search...",

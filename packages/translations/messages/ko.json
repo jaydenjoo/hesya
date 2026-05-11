@@ -275,6 +275,12 @@
     "daySat": "토",
     "daySun": "일"
   },
+  "BookingProgress": {
+    "schedule": "일정",
+    "confirm": "확인",
+    "pay": "결제",
+    "done": "완료"
+  },
   "OwnerShell": {
     "brandPill": "OPERATOR",
     "searchPlaceholder": "검색...",
