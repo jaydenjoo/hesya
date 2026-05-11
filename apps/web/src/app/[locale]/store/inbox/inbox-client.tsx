@@ -91,7 +91,7 @@ export function InboxClient({
   const customerName = active ? active.customerId.slice(0, 8) : "";
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-[calc(100vh-64px)] flex-col">
       {tokenExpired ? <TokenExpiredBanner /> : null}
       <div
         data-testid="inbox-store-header"
