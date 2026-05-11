@@ -140,6 +140,15 @@
     "bookCta": "Đặt lịch",
     "bookComingSoon": "Thanh toán đang chuẩn bị",
     "notFoundTitle": "Không tìm thấy cửa hàng",
-    "notFoundBody": "Cửa hàng có thể đã đóng cửa hoặc không công khai."
+    "notFoundBody": "Cửa hàng có thể đã đóng cửa hoặc không công khai.",
+    "viewPhotos": "Xem ảnh →"
+  },
+  "StorePhotos": {
+    "eyebrow": "Ảnh",
+    "heading": "Portfolio stylist",
+    "subtitle": "Bộ sưu tập các kiểu đã làm",
+    "by": "— {name}",
+    "empty": "Chưa có ảnh nào.",
+    "backToStore": "← Quay lại cửa hàng"
   }
 }

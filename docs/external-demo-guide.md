@@ -56,10 +56,18 @@
 - `/c/store/<매장 UUID>` 접속 (인증 불필요)
 - 매장명 / 주소 / 시술 5종 (이름·가격·소요시간) / 디자이너 3명 (이름·언어)
 - 6 locale 모두 자동 인식 (`/ko/c/store/...` `/en/c/store/...` `/ja/c/store/...` 등)
+- "사진 갤러리 →" 링크로 M2.2 페이지 진입
 - "예약 진행" CTA 표시 (M2.3 schedule 페이지가 도착할 때까지 비활성)
 
 > 매장 UUID는 시드 실행 출력 로그 또는 Jayden에게 요청. seed-beta-demo 매장 #1은
 > `auto_approved` 상태로 즉시 노출 가능.
+
+### 5-2. 매장 사진 gallery (M2.2 ✅)
+
+- `/c/store/<매장 UUID>/photos` — 디자이너 3명 portfolio 총 15장 placeholder
+- 3-컬럼 grid (모바일 2-컬럼) + hover scale 효과
+- placeholder는 placehold.co (hesya peach/amber/navy 팔레트, 외부 의존 0건)
+- 실 운영에서는 사장이 사장 측 "사진 관리" 페이지(M3.5)에서 사진 업로드
 
 ### 6. owner-side 예약 관리 시뮬 (customer-side는 M2 이후 활성화)
 

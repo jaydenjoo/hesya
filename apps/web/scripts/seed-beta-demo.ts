@@ -261,11 +261,43 @@ async function main(): Promise<void> {
     serviceIds.push(row.id);
   }
 
-  // 3-c. 데모 디자이너 3명
+  // 3-c. 데모 디자이너 3명 — portfolio 5장씩 (M2.2 사진 gallery 시연)
+  // placehold.co 색상 변형 (hesya peach #EAB592 / amber #C97B3A / navy #0F1E3D).
+  // 외부 host 의존 0건 — 색만 변경된 SVG-rendered placeholder.
   const demoStaff = [
-    { name: "데모 디자이너 A", languages: ["ko", "en"] },
-    { name: "데모 디자이너 B", languages: ["ko", "ja"] },
-    { name: "데모 디자이너 C", languages: ["ko"] },
+    {
+      name: "데모 디자이너 A",
+      languages: ["ko", "en"],
+      portfolioUrls: [
+        "https://placehold.co/600x600/EAB592/0F1E3D.png?text=Cut+1",
+        "https://placehold.co/600x600/C97B3A/FFF1E7.png?text=Cut+2",
+        "https://placehold.co/600x600/0F1E3D/EAB592.png?text=Cut+3",
+        "https://placehold.co/600x600/FFF1E7/C97B3A.png?text=Cut+4",
+        "https://placehold.co/600x600/EAB592/C97B3A.png?text=Cut+5",
+      ],
+    },
+    {
+      name: "데모 디자이너 B",
+      languages: ["ko", "ja"],
+      portfolioUrls: [
+        "https://placehold.co/600x600/C97B3A/0F1E3D.png?text=Color+1",
+        "https://placehold.co/600x600/EAB592/FFF1E7.png?text=Color+2",
+        "https://placehold.co/600x600/FFF1E7/0F1E3D.png?text=Color+3",
+        "https://placehold.co/600x600/0F1E3D/FFF1E7.png?text=Color+4",
+        "https://placehold.co/600x600/C97B3A/EAB592.png?text=Color+5",
+      ],
+    },
+    {
+      name: "데모 디자이너 C",
+      languages: ["ko"],
+      portfolioUrls: [
+        "https://placehold.co/600x600/0F1E3D/C97B3A.png?text=Perm+1",
+        "https://placehold.co/600x600/FFF1E7/EAB592.png?text=Perm+2",
+        "https://placehold.co/600x600/EAB592/0F1E3D.png?text=Perm+3",
+        "https://placehold.co/600x600/C97B3A/FFF1E7.png?text=Perm+4",
+        "https://placehold.co/600x600/0F1E3D/EAB592.png?text=Perm+5",
+      ],
+    },
   ];
   const staffIds: string[] = [];
   for (const s of demoStaff) {

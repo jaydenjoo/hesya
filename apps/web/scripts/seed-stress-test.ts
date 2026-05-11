@@ -335,9 +335,39 @@ async function main(): Promise<void> {
   }
 
   const demoStaff = [
-    { name: "stress 디자이너 A", languages: ["ko", "en"] },
-    { name: "stress 디자이너 B", languages: ["ko", "ja"] },
-    { name: "stress 디자이너 C", languages: ["ko"] },
+    {
+      name: "stress 디자이너 A",
+      languages: ["ko", "en"],
+      portfolioUrls: [
+        "https://placehold.co/600x600/EAB592/0F1E3D.png?text=Stress+1",
+        "https://placehold.co/600x600/C97B3A/FFF1E7.png?text=Stress+2",
+        "https://placehold.co/600x600/0F1E3D/EAB592.png?text=Stress+3",
+        "https://placehold.co/600x600/FFF1E7/C97B3A.png?text=Stress+4",
+        "https://placehold.co/600x600/EAB592/C97B3A.png?text=Stress+5",
+      ],
+    },
+    {
+      name: "stress 디자이너 B",
+      languages: ["ko", "ja"],
+      portfolioUrls: [
+        "https://placehold.co/600x600/C97B3A/0F1E3D.png?text=Stress+6",
+        "https://placehold.co/600x600/EAB592/FFF1E7.png?text=Stress+7",
+        "https://placehold.co/600x600/FFF1E7/0F1E3D.png?text=Stress+8",
+        "https://placehold.co/600x600/0F1E3D/FFF1E7.png?text=Stress+9",
+        "https://placehold.co/600x600/C97B3A/EAB592.png?text=Stress+10",
+      ],
+    },
+    {
+      name: "stress 디자이너 C",
+      languages: ["ko"],
+      portfolioUrls: [
+        "https://placehold.co/600x600/0F1E3D/C97B3A.png?text=Stress+11",
+        "https://placehold.co/600x600/FFF1E7/EAB592.png?text=Stress+12",
+        "https://placehold.co/600x600/EAB592/0F1E3D.png?text=Stress+13",
+        "https://placehold.co/600x600/C97B3A/FFF1E7.png?text=Stress+14",
+        "https://placehold.co/600x600/0F1E3D/EAB592.png?text=Stress+15",
+      ],
+    },
   ];
   const staffIds: string[] = [];
   for (const s of demoStaff) {

@@ -140,6 +140,15 @@
     "bookCta": "予約する",
     "bookComingSoon": "決済機能 準備中",
     "notFoundTitle": "お店が見つかりません",
-    "notFoundBody": "閉店または非公開の可能性があります。"
+    "notFoundBody": "閉店または非公開の可能性があります。",
+    "viewPhotos": "写真ギャラリー →"
+  },
+  "StorePhotos": {
+    "eyebrow": "写真",
+    "heading": "スタイリスト ポートフォリオ",
+    "subtitle": "施術ギャラリー",
+    "by": "— {name}",
+    "empty": "まだ写真がありません。",
+    "backToStore": "← お店に戻る"
   }
 }

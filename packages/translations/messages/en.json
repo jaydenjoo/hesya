@@ -140,6 +140,15 @@
     "bookCta": "Book now",
     "bookComingSoon": "Payment flow coming soon",
     "notFoundTitle": "Store not found",
-    "notFoundBody": "The store may have closed or be unlisted."
+    "notFoundBody": "The store may have closed or be unlisted.",
+    "viewPhotos": "View photos →"
+  },
+  "StorePhotos": {
+    "eyebrow": "Photos",
+    "heading": "Stylist portfolio",
+    "subtitle": "Gallery of completed services",
+    "by": "— {name}",
+    "empty": "No photos uploaded yet.",
+    "backToStore": "← Back to store"
   }
 }

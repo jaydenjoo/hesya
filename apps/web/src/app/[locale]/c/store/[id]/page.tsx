@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
+import { Link } from "@/i18n/navigation";
 import { env } from "@/shared/config/env";
 import { listServicesByStore } from "@/shared/lib/dal/services";
 import { listStaffByStore } from "@/shared/lib/dal/staff";
@@ -95,6 +96,12 @@ export default async function StoreDetailPage({
             {address}
           </p>
         )}
+        <Link
+          href={`/c/store/${store.id}/photos`}
+          className="inline-block text-sm text-hesya-amber-600 hover:underline"
+        >
+          {t("viewPhotos")}
+        </Link>
       </header>
 
       <section className="mb-12">

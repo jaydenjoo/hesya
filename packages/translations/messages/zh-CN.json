@@ -140,6 +140,15 @@
     "bookCta": "立即预约",
     "bookComingSoon": "支付功能即将上线",
     "notFoundTitle": "未找到门店",
-    "notFoundBody": "门店可能已关闭或未公开。"
+    "notFoundBody": "门店可能已关闭或未公开。",
+    "viewPhotos": "查看照片 →"
+  },
+  "StorePhotos": {
+    "eyebrow": "照片",
+    "heading": "设计师作品集",
+    "subtitle": "完成作品画廊",
+    "by": "— {name}",
+    "empty": "尚未上传照片。",
+    "backToStore": "← 返回门店"
   }
 }
