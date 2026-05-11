@@ -199,7 +199,11 @@
     "today": "今天",
     "tomorrow": "明天",
     "backToStore": "← 返回门店",
-    "businessHoursNote": "营业时间 10:00–20:00 (Asia/Seoul)"
+    "businessHoursNote": "营业时间 10:00–20:00 (Asia/Seoul)",
+    "depositTitle": "定金与取消政策",
+    "depositBody": "支付 30% 定金确认预约。预约前 24 小时可免费取消。",
+    "totalLabel": "合计",
+    "slotFew": "余少"
   },
   "BookConfirm": {
     "eyebrow": "预约确认",

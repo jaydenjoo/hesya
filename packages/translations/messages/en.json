@@ -199,7 +199,11 @@
     "today": "Today",
     "tomorrow": "Tomorrow",
     "backToStore": "← Back to store",
-    "businessHoursNote": "Hours 10:00–20:00 (Asia/Seoul)"
+    "businessHoursNote": "Hours 10:00–20:00 (Asia/Seoul)",
+    "depositTitle": "Deposit & cancellation",
+    "depositBody": "A 30% deposit holds your slot. Free cancellation up to 24 hours before.",
+    "totalLabel": "Total",
+    "slotFew": "Few"
   },
   "BookConfirm": {
     "eyebrow": "Booking Confirmation",

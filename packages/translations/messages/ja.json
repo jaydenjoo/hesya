@@ -199,7 +199,11 @@
     "today": "今日",
     "tomorrow": "明日",
     "backToStore": "← お店に戻る",
-    "businessHoursNote": "営業時間 10:00～20:00 (Asia/Seoul)"
+    "businessHoursNote": "営業時間 10:00～20:00 (Asia/Seoul)",
+    "depositTitle": "前金と取消ポリシー",
+    "depositBody": "30%の前金でご予約を確定。24時間前までキャンセル無料。",
+    "totalLabel": "合計",
+    "slotFew": "残少"
   },
   "BookConfirm": {
     "eyebrow": "ご予約確認",

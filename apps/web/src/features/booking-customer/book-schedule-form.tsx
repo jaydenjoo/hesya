@@ -1,5 +1,16 @@
 "use client";
 
+/**
+ * Plan v3 M2.3 / Phase D2-B3 — customer-side 예약 일정 선택.
+ *
+ * 디자인 정합 재구성: 가로 스크롤 서비스/스타일리스트 chip + week-strip 날짜
+ * picker (가용성 mock dot) + time slot grid + Deposit/cancellation 카드 +
+ * sticky bottom bar (가격 합계 + Continue).
+ *
+ * 가용성 dot은 (date, time) 해시 기반 deterministic mock. 실 가용성 conflict
+ * 체크는 M2.6 server action에서 atomic.
+ */
+
 import { useMemo, useState } from "react";
 
 import { useRouter } from "@/i18n/navigation";
@@ -34,6 +45,10 @@ export interface ScheduleFormLabels {
   readonly today: string;
   readonly tomorrow: string;
   readonly businessHoursNote: string;
+  readonly depositTitle: string;
+  readonly depositBody: string;
+  readonly totalLabel: string;
+  readonly slotFew: string;
 }
 
 interface Props {
@@ -44,7 +59,21 @@ interface Props {
   readonly labels: ScheduleFormLabels;
 }
 
-const RANGE_DAYS = 30;
+const RANGE_DAYS = 14;
+
+type Avail = "open" | "few" | "full";
+
+function availabilityFor(date: string, time: string): Avail {
+  // deterministic hash → 0..2 (full / few / open mock).
+  let h = 0;
+  const src = `${date}|${time}`;
+  for (let i = 0; i < src.length; i++)
+    h = ((h << 5) - h + src.charCodeAt(i)) | 0;
+  const mod = Math.abs(h) % 10;
+  if (mod < 1) return "full";
+  if (mod < 4) return "few";
+  return "open";
+}
 
 export function BookScheduleForm({
   storeId,
@@ -65,6 +94,7 @@ export function BookScheduleForm({
   );
   const timeSlots = useMemo(() => buildTimeSlots(), []);
 
+  const selectedService = services.find((s) => s.id === serviceId) ?? null;
   const allSelected = Boolean(serviceId && staffId && date && time);
 
   const handleNext = () => {
@@ -79,132 +109,227 @@ export function BookScheduleForm({
   };
 
   return (
-    <div className="space-y-10">
-      <section>
-        <h2 className="mb-3 text-sm font-semibold text-hesya-navy-900">
-          {labels.step1}
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {services.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => setServiceId(s.id)}
-              className={`rounded-full border px-4 py-2 text-sm transition ${
-                serviceId === s.id
-                  ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
-                  : "border-hesya-peach-200 bg-white text-hesya-navy-900 hover:border-hesya-amber-500"
-              }`}
-            >
-              <span className="font-medium">{s.label}</span>
-              <span className="ml-2 text-xs opacity-70">
-                {labels.formatPrice(s.priceKrw)}
-                {s.durationMinutes &&
-                  ` · ${labels.durationMinutes(s.durationMinutes)}`}
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
+    <>
+      <div className="space-y-6 pb-24">
+        <section>
+          <h2 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+            {labels.step1}
+          </h2>
+          <div
+            className="-mx-5 flex gap-2 overflow-x-auto px-5"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {services.map((s) => {
+              const active = serviceId === s.id;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setServiceId(s.id)}
+                  className={[
+                    "flex-shrink-0 rounded-xl border px-3 py-2 text-left transition",
+                    active
+                      ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
+                      : "border-hesya-peach-200 bg-white text-hesya-navy-900 hover:border-hesya-amber-500",
+                  ].join(" ")}
+                >
+                  <span className="block text-[13px] font-medium">
+                    {s.label}
+                  </span>
+                  <span
+                    className={[
+                      "block text-[11px]",
+                      active
+                        ? "text-hesya-peach-50/75"
+                        : "text-hesya-navy-900/55",
+                    ].join(" ")}
+                  >
+                    {labels.formatPrice(s.priceKrw)}
+                    {s.durationMinutes
+                      ? ` · ${labels.durationMinutes(s.durationMinutes)}`
+                      : ""}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
-      <section>
-        <h2 className="mb-3 text-sm font-semibold text-hesya-navy-900">
-          {labels.step2}
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {staffList.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => setStaffId(p.id)}
-              className={`rounded-full border px-4 py-2 text-sm transition ${
-                staffId === p.id
-                  ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
-                  : "border-hesya-peach-200 bg-white text-hesya-navy-900 hover:border-hesya-amber-500"
-              }`}
-            >
-              {p.name}
-              {p.languages.length > 0 && (
-                <span className="ml-2 text-xs opacity-70">
-                  {p.languages.map((l) => l.toUpperCase()).join(" · ")}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      </section>
+        <section>
+          <h2 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+            {labels.step2}
+          </h2>
+          <div
+            className="-mx-5 flex gap-2 overflow-x-auto px-5"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {staffList.map((p) => {
+              const active = staffId === p.id;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setStaffId(p.id)}
+                  className={[
+                    "flex flex-shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 transition",
+                    active
+                      ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
+                      : "border-hesya-peach-200 bg-white text-hesya-navy-900 hover:border-hesya-amber-500",
+                  ].join(" ")}
+                >
+                  <span className="text-[12px] font-medium">{p.name}</span>
+                  {p.languages.length > 0 ? (
+                    <span
+                      className={[
+                        "text-[9.5px] font-semibold uppercase tracking-wide",
+                        active
+                          ? "text-hesya-peach-50/65"
+                          : "text-hesya-navy-900/55",
+                      ].join(" ")}
+                    >
+                      {p.languages.map((l) => l.toUpperCase()).join("·")}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
-      <section>
-        <h2 className="mb-3 text-sm font-semibold text-hesya-navy-900">
-          {labels.step3}
-        </h2>
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 md:grid-cols-7">
-          {dateOptions.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setDate(opt.value)}
-              className={`rounded-xl border px-3 py-2 text-xs transition ${
-                date === opt.value
-                  ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
-                  : "border-hesya-peach-200 bg-white text-hesya-navy-900 hover:border-hesya-amber-500"
-              }`}
-            >
-              <span className="block font-medium">
-                {opt.isToday
-                  ? labels.today
-                  : opt.isTomorrow
-                    ? labels.tomorrow
-                    : opt.displayLabel}
-              </span>
-              <span className="block text-[10px] opacity-70">{opt.value}</span>
-            </button>
-          ))}
-        </div>
-      </section>
+        <section>
+          <h2 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+            {labels.step3}
+          </h2>
+          <div
+            className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {dateOptions.map((opt) => {
+              const active = date === opt.value;
+              const dayPart = opt.displayLabel.replace(/[0-9]/g, "").trim();
+              const numPart = opt.value.slice(-2);
+              const label = opt.isToday
+                ? labels.today
+                : opt.isTomorrow
+                  ? labels.tomorrow
+                  : dayPart || opt.displayLabel.slice(0, 3);
+              const dayAvail = availabilityFor(opt.value, "day");
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setDate(opt.value)}
+                  className={[
+                    "flex w-[56px] flex-shrink-0 flex-col items-center gap-1 rounded-2xl border py-2.5 transition",
+                    active
+                      ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
+                      : "border-hesya-peach-200 bg-white text-hesya-navy-900 hover:border-hesya-amber-500",
+                  ].join(" ")}
+                >
+                  <span
+                    className={[
+                      "text-[10px] font-semibold uppercase tracking-wide",
+                      active
+                        ? "text-hesya-peach-50/75"
+                        : "text-hesya-navy-900/55",
+                    ].join(" ")}
+                  >
+                    {label}
+                  </span>
+                  <span className="font-mono text-[16px] font-semibold leading-none">
+                    {numPart}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className={[
+                      "h-1.5 w-1.5 rounded-full",
+                      dayAvail === "open"
+                        ? "bg-emerald-500"
+                        : dayAvail === "few"
+                          ? "bg-hesya-amber-500"
+                          : "bg-hesya-navy-900/25",
+                    ].join(" ")}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
-      <section>
-        <h2 className="mb-3 text-sm font-semibold text-hesya-navy-900">
-          {labels.step4}
-        </h2>
-        <p className="mb-2 text-xs text-hesya-navy-900/50">
-          {labels.businessHoursNote}
-        </p>
-        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-10">
-          {timeSlots.map((slot) => (
-            <button
-              key={slot.value}
-              type="button"
-              onClick={() => setTime(slot.value)}
-              className={`rounded-lg border px-3 py-2 text-xs transition ${
-                time === slot.value
-                  ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
-                  : "border-hesya-peach-200 bg-white text-hesya-navy-900 hover:border-hesya-amber-500"
-              }`}
-            >
-              {slot.value}
-            </button>
-          ))}
-        </div>
-      </section>
+        <section>
+          <h2 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+            {labels.step4}
+          </h2>
+          <p className="mb-2 text-[11px] text-hesya-navy-900/55">
+            {labels.businessHoursNote}
+          </p>
+          <div className="grid grid-cols-4 gap-1.5">
+            {timeSlots.map((slot) => {
+              const active = time === slot.value;
+              const avail = date ? availabilityFor(date, slot.value) : "open";
+              const disabled = avail === "full";
+              return (
+                <button
+                  key={slot.value}
+                  type="button"
+                  onClick={() => !disabled && setTime(slot.value)}
+                  disabled={disabled}
+                  className={[
+                    "relative rounded-lg border px-2 py-2 text-[12px] font-medium transition",
+                    active
+                      ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
+                      : disabled
+                        ? "cursor-not-allowed border-hesya-peach-100 bg-hesya-peach-50/40 text-hesya-navy-900/30 line-through"
+                        : "border-hesya-peach-200 bg-white text-hesya-navy-900 hover:border-hesya-amber-500",
+                  ].join(" ")}
+                >
+                  {slot.value}
+                  {avail === "few" && !active ? (
+                    <span className="absolute -right-0.5 -top-0.5 rounded-full bg-hesya-amber-500 px-1 py-px text-[8px] font-bold uppercase text-hesya-navy-900">
+                      {labels.slotFew}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
-      <div className="flex items-center justify-between rounded-2xl bg-hesya-peach-50 px-6 py-5">
-        <p className="text-xs text-hesya-navy-900/70">
-          {allSelected ? "" : labels.incomplete}
-        </p>
+        <section className="rounded-2xl border border-hesya-peach-200 bg-white px-4 py-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+            {labels.depositTitle}
+          </p>
+          <p className="mt-1 text-[12px] leading-relaxed text-hesya-navy-900/75">
+            {labels.depositBody}
+          </p>
+        </section>
+      </div>
+
+      <div className="sticky bottom-0 z-20 -mx-5 flex items-center gap-3 border-t border-hesya-peach-200 bg-hesya-peach-50/95 px-5 py-3 backdrop-blur">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/55">
+            {labels.totalLabel}
+          </p>
+          <p className="truncate font-mono text-[15px] font-semibold text-hesya-navy-900">
+            {selectedService
+              ? labels.formatPrice(selectedService.priceKrw)
+              : "—"}
+          </p>
+        </div>
         <button
           type="button"
           onClick={handleNext}
           disabled={!allSelected}
-          className={`rounded-full px-6 py-2.5 text-sm font-semibold transition ${
+          className={[
+            "flex-shrink-0 rounded-full px-5 py-2.5 text-[13px] font-semibold transition",
             allSelected
-              ? "bg-hesya-navy-900 text-hesya-peach-50 hover:bg-hesya-navy-800"
-              : "cursor-not-allowed bg-hesya-peach-200/60 text-hesya-navy-900/40"
-          }`}
+              ? "bg-hesya-navy-900 text-hesya-peach-50 hover:bg-hesya-navy-900/90"
+              : "cursor-not-allowed bg-hesya-peach-200/60 text-hesya-navy-900/40",
+          ].join(" ")}
         >
-          {labels.next}
+          {allSelected ? `${labels.next} →` : labels.incomplete}
         </button>
       </div>
-    </div>
+    </>
   );
 }

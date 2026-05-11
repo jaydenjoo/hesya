@@ -199,7 +199,11 @@
     "today": "오늘",
     "tomorrow": "내일",
     "backToStore": "← 매장으로 돌아가기",
-    "businessHoursNote": "영업 시간 10:00~20:00 (Asia/Seoul)"
+    "businessHoursNote": "영업 시간 10:00~20:00 (Asia/Seoul)",
+    "depositTitle": "선결제 및 취소 정책",
+    "depositBody": "30% 선결제로 예약이 확정됩니다. 예약 24시간 전까지 무료 취소 가능.",
+    "totalLabel": "합계",
+    "slotFew": "마감 임박"
   },
   "BookConfirm": {
     "eyebrow": "예약 확정",

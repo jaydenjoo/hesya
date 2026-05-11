@@ -199,7 +199,11 @@
     "today": "Hôm nay",
     "tomorrow": "Ngày mai",
     "backToStore": "← Quay lại cửa hàng",
-    "businessHoursNote": "Giờ mở cửa 10:00–20:00 (Asia/Seoul)"
+    "businessHoursNote": "Giờ mở cửa 10:00–20:00 (Asia/Seoul)",
+    "depositTitle": "Đặt cọc và hủy lịch",
+    "depositBody": "Đặt cọc 30% để giữ lịch. Miễn phí hủy đến 24 giờ trước giờ hẹn.",
+    "totalLabel": "Tổng",
+    "slotFew": "Sắp hết"
   },
   "BookConfirm": {
     "eyebrow": "Xác nhận đặt lịch",

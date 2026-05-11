@@ -140,6 +140,10 @@ export default async function StoreBookSchedulePage({
             today: t("today"),
             tomorrow: t("tomorrow"),
             businessHoursNote: t("businessHoursNote"),
+            depositTitle: t("depositTitle"),
+            depositBody: t("depositBody"),
+            totalLabel: t("totalLabel"),
+            slotFew: t("slotFew"),
           }}
         />
       </div>
