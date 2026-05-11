@@ -27,6 +27,22 @@ export async function getInstagramOAuthUrl(): Promise<string> {
     maxAge: STATE_TTL_SECONDS,
     path: "/",
   });
+
+  // Plan v3, M1.3: MOCK_IG_OAUTH=true 시 Instagram 동의 화면 우회.
+  // 본인 callback URL로 직접 redirect → callback route가 exchange skip + 가짜 token 저장.
+  if (env.MOCK_IG_OAUTH) {
+    const mockCallback = new URL(
+      "/api/oauth/instagram/callback",
+      env.NEXT_PUBLIC_APP_URL,
+    );
+    mockCallback.searchParams.set(
+      "code",
+      `mock_code_${randomBytes(8).toString("hex")}`,
+    );
+    mockCallback.searchParams.set("state", state);
+    return mockCallback.toString();
+  }
+
   const url = new URL("https://www.instagram.com/oauth/authorize");
   url.searchParams.set("client_id", env.IG_APP_ID);
   url.searchParams.set("redirect_uri", env.IG_REDIRECT_URI);

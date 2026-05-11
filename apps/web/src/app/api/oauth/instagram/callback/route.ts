@@ -1,16 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
+import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { createDbClient } from "@hesya/database";
 import { env } from "@/shared/config/env";
 import { fetchInstagramApiClient } from "@/lib/inbox/instagram-api-client";
 import { createInstagramAdapter } from "@/lib/inbox/instagram-adapter";
+import type { ExchangeCodeResult } from "@/lib/inbox/types";
 import {
   upsertIntegration,
   markWebhookSubscribed,
 } from "@/shared/lib/dal/store-integrations";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
+
+/**
+ * Plan v3, M1.3: MOCK_IG_OAUTH=true 시 Meta exchange + webhook subscribe 우회.
+ *
+ * 가짜 access_token + externalAccountId 반환 → DB upsert 통과 → 외부인 시뮬에서
+ * "Instagram 연결 완료" UX 도달. webhook 실 등록은 skip하지만 DB의
+ * `webhookSubscribed` flag는 true로 표시 (UI 일관성).
+ */
+function buildMockExchangeResult(storeId: string): ExchangeCodeResult {
+  const shortId = storeId.slice(0, 8);
+  return {
+    accessToken: `mock_token_${randomBytes(16).toString("hex")}`,
+    expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+    externalAccountId: `mock_ig_${shortId}`,
+    externalPageId: `mock_page_${shortId}`,
+    externalAccountName: `Mock IG (${shortId})`,
+    scopes: ["instagram_business_basic", "instagram_business_manage_messages"],
+  };
+}
 
 // 모듈 로드 시 1회만 인스턴스화. IG_APP_SECRET 변경 시 서버 재시작 필요.
 const adapter = createInstagramAdapter(fetchInstagramApiClient, {
@@ -49,7 +70,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const exchanged = await adapter.exchangeCode(code, env.IG_REDIRECT_URI);
+    const exchanged = env.MOCK_IG_OAUTH
+      ? buildMockExchangeResult(session.storeId)
+      : await adapter.exchangeCode(code, env.IG_REDIRECT_URI);
     const db = createDbClient(env.DATABASE_URL);
     await upsertIntegration(db, {
       storeId: session.storeId,
@@ -61,10 +84,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       tokenExpiresAt: exchanged.expiresAt,
       scopes: exchanged.scopes,
     });
-    await fetchInstagramApiClient.subscribeWebhook({
-      pageId: exchanged.externalAccountId,
-      accessToken: exchanged.accessToken,
-    });
+    if (!env.MOCK_IG_OAUTH) {
+      await fetchInstagramApiClient.subscribeWebhook({
+        pageId: exchanged.externalAccountId,
+        accessToken: exchanged.accessToken,
+      });
+    }
     await markWebhookSubscribed(db, session.storeId, "instagram");
 
     return NextResponse.redirect(
