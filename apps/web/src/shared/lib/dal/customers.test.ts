@@ -1,7 +1,15 @@
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { createDbClient, type DbClient } from "@hesya/database";
+import * as dalCustomers from "./customers";
 import { getExternalIdByCustomerId, upsertCustomer } from "./customers";
 import { resetDb } from "@/test-helpers/db";
+
+describe("dal.customers (pure)", () => {
+  it("module exports M3.2 list + ownership functions", () => {
+    expect(typeof dalCustomers.listCustomersByStore).toBe("function");
+    expect(typeof dalCustomers.isCustomerInStore).toBe("function");
+  });
+});
 
 const url = process.env.HESYA_TEST_DATABASE_URL;
 const hasDb = Boolean(url);

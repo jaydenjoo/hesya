@@ -232,5 +232,23 @@
     "categoryLabel": "Category",
     "emptyText": "No services registered yet. Add your first service.",
     "deleteConfirm": "Delete this service?"
+  },
+  "StoreCustomers": {
+    "title": "Customers",
+    "subtitle": "Manage foreign customers who messaged your store",
+    "columnName": "Name",
+    "columnChannel": "Channel",
+    "columnLanguage": "Language",
+    "columnVisits": "Visits",
+    "columnLtv": "LTV",
+    "columnAllergyNote": "Notes",
+    "columnPreferredDesigner": "Preferred stylist",
+    "emptyText": "No customers yet. They appear automatically after first message.",
+    "editButton": "Notes",
+    "saveButton": "Save",
+    "cancelButton": "Cancel",
+    "allergyPlaceholder": "e.g. allergies, sensitivities",
+    "preferredDesignerPlaceholder": "e.g. Stylist A",
+    "unknownName": "(no name)"
   }
 }

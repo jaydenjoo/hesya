@@ -232,5 +232,23 @@
     "categoryLabel": "카테고리",
     "emptyText": "아직 등록된 시술이 없습니다. 첫 시술을 추가해보세요.",
     "deleteConfirm": "정말 삭제하시겠습니까?"
+  },
+  "StoreCustomers": {
+    "title": "고객 목록",
+    "subtitle": "매장에 메시지를 보냈던 외국인 손님을 관리합니다",
+    "columnName": "이름",
+    "columnChannel": "채널",
+    "columnLanguage": "언어",
+    "columnVisits": "방문",
+    "columnLtv": "누적 매출",
+    "columnAllergyNote": "주의사항",
+    "columnPreferredDesigner": "선호 디자이너",
+    "emptyText": "아직 손님이 없습니다. 메시지를 받으면 자동 추가됩니다.",
+    "editButton": "메모",
+    "saveButton": "저장",
+    "cancelButton": "취소",
+    "allergyPlaceholder": "예: 알러지 / 두피 민감 등",
+    "preferredDesignerPlaceholder": "예: 디자이너 A",
+    "unknownName": "(이름 미확인)"
   }
 }

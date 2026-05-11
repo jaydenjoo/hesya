@@ -232,5 +232,23 @@
     "categoryLabel": "类别",
     "emptyText": "尚未注册任何服务。请添加第一项服务。",
     "deleteConfirm": "确定删除此服务?"
+  },
+  "StoreCustomers": {
+    "title": "客户列表",
+    "subtitle": "管理向门店发送过消息的外国客户",
+    "columnName": "姓名",
+    "columnChannel": "渠道",
+    "columnLanguage": "语言",
+    "columnVisits": "到访",
+    "columnLtv": "累计消费",
+    "columnAllergyNote": "注意事项",
+    "columnPreferredDesigner": "首选设计师",
+    "emptyText": "尚无客户。收到首条消息后会自动添加。",
+    "editButton": "备注",
+    "saveButton": "保存",
+    "cancelButton": "取消",
+    "allergyPlaceholder": "例如: 过敏 / 头皮敏感",
+    "preferredDesignerPlaceholder": "例如: 设计师A",
+    "unknownName": "(无姓名)"
   }
 }

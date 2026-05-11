@@ -232,5 +232,23 @@
     "categoryLabel": "カテゴリ",
     "emptyText": "まだメニューがありません。最初のメニューを追加してください。",
     "deleteConfirm": "本当に削除しますか?"
+  },
+  "StoreCustomers": {
+    "title": "お客様一覧",
+    "subtitle": "お店にメッセージをくれた外国人のお客様を管理",
+    "columnName": "お名前",
+    "columnChannel": "チャネル",
+    "columnLanguage": "言語",
+    "columnVisits": "来店",
+    "columnLtv": "累計売上",
+    "columnAllergyNote": "注意事項",
+    "columnPreferredDesigner": "希望スタイリスト",
+    "emptyText": "まだお客様がいません。メッセージ受信後に自動追加されます。",
+    "editButton": "メモ",
+    "saveButton": "保存",
+    "cancelButton": "キャンセル",
+    "allergyPlaceholder": "例: アレルギー / 頭皮の敏感など",
+    "preferredDesignerPlaceholder": "例: スタイリストA",
+    "unknownName": "(名前未確認)"
   }
 }

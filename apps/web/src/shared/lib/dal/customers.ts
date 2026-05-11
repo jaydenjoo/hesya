@@ -1,13 +1,93 @@
 import "server-only";
 import {
   and,
+  conversations,
   customers,
+  desc,
   eq,
+  isNotNull,
   type Channel,
   type DbClient,
 } from "@hesya/database";
 
 type Customer = typeof customers.$inferSelect;
+
+export type CustomerListRow = Pick<
+  Customer,
+  | "id"
+  | "name"
+  | "channel"
+  | "externalId"
+  | "nationality"
+  | "preferredLanguage"
+  | "totalVisits"
+  | "ltvKrw"
+  | "allergyNote"
+  | "preferredDesigner"
+>;
+
+/**
+ * Plan v3 M3.2 — 매장에서 메시지를 받아본 외국인 손님 목록.
+ *
+ * `conversations.storeId`로 매장 소속 conversation을 찾고 그 conversation의
+ * `customerId`로 distinct customer rows 조회. 즉 사장 inbox에 들어와본 적이
+ * 있는 손님만. M2.6 customer-side 예약은 customers row 생성 안 함이라 목록
+ * 미포함 — 향후 M4.x에서 booker 통합 시 합쳐질 예정.
+ *
+ * `lastSeenAt` (가장 최근 conversation update)으로 정렬. limit default 100.
+ */
+export async function listCustomersByStore(
+  db: DbClient,
+  storeId: string,
+  limit = 100,
+): Promise<CustomerListRow[]> {
+  // distinct on (customers.id) — 한 customer가 여러 conversation 가질 수 있음.
+  const rows = await db
+    .selectDistinctOn([customers.id], {
+      id: customers.id,
+      name: customers.name,
+      channel: customers.channel,
+      externalId: customers.externalId,
+      nationality: customers.nationality,
+      preferredLanguage: customers.preferredLanguage,
+      totalVisits: customers.totalVisits,
+      ltvKrw: customers.ltvKrw,
+      allergyNote: customers.allergyNote,
+      preferredDesigner: customers.preferredDesigner,
+    })
+    .from(customers)
+    .innerJoin(conversations, eq(conversations.customerId, customers.id))
+    .where(
+      and(eq(conversations.storeId, storeId), isNotNull(customers.channel)),
+    )
+    .orderBy(customers.id, desc(conversations.updatedAt))
+    .limit(limit);
+  return rows;
+}
+
+/**
+ * Plan v3 M3.2 — 사장이 customer 메모 편집 시 ownership 검증.
+ *
+ * customer가 해당 store와 conversation으로 연결되어 있는지 확인 (사장이 자기
+ * 매장과 무관한 customer 메모 편집 차단).
+ */
+export async function isCustomerInStore(
+  db: DbClient,
+  storeId: string,
+  customerId: string,
+): Promise<boolean> {
+  const rows = await db
+    .select({ id: conversations.id })
+    .from(conversations)
+    .where(
+      and(
+        eq(conversations.storeId, storeId),
+        eq(conversations.customerId, customerId),
+      ),
+    )
+    .limit(1);
+  return rows.length > 0;
+}
 
 export async function upsertCustomer(
   db: DbClient,
