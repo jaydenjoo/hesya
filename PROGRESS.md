@@ -5,31 +5,40 @@
 
 ## 현재 위치 (2026-05-11 세션 9 종료 시점)
 
-- **Phase**: **Plan v3 Mock-first 전환 + M1.1 완료 + ζ.4 stress test 시드 완료 + CI 비활성화** (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 50%)
+- **Phase**: **Plan v3 Mock-first M1 5/5 완료** (M1.1~M1.5) + ζ.4 stress test 시드 완료 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 50%)
 - **시나리오**: B (풀 P0 베타 — PRD 원안) 위에 **v3 Mock-first 5 phase 추가** (`docs/Plan-v3-mock-first.md`)
-- **베타 5곳 출시 가능 시점**: Plan v3 M1~M5 완료(5~7주) + Jayden 사업자 등록 + ζ.7~ζ.8 (2주) = **약 7~9주**
-- **세션 9 머지**:
+- **베타 5곳 출시 가능 시점**: Plan v3 M2~M5 완료(4~6주) + Jayden 사업자 등록 + ζ.7~ζ.8 (2주) = **약 6~8주**
+- **세션 9 머지** (10건):
   - [#112](https://github.com/jaydenjoo/hesya/pull/112) ζ.4 통합 부하 시드 + booking Sentry tag (`72acef4`)
-  - [#113](https://github.com/jaydenjoo/hesya/pull/113) Plan v3 + Mock env flag 5개 도입 M1.1 (`e94ff84`)
-  - (이후) CI workflow 비활성화 (Free 한도 소진 대응, main 직접 push)
+  - [#113](https://github.com/jaydenjoo/hesya/pull/113) Plan v3 + Mock env flag 5개 도입 **M1.1** (`e94ff84`)
+  - CI workflow 비활성화 (Free 한도 소진 대응, `3ef39cd`)
+  - [#114](https://github.com/jaydenjoo/hesya/pull/114) **M1.2** `MOCK_KYC=true` 분기 (`ca168a3`)
+  - **M1.3** `MOCK_IG_OAUTH=true` 분기 (main 직접 `f031878`)
+  - **M1.4** Sign-in 정식화 + locale selector 활성화 (main 직접 `842e0be`)
+  - **M1.5** `docs/external-demo-guide.md` 신규 (main 직접 `5073713`)
 - **세션 9 시드 검증** (실 실행 통과):
   - `unset ANTHROPIC_API_KEY && pnpm seed:stress-test` 성공 (매장 5곳 / 메시지 250건 / 예약 50건 / 분쟁 5건 / API 정책 알림 3건 / admin KYC 큐 4건)
 - **세션 9 인프라 변경**:
   - **GitHub Actions CI 자동 trigger 비활성화** (`workflow_dispatch`만 유지) — Free 한도 2000분/월 소진 + 결제 잔액 없음. Vercel preview build + 로컬 `pnpm test` 검증으로 갈음.
+- **세션 9 Mock 인프라 (M1 전체 결과)**:
+  - `MOCK_KYC=true` → data.go.kr 호출 skip + 자동 통과 (외부인 회원가입 자동 진입)
+  - `MOCK_IG_OAUTH=true` → Meta 동의 화면 skip + 가짜 access_token + DB upsert (외부인 IG 연결 시뮬)
+  - Sign-in locale selector → 6 locale 즉시 전환 (next-intl router.replace)
+  - **외부 데모 가능 시점**: Vercel Preview env에 5 MOCK\_\* 등록 + redeploy → 외부인 시뮬 enable (단, M2 customer-side는 아직 비활성)
 - **누적 교훈**: L-001 ~ **L-093** (세션 9 신규 1건 — GitHub Actions Free 한도 + Spending Budget $0 조합 차단)
 
-## P0 Epic 객관 완성도 (세션 9 ζ.4 시드 + M1.1 env flag — 코드 분기 stub 없음, 인프라만)
+## P0 Epic 객관 완성도 (세션 9 M1 완료 후 — Mock 분기 도입으로 외부 시뮬 enable)
 
-| Epic                | 세션 8 % | 본 세션 9 %       | 갭                                                                                                 |
-| ------------------- | -------- | ----------------- | -------------------------------------------------------------------------------------------------- |
-| E1 인박스           | 71%      | **71%** (변동 X)  | 디자인 정합성 2/5. WhatsApp/카카오/LINE 0%. M1.3 IG OAuth Mock + M4.2 Multi-channel Mock 도입 예정 |
-| **E2 결제 위젯** 🔴 | 17%      | **17%** (변동 X)  | DB 스키마만. **M2.5 Mock 결제 UI** 도입 후 자연 활성화 (외부인 시뮬 가능)                          |
-| **E3 예약 시스템**  | 50%      | **50%** (변동 X)  | owner-side CRUD 완료. **M2.3/2.4/2.6 customer-side + Mock 결제** 도입 후 100% 도달 가능            |
-| **E4 대시보드**     | 35%      | **35%** (변동 X)  | ε shell + 실측 5 KPI. M3.1 services / M3.2 customers 도입 후 추가 KPI active                       |
-| E9 KYC 🔴           | 93%      | **93%** (변동 X)  | γ.2.3.3 디자인 정합. **M1.2 `MOCK_KYC=true` 분기** 도입 후 외부인 회원가입 자동 통과 가능          |
-| **E12 관리자** 🔴   | 100%     | **100%** (변동 X) | E12-1~10 완료 + ζ.4 stress test 큐 시연 통과                                                       |
+| Epic                | 세션 8 % | 본 세션 9 %                 | 갭                                                                                                   |
+| ------------------- | -------- | --------------------------- | ---------------------------------------------------------------------------------------------------- |
+| E1 인박스           | 71%      | **75%** (+4, M1.3 Mock IG)  | 디자인 정합성 2/5. WhatsApp/카카오/LINE 0%. **M1.3 IG OAuth Mock 도입 완료** → 외부인 연결 시뮬 가능 |
+| **E2 결제 위젯** 🔴 | 17%      | **17%** (변동 X)            | DB 스키마만. **M2.5 Mock 결제 UI** 도입 후 자연 활성화 (외부인 시뮬 가능)                            |
+| **E3 예약 시스템**  | 50%      | **50%** (변동 X)            | owner-side CRUD 완료. **M2.3/2.4/2.6 customer-side + Mock 결제** 도입 후 100% 도달 가능              |
+| **E4 대시보드**     | 35%      | **35%** (변동 X)            | ε shell + 실측 5 KPI. M3.1 services / M3.2 customers 도입 후 추가 KPI active                         |
+| E9 KYC 🔴           | 93%      | **96%** (+3, M1.2 Mock KYC) | **M1.2 `MOCK_KYC=true` 분기 도입 완료** → 외부인 회원가입 자동 통과. γ.2.3.3 디자인 정합 잔여        |
+| **E12 관리자** 🔴   | 100%     | **100%** (변동 X)           | E12-1~10 완료 + ζ.4 stress test 큐 시연 통과                                                         |
 
-**P0 평균: 61%** (변동 없음). Plan v3 진입 — M1 (1주) / M2 (2주) / M3 (1주) / M4 (1주) / M5 (1주) 5 phase.
+**P0 평균: 62%** (+1, E1·E9 Mock 분기 외부 시뮬 enable). Plan v3 M1 phase 완료 → M2~M5 (4~5주) 남음.
 
 ### Public surfaces (P0 Epic 외 신규 카테고리, γ.2.3.5)
 
@@ -43,15 +52,18 @@
 > ⚠️ E9 +1은 시각 정합성만 (단위 테스트 className 기반). KYC submit/pending demo 시연은 미인증 user seed 보강 후 가능 — 별 PR 후보.
 > ✅ γ.2.3.4/5 시연 prerequisite는 dev-demo.sh가 E2E_ADMIN_EMAIL inject로 자동 충족 (admin) / public route로 자동 충족 (landing) — 별 PR 불요.
 
-## 본 세션 9 (2026-05-11) — ζ.4 stress test + Plan v3 M1.1 + CI 비활성화
+## 본 세션 9 (2026-05-11) — ζ.4 stress test + Plan v3 M1 phase 완전 진행 (5/5)
 
-### Scope
-
-3가지 큰 작업:
+### Scope (8개 큰 작업)
 
 1. **ζ.4 stress test 시드** ([#112](https://github.com/jaydenjoo/hesya/pull/112)) — 통합 부하 250 메시지 + Sentry tag 보강
 2. **Plan v3 + M1.1 Mock env flag** ([#113](https://github.com/jaydenjoo/hesya/pull/113)) — Mock-first 5 phase 분해 + env 5개 도입
-3. **GitHub Actions CI 자동 trigger 비활성화** (main 직접 push) — Free 한도 소진 대응
+3. **GitHub Actions CI 자동 trigger 비활성화** (`3ef39cd`) — Free 한도 소진 대응
+4. **M1.2 `MOCK_KYC=true` 분기** ([#114](https://github.com/jaydenjoo/hesya/pull/114), `ca168a3`) — data.go.kr 호출 skip
+5. **M1.3 `MOCK_IG_OAUTH=true` 분기** (`f031878`) — Meta 동의 화면 skip + 가짜 token 발급
+6. **M1.4 Sign-in 정식화** (`842e0be`) — locale selector 활성화 + 임시 페이지 마커 제거
+7. **M1.5 외부 데모 가이드** (`5073713`) — `docs/external-demo-guide.md` 신규
+8. (M1 phase 5/5 완료 — Plan v3 5 phase 중 첫 milestone 종료)
 
 PostHog 이벤트 / Mock 분기 stub은 다음 phase scope.
 
@@ -145,17 +157,57 @@ CI 비활성화 (main 직접 push):
 
 **비유**: "검사관 채용한 회사가 월 무료 노동 시간 한도 초과 + 추가 결제 미설정 → 검사관 출근 거부. 회사는 자체 직원(Vercel)이랑 사내 자동 검사(lint-staged)로 임시 대체."
 
-### 다음 세션 가이드 — Plan v3 M1.2 진입
+### M1.2~M1.5 산출물 요약
 
-| 분기                          | 우선순위   | 예상  | 비고                                                            |
-| ----------------------------- | ---------- | ----- | --------------------------------------------------------------- |
-| **M1.2 `MOCK_KYC=true` 분기** | 🥇 1순위   | 1일   | data.go.kr 호출 skip + 자동 승인. `lib/kyc/*.ts` real/mock 분리 |
-| **M1.3 IG OAuth Mock 콜백**   | 2순위      | 1.5일 | "Instagram 연결" 클릭 → 가짜 OAuth flow → 가짜 token            |
-| **M1.4 Sign-in 정식화**       | 3순위      | 1일   | `Hesya Login.html` reference 적용, 임시 주석 제거               |
-| **M1.5 외부 데모 가이드**     | 4순위      | 0.5일 | `docs/external-demo-guide.md` 신규                              |
-| M2 customer-side + Mock 결제  | M1 완료 후 | 2주   | 5 페이지 + Mock Stripe/Alipay/WeChat                            |
+#### M1.2 `MOCK_KYC=true` 분기 (PR #114, `ca168a3`)
 
-머지 방식: branch + PR + admin override (CI 비활성화로 protection 영향 X, gh pr merge 일반 squash로 가능)
+- `apps/web/src/lib/kyc/mock-nts-client.ts` 신규 — `valid="01"` + `b_stt="계속사업자"` 자동 응답
+- `apps/web/src/lib/kyc/mock-localdata-client.ts` 신규 — 입력 echo + `SALS_STTS_CD="01"` (영업중) + `OPN_ATMY_GRP_CD="200"` (자유업 그룹)
+- `apps/web/src/lib/kyc/actions.ts` — 2 곳에 env-flag 분기 (`ntsData`, `searchResult`)
+- 단위 테스트 11건 (mock-nts 5 + mock-localdata 6) ✅
+- **외부인 시뮬 효과**: 사업자등록번호 아무 10자리 + 개업일자 8자리 → 자동 `auto_approved` 진입 (LocalData 매칭 100%)
+
+#### M1.3 `MOCK_IG_OAUTH=true` 분기 (`f031878`)
+
+- `apps/web/src/features/inbox/actions/connect-instagram.ts` — env-flag 분기로 mock callback URL 직접 redirect (Meta 동의 화면 skip)
+- `apps/web/src/app/api/oauth/instagram/callback/route.ts` — `buildMockExchangeResult` helper + try 블록 분기 (exchangeCode skip + subscribeWebhook skip + 가짜 token/expiresAt/scopes)
+- 가짜 token: `mock_token_<32hex>`, externalAccountId: `mock_ig_<storeId-8자>`, scopes: `instagram_business_basic` + `instagram_business_manage_messages`
+- 단위 테스트 4건 (env-mocked) ✅
+- **외부인 시뮬 효과**: `/store/inbox/connect` "Instagram 연결" 클릭 → 즉시 연결 완료 + DB upsert (UI 일관성: `webhookSubscribed=true` flag)
+
+#### M1.4 Sign-in 정식화 (`842e0be`)
+
+- `apps/web/src/app/[locale]/sign-in/page.tsx` — `LOCALE_LABEL` 객체 → `LOCALES` array 변환, FormPanel에 `locales` + `currentLocale` props 전달
+- `apps/web/src/app/[locale]/sign-in/form-panel.tsx` — disabled chip → 작동하는 `<select>` (next-intl `useRouter` + `usePathname`)
+- `apps/web/src/app/[locale]/sign-in/sign-in.css` — `.sl-lang-chip:focus-within` + `.sl-lang-select` 스타일 추가
+- `CLAUDE.md` — Known Gotchas의 "임시 검증 페이지" 마커 제거
+- **외부인 시뮬 효과**: 좌상단 🌐 selector로 6 locale 즉시 전환 (ko/en/ja/vi/zh-CN/zh-TW)
+
+#### M1.5 외부 데모 가이드 (`5073713`)
+
+- `docs/external-demo-guide.md` 신규 — 5단계 흐름 (회원가입 → KYC 자동 통과 → IG 연동 시뮬 → 메시지 시뮬 → 예약/결제) + Vercel Preview env 설정 + 사업자 등록 후 swap 절차 + 트러블슈팅 표 6건
+- **타겟**: 외부 베타 후보 / 디자인 검토자 / Jayden 친구 (Mock 모드 사전 안내 + 격리 DB 명시)
+
+### 검증
+
+- `pnpm --filter @hesya/web type-check` ✅ 0 errors
+- `pnpm --filter @hesya/web lint` ✅
+- `pnpm --filter @hesya/web test --run` ✅ 676 passed / 103 skipped (M1.2 +5 mock-nts + M1.2 +6 mock-localdata + M1.3 +4 connect-instagram-mock)
+- `pnpm --filter @hesya/web build` ✅ Compiled successfully
+
+### 다음 세션 가이드 — Plan v3 M2 진입 (customer-side + Mock 결제)
+
+| Milestone                            | 우선순위 | 예상 | 비고                                                                                    |
+| ------------------------------------ | -------- | ---- | --------------------------------------------------------------------------------------- |
+| **M2.1 `/c/store/[slug]/page`**      | 🥇 1순위 | 2일  | 매장 detail public 페이지 (시술 5종 + 디자이너 3명 표시, 외부인 view-only)              |
+| **M2.2 `/c/store/[slug]/photos`**    | 2순위    | 1일  | 매장 사진 gallery (시드된 placeholder 5장)                                              |
+| **M2.3 `/book/schedule` 페이지**     | 3순위    | 2일  | 디자이너 선택 + 시술 선택 + 시간 슬롯 선택 (Asia/Seoul, 30분 grid)                      |
+| **M2.4 `/book/confirm` 페이지**      | 4순위    | 1일  | 예약 요약 + 손님 정보 폼 + "결제 진행" 버튼                                             |
+| **M2.5 `MOCK_PAYMENT=true` Mock UI** | 5순위    | 2일  | 가짜 Stripe/Alipay/WeChat 결제 페이지 (즉시 succeeded 응답)                             |
+| **M2.6 createBookingAction**         | 6순위    | 1일  | customer-side 예약 생성 + 결제 record + 가짜 IG 메시지 발송 (alpha: 매장 #1 IG channel) |
+| **M2.7 6 locale i18n**               | 7순위    | 1일  | namespace `bookingCustomer` (시술 라벨 / 디자이너 라벨 / 시간 / 결제 안내 / 트러블슈팅) |
+
+총 M2 phase 예상 ~10일 (2주). 머지 방식: branch + PR + 로컬 `pnpm test` 통과 후 main 직접 squash (CI 비활성화 상태). Mock 분기 패턴은 M1.2~M1.3 코드 (`env.MOCK_*` flag) 참고.
 
 ## 직전 세션 8 (2026-05-11) — Phase 1-ζ Prep (베타 매칭 docs 준비)
 
