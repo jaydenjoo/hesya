@@ -3,9 +3,13 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-11 세션 9 종료 시점)
+## 현재 위치 (2026-05-11 세션 10 진행 중)
 
-- **Phase**: **Plan v3 Mock-first M1 5/5 완료** (M1.1~M1.5) + ζ.4 stress test 시드 완료 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 50%)
+- **Phase**: **Plan v3 Mock-first M1 5/5 완료 + M2.1 customer detail 머지** (M1 100% + M2 1/7) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 55%)
+- **세션 10 머지** (M2.1):
+  - **M2.1** `/c/store/[id]` public 매장 detail (main 직접 `603272b`) — DAL `getStorePublicById` + i18n `StoreDetail` 6 locale + Server Component 페이지 + external-demo-guide 5단계 보강
+  - 검증: type-check ✅ / lint ✅ / test 677 passed (+1) / build ✅ (`/[locale]/c/store/[id]` route 등록 확인)
+  - 자기평가 (L-082): **단일 경로 e2e 가능** (매장 #1 UUID 알면 view) — 30~60% 범위. 시술/디자이너 표시 OK, 사진/예약 흐름은 M2.2/M2.3에서 enable
 - **시나리오**: B (풀 P0 베타 — PRD 원안) 위에 **v3 Mock-first 5 phase 추가** (`docs/Plan-v3-mock-first.md`)
 - **베타 5곳 출시 가능 시점**: Plan v3 M2~M5 완료(4~6주) + Jayden 사업자 등록 + ζ.7~ζ.8 (2주) = **약 6~8주**
 - **세션 9 머지** (10건):
@@ -39,6 +43,17 @@
 | **E12 관리자** 🔴   | 100%     | **100%** (변동 X)           | E12-1~10 완료 + ζ.4 stress test 큐 시연 통과                                                         |
 
 **P0 평균: 62%** (+1, E1·E9 Mock 분기 외부 시뮬 enable). Plan v3 M1 phase 완료 → M2~M5 (4~5주) 남음.
+
+### 세션 10 — Plan v3 M2.1 머지
+
+- **M2.1 산출물** (`603272b`):
+  - `apps/web/src/shared/lib/dal/stores.ts` — `getStorePublicById(db, id)` 함수 + `PublicStore` 타입. `auto_approved` + soft-delete X 필터 (외부 손님은 비공개 매장 view 차단)
+  - `apps/web/src/shared/lib/dal/stores.test.ts` — pure exports 1 + integration 4 (auto_approved 반환 / manual_review null / soft-delete null / 미존재 UUID null)
+  - `apps/web/src/app/[locale]/c/store/[id]/page.tsx` 신규 (Server Component) — UUID 형식 검증 (PostgreSQL invalid-UUID 사전 차단) → `getStorePublicById` + `listServicesByStore` + `listStaffByStore` 병렬 fetch → Fraunces serif 헤더 + hesya-peach/amber/navy 토큰. "예약 진행" CTA는 M2.3 도착 전까지 비활성 (span + aria-disabled)
+  - `packages/translations/messages/*.json` — `StoreDetail` namespace 6 locale (title / eyebrow / address / category / servicesHeading / staffHeading / durationMinutes / priceKrw / languagesLabel / bookCta / bookComingSoon / notFoundTitle / notFoundBody)
+  - `docs/external-demo-guide.md` — 5번째 단계 "매장 detail public 페이지" + 트러블슈팅 1건 추가
+- **i18n 의사결정**: 시술 이름은 `services.name_ko/en/ja/zh_cn/zh_tw/vi` 컬럼 6 locale fallback. 가격은 KRW만 (M2.7에서 다국어 환산 추가 후보)
+- **slug 의사결정**: stores 스키마에 `slug` 컬럼 없음 → UUID path param. M5 이후 SEO 단계에서 slug 도입 시 `getStorePublicBySlug` 추가하면 됨
 
 ### Public surfaces (P0 Epic 외 신규 카테고리, γ.2.3.5)
 
@@ -195,19 +210,25 @@ CI 비활성화 (main 직접 push):
 - `pnpm --filter @hesya/web test --run` ✅ 676 passed / 103 skipped (M1.2 +5 mock-nts + M1.2 +6 mock-localdata + M1.3 +4 connect-instagram-mock)
 - `pnpm --filter @hesya/web build` ✅ Compiled successfully
 
-### 다음 세션 가이드 — Plan v3 M2 진입 (customer-side + Mock 결제)
+### 다음 세션 가이드 — Plan v3 M2 진행 (1/7 완료, 6 남음)
 
-| Milestone                            | 우선순위 | 예상 | 비고                                                                                    |
-| ------------------------------------ | -------- | ---- | --------------------------------------------------------------------------------------- |
-| **M2.1 `/c/store/[slug]/page`**      | 🥇 1순위 | 2일  | 매장 detail public 페이지 (시술 5종 + 디자이너 3명 표시, 외부인 view-only)              |
-| **M2.2 `/c/store/[slug]/photos`**    | 2순위    | 1일  | 매장 사진 gallery (시드된 placeholder 5장)                                              |
-| **M2.3 `/book/schedule` 페이지**     | 3순위    | 2일  | 디자이너 선택 + 시술 선택 + 시간 슬롯 선택 (Asia/Seoul, 30분 grid)                      |
-| **M2.4 `/book/confirm` 페이지**      | 4순위    | 1일  | 예약 요약 + 손님 정보 폼 + "결제 진행" 버튼                                             |
-| **M2.5 `MOCK_PAYMENT=true` Mock UI** | 5순위    | 2일  | 가짜 Stripe/Alipay/WeChat 결제 페이지 (즉시 succeeded 응답)                             |
-| **M2.6 createBookingAction**         | 6순위    | 1일  | customer-side 예약 생성 + 결제 record + 가짜 IG 메시지 발송 (alpha: 매장 #1 IG channel) |
-| **M2.7 6 locale i18n**               | 7순위    | 1일  | namespace `bookingCustomer` (시술 라벨 / 디자이너 라벨 / 시간 / 결제 안내 / 트러블슈팅) |
+| Milestone                              | 우선순위 | 예상 | 비고                                                                                     |
+| -------------------------------------- | -------- | ---- | ---------------------------------------------------------------------------------------- |
+| **M2.1 `/c/store/[id]/page`** ✅       | 완료     | -    | 세션 10 머지 (`603272b`). UUID path + auto_approved 필터 + 6 locale `StoreDetail`        |
+| **M2.2 `/c/store/[id]/photos`**        | 🥇 1순위 | 1일  | 매장 사진 gallery (시드된 placeholder 5장 — store-knowledge `photoUrls` 또는 별 schema?) |
+| **M2.3 `/c/store/[id]/book/schedule`** | 2순위    | 2일  | 디자이너 선택 + 시술 선택 + 시간 슬롯 선택 (Asia/Seoul, 30분 grid)                       |
+| **M2.4 `/c/store/[id]/book/confirm`**  | 3순위    | 1일  | 예약 요약 + 손님 정보 폼 + "결제 진행" 버튼                                              |
+| **M2.5 `MOCK_PAYMENT=true` Mock UI**   | 4순위    | 2일  | 가짜 Stripe/Alipay/WeChat 결제 페이지 (즉시 succeeded 응답)                              |
+| **M2.6 createBookingAction**           | 5순위    | 1일  | customer-side 예약 생성 + 결제 record + 가짜 IG 메시지 발송 (alpha: 매장 #1 IG channel)  |
+| **M2.7 다국어 + 시술 라벨 보강**       | 6순위    | 1일  | 가격 다국어 환산 (JPY/USD/CNY) + 디자이너 언어 chip 라벨 + bookingCustomer namespace     |
 
-총 M2 phase 예상 ~10일 (2주). 머지 방식: branch + PR + 로컬 `pnpm test` 통과 후 main 직접 squash (CI 비활성화 상태). Mock 분기 패턴은 M1.2~M1.3 코드 (`env.MOCK_*` flag) 참고.
+총 M2 phase 잔여 ~8일 (1.6주). 머지 방식: main 직접 push (작은 surgical change, L-093 비용 0) 또는 branch + PR (admin override squash). Mock 분기 패턴은 M1.2~M1.3 코드 (`env.MOCK_*` flag) 참고.
+
+**M2.2 사전 인벤토리** (다음 세션 시작 시 의무):
+
+- `grep "photo\|gallery\|image_url" packages/database/src/schema/`
+- 사진 URL 저장 위치 확인 (별 schema vs `store-knowledge` jsonb vs S3 직접 link)
+- 시드된 placeholder 5장이 어디 있는지 (seed-beta-demo / seed-stress-test)
 
 ## 직전 세션 8 (2026-05-11) — Phase 1-ζ Prep (베타 매칭 docs 준비)
 
