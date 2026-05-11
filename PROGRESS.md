@@ -3,34 +3,83 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-10 세션 3 종료 시점)
+## 현재 위치 (2026-05-11 세션 4 종료 시점)
 
-- **Phase**: **Phase 1-γ.2.3.3 완료** (γ.1 100% + γ.2.1~2.2 완료 + γ.2.3 디자인 정합성 3/5 단계 — Inbox 좌측 thread list + Inbox 메인 thread/draft + Onboarding sign-in/KYC submit/pending)
+- **Phase**: **Phase 1-γ.2.3.4 완료** (γ.1 100% + γ.2.1~2.2 완료 + γ.2.3 디자인 정합성 4/5 단계 — Inbox 좌측/메인/draft + Onboarding sign-in/KYC + Admin 8큐)
 - **시나리오**: B (풀 P0 베타 — PRD 원안)
-- **베타 5곳 출시 가능 시점**: 약 6~7주 (γ.2.3 5-split 중 3/5 완료 → 2단계 + γ.3 채널 확장 + δ Epic 2/3 + ε Epic 4 + ζ 베타 매칭)
-- **세션 3 머지**: [#106](https://github.com/jaydenjoo/hesya/pull/106) γ.2.3.2 (`d041080`) + [#107](https://github.com/jaydenjoo/hesya/pull/107) γ.2.3.3 (`098d9f0b`)
-- **세션 3 시연**:
-  - γ.2.3.2: `unset ANTHROPIC_API_KEY && pnpm dev:demo` + Playwright로 inbox Col 2 시각 검증 — customer 좌하 4px 꼬리 / owner 우하 4px 꼬리 / 시간 버블 외부 / draft panel slide-in / amber primary buttons 모두 reference 일치
-  - γ.2.3.3: sign-in 페이지 회귀 캡처 (Run your salon hero / ticker 01/04 / Google 로그인 매칭). KYC submit/pending은 demo 미인증 user 부재로 직접 접근 불가 → 단위 테스트 className 검증으로 갈음 (L-082 시연 prerequisite 한계 명시 적용)
-- **누적 교훈**: L-001 ~ **L-091** (세션 3 추가 항목 없음 — 모든 작업이 plan v1 명시 한계 안에서 진행)
+- **베타 5곳 출시 가능 시점**: 약 5~6주 (γ.2.3 5-split 중 4/5 완료 → 1단계 + γ.3 채널 확장 + δ Epic 2/3 + ε Epic 4 + ζ 베타 매칭)
+- **세션 4 머지**: [#108](https://github.com/jaydenjoo/hesya/pull/108) γ.2.3.4 (`38e9bd8`)
+- **세션 4 시연**:
+  - γ.2.3.4: `unset ANTHROPIC_API_KEY && pnpm dev:demo` (+ Supabase local) + Playwright로 admin 8페이지 캡처 — `/ko/admin/{disputes, store-verifications, store-deletion, ai-accuracy, payment-monitoring, api-policy-alerts, store-reports, kyc-test}` 5종 시그널 모두 reference 매칭 확인 (`admin-kyc.css` palette: navy-900 / peach-50/100/200 / amber-500)
+  - L-082 prerequisite: `dev-demo.sh` E2E_ADMIN_EMAIL inject → `requireAdminEmail()` 즉시 우회 → admin 페이지 직접 접근 가능 → 시연 prerequisite 자동 충족
+- **누적 교훈**: L-001 ~ **L-091** (세션 4 추가 항목 없음 — plan v1 명시 한계 안에서 진행)
 
-## P0 Epic 객관 완성도 (γ.2.3.3 머지 반영)
+## P0 Epic 객관 완성도 (γ.2.3.4 머지 반영)
 
 | Epic                | 직전 % | 본 세션 %         | 갭                                                                                           |
 | ------------------- | ------ | ----------------- | -------------------------------------------------------------------------------------------- |
-| E1 인박스           | 67%    | **71%** ↑↑        | 디자인 정합성 2/5 단계 (좌측 + Col 2 메인 thread + draft) 시연 통과. WhatsApp/카카오/LINE 0% |
+| E1 인박스           | 71%    | **71%** (변동 X)  | 디자인 정합성 2/5 단계 (좌측 + Col 2 메인 thread + draft) 시연 통과. WhatsApp/카카오/LINE 0% |
 | **E2 결제 위젯** 🔴 | 17%    | **17%** (변동 X)  | DB 스키마만. Stripe/Alipay/WeChat 코드 0건                                                   |
 | **E3 예약 시스템**  | 17%    | **17%** (변동 X)  | DB 스키마만                                                                                  |
 | **E4 대시보드**     | 8%     | **8%** (변동 X)   | Recharts 미설치                                                                              |
-| E9 KYC 🔴           | 92%    | **93%** ↑         | γ.2.3.3 KYC submit/pending Hesya 토큰 정합성 (단위 테스트 갈음). 시연 prerequisite 한계 ⚠️   |
-| **E12 관리자** 🔴   | 100%   | **100%** (변동 X) | E12-1~10 모두 완료 + 통합 E2E 통과                                                           |
+| E9 KYC 🔴           | 93%    | **93%** (변동 X)  | γ.2.3.3 KYC submit/pending Hesya 토큰 정합성 (단위 테스트 갈음). 시연 prerequisite 한계 ⚠️   |
+| **E12 관리자** 🔴   | 100%   | **100%** (시각 +) | E12-1~10 완료 + 통합 E2E + γ.2.3.4 8큐 디자인 정합성 적용 (시각 시그널 5종, 시연 통과)       |
 
-**P0 평균: 50.3% → 51%** (E1 +4, E9 +1 누적). γ.2.3 5-split 잔여 2단계(γ.2.3.4 admin 6큐 / γ.2.3.5 landing/마케팅) 진행에 따라 E1/E9/E12 시각 정합성 추가 상승 예정.
+**P0 평균: 51% → 51%** (E12 시각 정합성 추가 — 백분율 변동 없음, 객관 % 갭 0). γ.2.3 5-split 잔여 1단계(γ.2.3.5 landing/마케팅) 진행으로 마무리 예정.
 
 > ⚠️ E12-9 매장 해지는 e2e 통과 (owner 요청 → 취소 + admin 큐 cancelled). γ.2.1 KYC→inbox은 admin 클릭 + DB 검증 통과. **prod 시나리오 (실 OAuth 로그인 + 실 IG webhook 수신)**은 다음 phase에서 검증.
 > ⚠️ E9 +1은 시각 정합성만 (단위 테스트 className 기반). KYC submit/pending demo 시연은 미인증 user seed 보강 후 가능 — 별 PR 후보.
+> ✅ γ.2.3.4 admin 시연 prerequisite는 dev-demo.sh가 E2E_ADMIN_EMAIL inject로 자동 충족 — 별 PR 불요.
 
-## 본 세션 3 (2026-05-10) — Phase 1-γ.2.3.2 + γ.2.3.3
+## 본 세션 4 (2026-05-11) — Phase 1-γ.2.3.4
+
+### 머지된 PR
+
+| #                                                   | Task                                              | 상태                |
+| --------------------------------------------------- | ------------------------------------------------- | ------------------- |
+| [#108](https://github.com/jaydenjoo/hesya/pull/108) | γ.2.3.4 admin 8큐 디자인 정합성 적용 (5종 시그널) | ✅ 머지 (`38e9bd8`) |
+
+### Phase 1-γ.2.3.4 — Admin 8큐 디자인 정합성
+
+`docs/design/reference/admin-*.css` (admin-kyc / admin-chrome 등 5 reference) palette 기반 5종 시각 시그널 적용. **DB / Server Action / chrome 변경 0건**.
+
+1. **PageHeader h1**: `text-3xl font-bold` → `text-2xl + tracking-[-0.02em] + text-hesya-navy-900`
+2. **Filter pills**: `bg-black/text-white` → 3-state pill (default `border-gray-200` / hover `border-navy` / active `bg-navy text-peach-50`)
+3. **Table row**: `border-b` → `border-hesya-peach-100` + hover `bg-hesya-peach-50/40`
+4. **SLA / Status badge**: `text-red-600 / orange-600` → 초과 `bg-peach-100 text-red-500` / 경고 `text-hesya-amber-500`
+5. **Detail link**: `text-blue-600 underline` → `text-hesya-amber-500 hover:underline`
+
+적용 영역 (18 file):
+
+- **features (5)**: `features/admin/components/{disputes-list, dispute-detail, store-verifications-list, store-verification-detail}.tsx` + `features/store-deletion/components/admin-deletion-queue.tsx`
+- **admin/\* page.tsx (10)**: 8개 route + 2개 `[id]/page.tsx` — h1 + inline UI 토큰 정합
+  - 4개 큐 inline UI: ai-accuracy / api-policy-alerts / payment-monitoring / store-reports
+  - kyc-test: h1 + 4 primary button만 (WCAG AAA 주석 영역 보존)
+  - store-deletion 강제해지 form: red semantic 유지 (위험 액션 의도)
+- **신규 테스트 (3)**: disputes-list.test.tsx (8 cases) + admin-deletion-queue.test.tsx (6 cases) + store-verifications-list.test.tsx (+2 visual)
+
+총 18 files / +476/-134 / 신규 시각 시그널 unit tests 16개.
+
+### L-082 시연 prerequisite 자동 충족
+
+`dev-demo.sh`가 `E2E_ADMIN_EMAIL=demo-owner@hesya.local` + `E2E_AUTH_USER_ID` inject → `requireAdminEmail()` 즉시 우회 조건 (NODE_ENV !== production && E2E_ADMIN_EMAIL 있음) → `/ko/admin/*` 직접 접근 가능 → Playwright 8 페이지 캡처 시각 정합성 검증 통과.
+
+별 PR (dev-demo seed 미인증 user 보강)은 **불필요** — bypass 작동.
+
+### 검증
+
+- `pnpm --filter @hesya/web type-check` ✅ 0 errors
+- `pnpm lint` ✅ 0 errors / 0 warnings
+- `pnpm --filter @hesya/web exec vitest run src/features/admin src/features/store-deletion` ✅ 19 passed
+- `pnpm --filter @hesya/web build` ✅ Compiled successfully
+- Playwright 8 admin 페이지 시각 정합성 검증 ✅ (캡처: `.playwright-mcp/admin-*.png`)
+- CI 4단 통과 (Vercel preview / e2e-smoke / e2e-integration / validate) → auto-merge
+
+### Vercel 배포
+
+- PR #108 `38e9bd8` → main 자동 배포 진행 (deployment `AARDxtRUvRYoed7LrFbuKEx2wZ6r`)
+
+## 직전 세션 3 (2026-05-10) — Phase 1-γ.2.3.2 + γ.2.3.3
 
 ### 머지된 PR
 
@@ -175,35 +224,33 @@ demo 환경에 미인증 user seed 부재 → 직접 접근 시 sign-in redirect
 - e2e: store-deletion ✅ / epic-12-integration ✅ / kyc-to-inbox-flow ✅
 - Vercel Production: PR #100 머지 후 `4387501` success (이전 세션 기록), 본 세션 PR은 모두 main 머지만 — **수동 redeploy 미실행** (L-089 적용 — 필요 시 다음 세션 첫 행동에서 redeploy)
 
-## 다음 세션 가이드 — Phase 1-γ.2.3.4 (Admin 6개 큐 디자인 통일) 또는 demo seed 보강
+## 다음 세션 가이드 — Phase 1-γ.2.3.5 (Landing / 마케팅 / 디자인 시스템 데모)
 
 📄 **상세 plan**: `docs/Plan-v2-scenario-B.md`
 
 ### 다음 세션 첫 행동
 
-1. PROGRESS.md 본 파일 확인 (현재 위치 = γ.2.3.3 머지 완료, γ.2.3.4 또는 후속 진입 대기)
+1. PROGRESS.md 본 파일 확인 (현재 위치 = γ.2.3.4 머지 완료, γ.2.3.5 진입 대기 — 5-split 마무리)
 2. **L-091 확인** docs/learnings.md — Claude Code shell이 `ANTHROPIC_API_KEY=""` inject. dev 띄울 때 `unset ANTHROPIC_API_KEY &&` prefix 의무.
-3. **PR #107 prod 배포 검증** — main 머지 후 자동 배포 확인 (Vercel `5GGEdUvC6XxnVTma9dv3pSBVXT58` deployment 또는 후속)
-4. **분기 결정**:
-   - **(A) γ.2.3.4 admin 6큐 디자인 통일** (1.5일 예상) — 분쟁/결제이상/AI정확도/API정책/해지/KYC. reference: `Hesya Admin KYC.html` + `admin-kyc.css` + `Hesya Admin Login.html` + `admin-login.css` 활용
-   - **(B) demo seed 미인증 user 보강** (γ.2.3.3 후속, 0.5일) — KYC submit/pending 시연 가능화 (현재 단위 테스트 갈음 상태)
-   - 권장 순서: (A) 먼저 → γ.2.3 5-split 마무리 후 (B)는 ζ 단계 통합 검증 시 처리
-5. γ.2.3.4 plan v1 작성 (Pre-Plan Inventory 의무):
-   - 작업 영역: `apps/web/src/app/[locale]/admin/{disputes,payments,ai-accuracy,api-policy-alerts,store-deletion-requests,kyc-test}/`
-   - 6개 큐의 공통 list 패턴 식별 → 추상화 가능 여부 판단
-   - reference: `docs/design/reference/admin-*.css` + admin-app.jsx (있는 경우)
+3. **PR #108 prod 배포 검증** — main 머지 후 자동 배포 확인 (Vercel `AARDxtRUvRYoed7LrFbuKEx2wZ6r` deployment 또는 후속)
+4. **γ.2.3.5 plan v1 작성** (Pre-Plan Inventory 의무):
+   - 작업 영역: `apps/web/src/app/[locale]/page.tsx` (landing) + `apps/web/src/app/[locale]/design-system/` + 가능하면 마케팅 sub-pages
+   - reference: `docs/design/reference/{Hesya Customer Landing.html, Hesya Design System.html}` + corresponding css/jsx
+   - **이미 디자인 토큰이 적용된 영역**과 **신규 토큰 적용 영역** 구분 의무 (인벤토리 grep)
+   - 시연 prerequisite: landing은 public route (가드 없음) → dev-demo OR `pnpm dev` 둘 다 가능
+5. γ.2.3 5-split 마무리 후 γ.3 (Epic 1 채널 확장: WhatsApp / 카카오 / LINE) 진입 검토 — 신용/사업자 prerequisite 필요 (L-018 메모리)
 
 ### Phase 1-γ.2.3 — 디자인 정합성 5-split (잔여 2단계, 0.5~1주)
 
 `docs/design/reference/` 80 files (claude.ai/design 출력) 기반 단계적 적용:
 
-| 단계        | 영역                                                       | 예상  | 상태        |
-| ----------- | ---------------------------------------------------------- | ----- | ----------- |
-| γ.2.3.1     | Inbox 좌측 thread list + 헤더 디자인 토큰 적용             | 1일   | ✅ 완료     |
-| γ.2.3.2     | Inbox 메인 thread + draft review 패널                      | 1일   | ✅ 완료     |
-| γ.2.3.3     | Sign-in / KYC submit / KYC pending 페이지                  | 1일   | ✅ 완료     |
-| **γ.2.3.4** | **Admin 6개 큐 (분쟁/결제이상/AI정확도/API정책/해지/KYC)** | 1.5일 | **🔜 다음** |
-| γ.2.3.5     | Landing / 마케팅 / 디자인 시스템 데모 페이지               | 1일   | ⏳ 대기     |
+| 단계        | 영역                                             | 예상  | 상태        |
+| ----------- | ------------------------------------------------ | ----- | ----------- |
+| γ.2.3.1     | Inbox 좌측 thread list + 헤더 디자인 토큰 적용   | 1일   | ✅ 완료     |
+| γ.2.3.2     | Inbox 메인 thread + draft review 패널            | 1일   | ✅ 완료     |
+| γ.2.3.3     | Sign-in / KYC submit / KYC pending 페이지        | 1일   | ✅ 완료     |
+| γ.2.3.4     | Admin 8큐 (분쟁/검토/해지/AI/결제/API/신고/KYC)  | 0.5일 | ✅ 완료     |
+| **γ.2.3.5** | **Landing / 마케팅 / 디자인 시스템 데모 페이지** | 1일   | **🔜 다음** |
 
 ### Phase 1-γ.3 — Epic 1 채널 확장 (1.5~2주)
 
@@ -221,18 +268,18 @@ Recharts KPI 12개.
 
 demo.hesya.com Phase 2 도입 + 베타 1~2곳 onboarding.
 
-### 베타 5곳 출시 — 약 7~9주 후
+### 베타 5곳 출시 — 약 5~7주 후
 
 ## 차단 요소
 
-없음. Phase 1-γ.2.3.3 완료 → γ.2.3.4 진입 가능. (선택: demo seed 보강 후 KYC 시연 가능화)
+없음. Phase 1-γ.2.3.4 완료 → γ.2.3.5 진입 가능 (5-split 마무리).
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-10 (세션 3)
-- 세션 3 작업 시간: ~5h (γ.2.3.2 + γ.2.3.3 인벤토리 + 구현 + 시각 검증 + 양 PR 머지)
-- 세션 3 누적 머지: 2 PRs (#106 γ.2.3.2 / #107 γ.2.3.3)
-- 세션 3 누적 변경 (γ.2.3.2 + γ.2.3.3 합산): 16 files / +368/-75 / 신규 시각 시그널 unit tests 15개
+- 날짜: 2026-05-11 (세션 4)
+- 세션 4 작업 시간: ~2.5h (γ.2.3.4 인벤토리 + 구현 + 단위 테스트 + 시각 검증 + PR 머지) — PROGRESS 예상 1.5일 대비 빠름 (패턴 동일성 + 인벤토리 정확성 덕)
+- 세션 4 누적 머지: 1 PR (#108 γ.2.3.4 `38e9bd8`)
+- 세션 4 누적 변경: 18 files / +476/-134 / 신규 시각 시그널 unit tests 16개
 
 ## 컨텍스트 관리 강화 — 누적 (L-082 → L-091)
 
