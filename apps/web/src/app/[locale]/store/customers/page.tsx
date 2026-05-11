@@ -4,17 +4,15 @@ import { createDbClient } from "@hesya/database";
 
 import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
 import { OwnerShell } from "@/features/shell/owner-shell";
-import {
-  CustomersList,
-  type CustomerRow,
-} from "@/features/store-customers/customers-list";
+import { CustomersManager } from "@/features/store-customers/customers-manager";
+import type { CustomerRow } from "@/features/store-customers/types";
 import { env } from "@/shared/config/env";
 import { listCustomersByStore } from "@/shared/lib/dal/customers";
 import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 
 /**
- * Plan v3 M3.2 — 매장 외국인 손님 list (owner-side).
+ * Plan v3 M3.2 / Phase D3-C2 — 매장 외국인 손님 관리 (owner-side).
  *
  * 사장에게 메시지를 보낸 적이 있는 customer 표시. M2.6 customer-side 예약은
  * customers row 생성 X (M4.x에서 booker 통합 예정).
@@ -66,7 +64,7 @@ export default async function StoreCustomersPage({
       userInitial={shell.userInitial}
     >
       <div className="mx-auto max-w-6xl px-6 py-10">
-        <header className="mb-8 space-y-1">
+        <header className="mb-6 space-y-1">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
             Operator · Customers
           </p>
@@ -76,23 +74,53 @@ export default async function StoreCustomersPage({
           <p className="text-sm text-hesya-navy-900/65">{t("subtitle")}</p>
         </header>
 
-        <CustomersList
+        <CustomersManager
           rows={customerRows}
           labels={{
-            columnName: t("columnName"),
-            columnChannel: t("columnChannel"),
-            columnLanguage: t("columnLanguage"),
-            columnVisits: t("columnVisits"),
-            columnLtv: t("columnLtv"),
-            columnAllergyNote: t("columnAllergyNote"),
-            columnPreferredDesigner: t("columnPreferredDesigner"),
             emptyText: t("emptyText"),
-            editButton: t("editButton"),
-            saveButton: t("saveButton"),
-            cancelButton: t("cancelButton"),
-            allergyPlaceholder: t("allergyPlaceholder"),
-            preferredDesignerPlaceholder: t("preferredDesignerPlaceholder"),
-            unknownName: t("unknownName"),
+            filter: {
+              searchPlaceholder: t("searchPlaceholder"),
+              channelAll: t("channelAll"),
+              languageAll: t("languageAll"),
+              resultCount: t("resultCount"),
+            },
+            table: {
+              columnName: t("columnName"),
+              columnChannel: t("columnChannel"),
+              columnLanguage: t("columnLanguage"),
+              columnNationality: t("columnNationality"),
+              columnVisits: t("columnVisits"),
+              columnLtv: t("columnLtv"),
+              columnAllergy: t("columnAllergyNote"),
+              columnDesigner: t("columnPreferredDesigner"),
+              columnAction: t("columnAction"),
+              viewButton: t("viewButton"),
+              unknownName: t("unknownName"),
+              emptyDash: t("emptyDash"),
+            },
+            detail: {
+              closeLabel: t("detailCloseLabel"),
+              tabProfile: t("tabProfile"),
+              tabNotes: t("tabNotes"),
+              tabHistory: t("tabHistory"),
+              tabTags: t("tabTags"),
+              profileChannel: t("columnChannel"),
+              profileLanguage: t("columnLanguage"),
+              profileNationality: t("columnNationality"),
+              profileVisits: t("columnVisits"),
+              profileLtv: t("columnLtv"),
+              profileExternalId: t("profileExternalId"),
+              notesAllergyLabel: t("columnAllergyNote"),
+              notesDesignerLabel: t("columnPreferredDesigner"),
+              allergyPlaceholder: t("allergyPlaceholder"),
+              preferredDesignerPlaceholder: t("preferredDesignerPlaceholder"),
+              saveButton: t("saveButton"),
+              cancelButton: t("cancelButton"),
+              historyPlaceholder: t("historyPlaceholder"),
+              tagsPlaceholder: t("tagsPlaceholder"),
+              unknownName: t("unknownName"),
+              emptyDash: t("emptyDash"),
+            },
           }}
         />
       </div>
