@@ -3,10 +3,12 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-11 세션 16 진행 중)
+## 현재 위치 (2026-05-11 세션 17 진행 중)
 
-- **Phase**: **Plan v3 M1 5/5 + M2 7/7 + M3.1 머지** (M1 100% + M2 100% + **M3 1/5**) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 95% + E2 결제 60%)
-- **세션 16 머지**: **M3.1** 매장 시술 관리 CRUD (`91e6a21`) — services DAL CRUD 3 + 3 server actions + Client form + StoreServices 6 locale + 사용 중 booking 검사 (`countBookingsByService` wide range)
+- **Phase**: **Plan v3 M1 5/5 + M2 7/7 + M3.1+M3.2 머지** (M1 100% + M2 100% + **M3 2/5**) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 95% + E2 결제 60%)
+- **세션 16~17 머지**:
+  - **M3.1** 시술 관리 CRUD (`91e6a21`) — services DAL CRUD + 3 actions + Client form + booking 사용 중 검사
+  - **M3.2** 외국인 손님 list + 메모 편집 (`79064dd`) — customers DAL `listCustomersByStore` (conversations join distinct on) + `isCustomerInStore` + `updateCustomerNotesAction` + Client inline edit + StoreCustomers 6 locale
 - **세션 10~15 머지** (M2 phase 전체):
   - **M2.1** `/c/store/[id]` public 매장 detail (`603272b`)
   - **M2.2** `/c/store/[id]/photos` 사진 gallery (`ca3903d`)
@@ -217,26 +219,28 @@ CI 비활성화 (main 직접 push):
 - `pnpm --filter @hesya/web test --run` ✅ 676 passed / 103 skipped (M1.2 +5 mock-nts + M1.2 +6 mock-localdata + M1.3 +4 connect-instagram-mock)
 - `pnpm --filter @hesya/web build` ✅ Compiled successfully
 
-### 다음 세션 가이드 — Plan v3 M3 진행 (1/5 완료, 4 남음)
+### 다음 세션 가이드 — Plan v3 M3 진행 (2/5 완료, 3 남음)
 
-| Milestone                            | 우선순위 | 예상  | 비고                                                                              |
-| ------------------------------------ | -------- | ----- | --------------------------------------------------------------------------------- |
-| **M3.1 `/store/services`** (사장) ✅ | 완료     | -     | 세션 16 머지 (`91e6a21`). CRUD + 사용 중 booking 검사                             |
-| **M3.2 `/store/customers`** (사장)   | 🥇 1순위 | 1일   | 고객 list + 상세 (외국인 손님 누적 보기). 시드된 customers 25명 표시              |
-| **M3.3 `/store/settings`** (사장)    | 2순위    | 1일   | 매장 영업시간/주소/연락처 설정. 영업시간 컬럼 신규 (M2.3 hard-code 교체)          |
-| **M3.4 `/store/mypage`** (사장)      | 3순위    | 0.5일 | 사장 프로필 (이름·이메일·언어). Better Auth `users` + store_owners role 표시      |
-| **M3.5 `/store/photos`** (사장)      | 4순위    | 0.5일 | 사장 측 사진 업로드 (M2.2 customer view 대응). `stores.photo_urls` 컬럼 도입 후보 |
+| Milestone                             | 우선순위 | 예상  | 비고                                                                              |
+| ------------------------------------- | -------- | ----- | --------------------------------------------------------------------------------- |
+| **M3.1 `/store/services`** (사장) ✅  | 완료     | -     | `91e6a21`                                                                         |
+| **M3.2 `/store/customers`** (사장) ✅ | 완료     | -     | 세션 17 머지 (`79064dd`). list + 메모 inline edit                                 |
+| **M3.3 `/store/settings`** (사장)     | 🥇 1순위 | 1일   | 매장 영업시간/주소/연락처. 영업시간 컬럼 신규 (M2.3 hard-code 교체)               |
+| **M3.4 `/store/mypage`** (사장)       | 2순위    | 0.5일 | 사장 프로필. Better Auth `users` + store_owners role 표시                         |
+| **M3.5 `/store/photos`** (사장)       | 3순위    | 0.5일 | 사장 측 사진 업로드 (M2.2 customer view 대응). `stores.photo_urls` 컬럼 도입 후보 |
 
-총 M3 잔여 ~3일.
+총 M3 잔여 ~2일.
 
-**M3.2 사전 인벤토리** (다음 세션 시작 시 의무):
+**M3.3 사전 인벤토리** (다음 세션 시작 시 의무):
 
-- `customers` schema 컬럼 (name/email/nationality/preferredLanguage/totalVisits/ltvKrw/allergyNote/preferredDesigner/igProfileFetched 등)
-- `customers` DAL: `getCustomerById`, `getCustomerPreferredLanguage`, `upsertCustomer`, `updateCustomerProfile`, `updateCustomerNotes` 이미 존재 → list/filter 패턴 필요
-- 시드된 customers 25명 (instagram channel, en/ja/zh/vi/th 5종) — list 표시에 충분
-- 사장 메모 (allergyNote / preferredDesigner) inline edit UX 후보
-- 외국인 손님 LTV 표시 (다국어 환산?)
-- M2.6에서 booker 정보를 `bookings.notesMultilang.booker`에 저장한 손님은 customers row 없음 — list에 어떻게 표시? (booking에서 join 가능 별 view)
+- `stores` schema 컬럼: name/category/region/address/phone — 영업시간 컬럼 **없음**
+- 결정: `stores.business_hours jsonb` 컬럼 마이그 0026 신규 도입? 또는 별 테이블?
+  - 옵션 A: `stores.business_hours` jsonb (`{ mon: {open: "10:00", close: "20:00"}, tue: ... }`) — 단순
+  - 옵션 B: 신규 `store_business_hours` 테이블 (요일별 row) — flexible but 마이그 부담↑
+- M2.3 schedule UI의 `BUSINESS_HOUR_START/END = 10/20` 상수 → 매장별 dynamic 교체
+- `stores.address` jsonb 형식 확인 (`{full, postal?}`)
+- packages/database/CLAUDE.md 마이그 절차 의무 — manual SQL + ROLLBACK 주석
+- Jayden 수동 apply (🔴 보안)
 
 ## 직전 세션 8 (2026-05-11) — Phase 1-ζ Prep (베타 매칭 docs 준비)
 
