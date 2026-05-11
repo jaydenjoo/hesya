@@ -184,7 +184,10 @@
     "subtitle": "完成作品畫廊",
     "by": "— {name}",
     "empty": "尚未上傳照片。",
-    "backToStore": "← 返回門市"
+    "backToStore": "← 返回門市",
+    "lightboxClose": "關閉",
+    "lightboxPrev": "上一張",
+    "lightboxNext": "下一張"
   },
   "BookSchedule": {
     "eyebrow": "預約",

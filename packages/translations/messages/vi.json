@@ -184,7 +184,10 @@
     "subtitle": "Bộ sưu tập các kiểu đã làm",
     "by": "— {name}",
     "empty": "Chưa có ảnh nào.",
-    "backToStore": "← Quay lại cửa hàng"
+    "backToStore": "← Quay lại cửa hàng",
+    "lightboxClose": "Đóng",
+    "lightboxPrev": "Ảnh trước",
+    "lightboxNext": "Ảnh sau"
   },
   "BookSchedule": {
     "eyebrow": "Đặt lịch",

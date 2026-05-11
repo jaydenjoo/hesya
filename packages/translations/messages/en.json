@@ -184,7 +184,10 @@
     "subtitle": "Gallery of completed services",
     "by": "— {name}",
     "empty": "No photos uploaded yet.",
-    "backToStore": "← Back to store"
+    "backToStore": "← Back to store",
+    "lightboxClose": "Close",
+    "lightboxPrev": "Previous photo",
+    "lightboxNext": "Next photo"
   },
   "BookSchedule": {
     "eyebrow": "Booking",

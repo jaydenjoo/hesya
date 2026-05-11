@@ -2,6 +2,11 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
+import { CustomerFrame } from "@/features/customer-frame/customer-frame";
+import {
+  PhotoLightbox,
+  type LightboxPhoto,
+} from "@/features/store-detail-customer/photo-lightbox";
 import { Link } from "@/i18n/navigation";
 import { env } from "@/shared/config/env";
 import { listStaffByStore } from "@/shared/lib/dal/staff";
@@ -10,19 +15,14 @@ import { getStorePublicById } from "@/shared/lib/dal/stores";
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-type PhotoCard = {
-  url: string;
-  staffName: string;
-};
-
 /**
- * Plan v3 M2.2 — customer-side public 매장 사진 gallery.
+ * Plan v3 M2.2 / Phase D2-B5 — customer-side public 매장 사진 gallery
+ * (디자인 정합 보완).
  *
- * 별도 `stores.photo_urls` 컬럼 없이 `staff.portfolio_urls`를 flatten해서 노출.
- * 디자이너 portfolio가 매장 대표 사진의 1순위 후보이기 때문. 정식 매장 자체
- * 사진 컬럼은 베타 출시 후 schema 확장 단계에서 추가 (M5+).
+ * CustomerFrame wrap (peach gradient + 데스크톱 iPhone-frame). 사진 클릭 시
+ * fullscreen lightbox (ESC / 좌우 화살표 / 클릭 close).
  *
- * `auto_approved` + soft-delete X 매장만 노출 (M2.1과 동일 가드).
+ * `staff.portfolio_urls` flatten — 정식 매장 사진 컬럼은 M5+ schema 확장 시.
  */
 export default async function StorePhotosPage({
   params,
@@ -42,65 +42,46 @@ export default async function StorePhotosPage({
   }
 
   const staffList = await listStaffByStore(db, store.id);
-  const photos: PhotoCard[] = staffList.flatMap((person) =>
+  const t = await getTranslations({ locale, namespace: "StorePhotos" });
+
+  const photos: LightboxPhoto[] = staffList.flatMap((person) =>
     (person.portfolioUrls ?? []).map((url) => ({
       url,
-      staffName: person.name,
+      caption: t("by", { name: person.name }),
     })),
   );
 
-  const t = await getTranslations({ locale, namespace: "StorePhotos" });
-
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
-      <header className="mb-10 space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
-          {t("eyebrow")}
-        </p>
-        <h1
-          className="text-4xl font-semibold text-hesya-navy-900"
-          style={{ fontFamily: "'Fraunces', serif", letterSpacing: "-0.02em" }}
-        >
-          {store.name}
-        </h1>
-        <p className="text-sm text-hesya-navy-900/70">{t("subtitle")}</p>
-        <Link
-          href={`/c/store/${store.id}`}
-          className="inline-block text-sm text-hesya-amber-600 hover:underline"
-        >
-          {t("backToStore")}
-        </Link>
-      </header>
+    <CustomerFrame>
+      <div className="px-5 pb-8 pt-6">
+        <header className="mb-6 space-y-1.5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-hesya-amber-600">
+            {t("eyebrow")}
+          </p>
+          <h1 className="font-heading text-[26px] font-semibold italic leading-tight tracking-[-0.02em] text-hesya-navy-900">
+            {store.name}
+          </h1>
+          <p className="text-[12px] text-hesya-navy-900/65">{t("subtitle")}</p>
+          <Link
+            href={`/c/store/${store.id}`}
+            className="inline-block pt-1 text-[12px] text-hesya-amber-600 hover:underline"
+          >
+            ← {t("backToStore")}
+          </Link>
+        </header>
 
-      <h2 className="mb-4 text-lg font-semibold text-hesya-navy-900">
-        {t("heading")}
-      </h2>
+        <h2 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+          {t("heading")}
+        </h2>
 
-      {photos.length === 0 ? (
-        <p className="rounded-2xl border border-hesya-peach-100 bg-white px-6 py-12 text-center text-sm text-hesya-navy-900/55">
-          {t("empty")}
-        </p>
-      ) : (
-        <ul className="grid grid-cols-2 gap-3 md:grid-cols-3">
-          {photos.map((photo, idx) => (
-            <li
-              key={`${photo.url}-${idx}`}
-              className="group overflow-hidden rounded-2xl border border-hesya-peach-100 bg-white"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photo.url}
-                alt={photo.staffName}
-                className="aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                loading="lazy"
-              />
-              <p className="px-3 py-2 text-xs text-hesya-navy-900/65">
-                {t("by", { name: photo.staffName })}
-              </p>
-            </li>
-          ))}
-        </ul>
-      )}
-    </main>
+        <PhotoLightbox
+          photos={photos}
+          emptyLabel={t("empty")}
+          closeLabel={t("lightboxClose")}
+          prevLabel={t("lightboxPrev")}
+          nextLabel={t("lightboxNext")}
+        />
+      </div>
+    </CustomerFrame>
   );
 }

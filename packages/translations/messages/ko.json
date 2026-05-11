@@ -184,7 +184,10 @@
     "subtitle": "매장 시술 결과 갤러리",
     "by": "— {name}",
     "empty": "아직 등록된 사진이 없습니다.",
-    "backToStore": "← 매장 상세로"
+    "backToStore": "← 매장 상세로",
+    "lightboxClose": "닫기",
+    "lightboxPrev": "이전 사진",
+    "lightboxNext": "다음 사진"
   },
   "BookSchedule": {
     "eyebrow": "예약",

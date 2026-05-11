@@ -184,7 +184,10 @@
     "subtitle": "施術ギャラリー",
     "by": "— {name}",
     "empty": "まだ写真がありません。",
-    "backToStore": "← お店に戻る"
+    "backToStore": "← お店に戻る",
+    "lightboxClose": "閉じる",
+    "lightboxPrev": "前の写真",
+    "lightboxNext": "次の写真"
   },
   "BookSchedule": {
     "eyebrow": "ご予約",
