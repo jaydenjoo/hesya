@@ -2,6 +2,12 @@
   "Common": {
     "signIn": "使用 Google 登入"
   },
+  "Landing": {
+    "subCopy": "用您的母語預約 K-Beauty 沙龍——不用韓語 App,不用尷尬的 DM。",
+    "ownerCta": "店主登入 →",
+    "customerNote": "客戶搜尋將在 Beta 沙龍加入後開放。",
+    "footerHint": "Beta — 僅限韓國美容/養生行業"
+  },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",

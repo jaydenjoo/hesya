@@ -2,6 +2,12 @@
   "Common": {
     "signIn": "Đăng nhập bằng Google"
   },
+  "Landing": {
+    "subCopy": "Đặt lịch salon K-beauty bằng ngôn ngữ của bạn — không cần app tiếng Hàn, không cần DM khó xử.",
+    "ownerCta": "Đăng nhập chủ salon →",
+    "customerNote": "Tìm kiếm dành cho khách sẽ mở khi các salon beta tham gia.",
+    "footerHint": "Beta — chỉ ngành làm đẹp / chăm sóc Hàn Quốc"
+  },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",

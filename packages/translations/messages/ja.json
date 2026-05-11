@@ -2,6 +2,12 @@
   "Common": {
     "signIn": "Googleでログイン"
   },
+  "Landing": {
+    "subCopy": "K-ビューティーサロンを母国語で予約。韓国語アプリも、ぎこちないDMも不要です。",
+    "ownerCta": "オーナーログイン →",
+    "customerNote": "お客様向け検索はベータサロン加盟後に公開予定。",
+    "footerHint": "ベータ — 韓国美容業・自由業のみ"
+  },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",

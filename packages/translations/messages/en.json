@@ -2,6 +2,12 @@
   "Common": {
     "signIn": "Sign in with Google"
   },
+  "Landing": {
+    "subCopy": "Book K-beauty salons in your language — no Korean app, no awkward DMs.",
+    "ownerCta": "Salon owner sign-in →",
+    "customerNote": "Customer search opens after beta salons join.",
+    "footerHint": "Beta — Korean beauty / wellness only"
+  },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",
