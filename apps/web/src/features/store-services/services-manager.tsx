@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Plan v3 M3.1 / Phase D3-C1-a — 매장 시술 관리 (디자인 정합 재구성, shell).
+ * Plan v3 M3.1 / Phase D3-C1-a~b — 매장 시술 관리 (디자인 정합 재구성).
  *
- * 2-panel layout: 좌측 CategorySidebar + 우측 ServiceCard grid.
- * Add/Edit form은 현재 inline (D3-C1-b에서 EditorPanel side-sheet로 분리 예정).
+ * 2-panel layout: 좌측 CategorySidebar + 우측 ServiceCard grid + 우측 슬라이드
+ * EditorPanel (D3-C1-b). 6 언어 (Ko + En + Ja + ZhCn + ZhTw + Vi) 입력.
  * 번역률 progress bar (모든 5 non-Ko 이름 완료 비율).
  */
 
@@ -17,6 +17,12 @@ import {
 } from "@/lib/store-services/actions";
 
 import { CategorySidebar } from "./category-sidebar";
+import {
+  EMPTY_EDITOR_VALUE,
+  EditorPanel,
+  type EditorFormValue,
+  type EditorPanelLabels,
+} from "./editor-panel";
 import { ServiceCard } from "./service-card";
 
 export interface ServiceRow {
@@ -34,22 +40,15 @@ export interface ServiceRow {
 
 export interface ServicesManagerLabels {
   readonly addButton: string;
-  readonly cancelButton: string;
-  readonly saveButton: string;
   readonly editButton: string;
   readonly deleteButton: string;
-  readonly nameKoLabel: string;
-  readonly nameEnLabel: string;
-  readonly nameJaLabel: string;
-  readonly priceKrwLabel: string;
-  readonly durationLabel: string;
-  readonly categoryLabel: string;
   readonly emptyText: string;
   readonly deleteConfirm: string;
   readonly allCategoryLabel: string;
   readonly translatedLabel: string;
   readonly servicesCount: string;
   readonly requiredError: string;
+  readonly editor: EditorPanelLabels;
 }
 
 interface Props {
@@ -57,29 +56,14 @@ interface Props {
   readonly labels: ServicesManagerLabels;
 }
 
-type FormState = {
-  nameKo: string;
-  nameEn: string;
-  nameJa: string;
-  priceKrw: string;
-  durationMinutes: string;
-  category: string;
-};
-
-const EMPTY_FORM: FormState = {
-  nameKo: "",
-  nameEn: "",
-  nameJa: "",
-  priceKrw: "",
-  durationMinutes: "",
-  category: "",
-};
-
-function rowToForm(row: ServiceRow): FormState {
+function rowToEditor(row: ServiceRow): EditorFormValue {
   return {
     nameKo: row.nameKo,
     nameEn: row.nameEn ?? "",
     nameJa: row.nameJa ?? "",
+    nameZhCn: row.nameZhCn ?? "",
+    nameZhTw: row.nameZhTw ?? "",
+    nameVi: row.nameVi ?? "",
     priceKrw: String(row.priceKrw),
     durationMinutes:
       row.durationMinutes != null ? String(row.durationMinutes) : "",
@@ -87,11 +71,14 @@ function rowToForm(row: ServiceRow): FormState {
   };
 }
 
-function formToInput(f: FormState) {
+function editorToInput(f: EditorFormValue) {
   return {
     nameKo: f.nameKo.trim(),
     nameEn: f.nameEn.trim() || null,
     nameJa: f.nameJa.trim() || null,
+    nameZhCn: f.nameZhCn.trim() || null,
+    nameZhTw: f.nameZhTw.trim() || null,
+    nameVi: f.nameVi.trim() || null,
     priceKrw: Number(f.priceKrw),
     durationMinutes: f.durationMinutes ? Number(f.durationMinutes) : null,
     category: f.category.trim() || null,
@@ -121,7 +108,7 @@ export function ServicesManager({ initialRows, labels }: Props) {
   const [pending, startTransition] = useTransition();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [form, setForm] = useState<EditorFormValue>(EMPTY_EDITOR_VALUE);
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("__all__");
 
@@ -144,36 +131,36 @@ export function ServicesManager({ initialRows, labels }: Props) {
   }, [initialRows, activeCategory]);
 
   const completeness = translationCompleteness(initialRows);
+  const open = creating || editingId !== null;
 
   const handleStartCreate = () => {
     setCreating(true);
     setEditingId(null);
-    setForm(EMPTY_FORM);
+    setForm(EMPTY_EDITOR_VALUE);
     setError(null);
   };
 
   const handleStartEdit = (row: ServiceRow) => {
     setEditingId(row.id);
     setCreating(false);
-    setForm(rowToForm(row));
+    setForm(rowToEditor(row));
     setError(null);
   };
 
-  const handleCancel = () => {
+  const handleClose = () => {
     setCreating(false);
     setEditingId(null);
-    setForm(EMPTY_FORM);
+    setForm(EMPTY_EDITOR_VALUE);
     setError(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     setError(null);
     if (!form.nameKo.trim() || !form.priceKrw) {
       setError(labels.requiredError);
       return;
     }
-    const input = formToInput(form);
+    const input = editorToInput(form);
     startTransition(async () => {
       const result = editingId
         ? await updateServiceAction({ id: editingId, ...input })
@@ -182,7 +169,7 @@ export function ServicesManager({ initialRows, labels }: Props) {
         setError(result.message);
         return;
       }
-      handleCancel();
+      handleClose();
     });
   };
 
@@ -214,129 +201,16 @@ export function ServicesManager({ initialRows, labels }: Props) {
             </span>
           </div>
         </div>
-        {!creating && !editingId ? (
-          <button
-            type="button"
-            onClick={handleStartCreate}
-            className="rounded-full bg-hesya-amber-500 px-4 py-2 text-[13px] font-semibold text-hesya-navy-900 transition hover:bg-hesya-amber-600"
-          >
-            {labels.addButton}
-          </button>
-        ) : null}
+        <button
+          type="button"
+          onClick={handleStartCreate}
+          className="rounded-full bg-hesya-amber-500 px-4 py-2 text-[13px] font-semibold text-hesya-navy-900 transition hover:bg-hesya-amber-600"
+        >
+          {labels.addButton}
+        </button>
       </div>
 
-      {(creating || editingId) && (
-        <form
-          onSubmit={handleSubmit}
-          className="mb-6 space-y-3 rounded-2xl border border-hesya-peach-200 bg-white px-4 py-4"
-        >
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div>
-              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-hesya-navy-900/60">
-                {labels.nameKoLabel}{" "}
-                <span className="text-hesya-amber-600">*</span>
-              </label>
-              <input
-                type="text"
-                value={form.nameKo}
-                onChange={(e) => setForm({ ...form, nameKo: e.target.value })}
-                className="w-full rounded-lg border border-hesya-peach-200 px-3 py-2 text-[13px] focus:border-hesya-navy-900 focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-hesya-navy-900/60">
-                {labels.nameEnLabel}
-              </label>
-              <input
-                type="text"
-                value={form.nameEn}
-                onChange={(e) => setForm({ ...form, nameEn: e.target.value })}
-                className="w-full rounded-lg border border-hesya-peach-200 px-3 py-2 text-[13px] focus:border-hesya-navy-900 focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-hesya-navy-900/60">
-                {labels.nameJaLabel}
-              </label>
-              <input
-                type="text"
-                value={form.nameJa}
-                onChange={(e) => setForm({ ...form, nameJa: e.target.value })}
-                className="w-full rounded-lg border border-hesya-peach-200 px-3 py-2 text-[13px] focus:border-hesya-navy-900 focus:outline-none"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div>
-              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-hesya-navy-900/60">
-                {labels.priceKrwLabel}{" "}
-                <span className="text-hesya-amber-600">*</span>
-              </label>
-              <input
-                type="number"
-                min={0}
-                step={1000}
-                value={form.priceKrw}
-                onChange={(e) => setForm({ ...form, priceKrw: e.target.value })}
-                className="w-full rounded-lg border border-hesya-peach-200 px-3 py-2 text-[13px] focus:border-hesya-navy-900 focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-hesya-navy-900/60">
-                {labels.durationLabel}
-              </label>
-              <input
-                type="number"
-                min={1}
-                max={1440}
-                value={form.durationMinutes}
-                onChange={(e) =>
-                  setForm({ ...form, durationMinutes: e.target.value })
-                }
-                className="w-full rounded-lg border border-hesya-peach-200 px-3 py-2 text-[13px] focus:border-hesya-navy-900 focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-hesya-navy-900/60">
-                {labels.categoryLabel}
-              </label>
-              <input
-                type="text"
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-                placeholder="haircut / color / nail …"
-                className="w-full rounded-lg border border-hesya-peach-200 px-3 py-2 text-[13px] focus:border-hesya-navy-900 focus:outline-none"
-              />
-            </div>
-          </div>
-          {error && (
-            <p
-              role="alert"
-              className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[11px] text-red-700"
-            >
-              {error}
-            </p>
-          )}
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              disabled={pending}
-              className="rounded-full bg-hesya-navy-900 px-5 py-2 text-[13px] font-semibold text-hesya-peach-50 transition hover:bg-hesya-navy-900/90 disabled:opacity-60"
-            >
-              {pending ? "…" : labels.saveButton}
-            </button>
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="rounded-full border border-hesya-peach-200 px-5 py-2 text-[13px] font-semibold text-hesya-navy-900 transition hover:border-hesya-amber-500"
-            >
-              {labels.cancelButton}
-            </button>
-          </div>
-        </form>
-      )}
-
-      {error && !creating && !editingId && (
+      {error && !open && (
         <p
           role="alert"
           className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[11px] text-red-700"
@@ -374,6 +248,18 @@ export function ServicesManager({ initialRows, labels }: Props) {
           )}
         </div>
       </div>
+
+      <EditorPanel
+        open={open}
+        mode={creating ? "create" : "edit"}
+        value={form}
+        onChange={setForm}
+        onSubmit={handleSubmit}
+        onClose={handleClose}
+        pending={pending}
+        error={error}
+        labels={labels.editor}
+      />
     </div>
   );
 }
