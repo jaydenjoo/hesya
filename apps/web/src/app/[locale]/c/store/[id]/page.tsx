@@ -9,7 +9,18 @@ import { BottomActionBar } from "@/features/store-detail-customer/bottom-action-
 import { HeroGallery } from "@/features/store-detail-customer/hero-gallery";
 import { SafetyProfileStrip } from "@/features/store-detail-customer/safety-profile-strip";
 import { StickyMiniHeader } from "@/features/store-detail-customer/sticky-mini-header";
-import { Link } from "@/i18n/navigation";
+import { TabInfo } from "@/features/store-detail-customer/tab-info";
+import { TabPlaceholder } from "@/features/store-detail-customer/tab-placeholder";
+import { TabReviews } from "@/features/store-detail-customer/tab-reviews";
+import {
+  TabServices,
+  type ServiceItem,
+} from "@/features/store-detail-customer/tab-services";
+import {
+  TabStylists,
+  type StylistItem,
+} from "@/features/store-detail-customer/tab-stylists";
+import { DetailTabs } from "@/features/store-detail-customer/tabs";
 import { env } from "@/shared/config/env";
 import { listServicesByStore } from "@/shared/lib/dal/services";
 import { listStaffByStore } from "@/shared/lib/dal/staff";
@@ -97,6 +108,10 @@ export default async function StoreDetailPage({
   ]);
 
   const t = await getTranslations({ locale, namespace: "StoreDetail" });
+  const tSettings = await getTranslations({
+    locale,
+    namespace: "StoreSettings",
+  });
   const address = formatAddress(store.address, store.region);
 
   const photos = staffList
@@ -109,6 +124,22 @@ export default async function StoreDetailPage({
     for (const l of s.languages ?? []) languageSet.add(l);
 
   const hoursValue = summarizeHours(store.businessHours, "10:00–20:00");
+
+  const serviceItems: ServiceItem[] = services.map((s) => ({
+    id: s.id,
+    name: pickServiceName(s, locale),
+    priceFormatted: formatPriceForLocale(s.priceKrw, locale),
+    durationLabel: s.durationMinutes
+      ? t("durationMinutes", { minutes: s.durationMinutes })
+      : null,
+  }));
+
+  const stylistItems: StylistItem[] = staffList.map((p) => ({
+    id: p.id,
+    name: p.name,
+    languages: p.languages ?? [],
+    thumbnailUrl: p.portfolioUrls?.[0] ?? null,
+  }));
 
   return (
     <CustomerFrame>
@@ -154,86 +185,59 @@ export default async function StoreDetailPage({
           langValue={languageSet.size.toString()}
         />
 
-        <div className="space-y-7 px-5 pt-6 pb-8">
-          <section>
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-heading text-[18px] font-semibold italic tracking-tight text-hesya-navy-900">
-                {t("servicesHeading")}
-              </h2>
-              <Link
-                href={`/c/store/${store.id}/photos`}
-                className="text-[12px] font-medium text-hesya-amber-600 hover:underline"
-              >
-                {t("viewPhotos")} →
-              </Link>
-            </div>
-            {services.length === 0 ? (
-              <p className="text-sm text-hesya-navy-900/55">—</p>
-            ) : (
-              <ul className="divide-y divide-hesya-peach-100 rounded-2xl border border-hesya-peach-200 bg-white">
-                {services.slice(0, 6).map((s) => (
-                  <li
-                    key={s.id}
-                    className="flex items-center justify-between gap-3 px-4 py-3"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[14px] font-medium text-hesya-navy-900">
-                        {pickServiceName(s, locale)}
-                      </p>
-                      {s.durationMinutes && (
-                        <p className="mt-0.5 text-[11px] text-hesya-navy-900/55">
-                          {t("durationMinutes", { minutes: s.durationMinutes })}
-                        </p>
-                      )}
-                    </div>
-                    <p className="flex-shrink-0 text-[13px] font-semibold text-hesya-amber-600">
-                      {formatPriceForLocale(s.priceKrw, locale)}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-
-          <section>
-            <h2 className="mb-3 font-heading text-[18px] font-semibold italic tracking-tight text-hesya-navy-900">
-              {t("staffHeading")}
-            </h2>
-            {staffList.length === 0 ? (
-              <p className="text-sm text-hesya-navy-900/55">—</p>
-            ) : (
-              <ul className="space-y-2">
-                {staffList.map((person) => (
-                  <li
-                    key={person.id}
-                    className="flex items-center gap-3 rounded-2xl border border-hesya-peach-200 bg-white px-4 py-3"
-                  >
-                    <span className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-full bg-hesya-peach-100 font-heading text-[14px] font-semibold italic text-hesya-navy-900">
-                      {person.name[0]?.toUpperCase() ?? "·"}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[14px] font-medium text-hesya-navy-900">
-                        {person.name}
-                      </p>
-                      {person.languages && person.languages.length > 0 && (
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          {person.languages.slice(0, 4).map((lang) => (
-                            <span
-                              key={lang}
-                              className="rounded-full bg-hesya-peach-50 px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-hesya-navy-900/65"
-                            >
-                              {lang}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        </div>
+        <DetailTabs
+          labels={[
+            t("tabServices"),
+            t("tabStylists"),
+            t("tabReviews"),
+            t("tabInfo"),
+            t("tabCompare"),
+            t("tabLiveUgc"),
+          ]}
+        >
+          <TabServices items={serviceItems} emptyLabel={t("emptyServices")} />
+          <TabStylists items={stylistItems} emptyLabel={t("emptyStylists")} />
+          <TabReviews
+            comingSoonLabel={t("reviewsComingSoon")}
+            sampleAuthor1={t("reviewSampleAuthor1")}
+            sampleAuthor2={t("reviewSampleAuthor2")}
+            sampleAuthor3={t("reviewSampleAuthor3")}
+            sampleQuote1={t("reviewSampleQuote1")}
+            sampleQuote2={t("reviewSampleQuote2")}
+            sampleQuote3={t("reviewSampleQuote3")}
+          />
+          <TabInfo
+            hours={store.businessHours}
+            hoursTitle={t("infoHoursTitle")}
+            hoursFallback={t("infoHoursFallback")}
+            closedLabel={t("infoClosedLabel")}
+            addressTitle={t("infoAddressTitle")}
+            addressText={address}
+            addressFallback={t("infoAddressFallback")}
+            verificationTitle={t("infoVerificationTitle")}
+            verificationBody={t("infoVerificationBody")}
+            kVerifiedShort={t("kVerifiedShort")}
+            dayLabels={{
+              mon: tSettings("dayMon"),
+              tue: tSettings("dayTue"),
+              wed: tSettings("dayWed"),
+              thu: tSettings("dayThu"),
+              fri: tSettings("dayFri"),
+              sat: tSettings("daySat"),
+              sun: tSettings("daySun"),
+            }}
+          />
+          <TabPlaceholder
+            icon="⇋"
+            heading={t("compareHeading")}
+            body={t("compareBody")}
+          />
+          <TabPlaceholder
+            icon="◐"
+            heading={t("liveUgcHeading")}
+            body={t("liveUgcBody")}
+          />
+        </DetailTabs>
       </div>
 
       <BottomActionBar
