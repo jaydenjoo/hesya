@@ -1,10 +1,21 @@
 name: CI
 
+# 2026-05-11: GitHub Actions Free 한도 (Private repo 2000분/월) 소진 + 결제 잔액 없음.
+# Vercel preview build (type-check + build) + 로컬 pnpm test (661 단위 + Playwright e2e)로 검증 갈음.
+#
+# 자동 trigger 비활성화 — 향후 PR/main push에서 분 소비 0.
+# workflow_dispatch만 남겨서 GitHub UI에서 필요 시 수동 실행 가능 (한도 리셋 후).
+#
+# 재활성화 조건:
+# - 6월 1일(UTC) 한도 리셋 후 paths-ignore(docs-only PR skip) + e2e-integration nightly로 최적화
+# - 또는 Repo Public 전환 → 무제한 무료
+# - 또는 self-hosted runner 도입
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
+  workflow_dispatch:
+  # pull_request:
+  #   branches: [main]
+  # push:
+  #   branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -3369,3 +3369,39 @@ expected [ messages, conversations, …(11) ] to deeply equal
 **비유**: 가족 행사 때 "이번에 새 식기 5세트 사면 식기장 정리도 다 다시 해야 한다" — 식기장(`resetDb` production), 식기 목록표(unit test assertion), 손님용 임시 식기장(e2e fixture) 3 곳. 하나만 정리하면 다른 데서 "식기 안 맞아!" 사고. 한 번에 3곳 동기화 의무.
 
 **연관**: L-078 (Pre-Plan Inventory가 새 테이블 도입 시 인접 helper 영향 검색 누락), L-082 (PROGRESS 자기평가 e2e 시연 기준 — CI 실 실행이 진짜 시연 prerequisite), 글로벌 `inventory-protocol.md` 4단계 (해당 폴더 CLAUDE.md 절차 — 본 L-092 후속 patch 후보), 본 세션 PR #111 a6f16af + 158adef 2 추가 commit.
+
+### [2026-05-11] L-093 — Private repo Free plan + Budget $0 조합이 GitHub Actions CI를 즉시 차단
+
+**상황**: 세션 9 PR #112 + #113 모두 CI fail. 3 job (validate/e2e-smoke/e2e-integration) 다 startup 직후 10초 abort, step 0. main push runs는 `conclusion=skipped`. 재시도 3번 모두 동일.
+
+**1차 진단 (틀림)**: transient runner 이슈 → empty commit fresh trigger → 동일 fail.
+
+**2차 진단 (확정)**: Jayden web UI 스크린샷에 Budgets and alerts 5 SKU 모두 `Budget $0 / Stop usage=Yes / 100%`. Free 2000분/월 한도 소진 (여러 private repo 합산) + Budget $0 차단. 결제 잔액 0.
+
+**해결**: ci.yml의 `on: pull_request` + `on: push` trigger 주석 처리, `workflow_dispatch`만 유지. CI 자동 실행 비활성화. Vercel preview build (type-check + build) + 로컬 `pnpm test` (661) + lint-staged pre-commit (prettier + eslint + gitleaks)로 검증 갈음. PR #112/#113은 main protection 없어 admin override squash 머지 (`72acef4` + `e94ff84`).
+
+**규칙** ⭐:
+
+1. **Private + Free repo는 CI 분 소비를 무시하면 안 됨** — 단일 PR 15분 × 다수 PR + main push가 빠르게 누적. 여러 private repo 합산 (hesya + pg-system + autovox 등 모든 Jayden private) = 단일 한도에서 소비.
+2. **Spending Budget UI에서 모든 SKU `$0/Stop usage=Yes` 패턴은 즉시 차단** — 결제 잔액 있어도 운영자 명시 unlock 안 했으면 차단. 잔액과 별개 layer.
+3. **CI 차단 시 4가지 대안** (영구 무료):
+   - (a) Public 전환 — Actions 무제한, 단 코드 노출
+   - (b) Self-hosted runner — PC 켜진 동안만 동작
+   - (c) **Vercel + 로컬 검증 (본 선택)** — 가장 단순 + 영업 비밀 보존
+   - (d) CircleCI 마이그 — 학습 부담
+4. **6월 1일(UTC) 리셋 후 재활성화 시 의무 최적화**:
+   - `paths-ignore: ['docs/**']` — docs-only PR skip
+   - `e2e-integration`을 nightly schedule만
+   - `concurrency.cancel-in-progress: true` (이미 적용 ✅)
+5. **main branch protection 없으면 admin override 불필요** — `gh pr merge --squash` 일반 가능.
+6. **CI 진단 시 system.txt + main push runs 패턴 동시 확인** — main `skipped` + PR startup abort = billing 차단 / workflow disabled / GitHub outage 중 하나.
+
+**확인 방법**:
+
+- 자동(후보): 매월 1일 Actions usage cron 알림 (80% threshold)
+- 수동: `https://github.com/settings/billing/usage` 정기 모니터링
+- 메타: 향후 3개월 CI 차단 0건이면 패턴 정착
+
+**비유**: 회사가 매월 검사관 2000분 무료 노동 가능. 본인 회사 + 다른 회사 합산 한도 도달. 결제 카드 $0 (초과 결제 거부). 검사관 출근 거부. 회사는 자체 직원(Vercel) + 사내 자동 검사(lint-staged)로 임시 대체. 영업 비밀(코드)은 보존.
+
+**연관**: L-082 (자기평가 e2e 시연 prerequisite), L-089 (Vercel prod 검증 — 본 case 검증 layer 역할), 본 세션 PR #112/#113 admin squash 머지, Plan v3 (`docs/Plan-v3-mock-first.md`) — 본 L-093 발생 이후 CI 비활성화 + Mock-first 전환 동시 진행.

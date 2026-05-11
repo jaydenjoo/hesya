@@ -3,29 +3,33 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-11 세션 9 진행 중)
+## 현재 위치 (2026-05-11 세션 9 종료 시점)
 
-- **Phase**: **Phase 1-ζ.4 stress test 시드 완료** (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 50% + **ζ.4 stress test 시드 통과**)
-- **시나리오**: B (풀 P0 베타 — PRD 원안)
-- **베타 5곳 출시 가능 시점**: 약 2~4주 (δ Epic 2 결제 + ζ 베타 매칭 — Jayden 사업자 등록이 critical path)
-- **세션 9 진행**: ζ.4 stress test 시드 + booking actions Sentry tag + stress-test-guide.md
+- **Phase**: **Plan v3 Mock-first 전환 + M1.1 완료 + ζ.4 stress test 시드 완료 + CI 비활성화** (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 50%)
+- **시나리오**: B (풀 P0 베타 — PRD 원안) 위에 **v3 Mock-first 5 phase 추가** (`docs/Plan-v3-mock-first.md`)
+- **베타 5곳 출시 가능 시점**: Plan v3 M1~M5 완료(5~7주) + Jayden 사업자 등록 + ζ.7~ζ.8 (2주) = **약 7~9주**
+- **세션 9 머지**:
+  - [#112](https://github.com/jaydenjoo/hesya/pull/112) ζ.4 통합 부하 시드 + booking Sentry tag (`72acef4`)
+  - [#113](https://github.com/jaydenjoo/hesya/pull/113) Plan v3 + Mock env flag 5개 도입 M1.1 (`e94ff84`)
+  - (이후) CI workflow 비활성화 (Free 한도 소진 대응, main 직접 push)
 - **세션 9 시드 검증** (실 실행 통과):
-  - `unset ANTHROPIC_API_KEY && pnpm seed:stress-test` 성공
-  - 매장 5곳 + 메시지 250건 + 예약 50건 + 분쟁 5건 + API 정책 알림 3건 + admin KYC 큐 4건 시드 완료
-- **누적 교훈**: L-001 ~ **L-092** (세션 9 신규 0건)
+  - `unset ANTHROPIC_API_KEY && pnpm seed:stress-test` 성공 (매장 5곳 / 메시지 250건 / 예약 50건 / 분쟁 5건 / API 정책 알림 3건 / admin KYC 큐 4건)
+- **세션 9 인프라 변경**:
+  - **GitHub Actions CI 자동 trigger 비활성화** (`workflow_dispatch`만 유지) — Free 한도 2000분/월 소진 + 결제 잔액 없음. Vercel preview build + 로컬 `pnpm test` 검증으로 갈음.
+- **누적 교훈**: L-001 ~ **L-093** (세션 9 신규 1건 — GitHub Actions Free 한도 + Spending Budget $0 조합 차단)
 
-## P0 Epic 객관 완성도 (세션 8 ζ prep docs only — 코드 변동 없음)
+## P0 Epic 객관 완성도 (세션 9 ζ.4 시드 + M1.1 env flag — 코드 분기 stub 없음, 인프라만)
 
-| Epic                | 세션 7 % | 본 세션 8 %       | 갭                                                                        |
-| ------------------- | -------- | ----------------- | ------------------------------------------------------------------------- |
-| E1 인박스           | 71%      | **71%** (변동 X)  | 디자인 정합성 2/5 단계. WhatsApp/카카오/LINE 0% (사업자 미보유 보류)      |
-| **E2 결제 위젯** 🔴 | 17%      | **17%** (변동 X)  | DB 스키마만. Stripe/Alipay/WeChat 코드 0건. 베타 출시 critical path       |
-| **E3 예약 시스템**  | 50%      | **50%** (변동 X)  | owner-side CRUD 완료. customer-side 셀프 예약·결제는 phase ζ + Epic 2     |
-| **E4 대시보드**     | 35%      | **35%** (변동 X)  | ε shell + 실측 5 KPI active. 7개 wire 대기 (Epic 2/3 도입 시 자연 활성화) |
-| E9 KYC 🔴           | 93%      | **93%** (변동 X)  | γ.2.3.3 디자인 정합. 시연 prerequisite 한계 ⚠️                            |
-| **E12 관리자** 🔴   | 100%     | **100%** (변동 X) | E12-1~10 완료 + 통합 E2E + γ.2.3.4 8큐 디자인 정합성                      |
+| Epic                | 세션 8 % | 본 세션 9 %       | 갭                                                                                                 |
+| ------------------- | -------- | ----------------- | -------------------------------------------------------------------------------------------------- |
+| E1 인박스           | 71%      | **71%** (변동 X)  | 디자인 정합성 2/5. WhatsApp/카카오/LINE 0%. M1.3 IG OAuth Mock + M4.2 Multi-channel Mock 도입 예정 |
+| **E2 결제 위젯** 🔴 | 17%      | **17%** (변동 X)  | DB 스키마만. **M2.5 Mock 결제 UI** 도입 후 자연 활성화 (외부인 시뮬 가능)                          |
+| **E3 예약 시스템**  | 50%      | **50%** (변동 X)  | owner-side CRUD 완료. **M2.3/2.4/2.6 customer-side + Mock 결제** 도입 후 100% 도달 가능            |
+| **E4 대시보드**     | 35%      | **35%** (변동 X)  | ε shell + 실측 5 KPI. M3.1 services / M3.2 customers 도입 후 추가 KPI active                       |
+| E9 KYC 🔴           | 93%      | **93%** (변동 X)  | γ.2.3.3 디자인 정합. **M1.2 `MOCK_KYC=true` 분기** 도입 후 외부인 회원가입 자동 통과 가능          |
+| **E12 관리자** 🔴   | 100%     | **100%** (변동 X) | E12-1~10 완료 + ζ.4 stress test 큐 시연 통과                                                       |
 
-**P0 평균: 61%** (변동 없음, docs only). 다음은 δ Epic 2 (Stripe + Alipay + WeChat 결제) 또는 ζ.4/ζ.5 코드 작업.
+**P0 평균: 61%** (변동 없음). Plan v3 진입 — M1 (1주) / M2 (2주) / M3 (1주) / M4 (1주) / M5 (1주) 5 phase.
 
 ### Public surfaces (P0 Epic 외 신규 카테고리, γ.2.3.5)
 
@@ -39,11 +43,17 @@
 > ⚠️ E9 +1은 시각 정합성만 (단위 테스트 className 기반). KYC submit/pending demo 시연은 미인증 user seed 보강 후 가능 — 별 PR 후보.
 > ✅ γ.2.3.4/5 시연 prerequisite는 dev-demo.sh가 E2E_ADMIN_EMAIL inject로 자동 충족 (admin) / public route로 자동 충족 (landing) — 별 PR 불요.
 
-## 본 세션 9 (2026-05-11) — Phase 1-ζ.4 (stress test 시드 + Sentry tag 보강)
+## 본 세션 9 (2026-05-11) — ζ.4 stress test + Plan v3 M1.1 + CI 비활성화
 
 ### Scope
 
-베타 출시 직전 stability watch용 통합 부하 시드 + booking actions Sentry tag 1 영역 보강. PostHog 이벤트는 ζ.5 scope (본 세션 밖).
+3가지 큰 작업:
+
+1. **ζ.4 stress test 시드** ([#112](https://github.com/jaydenjoo/hesya/pull/112)) — 통합 부하 250 메시지 + Sentry tag 보강
+2. **Plan v3 + M1.1 Mock env flag** ([#113](https://github.com/jaydenjoo/hesya/pull/113)) — Mock-first 5 phase 분해 + env 5개 도입
+3. **GitHub Actions CI 자동 trigger 비활성화** (main 직접 push) — Free 한도 소진 대응
+
+PostHog 이벤트 / Mock 분기 stub은 다음 phase scope.
 
 ### 산출물
 
@@ -100,12 +110,52 @@ surgical change (4원칙 3번):
 
 ### 변경 파일
 
+PR #112 (ζ.4):
+
 - `apps/web/scripts/seed-stress-test.ts` 신규 (+~370)
-- `apps/web/src/lib/booking/actions.ts` (+7)
-- `apps/web/package.json` (+1)
-- `package.json` (root, +1)
+- `apps/web/src/lib/booking/actions.ts` Sentry tag (+7)
+- `apps/web/package.json` + root `package.json` script 등록
 - `docs/stress-test-guide.md` 신규 (+~100)
-- `PROGRESS.md` 세션 9 섹션
+
+PR #113 (M1.1):
+
+- `apps/web/src/shared/config/env.ts` MOCK\_\* 5개 + mockFlag helper (+24)
+- `.github/workflows/ci.yml` MOCK\_\* 3 job env block (+17)
+- `docs/Plan-v3-mock-first.md` 신규 (+225)
+
+CI 비활성화 (main 직접 push):
+
+- `.github/workflows/ci.yml` — `pull_request` + `push` trigger 주석 처리, `workflow_dispatch`만 유지
+
+### L-093 — GitHub Actions Free 한도 + Budget $0 조합 차단 (신규)
+
+**상황**: PR #112/#113 모두 CI fail (3 job 모두 10초 안에 abort, step 0개). main push runs는 `conclusion=skipped`.
+
+**원인**: 본 repo가 Private + Free plan → 2000분/월 무료 한도. 5월 누적 (hesya + 다른 private repo 합산) 도달. Spending Budget 5개 SKU 모두 `$0 / Stop usage=Yes`로 차단. 결제 잔액도 0.
+
+**해결**: ci.yml의 자동 trigger 제거 → workflow_dispatch만 유지. CI 분 소비 0. Vercel preview build (type-check + build) + 로컬 `pnpm test` (661 단위) + lint-staged pre-commit (prettier + eslint + gitleaks)로 검증 갈음.
+
+**규칙**:
+
+1. **Private + Free repo는 CI 분 소비를 무시하면 안 됨** — 단일 repo에서도 PR 15분 × N PR + main push 15분 = 빠르게 누적
+2. **여러 private repo 합산** — 본 hesya만이 아니라 모든 Jayden private repo의 합산이 한도에 영향
+3. **Spending Budget UI에서 모든 SKU `$0/Stop usage=Yes` 패턴 = 한도 초과 시 즉시 차단**. 잔액과 별개로 운영자 명시 설정 필요
+4. **CI 차단 시 대안**: (a) Public 전환 / (b) Self-hosted runner / (c) **Vercel + 로컬 검증** (본 case 선택) / (d) 한도 리셋 대기
+5. **6월 1일(UTC) 한도 리셋 후 결정**: ci.yml 재활성화 시 `paths-ignore: ['docs/**']` + e2e-integration nightly + concurrency cancel 적극 활용
+
+**비유**: "검사관 채용한 회사가 월 무료 노동 시간 한도 초과 + 추가 결제 미설정 → 검사관 출근 거부. 회사는 자체 직원(Vercel)이랑 사내 자동 검사(lint-staged)로 임시 대체."
+
+### 다음 세션 가이드 — Plan v3 M1.2 진입
+
+| 분기                          | 우선순위   | 예상  | 비고                                                            |
+| ----------------------------- | ---------- | ----- | --------------------------------------------------------------- |
+| **M1.2 `MOCK_KYC=true` 분기** | 🥇 1순위   | 1일   | data.go.kr 호출 skip + 자동 승인. `lib/kyc/*.ts` real/mock 분리 |
+| **M1.3 IG OAuth Mock 콜백**   | 2순위      | 1.5일 | "Instagram 연결" 클릭 → 가짜 OAuth flow → 가짜 token            |
+| **M1.4 Sign-in 정식화**       | 3순위      | 1일   | `Hesya Login.html` reference 적용, 임시 주석 제거               |
+| **M1.5 외부 데모 가이드**     | 4순위      | 0.5일 | `docs/external-demo-guide.md` 신규                              |
+| M2 customer-side + Mock 결제  | M1 완료 후 | 2주   | 5 페이지 + Mock Stripe/Alipay/WeChat                            |
+
+머지 방식: branch + PR + admin override (CI 비활성화로 protection 영향 X, gh pr merge 일반 squash로 가능)
 
 ## 직전 세션 8 (2026-05-11) — Phase 1-ζ Prep (베타 매칭 docs 준비)
 
@@ -634,11 +684,12 @@ demo.hesya.com Phase 2 도입 + 베타 1~2곳 onboarding.
 
 ## 마지막 업데이트
 
-- 날짜: 2026-05-11 (세션 9)
-- 세션 9 작업 시간: ~2h (인벤토리 + seed-stress-test 작성 + 시드 실 실행 검증 + Sentry tag + docs + PROGRESS)
-- 세션 9 PR: feat/stress-test-zeta-4 (코드 변경, branch+PR 정책 적용)
-- 세션 9 누적 변경: seed-stress-test 신규 + booking actions Sentry tag + stress-test-guide 신규 + package.json forwarding
-- **P0 평균 변동 없음 (61%)** — ζ.4 stress test 인프라 추가 (베타 출시 직전 stability watch + ζ.8 재실행 도구 확보)
+- 날짜: 2026-05-11 (세션 9 종료)
+- 세션 9 작업 시간: ~4h (ζ.4 stress test + M1.1 Mock env flag + CI 차단 진단 + 비활성화 + PROGRESS)
+- 세션 9 머지: [#112](https://github.com/jaydenjoo/hesya/pull/112) `72acef4` + [#113](https://github.com/jaydenjoo/hesya/pull/113) `e94ff84` (둘 다 admin override squash 머지, CI 차단 우회)
+- 세션 9 인프라: GitHub Actions CI 자동 trigger 비활성화 → 향후 분 소비 0 (Vercel + 로컬 검증)
+- 세션 9 누적 교훈: L-093 (Free + Budget $0 조합 차단)
+- **P0 평균 변동 없음 (61%)** — ζ.4 시드 인프라 + Plan v3 + Mock env 인프라만. 코드 분기 stub 0 (M1.2부터 실 분기)
 
 ## 컨텍스트 관리 강화 — 누적 (L-082 → L-091)
 
