@@ -250,5 +250,29 @@
     "allergyPlaceholder": "e.g. allergies, sensitivities",
     "preferredDesignerPlaceholder": "e.g. Stylist A",
     "unknownName": "(no name)"
+  },
+  "StoreSettings": {
+    "title": "Store settings",
+    "subtitle": "Manage your store info and business hours",
+    "sectionBasic": "Basic info",
+    "sectionHours": "Business hours",
+    "nameLabel": "Store name",
+    "phoneLabel": "Phone",
+    "addressLine1Label": "Address",
+    "addressCityLabel": "City",
+    "addressCountryLabel": "Country",
+    "hoursOpen": "Open",
+    "hoursClose": "Close",
+    "hoursClosed": "Closed",
+    "hoursFallback": "If left empty, default 10:00–20:00 will be used.",
+    "saveButton": "Save",
+    "savedMessage": "Saved.",
+    "dayMon": "Mon",
+    "dayTue": "Tue",
+    "dayWed": "Wed",
+    "dayThu": "Thu",
+    "dayFri": "Fri",
+    "daySat": "Sat",
+    "daySun": "Sun"
   }
 }

@@ -250,5 +250,29 @@
     "allergyPlaceholder": "例: アレルギー / 頭皮の敏感など",
     "preferredDesignerPlaceholder": "例: スタイリストA",
     "unknownName": "(名前未確認)"
+  },
+  "StoreSettings": {
+    "title": "店舗設定",
+    "subtitle": "店舗情報と営業時間を管理します",
+    "sectionBasic": "基本情報",
+    "sectionHours": "営業時間",
+    "nameLabel": "店舗名",
+    "phoneLabel": "電話番号",
+    "addressLine1Label": "住所",
+    "addressCityLabel": "市区町村",
+    "addressCountryLabel": "国",
+    "hoursOpen": "開店",
+    "hoursClose": "閉店",
+    "hoursClosed": "休業",
+    "hoursFallback": "空欄の場合は10:00〜20:00が適用されます。",
+    "saveButton": "保存",
+    "savedMessage": "保存しました。",
+    "dayMon": "月",
+    "dayTue": "火",
+    "dayWed": "水",
+    "dayThu": "木",
+    "dayFri": "金",
+    "daySat": "土",
+    "daySun": "日"
   }
 }

@@ -250,5 +250,29 @@
     "allergyPlaceholder": "例如: 过敏 / 头皮敏感",
     "preferredDesignerPlaceholder": "例如: 设计师A",
     "unknownName": "(无姓名)"
+  },
+  "StoreSettings": {
+    "title": "店铺设置",
+    "subtitle": "管理店铺信息和营业时间",
+    "sectionBasic": "基本信息",
+    "sectionHours": "营业时间",
+    "nameLabel": "店铺名称",
+    "phoneLabel": "电话",
+    "addressLine1Label": "地址",
+    "addressCityLabel": "城市",
+    "addressCountryLabel": "国家",
+    "hoursOpen": "开店",
+    "hoursClose": "打烊",
+    "hoursClosed": "休息",
+    "hoursFallback": "留空将使用默认 10:00–20:00。",
+    "saveButton": "保存",
+    "savedMessage": "已保存。",
+    "dayMon": "周一",
+    "dayTue": "周二",
+    "dayWed": "周三",
+    "dayThu": "周四",
+    "dayFri": "周五",
+    "daySat": "周六",
+    "daySun": "周日"
   }
 }

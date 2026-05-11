@@ -7,12 +7,21 @@ import {
   storeIntegrations,
   storeVerifications,
   stores,
+  type BusinessHours,
   type Channel,
   type DbClient,
 } from "@hesya/database";
 
 type Store = typeof stores.$inferSelect;
 type StoreVerification = typeof storeVerifications.$inferSelect;
+
+export type StoreSettings = {
+  id: string;
+  name: string;
+  phone: string | null;
+  address: unknown;
+  businessHours: BusinessHours | null;
+};
 
 /**
  * 외부 채널 계정 ID로 매장 1건 조회.
@@ -243,6 +252,60 @@ export async function rejectStore(
       })
       .where(eq(storeVerifications.id, input.verificationId));
   });
+}
+
+/**
+ * Plan v3 M3.3 — 매장 owner settings 페이지에서 사용. 매장 owner가 편집할 수
+ * 있는 mutable 필드(name, phone, address, businessHours)만 projection.
+ *
+ * 인증된 owner가 자기 매장만 조회 — RLS는 service_role bypass라 caller에서
+ * `requireStoreOwnerAuth(storeId)` 가드 필수.
+ */
+export async function getStoreSettings(
+  db: DbClient,
+  storeId: string,
+): Promise<StoreSettings | null> {
+  const rows = await db
+    .select({
+      id: stores.id,
+      name: stores.name,
+      phone: stores.phone,
+      address: stores.address,
+      businessHours: stores.businessHours,
+    })
+    .from(stores)
+    .where(eq(stores.id, storeId))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+/**
+ * Plan v3 M3.3 — 매장 owner settings 업데이트. 부분 갱신 (제공된 필드만).
+ * businessHours는 null 명시 시 컬럼을 NULL로 비움 (= 기본값 fallback 10:00~20:00).
+ */
+export async function updateStoreSettings(
+  db: DbClient,
+  input: {
+    storeId: string;
+    name?: string;
+    phone?: string | null;
+    address?: unknown;
+    businessHours?: BusinessHours | null;
+  },
+): Promise<void> {
+  const patch: Partial<{
+    name: string;
+    phone: string | null;
+    address: unknown;
+    businessHours: BusinessHours | null;
+  }> = {};
+  if (input.name !== undefined) patch.name = input.name;
+  if (input.phone !== undefined) patch.phone = input.phone;
+  if (input.address !== undefined) patch.address = input.address;
+  if (input.businessHours !== undefined)
+    patch.businessHours = input.businessHours;
+  if (Object.keys(patch).length === 0) return;
+  await db.update(stores).set(patch).where(eq(stores.id, input.storeId));
 }
 
 export type PublicStore = {

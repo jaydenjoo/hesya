@@ -250,5 +250,29 @@
     "allergyPlaceholder": "예: 알러지 / 두피 민감 등",
     "preferredDesignerPlaceholder": "예: 디자이너 A",
     "unknownName": "(이름 미확인)"
+  },
+  "StoreSettings": {
+    "title": "매장 설정",
+    "subtitle": "매장 정보와 영업시간을 관리합니다",
+    "sectionBasic": "기본 정보",
+    "sectionHours": "영업시간",
+    "nameLabel": "매장명",
+    "phoneLabel": "전화번호",
+    "addressLine1Label": "주소",
+    "addressCityLabel": "도시",
+    "addressCountryLabel": "국가",
+    "hoursOpen": "오픈",
+    "hoursClose": "마감",
+    "hoursClosed": "휴무",
+    "hoursFallback": "비워두면 10:00~20:00 기본값이 적용됩니다.",
+    "saveButton": "저장",
+    "savedMessage": "저장되었습니다.",
+    "dayMon": "월",
+    "dayTue": "화",
+    "dayWed": "수",
+    "dayThu": "목",
+    "dayFri": "금",
+    "daySat": "토",
+    "daySun": "일"
   }
 }

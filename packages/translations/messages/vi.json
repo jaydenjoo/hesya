@@ -250,5 +250,29 @@
     "allergyPlaceholder": "VD: dị ứng, da nhạy cảm",
     "preferredDesignerPlaceholder": "VD: Stylist A",
     "unknownName": "(chưa có tên)"
+  },
+  "StoreSettings": {
+    "title": "Cài đặt cửa hàng",
+    "subtitle": "Quản lý thông tin cửa hàng và giờ làm việc",
+    "sectionBasic": "Thông tin cơ bản",
+    "sectionHours": "Giờ làm việc",
+    "nameLabel": "Tên cửa hàng",
+    "phoneLabel": "Điện thoại",
+    "addressLine1Label": "Địa chỉ",
+    "addressCityLabel": "Thành phố",
+    "addressCountryLabel": "Quốc gia",
+    "hoursOpen": "Mở",
+    "hoursClose": "Đóng",
+    "hoursClosed": "Nghỉ",
+    "hoursFallback": "Để trống sẽ áp dụng mặc định 10:00–20:00.",
+    "saveButton": "Lưu",
+    "savedMessage": "Đã lưu.",
+    "dayMon": "T2",
+    "dayTue": "T3",
+    "dayWed": "T4",
+    "dayThu": "T5",
+    "dayFri": "T6",
+    "daySat": "T7",
+    "daySun": "CN"
   }
 }

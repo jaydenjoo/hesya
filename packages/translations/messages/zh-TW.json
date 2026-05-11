@@ -250,5 +250,29 @@
     "allergyPlaceholder": "例如: 過敏 / 頭皮敏感",
     "preferredDesignerPlaceholder": "例如: 設計師A",
     "unknownName": "(無姓名)"
+  },
+  "StoreSettings": {
+    "title": "店家設定",
+    "subtitle": "管理店家資訊與營業時間",
+    "sectionBasic": "基本資訊",
+    "sectionHours": "營業時間",
+    "nameLabel": "店家名稱",
+    "phoneLabel": "電話",
+    "addressLine1Label": "地址",
+    "addressCityLabel": "城市",
+    "addressCountryLabel": "國家",
+    "hoursOpen": "開店",
+    "hoursClose": "打烊",
+    "hoursClosed": "休息",
+    "hoursFallback": "留空將使用預設 10:00–20:00。",
+    "saveButton": "儲存",
+    "savedMessage": "已儲存。",
+    "dayMon": "週一",
+    "dayTue": "週二",
+    "dayWed": "週三",
+    "dayThu": "週四",
+    "dayFri": "週五",
+    "daySat": "週六",
+    "daySun": "週日"
   }
 }
