@@ -3,9 +3,14 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-11 세션 17 진행 중)
+## 현재 위치 (2026-05-11 세션 18 진행 중)
 
-- **Phase**: **Plan v3 M1 5/5 + M2 7/7 + M3.1+M3.2 머지** (M1 100% + M2 100% + **M3 2/5**) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 95% + E2 결제 60%)
+- **Phase**: **Plan v3 M1 5/5 + M2 7/7 + M3.1+M3.2+M3.3a 머지** (M1 100% + M2 100% + **M3 3/5**) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 95% + E2 결제 60%)
+- **세션 18 머지**:
+  - **M3.3a** 매장 설정 + business_hours 컬럼 (`74064aa`) — 마이그 0026 `stores.business_hours` jsonb + `getStoreSettings` / `updateStoreSettings` DAL + `updateStoreSettingsAction` (zod + requireStoreOwnerAuth + rate-limit 30/60s) + `SettingsForm` (요일별 휴무 토글 + time picker) + `/[locale]/store/settings` 라우트 + StoreSettings 6 locale
+  - 검증: type-check ✅ / lint ✅ / test **693 passed** (+2) / build ✅
+  - 🔴 **Jayden 수동 apply 필요**: `migrations/0026_store_business_hours.sql` 실행 (Supabase Studio 또는 psql)
+  - 잔여: M3.3b customer-side time-slots dynamic hours (다음 Task)
 - **세션 16~17 머지**:
   - **M3.1** 시술 관리 CRUD (`91e6a21`) — services DAL CRUD + 3 actions + Client form + booking 사용 중 검사
   - **M3.2** 외국인 손님 list + 메모 편집 (`79064dd`) — customers DAL `listCustomersByStore` (conversations join distinct on) + `isCustomerInStore` + `updateCustomerNotesAction` + Client inline edit + StoreCustomers 6 locale
