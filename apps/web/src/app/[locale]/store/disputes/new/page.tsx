@@ -1,12 +1,13 @@
 import { redirect } from "next/navigation";
+
 import { DisputeForm } from "@/features/disputes";
+import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
+import { OwnerShell } from "@/features/shell/owner-shell";
 import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 
 /**
- * Epic 12.4 — 사장 측 분쟁 신규 신고 페이지.
- *
- * 가드 실패 → /sign-in. 폼 자체는 client component(`DisputeForm`).
+ * Epic 12.4 / Phase D4-D4 — 사장 측 분쟁 신규 신고 페이지. OwnerShell wrap.
  */
 export default async function NewDisputePage({
   params,
@@ -23,10 +24,30 @@ export default async function NewDisputePage({
     throw err;
   }
 
+  const shell = await getOwnerShellData();
+  if (!shell) redirect(`/${locale}/sign-in`);
+
   return (
-    <main className="container py-12">
-      <h1 className="mb-6 text-3xl font-bold">분쟁 신고</h1>
-      <DisputeForm />
-    </main>
+    <OwnerShell
+      currentLocale={locale}
+      storeName={shell.storeName}
+      userName={shell.userName}
+      userInitial={shell.userInitial}
+    >
+      <div className="mx-auto max-w-3xl px-6 py-10">
+        <header className="mb-6 space-y-1">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+            Operator · Disputes · New
+          </p>
+          <h1 className="font-heading text-3xl font-semibold italic tracking-tight text-hesya-navy-900">
+            분쟁 신고
+          </h1>
+          <p className="text-sm text-hesya-navy-900/65">
+            손님과의 분쟁을 신고하면 운영팀이 24시간 내 검토합니다.
+          </p>
+        </header>
+        <DisputeForm />
+      </div>
+    </OwnerShell>
   );
 }
