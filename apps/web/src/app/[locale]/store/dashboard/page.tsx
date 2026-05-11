@@ -9,6 +9,8 @@ import {
   type DistributionSlice,
   type KpiEntry,
 } from "@/features/dashboard";
+import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
+import { OwnerShell } from "@/features/shell/owner-shell";
 import { env } from "@/shared/config/env";
 import {
   countBookingsByService,
@@ -26,14 +28,13 @@ import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 
 /**
- * Epic 4 (ε phase) — 매장 운영 대시보드.
+ * Epic 4 (ε phase) / Phase D4-D1 — 매장 운영 대시보드.
  *
  * 가드 실패 → /sign-in. 실측 KPI 5개 (미응답 / 분쟁 / KYC / 시술 분포 /
- * 디자이너 분포) + coming-soon placeholder 7개. Epic 2 결제 도입 후 매출·객단가·
+ * 디자이너 분포) + coming-soon placeholder 5개. Epic 2 결제 도입 후 매출·객단가·
  * 재방문률·노쇼율, ζ 베타 매칭 후 국적 분포가 활성화.
  *
- * **chrome 변경 0건**: 좌측 navigation 추가는 별 PR (E12 admin chrome과 동일
- * 패턴). 현재는 직접 URL 접근만.
+ * D4-D1: OwnerShell wrap + 디자인 정합 header / KPI card 재구성.
  */
 export default async function StoreDashboardPage({
   params,
@@ -62,6 +63,7 @@ export default async function StoreDashboardPage({
     staffCounts,
     servicesList,
     staffList,
+    shell,
   ] = await Promise.all([
     getInboxLoad(db, session.storeId),
     getDisputeLoad(db, session.storeId),
@@ -70,7 +72,10 @@ export default async function StoreDashboardPage({
     countBookingsByStaff(db, session.storeId, monthRange),
     listServicesByStore(db, session.storeId),
     listStaffByStore(db, session.storeId),
+    getOwnerShellData(),
   ]);
+
+  if (!shell) redirect(`/${locale}/sign-in`);
 
   const t = await getTranslations({ locale, namespace: "Dashboard" });
 
@@ -170,10 +175,19 @@ export default async function StoreDashboardPage({
   ];
 
   return (
-    <main className="container py-12">
-      <DashboardHeader title={t("title")} subtitle={t("subtitle")} />
-      <KpiGrid entries={entries} comingSoonNote={t("comingSoonNote")} />
-      <p className="mt-8 text-xs text-hesya-navy-900/55">{t("footerNote")}</p>
-    </main>
+    <OwnerShell
+      currentLocale={locale}
+      storeName={shell.storeName}
+      userName={shell.userName}
+      userInitial={shell.userInitial}
+    >
+      <div className="mx-auto max-w-6xl px-6 py-10">
+        <DashboardHeader title={t("title")} subtitle={t("subtitle")} />
+        <KpiGrid entries={entries} comingSoonNote={t("comingSoonNote")} />
+        <p className="mt-8 text-[11px] text-hesya-navy-900/55">
+          {t("footerNote")}
+        </p>
+      </div>
+    </OwnerShell>
   );
 }

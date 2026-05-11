@@ -15,16 +15,13 @@ type Props = {
 };
 
 /**
- * Epic 4 (ε) — 단일 KPI 카드.
+ * Epic 4 (ε) / Phase D4-D1 — 단일 KPI 카드 (디자인 정합 재구성).
  *
- * 두 상태:
- * - **active**: 실측 값 표시 (현 phase: 3개 KPI — 미응답 / 분쟁 / KYC)
- * - **coming-soon**: 12개 PRD KPI 중 미구현 9개 — placeholder 텍스트
+ * - **active**: 실측 값 (peach-200 border + white + mono 숫자)
+ * - **coming-soon**: dashed border + peach-50 bg + 흐린 텍스트
  *
- * 시각 시그널 (γ.2.3.4 admin 토큰 일관):
- * - peach-100 border + white bg
- * - 값: 2xl bold tracking[-0.01em] navy-900
- * - coming-soon: navy/40 + peach-50/60 bg + dashed border
+ * 디자인 정합: label은 uppercase tracking + 10px (settings field label과 동일).
+ * value는 font-mono로 숫자 정렬. 2xl rounded card.
  */
 export function KpiCard({
   label,
@@ -40,46 +37,50 @@ export function KpiCard({
     <div
       data-state={state}
       data-testid="kpi-card"
-      className={`rounded-md border p-4 transition-colors ${
+      className={[
+        "flex flex-col rounded-2xl border px-4 py-4 transition",
         isPending
-          ? "border-dashed border-hesya-peach-200 bg-hesya-peach-50/60"
-          : "border-hesya-peach-100 bg-white"
-      }`}
+          ? "border-dashed border-hesya-peach-200 bg-hesya-peach-50/40"
+          : "border-hesya-peach-200 bg-white hover:border-hesya-amber-500/40",
+      ].join(" ")}
     >
-      <div
-        className={`text-xs font-medium ${
-          isPending ? "text-hesya-navy-900/45" : "text-hesya-navy-900/70"
-        }`}
+      <p
+        className={[
+          "text-[10px] font-semibold uppercase tracking-[0.16em]",
+          isPending ? "text-hesya-navy-900/40" : "text-hesya-navy-900/60",
+        ].join(" ")}
       >
         {label}
-      </div>
-      <div className="mt-2 flex items-baseline gap-1">
+      </p>
+      <div className="mt-2 flex items-baseline gap-1.5">
         <span
-          className={`text-2xl font-bold tracking-[-0.01em] ${
-            isPending ? "text-hesya-navy-900/35" : "text-hesya-navy-900"
-          }`}
+          className={[
+            "font-mono text-[26px] font-semibold tracking-tight",
+            isPending ? "text-hesya-navy-900/30" : "text-hesya-navy-900",
+          ].join(" ")}
         >
           {value}
         </span>
         {unit && (
           <span
-            className={`text-sm ${
-              isPending ? "text-hesya-navy-900/40" : "text-hesya-navy-900/70"
-            }`}
+            className={[
+              "text-[12px]",
+              isPending ? "text-hesya-navy-900/35" : "text-hesya-navy-900/55",
+            ].join(" ")}
           >
             {unit}
           </span>
         )}
       </div>
       {!isPending && subtext && (
-        <div className="mt-1 text-xs text-hesya-navy-900/60">{subtext}</div>
+        <p className="mt-1 text-[11px] text-hesya-navy-900/60">{subtext}</p>
       )}
       {isPending && (
-        <div className="mt-1 text-[11px] uppercase tracking-[0.08em] text-hesya-navy-900/40">
+        <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-hesya-navy-900/35">
           {comingSoonNote}
-        </div>
+        </p>
       )}
-      {chart && <div className="mt-3">{chart}</div>}
+      {chart && <div className="mt-3 flex-1">{chart}</div>}
     </div>
   );
 }
