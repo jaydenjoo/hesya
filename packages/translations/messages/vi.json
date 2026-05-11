@@ -8,6 +8,34 @@
     "customerNote": "Tìm kiếm dành cho khách sẽ mở khi các salon beta tham gia.",
     "footerHint": "Beta — chỉ ngành làm đẹp / chăm sóc Hàn Quốc"
   },
+  "Dashboard": {
+    "title": "Bảng điều khiển salon",
+    "subtitle": "Epic 4 — Doanh thu, tỉ lệ quay lại, quốc tịch khách nước ngoài (mở khi dữ liệu beta tích lũy)",
+    "comingSoonNote": "Kích hoạt sau khi có dữ liệu thanh toán & đặt lịch",
+    "kpis": {
+      "inboxUnread": "Tin nhắn chưa đọc",
+      "inboxThreads": "Hội thoại đang mở",
+      "disputesActive": "Tranh chấp đang xử lý",
+      "disputesSla": "Tranh chấp vượt SLA",
+      "kycStatus": "Trạng thái KYC",
+      "monthlyRevenue": "Doanh thu tháng",
+      "averageOrder": "Đơn trung bình",
+      "rebookRate": "Tỉ lệ quay lại",
+      "noShowRate": "Tỉ lệ no-show",
+      "nationalityMix": "Cơ cấu quốc tịch",
+      "treatmentMix": "Cơ cấu dịch vụ",
+      "designerMix": "Cơ cấu thợ"
+    },
+    "units": { "count": " ", "won": "₩", "percent": "%", "unit": "" },
+    "kycStates": {
+      "auto_approved": "Tự động duyệt",
+      "manual_review": "Xét duyệt thủ công",
+      "pending": "Chờ duyệt",
+      "rejected": "Từ chối",
+      "unknown": "Chưa rõ"
+    },
+    "footerNote": "Tất cả 12 KPI sẽ hoạt động khi dữ liệu Epic 2 & 3 đã có."
+  },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",

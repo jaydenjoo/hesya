@@ -8,6 +8,34 @@
     "customerNote": "외국인 손님 검색은 베타 매장 합류 후 제공됩니다.",
     "footerHint": "한국 미용업·자유업 전용 베타"
   },
+  "Dashboard": {
+    "title": "매장 운영 대시보드",
+    "subtitle": "Epic 4 — 외국인 매출·재방문·국적 분석 (베타 데이터 적재 후 활성화)",
+    "comingSoonNote": "결제·예약 데이터 적재 후 자동 활성화",
+    "kpis": {
+      "inboxUnread": "미응답 메시지",
+      "inboxThreads": "열린 대화",
+      "disputesActive": "처리 중 분쟁",
+      "disputesSla": "SLA 초과 분쟁",
+      "kycStatus": "KYC 상태",
+      "monthlyRevenue": "월 매출",
+      "averageOrder": "평균 객단가",
+      "rebookRate": "재방문률",
+      "noShowRate": "노쇼율",
+      "nationalityMix": "국적 분포",
+      "treatmentMix": "시술 분포",
+      "designerMix": "디자이너 분포"
+    },
+    "units": { "count": "건", "won": "₩", "percent": "%", "unit": "" },
+    "kycStates": {
+      "auto_approved": "자동 승인",
+      "manual_review": "매뉴얼 검토",
+      "pending": "검토 대기",
+      "rejected": "거절",
+      "unknown": "미확인"
+    },
+    "footerNote": "Epic 2·3 도입 후 12개 KPI 모두 실시간 표시됩니다."
+  },
   "Inbox": {
     "title": "통합 인박스",
     "empty": "아직 메시지가 없습니다",
