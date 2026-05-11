@@ -185,5 +185,24 @@
     "required": "* 必填",
     "privacyNote": "您的資料僅用於預約處理。",
     "incomplete": "請填寫姓名和信箱"
+  },
+  "MockPayment": {
+    "eyebrow": "付款 (模擬)",
+    "heading": "完成付款",
+    "subheading": "不會發生實際付款",
+    "methodLabel": "選擇付款方式",
+    "methodStripe": "信用卡",
+    "methodAlipay": "Alipay",
+    "methodWechat": "WeChat Pay",
+    "cardNumberLabel": "卡號",
+    "cardExpiryLabel": "到期日",
+    "cardCvcLabel": "CVC",
+    "qrScanNote": "請用 App 掃描 QR Code",
+    "amountLabel": "付款金額",
+    "submit": "完成付款 →",
+    "mockWarningTitle": "⚠️ 模擬模式",
+    "mockWarningBody": "不會向真實卡/帳戶收費。這是沙盒模擬。",
+    "disabledTitle": "付款系統準備中",
+    "disabledBody": "MOCK_PAYMENT 環境變數未啟用。"
   }
 }

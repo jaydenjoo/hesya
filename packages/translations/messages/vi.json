@@ -185,5 +185,24 @@
     "required": "* Bắt buộc",
     "privacyNote": "Thông tin chỉ được dùng cho mục đích đặt lịch.",
     "incomplete": "Vui lòng nhập họ tên và email"
+  },
+  "MockPayment": {
+    "eyebrow": "Thanh toán (Mô phỏng)",
+    "heading": "Hoàn tất thanh toán",
+    "subheading": "Không có giao dịch thật được xử lý",
+    "methodLabel": "Chọn phương thức",
+    "methodStripe": "Thẻ tín dụng",
+    "methodAlipay": "Alipay",
+    "methodWechat": "WeChat Pay",
+    "cardNumberLabel": "Số thẻ",
+    "cardExpiryLabel": "Hạn dùng",
+    "cardCvcLabel": "CVC",
+    "qrScanNote": "Quét QR bằng app của bạn",
+    "amountLabel": "Số tiền",
+    "submit": "Hoàn tất →",
+    "mockWarningTitle": "⚠️ Chế độ mô phỏng",
+    "mockWarningBody": "Không có thẻ/tài khoản thật bị tính phí. Đây là môi trường thử nghiệm.",
+    "disabledTitle": "Hệ thống thanh toán chưa sẵn sàng",
+    "disabledBody": "Biến môi trường MOCK_PAYMENT chưa được kích hoạt."
   }
 }

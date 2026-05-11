@@ -185,5 +185,24 @@
     "required": "* 필수 항목",
     "privacyNote": "입력하신 정보는 예약 처리 목적으로만 사용됩니다.",
     "incomplete": "이름과 이메일을 입력해주세요"
+  },
+  "MockPayment": {
+    "eyebrow": "결제 (모의)",
+    "heading": "결제 진행",
+    "subheading": "실제 결제가 발생하지 않습니다",
+    "methodLabel": "결제 방식 선택",
+    "methodStripe": "신용카드",
+    "methodAlipay": "Alipay",
+    "methodWechat": "WeChat Pay",
+    "cardNumberLabel": "카드 번호",
+    "cardExpiryLabel": "유효기간",
+    "cardCvcLabel": "CVC",
+    "qrScanNote": "앱에서 QR 코드를 스캔하세요",
+    "amountLabel": "결제 금액",
+    "submit": "결제 완료 →",
+    "mockWarningTitle": "⚠️ Mock 모드",
+    "mockWarningBody": "실제 카드/계정 정보가 청구되지 않습니다. 외부 데모 환경 시뮬레이션입니다.",
+    "disabledTitle": "결제 시스템 준비 중",
+    "disabledBody": "MOCK_PAYMENT 환경 변수가 활성화되지 않았습니다. 정식 결제사 KYB 후 활성화됩니다."
   }
 }

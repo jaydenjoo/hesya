@@ -185,5 +185,24 @@
     "required": "* Required",
     "privacyNote": "Your information is used only for booking purposes.",
     "incomplete": "Please enter your name and email"
+  },
+  "MockPayment": {
+    "eyebrow": "Payment (Mock)",
+    "heading": "Complete payment",
+    "subheading": "No real payment will be processed",
+    "methodLabel": "Choose payment method",
+    "methodStripe": "Credit card",
+    "methodAlipay": "Alipay",
+    "methodWechat": "WeChat Pay",
+    "cardNumberLabel": "Card number",
+    "cardExpiryLabel": "Expiry",
+    "cardCvcLabel": "CVC",
+    "qrScanNote": "Scan QR with your app",
+    "amountLabel": "Amount",
+    "submit": "Complete payment →",
+    "mockWarningTitle": "⚠️ Mock mode",
+    "mockWarningBody": "No real card/account will be charged. This is a sandbox simulation.",
+    "disabledTitle": "Payments not ready",
+    "disabledBody": "MOCK_PAYMENT env is disabled. Enables after real KYB completes."
   }
 }

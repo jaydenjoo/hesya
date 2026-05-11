@@ -185,5 +185,24 @@
     "required": "* 必須",
     "privacyNote": "ご入力いただいた情報は予約処理のみに使用されます。",
     "incomplete": "お名前とメールをご記入ください"
+  },
+  "MockPayment": {
+    "eyebrow": "決済 (モック)",
+    "heading": "決済を完了",
+    "subheading": "実際の決済は発生しません",
+    "methodLabel": "決済方法を選択",
+    "methodStripe": "クレジットカード",
+    "methodAlipay": "Alipay",
+    "methodWechat": "WeChat Pay",
+    "cardNumberLabel": "カード番号",
+    "cardExpiryLabel": "有効期限",
+    "cardCvcLabel": "CVC",
+    "qrScanNote": "アプリでQRをスキャン",
+    "amountLabel": "お支払い金額",
+    "submit": "決済する →",
+    "mockWarningTitle": "⚠️ モックモード",
+    "mockWarningBody": "実際のカード/アカウントには請求されません。デモ用シミュレーションです。",
+    "disabledTitle": "決済システム準備中",
+    "disabledBody": "MOCK_PAYMENT環境変数が無効です。本決済サービス連携後に有効化されます。"
   }
 }

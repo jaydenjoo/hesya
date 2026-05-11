@@ -83,9 +83,18 @@
 - 폼 제출 → `/c/store/<UUID>/pay?...`로 URL params 전달
 - 다른 매장 service/staff로 변조한 URL은 404 (storeId match 검증)
 
-### 5-5. 결제 stub (M2.5 다음 milestone)
+### 5-5. Mock 결제 UI (M2.5 ✅)
 
-- `/c/store/<UUID>/pay` — 현재 전달 데이터 echo만 (Mock Stripe/Alipay/WeChat UI는 다음 세션)
+- `/c/store/<UUID>/pay?...` — 3종 결제 방식 토글 (Stripe 가짜 카드 / Alipay QR / WeChat QR)
+- "결제 완료 →" 클릭 → 800ms 후 `/pay/success`로 navigation (mock 라운드트립 시뮬)
+- 가짜 transaction ID 발급 (`mock_<timestamp>_<rand>`)
+- `MOCK_PAYMENT=false`면 "결제 시스템 준비 중" 안내 노출
+- "Mock 모드" 경고 배너 표시 (실 결제 발생 안 함 명시)
+
+### 5-6. 결제 완료 stub (M2.6 다음 milestone)
+
+- `/c/store/<UUID>/pay/success` — 전달 데이터 echo + 가짜 transaction ID
+- 실 booking DB insert + payments row + 가짜 IG 메시지 발송은 M2.6 server action에서 atomic 처리
 
 ### 6. owner-side 예약 관리 시뮬 (customer-side는 M2 이후 활성화)
 
