@@ -50,3 +50,19 @@ export function formatPriceForLocale(priceKrw: number, locale: string): string {
 export function getCurrencyCodeForLocale(locale: string): string {
   return (LOCALE_CURRENCY[locale] ?? DEFAULT)?.code ?? "KRW";
 }
+
+/**
+ * Plan v3 Phase D2-B4 — 결제 페이지에서 사용. user locale 통화가 KRW이면 JPY,
+ * 아니면 KRW 라벨을 보조 통화로 반환 (외국인 손님이 모국 통화 + 청구 통화 모두
+ * 확인 가능).
+ */
+export function getSecondaryCurrencyDisplay(
+  priceKrw: number,
+  locale: string,
+): string {
+  const cfg = LOCALE_CURRENCY[locale] ?? DEFAULT;
+  if (cfg.code === "KRW") {
+    return formatPriceForLocale(priceKrw, "ja");
+  }
+  return `₩${priceKrw.toLocaleString("ko-KR")}`;
+}
