@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
+import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
+import { OwnerShell } from "@/features/shell/owner-shell";
 import {
   SettingsForm,
   type BusinessHoursValue,
@@ -40,9 +42,12 @@ export default async function StoreSettingsPage({
   }
 
   const db = createDbClient(env.DATABASE_URL);
-  const settings = await getStoreSettings(db, session.storeId);
+  const [settings, shell] = await Promise.all([
+    getStoreSettings(db, session.storeId),
+    getOwnerShellData(),
+  ]);
 
-  if (!settings) {
+  if (!settings || !shell) {
     redirect(`/${locale}/sign-in`);
   }
 
@@ -61,41 +66,51 @@ export default async function StoreSettingsPage({
   const t = await getTranslations({ locale, namespace: "StoreSettings" });
 
   return (
-    <main className="container max-w-3xl py-12">
-      <header className="mb-8 space-y-1">
-        <h1 className="text-2xl font-bold tracking-[-0.01em] text-hesya-navy-900">
-          {t("title")}
-        </h1>
-        <p className="text-sm text-hesya-navy-900/65">{t("subtitle")}</p>
-      </header>
+    <OwnerShell
+      currentLocale={locale}
+      storeName={shell.storeName}
+      userName={shell.userName}
+      userInitial={shell.userInitial}
+    >
+      <div className="mx-auto max-w-3xl px-6 py-10">
+        <header className="mb-8 space-y-1">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+            Operator · Store Settings
+          </p>
+          <h1 className="font-heading text-3xl font-semibold italic tracking-tight text-hesya-navy-900">
+            {t("title")}
+          </h1>
+          <p className="text-sm text-hesya-navy-900/65">{t("subtitle")}</p>
+        </header>
 
-      <SettingsForm
-        initial={initial}
-        labels={{
-          sectionBasic: t("sectionBasic"),
-          sectionHours: t("sectionHours"),
-          nameLabel: t("nameLabel"),
-          phoneLabel: t("phoneLabel"),
-          addressLine1Label: t("addressLine1Label"),
-          addressCityLabel: t("addressCityLabel"),
-          addressCountryLabel: t("addressCountryLabel"),
-          hoursOpen: t("hoursOpen"),
-          hoursClose: t("hoursClose"),
-          hoursClosed: t("hoursClosed"),
-          hoursFallback: t("hoursFallback"),
-          saveButton: t("saveButton"),
-          savedMessage: t("savedMessage"),
-          days: {
-            mon: t("dayMon"),
-            tue: t("dayTue"),
-            wed: t("dayWed"),
-            thu: t("dayThu"),
-            fri: t("dayFri"),
-            sat: t("daySat"),
-            sun: t("daySun"),
-          },
-        }}
-      />
-    </main>
+        <SettingsForm
+          initial={initial}
+          labels={{
+            sectionBasic: t("sectionBasic"),
+            sectionHours: t("sectionHours"),
+            nameLabel: t("nameLabel"),
+            phoneLabel: t("phoneLabel"),
+            addressLine1Label: t("addressLine1Label"),
+            addressCityLabel: t("addressCityLabel"),
+            addressCountryLabel: t("addressCountryLabel"),
+            hoursOpen: t("hoursOpen"),
+            hoursClose: t("hoursClose"),
+            hoursClosed: t("hoursClosed"),
+            hoursFallback: t("hoursFallback"),
+            saveButton: t("saveButton"),
+            savedMessage: t("savedMessage"),
+            days: {
+              mon: t("dayMon"),
+              tue: t("dayTue"),
+              wed: t("dayWed"),
+              thu: t("dayThu"),
+              fri: t("dayFri"),
+              sat: t("daySat"),
+              sun: t("daySun"),
+            },
+          }}
+        />
+      </div>
+    </OwnerShell>
   );
 }

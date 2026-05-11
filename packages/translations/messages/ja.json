@@ -274,5 +274,24 @@
     "dayFri": "金",
     "daySat": "土",
     "daySun": "日"
+  },
+  "OwnerShell": {
+    "brandPill": "OPERATOR",
+    "searchPlaceholder": "検索...",
+    "searchKbd": "⌘K",
+    "signOut": "ログアウト",
+    "avatarAlt": "アカウント",
+    "sectionMain": "メニュー",
+    "storeStatus": "ステータス:",
+    "storeStatusActive": "営業中",
+    "nav": {
+      "dashboard": "ダッシュボード",
+      "inbox": "受信箱",
+      "bookings": "予約",
+      "services": "メニュー",
+      "customers": "顧客",
+      "knowledge": "ナレッジ",
+      "settings": "設定"
+    }
   }
 }

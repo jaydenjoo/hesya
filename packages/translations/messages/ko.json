@@ -274,5 +274,24 @@
     "dayFri": "금",
     "daySat": "토",
     "daySun": "일"
+  },
+  "OwnerShell": {
+    "brandPill": "OPERATOR",
+    "searchPlaceholder": "검색...",
+    "searchKbd": "⌘K",
+    "signOut": "로그아웃",
+    "avatarAlt": "내 계정",
+    "sectionMain": "메뉴",
+    "storeStatus": "매장 상태:",
+    "storeStatusActive": "운영 중",
+    "nav": {
+      "dashboard": "대시보드",
+      "inbox": "인박스",
+      "bookings": "예약",
+      "services": "시술",
+      "customers": "고객",
+      "knowledge": "지식",
+      "settings": "설정"
+    }
   }
 }

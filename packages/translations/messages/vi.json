@@ -274,5 +274,24 @@
     "dayFri": "T6",
     "daySat": "T7",
     "daySun": "CN"
+  },
+  "OwnerShell": {
+    "brandPill": "OPERATOR",
+    "searchPlaceholder": "Tìm kiếm...",
+    "searchKbd": "⌘K",
+    "signOut": "Đăng xuất",
+    "avatarAlt": "Tài khoản",
+    "sectionMain": "MENU",
+    "storeStatus": "Trạng thái:",
+    "storeStatusActive": "Đang mở",
+    "nav": {
+      "dashboard": "Trang chủ",
+      "inbox": "Tin nhắn",
+      "bookings": "Đặt lịch",
+      "services": "Dịch vụ",
+      "customers": "Khách hàng",
+      "knowledge": "Tri thức",
+      "settings": "Cài đặt"
+    }
   }
 }

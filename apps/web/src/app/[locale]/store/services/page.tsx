@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
+import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
+import { OwnerShell } from "@/features/shell/owner-shell";
 import {
   ServicesManager,
   type ServiceRow,
@@ -33,7 +35,11 @@ export default async function StoreServicesPage({
   }
 
   const db = createDbClient(env.DATABASE_URL);
-  const rows = await listServicesByStore(db, session.storeId);
+  const [rows, shell] = await Promise.all([
+    listServicesByStore(db, session.storeId),
+    getOwnerShellData(),
+  ]);
+  if (!shell) redirect(`/${locale}/sign-in`);
 
   const t = await getTranslations({ locale, namespace: "StoreServices" });
 
@@ -48,32 +54,42 @@ export default async function StoreServicesPage({
   }));
 
   return (
-    <main className="container py-12">
-      <header className="mb-8 space-y-1">
-        <h1 className="text-2xl font-bold tracking-[-0.01em] text-hesya-navy-900">
-          {t("title")}
-        </h1>
-        <p className="text-sm text-hesya-navy-900/65">{t("subtitle")}</p>
-      </header>
+    <OwnerShell
+      currentLocale={locale}
+      storeName={shell.storeName}
+      userName={shell.userName}
+      userInitial={shell.userInitial}
+    >
+      <div className="mx-auto max-w-6xl px-6 py-10">
+        <header className="mb-8 space-y-1">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+            Operator · Services
+          </p>
+          <h1 className="font-heading text-3xl font-semibold italic tracking-tight text-hesya-navy-900">
+            {t("title")}
+          </h1>
+          <p className="text-sm text-hesya-navy-900/65">{t("subtitle")}</p>
+        </header>
 
-      <ServicesManager
-        initialRows={initialRows}
-        labels={{
-          addButton: t("addButton"),
-          cancelButton: t("cancelButton"),
-          saveButton: t("saveButton"),
-          editButton: t("editButton"),
-          deleteButton: t("deleteButton"),
-          nameKoLabel: t("nameKoLabel"),
-          nameEnLabel: t("nameEnLabel"),
-          nameJaLabel: t("nameJaLabel"),
-          priceKrwLabel: t("priceKrwLabel"),
-          durationLabel: t("durationLabel"),
-          categoryLabel: t("categoryLabel"),
-          emptyText: t("emptyText"),
-          deleteConfirm: t("deleteConfirm"),
-        }}
-      />
-    </main>
+        <ServicesManager
+          initialRows={initialRows}
+          labels={{
+            addButton: t("addButton"),
+            cancelButton: t("cancelButton"),
+            saveButton: t("saveButton"),
+            editButton: t("editButton"),
+            deleteButton: t("deleteButton"),
+            nameKoLabel: t("nameKoLabel"),
+            nameEnLabel: t("nameEnLabel"),
+            nameJaLabel: t("nameJaLabel"),
+            priceKrwLabel: t("priceKrwLabel"),
+            durationLabel: t("durationLabel"),
+            categoryLabel: t("categoryLabel"),
+            emptyText: t("emptyText"),
+            deleteConfirm: t("deleteConfirm"),
+          }}
+        />
+      </div>
+    </OwnerShell>
   );
 }

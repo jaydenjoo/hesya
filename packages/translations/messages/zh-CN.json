@@ -274,5 +274,24 @@
     "dayFri": "周五",
     "daySat": "周六",
     "daySun": "周日"
+  },
+  "OwnerShell": {
+    "brandPill": "OPERATOR",
+    "searchPlaceholder": "搜索...",
+    "searchKbd": "⌘K",
+    "signOut": "登出",
+    "avatarAlt": "账户",
+    "sectionMain": "菜单",
+    "storeStatus": "状态:",
+    "storeStatusActive": "营业中",
+    "nav": {
+      "dashboard": "仪表板",
+      "inbox": "收件箱",
+      "bookings": "预约",
+      "services": "服务",
+      "customers": "客户",
+      "knowledge": "知识",
+      "settings": "设置"
+    }
   }
 }

@@ -274,5 +274,24 @@
     "dayFri": "週五",
     "daySat": "週六",
     "daySun": "週日"
+  },
+  "OwnerShell": {
+    "brandPill": "OPERATOR",
+    "searchPlaceholder": "搜尋...",
+    "searchKbd": "⌘K",
+    "signOut": "登出",
+    "avatarAlt": "帳號",
+    "sectionMain": "選單",
+    "storeStatus": "狀態:",
+    "storeStatusActive": "營業中",
+    "nav": {
+      "dashboard": "儀表板",
+      "inbox": "收件匣",
+      "bookings": "預約",
+      "services": "服務",
+      "customers": "客戶",
+      "knowledge": "知識",
+      "settings": "設定"
+    }
   }
 }

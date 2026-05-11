@@ -274,5 +274,24 @@
     "dayFri": "Fri",
     "daySat": "Sat",
     "daySun": "Sun"
+  },
+  "OwnerShell": {
+    "brandPill": "OPERATOR",
+    "searchPlaceholder": "Search...",
+    "searchKbd": "⌘K",
+    "signOut": "Sign out",
+    "avatarAlt": "Account",
+    "sectionMain": "MENU",
+    "storeStatus": "Status:",
+    "storeStatusActive": "Active",
+    "nav": {
+      "dashboard": "Dashboard",
+      "inbox": "Inbox",
+      "bookings": "Bookings",
+      "services": "Services",
+      "customers": "Customers",
+      "knowledge": "Knowledge",
+      "settings": "Settings"
+    }
   }
 }
