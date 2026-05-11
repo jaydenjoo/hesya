@@ -38,8 +38,10 @@ export default function StoreReportPage() {
   return (
     <main className="mx-auto max-w-3xl space-y-8 p-8">
       <header className="space-y-2">
-        <h1 className="text-2xl font-bold">외부 신고 접수</h1>
-        <p className="text-sm leading-relaxed text-gray-600">
+        <h1 className="text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
+          외부 신고 접수
+        </h1>
+        <p className="text-sm leading-relaxed text-hesya-navy-900/70">
           Epic 9 § 11 — 고객·경쟁사가 매장의 의료법 위반·위생·사기 등을 제보.
           접수만 진행 (admin 처리는 Epic 12에서). Phase 1 admin 검증용 — 공개
           폼은 Phase 1.5 reCAPTCHA 도입 후 분리.
@@ -91,14 +93,14 @@ function ReportSection() {
             onChange={(e) => setStoreId(e.target.value)}
             placeholder="예: 0c1d2e3f-..."
             required
-            className="w-full rounded border px-3 py-2 font-mono text-sm"
+            className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 font-mono text-sm focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
           />
         </Field>
         <Field label="신고자 유형">
           <select
             value={reporterType}
             onChange={(e) => setReporterType(e.target.value as ReporterType)}
-            className="w-full rounded border px-3 py-2"
+            className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
           >
             {REPORTER_TYPES.map((t) => (
               <option key={t} value={t}>
@@ -111,7 +113,7 @@ function ReportSection() {
           <select
             value={reportReason}
             onChange={(e) => setReportReason(e.target.value as ReportReason)}
-            className="w-full rounded border px-3 py-2"
+            className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
           >
             {REPORT_REASONS.map((r) => (
               <option key={r} value={r}>
@@ -129,9 +131,9 @@ function ReportSection() {
             minLength={10}
             maxLength={2000}
             rows={5}
-            className="w-full rounded border px-3 py-2"
+            className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
           />
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-hesya-navy-900/60">
             {description.length} / 2000자
           </span>
         </Field>
@@ -142,13 +144,13 @@ function ReportSection() {
             placeholder="https://example.com/photo1.jpg
 https://example.com/screenshot.png"
             rows={3}
-            className="w-full rounded border px-3 py-2 font-mono text-xs"
+            className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 font-mono text-xs focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
           />
         </Field>
         <button
           type="submit"
           disabled={isPending}
-          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+          className="rounded-md bg-hesya-amber-500 px-4 py-2 font-medium text-white transition-colors hover:bg-hesya-amber-600 disabled:opacity-50"
         >
           {isPending ? "접수 중..." : "신고 접수"}
         </button>
@@ -167,7 +169,9 @@ function Field({
 }) {
   return (
     <label className="block space-y-1">
-      <span className="block text-sm font-medium">{label}</span>
+      <span className="block text-sm font-medium text-hesya-navy-900">
+        {label}
+      </span>
       {children}
     </label>
   );
@@ -176,8 +180,8 @@ function Field({
 function ResultBlock({ result }: { result: SubmitStoreReportActionResult }) {
   if (result.ok) {
     return (
-      <section className="space-y-2 rounded border bg-green-50 p-4">
-        <h2 className="font-semibold">신고 접수 완료</h2>
+      <section className="space-y-2 rounded-md border border-emerald-200 bg-emerald-50 p-4">
+        <h2 className="font-semibold text-emerald-900">신고 접수 완료</h2>
         <dl className="space-y-1 text-sm">
           <Row k="report ID" v={result.reportId} />
           <Row k="store ID" v={result.storeId} />
@@ -187,8 +191,8 @@ function ResultBlock({ result }: { result: SubmitStoreReportActionResult }) {
     );
   }
   return (
-    <section className="space-y-2 rounded border bg-red-50 p-4">
-      <h2 className="font-semibold">실패: {result.error}</h2>
+    <section className="space-y-2 rounded-md border border-red-200 bg-red-50 p-4">
+      <h2 className="font-semibold text-red-900">실패: {result.error}</h2>
       <p className="text-sm whitespace-pre-wrap">{result.message}</p>
     </section>
   );
@@ -197,7 +201,7 @@ function ResultBlock({ result }: { result: SubmitStoreReportActionResult }) {
 function Row({ k, v }: { k: string; v: string }) {
   return (
     <div className="flex gap-2">
-      <dt className="w-24 font-medium">{k}</dt>
+      <dt className="w-24 font-medium text-hesya-navy-900">{k}</dt>
       <dd className="break-all font-mono">{v}</dd>
     </div>
   );

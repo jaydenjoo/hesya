@@ -51,7 +51,9 @@ export default async function AdminDisputesPage({
 
   return (
     <main className="container py-12">
-      <h1 className="mb-6 text-3xl font-bold">분쟁 처리 큐</h1>
+      <h1 className="mb-6 text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
+        분쟁 처리 큐
+      </h1>
       {/* server component — Date.now()는 매 요청마다 server-side로 1회 평가 (SLA D-day 표시용). react-hooks/purity는 client render 가정이라 명시 우회. */}
       {/* eslint-disable-next-line react-hooks/purity */}
       <DisputesList rows={rows} activeFilter={filter} nowMs={Date.now()} />

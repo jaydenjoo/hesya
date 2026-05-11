@@ -29,7 +29,9 @@ export default async function AdminDisputeDetailPage({
 
   return (
     <main className="container py-12">
-      <h1 className="mb-6 text-3xl font-bold">분쟁 상세</h1>
+      <h1 className="mb-6 text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
+        분쟁 상세
+      </h1>
       <DisputeDetail dispute={dispute} />
     </main>
   );

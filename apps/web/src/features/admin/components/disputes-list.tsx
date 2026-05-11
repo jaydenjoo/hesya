@@ -54,8 +54,10 @@ export function DisputesList({ rows, activeFilter, nowMs }: Props) {
             <Link
               key={f.key}
               href={href}
-              className={`rounded border px-3 py-1 text-sm ${
-                active ? "bg-black text-white" : "bg-white"
+              className={`rounded-md border px-3 py-1 text-sm transition-colors ${
+                active
+                  ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
+                  : "border-gray-200 bg-white text-hesya-navy-900 hover:border-hesya-navy-900"
               }`}
             >
               {f.label}
@@ -65,11 +67,11 @@ export function DisputesList({ rows, activeFilter, nowMs }: Props) {
       </nav>
 
       {rows.length === 0 ? (
-        <p className="text-gray-500">조건에 맞는 분쟁이 없습니다.</p>
+        <p className="text-hesya-navy-900/60">조건에 맞는 분쟁이 없습니다.</p>
       ) : (
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b text-left">
+            <tr className="border-b border-hesya-peach-100 text-left">
               <th className="py-2">유형</th>
               <th>상태</th>
               <th>접수일</th>
@@ -84,27 +86,32 @@ export function DisputesList({ rows, activeFilter, nowMs }: Props) {
               const slaUrgent = slaMs < 0;
               const slaWarn = !slaUrgent && slaDays <= 1;
               return (
-                <tr key={d.id} className="border-b">
+                <tr
+                  key={d.id}
+                  className="border-b border-hesya-peach-100 transition-colors hover:bg-hesya-peach-50/40"
+                >
                   <td className="py-2">
                     {CATEGORY_LABELS[d.category] ?? d.category}
                   </td>
                   <td>{STATUS_LABELS[d.status] ?? d.status}</td>
                   <td>{d.createdAt.toISOString().slice(0, 10)}</td>
-                  <td
-                    className={
-                      slaUrgent
-                        ? "font-medium text-red-600"
-                        : slaWarn
-                          ? "font-medium text-orange-600"
-                          : ""
-                    }
-                  >
-                    {slaUrgent ? `초과 ${Math.abs(slaDays)}일` : `D-${slaDays}`}
+                  <td>
+                    {slaUrgent ? (
+                      <span className="inline-flex rounded-md bg-hesya-peach-100 px-2 py-0.5 font-medium text-red-500">
+                        초과 {Math.abs(slaDays)}일
+                      </span>
+                    ) : slaWarn ? (
+                      <span className="font-medium text-hesya-amber-500">
+                        D-{slaDays}
+                      </span>
+                    ) : (
+                      <span>D-{slaDays}</span>
+                    )}
                   </td>
                   <td>
                     <Link
                       href={`/admin/disputes/${d.id}`}
-                      className="text-blue-600 underline"
+                      className="text-hesya-amber-500 hover:underline"
                     >
                       상세
                     </Link>

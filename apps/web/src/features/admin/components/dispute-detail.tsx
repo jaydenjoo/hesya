@@ -107,30 +107,30 @@ export function DisputeDetail({ dispute }: Props) {
       </dl>
 
       <section className="space-y-2">
-        <h2 className="text-sm font-medium">신고 내용</h2>
-        <p className="whitespace-pre-wrap rounded border bg-gray-50 p-3 text-sm">
+        <h2 className="text-sm font-medium text-hesya-navy-900">신고 내용</h2>
+        <p className="whitespace-pre-wrap rounded-md border border-hesya-peach-100 bg-hesya-peach-50/60 p-3 text-sm">
           {dispute.description}
         </p>
       </section>
 
       {isTerminal ? (
         <section className="space-y-2">
-          <h2 className="text-sm font-medium">처리 결과</h2>
-          <p className="whitespace-pre-wrap rounded border bg-gray-50 p-3 text-sm">
+          <h2 className="text-sm font-medium text-hesya-navy-900">처리 결과</h2>
+          <p className="whitespace-pre-wrap rounded-md border border-hesya-peach-100 bg-hesya-peach-50/60 p-3 text-sm">
             {dispute.resolution ?? "(기록 없음)"}
           </p>
         </section>
       ) : (
-        <div className="space-y-3 rounded border p-4">
+        <div className="space-y-3 rounded-md border border-hesya-peach-200 bg-hesya-peach-50/40 p-4">
           <label className="block">
-            <span className="mb-1 block text-sm font-medium">
+            <span className="mb-1 block text-sm font-medium text-hesya-navy-900">
               처리 결과 (5자 이상, resolved/rejected 시 사장에게 이메일 발송)
             </span>
             <textarea
               value={resolution}
               onChange={(e) => setResolution(e.target.value)}
               rows={4}
-              className="w-full rounded border px-3 py-2"
+              className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
             />
           </label>
           <div className="flex flex-wrap gap-2">
@@ -139,7 +139,7 @@ export function DisputeDetail({ dispute }: Props) {
                 type="button"
                 onClick={onSetInReview}
                 disabled={pending}
-                className="rounded border px-4 py-2 disabled:opacity-40"
+                className="rounded-md border border-hesya-peach-200 bg-white px-4 py-2 text-hesya-navy-900 transition-colors hover:border-hesya-navy-900 disabled:opacity-40"
               >
                 {pending ? "처리 중..." : "검토 시작"}
               </button>
@@ -148,7 +148,7 @@ export function DisputeDetail({ dispute }: Props) {
               type="button"
               onClick={onResolve}
               disabled={pending || !resolutionOk}
-              className="rounded bg-black px-4 py-2 text-white disabled:opacity-40"
+              className="rounded-md bg-hesya-amber-500 px-4 py-2 font-medium text-white transition-colors hover:bg-hesya-amber-600 disabled:opacity-40"
             >
               해결 처리
             </button>
@@ -156,7 +156,7 @@ export function DisputeDetail({ dispute }: Props) {
               type="button"
               onClick={onReject}
               disabled={pending || !resolutionOk}
-              className="rounded border px-4 py-2 disabled:opacity-40"
+              className="rounded-md border border-hesya-peach-200 bg-white px-4 py-2 text-hesya-navy-900 transition-colors hover:border-hesya-navy-900 disabled:opacity-40"
             >
               거절 처리
             </button>
