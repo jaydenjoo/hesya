@@ -39,7 +39,9 @@ export default function KycTestPage() {
         className="mx-auto max-w-3xl space-y-12 p-8"
       >
         <header className="space-y-2">
-          <h1 className="text-2xl font-bold">KYC 검증 페이지</h1>
+          <h1 className="text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
+            KYC 검증 페이지
+          </h1>
           <p className="text-sm leading-relaxed text-gray-700">
             Epic 9 Step 1·2 — 국세청 진위확인 + LOCALDATA 미용업 영업신고 조회.
             로그인 필요.
@@ -135,7 +137,7 @@ function NtsSection() {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+          className="rounded-md bg-hesya-amber-500 px-4 py-2 font-medium text-white transition-colors hover:bg-hesya-amber-600 disabled:opacity-50"
         >
           {isPending ? "확인 중..." : "진위확인"}
         </button>
@@ -197,7 +199,7 @@ function LocaldataSection() {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+          className="rounded-md bg-hesya-amber-500 px-4 py-2 font-medium text-white transition-colors hover:bg-hesya-amber-600 disabled:opacity-50"
         >
           {isPending ? "검색 중..." : "검색"}
         </button>
@@ -327,7 +329,7 @@ function MatchSection() {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+          className="rounded-md bg-hesya-amber-500 px-4 py-2 font-medium text-white transition-colors hover:bg-hesya-amber-600 disabled:opacity-50"
         >
           {isPending ? "매칭 중..." : "매칭"}
         </button>
@@ -445,7 +447,7 @@ function SelfDeclarationSection() {
         <button
           type="submit"
           disabled={isPending || !allChecked}
-          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+          className="rounded-md bg-hesya-amber-500 px-4 py-2 font-medium text-white transition-colors hover:bg-hesya-amber-600 disabled:opacity-50"
         >
           {isPending
             ? "서명 중..."
@@ -550,7 +552,7 @@ function CategoryClassifySection() {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+          className="rounded-md bg-hesya-amber-500 px-4 py-2 font-medium text-white transition-colors hover:bg-hesya-amber-600 disabled:opacity-50"
         >
           {isPending ? "분류 중..." : "카테고리 분류"}
         </button>
@@ -744,7 +746,7 @@ function OcrExtractSection() {
         <button
           type="submit"
           disabled={isPending || !file || !verificationId.trim()}
-          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+          className="rounded-md bg-hesya-amber-500 px-4 py-2 font-medium text-white transition-colors hover:bg-hesya-amber-600 disabled:opacity-50"
         >
           {isPending ? "추출 중..." : "OCR 추출"}
         </button>

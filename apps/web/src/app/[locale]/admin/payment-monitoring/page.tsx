@@ -45,19 +45,25 @@ export default async function AdminPaymentMonitoringPage({
   return (
     <main className="container py-12">
       <header className="mb-8 space-y-2">
-        <h1 className="text-3xl font-bold">결제이상 모니터링</h1>
-        <p className="text-sm text-gray-600">
+        <h1 className="text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
+          결제이상 모니터링
+        </h1>
+        <p className="text-sm text-hesya-navy-900/70">
           24시간 윈도우. 환불 비율 {(REFUND_RATE_THRESHOLD * 100).toFixed(0)}%
           초과 시 Sentry warning. 정산 불일치 ₩
           {SETTLEMENT_MISMATCH_THRESHOLD_KRW.toLocaleString()} 초과 시 알림.
         </p>
-        <p className="text-xs text-gray-500">최근 검사: {now.toISOString()}</p>
+        <p className="text-xs text-hesya-navy-900/60">
+          최근 검사: {now.toISOString()}
+        </p>
       </header>
 
       {!hasData && (
-        <section className="mb-8 rounded border border-amber-200 bg-amber-50 p-4">
-          <h2 className="font-semibold text-amber-900">결제 데이터 없음</h2>
-          <p className="mt-1 text-sm text-amber-800">
+        <section className="mb-8 rounded-md border border-hesya-peach-200 bg-hesya-peach-50/60 p-4">
+          <h2 className="font-semibold text-hesya-navy-900">
+            결제 데이터 없음
+          </h2>
+          <p className="mt-1 text-sm text-hesya-navy-900/80">
             Epic 2 (결제 위젯, Stripe/Alipay/WeChat) 도입 전 단계. payments
             테이블 0건 — 모니터링 인프라만 활성화. Epic 2 도입 후 24h 윈도우
             결제 데이터로 자동 활성화됩니다.
@@ -91,7 +97,9 @@ export default async function AdminPaymentMonitoringPage({
       </section>
 
       <section className="mt-10 space-y-4">
-        <h2 className="text-xl font-semibold">임계치 정의</h2>
+        <h2 className="text-xl font-semibold text-hesya-navy-900">
+          임계치 정의
+        </h2>
         <ul className="space-y-2 text-sm">
           <ThresholdItem
             label="환불 비율"
@@ -104,7 +112,7 @@ export default async function AdminPaymentMonitoringPage({
             note="Epic 2 provider adapter 도입 후 활성화"
           />
         </ul>
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-hesya-navy-900/60">
           임계치는 코드 상수 (
           <code className="font-mono">
             apps/web/src/lib/payment-monitoring/thresholds.ts
@@ -133,20 +141,24 @@ function MetricCard({
 }) {
   return (
     <div
-      className={`rounded border p-4 ${
-        alert ? "border-red-300 bg-red-50" : "border-gray-200 bg-white"
+      className={`rounded-md border p-4 ${
+        alert ? "border-red-300 bg-red-50" : "border-hesya-peach-100 bg-white"
       }`}
     >
-      <div className="text-xs font-medium text-gray-600">{label}</div>
+      <div className="text-xs font-medium text-hesya-navy-900/70">{label}</div>
       <div className="mt-2 flex items-baseline gap-1">
         <span
-          className={`text-2xl font-bold ${alert ? "text-red-900" : "text-gray-900"}`}
+          className={`text-2xl font-bold tracking-[-0.01em] ${
+            alert ? "text-red-900" : "text-hesya-navy-900"
+          }`}
         >
           {value}
         </span>
-        {unit && <span className="text-sm text-gray-600">{unit}</span>}
+        {unit && <span className="text-sm text-hesya-navy-900/70">{unit}</span>}
       </div>
-      {subtext && <div className="mt-1 text-xs text-gray-500">{subtext}</div>}
+      {subtext && (
+        <div className="mt-1 text-xs text-hesya-navy-900/60">{subtext}</div>
+      )}
       {alert && alertReason && (
         <div className="mt-2 text-xs font-medium text-red-700">
           ⚠ {alertReason}
@@ -167,9 +179,9 @@ function ThresholdItem({
 }) {
   return (
     <li className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-      <span className="font-medium">{label}:</span>
+      <span className="font-medium text-hesya-navy-900">{label}:</span>
       <span className="font-mono">{value}</span>
-      <span className="text-xs text-gray-500">— {note}</span>
+      <span className="text-xs text-hesya-navy-900/60">— {note}</span>
     </li>
   );
 }

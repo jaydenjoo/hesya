@@ -56,8 +56,10 @@ export default async function AdminStoreDeletionPage({
   return (
     <main className="container py-12">
       <header className="mb-8 space-y-2">
-        <h1 className="text-3xl font-bold">매장 해지 / 데이터 삭제</h1>
-        <p className="text-sm text-gray-600">
+        <h1 className="text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
+          매장 해지 / 데이터 삭제
+        </h1>
+        <p className="text-sm text-hesya-navy-900/70">
           개인정보보호법 §21 — 보유기간 경과 후 30일 grace 후 cascade 영구 삭제.
         </p>
       </header>

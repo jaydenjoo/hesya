@@ -77,8 +77,10 @@ export default async function AdminApiPolicyAlertsPage({
   return (
     <main className="container py-12">
       <header className="mb-8 space-y-2">
-        <h1 className="text-3xl font-bold">API 정책 변경 알림</h1>
-        <p className="text-sm text-gray-600">
+        <h1 className="text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
+          API 정책 변경 알림
+        </h1>
+        <p className="text-sm text-hesya-navy-900/70">
           n8n RSS 워크플로가 30분마다 외부 채널 정책 RSS를 폴링하여 새 entry
           발견 시 자동 등록. SLA 7일 (PRD §1063 R1).
         </p>
@@ -89,21 +91,21 @@ export default async function AdminApiPolicyAlertsPage({
       </header>
 
       {rows.length === 0 ? (
-        <section className="rounded border border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-          <p className="text-sm text-gray-600">
+        <section className="rounded-md border border-dashed border-hesya-peach-200 bg-hesya-peach-50/60 p-8 text-center">
+          <p className="text-sm text-hesya-navy-900/70">
             {filter === "all"
               ? "API 정책 변경 알림 없음 — n8n RSS 워크플로 가동 후 자동 수집됩니다."
               : `'${STATUS_LABELS[filter]}' 상태 알림 없음.`}
           </p>
-          <p className="mt-2 text-xs text-gray-500">
+          <p className="mt-2 text-xs text-hesya-navy-900/60">
             워크플로 import 가이드:{" "}
             <code className="font-mono">tools/n8n/README.md</code>
           </p>
         </section>
       ) : (
-        <section className="overflow-hidden rounded border border-gray-200">
+        <section className="overflow-hidden rounded-md border border-hesya-peach-100">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-xs font-medium text-gray-600">
+            <thead className="bg-hesya-peach-50/60 text-xs font-medium text-hesya-navy-900/70">
               <tr>
                 <th className="px-4 py-2 text-left">상태</th>
                 <th className="px-4 py-2 text-left">출처</th>
@@ -112,19 +114,22 @@ export default async function AdminApiPolicyAlertsPage({
                 <th className="px-4 py-2 text-left">수신일</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-hesya-peach-100">
               {rows.map((alert) => {
                 const statusKey = narrowStatus(alert.status);
                 return (
-                  <tr key={alert.id} className="hover:bg-gray-50">
+                  <tr
+                    key={alert.id}
+                    className="transition-colors hover:bg-hesya-peach-50/40"
+                  >
                     <td className="px-4 py-3">
                       <span
-                        className={`inline-block rounded border px-2 py-0.5 text-xs font-medium ${STATUS_BADGE_COLORS[statusKey]}`}
+                        className={`inline-block rounded-md border px-2 py-0.5 text-xs font-medium ${STATUS_BADGE_COLORS[statusKey]}`}
                       >
                         {STATUS_LABELS[statusKey]}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs">
+                    <td className="px-4 py-3 font-mono text-xs text-hesya-navy-900/80">
                       {alert.source}
                     </td>
                     <td className="px-4 py-3">
@@ -132,17 +137,17 @@ export default async function AdminApiPolicyAlertsPage({
                         href={alert.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-700 underline hover:text-blue-900"
+                        className="text-hesya-amber-500 hover:underline"
                       >
                         {alert.title}
                       </a>
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500">
+                    <td className="px-4 py-3 text-xs text-hesya-navy-900/60">
                       {alert.pubDate
                         ? new Date(alert.pubDate).toISOString().slice(0, 10)
                         : "—"}
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500">
+                    <td className="px-4 py-3 text-xs text-hesya-navy-900/60">
                       {new Date(alert.receivedAt).toISOString().slice(0, 10)}
                     </td>
                   </tr>
@@ -181,10 +186,10 @@ function FilterTabs({
           <a
             key={tab.key}
             href={href}
-            className={`rounded border px-3 py-1 ${
+            className={`rounded-md border px-3 py-1 transition-colors ${
               isActive
-                ? "border-gray-900 bg-gray-900 text-white"
-                : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
+                ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
+                : "border-gray-200 bg-white text-hesya-navy-900 hover:border-hesya-navy-900"
             }`}
           >
             {tab.label}

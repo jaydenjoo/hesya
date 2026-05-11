@@ -11,12 +11,14 @@ type Props = { rows: Row[] };
  */
 export function StoreVerificationsList({ rows }: Props) {
   if (rows.length === 0) {
-    return <p className="text-gray-500">검토 대기 중인 매장이 없습니다.</p>;
+    return (
+      <p className="text-hesya-navy-900/60">검토 대기 중인 매장이 없습니다.</p>
+    );
   }
   return (
     <table className="w-full">
       <thead>
-        <tr className="border-b text-left">
+        <tr className="border-b border-hesya-peach-100 text-left">
           <th className="py-2">매장명</th>
           <th>접수일</th>
           <th></th>
@@ -24,13 +26,16 @@ export function StoreVerificationsList({ rows }: Props) {
       </thead>
       <tbody>
         {rows.map((r) => (
-          <tr key={r.id} className="border-b">
+          <tr
+            key={r.id}
+            className="border-b border-hesya-peach-100 transition-colors hover:bg-hesya-peach-50/40"
+          >
             <td className="py-2">{r.name}</td>
             <td>{r.createdAt?.toISOString().slice(0, 10) ?? "-"}</td>
             <td>
               <Link
                 href={`/admin/store-verifications/${r.id}`}
-                className="text-blue-600 underline"
+                className="text-hesya-amber-500 hover:underline"
               >
                 상세
               </Link>

@@ -103,15 +103,17 @@ export function AdminDeletionQueue({
 
   return (
     <div className="space-y-8">
-      <section className="rounded border border-red-300 bg-red-50 p-6">
-        <h2 className="mb-3 text-lg font-bold text-red-900">강제 해지</h2>
+      <section className="rounded-md border border-red-300 bg-red-50 p-6">
+        <h2 className="mb-3 text-lg font-bold tracking-[-0.01em] text-red-900">
+          강제 해지
+        </h2>
         <p className="mb-4 text-sm text-red-800">
           약관 위반 등 사유로 매장을 강제 해지합니다. 30일 grace 후 cron이 자동
           cascade hard-delete.
         </p>
         <form onSubmit={onForceSubmit} className="space-y-3">
           <label className="block">
-            <span className="mb-1 block text-sm font-medium">
+            <span className="mb-1 block text-sm font-medium text-hesya-navy-900">
               매장 ID (UUID)
             </span>
             <input
@@ -119,18 +121,20 @@ export function AdminDeletionQueue({
               value={forceStoreId}
               onChange={(e) => setForceStoreId(e.target.value)}
               placeholder="00000000-0000-0000-0000-000000000000"
-              className="w-full max-w-md rounded border px-3 py-2 font-mono text-sm"
+              className="w-full max-w-md rounded-md border border-hesya-peach-200 bg-white px-3 py-2 font-mono text-sm focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
               required
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-sm font-medium">사유 (필수)</span>
+            <span className="mb-1 block text-sm font-medium text-hesya-navy-900">
+              사유 (필수)
+            </span>
             <textarea
               value={forceReason}
               onChange={(e) => setForceReason(e.target.value)}
               rows={3}
               placeholder="예: 마사지·스파 영업 적발 (PRD §948 의료법 88조 1호)"
-              className="w-full max-w-2xl rounded border px-3 py-2"
+              className="w-full max-w-2xl rounded-md border border-hesya-peach-200 bg-white px-3 py-2 focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
               minLength={1}
               maxLength={2000}
               required
@@ -140,7 +144,7 @@ export function AdminDeletionQueue({
             <button
               type="submit"
               disabled={pending || !forceStoreId.trim() || !forceReason.trim()}
-              className="rounded bg-red-700 px-5 py-2 text-white disabled:opacity-40"
+              className="rounded-md bg-red-700 px-5 py-2 font-medium text-white transition-colors hover:bg-red-800 disabled:opacity-40"
             >
               {pending && !actingRowId ? "신청 중..." : "강제 해지 신청"}
             </button>
@@ -148,7 +152,7 @@ export function AdminDeletionQueue({
               <span className="text-sm text-red-700">{result.message}</span>
             )}
             {result && result.ok && !actingRowId && (
-              <span className="text-sm text-green-700">완료</span>
+              <span className="text-sm text-emerald-700">완료</span>
             )}
           </div>
         </form>
@@ -161,10 +165,10 @@ export function AdminDeletionQueue({
               <a
                 key={f}
                 href={`/${locale}/admin/store-deletion?status=${f}`}
-                className={`rounded border px-3 py-1 ${
+                className={`rounded-md border px-3 py-1 transition-colors ${
                   filter === f
-                    ? "border-black bg-black text-white"
-                    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                    ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
+                    : "border-gray-200 bg-white text-hesya-navy-900 hover:border-hesya-navy-900"
                 }`}
               >
                 {FILTER_LABELS[f]}
@@ -174,9 +178,11 @@ export function AdminDeletionQueue({
         </nav>
 
         {rows.length === 0 ? (
-          <p className="text-sm text-gray-500">해당 상태의 요청이 없습니다.</p>
+          <p className="text-sm text-hesya-navy-900/60">
+            해당 상태의 요청이 없습니다.
+          </p>
         ) : (
-          <ul className="divide-y divide-gray-200 rounded border border-gray-200 bg-white">
+          <ul className="divide-y divide-hesya-peach-100 rounded-md border border-hesya-peach-100 bg-white">
             {rows.map((row) => {
               const purgeAt = new Date(row.scheduledPurgeAt);
               const remaining = row.purgedAt
@@ -189,31 +195,36 @@ export function AdminDeletionQueue({
                 "bg-gray-100 text-gray-700 border-gray-300";
               const sourceLabel = SOURCE_LABELS[row.source] ?? row.source;
               return (
-                <li key={row.id} className="space-y-2 p-4">
+                <li
+                  key={row.id}
+                  className="space-y-2 p-4 transition-colors hover:bg-hesya-peach-50/40"
+                >
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="font-semibold">{row.storeName}</span>
+                    <span className="font-semibold text-hesya-navy-900">
+                      {row.storeName}
+                    </span>
                     <span
-                      className={`rounded border px-2 py-0.5 text-xs ${sourceColor}`}
+                      className={`rounded-md border px-2 py-0.5 text-xs ${sourceColor}`}
                     >
                       {sourceLabel}
                     </span>
                     {remaining !== null && (
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-hesya-navy-900/60">
                         D-{Math.max(0, remaining)}일
                       </span>
                     )}
                     {row.purgedAt && (
-                      <span className="rounded border border-gray-300 bg-gray-100 px-2 py-0.5 text-xs text-gray-700">
+                      <span className="rounded-md border border-hesya-peach-200 bg-hesya-peach-50 px-2 py-0.5 text-xs text-hesya-navy-900/70">
                         삭제 완료
                       </span>
                     )}
                     {row.cancelledAt && (
-                      <span className="rounded border border-gray-300 bg-gray-100 px-2 py-0.5 text-xs text-gray-700">
+                      <span className="rounded-md border border-hesya-peach-200 bg-hesya-peach-50 px-2 py-0.5 text-xs text-hesya-navy-900/70">
                         취소됨
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-gray-600">
+                  <div className="text-xs text-hesya-navy-900/70">
                     <span>요청자: {row.requestedByEmail}</span>
                     <span className="mx-2">·</span>
                     <span>
@@ -227,7 +238,9 @@ export function AdminDeletionQueue({
                     )}
                   </div>
                   {row.reason && (
-                    <p className="text-sm text-gray-700">사유: {row.reason}</p>
+                    <p className="text-sm text-hesya-navy-900/80">
+                      사유: {row.reason}
+                    </p>
                   )}
                   {!row.cancelledAt && !row.purgedAt && row.storeId && (
                     <div className="flex items-center gap-3 pt-1">
@@ -235,7 +248,7 @@ export function AdminDeletionQueue({
                         type="button"
                         onClick={() => onCancelRow(row.storeId!, row.id)}
                         disabled={pending}
-                        className="rounded border border-gray-300 bg-white px-3 py-1 text-sm hover:bg-gray-50 disabled:opacity-40"
+                        className="rounded-md border border-hesya-peach-200 bg-white px-3 py-1 text-sm text-hesya-navy-900 transition-colors hover:border-hesya-navy-900 disabled:opacity-40"
                       >
                         {pending && actingRowId === row.id
                           ? "취소 중..."
