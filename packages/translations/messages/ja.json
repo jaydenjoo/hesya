@@ -8,6 +8,34 @@
     "customerNote": "お客様向け検索はベータサロン加盟後に公開予定。",
     "footerHint": "ベータ — 韓国美容業・自由業のみ"
   },
+  "Dashboard": {
+    "title": "店舗運営ダッシュボード",
+    "subtitle": "Epic 4 — 外国人売上・再来訪・国籍分析(ベータデータ蓄積後に有効化)",
+    "comingSoonNote": "決済・予約データ蓄積後に自動有効化",
+    "kpis": {
+      "inboxUnread": "未読メッセージ",
+      "inboxThreads": "進行中の会話",
+      "disputesActive": "対応中の紛争",
+      "disputesSla": "SLA超過紛争",
+      "kycStatus": "KYC状態",
+      "monthlyRevenue": "月間売上",
+      "averageOrder": "平均客単価",
+      "rebookRate": "再来訪率",
+      "noShowRate": "ノーショー率",
+      "nationalityMix": "国籍分布",
+      "treatmentMix": "施術分布",
+      "designerMix": "デザイナー分布"
+    },
+    "units": { "count": "件", "won": "₩", "percent": "%", "unit": "" },
+    "kycStates": {
+      "auto_approved": "自動承認",
+      "manual_review": "マニュアル審査",
+      "pending": "審査待ち",
+      "rejected": "却下",
+      "unknown": "未確認"
+    },
+    "footerNote": "Epic 2・3導入後、12個のKPIすべてがリアルタイム表示されます。"
+  },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",

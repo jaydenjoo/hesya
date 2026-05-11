@@ -8,6 +8,34 @@
     "customerNote": "Customer search opens after beta salons join.",
     "footerHint": "Beta — Korean beauty / wellness only"
   },
+  "Dashboard": {
+    "title": "Store dashboard",
+    "subtitle": "Epic 4 — Foreign customer revenue, retention, nationality (activates after beta data lands)",
+    "comingSoonNote": "Activates after payment & booking data is recorded",
+    "kpis": {
+      "inboxUnread": "Unread messages",
+      "inboxThreads": "Open threads",
+      "disputesActive": "Disputes in progress",
+      "disputesSla": "SLA-exceeded disputes",
+      "kycStatus": "KYC status",
+      "monthlyRevenue": "Monthly revenue",
+      "averageOrder": "Avg order value",
+      "rebookRate": "Rebook rate",
+      "noShowRate": "No-show rate",
+      "nationalityMix": "Nationality mix",
+      "treatmentMix": "Treatment mix",
+      "designerMix": "Designer mix"
+    },
+    "units": { "count": " ", "won": "₩", "percent": "%", "unit": "" },
+    "kycStates": {
+      "auto_approved": "Auto-approved",
+      "manual_review": "Manual review",
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "unknown": "Unknown"
+    },
+    "footerNote": "All 12 KPIs activate once Epic 2 & 3 data lands."
+  },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",

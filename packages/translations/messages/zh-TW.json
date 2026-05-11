@@ -8,6 +8,34 @@
     "customerNote": "客戶搜尋將在 Beta 沙龍加入後開放。",
     "footerHint": "Beta — 僅限韓國美容/養生行業"
   },
+  "Dashboard": {
+    "title": "門店營運儀表板",
+    "subtitle": "Epic 4 — 外國人銷售·回訪·國籍分析(Beta 資料蓄積後啟用)",
+    "comingSoonNote": "在結帳和預約資料記錄後自動啟用",
+    "kpis": {
+      "inboxUnread": "未讀訊息",
+      "inboxThreads": "進行中對話",
+      "disputesActive": "處理中糾紛",
+      "disputesSla": "超過 SLA 糾紛",
+      "kycStatus": "KYC 狀態",
+      "monthlyRevenue": "月銷售額",
+      "averageOrder": "平均客單價",
+      "rebookRate": "回訪率",
+      "noShowRate": "爽約率",
+      "nationalityMix": "國籍組成",
+      "treatmentMix": "項目組成",
+      "designerMix": "設計師組成"
+    },
+    "units": { "count": "件", "won": "₩", "percent": "%", "unit": "" },
+    "kycStates": {
+      "auto_approved": "自動通過",
+      "manual_review": "人工審核",
+      "pending": "等待審核",
+      "rejected": "已拒絕",
+      "unknown": "未知"
+    },
+    "footerNote": "Epic 2、3 資料上線後,全部 12 個 KPI 將即時顯示。"
+  },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",

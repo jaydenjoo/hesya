@@ -8,6 +8,34 @@
     "customerNote": "客户搜索将在 Beta 沙龙加入后开放。",
     "footerHint": "Beta — 仅限韩国美容/养生行业"
   },
+  "Dashboard": {
+    "title": "门店运营仪表板",
+    "subtitle": "Epic 4 — 外国人销售·复访·国籍分析(Beta 数据落地后启用)",
+    "comingSoonNote": "在结算和预订数据记录后自动启用",
+    "kpis": {
+      "inboxUnread": "未读消息",
+      "inboxThreads": "进行中对话",
+      "disputesActive": "处理中纠纷",
+      "disputesSla": "超过 SLA 纠纷",
+      "kycStatus": "KYC 状态",
+      "monthlyRevenue": "月销售额",
+      "averageOrder": "平均客单价",
+      "rebookRate": "复访率",
+      "noShowRate": "爽约率",
+      "nationalityMix": "国籍构成",
+      "treatmentMix": "项目构成",
+      "designerMix": "设计师构成"
+    },
+    "units": { "count": "件", "won": "₩", "percent": "%", "unit": "" },
+    "kycStates": {
+      "auto_approved": "自动通过",
+      "manual_review": "人工审核",
+      "pending": "等待审核",
+      "rejected": "已拒绝",
+      "unknown": "未知"
+    },
+    "footerNote": "Epic 2、3 数据上线后,全部 12 个 KPI 将实时显示。"
+  },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",

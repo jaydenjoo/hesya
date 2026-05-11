@@ -16,6 +16,7 @@ export * from "./schema";
 export {
   and,
   asc,
+  count,
   desc,
   eq,
   gt,
@@ -25,4 +26,5 @@ export {
   isNull,
   lte,
   sql,
+  sum,
 } from "drizzle-orm";
