@@ -26,7 +26,12 @@
       "treatmentMix": "시술 분포",
       "designerMix": "디자이너 분포"
     },
-    "units": { "count": "건", "won": "₩", "percent": "%", "unit": "" },
+    "units": {
+      "count": "건",
+      "won": "₩",
+      "percent": "%",
+      "unit": ""
+    },
     "kycStates": {
       "auto_approved": "자동 승인",
       "manual_review": "매뉴얼 검토",
@@ -60,7 +65,10 @@
       "no_show": "노쇼"
     },
     "detailPage": {
-      "headers": { "info": "예약 정보", "actions": "상태 변경" },
+      "headers": {
+        "info": "예약 정보",
+        "actions": "상태 변경"
+      },
       "fields": {
         "scheduled": "예약 일시",
         "service": "시술",
@@ -118,5 +126,20 @@
       "banner": "Instagram 토큰이 만료되었습니다 — 재연결이 필요합니다",
       "button": "재연결"
     }
+  },
+  "StoreDetail": {
+    "title": "{name}",
+    "eyebrow": "매장 상세",
+    "address": "주소",
+    "category": "카테고리",
+    "servicesHeading": "시술 메뉴",
+    "staffHeading": "디자이너",
+    "durationMinutes": "{minutes}분",
+    "priceKrw": "₩{price}",
+    "languagesLabel": "응대 언어",
+    "bookCta": "예약 진행",
+    "bookComingSoon": "결제 흐름 준비 중",
+    "notFoundTitle": "매장을 찾을 수 없습니다",
+    "notFoundBody": "폐업했거나 비공개 상태일 수 있습니다."
   }
 }

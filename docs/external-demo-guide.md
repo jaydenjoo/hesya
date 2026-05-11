@@ -49,13 +49,25 @@
 
 > 시드: 매장 #1에 메시지 6건 (en/ja/zh 손님 각 1명) 또는 stress test 시 250건.
 
-### 5. 예약 + 결제 시뮬 (M2 이후 활성화)
+### 5. 매장 detail public 페이지 (M2.1 ✅)
+
+외국인 손님 시선에서 매장 정보 view:
+
+- `/c/store/<매장 UUID>` 접속 (인증 불필요)
+- 매장명 / 주소 / 시술 5종 (이름·가격·소요시간) / 디자이너 3명 (이름·언어)
+- 6 locale 모두 자동 인식 (`/ko/c/store/...` `/en/c/store/...` `/ja/c/store/...` 등)
+- "예약 진행" CTA 표시 (M2.3 schedule 페이지가 도착할 때까지 비활성)
+
+> 매장 UUID는 시드 실행 출력 로그 또는 Jayden에게 요청. seed-beta-demo 매장 #1은
+> `auto_approved` 상태로 즉시 노출 가능.
+
+### 6. owner-side 예약 관리 시뮬 (customer-side는 M2 이후 활성화)
 
 - `/store/bookings` — 예약 리스트 (이미 시드된 50건)
 - 5-status filter (scheduled / completed / no_show / cancelled / all)
 - 예약 detail → 3 terminal action (완료 / 노쇼 / 취소)
 
-> **Customer-side 셀프 예약 + 결제 페이지는 M2 phase에서 추가 예정** (Mock Stripe/Alipay/WeChat UI).
+> **Customer-side 셀프 예약 + 결제 페이지는 M2.3~M2.6에서 추가 예정** (Mock Stripe/Alipay/WeChat UI).
 
 ### Admin 입장 (선택)
 
@@ -101,14 +113,15 @@ Jayden 사업자 등록 + 결제사 KYB 완료 후:
 
 ## 트러블슈팅
 
-| 증상                                       | 원인 / 해결                                                                   |
-| ------------------------------------------ | ----------------------------------------------------------------------------- |
-| `/sign-in` Google OAuth 실패               | Vercel Preview env에 `GOOGLE_CLIENT_ID/SECRET` 누락. Jayden 확인.             |
-| KYC 입력 후 "NTS API 오류" 표시            | `MOCK_KYC` env 미등록 또는 `false`. Jayden Vercel UI 확인.                    |
-| Instagram 연결 시 "Meta OAuth 페이지" 도달 | `MOCK_IG_OAUTH=false` 상태. Vercel Preview env 확인.                          |
-| `/store/inbox` 메시지 0건                  | 시드 미실행. Jayden에게 시드 요청 (또는 다른 외부인이 메시지 안 보냄).        |
-| 예약 페이지 (`/store/bookings`) 진입 차단  | 매장 owner 인증 필요. Google OAuth로 로그인했으면 자동 통과.                  |
-| 결제 페이지 (`/c/pay/...`) 404             | **M2 phase 진행 중** — customer-side 페이지 아직 미구현. 출시 후 활성화 예정. |
+| 증상                                       | 원인 / 해결                                                                     |
+| ------------------------------------------ | ------------------------------------------------------------------------------- |
+| `/sign-in` Google OAuth 실패               | Vercel Preview env에 `GOOGLE_CLIENT_ID/SECRET` 누락. Jayden 확인.               |
+| KYC 입력 후 "NTS API 오류" 표시            | `MOCK_KYC` env 미등록 또는 `false`. Jayden Vercel UI 확인.                      |
+| Instagram 연결 시 "Meta OAuth 페이지" 도달 | `MOCK_IG_OAUTH=false` 상태. Vercel Preview env 확인.                            |
+| `/store/inbox` 메시지 0건                  | 시드 미실행. Jayden에게 시드 요청 (또는 다른 외부인이 메시지 안 보냄).          |
+| 예약 페이지 (`/store/bookings`) 진입 차단  | 매장 owner 인증 필요. Google OAuth로 로그인했으면 자동 통과.                    |
+| 결제 페이지 (`/c/pay/...`) 404             | **M2 phase 진행 중** — customer-side 페이지 아직 미구현. 출시 후 활성화 예정.   |
+| `/c/store/<UUID>` 404                      | UUID 형식 오류 또는 `auto_approved`가 아닌 매장. 시드 매장 #1 UUID Jayden 확인. |
 
 ## 관련 문서
 

@@ -26,7 +26,12 @@
       "treatmentMix": "Cơ cấu dịch vụ",
       "designerMix": "Cơ cấu thợ"
     },
-    "units": { "count": " ", "won": "₩", "percent": "%", "unit": "" },
+    "units": {
+      "count": " ",
+      "won": "₩",
+      "percent": "%",
+      "unit": ""
+    },
     "kycStates": {
       "auto_approved": "Tự động duyệt",
       "manual_review": "Xét duyệt thủ công",
@@ -121,5 +126,20 @@
       "banner": "Instagram token expired — please reconnect",
       "button": "Reconnect"
     }
+  },
+  "StoreDetail": {
+    "title": "{name}",
+    "eyebrow": "Cửa hàng",
+    "address": "Địa chỉ",
+    "category": "Danh mục",
+    "servicesHeading": "Dịch vụ",
+    "staffHeading": "Stylist",
+    "durationMinutes": "{minutes} phút",
+    "priceKrw": "₩{price}",
+    "languagesLabel": "Ngôn ngữ",
+    "bookCta": "Đặt lịch",
+    "bookComingSoon": "Thanh toán đang chuẩn bị",
+    "notFoundTitle": "Không tìm thấy cửa hàng",
+    "notFoundBody": "Cửa hàng có thể đã đóng cửa hoặc không công khai."
   }
 }

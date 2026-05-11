@@ -12,6 +12,7 @@ import {
   findStoreByExternalAccount,
   findStoreNameByConversationId,
   getStoreBotMode,
+  getStorePublicById,
   getStoreVerificationDetail,
   listStoresPendingReview,
   rejectStore,
@@ -37,6 +38,10 @@ describe("dal.stores (pure)", () => {
     expect(typeof dalStores.approveStore).toBe("function");
     expect(typeof dalStores.rejectStore).toBe("function");
     expect(typeof dalStores.getStoreVerificationDetail).toBe("function");
+  });
+
+  it("module exports M2.1 customer-side function", () => {
+    expect(typeof dalStores.getStorePublicById).toBe("function");
   });
 
   it("approveStore + rejectStore use db.transaction (atomicity)", async () => {
@@ -283,6 +288,61 @@ describe.skipIf(!hasDb)("dal.stores (integration)", () => {
       const storeId = await seedStore(db);
       const detail = await getStoreVerificationDetail(db, storeId);
       expect(detail).toBeNull();
+    });
+
+    describe("getStorePublicById (M2.1)", () => {
+      it("auto_approved 매장 → 정보 반환", async () => {
+        const storeId = await seedStore(db, { name: "데모 헤어샵" });
+        await db
+          .update(stores)
+          .set({
+            verificationStatus: "auto_approved",
+            category: "hair_general",
+            region: "서울 강남구",
+          })
+          .where(eq(stores.id, storeId));
+
+        const result = await getStorePublicById(db, storeId);
+        expect(result).not.toBeNull();
+        expect(result?.id).toBe(storeId);
+        expect(result?.name).toBe("데모 헤어샵");
+        expect(result?.category).toBe("hair_general");
+        expect(result?.region).toBe("서울 강남구");
+      });
+
+      it("manual_review 매장 → null (외부 노출 차단)", async () => {
+        const storeId = await seedStore(db);
+        await db
+          .update(stores)
+          .set({ verificationStatus: "manual_review" })
+          .where(eq(stores.id, storeId));
+
+        const result = await getStorePublicById(db, storeId);
+        expect(result).toBeNull();
+      });
+
+      it("soft-deleted 매장 → null (30일 grace 중 차단)", async () => {
+        const storeId = await seedStore(db);
+        await db
+          .update(stores)
+          .set({
+            verificationStatus: "auto_approved",
+            deletedAt: new Date(),
+            deletionReason: "owner_request",
+          })
+          .where(eq(stores.id, storeId));
+
+        const result = await getStorePublicById(db, storeId);
+        expect(result).toBeNull();
+      });
+
+      it("미존재 UUID → null", async () => {
+        const result = await getStorePublicById(
+          db,
+          "00000000-0000-0000-0000-000000000000",
+        );
+        expect(result).toBeNull();
+      });
     });
 
     it("rejectStore: stores + storeVerifications atomically rejected + reason", async () => {

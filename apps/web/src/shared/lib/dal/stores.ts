@@ -244,3 +244,43 @@ export async function rejectStore(
       .where(eq(storeVerifications.id, input.verificationId));
   });
 }
+
+export type PublicStore = {
+  id: string;
+  name: string;
+  category: string | null;
+  region: string | null;
+  address: unknown;
+};
+
+/**
+ * Plan v3 M2.1 — customer-side public 매장 조회. `auto_approved` 매장만 노출
+ * (rejected/manual_review/pending은 외부 손님에게 보이면 안 됨). soft-delete된
+ * 매장은 30일 grace 중이어도 외부 view 차단.
+ *
+ * stores.slug 컬럼이 없어 path param은 UUID. M5 이후 SEO 단계에서 slug 도입 시
+ * 본 함수에 `getStorePublicBySlug` 추가 후 라우트만 갈아치우면 됨.
+ */
+export async function getStorePublicById(
+  db: DbClient,
+  id: string,
+): Promise<PublicStore | null> {
+  const rows = await db
+    .select({
+      id: stores.id,
+      name: stores.name,
+      category: stores.category,
+      region: stores.region,
+      address: stores.address,
+    })
+    .from(stores)
+    .where(
+      and(
+        eq(stores.id, id),
+        eq(stores.verificationStatus, "auto_approved"),
+        isNull(stores.deletedAt),
+      ),
+    )
+    .limit(1);
+  return rows[0] ?? null;
+}

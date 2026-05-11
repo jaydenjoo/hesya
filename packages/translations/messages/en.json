@@ -26,7 +26,12 @@
       "treatmentMix": "Treatment mix",
       "designerMix": "Designer mix"
     },
-    "units": { "count": " ", "won": "₩", "percent": "%", "unit": "" },
+    "units": {
+      "count": " ",
+      "won": "₩",
+      "percent": "%",
+      "unit": ""
+    },
     "kycStates": {
       "auto_approved": "Auto-approved",
       "manual_review": "Manual review",
@@ -60,7 +65,10 @@
       "no_show": "No-show"
     },
     "detailPage": {
-      "headers": { "info": "Booking info", "actions": "Update status" },
+      "headers": {
+        "info": "Booking info",
+        "actions": "Update status"
+      },
       "fields": {
         "scheduled": "Scheduled at",
         "service": "Service",
@@ -118,5 +126,20 @@
       "banner": "Instagram token expired — please reconnect",
       "button": "Reconnect"
     }
+  },
+  "StoreDetail": {
+    "title": "{name}",
+    "eyebrow": "Store",
+    "address": "Address",
+    "category": "Category",
+    "servicesHeading": "Services",
+    "staffHeading": "Stylists",
+    "durationMinutes": "{minutes} min",
+    "priceKrw": "₩{price}",
+    "languagesLabel": "Languages",
+    "bookCta": "Book now",
+    "bookComingSoon": "Payment flow coming soon",
+    "notFoundTitle": "Store not found",
+    "notFoundBody": "The store may have closed or be unlisted."
   }
 }

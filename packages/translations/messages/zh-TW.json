@@ -26,7 +26,12 @@
       "treatmentMix": "項目組成",
       "designerMix": "設計師組成"
     },
-    "units": { "count": "件", "won": "₩", "percent": "%", "unit": "" },
+    "units": {
+      "count": "件",
+      "won": "₩",
+      "percent": "%",
+      "unit": ""
+    },
     "kycStates": {
       "auto_approved": "自動通過",
       "manual_review": "人工審核",
@@ -60,7 +65,10 @@
       "no_show": "爽約"
     },
     "detailPage": {
-      "headers": { "info": "預約資訊", "actions": "更新狀態" },
+      "headers": {
+        "info": "預約資訊",
+        "actions": "更新狀態"
+      },
       "fields": {
         "scheduled": "預約時間",
         "service": "項目",
@@ -118,5 +126,20 @@
       "banner": "Instagram token expired — please reconnect",
       "button": "Reconnect"
     }
+  },
+  "StoreDetail": {
+    "title": "{name}",
+    "eyebrow": "門市",
+    "address": "地址",
+    "category": "類別",
+    "servicesHeading": "服務",
+    "staffHeading": "設計師",
+    "durationMinutes": "{minutes}分鐘",
+    "priceKrw": "₩{price}",
+    "languagesLabel": "應對語言",
+    "bookCta": "立即預約",
+    "bookComingSoon": "支付功能即將上線",
+    "notFoundTitle": "未找到門市",
+    "notFoundBody": "門市可能已關閉或未公開。"
   }
 }

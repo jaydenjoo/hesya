@@ -26,7 +26,12 @@
       "treatmentMix": "施術分布",
       "designerMix": "デザイナー分布"
     },
-    "units": { "count": "件", "won": "₩", "percent": "%", "unit": "" },
+    "units": {
+      "count": "件",
+      "won": "₩",
+      "percent": "%",
+      "unit": ""
+    },
     "kycStates": {
       "auto_approved": "自動承認",
       "manual_review": "マニュアル審査",
@@ -60,7 +65,10 @@
       "no_show": "ノーショー"
     },
     "detailPage": {
-      "headers": { "info": "予約情報", "actions": "状態変更" },
+      "headers": {
+        "info": "予約情報",
+        "actions": "状態変更"
+      },
       "fields": {
         "scheduled": "予約日時",
         "service": "施術",
@@ -118,5 +126,20 @@
       "banner": "Instagram token expired — please reconnect",
       "button": "Reconnect"
     }
+  },
+  "StoreDetail": {
+    "title": "{name}",
+    "eyebrow": "お店",
+    "address": "住所",
+    "category": "カテゴリ",
+    "servicesHeading": "メニュー",
+    "staffHeading": "スタイリスト",
+    "durationMinutes": "{minutes}分",
+    "priceKrw": "₩{price}",
+    "languagesLabel": "対応言語",
+    "bookCta": "予約する",
+    "bookComingSoon": "決済機能 準備中",
+    "notFoundTitle": "お店が見つかりません",
+    "notFoundBody": "閉店または非公開の可能性があります。"
   }
 }
