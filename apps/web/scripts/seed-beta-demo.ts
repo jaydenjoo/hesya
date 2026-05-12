@@ -42,6 +42,7 @@ import {
   eq,
   services,
   staff,
+  storeKnowledge,
   stores,
   storeVerifications,
   users,
@@ -387,6 +388,45 @@ async function main(): Promise<void> {
       status,
       totalPriceKrw: svc.priceKrw,
       depositPaidKrw: Math.floor(svc.priceKrw * 0.3),
+    });
+  }
+
+  // 3-e. 매장 FAQ 5건 (Epic 1B-B-4a / Phase D4-D4 시연용 — /store/knowledge
+  // 빈 list 방지). embedding은 시드 단계에서 null 유지 — 실제 운영에서는
+  // OpenAI text-embedding-3-small 호출 후 채워짐. 검색은 IS NOT NULL 가드 후
+  // 시연 시 fallback 동작 또는 직접 답변 표시.
+  const demoFaqs = [
+    {
+      question: "예약 변경/취소는 어떻게 하나요?",
+      answer:
+        "예약 24시간 전까지는 무료로 변경/취소 가능합니다. 24시간 이내 취소는 보증금이 환불되지 않습니다.",
+    },
+    {
+      question: "외국 카드로 결제 가능한가요?",
+      answer:
+        "Visa/Mastercard/Amex/JCB/UnionPay 모두 사용 가능합니다. WeChat Pay와 Alipay는 일부 지점에서만 지원합니다.",
+    },
+    {
+      question: "한국어를 못해도 괜찮은가요?",
+      answer:
+        "English/日本語/简体中文/繁體中文/Tiếng Việt 모두 환영합니다. 일부 디자이너는 다국어 가능하며 예약 시 선택할 수 있습니다.",
+    },
+    {
+      question: "위치는 어디인가요?",
+      answer:
+        "강남구 신사동 가로수길 인근입니다. 신사역 8번 출구에서 도보 7분.",
+    },
+    {
+      question: "주차 가능한가요?",
+      answer:
+        "매장 자체 주차장은 없으며, 인근 공영주차장(첫 1시간 3,000원) 이용을 권장합니다. 발렛 서비스는 제공하지 않습니다.",
+    },
+  ];
+  for (const faq of demoFaqs) {
+    await db.insert(storeKnowledge).values({
+      storeId: autoStoreId,
+      question: faq.question,
+      answer: faq.answer,
     });
   }
 
