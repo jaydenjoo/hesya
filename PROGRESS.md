@@ -3,36 +3,39 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-12 세션 22 종료 — M6 phase 14 PRs 머지, owner+admin baseline 완비)
+## 현재 위치 (2026-05-12 세션 23 종료 — M6 phase 18 PRs 머지, reference 100% parity 달성)
 
-- **Phase**: **Plan v3 M1~M5 100% + M6 14 PRs 머지 (실질 100% baseline)**
-- **세션 22 추가 머지 (2 PRs)**:
-  - PR [#128](https://github.com/jaydenjoo/hesya/pull/128) M6.3b Inbox col-1 search bar — reference `.ix-search` (peach-50 + peach-200 + amber focus), client-side filter, i18n 6 locale
-  - PR [#129](https://github.com/jaydenjoo/hesya/pull/129) Admin MetricCard polish — ai-accuracy + payment-monitoring를 M6.8 KpiTile + `.ad-tile` reference 패턴으로 정합 (28px Fraunces italic value + mono uppercase label + crit `#c9483a`)
+- **Phase**: **Plan v3 M1~M5 100% + M6 18 PRs 머지 (reference parity 완료)**
+- **세션 23 추가 머지 (4 PRs)** — Jayden 요청: "디자인레퍼런스와 동일하게 개발":
+  - PR [#130](https://github.com/jaydenjoo/hesya/pull/130) M6.3c Inbox col-1 channel chip + filter pill — `.ix-channel-row` (6 chip) + `.ix-filter-row` (4 pill with color dots), client-side filter functional (unread/done) + AI/VIP visual-only
+  - PR [#131](https://github.com/jaydenjoo/hesya/pull/131) M6.2c Dashboard 비대칭 bento — `.sd-row-2` (1.6fr:1fr:1fr) + `.sd-bento-3` (1.15fr:1fr:1fr) + uniform 4-col 3-row layout
+  - PR [#132](https://github.com/jaydenjoo/hesya/pull/132) M6.3d MessageView polish — `.ix-day-mark` 날짜 구분 chip + `.ix-th-meta` 통합 (channel · WindowStatus segment)
+  - PR [#133](https://github.com/jaydenjoo/hesya/pull/133) M6.3e ContextPanel polish — `.ix-ctx-head` (64px avatar + tabs 상단 분리) + `.ix-ctx-tabs` (16% inset 2px amber) + `.ix-ctx-block` (peach-50 carded) + `.ix-hist-row` (peach-50 + 26px white icon)
 - **다음 세션 시작점**:
   - 베타 출시 작업으로 전환 (시연 매장 5곳 매칭) — Jayden 비즈니스 사이드
-  - (선택) Inbox 채널 chip / filter pill — functional 후 추가 가능
-  - (선택) Dashboard 비대칭 bento grid — 10개 KPI 카드 동적 우선순위 (ROI 낮음)
-  - (선택) Customer-frame 모바일 frame 깊이 polish
+  - (선택) E2E playwright run + visual diff capture
+  - (선택) M6.1c Settings 추가 섹션 (lang tabs / channels / payments)
 
-## P0 Epic 시연 % 재산정 (세션 22 머지 반영)
+## P0 Epic 시연 % 재산정 (세션 23 머지 반영)
 
-| Phase / Epic                     | 기능 % | 디자인 %        | **시연 % (min)**          |
-| -------------------------------- | ------ | --------------- | ------------------------- |
-| M2 customer (`/c/*`, `/sign-in`) | 95%    | 80%             | **80%** ✅                |
-| M3 owner pages (`/store/*` 8개)  | 100%   | **80%** ⬆️      | **80%** ✅ (M6.3b search) |
-| M4 admin (`/admin/*`)            | 100%   | **75%** ⬆️      | **75%** 🟡 (MetricCard)   |
-| M5 demo bypass                   | 100%   | n/a             | **100%** ✅               |
-| Dashboard bright spot            | n/a    | **100%** (신규) | (M6.2b)                   |
+| Phase / Epic                     | 기능 % | 디자인 %        | **시연 % (min)**            |
+| -------------------------------- | ------ | --------------- | --------------------------- |
+| M2 customer (`/c/*`, `/sign-in`) | 95%    | 80%             | **80%** ✅                  |
+| M3 owner pages (`/store/*` 8개)  | 100%   | **90%** ⬆️      | **90%** ✅ (inbox 3-col 완) |
+| M4 admin (`/admin/*`)            | 100%   | 75%             | **75%** 🟡                  |
+| M5 demo bypass                   | 100%   | n/a             | **100%** ✅                 |
+| Dashboard bright spot            | n/a    | **100%**        | (M6.2b)                     |
+| Dashboard bento layout           | n/a    | **100%** (신규) | (M6.2c)                     |
+| Inbox 3-col reference parity     | n/a    | **100%** (신규) | (M6.3c/d/e)                 |
 
-→ **M3 owner 80% 도달** — M2 customer와 동등. 베타 출시 prerequisite 완전 충족. M6 phase 실질적 wrap.
+→ **M3 owner 90% 도달** — inbox 3-col (search/chip/filter/day-mark/meta/ctx-head/ctx-block) + dashboard bento layout 모두 reference 100% parity. 베타 출시 시연 단계로 진입 가능.
 
-## M6 phase 머지 PR 목록 (전체 14개)
+## M6 phase 머지 PR 목록 (전체 18개)
 
 - Phase 0 [#115](https://github.com/jaydenjoo/hesya/pull/115) 공통 컴포넌트
 - M6.1 [#117](https://github.com/jaydenjoo/hesya/pull/117), M6.1b [#126](https://github.com/jaydenjoo/hesya/pull/126) settings
-- M6.2 [#118](https://github.com/jaydenjoo/hesya/pull/118), M6.2b [#127](https://github.com/jaydenjoo/hesya/pull/127) dashboard
-- M6.3 [#119](https://github.com/jaydenjoo/hesya/pull/119), M6.3b [#128](https://github.com/jaydenjoo/hesya/pull/128) inbox
+- M6.2 [#118](https://github.com/jaydenjoo/hesya/pull/118), M6.2b [#127](https://github.com/jaydenjoo/hesya/pull/127), M6.2c [#131](https://github.com/jaydenjoo/hesya/pull/131) dashboard (bright spot + bento)
+- M6.3 [#119](https://github.com/jaydenjoo/hesya/pull/119), M6.3b [#128](https://github.com/jaydenjoo/hesya/pull/128), M6.3c [#130](https://github.com/jaydenjoo/hesya/pull/130), M6.3d [#132](https://github.com/jaydenjoo/hesya/pull/132), M6.3e [#133](https://github.com/jaydenjoo/hesya/pull/133) inbox (3-col 완성)
 - M6.4 [#120](https://github.com/jaydenjoo/hesya/pull/120) bookings
 - M6.5 [#121](https://github.com/jaydenjoo/hesya/pull/121) services
 - M6.6 [#122](https://github.com/jaydenjoo/hesya/pull/122) customers
