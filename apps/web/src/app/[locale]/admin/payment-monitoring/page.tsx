@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createDbClient } from "@hesya/database";
 
+import { PageHeader } from "@/components/ui/page-header";
 import { env } from "@/shared/config/env";
 import {
   REFUND_RATE_MIN_SAMPLE_SIZE,
@@ -43,83 +44,81 @@ export default async function AdminPaymentMonitoringPage({
   const hasData = metrics.totalCount > 0;
 
   return (
-    <main className="container py-12">
-      <header className="mb-8 space-y-2">
-        <h1 className="text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
-          결제이상 모니터링
-        </h1>
-        <p className="text-sm text-hesya-navy-900/70">
-          24시간 윈도우. 환불 비율 {(REFUND_RATE_THRESHOLD * 100).toFixed(0)}%
-          초과 시 Sentry warning. 정산 불일치 ₩
-          {SETTLEMENT_MISMATCH_THRESHOLD_KRW.toLocaleString()} 초과 시 알림.
-        </p>
-        <p className="text-xs text-hesya-navy-900/60">
-          최근 검사: {now.toISOString()}
-        </p>
-      </header>
+    <main className="min-h-screen bg-hesya-peach-50/30">
+      <PageHeader
+        eyebrow="Admin · Payment Monitoring"
+        title="결제이상 모니터링"
+        subtitle={`24시간 윈도우. 환불 비율 ${(REFUND_RATE_THRESHOLD * 100).toFixed(0)}% 초과 시 Sentry warning. 정산 불일치 ₩${SETTLEMENT_MISMATCH_THRESHOLD_KRW.toLocaleString()} 초과 시 알림.`}
+        right={
+          <p className="font-mono text-[11px] text-hesya-navy-900/55">
+            최근 검사: {now.toISOString()}
+          </p>
+        }
+      />
+      <div className="container py-8">
+        {!hasData && (
+          <section className="mb-8 rounded-md border border-hesya-peach-200 bg-hesya-peach-50/60 p-4">
+            <h2 className="font-semibold text-hesya-navy-900">
+              결제 데이터 없음
+            </h2>
+            <p className="mt-1 text-sm text-hesya-navy-900/80">
+              Epic 2 (결제 위젯, Stripe/Alipay/WeChat) 도입 전 단계. payments
+              테이블 0건 — 모니터링 인프라만 활성화. Epic 2 도입 후 24h 윈도우
+              결제 데이터로 자동 활성화됩니다.
+            </p>
+          </section>
+        )}
 
-      {!hasData && (
-        <section className="mb-8 rounded-md border border-hesya-peach-200 bg-hesya-peach-50/60 p-4">
-          <h2 className="font-semibold text-hesya-navy-900">
-            결제 데이터 없음
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <MetricCard
+            label="총 결제 건수 (24h)"
+            value={metrics.totalCount.toString()}
+            unit="건"
+          />
+          <MetricCard
+            label="환불 건수 (24h)"
+            value={metrics.refundCount.toString()}
+            unit="건"
+          />
+          <MetricCard
+            label="환불 비율 (24h)"
+            value={(metrics.refundRate * 100).toFixed(1)}
+            unit="%"
+            alert={refundRateExceeded}
+            alertReason={`임계치 ${(REFUND_RATE_THRESHOLD * 100).toFixed(0)}% 초과`}
+          />
+          <MetricCard
+            label="총 결제액 (24h)"
+            value={`₩${metrics.totalAmountKrw.toLocaleString()}`}
+            subtext={`환불액 ₩${metrics.refundedAmountKrw.toLocaleString()}`}
+          />
+        </section>
+
+        <section className="mt-10 space-y-4">
+          <h2 className="text-xl font-semibold text-hesya-navy-900">
+            임계치 정의
           </h2>
-          <p className="mt-1 text-sm text-hesya-navy-900/80">
-            Epic 2 (결제 위젯, Stripe/Alipay/WeChat) 도입 전 단계. payments
-            테이블 0건 — 모니터링 인프라만 활성화. Epic 2 도입 후 24h 윈도우
-            결제 데이터로 자동 활성화됩니다.
+          <ul className="space-y-2 text-sm">
+            <ThresholdItem
+              label="환불 비율"
+              value={`${(REFUND_RATE_THRESHOLD * 100).toFixed(0)}% 초과`}
+              note={`최소 표본 ${REFUND_RATE_MIN_SAMPLE_SIZE}건 이상일 때만 평가`}
+            />
+            <ThresholdItem
+              label="정산 불일치 (KRW)"
+              value={`₩${SETTLEMENT_MISMATCH_THRESHOLD_KRW.toLocaleString()} 초과`}
+              note="Epic 2 provider adapter 도입 후 활성화"
+            />
+          </ul>
+          <p className="text-xs text-hesya-navy-900/60">
+            임계치는 코드 상수 (
+            <code className="font-mono">
+              apps/web/src/lib/payment-monitoring/thresholds.ts
+            </code>
+            ). 베타 운영 데이터 누적 후 admin UI 설정으로 전환 예정.
           </p>
         </section>
-      )}
-
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          label="총 결제 건수 (24h)"
-          value={metrics.totalCount.toString()}
-          unit="건"
-        />
-        <MetricCard
-          label="환불 건수 (24h)"
-          value={metrics.refundCount.toString()}
-          unit="건"
-        />
-        <MetricCard
-          label="환불 비율 (24h)"
-          value={(metrics.refundRate * 100).toFixed(1)}
-          unit="%"
-          alert={refundRateExceeded}
-          alertReason={`임계치 ${(REFUND_RATE_THRESHOLD * 100).toFixed(0)}% 초과`}
-        />
-        <MetricCard
-          label="총 결제액 (24h)"
-          value={`₩${metrics.totalAmountKrw.toLocaleString()}`}
-          subtext={`환불액 ₩${metrics.refundedAmountKrw.toLocaleString()}`}
-        />
-      </section>
-
-      <section className="mt-10 space-y-4">
-        <h2 className="text-xl font-semibold text-hesya-navy-900">
-          임계치 정의
-        </h2>
-        <ul className="space-y-2 text-sm">
-          <ThresholdItem
-            label="환불 비율"
-            value={`${(REFUND_RATE_THRESHOLD * 100).toFixed(0)}% 초과`}
-            note={`최소 표본 ${REFUND_RATE_MIN_SAMPLE_SIZE}건 이상일 때만 평가`}
-          />
-          <ThresholdItem
-            label="정산 불일치 (KRW)"
-            value={`₩${SETTLEMENT_MISMATCH_THRESHOLD_KRW.toLocaleString()} 초과`}
-            note="Epic 2 provider adapter 도입 후 활성화"
-          />
-        </ul>
-        <p className="text-xs text-hesya-navy-900/60">
-          임계치는 코드 상수 (
-          <code className="font-mono">
-            apps/web/src/lib/payment-monitoring/thresholds.ts
-          </code>
-          ). 베타 운영 데이터 누적 후 admin UI 설정으로 전환 예정.
-        </p>
-      </section>
+      </div>
     </main>
   );
 }

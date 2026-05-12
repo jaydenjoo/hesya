@@ -8,6 +8,8 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createDbClient } from "@hesya/database";
+
+import { PageHeader } from "@/components/ui/page-header";
 import { env } from "@/shared/config/env";
 import { requireAdminEmail } from "@/shared/lib/admin-guard";
 import { getAiCostSummary } from "@/shared/lib/dal/ai-cost";
@@ -44,24 +46,18 @@ export default async function AdminAiCostPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-hesya-peach-50/30">
-      <header className="border-b border-hesya-navy-900/10 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <span className="rounded-full bg-hesya-navy-900 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-hesya-peach-50">
-              Admin
-            </span>
-            <h1 className="font-heading text-[20px] font-semibold italic text-hesya-navy-900">
-              {t("title")}
-            </h1>
-          </div>
+      <PageHeader
+        eyebrow="Admin · AI Cost"
+        title={t("title")}
+        right={
           <Link
             href={`/${locale}/admin/dashboard`}
-            className="text-[12px] text-hesya-amber-600 hover:underline"
+            className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-hesya-amber-600 transition hover:text-hesya-amber-700"
           >
             ← {t("backToDashboard")}
           </Link>
-        </div>
-      </header>
+        }
+      />
 
       <main className="mx-auto max-w-7xl px-6 py-8">
         <p className="mb-6 max-w-2xl text-[13px] leading-relaxed text-hesya-navy-900/65">
@@ -71,11 +67,11 @@ export default async function AdminAiCostPage({ params }: Props) {
         {/* Today's cost + budget */}
         <section className="mb-8">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <div className="rounded-2xl bg-white p-5 ring-1 ring-hesya-navy-900/10">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/55">
+            <div className="rounded-md border border-gray-200 bg-white p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)]">
+              <div className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-gray-700">
                 {t("todayCost")}
               </div>
-              <div className="mt-2 font-heading text-[32px] font-semibold italic leading-none text-hesya-navy-900">
+              <div className="mt-2 font-heading text-[36px] font-medium italic leading-none tracking-[-0.02em] text-hesya-navy-900">
                 ₩{summary.todayEstimatedKrw.toLocaleString("ko")}
               </div>
               <div className="mt-1.5 text-[11px] text-hesya-navy-900/55">
@@ -84,19 +80,19 @@ export default async function AdminAiCostPage({ params }: Props) {
             </div>
 
             <div
-              className={`rounded-2xl p-5 ring-1 ${
+              className={`rounded-md border p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)] ${
                 overBudget
-                  ? "bg-rose-50 ring-rose-200"
+                  ? "border-[#e5c0ba] bg-[#faefec]"
                   : nearBudget
-                    ? "bg-amber-50 ring-amber-200"
-                    : "bg-white ring-hesya-navy-900/10"
+                    ? "border-hesya-peach-200 bg-[#fbf1e6]"
+                    : "border-gray-200 bg-white"
               }`}
             >
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/55">
+              <div className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-gray-700">
                 {t("dailyBudget")}
               </div>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="font-heading text-[32px] font-semibold italic leading-none text-hesya-navy-900">
+                <span className="font-heading text-[36px] font-medium italic leading-none tracking-[-0.02em] text-hesya-navy-900">
                   {summary.dailyBudgetPct}%
                 </span>
                 <span className="text-[11px] text-hesya-navy-900/55">
@@ -116,8 +112,8 @@ export default async function AdminAiCostPage({ params }: Props) {
               )}
             </div>
 
-            <div className="rounded-2xl bg-white p-5 ring-1 ring-hesya-navy-900/10">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/55">
+            <div className="rounded-md border border-gray-200 bg-white p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)]">
+              <div className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-gray-700">
                 {t("trend14d")}
               </div>
               <svg
@@ -149,15 +145,15 @@ export default async function AdminAiCostPage({ params }: Props) {
 
         {/* By model */}
         <section>
-          <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/55">
+          <h2 className="mb-3 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-gray-700">
             {t("byModel")}
           </h2>
           {summary.byModel.length === 0 ? (
-            <p className="rounded-2xl bg-white/60 px-5 py-8 text-center text-[13px] text-hesya-navy-900/55 ring-1 ring-hesya-navy-900/10">
+            <p className="rounded-md border border-dashed border-gray-200 bg-white/60 px-5 py-8 text-center text-[13px] text-hesya-navy-900/55">
               {t("byModelEmpty")}
             </p>
           ) : (
-            <ul className="divide-y divide-hesya-navy-900/10 rounded-2xl bg-white ring-1 ring-hesya-navy-900/10">
+            <ul className="divide-y divide-hesya-peach-100 rounded-md border border-gray-200 bg-white shadow-[0_1px_2px_rgba(26,34,56,0.04)]">
               {summary.byModel.map((row) => (
                 <li
                   key={row.model}

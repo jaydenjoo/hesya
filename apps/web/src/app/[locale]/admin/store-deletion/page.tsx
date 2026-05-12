@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { createDbClient } from "@hesya/database";
 
+import { PageHeader } from "@/components/ui/page-header";
 import { AdminDeletionQueue } from "@/features/store-deletion";
 import { env } from "@/shared/config/env";
 import { listDeletionRequestsForAdmin } from "@/shared/lib/dal/store-deletion";
@@ -54,32 +55,31 @@ export default async function AdminStoreDeletionPage({
   const rows = await listDeletionRequestsForAdmin(db, { status: filter });
 
   return (
-    <main className="container py-12">
-      <header className="mb-8 space-y-2">
-        <h1 className="text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
-          매장 해지 / 데이터 삭제
-        </h1>
-        <p className="text-sm text-hesya-navy-900/70">
-          개인정보보호법 §21 — 보유기간 경과 후 30일 grace 후 cascade 영구 삭제.
-        </p>
-      </header>
-      <AdminDeletionQueue
-        rows={rows.map((r) => ({
-          id: r.id,
-          storeId: r.storeId,
-          storeName: r.storeName,
-          source: narrowSource(r.source),
-          requestedByEmail: r.requestedByEmail,
-          reason: r.reason,
-          scheduledPurgeAt: r.scheduledPurgeAt.toISOString(),
-          cancelledAt: r.cancelledAt ? r.cancelledAt.toISOString() : null,
-          cancelledByEmail: r.cancelledByEmail,
-          purgedAt: r.purgedAt ? r.purgedAt.toISOString() : null,
-          createdAt: r.createdAt.toISOString(),
-        }))}
-        filter={filter}
-        locale={locale}
+    <main className="min-h-screen bg-hesya-peach-50/30">
+      <PageHeader
+        eyebrow="Admin · Store Deletion"
+        title="매장 해지 / 데이터 삭제"
+        subtitle="개인정보보호법 §21 — 보유기간 경과 후 30일 grace 후 cascade 영구 삭제."
       />
+      <div className="container py-8">
+        <AdminDeletionQueue
+          rows={rows.map((r) => ({
+            id: r.id,
+            storeId: r.storeId,
+            storeName: r.storeName,
+            source: narrowSource(r.source),
+            requestedByEmail: r.requestedByEmail,
+            reason: r.reason,
+            scheduledPurgeAt: r.scheduledPurgeAt.toISOString(),
+            cancelledAt: r.cancelledAt ? r.cancelledAt.toISOString() : null,
+            cancelledByEmail: r.cancelledByEmail,
+            purgedAt: r.purgedAt ? r.purgedAt.toISOString() : null,
+            createdAt: r.createdAt.toISOString(),
+          }))}
+          filter={filter}
+          locale={locale}
+        />
+      </div>
     </main>
   );
 }

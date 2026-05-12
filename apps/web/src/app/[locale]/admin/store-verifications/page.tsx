@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { createDbClient } from "@hesya/database";
+
+import { PageHeader } from "@/components/ui/page-header";
 import { env } from "@/shared/config/env";
 import { StoreVerificationsList } from "@/features/admin";
 import { requireAdminEmail } from "@/shared/lib/admin-guard";
@@ -26,11 +28,11 @@ export default async function StoreVerificationsPage({
   const rows = await listStoresPendingReview(db);
 
   return (
-    <main className="container py-12">
-      <h1 className="mb-6 text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
-        매장 검토 큐
-      </h1>
-      <StoreVerificationsList rows={rows} />
+    <main className="min-h-screen bg-hesya-peach-50/30">
+      <PageHeader eyebrow="Admin · Store Verifications" title="매장 검토 큐" />
+      <div className="container py-8">
+        <StoreVerificationsList rows={rows} />
+      </div>
     </main>
   );
 }
