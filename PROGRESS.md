@@ -3,9 +3,58 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-12 세션 19 종료)
+## 현재 위치 (2026-05-12 세션 19 종료, 후반 — M5.4 시연 통과 + M6 신설)
 
-- **Phase**: **Plan v3 M1 5/5 + M2 7/7 + M3 5/5 + M4 5/5 (본 세션 M4.2 완료) + M5 4/5** (M5.4 external Vercel 등록만 잔여) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 70% + δ Epic 3 95% + E2 결제 60%)
+- **Phase**: **Plan v3 M1 5/5 + M2 7/7 + M3 5/5 + M4 5/5 + M5 5/5 ✅ 100% 완료** + **🆕 M6 디자인 정합성 phase 신설 (10~17일 작업)**
+- **시연 통과**: M5.4 owner+customer 시연 Preview URL `hesya-web-git-demo-preview-trigger-...` 통과 확인 (Jayden 본인 브라우저 + Google OAuth + 우리가 DB에 직접 INSERT한 user/store/store_owners record로 진입 성공)
+- **세션 19 후반 머지 (4건, main 직접/cherry-pick)**:
+  - `0d6aecb` fix(shell): M5.1 누락 패치 — `getOwnerShellData`에 DEMO 가드 추가 (핵심 시연 차단 버그 fix)
+  - `0e9ac2e` fix(seed): DEMO_USER_ID을 zod v4 uuid 통과 형식 (`00000000-0000-4000-8000-000000000001`)로 변경
+  - `3864106` fix(seed): demo user 삭제를 email 기준으로 변경 (UUID 변경 호환)
+  - 신규 docs: `docs/Plan-v3-M6-design.md` (owner/admin 디자인 정합성 전면 phase)
+- **세션 19 발견 + 적용된 원칙 (memory `feedback_design_first.md`)**:
+  - 비개발자/외부인은 시스템 내용보다 디자인을 먼저 보고 판단 → 디자인-First 강제
+  - **PROGRESS 자기평가 시연 % = `min(기능 %, 디자인 %)`** (L-082 강화)
+  - 페이지 Task = (기능 + 디자인 토큰 + 레퍼런스 정합) 묶음 의무
+
+## P0 Epic 시연 % 재산정 (디자인-First 원칙 적용)
+
+| Phase / Epic                     | 기능 % | 디자인 % | **시연 % (min)** |
+| -------------------------------- | ------ | -------- | ---------------- |
+| M2 customer (`/c/*`, `/sign-in`) | 95%    | 80%      | **80%** ✅       |
+| M3 owner pages (`/store/*` 8개)  | 100%   | **15%**  | **15%** ❌       |
+| M4 admin (`/admin/*`)            | 100%   | 35%      | **35%** 🟡       |
+| M5 demo bypass                   | 100%   | n/a      | **100%** ✅      |
+
+→ owner/admin 디자인 갭이 베타 시연의 핵심 차단 요소. M6 phase가 베타 출시 prerequisite로 승격.
+
+## 🆕 Plan v3 M6 — Owner/Admin 디자인 정합성 (전면)
+
+상세 분해: `docs/Plan-v3-M6-design.md`
+
+### 페이지별 작업 (총 15~17일)
+
+| Task     | 페이지                                                 | 현재 충실도 | 예상  |
+| -------- | ------------------------------------------------------ | ----------- | ----- |
+| Phase 0  | 공통 컴포넌트 추출 (TopBar / NavSidebar / PageHeader)  | —           | 1일   |
+| **M6.1** | `/store/settings`                                      | 21%         | 2일   |
+| **M6.2** | `/store/dashboard`                                     | 9%          | 2~3일 |
+| **M6.3** | `/store/inbox`                                         | ~10%        | 3~4일 |
+| M6.4     | `/store/bookings` + `bookings/[id]`                    | ~25%        | 1일   |
+| M6.5     | `/store/services`                                      | ~10%        | 1일   |
+| M6.6     | `/store/customers`                                     | ~10%        | 0.5일 |
+| M6.7     | knowledge / inbox-skipped / disputes                   | 10~20%      | 0.5일 |
+| M6.8     | `/admin/dashboard`                                     | 35%         | 1일   |
+| M6.9     | `/admin/ai-cost` + admin sub-pages                     | 30%         | 1일   |
+| M6.10~13 | Customer polish (photos / schedule / mypage / sign-in) | 70~90%      | 2일   |
+
+### 다음 세션 시작점
+
+**Phase 0 (공통 컴포넌트 추출)** 우선 — TopBar / NavSidebar / PageHeader를 M6.1~M6.9가 공유하므로 추출 후 각 페이지에서 import. 이게 완료되면 M6.1 Settings 진입.
+
+## 이전 세션 19 (2026-05-12) — 9건 머지
+
+- **Phase 당시**: Plan v3 M1 5/5 + M2 7/7 + M3 5/5 + M4 4/5 + M5 4/5
 - **세션 19 머지 (총 3건, main 직접)**:
   - **M5.4 가이드 보강** — `docs/external-demo-guide.md` 5-8 ~ 8 단계 추가 (M3.1~M5.1 흐름 9건) + `DEMO_USER_ID` / `DEMO_CUSTOMER_EMAIL` 등록 절차 명시
   - **M4.2** Inbox skip 큐 UI (deferred 해제, owner-side read-only) — `listSkippedMessagesByStore` DAL (최근 30일 + storeId + outbound + draftStatus='skipped' 필터) + `/[locale]/store/inbox-skipped` page + 6 locale `InboxSkipped` namespace + nav-sidebar active matching 정확화 (`startsWith` → `exact || startsWith + "/"`)
