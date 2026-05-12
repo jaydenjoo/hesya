@@ -66,26 +66,28 @@ export function StoreVerificationDetail(props: Props) {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <dl className="space-y-2">
+      <dl className="space-y-2.5">
         <Row k="매장명" v={props.storeName} />
-        <Row k="사업자번호" v={props.businessNumber} />
+        <Row k="사업자번호" v={props.businessNumber} mono />
         <Row k="대표자명" v={props.representativeName} />
-        <Row k="전화" v={props.phone ?? "-"} />
+        <Row k="전화" v={props.phone ?? "-"} mono />
         <Row k="주소" v={formatAddress(props.address)} />
-        <div className="flex gap-2">
-          <dt className="w-32 font-medium">영업신고증</dt>
-          <dd>
+        <div className="flex gap-3">
+          <dt className="kr w-32 flex-shrink-0 font-medium text-hesya-navy-900">
+            영업신고증
+          </dt>
+          <dd className="text-[13px]">
             {props.businessLicenseImageUrl ? (
               <a
                 href={props.businessLicenseImageUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="text-hesya-amber-500 hover:underline"
+                className="kr font-semibold text-hesya-amber-600 hover:underline"
               >
-                이미지 열기
+                이미지 열기 →
               </a>
             ) : (
-              "-"
+              <span className="text-gray-500">-</span>
             )}
           </dd>
         </div>
@@ -103,24 +105,24 @@ export function StoreVerificationDetail(props: Props) {
         />
       </dl>
 
-      <div className="space-y-3 rounded-md border border-hesya-peach-200 bg-hesya-peach-50/40 p-4">
+      <div className="space-y-3 rounded-md border border-hesya-peach-200 bg-hesya-peach-50 p-4">
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-hesya-navy-900">
+          <span className="kr mb-1.5 block font-mono text-[10.5px] font-semibold uppercase tracking-[0.06em] text-gray-500">
             거절 사유 (3자 이상)
           </span>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={3}
-            className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
+            className="kr w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 text-[13px] text-hesya-navy-900 transition-colors focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
           />
         </label>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={onApprove}
             disabled={pending}
-            className="rounded-md bg-hesya-amber-500 px-4 py-2 font-medium text-white transition-colors hover:bg-hesya-amber-600 disabled:opacity-40"
+            className="kr rounded-md bg-hesya-amber-500 px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-hesya-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pending ? "처리 중..." : "승인"}
           </button>
@@ -128,7 +130,7 @@ export function StoreVerificationDetail(props: Props) {
             type="button"
             onClick={onReject}
             disabled={pending || !reasonOk}
-            className="rounded-md border border-hesya-peach-200 bg-white px-4 py-2 text-hesya-navy-900 transition-colors hover:border-hesya-navy-900 disabled:opacity-40"
+            className="kr rounded-md border border-hesya-peach-200 bg-white px-4 py-2 text-[13px] font-medium text-hesya-navy-900 transition-colors hover:border-hesya-amber-500 hover:text-hesya-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             거절
           </button>
@@ -138,11 +140,19 @@ export function StoreVerificationDetail(props: Props) {
   );
 }
 
-function Row({ k, v }: { k: string; v: string }) {
+function Row({ k, v, mono = false }: { k: string; v: string; mono?: boolean }) {
   return (
-    <div className="flex gap-2">
-      <dt className="w-32 font-medium">{k}</dt>
-      <dd className="break-all">{v}</dd>
+    <div className="flex gap-3">
+      <dt className="kr w-32 flex-shrink-0 text-[13px] font-medium text-hesya-navy-900">
+        {k}
+      </dt>
+      <dd
+        className={
+          (mono ? "mono " : "kr ") + "break-all text-[13px] text-gray-700"
+        }
+      >
+        {v}
+      </dd>
     </div>
   );
 }
