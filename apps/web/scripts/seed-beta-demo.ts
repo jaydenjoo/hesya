@@ -65,7 +65,7 @@ import {
  * `requireStoreOwnerAuth`가 이 user로 bypass 인증 (NODE_ENV !== "production"
  * + dev 서버 모두 만족 시).
  */
-const DEMO_USER_ID = "00000000-0000-0000-0000-000000000001";
+const DEMO_USER_ID = "00000000-0000-4000-8000-000000000001";
 
 /**
  * PRD §268 (MVP 결정): outbound `originalText`는 한국어, `translatedText`는
