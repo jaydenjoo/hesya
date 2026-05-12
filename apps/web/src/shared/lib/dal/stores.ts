@@ -2,8 +2,11 @@ import "server-only";
 import {
   and,
   conversations,
+  desc,
   eq,
+  ilike,
   isNull,
+  or,
   storeIntegrations,
   storeVerifications,
   stores,
@@ -348,4 +351,46 @@ export async function getStorePublicById(
     )
     .limit(1);
   return rows[0] ?? null;
+}
+
+/**
+ * Plan v3 M4.5 — customer landing 매장 list.
+ *
+ * `auto_approved` + non-soft-deleted 매장만. region/search 옵션 필터.
+ * search는 매장 이름 ilike 매칭 (subset match, case-insensitive). region은
+ * 정확 매칭 (chip filter).
+ *
+ * 정렬: createdAt desc — 최신 매장 우선. limit 기본 24.
+ */
+export async function listPublicStores(
+  db: DbClient,
+  opts: { region?: string; search?: string; limit?: number } = {},
+): Promise<PublicStore[]> {
+  const conditions = [
+    eq(stores.verificationStatus, "auto_approved"),
+    isNull(stores.deletedAt),
+  ];
+  if (opts.region && opts.region.trim()) {
+    conditions.push(eq(stores.region, opts.region.trim()));
+  }
+  if (opts.search && opts.search.trim()) {
+    const q = `%${opts.search.trim()}%`;
+    const named = ilike(stores.name, q);
+    const regioned = ilike(stores.region, q);
+    const orClause = or(named, regioned);
+    if (orClause) conditions.push(orClause);
+  }
+  return db
+    .select({
+      id: stores.id,
+      name: stores.name,
+      category: stores.category,
+      region: stores.region,
+      address: stores.address,
+      businessHours: stores.businessHours,
+    })
+    .from(stores)
+    .where(and(...conditions))
+    .orderBy(desc(stores.createdAt))
+    .limit(opts.limit ?? 24);
 }

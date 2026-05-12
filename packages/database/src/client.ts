@@ -21,11 +21,13 @@ export {
   eq,
   gt,
   gte,
+  ilike,
   inArray,
   isNotNull,
   isNull,
   lte,
   ne,
+  or,
   sql,
   sum,
 } from "drizzle-orm";

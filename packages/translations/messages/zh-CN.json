@@ -430,6 +430,20 @@
       "settings": "设置"
     }
   },
+  "CustomerLanding": {
+    "eyebrow": "发现",
+    "title": "会说您语言的韩国美容院。",
+    "subtitle": "面向外国旅行者认证的店铺 — 用您熟悉的语言预约,按您习惯的方式支付。",
+    "searchPlaceholder": "例如:K-drama 短发、玻璃皮肤妆…",
+    "regionLabel": "地区",
+    "regionAll": "全部",
+    "resultsCount": "{n} 家店铺",
+    "emptyTitle": "暂无符合的店铺。",
+    "emptySubtitle": "请尝试其他地区或清空搜索。",
+    "signIn": "登录",
+    "mypage": "我的",
+    "viewStore": "查看"
+  },
   "CustomerSignIn": {
     "eyebrow": "旅行者",
     "title": "登录 Hesya",

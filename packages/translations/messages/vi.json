@@ -430,6 +430,20 @@
       "settings": "Cài đặt"
     }
   },
+  "CustomerLanding": {
+    "eyebrow": "KHÁM PHÁ",
+    "title": "Salon Hàn Quốc nói ngôn ngữ của bạn.",
+    "subtitle": "Cửa hàng đã xác minh dành cho du khách nước ngoài — đặt lịch bằng ngôn ngữ của bạn, thanh toán theo cách quen thuộc.",
+    "searchPlaceholder": "Ví dụ: kiểu tóc K-drama, makeup glass-skin…",
+    "regionLabel": "Khu vực",
+    "regionAll": "Tất cả",
+    "resultsCount": "{n} cửa hàng",
+    "emptyTitle": "Không tìm thấy kết quả.",
+    "emptySubtitle": "Hãy thử khu vực khác hoặc xóa tìm kiếm.",
+    "signIn": "Đăng nhập",
+    "mypage": "Trang của tôi",
+    "viewStore": "Xem"
+  },
   "CustomerSignIn": {
     "eyebrow": "DU KHÁCH",
     "title": "Đăng nhập Hesya",

@@ -430,6 +430,20 @@
       "settings": "Settings"
     }
   },
+  "CustomerLanding": {
+    "eyebrow": "DISCOVER",
+    "title": "Korean salons that speak your language.",
+    "subtitle": "Verified spots picked for foreign travelers — book in your language, pay your way.",
+    "searchPlaceholder": "Try \"K-drama layered cut\" or \"glass-skin makeup\"…",
+    "regionLabel": "Region",
+    "regionAll": "All",
+    "resultsCount": "{n} salons",
+    "emptyTitle": "No matches yet.",
+    "emptySubtitle": "Try a different region or clear the search.",
+    "signIn": "Sign in",
+    "mypage": "My page",
+    "viewStore": "View"
+  },
   "CustomerSignIn": {
     "eyebrow": "TRAVELER",
     "title": "Sign in to Hesya",

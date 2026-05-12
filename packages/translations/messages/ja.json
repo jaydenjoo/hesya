@@ -430,6 +430,20 @@
       "settings": "設定"
     }
   },
+  "CustomerLanding": {
+    "eyebrow": "見つける",
+    "title": "あなたの言葉で対応する韓国の美容室。",
+    "subtitle": "外国人旅行者向けに厳選した認証店舗 — 母国語で予約、お好みの決済で。",
+    "searchPlaceholder": "例:K-ドラマ風レイヤーカット、グラススキンメイク…",
+    "regionLabel": "エリア",
+    "regionAll": "すべて",
+    "resultsCount": "店舗 {n} 件",
+    "emptyTitle": "該当する店舗がありません。",
+    "emptySubtitle": "他のエリアまたはキーワードでもう一度お試しください。",
+    "signIn": "ログイン",
+    "mypage": "マイページ",
+    "viewStore": "見る"
+  },
   "CustomerSignIn": {
     "eyebrow": "旅行者",
     "title": "Hesyaにログイン",

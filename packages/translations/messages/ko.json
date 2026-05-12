@@ -430,6 +430,20 @@
       "settings": "설정"
     }
   },
+  "CustomerLanding": {
+    "eyebrow": "발견",
+    "title": "외국어로 응대하는 한국 미용실.",
+    "subtitle": "외국인 손님 친화 인증 매장 — 모국어로 예약, 편한 결제 수단.",
+    "searchPlaceholder": "예: K-드라마 단발컷, 글래스 스킨 메이크업…",
+    "regionLabel": "지역",
+    "regionAll": "전체",
+    "resultsCount": "매장 {n}곳",
+    "emptyTitle": "결과가 없습니다.",
+    "emptySubtitle": "다른 지역 또는 검색어로 다시 시도해주세요.",
+    "signIn": "로그인",
+    "mypage": "마이페이지",
+    "viewStore": "보기"
+  },
   "CustomerSignIn": {
     "eyebrow": "여행자",
     "title": "Hesya 로그인",
