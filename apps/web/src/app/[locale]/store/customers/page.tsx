@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
+import { PageHeader } from "@/components/ui/page-header";
 import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
 import { OwnerShell } from "@/features/shell/owner-shell";
 import { CustomersManager } from "@/features/store-customers/customers-manager";
@@ -63,66 +64,63 @@ export default async function StoreCustomersPage({
       userName={shell.userName}
       userInitial={shell.userInitial}
     >
-      <div className="mx-auto max-w-6xl px-6 py-10">
-        <header className="mb-6 space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-            Operator · Customers
-          </p>
-          <h1 className="font-heading text-3xl font-semibold italic tracking-tight text-hesya-navy-900">
-            {t("title")}
-          </h1>
-          <p className="text-sm text-hesya-navy-900/65">{t("subtitle")}</p>
-        </header>
-
-        <CustomersManager
-          rows={customerRows}
-          labels={{
-            emptyText: t("emptyText"),
-            filter: {
-              searchPlaceholder: t("searchPlaceholder"),
-              channelAll: t("channelAll"),
-              languageAll: t("languageAll"),
-              resultCount: t("resultCount"),
-            },
-            table: {
-              columnName: t("columnName"),
-              columnChannel: t("columnChannel"),
-              columnLanguage: t("columnLanguage"),
-              columnNationality: t("columnNationality"),
-              columnVisits: t("columnVisits"),
-              columnLtv: t("columnLtv"),
-              columnAllergy: t("columnAllergyNote"),
-              columnDesigner: t("columnPreferredDesigner"),
-              columnAction: t("columnAction"),
-              viewButton: t("viewButton"),
-              unknownName: t("unknownName"),
-              emptyDash: t("emptyDash"),
-            },
-            detail: {
-              closeLabel: t("detailCloseLabel"),
-              tabProfile: t("tabProfile"),
-              tabNotes: t("tabNotes"),
-              tabHistory: t("tabHistory"),
-              tabTags: t("tabTags"),
-              profileChannel: t("columnChannel"),
-              profileLanguage: t("columnLanguage"),
-              profileNationality: t("columnNationality"),
-              profileVisits: t("columnVisits"),
-              profileLtv: t("columnLtv"),
-              profileExternalId: t("profileExternalId"),
-              notesAllergyLabel: t("columnAllergyNote"),
-              notesDesignerLabel: t("columnPreferredDesigner"),
-              allergyPlaceholder: t("allergyPlaceholder"),
-              preferredDesignerPlaceholder: t("preferredDesignerPlaceholder"),
-              saveButton: t("saveButton"),
-              cancelButton: t("cancelButton"),
-              historyPlaceholder: t("historyPlaceholder"),
-              tagsPlaceholder: t("tagsPlaceholder"),
-              unknownName: t("unknownName"),
-              emptyDash: t("emptyDash"),
-            },
-          }}
+      <div className="bg-hesya-peach-50">
+        <PageHeader
+          eyebrow="Operator · Customers"
+          title={t("title")}
+          subtitle={t("subtitle")}
         />
+        <div className="px-8 pb-10">
+          <CustomersManager
+            rows={customerRows}
+            labels={{
+              emptyText: t("emptyText"),
+              filter: {
+                searchPlaceholder: t("searchPlaceholder"),
+                channelAll: t("channelAll"),
+                languageAll: t("languageAll"),
+                resultCount: t("resultCount"),
+              },
+              table: {
+                columnName: t("columnName"),
+                columnChannel: t("columnChannel"),
+                columnLanguage: t("columnLanguage"),
+                columnNationality: t("columnNationality"),
+                columnVisits: t("columnVisits"),
+                columnLtv: t("columnLtv"),
+                columnAllergy: t("columnAllergyNote"),
+                columnDesigner: t("columnPreferredDesigner"),
+                columnAction: t("columnAction"),
+                viewButton: t("viewButton"),
+                unknownName: t("unknownName"),
+                emptyDash: t("emptyDash"),
+              },
+              detail: {
+                closeLabel: t("detailCloseLabel"),
+                tabProfile: t("tabProfile"),
+                tabNotes: t("tabNotes"),
+                tabHistory: t("tabHistory"),
+                tabTags: t("tabTags"),
+                profileChannel: t("columnChannel"),
+                profileLanguage: t("columnLanguage"),
+                profileNationality: t("columnNationality"),
+                profileVisits: t("columnVisits"),
+                profileLtv: t("columnLtv"),
+                profileExternalId: t("profileExternalId"),
+                notesAllergyLabel: t("columnAllergyNote"),
+                notesDesignerLabel: t("columnPreferredDesigner"),
+                allergyPlaceholder: t("allergyPlaceholder"),
+                preferredDesignerPlaceholder: t("preferredDesignerPlaceholder"),
+                saveButton: t("saveButton"),
+                cancelButton: t("cancelButton"),
+                historyPlaceholder: t("historyPlaceholder"),
+                tagsPlaceholder: t("tagsPlaceholder"),
+                unknownName: t("unknownName"),
+                emptyDash: t("emptyDash"),
+              },
+            }}
+          />
+        </div>
       </div>
     </OwnerShell>
   );
