@@ -5,6 +5,7 @@ import {
   type ApiPolicyAlertStatus,
 } from "@hesya/database";
 
+import { PageHeader } from "@/components/ui/page-header";
 import { env } from "@/shared/config/env";
 import { listAlertsForAdmin } from "@/shared/lib/dal/api-policy-alerts";
 import { requireAdminEmail } from "@/shared/lib/admin-guard";
@@ -75,88 +76,88 @@ export default async function AdminApiPolicyAlertsPage({
   );
 
   return (
-    <main className="container py-12">
-      <header className="mb-8 space-y-2">
-        <h1 className="text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
-          API 정책 변경 알림
-        </h1>
-        <p className="text-sm text-hesya-navy-900/70">
-          n8n RSS 워크플로가 30분마다 외부 채널 정책 RSS를 폴링하여 새 entry
-          발견 시 자동 등록. SLA 7일 (PRD §1063 R1).
-        </p>
-        <FilterTabs
-          activeFilter={filter}
-          basePath={`/${locale}/admin/api-policy-alerts`}
-        />
-      </header>
+    <main className="min-h-screen bg-hesya-peach-50/30">
+      <PageHeader
+        eyebrow="Admin · API Policy Alerts"
+        title="API 정책 변경 알림"
+        subtitle="n8n RSS 워크플로가 30분마다 외부 채널 정책 RSS를 폴링하여 새 entry 발견 시 자동 등록. SLA 7일 (PRD §1063 R1)."
+      />
+      <div className="container py-8">
+        <div className="mb-6">
+          <FilterTabs
+            activeFilter={filter}
+            basePath={`/${locale}/admin/api-policy-alerts`}
+          />
+        </div>
 
-      {rows.length === 0 ? (
-        <section className="rounded-md border border-dashed border-hesya-peach-200 bg-hesya-peach-50/60 p-8 text-center">
-          <p className="text-sm text-hesya-navy-900/70">
-            {filter === "all"
-              ? "API 정책 변경 알림 없음 — n8n RSS 워크플로 가동 후 자동 수집됩니다."
-              : `'${STATUS_LABELS[filter]}' 상태 알림 없음.`}
-          </p>
-          <p className="mt-2 text-xs text-hesya-navy-900/60">
-            워크플로 import 가이드:{" "}
-            <code className="font-mono">tools/n8n/README.md</code>
-          </p>
-        </section>
-      ) : (
-        <section className="overflow-hidden rounded-md border border-hesya-peach-100">
-          <table className="w-full text-sm">
-            <thead className="bg-hesya-peach-50/60 text-xs font-medium text-hesya-navy-900/70">
-              <tr>
-                <th className="px-4 py-2 text-left">상태</th>
-                <th className="px-4 py-2 text-left">출처</th>
-                <th className="px-4 py-2 text-left">제목</th>
-                <th className="px-4 py-2 text-left">발행일</th>
-                <th className="px-4 py-2 text-left">수신일</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-hesya-peach-100">
-              {rows.map((alert) => {
-                const statusKey = narrowStatus(alert.status);
-                return (
-                  <tr
-                    key={alert.id}
-                    className="transition-colors hover:bg-hesya-peach-50/40"
-                  >
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-block rounded-md border px-2 py-0.5 text-xs font-medium ${STATUS_BADGE_COLORS[statusKey]}`}
-                      >
-                        {STATUS_LABELS[statusKey]}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs text-hesya-navy-900/80">
-                      {alert.source}
-                    </td>
-                    <td className="px-4 py-3">
-                      <a
-                        href={alert.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-hesya-amber-500 hover:underline"
-                      >
-                        {alert.title}
-                      </a>
-                    </td>
-                    <td className="px-4 py-3 text-xs text-hesya-navy-900/60">
-                      {alert.pubDate
-                        ? new Date(alert.pubDate).toISOString().slice(0, 10)
-                        : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-xs text-hesya-navy-900/60">
-                      {new Date(alert.receivedAt).toISOString().slice(0, 10)}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </section>
-      )}
+        {rows.length === 0 ? (
+          <section className="rounded-md border border-dashed border-hesya-peach-200 bg-hesya-peach-50/60 p-8 text-center">
+            <p className="text-sm text-hesya-navy-900/70">
+              {filter === "all"
+                ? "API 정책 변경 알림 없음 — n8n RSS 워크플로 가동 후 자동 수집됩니다."
+                : `'${STATUS_LABELS[filter]}' 상태 알림 없음.`}
+            </p>
+            <p className="mt-2 text-xs text-hesya-navy-900/60">
+              워크플로 import 가이드:{" "}
+              <code className="font-mono">tools/n8n/README.md</code>
+            </p>
+          </section>
+        ) : (
+          <section className="overflow-hidden rounded-md border border-hesya-peach-100">
+            <table className="w-full text-sm">
+              <thead className="bg-hesya-peach-50/60 text-xs font-medium text-hesya-navy-900/70">
+                <tr>
+                  <th className="px-4 py-2 text-left">상태</th>
+                  <th className="px-4 py-2 text-left">출처</th>
+                  <th className="px-4 py-2 text-left">제목</th>
+                  <th className="px-4 py-2 text-left">발행일</th>
+                  <th className="px-4 py-2 text-left">수신일</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-hesya-peach-100">
+                {rows.map((alert) => {
+                  const statusKey = narrowStatus(alert.status);
+                  return (
+                    <tr
+                      key={alert.id}
+                      className="transition-colors hover:bg-hesya-peach-50/40"
+                    >
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-block rounded-md border px-2 py-0.5 text-xs font-medium ${STATUS_BADGE_COLORS[statusKey]}`}
+                        >
+                          {STATUS_LABELS[statusKey]}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs text-hesya-navy-900/80">
+                        {alert.source}
+                      </td>
+                      <td className="px-4 py-3">
+                        <a
+                          href={alert.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-hesya-amber-500 hover:underline"
+                        >
+                          {alert.title}
+                        </a>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-hesya-navy-900/60">
+                        {alert.pubDate
+                          ? new Date(alert.pubDate).toISOString().slice(0, 10)
+                          : "—"}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-hesya-navy-900/60">
+                        {new Date(alert.receivedAt).toISOString().slice(0, 10)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </section>
+        )}
+      </div>
     </main>
   );
 }

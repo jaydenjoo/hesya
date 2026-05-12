@@ -15,6 +15,8 @@ import {
   type ReporterType,
   type ReportReason,
 } from "@hesya/shared-types";
+
+import { PageHeader } from "@/components/ui/page-header";
 import {
   submitStoreReportAction,
   type SubmitStoreReportActionResult,
@@ -36,18 +38,15 @@ const REASON_LABELS: Record<ReportReason, string> = {
 
 export default function StoreReportPage() {
   return (
-    <main className="mx-auto max-w-3xl space-y-8 p-8">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
-          외부 신고 접수
-        </h1>
-        <p className="text-sm leading-relaxed text-hesya-navy-900/70">
-          Epic 9 § 11 — 고객·경쟁사가 매장의 의료법 위반·위생·사기 등을 제보.
-          접수만 진행 (admin 처리는 Epic 12에서). Phase 1 admin 검증용 — 공개
-          폼은 Phase 1.5 reCAPTCHA 도입 후 분리.
-        </p>
-      </header>
-      <ReportSection />
+    <main className="min-h-screen bg-hesya-peach-50/30">
+      <PageHeader
+        eyebrow="Admin · Store Reports"
+        title="외부 신고 접수"
+        subtitle="Epic 9 § 11 — 고객·경쟁사가 매장의 의료법 위반·위생·사기 등을 제보. 접수만 진행 (admin 처리는 Epic 12에서). Phase 1 admin 검증용 — 공개 폼은 Phase 1.5 reCAPTCHA 도입 후 분리."
+      />
+      <div className="mx-auto max-w-3xl space-y-8 px-8 py-8">
+        <ReportSection />
+      </div>
     </main>
   );
 }
