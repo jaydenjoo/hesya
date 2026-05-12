@@ -431,6 +431,55 @@
       "settings": "Cài đặt"
     }
   },
+  "AdminAiCost": {
+    "title": "Chi phí AI (ước tính)",
+    "backToDashboard": "Về bảng điều khiển",
+    "disclaimer": "Chi phí được ước tính từ số tin nhắn × giá trung bình theo model. Theo dõi chính xác theo token cần nâng cấp schema ở Phase 2.",
+    "todayCost": "Hôm nay (KST)",
+    "todayMessages": "{n} tin nhắn AI",
+    "dailyBudget": "Ngân sách ngày",
+    "overBudget": "Vượt ngân sách ngày",
+    "trend14d": "Xu hướng · 14 ngày",
+    "byModel": "Theo model · tháng này",
+    "byModelEmpty": "Tháng này chưa có tin nhắn AI.",
+    "messageCount": "{n} tin"
+  },
+  "AdminDashboard": {
+    "title": "Bảng điều khiển vận hành",
+    "signedInAs": "Đang đăng nhập với {email}",
+    "alertBand": "Cảnh báo",
+    "kpiBand": "Hôm nay",
+    "subPages": "Liên kết nhanh",
+    "auditTrail": "Hoạt động gần đây",
+    "auditEmpty": "Chưa có hoạt động gần đây.",
+    "alerts": {
+      "pendingKyc": "KYC chờ duyệt thủ công",
+      "openDisputes": "Tranh chấp đang mở",
+      "newApiPolicyAlerts": "Cảnh báo chính sách mới",
+      "pendingStoreDeletions": "Yêu cầu xóa cửa hàng"
+    },
+    "kpis": {
+      "activeStores": "Cửa hàng hoạt động",
+      "activeStoresSub": "Trong tổng {total} đã đăng ký",
+      "kVerified": "Tỷ lệ K-Verified",
+      "kVerifiedSub": "{active} / {total} đã duyệt",
+      "newStoresToday": "Mới hôm nay",
+      "newStoresTodaySub": "từ 00:00 KST",
+      "foreignGmv": "GMV nước ngoài · MTD",
+      "foreignGmvSub": "{n} lượt đặt"
+    },
+    "links": {
+      "kycQueue": "Hàng đợi KYC",
+      "disputes": "Tranh chấp",
+      "apiPolicyAlerts": "Cảnh báo chính sách",
+      "aiAccuracy": "Độ chính xác AI",
+      "aiCost": "Chi phí AI",
+      "storeReports": "Báo cáo cửa hàng",
+      "storeDeletion": "Xóa cửa hàng",
+      "paymentMonitoring": "Giám sát thanh toán",
+      "kycTest": "Test KYC"
+    }
+  },
   "CustomerLanding": {
     "eyebrow": "KHÁM PHÁ",
     "title": "Salon Hàn Quốc nói ngôn ngữ của bạn.",

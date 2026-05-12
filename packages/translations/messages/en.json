@@ -431,6 +431,55 @@
       "settings": "Settings"
     }
   },
+  "AdminAiCost": {
+    "title": "AI cost (estimated)",
+    "backToDashboard": "Back to dashboard",
+    "disclaimer": "Costs are estimated from message counts × per-model averages. Token-level accuracy requires Phase 2 schema upgrade.",
+    "todayCost": "Today (KST)",
+    "todayMessages": "{n} AI messages",
+    "dailyBudget": "Daily budget",
+    "overBudget": "Daily budget exceeded",
+    "trend14d": "Trend · 14 days",
+    "byModel": "By model · this month",
+    "byModelEmpty": "No AI messages this month.",
+    "messageCount": "{n} msgs"
+  },
+  "AdminDashboard": {
+    "title": "Operations dashboard",
+    "signedInAs": "Signed in as {email}",
+    "alertBand": "Alerts",
+    "kpiBand": "Today",
+    "subPages": "Quick links",
+    "auditTrail": "Recent activity",
+    "auditEmpty": "No recent admin activity.",
+    "alerts": {
+      "pendingKyc": "Manual KYC review",
+      "openDisputes": "Open disputes",
+      "newApiPolicyAlerts": "New policy alerts",
+      "pendingStoreDeletions": "Pending deletions"
+    },
+    "kpis": {
+      "activeStores": "Active salons",
+      "activeStoresSub": "of {total} registered",
+      "kVerified": "K-Verified",
+      "kVerifiedSub": "{active} / {total} approved",
+      "newStoresToday": "New today",
+      "newStoresTodaySub": "since 00:00 KST",
+      "foreignGmv": "Foreign GMV · MTD",
+      "foreignGmvSub": "{n} bookings"
+    },
+    "links": {
+      "kycQueue": "KYC queue",
+      "disputes": "Disputes",
+      "apiPolicyAlerts": "Policy alerts",
+      "aiAccuracy": "AI accuracy",
+      "aiCost": "AI cost",
+      "storeReports": "Store reports",
+      "storeDeletion": "Store deletion",
+      "paymentMonitoring": "Payment monitor",
+      "kycTest": "KYC test"
+    }
+  },
   "CustomerLanding": {
     "eyebrow": "DISCOVER",
     "title": "Korean salons that speak your language.",

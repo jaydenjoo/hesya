@@ -431,6 +431,55 @@
       "settings": "設定"
     }
   },
+  "AdminAiCost": {
+    "title": "AI コスト(推定)",
+    "backToDashboard": "ダッシュボードへ",
+    "disclaimer": "メッセージ数 × モデル別平均単価で推定。トークン単位の正確な追跡は Phase 2 schema 拡張後。",
+    "todayCost": "今日 (KST)",
+    "todayMessages": "AI メッセージ {n} 件",
+    "dailyBudget": "日次予算",
+    "overBudget": "日次予算超過",
+    "trend14d": "推移 · 14日間",
+    "byModel": "モデル別 · 今月",
+    "byModelEmpty": "今月の AI メッセージなし。",
+    "messageCount": "{n} 件"
+  },
+  "AdminDashboard": {
+    "title": "運営ダッシュボード",
+    "signedInAs": "{email} としてログイン中",
+    "alertBand": "アラート",
+    "kpiBand": "今日",
+    "subPages": "クイックリンク",
+    "auditTrail": "最近の運営活動",
+    "auditEmpty": "最近の活動はありません。",
+    "alerts": {
+      "pendingKyc": "KYC 手動審査",
+      "openDisputes": "対応中の紛争",
+      "newApiPolicyAlerts": "新着ポリシー通知",
+      "pendingStoreDeletions": "削除リクエスト保留"
+    },
+    "kpis": {
+      "activeStores": "稼働店舗",
+      "activeStoresSub": "登録 {total} 件中",
+      "kVerified": "認証店舗比率",
+      "kVerifiedSub": "{active} / {total} 承認",
+      "newStoresToday": "今日の新規",
+      "newStoresTodaySub": "00:00 KST 以降",
+      "foreignGmv": "外国人 GMV · 当月",
+      "foreignGmvSub": "{n} 件"
+    },
+    "links": {
+      "kycQueue": "KYC キュー",
+      "disputes": "紛争",
+      "apiPolicyAlerts": "ポリシー通知",
+      "aiAccuracy": "AI 精度",
+      "aiCost": "AI コスト",
+      "storeReports": "店舗通報",
+      "storeDeletion": "店舗削除",
+      "paymentMonitoring": "決済モニタ",
+      "kycTest": "KYC テスト"
+    }
+  },
   "CustomerLanding": {
     "eyebrow": "見つける",
     "title": "あなたの言葉で対応する韓国の美容室。",

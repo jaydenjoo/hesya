@@ -431,6 +431,55 @@
       "settings": "설정"
     }
   },
+  "AdminAiCost": {
+    "title": "AI 비용 (추정)",
+    "backToDashboard": "대시보드로",
+    "disclaimer": "메시지 수 × 모델별 평균 단가로 추정한 값입니다. token 단위 정확 추적은 Phase 2 schema 확장 후 활성화.",
+    "todayCost": "오늘 (KST)",
+    "todayMessages": "AI 메시지 {n}건",
+    "dailyBudget": "일일 예산",
+    "overBudget": "일일 예산 초과",
+    "trend14d": "추세 · 14일",
+    "byModel": "모델별 · 이번 달",
+    "byModelEmpty": "이번 달 AI 메시지 없음.",
+    "messageCount": "{n}건"
+  },
+  "AdminDashboard": {
+    "title": "운영 대시보드",
+    "signedInAs": "{email} 로그인",
+    "alertBand": "긴급 알림",
+    "kpiBand": "오늘",
+    "subPages": "바로가기",
+    "auditTrail": "최근 운영 활동",
+    "auditEmpty": "최근 활동이 없습니다.",
+    "alerts": {
+      "pendingKyc": "KYC 매뉴얼 검토",
+      "openDisputes": "진행 중 분쟁",
+      "newApiPolicyAlerts": "신규 정책 알림",
+      "pendingStoreDeletions": "삭제 요청 대기"
+    },
+    "kpis": {
+      "activeStores": "활성 매장",
+      "activeStoresSub": "전체 {total}개 중",
+      "kVerified": "인증 매장 비율",
+      "kVerifiedSub": "{active} / {total} 승인",
+      "newStoresToday": "오늘 신규",
+      "newStoresTodaySub": "00:00 KST 이후",
+      "foreignGmv": "외국인 GMV · 이번 달",
+      "foreignGmvSub": "{n}건"
+    },
+    "links": {
+      "kycQueue": "KYC 큐",
+      "disputes": "분쟁",
+      "apiPolicyAlerts": "정책 알림",
+      "aiAccuracy": "AI 정확도",
+      "aiCost": "AI 비용",
+      "storeReports": "매장 신고",
+      "storeDeletion": "매장 삭제",
+      "paymentMonitoring": "결제 모니터",
+      "kycTest": "KYC 테스트"
+    }
+  },
   "CustomerLanding": {
     "eyebrow": "발견",
     "title": "외국어로 응대하는 한국 미용실.",

@@ -431,6 +431,55 @@
       "settings": "设置"
     }
   },
+  "AdminAiCost": {
+    "title": "AI 成本 (估算)",
+    "backToDashboard": "返回仪表板",
+    "disclaimer": "根据消息数 × 模型平均单价估算。Token 级精确追踪需 Phase 2 schema 升级。",
+    "todayCost": "今天 (KST)",
+    "todayMessages": "{n} 条 AI 消息",
+    "dailyBudget": "日预算",
+    "overBudget": "超出日预算",
+    "trend14d": "趋势 · 14 天",
+    "byModel": "按模型 · 本月",
+    "byModelEmpty": "本月无 AI 消息。",
+    "messageCount": "{n} 条"
+  },
+  "AdminDashboard": {
+    "title": "运营仪表板",
+    "signedInAs": "以 {email} 登录",
+    "alertBand": "警报",
+    "kpiBand": "今日",
+    "subPages": "快速链接",
+    "auditTrail": "最近运营活动",
+    "auditEmpty": "暂无最近活动。",
+    "alerts": {
+      "pendingKyc": "KYC 人工审核",
+      "openDisputes": "进行中纠纷",
+      "newApiPolicyAlerts": "新政策提醒",
+      "pendingStoreDeletions": "待删除店铺"
+    },
+    "kpis": {
+      "activeStores": "活跃店铺",
+      "activeStoresSub": "共 {total} 家已注册",
+      "kVerified": "K-认证比例",
+      "kVerifiedSub": "{active} / {total} 已批准",
+      "newStoresToday": "今日新增",
+      "newStoresTodaySub": "00:00 KST 以来",
+      "foreignGmv": "外国人 GMV · 本月",
+      "foreignGmvSub": "{n} 笔预约"
+    },
+    "links": {
+      "kycQueue": "KYC 队列",
+      "disputes": "纠纷",
+      "apiPolicyAlerts": "政策提醒",
+      "aiAccuracy": "AI 准确度",
+      "aiCost": "AI 成本",
+      "storeReports": "店铺举报",
+      "storeDeletion": "店铺删除",
+      "paymentMonitoring": "支付监控",
+      "kycTest": "KYC 测试"
+    }
+  },
   "CustomerLanding": {
     "eyebrow": "发现",
     "title": "会说您语言的韩国美容院。",

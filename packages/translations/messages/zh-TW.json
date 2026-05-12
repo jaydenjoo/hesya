@@ -431,6 +431,55 @@
       "settings": "設定"
     }
   },
+  "AdminAiCost": {
+    "title": "AI 成本 (估算)",
+    "backToDashboard": "返回儀表板",
+    "disclaimer": "依訊息數 × 模型平均單價估算。Token 級精確追蹤需 Phase 2 schema 升級。",
+    "todayCost": "今日 (KST)",
+    "todayMessages": "{n} 則 AI 訊息",
+    "dailyBudget": "每日預算",
+    "overBudget": "超出每日預算",
+    "trend14d": "趨勢 · 14 天",
+    "byModel": "依模型 · 本月",
+    "byModelEmpty": "本月無 AI 訊息。",
+    "messageCount": "{n} 則"
+  },
+  "AdminDashboard": {
+    "title": "營運儀表板",
+    "signedInAs": "以 {email} 登入",
+    "alertBand": "警示",
+    "kpiBand": "今日",
+    "subPages": "快速連結",
+    "auditTrail": "近期營運活動",
+    "auditEmpty": "暫無近期活動。",
+    "alerts": {
+      "pendingKyc": "KYC 人工審核",
+      "openDisputes": "進行中爭議",
+      "newApiPolicyAlerts": "新政策提醒",
+      "pendingStoreDeletions": "待刪除店家"
+    },
+    "kpis": {
+      "activeStores": "活躍店家",
+      "activeStoresSub": "共 {total} 家已註冊",
+      "kVerified": "K-Verified 比率",
+      "kVerifiedSub": "{active} / {total} 已通過",
+      "newStoresToday": "今日新增",
+      "newStoresTodaySub": "00:00 KST 起",
+      "foreignGmv": "外國人 GMV · 本月",
+      "foreignGmvSub": "{n} 筆預約"
+    },
+    "links": {
+      "kycQueue": "KYC 佇列",
+      "disputes": "爭議",
+      "apiPolicyAlerts": "政策提醒",
+      "aiAccuracy": "AI 準確度",
+      "aiCost": "AI 成本",
+      "storeReports": "店家檢舉",
+      "storeDeletion": "店家刪除",
+      "paymentMonitoring": "付款監控",
+      "kycTest": "KYC 測試"
+    }
+  },
   "CustomerLanding": {
     "eyebrow": "發現",
     "title": "會說您語言的韓國美容院。",
