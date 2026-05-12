@@ -15,8 +15,10 @@
  */
 
 import {
+  and,
   createDbClient,
   eq,
+  ne,
   payments,
   services,
   staff,
@@ -62,9 +64,21 @@ export type CreateBookingResult =
         | "store_unavailable"
         | "service_mismatch"
         | "staff_mismatch"
+        | "slot_taken"
         | "internal";
       message: string;
     };
+
+/**
+ * Internal — booking conflict 시 transaction을 rollback하기 위한 sentinel.
+ * 외부 transaction body에서 throw → 외부 catch가 잡아 slot_taken으로 변환.
+ */
+class BookingSlotTakenError extends Error {
+  constructor() {
+    super("slot_taken");
+    this.name = "BookingSlotTakenError";
+  }
+}
 
 export async function createBookingAction(
   input: unknown,
@@ -150,6 +164,25 @@ export async function createBookingAction(
     }
 
     const result = await db.transaction(async (tx) => {
+      // Conflict 차단 — 같은 staff + 같은 scheduledAt에 이미 (cancelled 외)
+      // booking 존재하면 거절. 30분 grid 기준 exact match. tx 내부에서 select
+      // 후 insert 사이에 다른 request가 끼어들 수 있어 진정한 atomic은 unique
+      // index 필요 (별 phase 마이그). MVP는 read-check + 좁은 window.
+      const conflict = await tx
+        .select({ id: bookingsTable.id })
+        .from(bookingsTable)
+        .where(
+          and(
+            eq(bookingsTable.staffId, parsed.data.staffId),
+            eq(bookingsTable.scheduledAt, scheduledAt),
+            ne(bookingsTable.status, "cancelled"),
+          ),
+        )
+        .limit(1);
+      if (conflict.length > 0) {
+        throw new BookingSlotTakenError();
+      }
+
       const [bookingRow] = await tx
         .insert(bookingsTable)
         .values({
@@ -189,6 +222,14 @@ export async function createBookingAction(
 
     return { ok: true, ...result };
   } catch (err) {
+    if (err instanceof BookingSlotTakenError) {
+      return {
+        ok: false,
+        error: "slot_taken",
+        message:
+          "방금 다른 손님이 이 시간을 예약했습니다. 다른 시간을 선택해주세요.",
+      };
+    }
     Sentry.captureException(err, {
       tags: {
         route: "action:create-booking-customer",

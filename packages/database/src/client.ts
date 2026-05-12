@@ -25,6 +25,7 @@ export {
   isNotNull,
   isNull,
   lte,
+  ne,
   sql,
   sum,
 } from "drizzle-orm";
