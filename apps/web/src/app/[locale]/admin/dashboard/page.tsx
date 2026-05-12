@@ -12,6 +12,8 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createDbClient } from "@hesya/database";
+
+import { PageHeader } from "@/components/ui/page-header";
 import { env } from "@/shared/config/env";
 import { requireAdminEmail } from "@/shared/lib/admin-guard";
 import {
@@ -51,21 +53,24 @@ export default async function AdminDashboardPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-hesya-peach-50/30">
-      <header className="border-b border-hesya-navy-900/10 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+      <PageHeader
+        eyebrow="Admin · Dashboard"
+        title={t("title")}
+        right={
           <div className="flex items-center gap-3">
-            <span className="rounded-full bg-hesya-navy-900 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-hesya-peach-50">
-              Admin
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 rounded-full bg-emerald-500"
+              />
+              LIVE
             </span>
-            <h1 className="font-heading text-[20px] font-semibold italic text-hesya-navy-900">
-              {t("title")}
-            </h1>
+            <p className="font-mono text-[11px] text-hesya-navy-900/60">
+              {t("signedInAs", { email: guard.email })}
+            </p>
           </div>
-          <p className="text-[11px] text-hesya-navy-900/55">
-            {t("signedInAs", { email: guard.email })}
-          </p>
-        </div>
-      </header>
+        }
+      />
 
       <main className="mx-auto max-w-7xl px-6 py-8">
         {/* Alert chips */}
@@ -196,11 +201,11 @@ export default async function AdminDashboardPage({ params }: Props) {
             </span>
           </h2>
           {audit.length === 0 ? (
-            <p className="rounded-2xl bg-white/60 px-5 py-8 text-center text-[13px] text-hesya-navy-900/55 ring-1 ring-hesya-navy-900/10">
+            <p className="rounded-md border border-dashed border-gray-200 bg-white/60 px-5 py-8 text-center text-[13px] text-hesya-navy-900/55">
               {t("auditEmpty")}
             </p>
           ) : (
-            <ul className="divide-y divide-hesya-navy-900/10 rounded-2xl bg-white ring-1 ring-hesya-navy-900/10">
+            <ul className="divide-y divide-hesya-peach-100 rounded-md border border-gray-200 bg-white shadow-[0_1px_2px_rgba(26,34,56,0.04)]">
               {audit.map((row) => (
                 <li
                   key={`${row.kind}:${row.id}`}
@@ -256,23 +261,30 @@ function AlertChip({
   href: string;
 }) {
   const colorMap = {
-    crit: "bg-rose-50 ring-rose-200 hover:bg-rose-100",
-    warn: "bg-amber-50 ring-amber-200 hover:bg-amber-100",
-    info: "bg-white ring-hesya-navy-900/10 hover:bg-hesya-peach-50",
+    crit: "border-[#e5c0ba] bg-[#faefec] hover:bg-[#f6e6e0]",
+    warn: "border-hesya-peach-200 bg-[#fbf1e6] hover:bg-hesya-peach-100",
+    info: "border-gray-200 bg-white hover:bg-hesya-peach-50",
+  } as const;
+  const countColor = {
+    crit: "text-[#c9483a]",
+    warn: "text-hesya-amber-700",
+    info: "text-hesya-navy-900",
   } as const;
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 rounded-2xl px-4 py-3 ring-1 transition ${colorMap[level]}`}
+      className={`flex items-center gap-3 rounded-md border px-4 py-3 transition ${colorMap[level]}`}
     >
       <span aria-hidden="true" className="text-[18px]">
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[11px] font-medium uppercase tracking-wide text-hesya-navy-900/55">
+        <div className="truncate font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/55">
           {label}
         </div>
-        <div className="font-mono text-[20px] font-semibold text-hesya-navy-900">
+        <div
+          className={`font-heading text-[26px] font-medium italic leading-none ${countColor[level]}`}
+        >
           {count}
         </div>
       </div>
@@ -291,17 +303,15 @@ function KpiTile({
   subtext?: string;
 }) {
   return (
-    <div className="rounded-2xl bg-white p-4 ring-1 ring-hesya-navy-900/10">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/55">
+    <div className="rounded-md border border-gray-200 bg-white p-4 shadow-[0_1px_2px_rgba(26,34,56,0.04)] transition hover:border-hesya-amber-500/40">
+      <div className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-gray-700">
         {label}
       </div>
-      <div className="mt-1.5 font-heading text-[26px] font-semibold italic leading-none text-hesya-navy-900">
+      <div className="mt-2 font-heading text-[28px] font-medium italic leading-none tracking-[-0.02em] text-hesya-navy-900">
         {value}
       </div>
       {subtext && (
-        <div className="mt-1.5 text-[11px] text-hesya-navy-900/55">
-          {subtext}
-        </div>
+        <div className="mt-1.5 text-[11px] text-gray-500">{subtext}</div>
       )}
     </div>
   );
@@ -311,7 +321,7 @@ function SubPageLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="block rounded-xl bg-white px-3 py-2 text-[12px] font-medium text-hesya-navy-900 ring-1 ring-hesya-navy-900/10 transition hover:bg-hesya-amber-600/5 hover:ring-hesya-amber-600/30"
+      className="block rounded-md border border-gray-200 bg-white px-3.5 py-2.5 text-[12.5px] font-medium text-hesya-navy-900 transition hover:border-hesya-amber-500 hover:bg-hesya-peach-50"
     >
       {label} →
     </Link>
