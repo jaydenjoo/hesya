@@ -429,5 +429,48 @@
       "knowledge": "Knowledge",
       "settings": "Settings"
     }
+  },
+  "CustomerSignIn": {
+    "eyebrow": "TRAVELER",
+    "title": "Sign in to Hesya",
+    "subtitle": "We'll email you a one-time link — no password needed.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "your@email.com",
+    "submit": "Send sign-in link",
+    "sending": "Sending…",
+    "errorInvalidEmail": "Please enter a valid email.",
+    "securityNote": "Links expire in 15 minutes. If you didn't request this, ignore the email.",
+    "sentTitle": "Check your email",
+    "sentDescription": "We sent a sign-in link to {email}. Open it on any device to continue.",
+    "backToHome": "Back"
+  },
+  "CustomerMyPage": {
+    "greeting": "Hi, {name}",
+    "defaultName": "traveler",
+    "tabs": {
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "saved": "Saved",
+      "reviews": "Reviews"
+    },
+    "empty": {
+      "upcoming": "No upcoming bookings.",
+      "past": "No past bookings yet.",
+      "saved": "Nothing saved yet.",
+      "reviews": "All caught up — no pending reviews."
+    },
+    "actions": {
+      "bookAgain": "Book again",
+      "viewStore": "View store",
+      "signOut": "Sign out",
+      "unsave": "Remove"
+    },
+    "review": {
+      "question": "How was your visit to {store}?",
+      "placeholder": "Tell future travelers what to expect…",
+      "submit": "Submit",
+      "languageNote": "We translate your review for future travelers.",
+      "skipAll": "Skip all reviews"
+    }
   }
 }

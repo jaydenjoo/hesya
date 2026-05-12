@@ -429,5 +429,48 @@
       "knowledge": "Tri thức",
       "settings": "Cài đặt"
     }
+  },
+  "CustomerSignIn": {
+    "eyebrow": "DU KHÁCH",
+    "title": "Đăng nhập Hesya",
+    "subtitle": "Chúng tôi sẽ gửi liên kết một lần qua email — không cần mật khẩu.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "your@email.com",
+    "submit": "Gửi liên kết đăng nhập",
+    "sending": "Đang gửi…",
+    "errorInvalidEmail": "Vui lòng nhập email hợp lệ.",
+    "securityNote": "Liên kết hết hạn sau 15 phút. Nếu không phải bạn, vui lòng bỏ qua email.",
+    "sentTitle": "Kiểm tra email của bạn",
+    "sentDescription": "Đã gửi liên kết đăng nhập đến {email}. Mở email và nhấp vào liên kết để tiếp tục.",
+    "backToHome": "Quay lại"
+  },
+  "CustomerMyPage": {
+    "greeting": "Xin chào, {name}",
+    "defaultName": "du khách",
+    "tabs": {
+      "upcoming": "Sắp tới",
+      "past": "Đã qua",
+      "saved": "Đã lưu",
+      "reviews": "Đánh giá"
+    },
+    "empty": {
+      "upcoming": "Không có lịch hẹn sắp tới.",
+      "past": "Chưa có lịch hẹn đã qua.",
+      "saved": "Chưa lưu cửa hàng nào.",
+      "reviews": "Đã hoàn tất — không có đánh giá nào chờ xử lý."
+    },
+    "actions": {
+      "bookAgain": "Đặt lại",
+      "viewStore": "Xem cửa hàng",
+      "signOut": "Đăng xuất",
+      "unsave": "Xóa"
+    },
+    "review": {
+      "question": "Bạn thấy {store} thế nào?",
+      "placeholder": "Hãy cho du khách kế tiếp biết kinh nghiệm của bạn…",
+      "submit": "Gửi",
+      "languageNote": "Chúng tôi sẽ dịch đánh giá của bạn cho du khách khác.",
+      "skipAll": "Bỏ qua tất cả đánh giá"
+    }
   }
 }

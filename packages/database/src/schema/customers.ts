@@ -4,6 +4,7 @@ import {
   integer,
   pgTable,
   text,
+  timestamp,
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
@@ -35,6 +36,10 @@ export const customers = pgTable(
      * fetchUserProfile 진입 차단. 0018 마이그로 NOT NULL DEFAULT false 보장.
      */
     igProfileFetched: boolean("ig_profile_fetched").notNull().default(false),
+    /** M3.4 — customer 식별자 (web 채널 + magic link). lower(email) unique 부분 인덱스. */
+    email: text("email"),
+    /** M3.4 — mypage 마지막 접속 시각. */
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
   },
   (table) => [
     uniqueIndex("idx_customers_channel_external")

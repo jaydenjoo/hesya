@@ -429,5 +429,48 @@
       "knowledge": "知識",
       "settings": "設定"
     }
+  },
+  "CustomerSignIn": {
+    "eyebrow": "旅行者",
+    "title": "登入 Hesya",
+    "subtitle": "我們會傳送一次性連結到您的信箱 — 不需密碼。",
+    "emailLabel": "信箱",
+    "emailPlaceholder": "your@email.com",
+    "submit": "傳送登入連結",
+    "sending": "傳送中…",
+    "errorInvalidEmail": "請輸入有效的信箱位址。",
+    "securityNote": "連結 15 分鐘後失效。若非您本人請求,請忽略郵件。",
+    "sentTitle": "請查看信箱",
+    "sentDescription": "已將登入連結寄送至 {email},請開啟郵件點擊連結繼續。",
+    "backToHome": "返回"
+  },
+  "CustomerMyPage": {
+    "greeting": "您好,{name}",
+    "defaultName": "旅行者",
+    "tabs": {
+      "upcoming": "即將到來",
+      "past": "過往",
+      "saved": "收藏",
+      "reviews": "評論"
+    },
+    "empty": {
+      "upcoming": "暫無即將到來的預約。",
+      "past": "暫無過往預約。",
+      "saved": "尚未收藏任何店家。",
+      "reviews": "全部完成 — 暫無待寫評論。"
+    },
+    "actions": {
+      "bookAgain": "再次預約",
+      "viewStore": "查看店家",
+      "signOut": "登出",
+      "unsave": "移除"
+    },
+    "review": {
+      "question": "您覺得 {store} 如何?",
+      "placeholder": "為下一位旅行者留下您的體驗…",
+      "submit": "送出",
+      "languageNote": "我們會自動翻譯您的評論給其他旅行者。",
+      "skipAll": "跳過全部評論"
+    }
   }
 }

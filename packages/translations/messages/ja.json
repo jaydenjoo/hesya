@@ -429,5 +429,48 @@
       "knowledge": "ナレッジ",
       "settings": "設定"
     }
+  },
+  "CustomerSignIn": {
+    "eyebrow": "旅行者",
+    "title": "Hesyaにログイン",
+    "subtitle": "メールにワンタイムリンクをお送りします — パスワード不要。",
+    "emailLabel": "メールアドレス",
+    "emailPlaceholder": "your@email.com",
+    "submit": "ログインリンクを送る",
+    "sending": "送信中…",
+    "errorInvalidEmail": "正しいメールアドレスを入力してください。",
+    "securityNote": "リンクは15分で失効します。心当たりがなければメールを無視してください。",
+    "sentTitle": "メールをご確認ください",
+    "sentDescription": "{email} 宛にログインリンクを送りました。受信したメールのリンクをタップして続行してください。",
+    "backToHome": "戻る"
+  },
+  "CustomerMyPage": {
+    "greeting": "{name}さん、こんにちは",
+    "defaultName": "旅行者",
+    "tabs": {
+      "upcoming": "予定",
+      "past": "過去",
+      "saved": "お気に入り",
+      "reviews": "レビュー"
+    },
+    "empty": {
+      "upcoming": "予定の予約はありません。",
+      "past": "過去の予約はまだありません。",
+      "saved": "保存した店舗はありません。",
+      "reviews": "未記入のレビューはありません。"
+    },
+    "actions": {
+      "bookAgain": "再予約",
+      "viewStore": "店舗を見る",
+      "signOut": "ログアウト",
+      "unsave": "削除"
+    },
+    "review": {
+      "question": "{store} はいかがでしたか?",
+      "placeholder": "次の旅行者のためにレビューを残してください…",
+      "submit": "送信",
+      "languageNote": "レビューは他の旅行者のために自動翻訳されます。",
+      "skipAll": "すべてのレビューをスキップ"
+    }
   }
 }

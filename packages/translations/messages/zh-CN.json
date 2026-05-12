@@ -429,5 +429,48 @@
       "knowledge": "知识",
       "settings": "设置"
     }
+  },
+  "CustomerSignIn": {
+    "eyebrow": "旅行者",
+    "title": "登录 Hesya",
+    "subtitle": "我们会发送一次性链接到您的邮箱 — 无需密码。",
+    "emailLabel": "邮箱",
+    "emailPlaceholder": "your@email.com",
+    "submit": "发送登录链接",
+    "sending": "发送中…",
+    "errorInvalidEmail": "请输入有效的邮箱地址。",
+    "securityNote": "链接 15 分钟后过期。如不是您本人请求,请忽略邮件。",
+    "sentTitle": "请查收邮箱",
+    "sentDescription": "已向 {email} 发送登录链接,请打开邮件点击链接继续。",
+    "backToHome": "返回"
+  },
+  "CustomerMyPage": {
+    "greeting": "你好,{name}",
+    "defaultName": "旅行者",
+    "tabs": {
+      "upcoming": "即将到来",
+      "past": "过往",
+      "saved": "收藏",
+      "reviews": "评价"
+    },
+    "empty": {
+      "upcoming": "暂无即将到来的预约。",
+      "past": "暂无过往预约。",
+      "saved": "尚未收藏任何店铺。",
+      "reviews": "全部完成 — 暂无待写评价。"
+    },
+    "actions": {
+      "bookAgain": "再次预约",
+      "viewStore": "查看店铺",
+      "signOut": "退出登录",
+      "unsave": "删除"
+    },
+    "review": {
+      "question": "您觉得 {store} 怎么样?",
+      "placeholder": "为下一位旅行者留下您的体验…",
+      "submit": "提交",
+      "languageNote": "我们会自动翻译您的评价给其他旅行者。",
+      "skipAll": "跳过全部评价"
+    }
   }
 }

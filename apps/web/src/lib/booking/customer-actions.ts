@@ -30,6 +30,7 @@ import { z } from "zod";
 
 import { combineToIso } from "@/features/booking-customer/time-slots";
 import { env } from "@/shared/config/env";
+import { upsertCustomerByEmail } from "@/shared/lib/dal/customers";
 import { checkRateLimit, RateLimitError } from "@/shared/lib/rate-limit";
 
 const PAYMENT_METHOD_TO_PROVIDER: Record<string, string> = {
@@ -152,6 +153,14 @@ export async function createBookingAction(
       combineToIso(parsed.data.date, parsed.data.time),
     );
 
+    // M3.4 — email로 customer row upsert. mypage 본인 예약 조회에 필요.
+    // 기존 notesMultilang.booker는 호환을 위해 유지.
+    const customer = await upsertCustomerByEmail(db, {
+      email: parsed.data.email,
+      name: parsed.data.name,
+      preferredLanguage: parsed.data.locale,
+    });
+
     // notesMultilang에 booker 정보 + 메시지 (현 locale key)
     const notesMultilang: Record<string, unknown> = {
       booker: {
@@ -189,6 +198,7 @@ export async function createBookingAction(
           storeId: parsed.data.storeId,
           serviceId: parsed.data.serviceId,
           staffId: parsed.data.staffId,
+          customerId: customer.id,
           scheduledAt,
           status: "scheduled",
           totalPriceKrw: svcRow.priceKrw,

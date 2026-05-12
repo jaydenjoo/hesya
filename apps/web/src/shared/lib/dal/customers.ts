@@ -6,6 +6,7 @@ import {
   desc,
   eq,
   isNotNull,
+  sql,
   type Channel,
   type DbClient,
 } from "@hesya/database";
@@ -161,6 +162,9 @@ export async function getCustomerById(
       allergyNote: customers.allergyNote,
       preferredDesigner: customers.preferredDesigner,
       igProfileFetched: customers.igProfileFetched,
+      // M3.4 — 사장 인박스에서 손님 식별 + 활성 추적용. 민감하지 않음.
+      email: customers.email,
+      lastSeenAt: customers.lastSeenAt,
     })
     .from(customers)
     .where(eq(customers.id, customerId))
@@ -240,4 +244,67 @@ export async function updateCustomerNotes(
     .where(eq(customers.id, customerId))
     .returning();
   return updated[0] ?? null;
+}
+
+/**
+ * Plan v3 M3.4 — email로 customer 식별 (lower(email) unique 인덱스 기반).
+ *
+ * mypage 인증 흐름 + booking customerId 채움 양쪽에서 사용. email은 항상
+ * lower() trim 후 매칭. 미존재 시 null.
+ */
+export async function findCustomerByEmail(
+  db: DbClient,
+  email: string,
+): Promise<Customer | null> {
+  const normalized = email.trim().toLowerCase();
+  if (!normalized) return null;
+  const rows = await db
+    .select()
+    .from(customers)
+    .where(sql`lower(${customers.email}) = ${normalized}`)
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+/**
+ * Plan v3 M3.4 — email로 customer upsert.
+ *
+ * 1) 기존 row 있으면 그대로 반환 (lower(email) match).
+ * 2) 없으면 신규 row 생성 (channel='web', email은 원본 케이스 유지).
+ *
+ * unique 인덱스 race로 동시 insert 충돌 시 PG 23505 — 호출자가 retry 또는
+ * findCustomerByEmail 재호출. MVP는 한 번만 시도.
+ */
+export async function upsertCustomerByEmail(
+  db: DbClient,
+  input: { email: string; name?: string | null; preferredLanguage?: string },
+): Promise<Customer> {
+  const existing = await findCustomerByEmail(db, input.email);
+  if (existing) return existing;
+  const [created] = await db
+    .insert(customers)
+    .values({
+      email: input.email.trim(),
+      channel: "web",
+      name: input.name ?? null,
+      preferredLanguage: input.preferredLanguage ?? null,
+    })
+    .returning();
+  if (!created) {
+    throw new Error("upsertCustomerByEmail: insert returned no row");
+  }
+  return created;
+}
+
+/**
+ * Plan v3 M3.4 — mypage 접속 시각 갱신.
+ */
+export async function touchCustomerLastSeen(
+  db: DbClient,
+  customerId: string,
+): Promise<void> {
+  await db
+    .update(customers)
+    .set({ lastSeenAt: new Date() })
+    .where(eq(customers.id, customerId));
 }
