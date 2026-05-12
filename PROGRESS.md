@@ -3,14 +3,22 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-11 세션 18 진행 중)
+## 현재 위치 (2026-05-12 세션 18 종료)
 
-- **Phase**: **Plan v3 M1 5/5 + M2 7/7 + M3.1+M3.2+M3.3a 머지** (M1 100% + M2 100% + **M3 3/5**) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 35% + δ Epic 3 95% + E2 결제 60%)
-- **세션 18 머지**:
+- **Phase**: **Plan v3 M1 5/5 + M2 7/7 + M3 5/5 + M4 4/5 + M5 4/5** (M4.2 deferred, M5.4 external Vercel 등록) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 65% + δ Epic 3 95% + E2 결제 60%)
+- **세션 18 머지 (총 9건, main 직접)**:
   - **M3.3a** 매장 설정 + business_hours 컬럼 (`74064aa`) — 마이그 0026 `stores.business_hours` jsonb + `getStoreSettings` / `updateStoreSettings` DAL + `updateStoreSettingsAction` (zod + requireStoreOwnerAuth + rate-limit 30/60s) + `SettingsForm` (요일별 휴무 토글 + time picker) + `/[locale]/store/settings` 라우트 + StoreSettings 6 locale
-  - 검증: type-check ✅ / lint ✅ / test **693 passed** (+2) / build ✅
-  - 🔴 **Jayden 수동 apply 필요**: `migrations/0026_store_business_hours.sql` 실행 (Supabase Studio 또는 psql)
-  - 잔여: M3.3b customer-side time-slots dynamic hours (다음 Task)
+  - **권장 1** booking conflict 영구 차단 + FAQ embedding (`dad66ec`) — 마이그 0027 `bookings_unique_active_staff_time` partial unique index (status != cancelled) + customer-actions PG 23505 catch (dual-guard) + seed FAQ OpenAI embedding inline 생성
+  - **M3.4** customer 로그인 + MyPage (`5b0863c`, option C full scope) — 마이그 0028 (`customers.email/last_seen_at` + `customer_saved_stores` + `reviews.customer_id/booking_id`) + Better Auth magicLink plugin + Resend 6 locale 템플릿 + `customer-guard.ts` + `/c/sign-in` + `/c/mypage` (4-tab: upcoming/past/saved/reviews) + customer-mypage DAL 8 함수
+  - **M4.5** customer landing `/c` (`e25f48f`) — `listPublicStores` DAL + region/search filter Client + CustomerLanding 6 locale
+  - **M4.1** MOCK_NOTIFICATION env flag (`7084465`) — Resend 호출 3 path (dispute-result / kyc-result / customer-magic-link) MOCK_NOTIFICATION=true 시 console.log skip
+  - **ε Epic 4 KPI 활성화** (`663f542`) — `getMonthlyBookingStats` + `getNationalityMix` DAL + dashboard 4 coming-soon tile → active (revenue / avg / no-show / nationalityMix)
+  - **M5.5 + M5.3 + M5.2** mock swap + e2e (`ecf7a26`) — `docs/mock-swap-procedure.md` Phase A-F 절차 + customer-mypage-flow.spec.ts (4 tests) + ICU `t.raw` bug fix
+  - **M5.1** Vercel preview demo bypass (`1de4d16`, 축소 scope option A) — VERCEL_ENV + DEMO_USER_ID + DEMO_CUSTOMER_EMAIL 이중 가드 + store-owner-guard / customer-guard 적용
+  - **M4.3 + M4.4** admin 통합 dashboard + AI cost (`fa7638a`, full scope option C) — admin-dashboard DAL (alert counts / KPI summary / audit trail) + `/admin/dashboard` (4 alert chip + 4 KPI tile + 8-link sub-page hub + audit trail) + ai-cost DAL (14일 daily 집계) + `MODEL_COST_KRW` 모델별 평균 단가 + `/admin/ai-cost` (today + budget progress + sparkline + by-model) + 6 locale AdminDashboard / AdminAiCost
+- **검증 (최종 패스)**: type-check ✅ / lint ✅ / vitest **703 passed** (+10) / build ✅
+- 🔴 **Jayden 수동 apply 필요** (apply 완료 확인됨): `migrations/0026_store_business_hours.sql` + `0027_bookings_unique_active_staff_time.sql` + `0028_customer_mypage.sql`
+- **잔여 Plan v3**: M4.2 (Inbox skip 큐 UI deferred) / M5.4 (Vercel Preview demo env 등록 — Jayden 외부 작업) / M3.3b (customer time-slots dynamic hours, 베타 출시 후)
 - **세션 16~17 머지**:
   - **M3.1** 시술 관리 CRUD (`91e6a21`) — services DAL CRUD + 3 actions + Client form + booking 사용 중 검사
   - **M3.2** 외국인 손님 list + 메모 편집 (`79064dd`) — customers DAL `listCustomersByStore` (conversations join distinct on) + `isCustomerInStore` + `updateCustomerNotesAction` + Client inline edit + StoreCustomers 6 locale
@@ -774,12 +782,16 @@ demo.hesya.com Phase 2 도입 + 베타 1~2곳 onboarding.
 
 ## 마지막 업데이트
 
+- 날짜: 2026-05-12 (세션 18 종료)
+- 세션 18 작업 시간: ~6h (M3.3a → 권장 1 → M3.4 full → M4.5 → M4.1 → ε KPI → M5.5/3/2 → M5.1 → M4.3+M4.4 full)
+- 세션 18 머지: 9 commits main 직접 (`74064aa` → `dad66ec` → `5b0863c` → `e25f48f` → `7084465` → `663f542` → `ecf7a26` → `1de4d16` → `fa7638a`)
+- 세션 18 누적 교훈: 없음 (Plan v3 진행 계획에 따른 실행만)
+- **Plan v3 진척**: M1 5/5 + M2 7/7 + M3 5/5 + M4 4/5 + M5 4/5 = **22/25** (88%) — 잔여 M4.2 (Inbox skip 큐 deferred) + M5.4 (Jayden Vercel env 등록)
+
+## 마지막 업데이트 (이전)
+
 - 날짜: 2026-05-11 (세션 9 종료)
-- 세션 9 작업 시간: ~4h (ζ.4 stress test + M1.1 Mock env flag + CI 차단 진단 + 비활성화 + PROGRESS)
-- 세션 9 머지: [#112](https://github.com/jaydenjoo/hesya/pull/112) `72acef4` + [#113](https://github.com/jaydenjoo/hesya/pull/113) `e94ff84` (둘 다 admin override squash 머지, CI 차단 우회)
-- 세션 9 인프라: GitHub Actions CI 자동 trigger 비활성화 → 향후 분 소비 0 (Vercel + 로컬 검증)
-- 세션 9 누적 교훈: L-093 (Free + Budget $0 조합 차단)
-- **P0 평균 변동 없음 (61%)** — ζ.4 시드 인프라 + Plan v3 + Mock env 인프라만. 코드 분기 stub 0 (M1.2부터 실 분기)
+- 세션 9 머지: [#112](https://github.com/jaydenjoo/hesya/pull/112) + [#113](https://github.com/jaydenjoo/hesya/pull/113) + CI workflow 비활성화
 
 ## 컨텍스트 관리 강화 — 누적 (L-082 → L-091)
 
