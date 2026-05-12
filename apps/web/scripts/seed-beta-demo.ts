@@ -130,9 +130,10 @@ async function main(): Promise<void> {
   await resetDb(db);
 
   // resetDb는 users 테이블을 안 지움 (Better Auth 로그인으로 만들어진 다른 user
-  // 보존 의도). 두 번째 실행 시 demo user PK 충돌 방지를 위해 명시 삭제 —
+  // 보존 의도). 두 번째 실행 시 demo user PK/email 충돌 방지를 위해 명시 삭제 —
+  // email 기준이라 DEMO_USER_ID UUID가 바뀌어도 이전 시드 잔재 정리됨.
   // 이 시점엔 storeOwners/customers/messages 등 user FK 의존 row가 모두 비워졌음.
-  await db.delete(users).where(eq(users.id, DEMO_USER_ID));
+  await db.delete(users).where(eq(users.email, "demo-owner@hesya.local"));
 
   // 1. 사장 사용자 (E2E_AUTH_USER_ID와 동일한 고정 UUID)
   await seedUser(db, {
