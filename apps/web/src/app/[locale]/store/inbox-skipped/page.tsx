@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
+import { PageHeader } from "@/components/ui/page-header";
 import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
 import { OwnerShell } from "@/features/shell/owner-shell";
 import { env } from "@/shared/config/env";
@@ -52,43 +53,40 @@ export default async function InboxSkippedPage({
       userName={shell.userName}
       userInitial={shell.userInitial}
     >
-      <div className="mx-auto max-w-4xl px-6 py-10">
-        <header className="mb-8 space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-            Operator · Inbox
-          </p>
-          <h1 className="font-heading text-3xl font-semibold italic tracking-tight text-hesya-navy-900">
-            {t("title")}
-          </h1>
-          <p className="text-sm text-hesya-navy-900/65">{t("subtitle")}</p>
-        </header>
-
-        {rows.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-12 text-center">
-            <p className="text-sm text-hesya-navy-900/60">{t("emptyText")}</p>
-          </div>
-        ) : (
-          <ul className="space-y-3">
-            {rows.map((m) => (
-              <li
-                key={m.id}
-                className="rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-sm"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-hesya-peach-700">
-                    {m.channel}
-                  </span>
-                  <time className="text-xs text-hesya-navy-900/55">
-                    {m.createdAt ? dateFormatter.format(m.createdAt) : ""}
-                  </time>
-                </div>
-                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-hesya-navy-900/85">
-                  {m.originalText}
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
+      <div className="bg-hesya-peach-50">
+        <PageHeader
+          eyebrow="Operator · Inbox · Skipped"
+          title={t("title")}
+          subtitle={t("subtitle")}
+        />
+        <div className="mx-auto max-w-4xl px-8 pb-10">
+          {rows.length === 0 ? (
+            <div className="rounded-md border border-dashed border-hesya-peach-200 bg-white/60 px-6 py-12 text-center">
+              <p className="text-sm text-hesya-navy-900/60">{t("emptyText")}</p>
+            </div>
+          ) : (
+            <ul className="space-y-3">
+              {rows.map((m) => (
+                <li
+                  key={m.id}
+                  className="rounded-md border border-hesya-peach-100 bg-white px-5 py-4 shadow-[0_1px_2px_rgba(26,34,56,0.04)]"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-hesya-amber-600">
+                      {m.channel}
+                    </span>
+                    <time className="font-mono text-[11px] text-gray-500">
+                      {m.createdAt ? dateFormatter.format(m.createdAt) : ""}
+                    </time>
+                  </div>
+                  <p className="mt-2 whitespace-pre-line text-[13.5px] leading-relaxed text-hesya-navy-900/85">
+                    {m.originalText}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </OwnerShell>
   );

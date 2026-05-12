@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createDbClient } from "@hesya/database";
 
+import { PageHeader } from "@/components/ui/page-header";
 import { KnowledgeClient } from "@/features/knowledge/components/knowledge-client";
 import { MAX_FAQS_PER_STORE } from "@/features/knowledge/schema";
 import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
@@ -54,22 +55,18 @@ export default async function KnowledgePage({
       userName={shell.userName}
       userInitial={shell.userInitial}
     >
-      <div className="mx-auto max-w-4xl px-6 py-10">
-        <header className="mb-8 space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-            Operator · Knowledge
-          </p>
-          <h1 className="font-heading text-3xl font-semibold italic tracking-tight text-hesya-navy-900">
-            FAQ · 매장 지식
-          </h1>
-          <p className="text-sm text-hesya-navy-900/65">
-            AI가 손님 질문에 답변할 때 참고하는 매장의 FAQ를 관리합니다.
-          </p>
-        </header>
-        <KnowledgeClient
-          initialFAQs={initialFAQs}
-          maxFAQs={MAX_FAQS_PER_STORE}
+      <div className="bg-hesya-peach-50">
+        <PageHeader
+          eyebrow="Operator · Knowledge"
+          title="FAQ · 매장 지식"
+          subtitle="AI가 손님 질문에 답변할 때 참고하는 매장의 FAQ를 관리합니다."
         />
+        <div className="mx-auto max-w-4xl px-8 pb-10">
+          <KnowledgeClient
+            initialFAQs={initialFAQs}
+            maxFAQs={MAX_FAQS_PER_STORE}
+          />
+        </div>
       </div>
     </OwnerShell>
   );

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createDbClient } from "@hesya/database";
 
+import { PageHeader } from "@/components/ui/page-header";
 import { OwnerDisputesList } from "@/features/disputes";
 import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
 import { OwnerShell } from "@/features/shell/owner-shell";
@@ -43,19 +44,15 @@ export default async function StoreDisputesPage({
       userName={shell.userName}
       userInitial={shell.userInitial}
     >
-      <div className="mx-auto max-w-5xl px-6 py-10">
-        <header className="mb-6 space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-            Operator · Disputes
-          </p>
-          <h1 className="font-heading text-3xl font-semibold italic tracking-tight text-hesya-navy-900">
-            분쟁 처리
-          </h1>
-          <p className="text-sm text-hesya-navy-900/65">
-            손님과의 분쟁을 추적하고 응답합니다.
-          </p>
-        </header>
-        <OwnerDisputesList rows={rows} />
+      <div className="bg-hesya-peach-50">
+        <PageHeader
+          eyebrow="Operator · Disputes"
+          title="분쟁 처리"
+          subtitle="손님과의 분쟁을 추적하고 응답합니다."
+        />
+        <div className="mx-auto max-w-5xl px-8 pb-10">
+          <OwnerDisputesList rows={rows} />
+        </div>
       </div>
     </OwnerShell>
   );
