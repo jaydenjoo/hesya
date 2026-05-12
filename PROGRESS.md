@@ -3,9 +3,20 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-12 세션 18 종료)
+## 현재 위치 (2026-05-12 세션 19 종료)
 
-- **Phase**: **Plan v3 M1 5/5 + M2 7/7 + M3 5/5 + M4 4/5 + M5 4/5** (M4.2 deferred, M5.4 external Vercel 등록) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 65% + δ Epic 3 95% + E2 결제 60%)
+- **Phase**: **Plan v3 M1 5/5 + M2 7/7 + M3 5/5 + M4 5/5 (본 세션 M4.2 완료) + M5 4/5** (M5.4 external Vercel 등록만 잔여) — ζ.4 stress test 시드 + CI 비활성화 (γ.1 100% + γ.2 완료 + ε Epic 4 70% + δ Epic 3 95% + E2 결제 60%)
+- **세션 19 머지 (총 3건, main 직접)**:
+  - **M5.4 가이드 보강** — `docs/external-demo-guide.md` 5-8 ~ 8 단계 추가 (M3.1~M5.1 흐름 9건) + `DEMO_USER_ID` / `DEMO_CUSTOMER_EMAIL` 등록 절차 명시
+  - **M4.2** Inbox skip 큐 UI (deferred 해제, owner-side read-only) — `listSkippedMessagesByStore` DAL (최근 30일 + storeId + outbound + draftStatus='skipped' 필터) + `/[locale]/store/inbox-skipped` page + 6 locale `InboxSkipped` namespace + nav-sidebar active matching 정확화 (`startsWith` → `exact || startsWith + "/"`)
+  - **베타 출시 갭 분석** — `docs/beta-launch-gap-analysis.md` 신규 (PRD 베타 조건 vs 현재 P0 평균 84% + ζ.5~ζ.8 4-phase 분해 + 코드 측면 90% 충족 + 잔여 10% Jayden 외부 작업)
+- **검증 (최종 패스)**: type-check ✅ / lint ✅ / vitest **704 passed** (+1 pure export test) / build ✅ (`/[locale]/store/inbox-skipped` 라우트 등록 확인)
+- **잔여 Plan v3**: M5.4 (Vercel Preview demo env 등록 — Jayden 외부 작업) / M3.3b (customer time-slots dynamic hours, 베타 출시 후)
+- **세션 18 종료 시점** (이전 작업 보존):
+
+## 이전 세션 18 (2026-05-12) — 9건 머지
+
+- **Phase 당시**: Plan v3 M1 5/5 + M2 7/7 + M3 5/5 + M4 4/5 + M5 4/5
 - **세션 18 머지 (총 9건, main 직접)**:
   - **M3.3a** 매장 설정 + business_hours 컬럼 (`74064aa`) — 마이그 0026 `stores.business_hours` jsonb + `getStoreSettings` / `updateStoreSettings` DAL + `updateStoreSettingsAction` (zod + requireStoreOwnerAuth + rate-limit 30/60s) + `SettingsForm` (요일별 휴무 토글 + time picker) + `/[locale]/store/settings` 라우트 + StoreSettings 6 locale
   - **권장 1** booking conflict 영구 차단 + FAQ embedding (`dad66ec`) — 마이그 0027 `bookings_unique_active_staff_time` partial unique index (status != cancelled) + customer-actions PG 23505 catch (dual-guard) + seed FAQ OpenAI embedding inline 생성
