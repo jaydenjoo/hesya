@@ -23,6 +23,7 @@
       "rebookRate": "재방문률",
       "noShowRate": "노쇼율",
       "nationalityMix": "국적 분포",
+      "otherNationality": "기타",
       "treatmentMix": "시술 분포",
       "designerMix": "디자이너 분포"
     },

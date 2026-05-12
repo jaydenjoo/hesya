@@ -21,6 +21,8 @@ import {
   getDisputeLoad,
   getInboxLoad,
   getKycStatus,
+  getMonthlyBookingStats,
+  getNationalityMix,
 } from "@/shared/lib/dal/dashboard";
 import { listServicesByStore } from "@/shared/lib/dal/services";
 import { listStaffByStore } from "@/shared/lib/dal/staff";
@@ -64,6 +66,8 @@ export default async function StoreDashboardPage({
     servicesList,
     staffList,
     shell,
+    bookingStats,
+    nationalityMix,
   ] = await Promise.all([
     getInboxLoad(db, session.storeId),
     getDisputeLoad(db, session.storeId),
@@ -73,6 +77,8 @@ export default async function StoreDashboardPage({
     listServicesByStore(db, session.storeId),
     listStaffByStore(db, session.storeId),
     getOwnerShellData(),
+    getMonthlyBookingStats(db, session.storeId, monthRange),
+    getNationalityMix(db, session.storeId, monthRange),
   ]);
 
   if (!shell) redirect(`/${locale}/sign-in`);
@@ -95,6 +101,31 @@ export default async function StoreDashboardPage({
 
   const treatmentTotal = treatmentSlices.reduce((sum, s) => sum + s.value, 0);
   const designerTotal = designerSlices.reduce((sum, s) => sum + s.value, 0);
+
+  // M3.4/Epic 4 — 국적 분포 donut slices (top 6 + "기타")
+  const TOP_N = 6;
+  const nationalitySlices: ReadonlyArray<DistributionSlice> = (() => {
+    if (nationalityMix.length <= TOP_N) {
+      return nationalityMix.map((r) => ({
+        label: r.nationality.toUpperCase(),
+        value: r.count,
+      }));
+    }
+    const head = nationalityMix.slice(0, TOP_N - 1);
+    const tail = nationalityMix.slice(TOP_N - 1);
+    const tailSum = tail.reduce((s, r) => s + r.count, 0);
+    return [
+      ...head.map((r) => ({
+        label: r.nationality.toUpperCase(),
+        value: r.count,
+      })),
+      { label: t("kpis.otherNationality"), value: tailSum },
+    ];
+  })();
+  const nationalityTotal = nationalitySlices.reduce(
+    (sum, s) => sum + s.value,
+    0,
+  );
 
   const entries: ReadonlyArray<KpiEntry> = [
     {
@@ -125,16 +156,20 @@ export default async function StoreDashboardPage({
     {
       key: "monthlyRevenue",
       label: t("kpis.monthlyRevenue"),
-      value: "—",
+      value: bookingStats.revenueKrw.toLocaleString("ko"),
       unit: t("units.won"),
-      state: "coming-soon",
+      state: "active",
+      subtext: `${bookingStats.bookingCount} ${t("units.count")}`,
     },
     {
       key: "averageOrder",
       label: t("kpis.averageOrder"),
-      value: "—",
+      value:
+        bookingStats.bookingCount > 0
+          ? bookingStats.averageOrderKrw.toLocaleString("ko")
+          : "—",
       unit: t("units.won"),
-      state: "coming-soon",
+      state: bookingStats.bookingCount > 0 ? "active" : "coming-soon",
     },
     {
       key: "rebookRate",
@@ -146,15 +181,24 @@ export default async function StoreDashboardPage({
     {
       key: "noShowRate",
       label: t("kpis.noShowRate"),
-      value: "—",
+      value: String(bookingStats.noShowRatePct),
       unit: t("units.percent"),
-      state: "coming-soon",
+      state: bookingStats.bookingCount > 0 ? "active" : "coming-soon",
+      subtext:
+        bookingStats.noShowCount > 0
+          ? `${bookingStats.noShowCount} ${t("units.count")}`
+          : undefined,
     },
     {
       key: "nationalityMix",
       label: t("kpis.nationalityMix"),
-      value: "—",
-      state: "coming-soon",
+      value: String(nationalityTotal),
+      unit: t("units.count"),
+      state: nationalityTotal > 0 ? "active" : "coming-soon",
+      chart:
+        nationalityTotal > 0 ? (
+          <DistributionPie data={nationalitySlices} />
+        ) : undefined,
     },
     {
       key: "treatmentMix",

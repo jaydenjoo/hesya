@@ -23,6 +23,7 @@
       "rebookRate": "Rebook rate",
       "noShowRate": "No-show rate",
       "nationalityMix": "Nationality mix",
+      "otherNationality": "Other",
       "treatmentMix": "Treatment mix",
       "designerMix": "Designer mix"
     },

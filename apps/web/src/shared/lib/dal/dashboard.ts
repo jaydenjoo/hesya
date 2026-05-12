@@ -2,11 +2,18 @@ import "server-only";
 
 import {
   and,
+  bookings,
   conversations,
   count,
+  customers,
+  desc,
   disputes,
   eq,
+  gte,
   inArray,
+  isNotNull,
+  lte,
+  ne,
   stores,
   sum,
   type DbClient,
@@ -130,4 +137,100 @@ export async function getKycStatus(
     return raw;
   }
   return "unknown";
+}
+
+/**
+ * Plan v3 ε Epic 4 KPI — 이번 달 매출 + 객단가 + 노쇼율.
+ *
+ * 매출은 status != 'cancelled' booking의 totalPriceKrw 합.
+ * 노쇼율은 status='no_show' / 비-cancelled 합. 분모 0이면 0 반환.
+ */
+export interface MonthlyBookingStats {
+  revenueKrw: number;
+  bookingCount: number;
+  averageOrderKrw: number;
+  noShowCount: number;
+  noShowRatePct: number;
+}
+
+export async function getMonthlyBookingStats(
+  db: DbClient,
+  storeId: string,
+  range: { fromDate: Date; toDate: Date },
+): Promise<MonthlyBookingStats> {
+  const [agg] = await db
+    .select({
+      revenue: sum(bookings.totalPriceKrw).mapWith(Number),
+      n: count(bookings.id).mapWith(Number),
+    })
+    .from(bookings)
+    .where(
+      and(
+        eq(bookings.storeId, storeId),
+        ne(bookings.status, "cancelled"),
+        gte(bookings.scheduledAt, range.fromDate),
+        lte(bookings.scheduledAt, range.toDate),
+      ),
+    );
+  const [noShow] = await db
+    .select({ n: count(bookings.id).mapWith(Number) })
+    .from(bookings)
+    .where(
+      and(
+        eq(bookings.storeId, storeId),
+        eq(bookings.status, "no_show"),
+        gte(bookings.scheduledAt, range.fromDate),
+        lte(bookings.scheduledAt, range.toDate),
+      ),
+    );
+  const revenue = agg?.revenue ?? 0;
+  const total = agg?.n ?? 0;
+  const noShowCount = noShow?.n ?? 0;
+  return {
+    revenueKrw: revenue,
+    bookingCount: total,
+    averageOrderKrw: total > 0 ? Math.round(revenue / total) : 0,
+    noShowCount,
+    noShowRatePct: total > 0 ? Math.round((noShowCount / total) * 100) : 0,
+  };
+}
+
+/**
+ * Plan v3 ε Epic 4 KPI — 이번 달 booking 손님의 국적 분포.
+ *
+ * bookings JOIN customers, customers.nationality 그룹 별 count. nationality
+ * 미설정(null)은 'unknown'으로 라벨. cancelled 제외.
+ */
+export interface NationalityMixRow {
+  nationality: string;
+  count: number;
+}
+
+export async function getNationalityMix(
+  db: DbClient,
+  storeId: string,
+  range: { fromDate: Date; toDate: Date },
+): Promise<NationalityMixRow[]> {
+  const rows = await db
+    .select({
+      nationality: customers.nationality,
+      n: count(bookings.id).mapWith(Number),
+    })
+    .from(bookings)
+    .innerJoin(customers, eq(bookings.customerId, customers.id))
+    .where(
+      and(
+        eq(bookings.storeId, storeId),
+        ne(bookings.status, "cancelled"),
+        isNotNull(bookings.customerId),
+        gte(bookings.scheduledAt, range.fromDate),
+        lte(bookings.scheduledAt, range.toDate),
+      ),
+    )
+    .groupBy(customers.nationality)
+    .orderBy(desc(count(bookings.id)));
+  return rows.map((r) => ({
+    nationality: r.nationality?.trim() || "unknown",
+    count: r.n,
+  }));
 }
