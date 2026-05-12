@@ -38,6 +38,22 @@ export async function getOwnerShellData(): Promise<{
     };
   }
 
+  // Plan v3 M5.1 — Vercel preview demo bypass. requireStoreOwnerAuth와 동일 패턴.
+  // VERCEL_ENV='preview' + DEMO_USER_ID 설정 시 Better Auth session 없이 통과.
+  // prod (VERCEL_ENV='production')에선 분기 자체 미진입.
+  if (env.VERCEL_ENV === "preview" && env.DEMO_USER_ID) {
+    const ownership = await findByUserId(db, env.DEMO_USER_ID);
+    if (!ownership) return null;
+    const settings = await getStoreSettings(db, ownership.storeId);
+    if (!settings) return null;
+    return {
+      storeId: ownership.storeId,
+      storeName: settings.name,
+      userName: "데모 사장",
+      userInitial: "데",
+    };
+  }
+
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) return null;
 
