@@ -94,7 +94,9 @@ export default async function CustomerMyPage({ params }: Props) {
               unsave: t("actions.unsave"),
             },
             review: {
-              question: t("review.question"),
+              // next-intl ICU `{store}`는 호출 시점에 채워야 하나 Client에서
+              // 카드별로 replace. raw로 가져와서 template 그대로 전달.
+              question: t.raw("review.question") as string,
               placeholder: t("review.placeholder"),
               submit: t("review.submit"),
               languageNote: t("review.languageNote"),

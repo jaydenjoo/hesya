@@ -65,6 +65,9 @@ export default defineConfig({
         ...(process.env.HESYA_TEST_DATABASE_URL
           ? { DATABASE_URL: process.env.HESYA_TEST_DATABASE_URL }
           : {}),
+        // M5.2 — customer mypage flow E2E bypass. customer-guard.ts에서
+        // 이 env 있으면 Better Auth session 검증 생략하고 customer row를 upsert.
+        E2E_CUSTOMER_EMAIL: "e2e-mypage@hesya.test",
       },
     },
   ],
