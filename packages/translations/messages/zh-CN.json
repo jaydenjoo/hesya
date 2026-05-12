@@ -404,7 +404,22 @@
     "dayThu": "周四",
     "dayFri": "周五",
     "daySat": "周六",
-    "daySun": "周日"
+    "daySun": "周日",
+    "savedIndicator": "所有更改已自动保存",
+    "navEyebrow": "Settings",
+    "navTitle": "店铺设置",
+    "navFooterStore": "店铺",
+    "navFooterSavedLabel": "刚刚自动保存",
+    "navFooterEditor": "编辑者",
+    "sectionEnBasic": "Store Info",
+    "sectionEnAddress": "Address",
+    "sectionEnHours": "Hours",
+    "sectionEnMultilingual": "Multilingual",
+    "sectionEnChannels": "Channels",
+    "sectionEnBookingPolicy": "Booking Policy",
+    "sectionEnPayments": "Payments",
+    "sectionEnNotifications": "Notifications",
+    "sectionEnRisk": "Compliance"
   },
   "BookingProgress": {
     "schedule": "日程",

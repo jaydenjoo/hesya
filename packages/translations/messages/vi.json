@@ -404,7 +404,22 @@
     "dayThu": "T5",
     "dayFri": "T6",
     "daySat": "T7",
-    "daySun": "CN"
+    "daySun": "CN",
+    "savedIndicator": "Tất cả thay đổi đã được tự động lưu",
+    "navEyebrow": "Settings",
+    "navTitle": "Cài đặt cửa hàng",
+    "navFooterStore": "Cửa hàng",
+    "navFooterSavedLabel": "Đã tự động lưu",
+    "navFooterEditor": "Người chỉnh sửa",
+    "sectionEnBasic": "Store Info",
+    "sectionEnAddress": "Address",
+    "sectionEnHours": "Hours",
+    "sectionEnMultilingual": "Multilingual",
+    "sectionEnChannels": "Channels",
+    "sectionEnBookingPolicy": "Booking Policy",
+    "sectionEnPayments": "Payments",
+    "sectionEnNotifications": "Notifications",
+    "sectionEnRisk": "Compliance"
   },
   "BookingProgress": {
     "schedule": "Lịch",
