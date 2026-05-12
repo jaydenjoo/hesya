@@ -99,8 +99,13 @@
     }
   },
   "Inbox": {
-    "title": "Unified Inbox",
-    "empty": "No messages yet",
+    "title": "統一收件匣",
+    "empty": "暫無訊息",
+    "threadListTitle": "對話",
+    "threadListUnread": "未讀",
+    "searchPlaceholder": "依姓名或訊息搜尋",
+    "searchAriaLabel": "搜尋對話",
+    "searchClearLabel": "清除搜尋",
     "notConnected": {
       "title": "Connect your Instagram",
       "description": "Connect an Instagram Business account to start receiving customer DMs",

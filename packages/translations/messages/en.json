@@ -101,6 +101,11 @@
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",
+    "threadListTitle": "Threads",
+    "threadListUnread": "unread",
+    "searchPlaceholder": "Search name or message",
+    "searchAriaLabel": "Search threads",
+    "searchClearLabel": "Clear search",
     "notConnected": {
       "title": "Connect your Instagram",
       "description": "Connect an Instagram Business account to start receiving customer DMs",
