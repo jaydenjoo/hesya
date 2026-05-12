@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { createDbClient } from "@hesya/database";
+import { PageHeader } from "@/components/ui/page-header";
 import { env } from "@/shared/config/env";
 import { StoreVerificationDetail } from "@/features/admin";
 import { requireAdminEmail } from "@/shared/lib/admin-guard";
@@ -31,25 +32,29 @@ export default async function StoreVerificationDetailPage({
   const { store, verification } = detail;
 
   return (
-    <main className="container py-12">
-      <h1 className="mb-6 text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
-        매장 검토 상세
-      </h1>
-      <StoreVerificationDetail
-        storeId={store.id}
-        verificationId={verification.id}
-        storeName={store.name}
-        businessNumber={verification.businessNumber}
-        representativeName={verification.representativeName}
-        phone={store.phone}
-        address={store.address}
-        businessLicenseImageUrl={store.businessLicenseImageUrl}
-        declarationNoMassage={verification.declarationNoMassage}
-        declarationNoMedicalDevice={verification.declarationNoMedicalDevice}
-        declarationNoOrientalMedicine={
-          verification.declarationNoOrientalMedicine
-        }
+    <main className="min-h-screen bg-hesya-peach-50">
+      <PageHeader
+        eyebrow="Admin · Store Verifications · Detail"
+        title="매장 검토 상세"
+        subtitle={`${store.name} — 사업자 정보 + 법적 선언 확인 후 승인/거절`}
       />
+      <div className="mx-auto max-w-4xl px-8 pb-10">
+        <StoreVerificationDetail
+          storeId={store.id}
+          verificationId={verification.id}
+          storeName={store.name}
+          businessNumber={verification.businessNumber}
+          representativeName={verification.representativeName}
+          phone={store.phone}
+          address={store.address}
+          businessLicenseImageUrl={store.businessLicenseImageUrl}
+          declarationNoMassage={verification.declarationNoMassage}
+          declarationNoMedicalDevice={verification.declarationNoMedicalDevice}
+          declarationNoOrientalMedicine={
+            verification.declarationNoOrientalMedicine
+          }
+        />
+      </div>
     </main>
   );
 }
