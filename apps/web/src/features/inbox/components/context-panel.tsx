@@ -65,11 +65,31 @@ export function ContextPanel({
     );
   }
 
+  const displayName = customer?.name ?? conversation.customerId.slice(0, 8);
+  const avatarChar = (displayName.trim().charAt(0) || "?").toUpperCase();
+
   return (
     <>
+      {/* M6.3e — reference `.ix-ctx-head` 정합: 64px avatar + 이름 + 채널 chip */}
+      <div
+        data-testid="ctx-head"
+        className="flex flex-shrink-0 flex-col items-center border-b border-hesya-peach-100 px-4 pt-5 pb-3.5 text-center"
+      >
+        <div className="mb-2.5 flex h-16 w-16 items-center justify-center rounded-full bg-hesya-peach-200 text-[22px] font-semibold text-hesya-navy-900">
+          {avatarChar}
+        </div>
+        <p className="kr text-base font-semibold text-hesya-navy-900">
+          {displayName}
+        </p>
+        <p className="kr mt-1 text-[11px] text-gray-500">
+          {conversation.channel}
+        </p>
+      </div>
+
+      {/* M6.3e — reference `.ix-ctx-tabs` 정합: 16% inset 2px amber 활성 indicator */}
       <header
         role="tablist"
-        className="flex flex-shrink-0 border-b border-hesya-peach-200 bg-white"
+        className="flex flex-shrink-0 border-b border-hesya-peach-100 bg-white px-2"
       >
         {TABS.map((t) => {
           const active = tab === t.id;
@@ -81,18 +101,24 @@ export function ContextPanel({
               onClick={() => setTab(t.id)}
               aria-selected={active}
               className={
-                "kr flex-1 cursor-pointer px-2 py-3 text-xs font-semibold transition-colors " +
+                "kr relative flex-1 cursor-pointer px-2 py-3 text-[13px] transition-colors " +
                 (active
-                  ? "border-b-2 border-hesya-amber-500 text-hesya-navy-900"
-                  : "border-b-2 border-transparent text-gray-500 hover:text-hesya-navy-900")
+                  ? "font-semibold text-hesya-navy-900"
+                  : "font-medium text-gray-500 hover:text-hesya-navy-900")
               }
             >
               {t.label}
+              {active ? (
+                <span
+                  aria-hidden="true"
+                  className="absolute -bottom-px left-[16%] right-[16%] h-[2px] bg-hesya-amber-500"
+                />
+              ) : null}
             </button>
           );
         })}
       </header>
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto px-4 py-3.5">
         {tab === "info" ? (
           <InfoTab
             conversation={conversation}
@@ -114,6 +140,48 @@ export function ContextPanel({
   );
 }
 
+/**
+ * M6.3e — reference `.ix-ctx-block` (peach-50 carded info) + `.ix-ctx-key`
+ * (uppercase 10px) + `.ix-ctx-val.mono` (18px bold 숫자) 정합.
+ *
+ * `highlight` variant — peach-100 + amber-500 border (reference 1순위 강조 패턴).
+ */
+function InfoBlock({
+  label,
+  children,
+  highlight = false,
+  mono = false,
+}: {
+  label: string;
+  children: React.ReactNode;
+  highlight?: boolean;
+  mono?: boolean;
+}) {
+  return (
+    <div
+      className={
+        "rounded-md px-3 py-2.5 " +
+        (highlight
+          ? "border border-hesya-amber-500 bg-hesya-peach-100"
+          : "bg-hesya-peach-50")
+      }
+    >
+      <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.04em] text-gray-500">
+        {label}
+      </p>
+      <p
+        className={
+          (mono
+            ? "mono text-[18px] font-bold "
+            : "kr text-[13px] font-medium ") + "text-hesya-navy-900"
+        }
+      >
+        {children}
+      </p>
+    </div>
+  );
+}
+
 function InfoTab({
   conversation,
   messageCount,
@@ -124,57 +192,30 @@ function InfoTab({
   customer?: Customer | null;
 }) {
   return (
-    <dl className="kr space-y-3 text-sm">
-      {customer?.name ? (
-        <div>
-          <dt className="text-xs font-semibold text-gray-500">고객 이름</dt>
-          <dd className="kr mt-0.5 text-base font-semibold text-hesya-navy-900">
-            {customer.name}
-          </dd>
-        </div>
-      ) : null}
-      <div>
-        <dt className="text-xs font-semibold text-gray-500">고객 ID</dt>
-        <dd className="mono mt-0.5 text-hesya-navy-900">
-          {conversation.customerId.slice(0, 8)}
-        </dd>
-      </div>
-      <div>
-        <dt className="text-xs font-semibold text-gray-500">채널</dt>
-        <dd className="mt-0.5 text-hesya-navy-900">{conversation.channel}</dd>
-      </div>
-      <div>
-        <dt className="text-xs font-semibold text-gray-500">메시지 수</dt>
-        <dd
-          data-testid="ctx-msg-count"
-          className="mono mt-0.5 text-hesya-navy-900"
-        >
+    <div data-testid="ctx-info" className="flex flex-col gap-3">
+      <InfoBlock label="Customer ID" mono>
+        {conversation.customerId.slice(0, 8)}
+      </InfoBlock>
+      <InfoBlock label="채널">{conversation.channel}</InfoBlock>
+      <div data-testid="ctx-msg-count">
+        <InfoBlock label="메시지 수" mono>
           {messageCount}
-        </dd>
+        </InfoBlock>
       </div>
       {customer ? (
         <>
-          <div>
-            <dt className="text-xs font-semibold text-gray-500">방문 횟수</dt>
-            <dd className="mono mt-0.5 text-hesya-navy-900">
-              {customer.totalVisits ?? 0}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs font-semibold text-gray-500">사용 금액</dt>
-            <dd className="mono mt-0.5 text-hesya-navy-900">
-              ₩{KRW_FMT.format(customer.ltvKrw ?? 0)}
-            </dd>
-          </div>
+          <InfoBlock label="방문 횟수" mono highlight>
+            {customer.totalVisits ?? 0}
+          </InfoBlock>
+          <InfoBlock label="사용 금액" mono>
+            ₩{KRW_FMT.format(customer.ltvKrw ?? 0)}
+          </InfoBlock>
         </>
       ) : null}
-      <div>
-        <dt className="text-xs font-semibold text-gray-500">첫 대화일</dt>
-        <dd className="mono mt-0.5 text-hesya-navy-900">
-          {safeFormat(conversation.createdAt, DATE_FMT)}
-        </dd>
-      </div>
-    </dl>
+      <InfoBlock label="첫 대화일">
+        {safeFormat(conversation.createdAt, DATE_FMT)}
+      </InfoBlock>
+    </div>
   );
 }
 
@@ -307,7 +348,8 @@ function NotesForm({
 }
 
 function HistoryTab({ messages }: { messages: Message[] }) {
-  // 최신순 5개 — 디자인 ref ix-ctx-history 패턴.
+  // 최신순 5개 — reference `.ix-ctx-history` + `.ix-hist-row` 패턴
+  // (peach-50 wrap + 26px white round icon).
   const toMs = (d: Date | string | null | undefined): number =>
     toDate(d)?.getTime() ?? 0;
   const recent = [...messages]
@@ -319,15 +361,15 @@ function HistoryTab({ messages }: { messages: Message[] }) {
   }
 
   return (
-    <ul className="space-y-3">
+    <ul className="flex flex-col gap-2">
       {recent.map((m) => (
         <li
           key={m.id}
           data-testid="ctx-history-item"
-          className="flex gap-3 border-b border-hesya-peach-200 pb-3 last:border-b-0"
+          className="flex items-start gap-2.5 rounded-md bg-hesya-peach-50 px-3 py-2.5"
         >
           <div
-            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-hesya-peach-100 text-xs"
+            className="flex h-[26px] w-[26px] flex-shrink-0 items-center justify-center rounded-full bg-white text-xs shadow-sm"
             aria-hidden="true"
           >
             {m.direction === "inbound" ? "💬" : "📤"}
