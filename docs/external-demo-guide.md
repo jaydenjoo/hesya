@@ -184,7 +184,7 @@ MOCK_IG_OAUTH=true
 MOCK_PAYMENT=true            (M2.5 이후 활성)
 MOCK_NOTIFICATION=true       (M4.1 이후 활성)
 MOCK_MULTI_CHANNEL=true      (M4.2 이후 활성)
-DEMO_USER_ID=<seed-beta-demo 매장 #1 owner user UUID>
+DEMO_USER_ID=00000000-0000-4000-8000-000000000001    (seed-beta-demo:68 하드코드 UUID — zod v4 uuid 통과 형식)
 DEMO_CUSTOMER_EMAIL=<seed-beta-demo 손님 #1 email>
 ```
 
