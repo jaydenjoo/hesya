@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
 import {
+  BrightSpot,
   DashboardHeader,
   DistributionPie,
   KpiGrid,
@@ -218,6 +219,36 @@ export default async function StoreDashboardPage({
     },
   ];
 
+  const brightSpot = (() => {
+    if (dispute.slaExceeded > 0) {
+      return {
+        eyebrow: t("brightSpot.urgent"),
+        body: t("brightSpot.disputesSlaExceeded", {
+          count: dispute.slaExceeded,
+        }),
+      };
+    }
+    if (inbox.unreadMessages > 0) {
+      return {
+        eyebrow: t("brightSpot.today"),
+        body: t("brightSpot.inboxUnread", {
+          count: inbox.unreadMessages,
+          threads: inbox.openThreads,
+        }),
+      };
+    }
+    if (dispute.active > 0) {
+      return {
+        eyebrow: t("brightSpot.today"),
+        body: t("brightSpot.disputesActive", { count: dispute.active }),
+      };
+    }
+    return {
+      eyebrow: t("brightSpot.today"),
+      body: t("brightSpot.allClear"),
+    };
+  })();
+
   const now = new Date();
   const dateDay = new Intl.DateTimeFormat(locale, {
     year: "numeric",
@@ -246,6 +277,11 @@ export default async function StoreDashboardPage({
           dateWeekday={dateWeekday}
         />
         <div className="px-8 pb-10">
+          <BrightSpot
+            eyebrow={brightSpot.eyebrow}
+            eyebrowEn="Bright spot"
+            body={brightSpot.body}
+          />
           <KpiGrid entries={entries} comingSoonNote={t("comingSoonNote")} />
           <p className="mt-8 font-mono text-[11px] text-hesya-navy-900/55">
             {t("footerNote")}

@@ -12,6 +12,14 @@
     "title": "Store dashboard",
     "greetingPrefix": "Welcome back,",
     "greetingSuffix": "",
+    "brightSpot": {
+      "urgent": "Urgent",
+      "today": "Today",
+      "inboxUnread": "{count} unanswered — {threads} open threads. Quick replies boost rebooking.",
+      "disputesActive": "{count} active disputes. Replying early gives SLA more buffer.",
+      "disputesSlaExceeded": "{count} SLA-breached dispute(s) — needs priority attention.",
+      "allClear": "No pending replies or disputes today. Smooth flow."
+    },
     "subtitle": "Epic 4 — Foreign customer revenue, retention, nationality (activates after beta data lands)",
     "comingSoonNote": "Activates after payment & booking data is recorded",
     "kpis": {
