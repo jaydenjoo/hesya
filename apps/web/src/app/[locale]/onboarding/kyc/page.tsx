@@ -37,11 +37,14 @@ export default async function KycPage({
       className="min-h-screen bg-hesya-peach-50 px-4 py-10 sm:py-14"
     >
       <div className="mx-auto max-w-xl">
-        <header className="mb-6">
-          <h1 className="kr text-2xl font-bold tracking-tight text-hesya-navy-900 sm:text-[28px]">
+        <header className="mb-6 space-y-1.5">
+          <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+            Onboarding · KYC
+          </p>
+          <h1 className="font-display text-[28px] italic tracking-tight text-hesya-navy-900">
             매장 등록
           </h1>
-          <p className="kr mt-1 text-sm text-gray-600">
+          <p className="kr text-[13px] text-gray-600">
             영업신고증 정보를 확인 후 24~48시간 내 검토 결과를 안내드립니다.
           </p>
         </header>

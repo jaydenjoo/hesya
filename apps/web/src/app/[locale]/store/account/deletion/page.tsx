@@ -47,30 +47,32 @@ export default async function StoreAccountDeletionPage({
       userName={shell.userName}
       userInitial={shell.userInitial}
     >
-      <div className="mx-auto max-w-3xl px-6 py-10">
-        <header className="mb-6 space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-            Operator · Account · Deletion
-          </p>
-          <h1 className="font-heading text-3xl font-semibold italic tracking-tight text-hesya-navy-900">
-            매장 해지 / 데이터 삭제
-          </h1>
-          <p className="text-sm text-hesya-navy-900/65">
-            매장 해지 후 30일간 grace 기간이 부여되며, 그 후 모든 데이터가 영구
-            삭제됩니다.
-          </p>
-        </header>
-        <OwnerDeletionPanel
-          active={
-            active
-              ? {
-                  scheduledPurgeAt: active.scheduledPurgeAt.toISOString(),
-                  createdAt: active.createdAt.toISOString(),
-                  reason: active.reason,
-                }
-              : null
-          }
-        />
+      <div className="bg-hesya-peach-50">
+        <div className="mx-auto max-w-3xl px-6 py-10">
+          <header className="mb-6 space-y-1.5">
+            <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+              Operator · Account · Deletion
+            </p>
+            <h1 className="font-display text-[28px] italic tracking-tight text-hesya-navy-900">
+              매장 해지 / 데이터 삭제
+            </h1>
+            <p className="kr text-[13px] text-gray-600">
+              매장 해지 후 30일간 grace 기간이 부여되며, 그 후 모든 데이터가
+              영구 삭제됩니다.
+            </p>
+          </header>
+          <OwnerDeletionPanel
+            active={
+              active
+                ? {
+                    scheduledPurgeAt: active.scheduledPurgeAt.toISOString(),
+                    createdAt: active.createdAt.toISOString(),
+                    reason: active.reason,
+                  }
+                : null
+            }
+          />
+        </div>
       </div>
     </OwnerShell>
   );

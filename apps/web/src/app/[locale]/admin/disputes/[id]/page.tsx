@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { createDbClient } from "@hesya/database";
+import { PageHeader } from "@/components/ui/page-header";
 import { env } from "@/shared/config/env";
 import { DisputeDetail } from "@/features/admin";
 import { requireAdminEmail } from "@/shared/lib/admin-guard";
@@ -28,11 +29,15 @@ export default async function AdminDisputeDetailPage({
   }
 
   return (
-    <main className="container py-12">
-      <h1 className="mb-6 text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
-        분쟁 상세
-      </h1>
-      <DisputeDetail dispute={dispute} />
+    <main className="min-h-screen bg-hesya-peach-50">
+      <PageHeader
+        eyebrow="Admin · Disputes · Detail"
+        title="분쟁 상세"
+        subtitle="접수된 분쟁을 검토하고 결과를 등록합니다."
+      />
+      <div className="mx-auto max-w-4xl px-8 pb-10">
+        <DisputeDetail dispute={dispute} />
+      </div>
     </main>
   );
 }
