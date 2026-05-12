@@ -87,7 +87,11 @@ export default async function StoreBookSchedulePage({
     id: s.id,
     label: pickServiceName(s, locale),
     priceKrw: s.priceKrw,
-    durationMinutes: s.durationMinutes,
+    priceLabel: formatPriceForLocale(s.priceKrw, locale),
+    durationLabel:
+      s.durationMinutes != null
+        ? t("durationMinutes", { minutes: s.durationMinutes })
+        : null,
   }));
 
   const staffProps: ScheduleFormStaff[] = staffList.map((p) => ({
@@ -136,8 +140,6 @@ export default async function StoreBookSchedulePage({
             step4: t("step4"),
             next: t("next"),
             incomplete: t("incomplete"),
-            durationMinutes: (m) => t("durationMinutes", { minutes: m }),
-            formatPrice: (priceKrw) => formatPriceForLocale(priceKrw, locale),
             today: t("today"),
             tomorrow: t("tomorrow"),
             businessHoursNote: t("businessHoursNote"),

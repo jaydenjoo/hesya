@@ -50,7 +50,8 @@ export default defineConfig({
       stderr: "pipe",
     },
     {
-      // Next.js dev — port 4200, IG API를 mock으로 redirect
+      // Next.js dev — port 4200, IG API mock + DB override to test DB so
+      // seedStore / pages see same database.
       command: "pnpm dev",
       url: "http://localhost:4200",
       reuseExistingServer: !process.env.CI,
@@ -59,6 +60,11 @@ export default defineConfig({
       stderr: "pipe",
       env: {
         IG_API_BASE_URL: "http://localhost:4201",
+        // E2E DB는 HESYA_TEST_DATABASE_URL이 가리키는 격리 DB. 미설정 시
+        // 시드/페이지가 다른 DB를 보게 되어 404/500 불일치 발생 (2026-05-12 발견).
+        ...(process.env.HESYA_TEST_DATABASE_URL
+          ? { DATABASE_URL: process.env.HESYA_TEST_DATABASE_URL }
+          : {}),
       },
     },
   ],

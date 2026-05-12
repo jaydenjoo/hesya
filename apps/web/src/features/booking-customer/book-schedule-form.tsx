@@ -25,7 +25,8 @@ export interface ScheduleFormService {
   readonly id: string;
   readonly label: string;
   readonly priceKrw: number;
-  readonly durationMinutes: number | null;
+  readonly priceLabel: string;
+  readonly durationLabel: string | null;
 }
 
 export interface ScheduleFormStaff {
@@ -41,8 +42,6 @@ export interface ScheduleFormLabels {
   readonly step4: string;
   readonly next: string;
   readonly incomplete: string;
-  readonly durationMinutes: (minutes: number) => string;
-  readonly formatPrice: (priceKrw: number) => string;
   readonly today: string;
   readonly tomorrow: string;
   readonly businessHoursNote: string;
@@ -155,10 +154,8 @@ export function BookScheduleForm({
                         : "text-hesya-navy-900/55",
                     ].join(" ")}
                   >
-                    {labels.formatPrice(s.priceKrw)}
-                    {s.durationMinutes
-                      ? ` · ${labels.durationMinutes(s.durationMinutes)}`
-                      : ""}
+                    {s.priceLabel}
+                    {s.durationLabel ? ` · ${s.durationLabel}` : ""}
                   </span>
                 </button>
               );
@@ -339,9 +336,7 @@ export function BookScheduleForm({
             {labels.totalLabel}
           </p>
           <p className="truncate font-mono text-[15px] font-semibold text-hesya-navy-900">
-            {selectedService
-              ? labels.formatPrice(selectedService.priceKrw)
-              : "—"}
+            {selectedService ? selectedService.priceLabel : "—"}
           </p>
         </div>
         <button
