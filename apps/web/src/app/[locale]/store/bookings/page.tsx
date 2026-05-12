@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
+import { PageHeader } from "@/components/ui/page-header";
 import {
   BookingsList,
   buildServiceLabels,
@@ -95,24 +96,22 @@ export default async function StoreBookingsPage({
       userName={shell.userName}
       userInitial={shell.userInitial}
     >
-      <div className="mx-auto max-w-6xl px-6 py-10">
-        <header className="mb-6 space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-            Operator · Bookings
-          </p>
-          <h1 className="font-heading text-3xl font-semibold italic tracking-tight text-hesya-navy-900">
-            {t("title")}
-          </h1>
-          <p className="text-sm text-hesya-navy-900/65">{t("subtitle")}</p>
-        </header>
-        <BookingsList
-          locale={locale}
-          rows={rows}
-          filter={filter}
-          serviceLabels={buildServiceLabels(servicesList, locale)}
-          staffLabels={buildStaffLabels(staffList)}
-          labels={labels}
+      <div className="bg-hesya-peach-50">
+        <PageHeader
+          eyebrow="Operator · Bookings"
+          title={t("title")}
+          subtitle={t("subtitle")}
         />
+        <div className="px-8 pb-10">
+          <BookingsList
+            locale={locale}
+            rows={rows}
+            filter={filter}
+            serviceLabels={buildServiceLabels(servicesList, locale)}
+            staffLabels={buildStaffLabels(staffList)}
+            labels={labels}
+          />
+        </div>
       </div>
     </OwnerShell>
   );
