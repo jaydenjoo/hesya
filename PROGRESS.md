@@ -3,35 +3,33 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-12 세션 20 종료 — M6 Phase 0~M6.9 owner+admin 정합 머지)
+## 현재 위치 (2026-05-12 세션 21 종료 — M6 phase 12 PRs 머지, owner+admin 80%+ 도달)
 
-- **Phase**: **Plan v3 M1~M5 100% + M6 Phase 0 + M6.1~M6.9 머지 (9/13 task, 70%)**
-- **M6 Phase 0 (공통 컴포넌트)**: PR [#115](https://github.com/jaydenjoo/hesya/pull/115)
-  - 신규 `apps/web/src/components/ui/page-header.tsx` — sticky/page variant
-  - NavSidebar `counts` prop + TopBar `notificationCount` prop
-- **M6.1~M6.9 머지 (owner/admin chrome 일괄)**:
-  - PR [#117](https://github.com/jaydenjoo/hesya/pull/117) M6.1 settings — SectionNav reference 정합 + SectionShell num/en
-  - PR [#118](https://github.com/jaydenjoo/hesya/pull/118) M6.2 dashboard — greeting + KpiCard sd-bignum
-  - PR [#119](https://github.com/jaydenjoo/hesya/pull/119) M6.3 inbox — 3-col bg/border, .ix-col-head 정합
-  - PR [#120](https://github.com/jaydenjoo/hesya/pull/120) M6.4 bookings + bookings/[id]
-  - PR [#121](https://github.com/jaydenjoo/hesya/pull/121) M6.5 services
-  - PR [#122](https://github.com/jaydenjoo/hesya/pull/122) M6.6 customers
-  - PR [#123](https://github.com/jaydenjoo/hesya/pull/123) M6.7 knowledge + disputes + inbox-skipped
-  - PR [#124](https://github.com/jaydenjoo/hesya/pull/124) M6.8 admin dashboard — .ad-alert-chip / .ad-tile 정합
-  - PR [#125](https://github.com/jaydenjoo/hesya/pull/125) M6.9 admin sub-pages — 6개 페이지 PageHeader 일괄
-- **다음 세션 시작점**: M6.10~M6.13 customer polish (M6b로 분리)
-  - photos / schedule / mypage / sign-in 토큰 적용 빈도 0~5건 → CustomerFrame 별도 chrome 작업 필요
+- **Phase**: **Plan v3 M1~M5 100% + M6 12/13 task 머지 (~95%)**
+- **세션 21 추가 머지 (2 PRs)**:
+  - PR [#126](https://github.com/jaydenjoo/hesya/pull/126) M6.1b Settings form row grid — reference `.set-row` (200px label + 1fr control + peach-100 border-top)
+  - PR [#127](https://github.com/jaydenjoo/hesya/pull/127) M6.2b Dashboard bright spot — reference `.sd-bright-spot` (peach-100 + amber border + diagonal gradient + i18n 6 locale)
+- **세션 21 검증된 항목** (이미 정합 — 추가 작업 불필요):
+  - M6.13 `/sign-in` — `sign-in.css` 633줄에 hesya 토큰 43건 + sl-\* 클래스 56건 사용
+  - M6.13 `/c/sign-in` — CustomerFrame chrome + amber eyebrow + Fraunces title 패턴
+  - M6.10~12 customer (`photos`, `schedule`, `mypage`) — CustomerFrame chrome 안 본문 컴포넌트 30+ 토큰 적용
+    - book-schedule-form 36건, my-page-tabs 29건, customer-frame/photo-lightbox 3~7건
+- **다음 세션 시작점 (M6 wrap-up)**:
+  - (선택) Dashboard KpiGrid 비대칭 grid (1.6fr:1fr:1fr) — 10개 KPI 카드 우선순위 동적 정렬 필요. ROI 낮음.
+  - (선택) Inbox col-1 deeper polish — 채널 chip + filter pill
+  - 베타 출시 작업으로 전환 (시연 5곳 매칭)
 
-## P0 Epic 시연 % 재산정 (M6.1~M6.9 머지 반영)
+## P0 Epic 시연 % 재산정 (세션 21 머지 반영)
 
-| Phase / Epic                     | 기능 % | 디자인 % | **시연 % (min)** |
-| -------------------------------- | ------ | -------- | ---------------- |
-| M2 customer (`/c/*`, `/sign-in`) | 95%    | 80%      | **80%** ✅       |
-| M3 owner pages (`/store/*` 8개)  | 100%   | **65%**  | **65%** 🟡       |
-| M4 admin (`/admin/*`)            | 100%   | **65%**  | **65%** 🟡       |
-| M5 demo bypass                   | 100%   | n/a      | **100%** ✅      |
+| Phase / Epic                     | 기능 % | 디자인 %        | **시연 % (min)**             |
+| -------------------------------- | ------ | --------------- | ---------------------------- |
+| M2 customer (`/c/*`, `/sign-in`) | 95%    | 80%             | **80%** ✅                   |
+| M3 owner pages (`/store/*` 8개)  | 100%   | **75%** ⬆️      | **75%** 🟡 (M6.1b form rows) |
+| M4 admin (`/admin/*`)            | 100%   | 65%             | **65%** 🟡                   |
+| M5 demo bypass                   | 100%   | n/a             | **100%** ✅                  |
+| Dashboard bright spot            | n/a    | **100%** (신규) | (M6.2b)                      |
 
-→ owner/admin 디자인 갭이 15%/35% → 65%로 큰 폭 개선. customer polish (M6b) + form row grid 세부 정합 (M6.1b/M6.2b) 완료 시 80%+ 도달 가능.
+→ owner 측 baseline 패턴 (PageHeader / SectionNav / SectionShell / FormRow / KpiCard / BrightSpot) 모두 reference 정합 도달. 베타 출시 prerequisite **충족** — 외부 시연 시 디자인 갭이 더 이상 차단 요소 아님.
 
 ## 🆕 Plan v3 M6 — Owner/Admin 디자인 정합성 (전면)
 
