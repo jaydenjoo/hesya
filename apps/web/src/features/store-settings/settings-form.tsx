@@ -276,27 +276,25 @@ export function SettingsForm({ initial, labels, shellMeta }: Props) {
           title={labels.sectionBasic}
           en={labels.sectionEn.basic}
         >
-          <div className="grid gap-4 md:grid-cols-2">
-            <FieldLabel label={labels.nameLabel}>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                maxLength={80}
-                className={INPUT_CLASS}
-              />
-            </FieldLabel>
-            <FieldLabel label={labels.phoneLabel}>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                maxLength={40}
-                className={INPUT_CLASS}
-              />
-            </FieldLabel>
-          </div>
+          <FormRow label={labels.nameLabel}>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              maxLength={80}
+              className={INPUT_CLASS}
+            />
+          </FormRow>
+          <FormRow label={labels.phoneLabel}>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              maxLength={40}
+              className={INPUT_CLASS}
+            />
+          </FormRow>
         </SectionShell>
 
         <SectionShell
@@ -305,37 +303,33 @@ export function SettingsForm({ initial, labels, shellMeta }: Props) {
           title={labels.sectionAddress}
           en={labels.sectionEn.address}
         >
-          <div className="grid gap-4">
-            <FieldLabel label={labels.addressLine1Label}>
-              <input
-                type="text"
-                value={line1}
-                onChange={(e) => setLine1(e.target.value)}
-                maxLength={200}
-                className={INPUT_CLASS}
-              />
-            </FieldLabel>
-            <div className="grid gap-4 md:grid-cols-2">
-              <FieldLabel label={labels.addressCityLabel}>
-                <input
-                  type="text"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  maxLength={80}
-                  className={INPUT_CLASS}
-                />
-              </FieldLabel>
-              <FieldLabel label={labels.addressCountryLabel}>
-                <input
-                  type="text"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                  maxLength={80}
-                  className={INPUT_CLASS}
-                />
-              </FieldLabel>
-            </div>
-          </div>
+          <FormRow label={labels.addressLine1Label}>
+            <input
+              type="text"
+              value={line1}
+              onChange={(e) => setLine1(e.target.value)}
+              maxLength={200}
+              className={INPUT_CLASS}
+            />
+          </FormRow>
+          <FormRow label={labels.addressCityLabel}>
+            <input
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              maxLength={80}
+              className={INPUT_CLASS}
+            />
+          </FormRow>
+          <FormRow label={labels.addressCountryLabel}>
+            <input
+              type="text"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              maxLength={80}
+              className={INPUT_CLASS}
+            />
+          </FormRow>
         </SectionShell>
 
         <SectionShell
@@ -560,19 +554,34 @@ function SectionShell({
   );
 }
 
-function FieldLabel({
+/**
+ * Reference settings.css `.set-row` 패턴.
+ * Desktop: grid 200px label + 1fr control + 24px gap, 14px py + peach-100 border-top.
+ * Mobile: stack column.
+ * 첫 번째 row는 border-top 없음 (border-t-0 첫 자식).
+ */
+function FormRow({
   label,
+  hint,
   children,
 }: {
   label: string;
+  hint?: string;
   children: React.ReactNode;
 }) {
   return (
-    <label className="block space-y-1.5">
-      <span className="block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/60">
-        {label}
-      </span>
-      {children}
-    </label>
+    <div className="grid grid-cols-1 items-start gap-3 border-t border-hesya-peach-100 py-3.5 first:border-t-0 first:pt-1 md:grid-cols-[200px_1fr] md:gap-6">
+      <div className="flex flex-col gap-1 md:pt-2">
+        <span className="text-[13.5px] font-semibold text-hesya-navy-900">
+          {label}
+        </span>
+        {hint ? (
+          <span className="text-[11.5px] leading-snug text-gray-500">
+            {hint}
+          </span>
+        ) : null}
+      </div>
+      <div className="min-w-0">{children}</div>
+    </div>
   );
 }
