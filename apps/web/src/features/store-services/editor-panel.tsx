@@ -12,7 +12,10 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 
-import { suggestServiceTranslationAction } from "@/lib/store-services/ai-translate";
+import {
+  suggestAllServiceTranslationsAction,
+  suggestServiceTranslationAction,
+} from "@/lib/store-services/ai-translate";
 
 export type EditorMode = "create" | "edit";
 
@@ -52,6 +55,7 @@ export interface EditorPanelLabels {
   readonly langTabVi: string;
   readonly nameLabel: string;
   readonly aiSuggestLabel: string;
+  readonly aiTranslateAllLabel: string;
   readonly aiSuggestNote: string;
   readonly priceKrwLabel: string;
   readonly durationLabel: string;
@@ -182,6 +186,30 @@ export function EditorPanel({
     });
   };
 
+  const handleAiTranslateAll = () => {
+    if (!value.nameKo.trim()) return;
+    setAiError(null);
+    startAiTransition(async () => {
+      const result = await suggestAllServiceTranslationsAction({
+        nameKo: value.nameKo,
+      });
+      if (!result.ok) {
+        setAiError(result.message);
+        return;
+      }
+      onChange({
+        ...value,
+        nameEn: result.translations.en || value.nameEn,
+        nameJa: result.translations.ja || value.nameJa,
+        nameZhCn: result.translations["zh-CN"] || value.nameZhCn,
+        nameZhTw: result.translations["zh-TW"] || value.nameZhTw,
+        nameVi: result.translations.vi || value.nameVi,
+      });
+    });
+  };
+
+  const canBatchTranslate = value.nameKo.trim().length > 0;
+
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
@@ -234,9 +262,25 @@ export function EditorPanel({
         </header>
 
         <div className="flex-1 overflow-y-auto px-5 py-4">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
-            {labels.nameLabel}
-          </p>
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+              {labels.nameLabel}
+            </p>
+            <button
+              type="button"
+              onClick={handleAiTranslateAll}
+              disabled={!canBatchTranslate || aiPending}
+              className={[
+                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] transition",
+                canBatchTranslate && !aiPending
+                  ? "border-hesya-amber-500/40 bg-hesya-amber-50 text-hesya-navy-900 hover:border-hesya-amber-500 hover:bg-hesya-amber-100"
+                  : "cursor-not-allowed border-hesya-peach-200 bg-hesya-peach-50/40 text-hesya-navy-900/50",
+              ].join(" ")}
+            >
+              <span aria-hidden="true">{aiPending ? "…" : "✦"}</span>
+              {labels.aiTranslateAllLabel}
+            </button>
+          </div>
           <div
             className="-mx-5 mb-3 flex gap-1 overflow-x-auto px-5 pb-1"
             style={{ scrollbarWidth: "none" }}

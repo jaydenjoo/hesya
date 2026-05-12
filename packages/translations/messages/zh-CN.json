@@ -320,6 +320,7 @@
     "langTabVi": "Tiếng Việt",
     "editorNameLabel": "服务名称",
     "editorAiSuggestLabel": "AI 翻译建议",
+    "editorAiTranslateAllLabel": "AI 一键翻译",
     "editorAiSuggestNote": "先输入韩文名称,AI 会自动翻译。",
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "安全自我申报",

@@ -320,6 +320,7 @@
     "langTabVi": "Tiếng Việt",
     "editorNameLabel": "メニュー名",
     "editorAiSuggestLabel": "AI翻訳提案",
+    "editorAiTranslateAllLabel": "AI 一括翻訳",
     "editorAiSuggestNote": "韓国語の名前を先に入力すると、AIが自動翻訳します。",
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "安全自己申告",

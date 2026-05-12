@@ -320,6 +320,7 @@
     "langTabVi": "Tiếng Việt",
     "editorNameLabel": "Tên dịch vụ",
     "editorAiSuggestLabel": "Dịch AI",
+    "editorAiTranslateAllLabel": "Dịch tất cả",
     "editorAiSuggestNote": "Nhập tên tiếng Hàn trước — AI sẽ tự động dịch.",
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "Tự khai báo an toàn",

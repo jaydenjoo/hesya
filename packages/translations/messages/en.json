@@ -320,6 +320,7 @@
     "langTabVi": "Tiếng Việt",
     "editorNameLabel": "Service name",
     "editorAiSuggestLabel": "AI translation",
+    "editorAiTranslateAllLabel": "Translate all",
     "editorAiSuggestNote": "Enter the Korean name first — AI will translate automatically.",
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "Safety self-disclosure",

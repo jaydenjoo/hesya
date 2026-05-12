@@ -98,6 +98,7 @@ export default async function StoreServicesPage({
               langTabVi: t("langTabVi"),
               nameLabel: t("editorNameLabel"),
               aiSuggestLabel: t("editorAiSuggestLabel"),
+              aiTranslateAllLabel: t("editorAiTranslateAllLabel"),
               aiSuggestNote: t("editorAiSuggestNote"),
               priceKrwLabel: t("priceKrwLabel"),
               durationLabel: t("durationLabel"),

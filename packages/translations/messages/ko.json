@@ -320,6 +320,7 @@
     "langTabVi": "Tiếng Việt",
     "editorNameLabel": "시술 이름",
     "editorAiSuggestLabel": "AI 번역 제안",
+    "editorAiTranslateAllLabel": "AI 모두 번역",
     "editorAiSuggestNote": "한국어 이름을 먼저 입력하면 AI가 자동으로 번역해줍니다.",
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "안전 자기신고",
