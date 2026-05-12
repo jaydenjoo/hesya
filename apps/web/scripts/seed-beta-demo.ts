@@ -233,22 +233,64 @@ async function main(): Promise<void> {
       .where(eq(conversations.id, convId));
   }
 
-  // 3-b. 데모 시술 5종 (Epic 3 dashboard 분포 KPI 시연용)
+  // 3-b. 데모 시술 5종 (Epic 3 dashboard 분포 KPI 시연용).
+  // 6 locale 모두 채움 — L-082: services 페이지 번역률 progress bar +
+  // /c/store/[id] customer-side 다국어 menu 시연 prerequisite.
   const demoServices = [
-    { nameKo: "커트", nameEn: "Cut", nameJa: "カット", priceKrw: 35000 },
-    { nameKo: "펌", nameEn: "Perm", nameJa: "パーマ", priceKrw: 120000 },
-    { nameKo: "염색", nameEn: "Color", nameJa: "カラー", priceKrw: 95000 },
+    {
+      nameKo: "커트",
+      nameEn: "Cut",
+      nameJa: "カット",
+      nameZhCn: "剪发",
+      nameZhTw: "剪髮",
+      nameVi: "Cắt tóc",
+      priceKrw: 35000,
+      durationMinutes: 40,
+      category: "haircut",
+    },
+    {
+      nameKo: "펌",
+      nameEn: "Perm",
+      nameJa: "パーマ",
+      nameZhCn: "烫发",
+      nameZhTw: "燙髮",
+      nameVi: "Uốn",
+      priceKrw: 120000,
+      durationMinutes: 150,
+      category: "perm",
+    },
+    {
+      nameKo: "염색",
+      nameEn: "Color",
+      nameJa: "カラー",
+      nameZhCn: "染发",
+      nameZhTw: "染髮",
+      nameVi: "Nhuộm",
+      priceKrw: 95000,
+      durationMinutes: 120,
+      category: "color",
+    },
     {
       nameKo: "트리트먼트",
       nameEn: "Treatment",
       nameJa: "トリートメント",
+      nameZhCn: "护理",
+      nameZhTw: "護髮",
+      nameVi: "Phục hồi tóc",
       priceKrw: 55000,
+      durationMinutes: 60,
+      category: "treatment",
     },
     {
       nameKo: "두피 케어",
       nameEn: "Scalp Care",
       nameJa: "頭皮ケア",
+      nameZhCn: "头皮护理",
+      nameZhTw: "頭皮護理",
+      nameVi: "Chăm sóc da đầu",
       priceKrw: 70000,
+      durationMinutes: 60,
+      category: "treatment",
     },
   ];
   const serviceIds: string[] = [];
