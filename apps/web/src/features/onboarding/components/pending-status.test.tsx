@@ -79,12 +79,12 @@ describe("PendingStatus", () => {
     expect(cta.className).toContain("bg-hesya-amber-500");
   });
 
-  it("γ.2.3.3: rejected → error tone 카드 (red-500 border + red-50 bg)", () => {
+  it("M6 audit fix: rejected → error tone 카드 (#c9483a + #fbeae5, admin disputes crit token 통일)", () => {
     render(<PendingStatus initialStatus="rejected" />);
     const card = screen.getByTestId("pending-status-card");
     expect(card.dataset.tone).toBe("error");
-    expect(card.className).toContain("border-red-500");
-    expect(card.className).toContain("bg-red-50");
+    expect(card.className).toContain("border-[#c9483a]");
+    expect(card.className).toContain("bg-[#fbeae5]");
   });
 
   it("γ.2.3.3: pending → neutral tone 카드", () => {

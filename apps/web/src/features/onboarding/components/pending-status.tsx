@@ -114,22 +114,30 @@ export function PendingStatus({ initialStatus, pollMs = 30000 }: Props) {
 
 type Tone = "warn" | "success" | "error" | "neutral";
 
-const TONE_STYLES: Record<Tone, { card: string; icon: string }> = {
+// M6 audit fix: error tone을 admin disputes status pill의 crit token과 일관성 통일.
+const TONE_STYLES: Record<
+  Tone,
+  { card: string; icon: string; pulse: boolean }
+> = {
   warn: {
     card: "border-hesya-amber-500 bg-hesya-peach-100",
     icon: "bg-hesya-amber-500 text-white",
+    pulse: true,
   },
   success: {
     card: "border-emerald-500 bg-emerald-50",
     icon: "bg-emerald-500 text-white",
+    pulse: false,
   },
   error: {
-    card: "border-red-500 bg-red-50",
-    icon: "bg-red-500 text-white",
+    card: "border-[#c9483a] bg-[#fbeae5]",
+    icon: "bg-[#c9483a] text-white",
+    pulse: false,
   },
   neutral: {
     card: "border-hesya-peach-200 bg-hesya-peach-50",
     icon: "bg-hesya-peach-200 text-hesya-navy-900",
+    pulse: true,
   },
 };
 
@@ -156,7 +164,7 @@ function StatusCard({
       <div className="flex items-start gap-3.5">
         <div
           aria-hidden="true"
-          className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-lg font-bold ${styles.icon}`}
+          className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-lg font-bold ${styles.pulse ? "motion-safe:animate-pulse" : ""} ${styles.icon}`}
         >
           {icon}
         </div>

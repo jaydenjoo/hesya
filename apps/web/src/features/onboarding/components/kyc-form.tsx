@@ -77,7 +77,7 @@ export function KycForm({ onSubmit, pending }: Props) {
         required
         type="url"
       />
-      <fieldset className="space-y-2.5 rounded-xl border border-hesya-peach-200 bg-hesya-peach-50/60 p-4">
+      <fieldset className="space-y-2.5 rounded-xl border border-hesya-peach-200 bg-hesya-peach-50 p-4">
         <legend className="kr px-1 text-[13px] font-semibold text-hesya-navy-900">
           자기신고 (모두 체크 필수)
         </legend>
