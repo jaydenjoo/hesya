@@ -404,7 +404,22 @@
     "dayThu": "목",
     "dayFri": "금",
     "daySat": "토",
-    "daySun": "일"
+    "daySun": "일",
+    "savedIndicator": "모든 변경사항 자동 저장됨",
+    "navEyebrow": "Settings",
+    "navTitle": "매장 설정",
+    "navFooterStore": "매장",
+    "navFooterSavedLabel": "방금 자동 저장됨",
+    "navFooterEditor": "편집자",
+    "sectionEnBasic": "Store Info",
+    "sectionEnAddress": "Address",
+    "sectionEnHours": "Hours",
+    "sectionEnMultilingual": "Multilingual",
+    "sectionEnChannels": "Channels",
+    "sectionEnBookingPolicy": "Booking Policy",
+    "sectionEnPayments": "Payments",
+    "sectionEnNotifications": "Notifications",
+    "sectionEnRisk": "Compliance"
   },
   "BookingProgress": {
     "schedule": "일정",

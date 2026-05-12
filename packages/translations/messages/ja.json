@@ -404,7 +404,22 @@
     "dayThu": "木",
     "dayFri": "金",
     "daySat": "土",
-    "daySun": "日"
+    "daySun": "日",
+    "savedIndicator": "すべての変更が自動保存されました",
+    "navEyebrow": "Settings",
+    "navTitle": "店舗設定",
+    "navFooterStore": "店舗",
+    "navFooterSavedLabel": "たった今自動保存",
+    "navFooterEditor": "編集者",
+    "sectionEnBasic": "Store Info",
+    "sectionEnAddress": "Address",
+    "sectionEnHours": "Hours",
+    "sectionEnMultilingual": "Multilingual",
+    "sectionEnChannels": "Channels",
+    "sectionEnBookingPolicy": "Booking Policy",
+    "sectionEnPayments": "Payments",
+    "sectionEnNotifications": "Notifications",
+    "sectionEnRisk": "Compliance"
   },
   "BookingProgress": {
     "schedule": "日程",

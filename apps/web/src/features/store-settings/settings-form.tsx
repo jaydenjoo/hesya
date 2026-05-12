@@ -73,11 +73,33 @@ export interface SettingsFormLabels {
   readonly riskBody: string;
   readonly riskBadge: string;
   readonly days: Readonly<Record<Day, string>>;
+  readonly navEyebrow: string;
+  readonly navTitle: string;
+  readonly navFooterStore: string;
+  readonly navFooterSavedLabel: string;
+  readonly navFooterEditor: string;
+  readonly sectionEn: {
+    readonly basic: string;
+    readonly address: string;
+    readonly hours: string;
+    readonly multilingual: string;
+    readonly channels: string;
+    readonly bookingPolicy: string;
+    readonly payments: string;
+    readonly notifications: string;
+    readonly risk: string;
+  };
+}
+
+interface ShellMeta {
+  readonly storeName: string;
+  readonly userName: string;
 }
 
 interface Props {
   readonly initial: SettingsFormValue;
   readonly labels: SettingsFormLabels;
+  readonly shellMeta: ShellMeta;
 }
 
 type DayState = {
@@ -105,7 +127,19 @@ const SECTION_IDS = [
   "risk",
 ] as const;
 
-export function SettingsForm({ initial, labels }: Props) {
+const SECTION_NUMS: Readonly<Record<(typeof SECTION_IDS)[number], string>> = {
+  basic: "01",
+  address: "02",
+  hours: "03",
+  multilingual: "04",
+  channels: "05",
+  "booking-policy": "06",
+  payments: "07",
+  notifications: "08",
+  risk: "09",
+};
+
+export function SettingsForm({ initial, labels, shellMeta }: Props) {
   const [name, setName] = useState(initial.name);
   const [phone, setPhone] = useState(initial.phone ?? "");
   const [line1, setLine1] = useState(initial.addressLine1);
@@ -123,40 +157,61 @@ export function SettingsForm({ initial, labels }: Props) {
   const [savedAt, setSavedAt] = useState<number | null>(null);
 
   const navItems: ReadonlyArray<SectionItem> = [
-    { id: "basic", label: labels.navBasic, icon: "◉", status: "active" },
-    { id: "address", label: labels.navAddress, icon: "▢", status: "active" },
-    { id: "hours", label: labels.navHours, icon: "◷", status: "active" },
+    {
+      id: "basic",
+      num: "01",
+      label: labels.navBasic,
+      status: "active",
+    },
+    {
+      id: "address",
+      num: "02",
+      label: labels.navAddress,
+      status: "active",
+    },
+    {
+      id: "hours",
+      num: "03",
+      label: labels.navHours,
+      status: "active",
+    },
     {
       id: "multilingual",
+      num: "04",
       label: labels.navMultilingual,
-      icon: "✦",
       status: "placeholder",
     },
     {
       id: "channels",
+      num: "05",
       label: labels.navChannels,
-      icon: "⌬",
       status: "placeholder",
     },
     {
       id: "booking-policy",
+      num: "06",
       label: labels.navBookingPolicy,
-      icon: "◇",
       status: "placeholder",
     },
     {
       id: "payments",
+      num: "07",
       label: labels.navPayments,
-      icon: "₩",
       status: "placeholder",
     },
     {
       id: "notifications",
+      num: "08",
       label: labels.navNotifications,
-      icon: "◔",
       status: "placeholder",
     },
-    { id: "risk", label: labels.navRisk, icon: "⚠", status: "info" },
+    {
+      id: "risk",
+      num: "09",
+      label: labels.navRisk,
+      status: "info",
+      danger: true,
+    },
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -201,11 +256,26 @@ export function SettingsForm({ initial, labels }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6 md:flex-row">
-      <SectionNav items={navItems} sectionIds={SECTION_IDS} />
+    <form onSubmit={handleSubmit} className="flex flex-col md:flex-row">
+      <SectionNav
+        items={navItems}
+        sectionIds={SECTION_IDS}
+        head={{ eyebrow: labels.navEyebrow, title: labels.navTitle }}
+        foot={{
+          storeName: shellMeta.storeName,
+          savedLabel: labels.navFooterSavedLabel,
+          editorLabel: labels.navFooterEditor,
+          editorName: shellMeta.userName,
+        }}
+      />
 
-      <div className="min-w-0 flex-1 space-y-8 pb-32">
-        <SectionShell id="basic" title={labels.sectionBasic}>
+      <div className="min-w-0 flex-1 space-y-0 pb-32">
+        <SectionShell
+          id="basic"
+          num={SECTION_NUMS["basic"]}
+          title={labels.sectionBasic}
+          en={labels.sectionEn.basic}
+        >
           <div className="grid gap-4 md:grid-cols-2">
             <FieldLabel label={labels.nameLabel}>
               <input
@@ -214,7 +284,7 @@ export function SettingsForm({ initial, labels }: Props) {
                 onChange={(e) => setName(e.target.value)}
                 required
                 maxLength={80}
-                className="w-full rounded-lg border border-hesya-peach-200 bg-white px-3 py-2 text-[13px] focus:border-hesya-navy-900 focus:outline-none"
+                className={INPUT_CLASS}
               />
             </FieldLabel>
             <FieldLabel label={labels.phoneLabel}>
@@ -223,13 +293,18 @@ export function SettingsForm({ initial, labels }: Props) {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 maxLength={40}
-                className="w-full rounded-lg border border-hesya-peach-200 bg-white px-3 py-2 text-[13px] focus:border-hesya-navy-900 focus:outline-none"
+                className={INPUT_CLASS}
               />
             </FieldLabel>
           </div>
         </SectionShell>
 
-        <SectionShell id="address" title={labels.sectionAddress}>
+        <SectionShell
+          id="address"
+          num={SECTION_NUMS["address"]}
+          title={labels.sectionAddress}
+          en={labels.sectionEn.address}
+        >
           <div className="grid gap-4">
             <FieldLabel label={labels.addressLine1Label}>
               <input
@@ -237,7 +312,7 @@ export function SettingsForm({ initial, labels }: Props) {
                 value={line1}
                 onChange={(e) => setLine1(e.target.value)}
                 maxLength={200}
-                className="w-full rounded-lg border border-hesya-peach-200 bg-white px-3 py-2 text-[13px] focus:border-hesya-navy-900 focus:outline-none"
+                className={INPUT_CLASS}
               />
             </FieldLabel>
             <div className="grid gap-4 md:grid-cols-2">
@@ -247,7 +322,7 @@ export function SettingsForm({ initial, labels }: Props) {
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   maxLength={80}
-                  className="w-full rounded-lg border border-hesya-peach-200 bg-white px-3 py-2 text-[13px] focus:border-hesya-navy-900 focus:outline-none"
+                  className={INPUT_CLASS}
                 />
               </FieldLabel>
               <FieldLabel label={labels.addressCountryLabel}>
@@ -256,7 +331,7 @@ export function SettingsForm({ initial, labels }: Props) {
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
                   maxLength={80}
-                  className="w-full rounded-lg border border-hesya-peach-200 bg-white px-3 py-2 text-[13px] focus:border-hesya-navy-900 focus:outline-none"
+                  className={INPUT_CLASS}
                 />
               </FieldLabel>
             </div>
@@ -265,7 +340,9 @@ export function SettingsForm({ initial, labels }: Props) {
 
         <SectionShell
           id="hours"
+          num={SECTION_NUMS["hours"]}
           title={labels.sectionHours}
+          en={labels.sectionEn.hours}
           hint={labels.hoursFallback}
         >
           <div className="space-y-2">
@@ -274,7 +351,7 @@ export function SettingsForm({ initial, labels }: Props) {
               return (
                 <div
                   key={d}
-                  className="flex flex-wrap items-center gap-3 rounded-lg border border-hesya-peach-200 bg-white px-3 py-2"
+                  className="flex flex-wrap items-center gap-3 rounded-md border border-hesya-peach-100 bg-white px-3 py-2"
                 >
                   <span className="w-16 text-[13px] font-medium text-hesya-navy-900">
                     {labels.days[d]}
@@ -286,6 +363,7 @@ export function SettingsForm({ initial, labels }: Props) {
                       onChange={(e) =>
                         updateDay(d, { closed: e.target.checked })
                       }
+                      className="accent-hesya-amber-500"
                     />
                     {labels.hoursClosed}
                   </label>
@@ -298,7 +376,7 @@ export function SettingsForm({ initial, labels }: Props) {
                       value={s.open}
                       disabled={s.closed}
                       onChange={(e) => updateDay(d, { open: e.target.value })}
-                      className="rounded-md border border-hesya-peach-200 bg-white px-2 py-1 text-[12px] disabled:bg-hesya-peach-50"
+                      className="rounded-md border border-hesya-peach-200 bg-white px-2 py-1 text-[12px] transition focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20 disabled:bg-hesya-peach-50"
                     />
                     <span className="text-[11px] text-hesya-navy-900/55">
                       {labels.hoursClose}
@@ -308,7 +386,7 @@ export function SettingsForm({ initial, labels }: Props) {
                       value={s.close}
                       disabled={s.closed}
                       onChange={(e) => updateDay(d, { close: e.target.value })}
-                      className="rounded-md border border-hesya-peach-200 bg-white px-2 py-1 text-[12px] disabled:bg-hesya-peach-50"
+                      className="rounded-md border border-hesya-peach-200 bg-white px-2 py-1 text-[12px] transition focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20 disabled:bg-hesya-peach-50"
                     />
                   </div>
                 </div>
@@ -319,66 +397,91 @@ export function SettingsForm({ initial, labels }: Props) {
 
         <SectionShell
           id="multilingual"
+          num={SECTION_NUMS["multilingual"]}
           title={labels.sectionMultilingual}
+          en={labels.sectionEn.multilingual}
           placeholder={labels.placeholderText}
         />
         <SectionShell
           id="channels"
+          num={SECTION_NUMS["channels"]}
           title={labels.sectionChannels}
+          en={labels.sectionEn.channels}
           placeholder={labels.placeholderText}
         />
         <SectionShell
           id="booking-policy"
+          num={SECTION_NUMS["booking-policy"]}
           title={labels.sectionBookingPolicy}
+          en={labels.sectionEn.bookingPolicy}
           placeholder={labels.placeholderText}
         />
         <SectionShell
           id="payments"
+          num={SECTION_NUMS["payments"]}
           title={labels.sectionPayments}
+          en={labels.sectionEn.payments}
           placeholder={labels.placeholderText}
         />
         <SectionShell
           id="notifications"
+          num={SECTION_NUMS["notifications"]}
           title={labels.sectionNotifications}
+          en={labels.sectionEn.notifications}
           placeholder={labels.placeholderText}
         />
 
         <section
           id="section-risk"
           aria-labelledby="risk-heading"
-          className="rounded-2xl border border-hesya-amber-500/30 bg-hesya-amber-50/40 px-5 py-4"
+          className="border-b border-hesya-peach-100 px-8 py-8 scroll-mt-20"
         >
-          <div className="mb-2 flex items-center gap-2">
+          <header className="mb-5 flex flex-wrap items-baseline gap-3.5">
             <span
               aria-hidden="true"
-              className="rounded-full bg-hesya-amber-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900"
+              className="font-heading text-[28px] font-medium italic leading-none text-hesya-amber-600"
             >
-              {labels.riskBadge}
+              {SECTION_NUMS["risk"]}
             </span>
             <h2
               id="risk-heading"
-              className="font-heading text-lg font-semibold italic tracking-tight text-hesya-navy-900"
+              className="text-[20px] font-bold tracking-[-0.01em] text-hesya-navy-900"
             >
               {labels.sectionRisk}
             </h2>
+            <span className="font-heading text-[14px] font-normal italic text-gray-500">
+              — {labels.sectionEn.risk}
+            </span>
+            <span
+              aria-hidden="true"
+              className="ml-auto rounded-full bg-[#c9483a]/12 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#c9483a]"
+            >
+              {labels.riskBadge}
+            </span>
+          </header>
+          <div className="rounded-md border border-[#c9483a]/30 bg-[#c9483a]/5 px-5 py-4">
+            <p className="text-[12.5px] leading-relaxed text-hesya-navy-900/85">
+              {labels.riskBody}
+            </p>
           </div>
-          <p className="text-[12px] leading-relaxed text-hesya-navy-900/75">
-            {labels.riskBody}
-          </p>
         </section>
 
-        {error ? (
-          <p
-            role="alert"
-            className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700"
-          >
-            {error}
-          </p>
-        ) : null}
-        {savedAt && !error ? (
-          <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[12px] text-emerald-700">
-            {labels.savedMessage}
-          </p>
+        {error || (savedAt && !error) ? (
+          <div className="px-8 pt-4">
+            {error ? (
+              <p
+                role="alert"
+                className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700"
+              >
+                {error}
+              </p>
+            ) : null}
+            {savedAt && !error ? (
+              <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-[12px] text-emerald-700">
+                {labels.savedMessage}
+              </p>
+            ) : null}
+          </div>
         ) : null}
       </div>
 
@@ -387,7 +490,7 @@ export function SettingsForm({ initial, labels }: Props) {
           <button
             type="submit"
             disabled={pending}
-            className="rounded-full bg-hesya-navy-900 px-6 py-2.5 text-[13px] font-semibold text-hesya-peach-50 transition hover:bg-hesya-navy-900/90 disabled:opacity-60"
+            className="rounded-md bg-hesya-navy-900 px-6 py-2.5 text-[13px] font-semibold text-hesya-peach-50 transition hover:bg-hesya-navy-900/90 disabled:opacity-60"
           >
             {pending ? "…" : labels.saveButton}
           </button>
@@ -397,15 +500,22 @@ export function SettingsForm({ initial, labels }: Props) {
   );
 }
 
+const INPUT_CLASS =
+  "w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2.5 text-[13.5px] text-hesya-navy-900 transition focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20";
+
 function SectionShell({
   id,
+  num,
   title,
+  en,
   hint,
   placeholder,
   children,
 }: {
   id: string;
+  num: string;
   title: string;
+  en: string;
   hint?: string;
   placeholder?: string;
   children?: React.ReactNode;
@@ -414,24 +524,37 @@ function SectionShell({
     <section
       id={`section-${id}`}
       aria-labelledby={`${id}-heading`}
-      className="rounded-2xl border border-hesya-peach-200 bg-white px-5 py-5"
+      className="border-b border-hesya-peach-100 px-8 py-8 scroll-mt-20 last:border-b-0"
     >
-      <header className="mb-4 flex items-baseline justify-between gap-3">
+      <header className="mb-5 flex flex-wrap items-baseline gap-3.5">
+        <span
+          aria-hidden="true"
+          className="font-heading text-[28px] font-medium italic leading-none text-hesya-amber-600"
+        >
+          {num}
+        </span>
         <h2
           id={`${id}-heading`}
-          className="font-heading text-lg font-semibold italic tracking-tight text-hesya-navy-900"
+          className="text-[20px] font-bold tracking-[-0.01em] text-hesya-navy-900"
         >
           {title}
         </h2>
+        <span className="font-heading text-[14px] font-normal italic text-gray-500">
+          — {en}
+        </span>
         {hint ? (
-          <p className="text-[11px] text-hesya-navy-900/55">{hint}</p>
+          <p className="ml-auto text-[12px] text-gray-500">{hint}</p>
         ) : null}
       </header>
-      {children}
+      {children ? (
+        <div className="rounded-md border border-hesya-peach-100 bg-white p-6">
+          {children}
+        </div>
+      ) : null}
       {placeholder ? (
-        <p className="rounded-xl border border-dashed border-hesya-peach-200 bg-hesya-peach-50/40 px-4 py-6 text-center text-[12px] text-hesya-navy-900/55">
+        <div className="rounded-md border border-dashed border-hesya-peach-200 bg-white/60 px-4 py-8 text-center text-[12px] text-hesya-navy-900/55">
           {placeholder}
-        </p>
+        </div>
       ) : null}
     </section>
   );
@@ -446,7 +569,7 @@ function FieldLabel({
 }) {
   return (
     <label className="block space-y-1.5">
-      <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/60">
+      <span className="block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/60">
         {label}
       </span>
       {children}

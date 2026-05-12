@@ -404,7 +404,22 @@
     "dayThu": "週四",
     "dayFri": "週五",
     "daySat": "週六",
-    "daySun": "週日"
+    "daySun": "週日",
+    "savedIndicator": "所有變更已自動儲存",
+    "navEyebrow": "Settings",
+    "navTitle": "店鋪設定",
+    "navFooterStore": "店鋪",
+    "navFooterSavedLabel": "剛剛自動儲存",
+    "navFooterEditor": "編輯者",
+    "sectionEnBasic": "Store Info",
+    "sectionEnAddress": "Address",
+    "sectionEnHours": "Hours",
+    "sectionEnMultilingual": "Multilingual",
+    "sectionEnChannels": "Channels",
+    "sectionEnBookingPolicy": "Booking Policy",
+    "sectionEnPayments": "Payments",
+    "sectionEnNotifications": "Notifications",
+    "sectionEnRisk": "Compliance"
   },
   "BookingProgress": {
     "schedule": "日程",
