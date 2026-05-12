@@ -227,3 +227,5 @@ Jayden 사업자 등록 + 결제사 KYB 완료 후:
 - 본인 PC 시연: `docs/demo-guide.md`
 - 베타 onboarding: `docs/beta-onboarding-checklist.md`
 - Stress test: `docs/stress-test-guide.md`
+
+<!-- preview-trigger: 2026-05-12 세션 19 — Vercel Preview deployment 생성용 마커 -->
