@@ -140,6 +140,14 @@ const envSchema = z.object({
   MOCK_PAYMENT: mockFlag,
   MOCK_NOTIFICATION: mockFlag,
   MOCK_MULTI_CHANNEL: mockFlag,
+
+  // ─── Plan v3 M5.1 — Vercel preview demo bypass ───
+  // VERCEL_ENV는 Vercel 빌드 시 자동 주입 ('production'|'preview'|'development').
+  // DEMO_USER_ID / DEMO_CUSTOMER_EMAIL은 preview 환경에서만 활성 → 인증 우회 가능.
+  // prod에서 env 자체 미설정 + VERCEL_ENV 가드 두 겹으로 차단.
+  VERCEL_ENV: z.enum(["production", "preview", "development"]).optional(),
+  DEMO_USER_ID: z.uuid().optional(),
+  DEMO_CUSTOMER_EMAIL: z.string().email().optional(),
 });
 
 /**

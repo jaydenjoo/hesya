@@ -200,8 +200,42 @@ vercel deploy --prod
 
 배포 직후 1~2분 내 trafic 정상화 확인. Sentry / PostHog 대시보드로 에러율 모니터.
 
+## Vercel preview 데모 환경 (Plan v3 M5.1)
+
+prod 토글 전 외부인이 PR/branch URL로 전 흐름 시연하는 환경.
+
+### 설정 (Vercel project settings)
+
+1. **MOCK\_\* 5개 모두 `true`** (Preview Environment only):
+   - `MOCK_KYC=true` / `MOCK_IG_OAUTH=true` / `MOCK_PAYMENT=true`
+   - `MOCK_NOTIFICATION=true` / `MOCK_MULTI_CHANNEL=true`
+
+2. **인증 우회 env** (Preview only):
+   - `DEMO_USER_ID=<seed:demo가 시드한 매장 사장 user UUID>` → owner-side 자동 로그인
+   - `DEMO_CUSTOMER_EMAIL=demo@hesya.app` → customer-side mypage 자동 로그인
+
+3. **격리 DB**:
+   - `DATABASE_URL=<demo 전용 Supabase 프로젝트>` (prod와 분리)
+   - 또는 `hesya-prod` 프로젝트의 별도 schema 사용 (`demo_*` prefix)
+
+### 동작
+
+- preview deployment URL에 접속 → owner sign-in 우회 → `/store/dashboard` 자동 진입.
+- `/c/mypage` 접속 → customer sign-in 우회 → demo 손님 마이페이지 자동 진입.
+
+### 보안 (🔴 RED)
+
+- **prod에서 절대 작동 안 함** — guard 코드가 `env.VERCEL_ENV === "preview"` 확인.
+- DEMO env가 prod에 설정되어도 VERCEL_ENV='production'이라 분기 차단.
+- 그래도 prod env에 DEMO\_\* 변수 설정 금지 (이중 차단).
+
+### 코드 위치
+
+- `apps/web/src/shared/lib/store-owner-guard.ts` (L57~) — VERCEL_ENV='preview' + DEMO_USER_ID 분기
+- `apps/web/src/shared/lib/customer-guard.ts` (L45~) — VERCEL_ENV='preview' + DEMO_CUSTOMER_EMAIL 분기
+
 ## 관련
 
-- env 정의: `apps/web/src/shared/config/env.ts` L138~142
+- env 정의: `apps/web/src/shared/config/env.ts` L138~155
 - Plan v3 M1 phase: `docs/Plan-v3-mock-first.md` §1.M1
 - 베타 onboarding: `docs/beta-onboarding-checklist.md`

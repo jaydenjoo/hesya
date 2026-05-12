@@ -38,6 +38,21 @@ export async function requireStoreOwnerAuth(): Promise<StoreOwnerSession> {
     return { userId, storeId: ownership.storeId, role: ownership.role };
   }
 
+  // Plan v3 M5.1 — Vercel preview demo bypass. VERCEL_ENV='preview' + DEMO_USER_ID
+  // 동시 설정 시 자동 owner 로그인. prod (VERCEL_ENV='production')에선 차단.
+  // 외부 데모 URL 1개를 인증 없이 시연 가능하게 함.
+  if (env.VERCEL_ENV === "preview" && env.DEMO_USER_ID) {
+    const ownership = await findByUserId(db, env.DEMO_USER_ID);
+    if (ownership) {
+      return {
+        userId: env.DEMO_USER_ID,
+        storeId: ownership.storeId,
+        role: ownership.role,
+      };
+    }
+    // 매장 소속 못 찾으면 일반 흐름으로 (preview에서도 미시드 user는 sign-in으로).
+  }
+
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) {
     throw new UnauthorizedError("로그인이 필요합니다");

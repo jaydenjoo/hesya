@@ -48,6 +48,20 @@ export async function requireCustomerAuth(): Promise<CustomerSession> {
     };
   }
 
+  // Plan v3 M5.1 — Vercel preview demo bypass. VERCEL_ENV='preview' + DEMO_CUSTOMER_EMAIL.
+  // 외부 데모 URL에서 /c/mypage 인증 없이 진입 가능. prod (VERCEL_ENV='production')에선 차단.
+  if (env.VERCEL_ENV === "preview" && env.DEMO_CUSTOMER_EMAIL) {
+    const customer = await upsertCustomerByEmail(db, {
+      email: env.DEMO_CUSTOMER_EMAIL,
+    });
+    return {
+      userId: customer.id,
+      customerId: customer.id,
+      email: env.DEMO_CUSTOMER_EMAIL,
+      name: customer.name,
+    };
+  }
+
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.email) {
     throw new UnauthorizedError("로그인이 필요합니다");
