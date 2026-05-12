@@ -229,3 +229,4 @@ Jayden 사업자 등록 + 결제사 KYB 완료 후:
 - Stress test: `docs/stress-test-guide.md`
 
 <!-- preview-trigger: 2026-05-12 세션 19 — Vercel Preview deployment 생성용 마커 -->
+<!-- preview-redeploy trigger 2026-05-12 17:30 -->
