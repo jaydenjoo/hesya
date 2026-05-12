@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
+import { PageHeader } from "@/components/ui/page-header";
 import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
 import { OwnerShell } from "@/features/shell/owner-shell";
 import {
@@ -72,16 +73,20 @@ export default async function StoreSettingsPage({
       userName={shell.userName}
       userInitial={shell.userInitial}
     >
-      <div className="mx-auto max-w-3xl px-6 py-10">
-        <header className="mb-8 space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-            Operator · Store Settings
-          </p>
-          <h1 className="font-heading text-3xl font-semibold italic tracking-tight text-hesya-navy-900">
-            {t("title")}
-          </h1>
-          <p className="text-sm text-hesya-navy-900/65">{t("subtitle")}</p>
-        </header>
+      <div className="bg-hesya-peach-50">
+        <PageHeader
+          eyebrow="Operator · Store Settings"
+          title={t("title")}
+          right={
+            <span className="inline-flex items-center gap-1.5 text-[12px] text-gray-600">
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 rounded-full bg-emerald-500"
+              />
+              {t("savedIndicator")}
+            </span>
+          }
+        />
 
         <SettingsForm
           initial={initial}
@@ -127,6 +132,26 @@ export default async function StoreSettingsPage({
               sat: t("daySat"),
               sun: t("daySun"),
             },
+            navEyebrow: t("navEyebrow"),
+            navTitle: t("navTitle"),
+            navFooterStore: t("navFooterStore"),
+            navFooterSavedLabel: t("navFooterSavedLabel"),
+            navFooterEditor: t("navFooterEditor"),
+            sectionEn: {
+              basic: t("sectionEnBasic"),
+              address: t("sectionEnAddress"),
+              hours: t("sectionEnHours"),
+              multilingual: t("sectionEnMultilingual"),
+              channels: t("sectionEnChannels"),
+              bookingPolicy: t("sectionEnBookingPolicy"),
+              payments: t("sectionEnPayments"),
+              notifications: t("sectionEnNotifications"),
+              risk: t("sectionEnRisk"),
+            },
+          }}
+          shellMeta={{
+            storeName: shell.storeName,
+            userName: shell.userName,
           }}
         />
       </div>

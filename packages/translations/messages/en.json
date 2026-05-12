@@ -404,7 +404,22 @@
     "dayThu": "Thu",
     "dayFri": "Fri",
     "daySat": "Sat",
-    "daySun": "Sun"
+    "daySun": "Sun",
+    "savedIndicator": "All changes auto-saved",
+    "navEyebrow": "Settings",
+    "navTitle": "Store Settings",
+    "navFooterStore": "Store",
+    "navFooterSavedLabel": "Auto-saved just now",
+    "navFooterEditor": "Editor",
+    "sectionEnBasic": "Store Info",
+    "sectionEnAddress": "Address",
+    "sectionEnHours": "Hours",
+    "sectionEnMultilingual": "Multilingual",
+    "sectionEnChannels": "Channels",
+    "sectionEnBookingPolicy": "Booking Policy",
+    "sectionEnPayments": "Payments",
+    "sectionEnNotifications": "Notifications",
+    "sectionEnRisk": "Compliance"
   },
   "BookingProgress": {
     "schedule": "Schedule",
