@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
+import type { NavCountMap } from "./nav-items";
 import { NavSidebar } from "./nav-sidebar";
 import { TopBar } from "./top-bar";
 
@@ -27,6 +28,8 @@ interface Props {
   readonly storeName: string;
   readonly userName: string;
   readonly userInitial: string;
+  readonly navCounts?: NavCountMap;
+  readonly notificationCount?: number;
   readonly children: React.ReactNode;
 }
 
@@ -35,6 +38,8 @@ export async function OwnerShell({
   storeName,
   userName,
   userInitial,
+  navCounts,
+  notificationCount,
   children,
 }: Props) {
   const t = await getTranslations({
@@ -49,6 +54,7 @@ export async function OwnerShell({
         locales={LOCALE_OPTIONS}
         userInitial={userInitial}
         userName={userName}
+        notificationCount={notificationCount}
         labels={{
           brandPill: t("brandPill"),
           searchPlaceholder: t("searchPlaceholder"),
@@ -59,6 +65,7 @@ export async function OwnerShell({
       />
       <NavSidebar
         storeName={storeName}
+        counts={navCounts}
         labels={{
           sectionMain: t("sectionMain"),
           dashboard: t("nav.dashboard"),

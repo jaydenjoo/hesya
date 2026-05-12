@@ -9,7 +9,7 @@
 
 import { Link, usePathname } from "@/i18n/navigation";
 
-import { NAV_ITEMS } from "./nav-items";
+import { NAV_ITEMS, type NavCountMap } from "./nav-items";
 
 interface NavLabels {
   readonly sectionMain: string;
@@ -28,9 +28,10 @@ interface NavLabels {
 interface Props {
   readonly storeName: string;
   readonly labels: NavLabels;
+  readonly counts?: NavCountMap;
 }
 
-export function NavSidebar({ storeName, labels }: Props) {
+export function NavSidebar({ storeName, labels, counts }: Props) {
   const pathname = usePathname();
 
   return (
@@ -44,6 +45,7 @@ export function NavSidebar({ storeName, labels }: Props) {
         {NAV_ITEMS.map((item) => {
           const active =
             pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const badge = counts?.[item.key];
           return (
             <Link
               key={item.key}
@@ -67,6 +69,20 @@ export function NavSidebar({ storeName, labels }: Props) {
               <span className="flex-1 truncate">
                 {labels[item.labelKey as keyof NavLabels]}
               </span>
+              {badge && badge.count > 0 ? (
+                <span
+                  className={[
+                    "inline-flex min-w-[20px] items-center justify-center rounded-full px-1.5 font-mono text-[10px] font-bold leading-none",
+                    badge.urgent
+                      ? "bg-[#c9483a] text-white"
+                      : active
+                        ? "bg-hesya-amber-500 text-hesya-navy-900"
+                        : "bg-hesya-peach-200 text-hesya-navy-900",
+                  ].join(" ")}
+                >
+                  {badge.count > 99 ? "99+" : badge.count}
+                </span>
+              ) : null}
             </Link>
           );
         })}

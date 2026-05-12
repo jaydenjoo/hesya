@@ -12,6 +12,10 @@ export interface NavItem {
   readonly icon: string;
 }
 
+export interface NavCountMap {
+  readonly [key: string]: { readonly count: number; readonly urgent?: boolean };
+}
+
 export const NAV_ITEMS: readonly NavItem[] = [
   {
     key: "dashboard",
