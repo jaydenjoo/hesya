@@ -38,13 +38,13 @@ const REASON_LABELS: Record<ReportReason, string> = {
 
 export default function StoreReportPage() {
   return (
-    <main className="min-h-screen bg-hesya-peach-50/30">
+    <main className="min-h-screen bg-hesya-peach-50">
       <PageHeader
         eyebrow="Admin · Store Reports"
         title="외부 신고 접수"
         subtitle="Epic 9 § 11 — 고객·경쟁사가 매장의 의료법 위반·위생·사기 등을 제보. 접수만 진행 (admin 처리는 Epic 12에서). Phase 1 admin 검증용 — 공개 폼은 Phase 1.5 reCAPTCHA 도입 후 분리."
       />
-      <div className="mx-auto max-w-3xl space-y-8 px-8 py-8">
+      <div className="mx-auto max-w-3xl space-y-8 px-8 pb-10">
         <ReportSection />
       </div>
     </main>
@@ -149,9 +149,10 @@ https://example.com/screenshot.png"
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-hesya-amber-500 px-4 py-2 font-medium text-white transition-colors hover:bg-hesya-amber-600 disabled:opacity-50"
+          className="kr inline-flex items-center gap-1.5 rounded-md bg-hesya-amber-500 px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-hesya-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPending ? "접수 중..." : "신고 접수"}
+          {isPending ? null : <span aria-hidden="true">→</span>}
         </button>
       </form>
       {result && <ResultBlock result={result} />}
@@ -167,8 +168,8 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block space-y-1">
-      <span className="block text-sm font-medium text-hesya-navy-900">
+    <label className="block space-y-1.5">
+      <span className="kr block font-mono text-[10.5px] font-semibold uppercase tracking-[0.06em] text-gray-500">
         {label}
       </span>
       {children}
