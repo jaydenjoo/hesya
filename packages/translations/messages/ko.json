@@ -10,6 +10,8 @@
   },
   "Dashboard": {
     "title": "매장 운영 대시보드",
+    "greetingPrefix": "안녕하세요,",
+    "greetingSuffix": "사장님",
     "subtitle": "Epic 4 — 외국인 매출·재방문·국적 분석 (베타 데이터 적재 후 활성화)",
     "comingSoonNote": "결제·예약 데이터 적재 후 자동 활성화",
     "kpis": {

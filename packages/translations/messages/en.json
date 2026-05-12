@@ -10,6 +10,8 @@
   },
   "Dashboard": {
     "title": "Store dashboard",
+    "greetingPrefix": "Welcome back,",
+    "greetingSuffix": "",
     "subtitle": "Epic 4 — Foreign customer revenue, retention, nationality (activates after beta data lands)",
     "comingSoonNote": "Activates after payment & booking data is recorded",
     "kpis": {

@@ -38,25 +38,27 @@ export function KpiCard({
       data-state={state}
       data-testid="kpi-card"
       className={[
-        "flex flex-col rounded-2xl border px-4 py-4 transition",
+        "flex flex-col rounded-lg border px-5 py-4 transition",
         isPending
-          ? "border-dashed border-hesya-peach-200 bg-hesya-peach-50/40"
-          : "border-hesya-peach-200 bg-white hover:border-hesya-amber-500/40",
+          ? "border-dashed border-hesya-peach-200 bg-hesya-peach-50/60"
+          : "border-hesya-peach-100 bg-white shadow-[0_1px_2px_rgba(26,34,56,0.04)] hover:border-hesya-amber-500/40 hover:shadow-[0_4px_12px_rgba(26,34,56,0.06)]",
       ].join(" ")}
     >
-      <p
-        className={[
-          "text-[10px] font-semibold uppercase tracking-[0.16em]",
-          isPending ? "text-hesya-navy-900/40" : "text-hesya-navy-900/60",
-        ].join(" ")}
-      >
-        {label}
-      </p>
-      <div className="mt-2 flex items-baseline gap-1.5">
+      <div className="mb-1 flex items-baseline justify-between gap-2">
+        <p
+          className={[
+            "truncate font-mono text-[11px] font-semibold uppercase tracking-[0.16em]",
+            isPending ? "text-hesya-navy-900/40" : "text-gray-700",
+          ].join(" ")}
+        >
+          {label}
+        </p>
+      </div>
+      <div className="mt-1 flex items-baseline gap-2">
         <span
           className={[
-            "font-mono text-[26px] font-semibold tracking-tight",
-            isPending ? "text-hesya-navy-900/30" : "text-hesya-navy-900",
+            "font-heading text-[36px] font-medium italic leading-none tracking-[-0.03em]",
+            isPending ? "text-hesya-navy-900/25" : "text-hesya-navy-900",
           ].join(" ")}
         >
           {value}
@@ -64,8 +66,8 @@ export function KpiCard({
         {unit && (
           <span
             className={[
-              "text-[12px]",
-              isPending ? "text-hesya-navy-900/35" : "text-hesya-navy-900/55",
+              "text-[12px] font-medium",
+              isPending ? "text-hesya-navy-900/30" : "text-gray-500",
             ].join(" ")}
           >
             {unit}
@@ -73,10 +75,10 @@ export function KpiCard({
         )}
       </div>
       {!isPending && subtext && (
-        <p className="mt-1 text-[11px] text-hesya-navy-900/60">{subtext}</p>
+        <p className="mt-2 text-[11.5px] text-gray-500">{subtext}</p>
       )}
       {isPending && (
-        <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-hesya-navy-900/35">
+        <p className="mt-2 font-mono text-[9.5px] uppercase tracking-[0.18em] text-hesya-navy-900/35">
           {comingSoonNote}
         </p>
       )}
