@@ -280,6 +280,16 @@ export async function sendKycNotification(input: SendInput): Promise<void> {
   // env import는 함수 내부 lazy — 모듈 load 시점 env Zod parse trigger 회피.
   const { env } = await import("@/shared/config/env");
   const { subject, body } = buildKycNotification(input);
+  if (env.MOCK_NOTIFICATION) {
+    const { logMockEmail } = await import("./mock-helper");
+    logMockEmail({
+      kind: `kyc:${input.kind}`,
+      to: input.to,
+      subject,
+      bodyPreview: body,
+    });
+    return;
+  }
   try {
     const result = await getResend(env.RESEND_API_KEY).emails.send({
       from: env.RESEND_FROM_EMAIL,

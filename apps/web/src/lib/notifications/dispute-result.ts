@@ -14,6 +14,7 @@ import { Resend } from "resend";
 
 import { env } from "@/shared/config/env";
 import { getDispute } from "@/shared/lib/dal/disputes";
+import { logMockEmail } from "./mock-helper";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -66,6 +67,16 @@ export async function sendDisputeNotification(
     "",
     "추가 문의는 hello@hesya.app으로 회신 주세요.",
   ].filter((line): line is string => line !== null);
+
+  if (env.MOCK_NOTIFICATION) {
+    logMockEmail({
+      kind: "dispute-result",
+      to: email,
+      subject,
+      bodyPreview: lines.join(" "),
+    });
+    return;
+  }
 
   await resend.emails.send({
     from: env.RESEND_FROM_EMAIL,

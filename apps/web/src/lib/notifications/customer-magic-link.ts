@@ -134,6 +134,16 @@ export async function sendCustomerMagicLink(input: {
   const { env } = await import("@/shared/config/env");
   const locale = pickLocale(input.url);
   const tmpl = TEMPLATES[locale];
+  if (env.MOCK_NOTIFICATION) {
+    const { logMockEmail } = await import("./mock-helper");
+    logMockEmail({
+      kind: `magic-link:${locale}`,
+      to: input.email,
+      subject: tmpl.subject,
+      bodyPreview: input.url,
+    });
+    return;
+  }
   try {
     const result = await getResend(env.RESEND_API_KEY).emails.send({
       from: env.RESEND_FROM_EMAIL,
