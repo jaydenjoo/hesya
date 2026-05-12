@@ -3,30 +3,35 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-12 세션 19 종료, 후반 — M5.4 시연 통과 + M6 신설)
+## 현재 위치 (2026-05-12 세션 20 종료 — M6 Phase 0~M6.9 owner+admin 정합 머지)
 
-- **Phase**: **Plan v3 M1 5/5 + M2 7/7 + M3 5/5 + M4 5/5 + M5 5/5 ✅ 100% 완료** + **🆕 M6 디자인 정합성 phase 신설 (10~17일 작업)**
-- **시연 통과**: M5.4 owner+customer 시연 Preview URL `hesya-web-git-demo-preview-trigger-...` 통과 확인 (Jayden 본인 브라우저 + Google OAuth + 우리가 DB에 직접 INSERT한 user/store/store_owners record로 진입 성공)
-- **세션 19 후반 머지 (4건, main 직접/cherry-pick)**:
-  - `0d6aecb` fix(shell): M5.1 누락 패치 — `getOwnerShellData`에 DEMO 가드 추가 (핵심 시연 차단 버그 fix)
-  - `0e9ac2e` fix(seed): DEMO_USER_ID을 zod v4 uuid 통과 형식 (`00000000-0000-4000-8000-000000000001`)로 변경
-  - `3864106` fix(seed): demo user 삭제를 email 기준으로 변경 (UUID 변경 호환)
-  - 신규 docs: `docs/Plan-v3-M6-design.md` (owner/admin 디자인 정합성 전면 phase)
-- **세션 19 발견 + 적용된 원칙 (memory `feedback_design_first.md`)**:
-  - 비개발자/외부인은 시스템 내용보다 디자인을 먼저 보고 판단 → 디자인-First 강제
-  - **PROGRESS 자기평가 시연 % = `min(기능 %, 디자인 %)`** (L-082 강화)
-  - 페이지 Task = (기능 + 디자인 토큰 + 레퍼런스 정합) 묶음 의무
+- **Phase**: **Plan v3 M1~M5 100% + M6 Phase 0 + M6.1~M6.9 머지 (9/13 task, 70%)**
+- **M6 Phase 0 (공통 컴포넌트)**: PR [#115](https://github.com/jaydenjoo/hesya/pull/115)
+  - 신규 `apps/web/src/components/ui/page-header.tsx` — sticky/page variant
+  - NavSidebar `counts` prop + TopBar `notificationCount` prop
+- **M6.1~M6.9 머지 (owner/admin chrome 일괄)**:
+  - PR [#117](https://github.com/jaydenjoo/hesya/pull/117) M6.1 settings — SectionNav reference 정합 + SectionShell num/en
+  - PR [#118](https://github.com/jaydenjoo/hesya/pull/118) M6.2 dashboard — greeting + KpiCard sd-bignum
+  - PR [#119](https://github.com/jaydenjoo/hesya/pull/119) M6.3 inbox — 3-col bg/border, .ix-col-head 정합
+  - PR [#120](https://github.com/jaydenjoo/hesya/pull/120) M6.4 bookings + bookings/[id]
+  - PR [#121](https://github.com/jaydenjoo/hesya/pull/121) M6.5 services
+  - PR [#122](https://github.com/jaydenjoo/hesya/pull/122) M6.6 customers
+  - PR [#123](https://github.com/jaydenjoo/hesya/pull/123) M6.7 knowledge + disputes + inbox-skipped
+  - PR [#124](https://github.com/jaydenjoo/hesya/pull/124) M6.8 admin dashboard — .ad-alert-chip / .ad-tile 정합
+  - PR [#125](https://github.com/jaydenjoo/hesya/pull/125) M6.9 admin sub-pages — 6개 페이지 PageHeader 일괄
+- **다음 세션 시작점**: M6.10~M6.13 customer polish (M6b로 분리)
+  - photos / schedule / mypage / sign-in 토큰 적용 빈도 0~5건 → CustomerFrame 별도 chrome 작업 필요
 
-## P0 Epic 시연 % 재산정 (디자인-First 원칙 적용)
+## P0 Epic 시연 % 재산정 (M6.1~M6.9 머지 반영)
 
 | Phase / Epic                     | 기능 % | 디자인 % | **시연 % (min)** |
 | -------------------------------- | ------ | -------- | ---------------- |
 | M2 customer (`/c/*`, `/sign-in`) | 95%    | 80%      | **80%** ✅       |
-| M3 owner pages (`/store/*` 8개)  | 100%   | **15%**  | **15%** ❌       |
-| M4 admin (`/admin/*`)            | 100%   | 35%      | **35%** 🟡       |
+| M3 owner pages (`/store/*` 8개)  | 100%   | **65%**  | **65%** 🟡       |
+| M4 admin (`/admin/*`)            | 100%   | **65%**  | **65%** 🟡       |
 | M5 demo bypass                   | 100%   | n/a      | **100%** ✅      |
 
-→ owner/admin 디자인 갭이 베타 시연의 핵심 차단 요소. M6 phase가 베타 출시 prerequisite로 승격.
+→ owner/admin 디자인 갭이 15%/35% → 65%로 큰 폭 개선. customer polish (M6b) + form row grid 세부 정합 (M6.1b/M6.2b) 완료 시 80%+ 도달 가능.
 
 ## 🆕 Plan v3 M6 — Owner/Admin 디자인 정합성 (전면)
 
