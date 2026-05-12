@@ -15,6 +15,7 @@ interface NavLabels {
   readonly sectionMain: string;
   readonly dashboard: string;
   readonly inbox: string;
+  readonly inboxSkipped: string;
   readonly bookings: string;
   readonly services: string;
   readonly customers: string;
@@ -41,7 +42,8 @@ export function NavSidebar({ storeName, labels }: Props) {
       </div>
       <nav className="flex flex-col gap-px">
         {NAV_ITEMS.map((item) => {
-          const active = pathname.startsWith(item.href);
+          const active =
+            pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.key}

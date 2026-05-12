@@ -5,6 +5,7 @@ import {
   listByConversation,
   listPendingDrafts,
   listRecentByConversation,
+  listSkippedMessagesByStore,
   markDraftEdited,
   markFailed,
   updateDraftStatus,
@@ -259,6 +260,108 @@ describe.skipIf(!hasDb)("dal.messages (integration)", () => {
       expect(updated?.reviewedBy).toBe(reviewerId);
     });
 
+    it("listSkippedMessagesByStore: skipped + outbound + 매장 일치 + 최근 N일만 반환 (M4.2)", async () => {
+      const storeId = await seedStore(db, { name: "skip-store" });
+      const customerId = await seedCustomer(db, {
+        channel: "instagram",
+        externalId: "igsid_skip",
+      });
+      const conv = await upsertConversation(db, {
+        storeId,
+        customerId,
+        channel: "instagram",
+      });
+      const { messages: messagesTable } = await import("@hesya/database");
+
+      const [recentSkip] = await db
+        .insert(messagesTable)
+        .values({
+          conversationId: conv.id,
+          storeId,
+          channel: "instagram",
+          direction: "outbound",
+          originalText: "건너뛴 초안",
+          draftStatus: "skipped",
+        })
+        .returning();
+
+      await db.insert(messagesTable).values({
+        conversationId: conv.id,
+        storeId,
+        channel: "instagram",
+        direction: "outbound",
+        originalText: "검수 대기",
+        draftStatus: "pending_review",
+      });
+
+      await db.insert(messagesTable).values({
+        conversationId: conv.id,
+        storeId,
+        channel: "instagram",
+        direction: "inbound",
+        originalText: "고객 inbound (skipped이라도 제외)",
+        draftStatus: "skipped",
+      });
+
+      const oldDate = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+      await db.insert(messagesTable).values({
+        conversationId: conv.id,
+        storeId,
+        channel: "instagram",
+        direction: "outbound",
+        originalText: "60일 전 skip",
+        draftStatus: "skipped",
+        createdAt: oldDate,
+      });
+
+      const list = await listSkippedMessagesByStore(db, storeId);
+      expect(list.map((m) => m.id)).toEqual([recentSkip!.id]);
+    });
+
+    it("listSkippedMessagesByStore: 다른 매장은 제외 (M4.2)", async () => {
+      const storeA = await seedStore(db, { name: "skip-store-A" });
+      const storeB = await seedStore(db, { name: "skip-store-B" });
+      const customerId = await seedCustomer(db, {
+        channel: "instagram",
+        externalId: "igsid_skip_x",
+      });
+      const convA = await upsertConversation(db, {
+        storeId: storeA,
+        customerId,
+        channel: "instagram",
+      });
+      const convB = await upsertConversation(db, {
+        storeId: storeB,
+        customerId,
+        channel: "instagram",
+      });
+      const { messages: messagesTable } = await import("@hesya/database");
+
+      const [skipA] = await db
+        .insert(messagesTable)
+        .values({
+          conversationId: convA.id,
+          storeId: storeA,
+          channel: "instagram",
+          direction: "outbound",
+          originalText: "A skip",
+          draftStatus: "skipped",
+        })
+        .returning();
+
+      await db.insert(messagesTable).values({
+        conversationId: convB.id,
+        storeId: storeB,
+        channel: "instagram",
+        direction: "outbound",
+        originalText: "B skip",
+        draftStatus: "skipped",
+      });
+
+      const list = await listSkippedMessagesByStore(db, storeA);
+      expect(list.map((m) => m.id)).toEqual([skipA!.id]);
+    });
+
     it("markDraftEdited: originalText 갱신 + edited_from_ai=true", async () => {
       const storeId = await seedStore(db, { name: "draft-store-3" });
       const customerId = await seedCustomer(db, {
@@ -324,6 +427,11 @@ describe("dal.messages (pure)", () => {
     expect(typeof mod.listPendingDrafts).toBe("function");
     expect(typeof mod.updateDraftStatus).toBe("function");
     expect(typeof mod.markDraftEdited).toBe("function");
+  });
+
+  it("module exports Plan v3 M4.2 listSkippedMessagesByStore", async () => {
+    const mod = await import("./messages");
+    expect(typeof mod.listSkippedMessagesByStore).toBe("function");
   });
 
   it("claimAiDraftForSend: race-safe conditional UPDATE WHERE status='ai_draft' (B-3c)", async () => {

@@ -424,6 +424,7 @@
     "nav": {
       "dashboard": "儀表板",
       "inbox": "收件匣",
+      "inboxSkipped": "已略過的訊息",
       "bookings": "預約",
       "services": "服務",
       "customers": "客戶",
@@ -536,5 +537,10 @@
       "languageNote": "我們會自動翻譯您的評論給其他旅行者。",
       "skipAll": "跳過全部評論"
     }
+  },
+  "InboxSkipped": {
+    "title": "已略過的訊息",
+    "subtitle": "近30天內被「略過」的AI草稿清單。唯讀檢視,用於檢查是否有遺漏。",
+    "emptyText": "目前沒有略過的訊息。"
   }
 }

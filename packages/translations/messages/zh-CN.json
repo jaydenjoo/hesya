@@ -424,6 +424,7 @@
     "nav": {
       "dashboard": "仪表板",
       "inbox": "收件箱",
+      "inboxSkipped": "已跳过消息",
       "bookings": "预约",
       "services": "服务",
       "customers": "客户",
@@ -536,5 +537,10 @@
       "languageNote": "我们会自动翻译您的评价给其他旅行者。",
       "skipAll": "跳过全部评价"
     }
+  },
+  "InboxSkipped": {
+    "title": "已跳过消息",
+    "subtitle": "近30天内被「跳过」的AI草稿列表。只读视图,用于查漏补缺。",
+    "emptyText": "暂无已跳过的消息。"
   }
 }

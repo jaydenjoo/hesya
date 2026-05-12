@@ -4,6 +4,7 @@ import {
   asc,
   desc,
   eq,
+  gte,
   messages,
   type Channel,
   type DbClient,
@@ -278,6 +279,35 @@ export async function updateDraftStatus(
       reviewedBy: input.reviewerId,
     })
     .where(eq(messages.id, input.messageId));
+}
+
+/**
+ * Plan v3 M4.2 — 매장 owner가 "건너뛰기" 처리한 AI 초안 목록 (read-only).
+ *
+ * `direction='outbound'` + `draft_status='skipped'` + 최근 N일 (기본 30일) 조건.
+ * `reviewed_by` 기록은 skipDraft action이 세션 userId로 보장. 정렬은 최신 skip
+ * 우선 (DESC createdAt) — owner가 가장 최근 결정부터 review.
+ */
+export async function listSkippedMessagesByStore(
+  db: DbClient,
+  storeId: string,
+  opts: { sinceDays?: number; limit?: number } = {},
+): Promise<Message[]> {
+  const sinceDays = opts.sinceDays ?? 30;
+  const since = new Date(Date.now() - sinceDays * 24 * 60 * 60 * 1000);
+  return db
+    .select()
+    .from(messages)
+    .where(
+      and(
+        eq(messages.storeId, storeId),
+        eq(messages.direction, "outbound"),
+        eq(messages.draftStatus, "skipped"),
+        gte(messages.createdAt, since),
+      ),
+    )
+    .orderBy(desc(messages.createdAt))
+    .limit(opts.limit ?? 100);
 }
 
 /**

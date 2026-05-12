@@ -63,6 +63,7 @@ export async function OwnerShell({
           sectionMain: t("sectionMain"),
           dashboard: t("nav.dashboard"),
           inbox: t("nav.inbox"),
+          inboxSkipped: t("nav.inboxSkipped"),
           bookings: t("nav.bookings"),
           services: t("nav.services"),
           customers: t("nav.customers"),

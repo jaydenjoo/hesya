@@ -424,6 +424,7 @@
     "nav": {
       "dashboard": "ダッシュボード",
       "inbox": "受信箱",
+      "inboxSkipped": "スキップしたメッセージ",
       "bookings": "予約",
       "services": "メニュー",
       "customers": "顧客",
@@ -536,5 +537,10 @@
       "languageNote": "レビューは他の旅行者のために自動翻訳されます。",
       "skipAll": "すべてのレビューをスキップ"
     }
+  },
+  "InboxSkipped": {
+    "title": "スキップしたメッセージ",
+    "subtitle": "過去30日間に「スキップ」したAIドラフトの一覧です。見落としチェック用の閲覧専用ビュー。",
+    "emptyText": "スキップしたメッセージはありません。"
   }
 }

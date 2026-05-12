@@ -20,6 +20,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     icon: "▦",
   },
   { key: "inbox", href: "/store/inbox", labelKey: "inbox", icon: "✉" },
+  {
+    key: "inboxSkipped",
+    href: "/store/inbox-skipped",
+    labelKey: "inboxSkipped",
+    icon: "⤳",
+  },
   { key: "bookings", href: "/store/bookings", labelKey: "bookings", icon: "▢" },
   { key: "services", href: "/store/services", labelKey: "services", icon: "✦" },
   {

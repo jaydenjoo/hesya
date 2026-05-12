@@ -424,6 +424,7 @@
     "nav": {
       "dashboard": "대시보드",
       "inbox": "인박스",
+      "inboxSkipped": "건너뛴 메시지",
       "bookings": "예약",
       "services": "시술",
       "customers": "고객",
@@ -536,5 +537,10 @@
       "languageNote": "후기는 다른 손님을 위해 자동 번역됩니다.",
       "skipAll": "모든 후기 건너뛰기"
     }
+  },
+  "InboxSkipped": {
+    "title": "건너뛴 메시지",
+    "subtitle": "최근 30일간 \"건너뛰기\"로 처리된 AI 초안 목록입니다. 누락 검토용 read-only.",
+    "emptyText": "건너뛴 메시지가 없습니다."
   }
 }

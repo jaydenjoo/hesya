@@ -424,6 +424,7 @@
     "nav": {
       "dashboard": "Trang chủ",
       "inbox": "Tin nhắn",
+      "inboxSkipped": "Tin nhắn đã bỏ qua",
       "bookings": "Đặt lịch",
       "services": "Dịch vụ",
       "customers": "Khách hàng",
@@ -536,5 +537,10 @@
       "languageNote": "Chúng tôi sẽ dịch đánh giá của bạn cho du khách khác.",
       "skipAll": "Bỏ qua tất cả đánh giá"
     }
+  },
+  "InboxSkipped": {
+    "title": "Tin nhắn đã bỏ qua",
+    "subtitle": "Các bản nháp AI bạn đã bỏ qua trong 30 ngày qua. Chỉ xem — kiểm tra xem có sót gì không.",
+    "emptyText": "Không có tin nhắn nào bị bỏ qua."
   }
 }

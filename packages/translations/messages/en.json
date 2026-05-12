@@ -424,6 +424,7 @@
     "nav": {
       "dashboard": "Dashboard",
       "inbox": "Inbox",
+      "inboxSkipped": "Skipped messages",
       "bookings": "Bookings",
       "services": "Services",
       "customers": "Customers",
@@ -536,5 +537,10 @@
       "languageNote": "We translate your review for future travelers.",
       "skipAll": "Skip all reviews"
     }
+  },
+  "InboxSkipped": {
+    "title": "Skipped messages",
+    "subtitle": "AI drafts you skipped in the last 30 days. Read-only — review for anything you might have missed.",
+    "emptyText": "No skipped messages."
   }
 }
