@@ -10,6 +10,8 @@
   },
   "Dashboard": {
     "title": "Bảng điều khiển salon",
+    "greetingPrefix": "Xin chào,",
+    "greetingSuffix": "",
     "subtitle": "Epic 4 — Doanh thu, tỉ lệ quay lại, quốc tịch khách nước ngoài (mở khi dữ liệu beta tích lũy)",
     "comingSoonNote": "Kích hoạt sau khi có dữ liệu thanh toán & đặt lịch",
     "kpis": {

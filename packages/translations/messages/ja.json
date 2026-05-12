@@ -10,6 +10,8 @@
   },
   "Dashboard": {
     "title": "店舗運営ダッシュボード",
+    "greetingPrefix": "こんにちは、",
+    "greetingSuffix": "オーナー様",
     "subtitle": "Epic 4 — 外国人売上・再来訪・国籍分析(ベータデータ蓄積後に有効化)",
     "comingSoonNote": "決済・予約データ蓄積後に自動有効化",
     "kpis": {

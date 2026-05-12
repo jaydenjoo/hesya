@@ -10,6 +10,8 @@
   },
   "Dashboard": {
     "title": "门店运营仪表板",
+    "greetingPrefix": "您好,",
+    "greetingSuffix": "店长",
     "subtitle": "Epic 4 — 外国人销售·复访·国籍分析(Beta 数据落地后启用)",
     "comingSoonNote": "在结算和预订数据记录后自动启用",
     "kpis": {

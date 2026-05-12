@@ -218,6 +218,16 @@ export default async function StoreDashboardPage({
     },
   ];
 
+  const now = new Date();
+  const dateDay = new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(now);
+  const dateWeekday = new Intl.DateTimeFormat(locale, {
+    weekday: "long",
+  }).format(now);
+
   return (
     <OwnerShell
       currentLocale={locale}
@@ -225,12 +235,22 @@ export default async function StoreDashboardPage({
       userName={shell.userName}
       userInitial={shell.userInitial}
     >
-      <div className="mx-auto max-w-6xl px-6 py-10">
-        <DashboardHeader title={t("title")} subtitle={t("subtitle")} />
-        <KpiGrid entries={entries} comingSoonNote={t("comingSoonNote")} />
-        <p className="mt-8 text-[11px] text-hesya-navy-900/55">
-          {t("footerNote")}
-        </p>
+      <div className="bg-hesya-peach-50">
+        <DashboardHeader
+          eyebrow="Operator · Dashboard"
+          greetingPrefix={t("greetingPrefix")}
+          storeName={shell.storeName}
+          greetingSuffix={t("greetingSuffix")}
+          subtitle={t("subtitle")}
+          dateDay={dateDay}
+          dateWeekday={dateWeekday}
+        />
+        <div className="px-8 pb-10">
+          <KpiGrid entries={entries} comingSoonNote={t("comingSoonNote")} />
+          <p className="mt-8 font-mono text-[11px] text-hesya-navy-900/55">
+            {t("footerNote")}
+          </p>
+        </div>
       </div>
     </OwnerShell>
   );
