@@ -128,95 +128,114 @@ export default async function StoreDashboardPage({
     0,
   );
 
-  const entries: ReadonlyArray<KpiEntry> = [
-    {
-      key: "inboxUnread",
-      label: t("kpis.inboxUnread"),
-      value: String(inbox.unreadMessages),
-      unit: t("units.count"),
-      state: "active",
-      subtext: `${inbox.openThreads} ${t("kpis.inboxThreads")}`,
-    },
-    {
-      key: "disputesActive",
-      label: t("kpis.disputesActive"),
-      value: String(dispute.active),
-      unit: t("units.count"),
-      state: "active",
-      subtext:
-        dispute.slaExceeded > 0
-          ? `${t("kpis.disputesSla")}: ${dispute.slaExceeded}`
-          : undefined,
-    },
-    {
-      key: "kycStatus",
-      label: t("kpis.kycStatus"),
-      value: kycLabel,
-      state: "active",
-    },
-    {
-      key: "monthlyRevenue",
-      label: t("kpis.monthlyRevenue"),
-      value: bookingStats.revenueKrw.toLocaleString("ko"),
-      unit: t("units.won"),
-      state: "active",
-      subtext: `${bookingStats.bookingCount} ${t("units.count")}`,
-    },
-    {
-      key: "averageOrder",
-      label: t("kpis.averageOrder"),
-      value:
-        bookingStats.bookingCount > 0
-          ? bookingStats.averageOrderKrw.toLocaleString("ko")
-          : "—",
-      unit: t("units.won"),
-      state: bookingStats.bookingCount > 0 ? "active" : "coming-soon",
-    },
-    {
-      key: "rebookRate",
-      label: t("kpis.rebookRate"),
-      value: "—",
-      unit: t("units.percent"),
-      state: "coming-soon",
-    },
-    {
-      key: "noShowRate",
-      label: t("kpis.noShowRate"),
-      value: String(bookingStats.noShowRatePct),
-      unit: t("units.percent"),
-      state: bookingStats.bookingCount > 0 ? "active" : "coming-soon",
-      subtext:
-        bookingStats.noShowCount > 0
-          ? `${bookingStats.noShowCount} ${t("units.count")}`
-          : undefined,
-    },
-    {
-      key: "nationalityMix",
-      label: t("kpis.nationalityMix"),
-      value: String(nationalityTotal),
-      unit: t("units.count"),
-      state: nationalityTotal > 0 ? "active" : "coming-soon",
-      chart:
-        nationalityTotal > 0 ? (
-          <DistributionPie data={nationalitySlices} />
-        ) : undefined,
-    },
-    {
-      key: "treatmentMix",
-      label: t("kpis.treatmentMix"),
-      value: String(treatmentTotal),
-      unit: t("units.count"),
-      state: "active",
-      chart: <DistributionPie data={treatmentSlices} />,
-    },
-    {
-      key: "designerMix",
-      label: t("kpis.designerMix"),
-      value: String(designerTotal),
-      unit: t("units.count"),
-      state: "active",
-      chart: <DistributionPie data={designerSlices} />,
-    },
+  const monthlyRevenue: KpiEntry = {
+    key: "monthlyRevenue",
+    label: t("kpis.monthlyRevenue"),
+    value: bookingStats.revenueKrw.toLocaleString("ko"),
+    unit: t("units.won"),
+    state: "active",
+    subtext: `${bookingStats.bookingCount} ${t("units.count")}`,
+  };
+  const inboxUnread: KpiEntry = {
+    key: "inboxUnread",
+    label: t("kpis.inboxUnread"),
+    value: String(inbox.unreadMessages),
+    unit: t("units.count"),
+    state: "active",
+    subtext: `${inbox.openThreads} ${t("kpis.inboxThreads")}`,
+  };
+  const disputesActive: KpiEntry = {
+    key: "disputesActive",
+    label: t("kpis.disputesActive"),
+    value: String(dispute.active),
+    unit: t("units.count"),
+    state: "active",
+    subtext:
+      dispute.slaExceeded > 0
+        ? `${t("kpis.disputesSla")}: ${dispute.slaExceeded}`
+        : undefined,
+  };
+  const nationalityMixEntry: KpiEntry = {
+    key: "nationalityMix",
+    label: t("kpis.nationalityMix"),
+    value: String(nationalityTotal),
+    unit: t("units.count"),
+    state: nationalityTotal > 0 ? "active" : "coming-soon",
+    chart:
+      nationalityTotal > 0 ? (
+        <DistributionPie data={nationalitySlices} />
+      ) : undefined,
+  };
+  const treatmentMix: KpiEntry = {
+    key: "treatmentMix",
+    label: t("kpis.treatmentMix"),
+    value: String(treatmentTotal),
+    unit: t("units.count"),
+    state: "active",
+    chart: <DistributionPie data={treatmentSlices} />,
+  };
+  const designerMix: KpiEntry = {
+    key: "designerMix",
+    label: t("kpis.designerMix"),
+    value: String(designerTotal),
+    unit: t("units.count"),
+    state: "active",
+    chart: <DistributionPie data={designerSlices} />,
+  };
+  const noShowRate: KpiEntry = {
+    key: "noShowRate",
+    label: t("kpis.noShowRate"),
+    value: String(bookingStats.noShowRatePct),
+    unit: t("units.percent"),
+    state: bookingStats.bookingCount > 0 ? "active" : "coming-soon",
+    subtext:
+      bookingStats.noShowCount > 0
+        ? `${bookingStats.noShowCount} ${t("units.count")}`
+        : undefined,
+  };
+  const averageOrder: KpiEntry = {
+    key: "averageOrder",
+    label: t("kpis.averageOrder"),
+    value:
+      bookingStats.bookingCount > 0
+        ? bookingStats.averageOrderKrw.toLocaleString("ko")
+        : "—",
+    unit: t("units.won"),
+    state: bookingStats.bookingCount > 0 ? "active" : "coming-soon",
+  };
+  const rebookRate: KpiEntry = {
+    key: "rebookRate",
+    label: t("kpis.rebookRate"),
+    value: "—",
+    unit: t("units.percent"),
+    state: "coming-soon",
+  };
+  const kycStatus: KpiEntry = {
+    key: "kycStatus",
+    label: t("kpis.kycStatus"),
+    value: kycLabel,
+    state: "active",
+  };
+
+  // M6.2c — reference bento layout (3 rows):
+  // Row 1 (.sd-row-2 1.6fr:1fr:1fr): featured revenue + ops (inbox / disputes)
+  // Row 2 (.sd-bento-3 1.15fr:1fr:1fr): customer mix donuts
+  // Row 3 (uniform 4-col): secondary KPIs
+  const rowHero: ReadonlyArray<KpiEntry> = [
+    monthlyRevenue,
+    inboxUnread,
+    disputesActive,
+  ];
+  const rowMix: ReadonlyArray<KpiEntry> = [
+    nationalityMixEntry,
+    treatmentMix,
+    designerMix,
+  ];
+  const rowSecondary: ReadonlyArray<KpiEntry> = [
+    noShowRate,
+    averageOrder,
+    rebookRate,
+    kycStatus,
   ];
 
   const brightSpot = (() => {
@@ -282,7 +301,25 @@ export default async function StoreDashboardPage({
             eyebrowEn="Bright spot"
             body={brightSpot.body}
           />
-          <KpiGrid entries={entries} comingSoonNote={t("comingSoonNote")} />
+          <div className="space-y-4">
+            <KpiGrid
+              entries={rowHero}
+              comingSoonNote={t("comingSoonNote")}
+              testId="kpi-grid-hero"
+              className="grid grid-cols-1 gap-4 md:grid-cols-[1.6fr_1fr_1fr]"
+            />
+            <KpiGrid
+              entries={rowMix}
+              comingSoonNote={t("comingSoonNote")}
+              testId="kpi-grid-mix"
+              className="grid grid-cols-1 gap-4 md:grid-cols-[1.15fr_1fr_1fr]"
+            />
+            <KpiGrid
+              entries={rowSecondary}
+              comingSoonNote={t("comingSoonNote")}
+              testId="kpi-grid-secondary"
+            />
+          </div>
           <p className="mt-8 font-mono text-[11px] text-hesya-navy-900/55">
             {t("footerNote")}
           </p>

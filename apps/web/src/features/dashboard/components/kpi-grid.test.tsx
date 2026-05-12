@@ -37,4 +37,19 @@ describe("KpiGrid — Epic 4 ε", () => {
     expect(cards[1]?.getAttribute("data-state")).toBe("active");
     expect(cards[2]?.getAttribute("data-state")).toBe("coming-soon");
   });
+
+  it("M6.2c — caller가 className + testId 지정 (bento 패턴)", () => {
+    const { container } = render(
+      <KpiGrid
+        entries={ENTRIES}
+        comingSoonNote="곧 제공"
+        testId="kpi-grid-hero"
+        className="grid grid-cols-[1.6fr_1fr_1fr] gap-4"
+      />,
+    );
+    const grid = container.querySelector('[data-testid="kpi-grid-hero"]');
+    expect(grid).not.toBeNull();
+    expect(grid?.className).toContain("grid-cols-[1.6fr_1fr_1fr]");
+    expect(grid?.className).not.toContain("sm:grid-cols-2");
+  });
 });
