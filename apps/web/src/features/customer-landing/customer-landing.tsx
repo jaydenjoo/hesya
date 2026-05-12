@@ -160,7 +160,7 @@ export function CustomerLanding({
         ) : (
           <>
             <p className="mb-4 text-[12px] text-hesya-navy-900/55">
-              {labels.resultsCount.replace("{n}", String(stores.length))}
+              {labels.resultsCount}
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {stores.map((s) => (

@@ -71,7 +71,8 @@ export default async function CustomerLandingPage({
         searchPlaceholder: t("searchPlaceholder"),
         regionLabel: t("regionLabel"),
         regionAll: t("regionAll"),
-        resultsCount: t("resultsCount"),
+        // next-intl 4.x: ICU `{n}` 변수는 t() 호출 시점에 채워야 함 (manual replace 안 됨).
+        resultsCount: t("resultsCount", { n: stores.length }),
         emptyTitle: t("emptyTitle"),
         emptySubtitle: t("emptySubtitle"),
         signIn: t("signIn"),
