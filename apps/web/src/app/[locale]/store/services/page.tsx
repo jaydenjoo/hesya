@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
+import { PageHeader } from "@/components/ui/page-header";
 import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
 import { OwnerShell } from "@/features/shell/owner-shell";
 import {
@@ -63,55 +64,52 @@ export default async function StoreServicesPage({
       userName={shell.userName}
       userInitial={shell.userInitial}
     >
-      <div className="mx-auto max-w-6xl px-6 py-10">
-        <header className="mb-8 space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-            Operator · Services
-          </p>
-          <h1 className="font-heading text-3xl font-semibold italic tracking-tight text-hesya-navy-900">
-            {t("title")}
-          </h1>
-          <p className="text-sm text-hesya-navy-900/65">{t("subtitle")}</p>
-        </header>
-
-        <ServicesManager
-          initialRows={initialRows}
-          labels={{
-            addButton: t("addButton"),
-            editButton: t("editButton"),
-            deleteButton: t("deleteButton"),
-            emptyText: t("emptyText"),
-            deleteConfirm: t("deleteConfirm"),
-            allCategoryLabel: t("allCategoryLabel"),
-            translatedLabel: t("translatedLabel"),
-            servicesCount: t("servicesCount"),
-            requiredError: t("requiredError"),
-            editor: {
-              titleCreate: t("editorTitleCreate"),
-              titleEdit: t("editorTitleEdit"),
-              closeLabel: t("editorCloseLabel"),
-              langTabKo: t("langTabKo"),
-              langTabEn: t("langTabEn"),
-              langTabJa: t("langTabJa"),
-              langTabZhCn: t("langTabZhCn"),
-              langTabZhTw: t("langTabZhTw"),
-              langTabVi: t("langTabVi"),
-              nameLabel: t("editorNameLabel"),
-              aiSuggestLabel: t("editorAiSuggestLabel"),
-              aiTranslateAllLabel: t("editorAiTranslateAllLabel"),
-              aiSuggestNote: t("editorAiSuggestNote"),
-              priceKrwLabel: t("priceKrwLabel"),
-              durationLabel: t("durationLabel"),
-              categoryLabel: t("categoryLabel"),
-              categoryPlaceholder: t("editorCategoryPlaceholder"),
-              complianceTitle: t("editorComplianceTitle"),
-              complianceBody: t("editorComplianceBody"),
-              saveButton: t("saveButton"),
-              cancelButton: t("cancelButton"),
-              requiredAsterisk: t("editorRequiredAsterisk"),
-            },
-          }}
+      <div className="bg-hesya-peach-50">
+        <PageHeader
+          eyebrow="Operator · Services"
+          title={t("title")}
+          subtitle={t("subtitle")}
         />
+        <div className="px-8 pb-10">
+          <ServicesManager
+            initialRows={initialRows}
+            labels={{
+              addButton: t("addButton"),
+              editButton: t("editButton"),
+              deleteButton: t("deleteButton"),
+              emptyText: t("emptyText"),
+              deleteConfirm: t("deleteConfirm"),
+              allCategoryLabel: t("allCategoryLabel"),
+              translatedLabel: t("translatedLabel"),
+              servicesCount: t("servicesCount"),
+              requiredError: t("requiredError"),
+              editor: {
+                titleCreate: t("editorTitleCreate"),
+                titleEdit: t("editorTitleEdit"),
+                closeLabel: t("editorCloseLabel"),
+                langTabKo: t("langTabKo"),
+                langTabEn: t("langTabEn"),
+                langTabJa: t("langTabJa"),
+                langTabZhCn: t("langTabZhCn"),
+                langTabZhTw: t("langTabZhTw"),
+                langTabVi: t("langTabVi"),
+                nameLabel: t("editorNameLabel"),
+                aiSuggestLabel: t("editorAiSuggestLabel"),
+                aiTranslateAllLabel: t("editorAiTranslateAllLabel"),
+                aiSuggestNote: t("editorAiSuggestNote"),
+                priceKrwLabel: t("priceKrwLabel"),
+                durationLabel: t("durationLabel"),
+                categoryLabel: t("categoryLabel"),
+                categoryPlaceholder: t("editorCategoryPlaceholder"),
+                complianceTitle: t("editorComplianceTitle"),
+                complianceBody: t("editorComplianceBody"),
+                saveButton: t("saveButton"),
+                cancelButton: t("cancelButton"),
+                requiredAsterisk: t("editorRequiredAsterisk"),
+              },
+            }}
+          />
+        </div>
       </div>
     </OwnerShell>
   );
