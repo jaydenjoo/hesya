@@ -130,10 +130,10 @@ export function AIAssist({
                 onClick={() => handleToneChange(t.id)}
                 disabled={isAccepting}
                 className={
-                  "kr rounded-md px-3 py-1.5 text-[11px] font-semibold transition-colors not-disabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 " +
+                  "kr rounded-md border px-3 py-1.5 text-[11px] transition-colors not-disabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 " +
                   (active
-                    ? "bg-hesya-amber-500 text-white"
-                    : "bg-white text-gray-700 hover:bg-hesya-peach-200")
+                    ? "border-hesya-amber-500 bg-white font-semibold text-hesya-navy-900"
+                    : "border-transparent bg-white/50 font-medium text-gray-700 hover:bg-white")
                 }
               >
                 {t.label}
