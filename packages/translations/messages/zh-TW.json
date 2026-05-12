@@ -206,7 +206,9 @@
     "depositTitle": "訂金與取消政策",
     "depositBody": "支付 30% 訂金以確認預約。預約前 24 小時內可免費取消。",
     "totalLabel": "合計",
-    "slotFew": "餘少"
+    "slotFew": "餘少",
+    "closedLabel": "公休",
+    "closedDayNote": "本日門市公休,請選擇其他日期。"
   },
   "BookConfirm": {
     "eyebrow": "預約確認",

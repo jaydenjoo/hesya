@@ -17,6 +17,7 @@ import { useRouter } from "@/i18n/navigation";
 import {
   buildDateOptions,
   buildTimeSlots,
+  type BusinessHoursInput,
   type DateOption,
 } from "./time-slots";
 
@@ -49,6 +50,8 @@ export interface ScheduleFormLabels {
   readonly depositBody: string;
   readonly totalLabel: string;
   readonly slotFew: string;
+  readonly closedLabel: string;
+  readonly closedDayNote: string;
 }
 
 interface Props {
@@ -56,6 +59,7 @@ interface Props {
   readonly locale: string;
   readonly services: ReadonlyArray<ScheduleFormService>;
   readonly staffList: ReadonlyArray<ScheduleFormStaff>;
+  readonly businessHours: BusinessHoursInput;
   readonly labels: ScheduleFormLabels;
 }
 
@@ -80,6 +84,7 @@ export function BookScheduleForm({
   locale,
   services,
   staffList,
+  businessHours,
   labels,
 }: Props) {
   const router = useRouter();
@@ -89,10 +94,16 @@ export function BookScheduleForm({
   const [time, setTime] = useState<string | null>(null);
 
   const dateOptions = useMemo<DateOption[]>(
-    () => buildDateOptions(RANGE_DAYS, locale),
-    [locale],
+    () => buildDateOptions(RANGE_DAYS, locale, undefined, businessHours),
+    [locale, businessHours],
   );
-  const timeSlots = useMemo(() => buildTimeSlots(), []);
+  const timeSlots = useMemo(
+    () => (date ? buildTimeSlots(date, businessHours) : buildTimeSlots()),
+    [date, businessHours],
+  );
+  const selectedDateClosed = date
+    ? (dateOptions.find((o) => o.value === date)?.isClosed ?? false)
+    : false;
 
   const selectedService = services.find((s) => s.id === serviceId) ?? null;
   const allSelected = Boolean(serviceId && staffId && date && time);
@@ -214,27 +225,37 @@ export function BookScheduleForm({
                   ? labels.tomorrow
                   : dayPart || opt.displayLabel.slice(0, 3);
               const dayAvail = availabilityFor(opt.value, "day");
+              const closed = opt.isClosed;
               return (
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => setDate(opt.value)}
+                  onClick={() => {
+                    if (closed) return;
+                    setDate(opt.value);
+                    setTime(null);
+                  }}
+                  disabled={closed}
                   className={[
                     "flex w-[56px] flex-shrink-0 flex-col items-center gap-1 rounded-2xl border py-2.5 transition",
-                    active
-                      ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
-                      : "border-hesya-peach-200 bg-white text-hesya-navy-900 hover:border-hesya-amber-500",
+                    closed
+                      ? "cursor-not-allowed border-hesya-peach-200 bg-hesya-peach-50/40 text-hesya-navy-900/35"
+                      : active
+                        ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
+                        : "border-hesya-peach-200 bg-white text-hesya-navy-900 hover:border-hesya-amber-500",
                   ].join(" ")}
                 >
                   <span
                     className={[
                       "text-[10px] font-semibold uppercase tracking-wide",
-                      active
-                        ? "text-hesya-peach-50/75"
-                        : "text-hesya-navy-900/55",
+                      closed
+                        ? "text-hesya-navy-900/40"
+                        : active
+                          ? "text-hesya-peach-50/75"
+                          : "text-hesya-navy-900/55",
                     ].join(" ")}
                   >
-                    {label}
+                    {closed ? labels.closedLabel : label}
                   </span>
                   <span className="font-mono text-[16px] font-semibold leading-none">
                     {numPart}
@@ -243,11 +264,13 @@ export function BookScheduleForm({
                     aria-hidden="true"
                     className={[
                       "h-1.5 w-1.5 rounded-full",
-                      dayAvail === "open"
-                        ? "bg-emerald-500"
-                        : dayAvail === "few"
-                          ? "bg-hesya-amber-500"
-                          : "bg-hesya-navy-900/25",
+                      closed
+                        ? "bg-hesya-navy-900/15"
+                        : dayAvail === "open"
+                          ? "bg-emerald-500"
+                          : dayAvail === "few"
+                            ? "bg-hesya-amber-500"
+                            : "bg-hesya-navy-900/25",
                     ].join(" ")}
                   />
                 </button>
@@ -263,6 +286,11 @@ export function BookScheduleForm({
           <p className="mb-2 text-[11px] text-hesya-navy-900/55">
             {labels.businessHoursNote}
           </p>
+          {selectedDateClosed ? (
+            <p className="rounded-lg border border-dashed border-hesya-peach-200 bg-hesya-peach-50/40 px-3 py-4 text-center text-[11px] text-hesya-navy-900/55">
+              {labels.closedDayNote}
+            </p>
+          ) : null}
           <div className="grid grid-cols-4 gap-1.5">
             {timeSlots.map((slot) => {
               const active = time === slot.value;

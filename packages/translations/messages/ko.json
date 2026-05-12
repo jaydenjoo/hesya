@@ -206,7 +206,9 @@
     "depositTitle": "선결제 및 취소 정책",
     "depositBody": "30% 선결제로 예약이 확정됩니다. 예약 24시간 전까지 무료 취소 가능.",
     "totalLabel": "합계",
-    "slotFew": "마감 임박"
+    "slotFew": "마감 임박",
+    "closedLabel": "휴무",
+    "closedDayNote": "이 날은 매장이 휴무입니다. 다른 날을 선택해주세요."
   },
   "BookConfirm": {
     "eyebrow": "예약 확정",

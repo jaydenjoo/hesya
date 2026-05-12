@@ -206,7 +206,9 @@
     "depositTitle": "Deposit & cancellation",
     "depositBody": "A 30% deposit holds your slot. Free cancellation up to 24 hours before.",
     "totalLabel": "Total",
-    "slotFew": "Few"
+    "slotFew": "Few",
+    "closedLabel": "Closed",
+    "closedDayNote": "The salon is closed on this day. Please pick another date."
   },
   "BookConfirm": {
     "eyebrow": "Booking Confirmation",

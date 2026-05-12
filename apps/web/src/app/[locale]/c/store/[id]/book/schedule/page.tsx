@@ -128,6 +128,7 @@ export default async function StoreBookSchedulePage({
           locale={locale}
           services={serviceProps}
           staffList={staffProps}
+          businessHours={store.businessHours}
           labels={{
             step1: t("step1"),
             step2: t("step2"),
@@ -144,6 +145,8 @@ export default async function StoreBookSchedulePage({
             depositBody: t("depositBody"),
             totalLabel: t("totalLabel"),
             slotFew: t("slotFew"),
+            closedLabel: t("closedLabel"),
+            closedDayNote: t("closedDayNote"),
           }}
         />
       </div>

@@ -206,7 +206,9 @@
     "depositTitle": "前金と取消ポリシー",
     "depositBody": "30%の前金でご予約を確定。24時間前までキャンセル無料。",
     "totalLabel": "合計",
-    "slotFew": "残少"
+    "slotFew": "残少",
+    "closedLabel": "定休",
+    "closedDayNote": "この日は店休日です。別の日を選んでください。"
   },
   "BookConfirm": {
     "eyebrow": "ご予約確認",

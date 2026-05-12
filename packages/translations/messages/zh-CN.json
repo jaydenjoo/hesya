@@ -206,7 +206,9 @@
     "depositTitle": "定金与取消政策",
     "depositBody": "支付 30% 定金确认预约。预约前 24 小时可免费取消。",
     "totalLabel": "合计",
-    "slotFew": "余少"
+    "slotFew": "余少",
+    "closedLabel": "休息",
+    "closedDayNote": "本日门店休息,请选择其他日期。"
   },
   "BookConfirm": {
     "eyebrow": "预约确认",
