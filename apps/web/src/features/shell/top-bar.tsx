@@ -32,6 +32,7 @@ interface Props {
   readonly locales: readonly LocaleOption[];
   readonly userInitial: string;
   readonly userName: string;
+  readonly notificationCount?: number;
   readonly labels: TopBarLabels;
 }
 
@@ -40,6 +41,7 @@ export function TopBar({
   locales,
   userInitial,
   userName,
+  notificationCount = 0,
   labels,
 }: Props) {
   const router = useRouter();
@@ -109,11 +111,16 @@ export function TopBar({
         <button
           type="button"
           aria-label="Notifications"
-          className="relative grid h-9 w-9 place-items-center rounded-md text-hesya-navy-900 transition hover:bg-gray-50"
+          className="relative grid h-9 w-9 place-items-center rounded-md border border-gray-200 bg-white text-gray-500 transition hover:border-hesya-navy-900 hover:text-hesya-navy-900"
         >
-          <span aria-hidden="true" className="text-base">
+          <span aria-hidden="true" className="text-sm">
             ◔
           </span>
+          {notificationCount > 0 ? (
+            <span className="absolute -right-1 -top-1 inline-flex min-w-[16px] items-center justify-center rounded-full border-2 border-white bg-[#c9483a] px-1 font-mono text-[9.5px] font-bold leading-none text-white">
+              {notificationCount > 99 ? "99+" : notificationCount}
+            </span>
+          ) : null}
         </button>
 
         <div className="ml-2 flex items-center gap-2 border-l border-gray-200 pl-3">
