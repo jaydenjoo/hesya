@@ -12,6 +12,14 @@
     "title": "매장 운영 대시보드",
     "greetingPrefix": "안녕하세요,",
     "greetingSuffix": "사장님",
+    "brightSpot": {
+      "urgent": "긴급",
+      "today": "오늘",
+      "inboxUnread": "미응답 메시지 {count}건 — 열린 대화 {threads}개. 빠른 응답이 재방문률을 올립니다.",
+      "disputesActive": "처리 중 분쟁 {count}건. 일찍 응답할수록 SLA에 여유가 생깁니다.",
+      "disputesSlaExceeded": "SLA 초과 분쟁 {count}건 — 우선 처리 필요.",
+      "allClear": "오늘은 미답·분쟁 0건. 좋은 흐름입니다."
+    },
     "subtitle": "Epic 4 — 외국인 매출·재방문·국적 분석 (베타 데이터 적재 후 활성화)",
     "comingSoonNote": "결제·예약 데이터 적재 후 자동 활성화",
     "kpis": {

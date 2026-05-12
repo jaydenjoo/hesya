@@ -12,6 +12,14 @@
     "title": "门店运营仪表板",
     "greetingPrefix": "您好,",
     "greetingSuffix": "店长",
+    "brightSpot": {
+      "urgent": "紧急",
+      "today": "今日",
+      "inboxUnread": "未回复消息 {count} 条 — 进行中的对话 {threads} 个。快速回复提升回头率。",
+      "disputesActive": "处理中的纠纷 {count} 件。及早回应可为 SLA 留出缓冲。",
+      "disputesSlaExceeded": "超出 SLA 的纠纷 {count} 件 — 需要优先处理。",
+      "allClear": "今日无未回复或纠纷。状态良好。"
+    },
     "subtitle": "Epic 4 — 外国人销售·复访·国籍分析(Beta 数据落地后启用)",
     "comingSoonNote": "在结算和预订数据记录后自动启用",
     "kpis": {
