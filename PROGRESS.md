@@ -3,33 +3,43 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-12 세션 21 종료 — M6 phase 12 PRs 머지, owner+admin 80%+ 도달)
+## 현재 위치 (2026-05-12 세션 22 종료 — M6 phase 14 PRs 머지, owner+admin baseline 완비)
 
-- **Phase**: **Plan v3 M1~M5 100% + M6 12/13 task 머지 (~95%)**
-- **세션 21 추가 머지 (2 PRs)**:
-  - PR [#126](https://github.com/jaydenjoo/hesya/pull/126) M6.1b Settings form row grid — reference `.set-row` (200px label + 1fr control + peach-100 border-top)
-  - PR [#127](https://github.com/jaydenjoo/hesya/pull/127) M6.2b Dashboard bright spot — reference `.sd-bright-spot` (peach-100 + amber border + diagonal gradient + i18n 6 locale)
-- **세션 21 검증된 항목** (이미 정합 — 추가 작업 불필요):
-  - M6.13 `/sign-in` — `sign-in.css` 633줄에 hesya 토큰 43건 + sl-\* 클래스 56건 사용
-  - M6.13 `/c/sign-in` — CustomerFrame chrome + amber eyebrow + Fraunces title 패턴
-  - M6.10~12 customer (`photos`, `schedule`, `mypage`) — CustomerFrame chrome 안 본문 컴포넌트 30+ 토큰 적용
-    - book-schedule-form 36건, my-page-tabs 29건, customer-frame/photo-lightbox 3~7건
-- **다음 세션 시작점 (M6 wrap-up)**:
-  - (선택) Dashboard KpiGrid 비대칭 grid (1.6fr:1fr:1fr) — 10개 KPI 카드 우선순위 동적 정렬 필요. ROI 낮음.
-  - (선택) Inbox col-1 deeper polish — 채널 chip + filter pill
-  - 베타 출시 작업으로 전환 (시연 5곳 매칭)
+- **Phase**: **Plan v3 M1~M5 100% + M6 14 PRs 머지 (실질 100% baseline)**
+- **세션 22 추가 머지 (2 PRs)**:
+  - PR [#128](https://github.com/jaydenjoo/hesya/pull/128) M6.3b Inbox col-1 search bar — reference `.ix-search` (peach-50 + peach-200 + amber focus), client-side filter, i18n 6 locale
+  - PR [#129](https://github.com/jaydenjoo/hesya/pull/129) Admin MetricCard polish — ai-accuracy + payment-monitoring를 M6.8 KpiTile + `.ad-tile` reference 패턴으로 정합 (28px Fraunces italic value + mono uppercase label + crit `#c9483a`)
+- **다음 세션 시작점**:
+  - 베타 출시 작업으로 전환 (시연 매장 5곳 매칭) — Jayden 비즈니스 사이드
+  - (선택) Inbox 채널 chip / filter pill — functional 후 추가 가능
+  - (선택) Dashboard 비대칭 bento grid — 10개 KPI 카드 동적 우선순위 (ROI 낮음)
+  - (선택) Customer-frame 모바일 frame 깊이 polish
 
-## P0 Epic 시연 % 재산정 (세션 21 머지 반영)
+## P0 Epic 시연 % 재산정 (세션 22 머지 반영)
 
-| Phase / Epic                     | 기능 % | 디자인 %        | **시연 % (min)**             |
-| -------------------------------- | ------ | --------------- | ---------------------------- |
-| M2 customer (`/c/*`, `/sign-in`) | 95%    | 80%             | **80%** ✅                   |
-| M3 owner pages (`/store/*` 8개)  | 100%   | **75%** ⬆️      | **75%** 🟡 (M6.1b form rows) |
-| M4 admin (`/admin/*`)            | 100%   | 65%             | **65%** 🟡                   |
-| M5 demo bypass                   | 100%   | n/a             | **100%** ✅                  |
-| Dashboard bright spot            | n/a    | **100%** (신규) | (M6.2b)                      |
+| Phase / Epic                     | 기능 % | 디자인 %        | **시연 % (min)**          |
+| -------------------------------- | ------ | --------------- | ------------------------- |
+| M2 customer (`/c/*`, `/sign-in`) | 95%    | 80%             | **80%** ✅                |
+| M3 owner pages (`/store/*` 8개)  | 100%   | **80%** ⬆️      | **80%** ✅ (M6.3b search) |
+| M4 admin (`/admin/*`)            | 100%   | **75%** ⬆️      | **75%** 🟡 (MetricCard)   |
+| M5 demo bypass                   | 100%   | n/a             | **100%** ✅               |
+| Dashboard bright spot            | n/a    | **100%** (신규) | (M6.2b)                   |
 
-→ owner 측 baseline 패턴 (PageHeader / SectionNav / SectionShell / FormRow / KpiCard / BrightSpot) 모두 reference 정합 도달. 베타 출시 prerequisite **충족** — 외부 시연 시 디자인 갭이 더 이상 차단 요소 아님.
+→ **M3 owner 80% 도달** — M2 customer와 동등. 베타 출시 prerequisite 완전 충족. M6 phase 실질적 wrap.
+
+## M6 phase 머지 PR 목록 (전체 14개)
+
+- Phase 0 [#115](https://github.com/jaydenjoo/hesya/pull/115) 공통 컴포넌트
+- M6.1 [#117](https://github.com/jaydenjoo/hesya/pull/117), M6.1b [#126](https://github.com/jaydenjoo/hesya/pull/126) settings
+- M6.2 [#118](https://github.com/jaydenjoo/hesya/pull/118), M6.2b [#127](https://github.com/jaydenjoo/hesya/pull/127) dashboard
+- M6.3 [#119](https://github.com/jaydenjoo/hesya/pull/119), M6.3b [#128](https://github.com/jaydenjoo/hesya/pull/128) inbox
+- M6.4 [#120](https://github.com/jaydenjoo/hesya/pull/120) bookings
+- M6.5 [#121](https://github.com/jaydenjoo/hesya/pull/121) services
+- M6.6 [#122](https://github.com/jaydenjoo/hesya/pull/122) customers
+- M6.7 [#123](https://github.com/jaydenjoo/hesya/pull/123) knowledge/disputes/inbox-skipped
+- M6.8 [#124](https://github.com/jaydenjoo/hesya/pull/124) admin dashboard
+- M6.9 [#125](https://github.com/jaydenjoo/hesya/pull/125) admin sub-pages
+- Admin polish [#129](https://github.com/jaydenjoo/hesya/pull/129) MetricCard
 
 ## 🆕 Plan v3 M6 — Owner/Admin 디자인 정합성 (전면)
 
