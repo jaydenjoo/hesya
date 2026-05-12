@@ -73,51 +73,65 @@ export function BookingDetail({
   };
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <section className="space-y-2">
-        <h2 className="text-sm font-medium text-hesya-navy-900">
-          {labels.headers.info}
-        </h2>
-        <dl className="rounded-md border border-hesya-peach-100 bg-white p-4 text-sm">
-          <Row
-            k={labels.fields.scheduled}
-            v={formatDate(booking.scheduledAt)}
+    <div className="max-w-3xl space-y-8">
+      <section className="space-y-4">
+        <div>
+          <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+            §01 · Info
+          </p>
+          <h2 className="mt-1.5 font-display text-[20px] italic text-hesya-navy-900">
+            {labels.headers.info}
+          </h2>
+        </div>
+        <div className="flex flex-col gap-2.5">
+          <InfoBlock
+            label={labels.fields.scheduled}
+            value={formatDate(booking.scheduledAt)}
+            mono
           />
-          <Row k={labels.fields.service} v={serviceLabel} />
-          <Row k={labels.fields.staff} v={staffLabel} />
-          <Row
-            k={labels.fields.price}
-            v={
+          <InfoBlock label={labels.fields.service} value={serviceLabel} />
+          <InfoBlock label={labels.fields.staff} value={staffLabel} />
+          <InfoBlock
+            label={labels.fields.price}
+            value={
               booking.totalPriceKrw
                 ? `₩${booking.totalPriceKrw.toLocaleString()}`
                 : "—"
             }
+            mono
+            highlight={!!booking.totalPriceKrw}
           />
-          <Row
-            k={labels.fields.deposit}
-            v={
+          <InfoBlock
+            label={labels.fields.deposit}
+            value={
               booking.depositPaidKrw
                 ? `₩${booking.depositPaidKrw.toLocaleString()}`
                 : "—"
             }
+            mono
           />
-          <Row
-            k={labels.fields.paymentMethod}
-            v={booking.paymentMethod ?? "—"}
+          <InfoBlock
+            label={labels.fields.paymentMethod}
+            value={booking.paymentMethod ?? "—"}
           />
-          <Row
-            k={labels.fields.status}
-            v={labels.statuses[currentStatus] ?? currentStatus}
+          <InfoBlock
+            label={labels.fields.status}
+            value={labels.statuses[currentStatus] ?? currentStatus}
           />
-        </dl>
+        </div>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-medium text-hesya-navy-900">
-          {labels.headers.actions}
-        </h2>
+      <section className="space-y-4">
+        <div>
+          <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+            §02 · Actions
+          </p>
+          <h2 className="mt-1.5 font-display text-[20px] italic text-hesya-navy-900">
+            {labels.headers.actions}
+          </h2>
+        </div>
         {isTerminal ? (
-          <p className="text-sm text-hesya-navy-900/70">
+          <p className="kr break-keep rounded-md bg-hesya-peach-50 px-4 py-3 text-[13px] text-gray-700">
             {labels.actions.terminalNote}
           </p>
         ) : (
@@ -126,7 +140,7 @@ export function BookingDetail({
               type="button"
               onClick={dispatch("completed")}
               disabled={pending}
-              className="rounded-md bg-hesya-amber-500 px-4 py-2 font-medium text-white transition-colors hover:bg-hesya-amber-600 disabled:opacity-40"
+              className="kr rounded-md bg-hesya-amber-500 px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-hesya-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {pending
                 ? labels.actions.processing
@@ -136,7 +150,7 @@ export function BookingDetail({
               type="button"
               onClick={dispatch("no_show")}
               disabled={pending}
-              className="rounded-md border border-hesya-peach-200 bg-white px-4 py-2 text-hesya-navy-900 transition-colors hover:border-hesya-navy-900 disabled:opacity-40"
+              className="kr rounded-md border border-hesya-peach-200 bg-white px-4 py-2 text-[13px] font-medium text-hesya-navy-900 transition-colors hover:border-hesya-amber-500 hover:text-hesya-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {labels.actions.markNoShow}
             </button>
@@ -144,23 +158,53 @@ export function BookingDetail({
               type="button"
               onClick={dispatch("cancelled")}
               disabled={pending}
-              className="rounded-md border border-hesya-peach-200 bg-white px-4 py-2 text-hesya-navy-900 transition-colors hover:border-hesya-navy-900 disabled:opacity-40"
+              className="kr rounded-md border border-hesya-peach-200 bg-white px-4 py-2 text-[13px] font-medium text-hesya-navy-900 transition-colors hover:border-hesya-amber-500 hover:text-hesya-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {labels.actions.markCancelled}
             </button>
           </div>
         )}
-        {errorMsg && <p className="text-sm text-red-700">{errorMsg}</p>}
+        {errorMsg && <p className="text-sm text-destructive">{errorMsg}</p>}
       </section>
     </div>
   );
 }
 
-function Row({ k, v }: { k: string; v: string }) {
+/**
+ * M6.4b — reference `.bk-info-block` 정합 (peach-50 carded + uppercase key + 18px mono val).
+ */
+function InfoBlock({
+  label,
+  value,
+  highlight = false,
+  mono = false,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+  mono?: boolean;
+}) {
   return (
-    <div className="flex gap-3 py-1.5">
-      <dt className="w-32 font-medium text-hesya-navy-900">{k}</dt>
-      <dd className="text-hesya-navy-900/80">{v}</dd>
+    <div
+      className={
+        "rounded-md px-3.5 py-3 " +
+        (highlight
+          ? "border border-hesya-amber-500 bg-hesya-peach-100"
+          : "bg-hesya-peach-50")
+      }
+    >
+      <p className="mb-1 font-mono text-[10px] font-bold uppercase tracking-[0.06em] text-gray-500">
+        {label}
+      </p>
+      <p
+        className={
+          (mono
+            ? "mono text-[18px] font-bold "
+            : "kr text-[13px] font-medium ") + "text-hesya-navy-900"
+        }
+      >
+        {value}
+      </p>
     </div>
   );
 }
