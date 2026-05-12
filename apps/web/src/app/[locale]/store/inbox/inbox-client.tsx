@@ -91,12 +91,20 @@ export function InboxClient({
   const customerName = active ? active.customerId.slice(0, 8) : "";
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col">
+    <div className="flex h-[calc(100vh-64px)] flex-col bg-hesya-peach-50">
       {tokenExpired ? <TokenExpiredBanner /> : null}
       <div
         data-testid="inbox-store-header"
-        className="flex items-center justify-end border-b border-hesya-peach-200 bg-white px-4 py-2"
+        className="flex items-center justify-between border-b border-hesya-peach-100 bg-white px-6 py-2.5"
       >
+        <div className="flex items-baseline gap-2.5">
+          <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+            Operator · Inbox
+          </p>
+          <h1 className="text-[15px] font-semibold tracking-[-0.005em] text-hesya-navy-900">
+            통합 인박스
+          </h1>
+        </div>
         <BotModeToggle storeId={storeId} initialValue={storeBotMode} />
       </div>
       <div className="flex-1 overflow-hidden">

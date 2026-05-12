@@ -31,13 +31,13 @@ export function ThreadList({
 
   return (
     <>
-      <header className="flex flex-shrink-0 items-baseline justify-between border-b border-hesya-peach-100 bg-white px-4 py-3">
-        <h2 className="kr text-lg font-bold tracking-tight text-hesya-navy-900">
-          통합 인박스
+      <header className="flex flex-shrink-0 items-center justify-between border-b border-hesya-peach-100 bg-white px-4 py-3.5">
+        <h2 className="text-[15px] font-semibold tracking-[-0.005em] text-hesya-navy-900">
+          스레드
         </h2>
         <span
           data-testid="thread-list-unread-total"
-          className="mono text-xs text-hesya-amber-600"
+          className="rounded-full bg-hesya-peach-100 px-2.5 py-1 font-mono text-[10.5px] font-bold uppercase tracking-[0.04em] text-hesya-amber-600"
         >
           {unreadTotal} 미답
         </span>

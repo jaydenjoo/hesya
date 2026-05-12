@@ -39,7 +39,7 @@ export function InboxShell({
       <ResizablePanel defaultSize={22} minSize={16}>
         <section
           aria-label="Thread list"
-          className="flex h-full flex-col border-r border-hesya-peach-200 bg-white"
+          className="flex h-full flex-col border-r border-hesya-peach-100 bg-white"
         >
           {threadColumn}
         </section>
@@ -48,7 +48,7 @@ export function InboxShell({
       <ResizablePanel defaultSize={52} minSize={32}>
         <section
           aria-label="Message view"
-          className="flex h-full flex-col bg-white"
+          className="flex h-full flex-col bg-hesya-peach-50/40"
         >
           {messageColumn}
         </section>
@@ -57,7 +57,7 @@ export function InboxShell({
       <ResizablePanel defaultSize={26} minSize={18}>
         <section
           aria-label="Customer context"
-          className="flex h-full flex-col border-l border-hesya-peach-200 bg-hesya-peach-50"
+          className="flex h-full flex-col border-l border-hesya-peach-100 bg-white"
         >
           {contextColumn ?? (
             <div
