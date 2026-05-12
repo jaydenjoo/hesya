@@ -1,9 +1,16 @@
 "use client";
 
+/**
+ * Epic 1B + M6.3f — reference `.ix-composer` 정합.
+ *
+ * - 외곽: 흰 배경 + peach-100 border-top
+ * - 입력: peach-50 bg + peach-200 border + focus-within → amber + white
+ * - 톤 학습 버튼: dashed peach-200 → solid amber on hover (`.ix-store-tone`)
+ * - 발송: 입력 비어있을 때 gray-300 / 활성 시 amber-500 (`.ix-send-btn`)
+ */
+
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { sendOutbound } from "../actions/send-outbound";
 import { learnStoreTone } from "../actions/learn-store-tone";
 
@@ -80,37 +87,55 @@ export function ReplyComposer({
   }
 
   return (
-    <div className="border-t p-3">
-      <div className="mb-2 flex justify-end">
+    <div
+      data-testid="reply-composer"
+      className="flex-shrink-0 border-t border-hesya-peach-100 bg-white px-4 pt-2.5 pb-3.5"
+    >
+      {/* `.ix-comp-toolbar` 정합: spacer + tone learn button (right-aligned) */}
+      <div className="mb-2 flex items-center justify-end">
         <button
           type="button"
           onClick={handleLearnTone}
           disabled={!canLearn}
           aria-label={t("learnTone")}
-          className="text-xs text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+          className="kr cursor-pointer whitespace-nowrap rounded border border-dashed border-hesya-peach-200 bg-transparent px-2.5 py-1 text-[11px] font-medium text-gray-700 transition-colors hover:border-solid hover:border-hesya-amber-500 hover:text-hesya-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {t("learnTone")}
         </button>
       </div>
-      <Textarea
-        value={text}
-        onChange={(e) => {
-          setText(e.target.value);
-          // Phase 2-B LOW-1 — 새 입력 시작 시 이전 학습 결과 메시지 제거.
-          // 사용자가 다음 학습/발송 흐름을 명확히 인지하도록.
-          if (learnNotice) setLearnNotice(null);
-        }}
-        placeholder={t("placeholder")}
-        aria-label={t("label")}
-        disabled={disabled || busy}
-        rows={3}
-        className="resize-none"
-      />
-      {error ? <p className="mt-2 text-sm text-destructive">{error}</p> : null}
+      {/* `.ix-comp-input-wrap` 정합: peach-50 + peach-200 → focus-within amber+white */}
+      <div className="flex items-end gap-2.5 rounded-md border border-hesya-peach-200 bg-hesya-peach-50 px-3 py-2.5 transition-colors focus-within:border-hesya-amber-500 focus-within:bg-white">
+        <textarea
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value);
+            if (learnNotice) setLearnNotice(null);
+          }}
+          placeholder={t("placeholder")}
+          aria-label={t("label")}
+          disabled={disabled || busy}
+          rows={1}
+          className="kr min-h-[38px] max-h-[100px] flex-1 resize-none border-none bg-transparent text-[13px] leading-relaxed text-hesya-navy-900 outline-none placeholder:text-gray-400 disabled:cursor-not-allowed"
+        />
+        <button
+          type="button"
+          onClick={handleSend}
+          disabled={!canSend}
+          className={
+            "kr inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-[12px] font-semibold transition-colors " +
+            (canSend
+              ? "bg-hesya-amber-500 text-white hover:bg-hesya-amber-600 cursor-pointer"
+              : "bg-gray-300 text-white cursor-not-allowed")
+          }
+        >
+          {t("send")}
+        </button>
+      </div>
+      {error ? <p className="mt-2 text-xs text-destructive">{error}</p> : null}
       {learnNotice ? (
         <p
           className={
-            "mt-1 text-xs " +
+            "mt-1.5 text-[11px] " +
             (learnNotice.kind === "ok"
               ? "text-emerald-700"
               : "text-destructive")
@@ -119,11 +144,6 @@ export function ReplyComposer({
           {t(learnNotice.key)}
         </p>
       ) : null}
-      <div className="mt-2 flex justify-end">
-        <Button onClick={handleSend} disabled={!canSend}>
-          {t("send")}
-        </Button>
-      </div>
     </div>
   );
 }
