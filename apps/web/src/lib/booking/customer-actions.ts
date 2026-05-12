@@ -222,7 +222,13 @@ export async function createBookingAction(
 
     return { ok: true, ...result };
   } catch (err) {
-    if (err instanceof BookingSlotTakenError) {
+    // PG unique_violation (23505) = 마이그 0027의 bookings_unique_active_staff_time
+    // partial index가 race window 차단. sentinel과 같은 메시지로 정규화.
+    const pgCode =
+      err && typeof err === "object" && "code" in err
+        ? (err as { code?: unknown }).code
+        : undefined;
+    if (err instanceof BookingSlotTakenError || pgCode === "23505") {
       return {
         ok: false,
         error: "slot_taken",

@@ -98,6 +98,9 @@ describe.skipIf(!hasDb)("dal.bookings (integration)", () => {
 
   it("listBookingsByStore — filter scheduled만 반환", async () => {
     const now = new Date();
+    // 마이그 0027 unique partial index 회피 — 같은 staff/시각 active 1건 제한.
+    // 테스트 의도는 status filter 검증이므로 분 단위로 분리.
+    const later = new Date(now.getTime() + 30 * 60_000);
     await db.insert(bookings).values([
       {
         storeId,
@@ -112,7 +115,7 @@ describe.skipIf(!hasDb)("dal.bookings (integration)", () => {
         customerId,
         staffId,
         serviceId: serviceB,
-        scheduledAt: now,
+        scheduledAt: later,
         status: "completed",
       },
     ]);
@@ -174,6 +177,8 @@ describe.skipIf(!hasDb)("dal.bookings (integration)", () => {
       .insert(staff)
       .values({ storeId, name: "수아" })
       .returning({ id: staff.id });
+    // 마이그 0027 회피 — 같은 staff/시각 active 1건 제한.
+    const later2 = new Date(now.getTime() + 60 * 60_000);
     await db.insert(bookings).values([
       {
         storeId,
@@ -188,7 +193,7 @@ describe.skipIf(!hasDb)("dal.bookings (integration)", () => {
         customerId,
         staffId,
         serviceId: serviceA,
-        scheduledAt: now,
+        scheduledAt: later2,
         status: "completed",
       },
       {

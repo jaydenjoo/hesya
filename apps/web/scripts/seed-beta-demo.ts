@@ -392,9 +392,9 @@ async function main(): Promise<void> {
   }
 
   // 3-e. 매장 FAQ 5건 (Epic 1B-B-4a / Phase D4-D4 시연용 — /store/knowledge
-  // 빈 list 방지). embedding은 시드 단계에서 null 유지 — 실제 운영에서는
-  // OpenAI text-embedding-3-small 호출 후 채워짐. 검색은 IS NOT NULL 가드 후
-  // 시연 시 fallback 동작 또는 직접 답변 표시.
+  // 빈 list 방지). question 임베딩 inline 생성 (text-embedding-3-small) —
+  // RAG 검색 시연 가능. OPENAI_API_KEY 없거나 호출 실패 시 null fallback +
+  // 경고 (시드 자체는 중단 X).
   const demoFaqs = [
     {
       question: "예약 변경/취소는 어떻게 하나요?",
@@ -422,11 +422,45 @@ async function main(): Promise<void> {
         "매장 자체 주차장은 없으며, 인근 공영주차장(첫 1시간 3,000원) 이용을 권장합니다. 발렛 서비스는 제공하지 않습니다.",
     },
   ];
+  const openaiKey = process.env.OPENAI_API_KEY;
   for (const faq of demoFaqs) {
+    let embedding: number[] | null = null;
+    if (openaiKey && openaiKey.startsWith("sk-")) {
+      try {
+        const res = await fetch("https://api.openai.com/v1/embeddings", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            authorization: `Bearer ${openaiKey}`,
+          },
+          body: JSON.stringify({
+            model: "text-embedding-3-small",
+            input: faq.question,
+          }),
+        });
+        if (res.ok) {
+          const j = (await res.json()) as {
+            data?: Array<{ embedding?: number[] }>;
+          };
+          const vec = j.data?.[0]?.embedding;
+          if (vec && vec.length === 1536) embedding = vec;
+        } else {
+          console.warn(
+            `[seed] FAQ "${faq.question.slice(0, 30)}…" 임베딩 실패 (HTTP ${res.status})`,
+          );
+        }
+      } catch (e) {
+        console.warn(
+          `[seed] FAQ "${faq.question.slice(0, 30)}…" 임베딩 실패:`,
+          e instanceof Error ? e.message : e,
+        );
+      }
+    }
     await db.insert(storeKnowledge).values({
       storeId: autoStoreId,
       question: faq.question,
       answer: faq.answer,
+      embedding,
     });
   }
 
