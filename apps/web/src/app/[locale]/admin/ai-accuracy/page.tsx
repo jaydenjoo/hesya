@@ -146,26 +146,32 @@ function MetricCard({
 }) {
   return (
     <div
-      className={`rounded-md border p-4 ${
-        alert ? "border-red-300 bg-red-50" : "border-hesya-peach-100 bg-white"
+      className={`rounded-md border p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)] transition ${
+        alert
+          ? "border-[#e5c0ba] bg-[#faefec]"
+          : "border-gray-200 bg-white hover:border-hesya-amber-500/40"
       }`}
     >
-      <div className="text-xs font-medium text-hesya-navy-900/70">{label}</div>
-      <div className="mt-2 flex items-baseline gap-1">
+      <div className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-gray-700">
+        {label}
+      </div>
+      <div className="mt-2 flex items-baseline gap-1.5">
         <span
-          className={`text-2xl font-bold tracking-[-0.01em] ${
-            alert ? "text-red-900" : "text-hesya-navy-900"
+          className={`font-heading text-[28px] font-medium italic leading-none tracking-[-0.02em] ${
+            alert ? "text-[#c9483a]" : "text-hesya-navy-900"
           }`}
         >
           {value}
         </span>
-        {unit && <span className="text-sm text-hesya-navy-900/70">{unit}</span>}
+        {unit && (
+          <span className="text-[12px] font-medium text-gray-500">{unit}</span>
+        )}
       </div>
       {subtext && (
-        <div className="mt-1 text-xs text-hesya-navy-900/60">{subtext}</div>
+        <div className="mt-1.5 text-[11px] text-gray-500">{subtext}</div>
       )}
       {alert && alertReason && (
-        <div className="mt-2 text-xs font-medium text-red-700">
+        <div className="mt-2 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[#c9483a]">
           ⚠ {alertReason}
         </div>
       )}
