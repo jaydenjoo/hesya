@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import { getInstagramOAuthUrl } from "@/features/inbox";
 import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
 import { OwnerShell } from "@/features/shell/owner-shell";
@@ -61,28 +59,38 @@ export default async function ConnectPage({
       userName={shell.userName}
       userInitial={shell.userInitial}
     >
-      <div className="mx-auto max-w-xl px-6 py-10">
-        <header className="mb-8 space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-            Operator · Inbox · Connect
-          </p>
-          <h1 className="font-heading text-3xl font-semibold italic tracking-tight text-hesya-navy-900">
-            {t("title")}
-          </h1>
-          <p className="text-sm text-hesya-navy-900/65">{t("description")}</p>
-        </header>
+      <div className="bg-hesya-peach-50 min-h-[calc(100vh-64px)]">
+        <div className="mx-auto max-w-xl px-6 py-10">
+          <header className="mb-8 space-y-1.5">
+            <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+              Operator · Inbox · Connect
+            </p>
+            <h1 className="font-display text-[28px] italic tracking-tight text-hesya-navy-900">
+              {t("title")}
+            </h1>
+            <p className="kr text-[13px] text-gray-600">{t("description")}</p>
+          </header>
 
-        {errorCode ? (
-          <Alert variant="destructive" className="mb-4">
-            <AlertDescription>
+          {errorCode ? (
+            <div
+              role="alert"
+              className="kr mb-4 rounded-md border border-[#c9483a] bg-[#fbeae5] px-4 py-3 text-[13px] text-[#c9483a]"
+            >
               {tFailed("failed", { reason: errorCode })}
-            </AlertDescription>
-          </Alert>
-        ) : null}
+            </div>
+          ) : null}
 
-        <form action={start}>
-          <Button type="submit">{t("button")}</Button>
-        </form>
+          <form action={start}>
+            <button
+              type="submit"
+              className="kr inline-flex items-center gap-1.5 rounded-md bg-hesya-amber-500 px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-hesya-amber-600"
+            >
+              <span aria-hidden="true">📱</span>
+              {t("button")}
+              <span aria-hidden="true">→</span>
+            </button>
+          </form>
+        </div>
       </div>
     </OwnerShell>
   );

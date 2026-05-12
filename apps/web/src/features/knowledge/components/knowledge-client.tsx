@@ -27,27 +27,24 @@ export function KnowledgeClient({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
 
+  // Page-level PageHeader가 title/eyebrow 렌더링. 내부에서는 count chip + action.
   return (
-    <div className="mx-auto max-w-3xl px-[18px] py-8">
-      <header className="mb-6">
-        <h1 className="kr text-2xl font-bold text-hesya-navy-900">매장 FAQ</h1>
-        <p className="kr mt-1 text-sm text-gray-700">
-          여기 등록한 질문/답변을 AI가 참고해 고객 메시지에 답변합니다.
-          <span className="ml-2 text-xs text-hesya-amber-600">
-            ({initialFAQs.length}/{maxFAQs})
-          </span>
-        </p>
-      </header>
-
-      {!showAdd && initialFAQs.length < maxFAQs ? (
-        <button
-          type="button"
-          onClick={() => setShowAdd(true)}
-          className="kr mb-4 cursor-pointer rounded-md bg-hesya-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-hesya-amber-600"
-        >
-          + FAQ 추가
-        </button>
-      ) : null}
+    <div>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <span className="kr inline-flex items-center gap-2 rounded-full bg-hesya-peach-100 px-3 py-1 font-mono text-[11px] font-semibold text-hesya-amber-600">
+          <span aria-hidden="true">📚</span>
+          {initialFAQs.length}/{maxFAQs}
+        </span>
+        {!showAdd && initialFAQs.length < maxFAQs ? (
+          <button
+            type="button"
+            onClick={() => setShowAdd(true)}
+            className="kr inline-flex items-center gap-1.5 rounded-md bg-hesya-amber-500 px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-hesya-amber-600"
+          >
+            + FAQ 추가
+          </button>
+        ) : null}
+      </div>
 
       {showAdd ? (
         <FAQForm
@@ -58,10 +55,19 @@ export function KnowledgeClient({
       ) : null}
 
       {initialFAQs.length === 0 ? (
-        <p className="kr mt-8 rounded-lg border border-dashed border-hesya-peach-200 p-6 text-center text-sm text-gray-700">
-          아직 등록된 FAQ가 없습니다. &quot;+ FAQ 추가&quot;로 첫 질문/답변을
-          등록해 보세요.
-        </p>
+        <div className="mt-2 flex flex-col items-center gap-2.5 rounded-md bg-hesya-peach-50 px-8 py-12 text-center">
+          <div
+            aria-hidden="true"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-hesya-peach-100 text-lg"
+          >
+            ✨
+          </div>
+          <p className="kr break-keep text-[13px] text-gray-500">
+            아직 등록된 FAQ가 없습니다.
+            <br />
+            &quot;+ FAQ 추가&quot;로 첫 질문/답변을 등록해 보세요.
+          </p>
+        </div>
       ) : (
         <ul className="mt-4 space-y-3">
           {initialFAQs.map((faq) =>

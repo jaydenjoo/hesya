@@ -61,8 +61,14 @@ export default async function InboxSkippedPage({
         />
         <div className="mx-auto max-w-4xl px-8 pb-10">
           {rows.length === 0 ? (
-            <div className="rounded-md border border-dashed border-hesya-peach-200 bg-white/60 px-6 py-12 text-center">
-              <p className="text-sm text-hesya-navy-900/60">{t("emptyText")}</p>
+            <div className="flex flex-col items-center gap-2.5 rounded-md bg-hesya-peach-50 px-8 py-12 text-center">
+              <div
+                aria-hidden="true"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-hesya-peach-100 text-lg"
+              >
+                ✨
+              </div>
+              <p className="kr text-[13px] text-gray-500">{t("emptyText")}</p>
             </div>
           ) : (
             <ul className="space-y-3">
