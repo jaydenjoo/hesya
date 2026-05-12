@@ -99,8 +99,13 @@
     }
   },
   "Inbox": {
-    "title": "Unified Inbox",
-    "empty": "No messages yet",
+    "title": "Hộp thư hợp nhất",
+    "empty": "Chưa có tin nhắn nào",
+    "threadListTitle": "Cuộc trò chuyện",
+    "threadListUnread": "chưa đọc",
+    "searchPlaceholder": "Tìm theo tên hoặc tin nhắn",
+    "searchAriaLabel": "Tìm cuộc trò chuyện",
+    "searchClearLabel": "Xóa tìm kiếm",
     "notConnected": {
       "title": "Connect your Instagram",
       "description": "Connect an Instagram Business account to start receiving customer DMs",

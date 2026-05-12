@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   ThreadList,
   ThreadListConnectCTA,
@@ -28,6 +29,7 @@ export function InboxClient({
   storeId: string;
   storeBotMode: boolean;
 }) {
+  const t = useTranslations("Inbox");
   const [conversations, setConversations] =
     useState<Conversation[]>(initialConversations);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -119,6 +121,13 @@ export function InboxClient({
                 setActiveId(id);
                 setActiveCustomer(null);
                 setMessages([]);
+              }}
+              labels={{
+                title: t("threadListTitle"),
+                unread: t("threadListUnread"),
+                searchPlaceholder: t("searchPlaceholder"),
+                searchAriaLabel: t("searchAriaLabel"),
+                searchClearLabel: t("searchClearLabel"),
               }}
             />
           }

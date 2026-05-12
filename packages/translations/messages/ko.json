@@ -101,6 +101,11 @@
   "Inbox": {
     "title": "통합 인박스",
     "empty": "아직 메시지가 없습니다",
+    "threadListTitle": "스레드",
+    "threadListUnread": "미답",
+    "searchPlaceholder": "이름 또는 메시지 검색",
+    "searchAriaLabel": "스레드 검색",
+    "searchClearLabel": "검색 지우기",
     "notConnected": {
       "title": "Instagram 연결이 필요합니다",
       "description": "고객 DM을 받으려면 Instagram 비즈니스 계정을 연결해 주세요",
