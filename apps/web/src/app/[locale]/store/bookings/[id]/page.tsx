@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
+import { PageHeader } from "@/components/ui/page-header";
 import { BookingDetail } from "@/features/booking";
 import { buildServiceLabels, buildStaffLabels } from "@/features/booking";
 import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
@@ -71,49 +72,44 @@ export default async function StoreBookingDetailPage({
       userName={shell.userName}
       userInitial={shell.userInitial}
     >
-      <div className="mx-auto max-w-4xl px-6 py-10">
-        <header className="mb-6 space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-            Operator · Bookings · Detail
-          </p>
-          <h1 className="font-heading text-3xl font-semibold italic tracking-tight text-hesya-navy-900">
-            {t("title")}
-          </h1>
-        </header>
-        <BookingDetail
-          locale={locale}
-          booking={booking}
-          serviceLabel={serviceLabel}
-          staffLabel={staffLabel}
-          labels={{
-            headers: {
-              info: t("detailPage.headers.info"),
-              actions: t("detailPage.headers.actions"),
-            },
-            fields: {
-              scheduled: t("detailPage.fields.scheduled"),
-              service: t("detailPage.fields.service"),
-              staff: t("detailPage.fields.staff"),
-              price: t("detailPage.fields.price"),
-              deposit: t("detailPage.fields.deposit"),
-              paymentMethod: t("detailPage.fields.paymentMethod"),
-              status: t("detailPage.fields.status"),
-            },
-            statuses: {
-              scheduled: t("statuses.scheduled"),
-              completed: t("statuses.completed"),
-              cancelled: t("statuses.cancelled"),
-              no_show: t("statuses.no_show"),
-            },
-            actions: {
-              markCompleted: t("detailPage.actions.markCompleted"),
-              markNoShow: t("detailPage.actions.markNoShow"),
-              markCancelled: t("detailPage.actions.markCancelled"),
-              processing: t("detailPage.actions.processing"),
-              terminalNote: t("detailPage.actions.terminalNote"),
-            },
-          }}
-        />
+      <div className="bg-hesya-peach-50">
+        <PageHeader eyebrow="Operator · Bookings · Detail" title={t("title")} />
+        <div className="mx-auto max-w-4xl px-8 pb-10">
+          <BookingDetail
+            locale={locale}
+            booking={booking}
+            serviceLabel={serviceLabel}
+            staffLabel={staffLabel}
+            labels={{
+              headers: {
+                info: t("detailPage.headers.info"),
+                actions: t("detailPage.headers.actions"),
+              },
+              fields: {
+                scheduled: t("detailPage.fields.scheduled"),
+                service: t("detailPage.fields.service"),
+                staff: t("detailPage.fields.staff"),
+                price: t("detailPage.fields.price"),
+                deposit: t("detailPage.fields.deposit"),
+                paymentMethod: t("detailPage.fields.paymentMethod"),
+                status: t("detailPage.fields.status"),
+              },
+              statuses: {
+                scheduled: t("statuses.scheduled"),
+                completed: t("statuses.completed"),
+                cancelled: t("statuses.cancelled"),
+                no_show: t("statuses.no_show"),
+              },
+              actions: {
+                markCompleted: t("detailPage.actions.markCompleted"),
+                markNoShow: t("detailPage.actions.markNoShow"),
+                markCancelled: t("detailPage.actions.markCancelled"),
+                processing: t("detailPage.actions.processing"),
+                terminalNote: t("detailPage.actions.terminalNote"),
+              },
+            }}
+          />
+        </div>
       </div>
     </OwnerShell>
   );
