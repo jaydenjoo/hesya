@@ -55,13 +55,13 @@ export default async function AdminStoreDeletionPage({
   const rows = await listDeletionRequestsForAdmin(db, { status: filter });
 
   return (
-    <main className="min-h-screen bg-hesya-peach-50/30">
+    <main className="min-h-screen bg-hesya-peach-50">
       <PageHeader
         eyebrow="Admin · Store Deletion"
         title="매장 해지 / 데이터 삭제"
         subtitle="개인정보보호법 §21 — 보유기간 경과 후 30일 grace 후 cascade 영구 삭제."
       />
-      <div className="container py-8">
+      <div className="mx-auto max-w-6xl px-8 pb-10">
         <AdminDeletionQueue
           rows={rows.map((r) => ({
             id: r.id,

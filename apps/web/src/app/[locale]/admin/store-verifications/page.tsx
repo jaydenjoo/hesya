@@ -28,9 +28,13 @@ export default async function StoreVerificationsPage({
   const rows = await listStoresPendingReview(db);
 
   return (
-    <main className="min-h-screen bg-hesya-peach-50/30">
-      <PageHeader eyebrow="Admin · Store Verifications" title="매장 검토 큐" />
-      <div className="container py-8">
+    <main className="min-h-screen bg-hesya-peach-50">
+      <PageHeader
+        eyebrow="Admin · Store Verifications"
+        title="매장 검토 큐"
+        subtitle="신규 매장의 사업자 정보를 검토하고 KYC를 진행합니다."
+      />
+      <div className="mx-auto max-w-6xl px-8 pb-10">
         <StoreVerificationsList rows={rows} />
       </div>
     </main>

@@ -27,10 +27,10 @@ const STATUS_LABELS: Record<ApiPolicyAlertStatus, string> = {
 };
 
 const STATUS_BADGE_COLORS: Record<ApiPolicyAlertStatus, string> = {
-  new: "bg-amber-100 text-amber-900 border-amber-300",
-  reviewed: "bg-blue-100 text-blue-900 border-blue-300",
-  resolved: "bg-green-100 text-green-900 border-green-300",
-  ignored: "bg-gray-100 text-gray-700 border-gray-300",
+  new: "bg-[#fbeae5] text-[#c9483a]",
+  reviewed: "bg-hesya-peach-100 text-hesya-amber-600",
+  resolved: "bg-emerald-50 text-emerald-700",
+  ignored: "bg-gray-100 text-gray-600",
 };
 
 function parseStatusFilter(
@@ -76,14 +76,14 @@ export default async function AdminApiPolicyAlertsPage({
   );
 
   return (
-    <main className="min-h-screen bg-hesya-peach-50/30">
+    <main className="min-h-screen bg-hesya-peach-50">
       <PageHeader
         eyebrow="Admin · API Policy Alerts"
         title="API 정책 변경 알림"
         subtitle="n8n RSS 워크플로가 30분마다 외부 채널 정책 RSS를 폴링하여 새 entry 발견 시 자동 등록. SLA 7일 (PRD §1063 R1)."
       />
-      <div className="container py-8">
-        <div className="mb-6">
+      <div className="mx-auto max-w-6xl px-8 pb-10">
+        <div className="mb-5">
           <FilterTabs
             activeFilter={filter}
             basePath={`/${locale}/admin/api-policy-alerts`}
@@ -91,63 +91,82 @@ export default async function AdminApiPolicyAlertsPage({
         </div>
 
         {rows.length === 0 ? (
-          <section className="rounded-md border border-dashed border-hesya-peach-200 bg-hesya-peach-50/60 p-8 text-center">
-            <p className="text-sm text-hesya-navy-900/70">
+          <div className="flex flex-col items-center gap-2.5 rounded-md bg-hesya-peach-50 px-8 py-12 text-center">
+            <div
+              aria-hidden="true"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-hesya-peach-100 text-lg"
+            >
+              ✨
+            </div>
+            <p className="kr text-[13px] text-gray-500">
               {filter === "all"
                 ? "API 정책 변경 알림 없음 — n8n RSS 워크플로 가동 후 자동 수집됩니다."
                 : `'${STATUS_LABELS[filter]}' 상태 알림 없음.`}
             </p>
-            <p className="mt-2 text-xs text-hesya-navy-900/60">
+            <p className="mt-1 text-[11px] text-gray-400">
               워크플로 import 가이드:{" "}
               <code className="font-mono">tools/n8n/README.md</code>
             </p>
-          </section>
+          </div>
         ) : (
-          <section className="overflow-hidden rounded-md border border-hesya-peach-100">
-            <table className="w-full text-sm">
-              <thead className="bg-hesya-peach-50/60 text-xs font-medium text-hesya-navy-900/70">
-                <tr>
-                  <th className="px-4 py-2 text-left">상태</th>
-                  <th className="px-4 py-2 text-left">출처</th>
-                  <th className="px-4 py-2 text-left">제목</th>
-                  <th className="px-4 py-2 text-left">발행일</th>
-                  <th className="px-4 py-2 text-left">수신일</th>
+          <div className="overflow-hidden rounded-md border border-hesya-peach-100 bg-white">
+            <table className="w-full text-[13px]">
+              <thead className="bg-hesya-peach-50">
+                <tr className="text-left">
+                  <th className="kr px-4 py-3 font-mono text-[10.5px] font-semibold uppercase tracking-[0.06em] text-gray-500">
+                    상태
+                  </th>
+                  <th className="kr px-4 py-3 font-mono text-[10.5px] font-semibold uppercase tracking-[0.06em] text-gray-500">
+                    출처
+                  </th>
+                  <th className="kr px-4 py-3 font-mono text-[10.5px] font-semibold uppercase tracking-[0.06em] text-gray-500">
+                    제목
+                  </th>
+                  <th className="kr px-4 py-3 font-mono text-[10.5px] font-semibold uppercase tracking-[0.06em] text-gray-500">
+                    발행일
+                  </th>
+                  <th className="kr px-4 py-3 font-mono text-[10.5px] font-semibold uppercase tracking-[0.06em] text-gray-500">
+                    수신일
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-hesya-peach-100">
+              <tbody>
                 {rows.map((alert) => {
                   const statusKey = narrowStatus(alert.status);
                   return (
                     <tr
                       key={alert.id}
-                      className="transition-colors hover:bg-hesya-peach-50/40"
+                      className="border-t border-hesya-peach-100 transition-colors hover:bg-hesya-peach-50"
                     >
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-block rounded-md border px-2 py-0.5 text-xs font-medium ${STATUS_BADGE_COLORS[statusKey]}`}
+                          className={
+                            "kr inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold " +
+                            STATUS_BADGE_COLORS[statusKey]
+                          }
                         >
                           {STATUS_LABELS[statusKey]}
                         </span>
                       </td>
-                      <td className="px-4 py-3 font-mono text-xs text-hesya-navy-900/80">
+                      <td className="mono px-4 py-3 text-gray-700">
                         {alert.source}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="kr px-4 py-3">
                         <a
                           href={alert.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-hesya-amber-500 hover:underline"
+                          className="font-medium text-hesya-amber-600 hover:underline"
                         >
                           {alert.title}
                         </a>
                       </td>
-                      <td className="px-4 py-3 text-xs text-hesya-navy-900/60">
+                      <td className="mono px-4 py-3 text-gray-700">
                         {alert.pubDate
                           ? new Date(alert.pubDate).toISOString().slice(0, 10)
                           : "—"}
                       </td>
-                      <td className="px-4 py-3 text-xs text-hesya-navy-900/60">
+                      <td className="mono px-4 py-3 text-gray-700">
                         {new Date(alert.receivedAt).toISOString().slice(0, 10)}
                       </td>
                     </tr>
@@ -155,7 +174,7 @@ export default async function AdminApiPolicyAlertsPage({
                 })}
               </tbody>
             </table>
-          </section>
+          </div>
         )}
       </div>
     </main>
@@ -178,7 +197,7 @@ function FilterTabs({
   ];
 
   return (
-    <nav className="flex gap-2 text-xs">
+    <nav className="flex flex-wrap gap-2">
       {tabs.map((tab) => {
         const href =
           tab.key === "all" ? basePath : `${basePath}?status=${tab.key}`;
@@ -187,11 +206,12 @@ function FilterTabs({
           <a
             key={tab.key}
             href={href}
-            className={`rounded-md border px-3 py-1 transition-colors ${
-              isActive
-                ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
-                : "border-gray-200 bg-white text-hesya-navy-900 hover:border-hesya-navy-900"
-            }`}
+            className={
+              "kr rounded-md border px-3 py-1.5 text-[12px] font-medium transition-colors " +
+              (isActive
+                ? "border-hesya-amber-500 bg-white text-hesya-navy-900"
+                : "border-hesya-peach-200 bg-white/50 text-gray-700 hover:bg-white")
+            }
           >
             {tab.label}
           </a>
