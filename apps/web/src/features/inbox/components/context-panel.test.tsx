@@ -67,10 +67,10 @@ describe("ContextPanel (Epic 1B-UI A-4)", () => {
     const msgs = [makeMsg(), makeMsg({ id: "m2" })];
     render(<ContextPanel conversation={conv} messages={msgs} />);
     expect(screen.getByText("Info")).toBeInTheDocument();
-    // 8자 short ID 표시
-    expect(screen.getByText(/cust_abc/)).toBeInTheDocument();
-    // 채널
-    expect(screen.getByText(/instagram/i)).toBeInTheDocument();
+    // 8자 short ID 표시 — M6.3e 이후: ctx-head + Info tab 두 군데 (헤더 + block)
+    expect(screen.getAllByText(/cust_abc/).length).toBeGreaterThanOrEqual(1);
+    // 채널 — M6.3e 이후: ctx-head + Info tab 두 군데
+    expect(screen.getAllByText(/instagram/i).length).toBeGreaterThanOrEqual(1);
     // 메시지 수 = 2
     expect(screen.getByTestId("ctx-msg-count")).toHaveTextContent("2");
   });
@@ -127,6 +127,36 @@ describe("ContextPanel (Epic 1B-UI A-4)", () => {
     fireEvent.click(historyBtn);
     expect(historyBtn).toHaveAttribute("aria-selected", "true");
     expect(infoBtn).toHaveAttribute("aria-selected", "false");
+  });
+
+  it("M6.3e — ctx-head: 64px avatar + customer name + channel (tabs 상단)", () => {
+    render(
+      <ContextPanel
+        conversation={makeConv()}
+        messages={[]}
+        customer={{
+          id: "cust_abc",
+          externalId: "ig_1",
+          channel: "instagram",
+          name: "Alice Kim",
+          nationality: null,
+          preferredLanguage: "en",
+          paymentMethodPreferred: null,
+          totalVisits: 0,
+          ltvKrw: 0,
+          allergyNote: null,
+          preferredDesigner: null,
+          igProfileFetched: false,
+          email: null,
+          lastSeenAt: null,
+        }}
+      />,
+    );
+    const head = screen.getByTestId("ctx-head");
+    expect(head).toHaveTextContent("Alice Kim");
+    expect(head).toHaveTextContent("instagram");
+    // avatar 첫 글자 "A"
+    expect(head.querySelector("div")?.textContent).toBe("A");
   });
 
   // ─── Customer 확장 (CC-5) ───
