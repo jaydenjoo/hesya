@@ -12,6 +12,7 @@
     "db:apply": "pnpm --filter @hesya/database db:apply",
     "seed:demo": "pnpm --filter @hesya/web seed:demo",
     "seed:stress-test": "pnpm --filter @hesya/web seed:stress-test",
+    "inject:fake-inbound": "pnpm --filter @hesya/web inject:fake-inbound",
     "dev:demo": "pnpm --filter @hesya/web dev:demo",
     "tunnel": "ngrok http 4200"
   },
