@@ -113,18 +113,54 @@
 > 환율은 시연용 정적 상수 (`features/booking-customer/currency.ts`). 베타 출시 후 실시간 환율 API 도입 예정. 청구 통화는 항상 KRW.
 > 가짜 IG 메시지 자동 발송은 향후 milestone (M4.x — multi-channel Mock)에서 추가 예정.
 
-### 6. owner-side 예약 관리 시뮬 (customer-side는 M2 이후 활성화)
+### 5-8. Customer Landing `/c` (M4.5 ✅)
+
+외국인 손님 시선의 매장 탐색 entry point:
+
+- `/c` 접속 (인증 불필요) → 지역·검색 필터 + 매장 카드 그리드
+- 카드 클릭 → `/c/store/<UUID>` (M2.1 detail) 진입
+- 6 locale 자동 인식 (`/en/c`, `/ja/c` 등)
+- `listPublicStores` DAL — `auto_approved` + soft-delete X 필터로만 노출
+
+### 5-9. Customer 로그인 + MyPage (M3.4 ✅)
+
+- `/c/sign-in` — Magic link 로그인 (Resend 6 locale 템플릿)
+- `MOCK_NOTIFICATION=true`면 magic link console.log 출력 → Vercel Function Logs에서 확인 후 클릭
+- `/c/mypage` — 4-tab: 다가올 예약 / 지난 예약 / 저장한 매장 / 작성한 리뷰
+- DEMO 모드(아래 6번)에서는 magic link 없이 즉시 mypage 진입
+
+### 6. Owner-side 매장 관리 시뮬 (M3 phase ✅)
+
+매장 사장 시선:
+
+- `/store/services` (M3.1) — 시술 CRUD (이름·가격·소요시간 6 locale, booking 사용 중인 시술은 삭제 차단)
+- `/store/customers` (M3.2) — 외국인 손님 list + 메모 inline 편집
+- `/store/settings` (M3.3a) — 매장 설정 + 요일별 영업시간 (월~일 휴무 토글 + time picker)
+- `/store/bookings` — 예약 리스트 (이미 시드된 50건) + 5-status filter + 3 terminal action (완료/노쇼/취소)
+
+### 6-2. Owner-side 예약 관리 (Customer-side는 M2.x에서 활성화 완료)
 
 - `/store/bookings` — 예약 리스트 (이미 시드된 50건)
 - 5-status filter (scheduled / completed / no_show / cancelled / all)
 - 예약 detail → 3 terminal action (완료 / 노쇼 / 취소)
 
-> **Customer-side 셀프 예약 + 결제 페이지는 M2.3~M2.6에서 추가 예정** (Mock Stripe/Alipay/WeChat UI).
+> Customer-side 셀프 예약 + 결제 흐름은 M2.3~M2.7에서 완성 (5-3 ~ 5-7 참고).
 
-### Admin 입장 (선택)
+### 7. Admin 통합 dashboard (M4.3 + M4.4 ✅, ADMIN_EMAILS 권한 필요)
 
-- 외부인이 `/admin/store-verifications` 접근 → 권한 차단 (admin이 아니라서)
-- 데모 시연 시 Jayden이 admin 권한으로 직접 보여주거나, demo-guide.md (본인 PC 시연용) 활용
+- `/admin/dashboard` — 4 alert chip (KYC 대기 / 분쟁 / API 알림 / Inbox skip) + 4 KPI tile (당월 매출 / 평균 객단가 / 노쇼율 / 외국인 mix) + 8-link sub-page hub + audit trail
+- `/admin/ai-cost` — Today + 14일 budget progress + sparkline + by-model 단가 (Claude Sonnet 4.6 / Opus 4.7 / OpenAI embedding)
+- `/admin/store-verifications` / `/admin/disputes` / `/admin/kyc-test` / `/admin/store-reports` 등 sub-page는 alert chip 클릭으로 진입
+
+> 외부인은 admin email이 아니라 진입 차단. 시연 시 Jayden 본인 계정으로 직접 보여주는 용도.
+
+### 8. DEMO 모드 (M5.1 ✅) — 비밀번호 없이 외부인 시뮬
+
+Vercel Preview env에 `DEMO_USER_ID` + `DEMO_CUSTOMER_EMAIL` 등록 시:
+
+- `/store/*` 진입 시 Google OAuth 없이 즉시 매장 owner 대시보드 (`DEMO_USER_ID` 매장 1곳 owner)
+- `/c/mypage` 진입 시 magic link 없이 즉시 mypage (`DEMO_CUSTOMER_EMAIL` 손님 1명)
+- 이중 가드: `VERCEL_ENV === 'preview' || 'development'` 일 때만 활성. Production env에서는 무시.
 
 ## Vercel Preview URL 받는 법
 
@@ -148,9 +184,17 @@ MOCK_IG_OAUTH=true
 MOCK_PAYMENT=true            (M2.5 이후 활성)
 MOCK_NOTIFICATION=true       (M4.1 이후 활성)
 MOCK_MULTI_CHANNEL=true      (M4.2 이후 활성)
+DEMO_USER_ID=<seed-beta-demo 매장 #1 owner user UUID>
+DEMO_CUSTOMER_EMAIL=<seed-beta-demo 손님 #1 email>
 ```
 
-→ 등록 후 Preview Deploy 트리거 (다음 PR push 시 자동 적용)
+→ 등록 후 Preview Deploy 트리거 (다음 PR push 시 자동 적용 또는 Dashboard "Redeploy" 수동, L-089).
+
+**DEMO_USER_ID / DEMO_CUSTOMER_EMAIL 값 받는 법** (Jayden 1회 작업):
+
+1. 로컬 `unset ANTHROPIC_API_KEY && pnpm seed:beta-demo` 실행
+2. 출력 로그에서 매장 #1 owner user UUID + 손님 #1 email copy
+3. Vercel Dashboard에 등록 → redeploy (L-087 6/7-layer + L-089 수동 트리거)
 
 ## 사업자 등록 후 swap 절차
 
@@ -165,15 +209,17 @@ Jayden 사업자 등록 + 결제사 KYB 완료 후:
 
 ## 트러블슈팅
 
-| 증상                                       | 원인 / 해결                                                                     |
-| ------------------------------------------ | ------------------------------------------------------------------------------- |
-| `/sign-in` Google OAuth 실패               | Vercel Preview env에 `GOOGLE_CLIENT_ID/SECRET` 누락. Jayden 확인.               |
-| KYC 입력 후 "NTS API 오류" 표시            | `MOCK_KYC` env 미등록 또는 `false`. Jayden Vercel UI 확인.                      |
-| Instagram 연결 시 "Meta OAuth 페이지" 도달 | `MOCK_IG_OAUTH=false` 상태. Vercel Preview env 확인.                            |
-| `/store/inbox` 메시지 0건                  | 시드 미실행. Jayden에게 시드 요청 (또는 다른 외부인이 메시지 안 보냄).          |
-| 예약 페이지 (`/store/bookings`) 진입 차단  | 매장 owner 인증 필요. Google OAuth로 로그인했으면 자동 통과.                    |
-| 결제 페이지 (`/c/pay/...`) 404             | **M2 phase 진행 중** — customer-side 페이지 아직 미구현. 출시 후 활성화 예정.   |
-| `/c/store/<UUID>` 404                      | UUID 형식 오류 또는 `auto_approved`가 아닌 매장. 시드 매장 #1 UUID Jayden 확인. |
+| 증상                                        | 원인 / 해결                                                                                         |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `/sign-in` Google OAuth 실패                | Vercel Preview env에 `GOOGLE_CLIENT_ID/SECRET` 누락. Jayden 확인.                                   |
+| KYC 입력 후 "NTS API 오류" 표시             | `MOCK_KYC` env 미등록 또는 `false`. Jayden Vercel UI 확인.                                          |
+| Instagram 연결 시 "Meta OAuth 페이지" 도달  | `MOCK_IG_OAUTH=false` 상태. Vercel Preview env 확인.                                                |
+| `/store/inbox` 메시지 0건                   | 시드 미실행. Jayden에게 시드 요청 (또는 다른 외부인이 메시지 안 보냄).                              |
+| 예약 페이지 (`/store/bookings`) 진입 차단   | 매장 owner 인증 필요. Google OAuth로 로그인했으면 자동 통과.                                        |
+| 결제 페이지 (`/c/pay/...`) 404              | URL params 누락 또는 `MOCK_PAYMENT=false`. Vercel env 확인.                                         |
+| `/c/store/<UUID>` 404                       | UUID 형식 오류 또는 `auto_approved`가 아닌 매장. 시드 매장 #1 UUID Jayden 확인.                     |
+| `/c/mypage` magic link 도착 안 함           | `MOCK_NOTIFICATION=true` 시 Vercel Function Logs에 console.log 출력. DEMO 모드면 magic link 불필요. |
+| `/store/*` 또는 `/c/mypage` 자동 진입 안 됨 | `DEMO_USER_ID` / `DEMO_CUSTOMER_EMAIL` 누락 또는 잘못된 UUID. Jayden 시드 출력 재확인.              |
 
 ## 관련 문서
 
