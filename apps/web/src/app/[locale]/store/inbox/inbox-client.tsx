@@ -128,6 +128,11 @@ export function InboxClient({
                 searchPlaceholder: t("searchPlaceholder"),
                 searchAriaLabel: t("searchAriaLabel"),
                 searchClearLabel: t("searchClearLabel"),
+                channelAll: t("channelAll"),
+                filterUnread: t("filterUnread"),
+                filterAi: t("filterAi"),
+                filterDone: t("filterDone"),
+                filterVip: t("filterVip"),
               }}
             />
           }

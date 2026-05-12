@@ -49,9 +49,9 @@ describe("ThreadList", () => {
     render(
       <ThreadList conversations={convs} activeId={null} onSelect={onSelect} />,
     );
-    // 첫 번째 button = ThreadItem (header에 button 없음)
-    const buttons = screen.getAllByRole("button");
-    fireEvent.click(buttons[0]!);
+    // M6.3c 이후: channel chip + filter pill button 추가. preview 텍스트로 thread row 식별.
+    const previewSpan = screen.getByText("hi");
+    fireEvent.click(previewSpan.closest("button")!);
     expect(onSelect).toHaveBeenCalledWith("conv_x");
   });
 
