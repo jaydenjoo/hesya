@@ -3,45 +3,45 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-12 세션 23 종료 — M6 phase 18 PRs 머지, reference 100% parity 달성)
+## 현재 위치 (2026-05-12 세션 24 종료 — M6 phase 23 PRs 머지, gap 영역 완전 해소)
 
-- **Phase**: **Plan v3 M1~M5 100% + M6 18 PRs 머지 (reference parity 완료)**
-- **세션 23 추가 머지 (4 PRs)** — Jayden 요청: "디자인레퍼런스와 동일하게 개발":
-  - PR [#130](https://github.com/jaydenjoo/hesya/pull/130) M6.3c Inbox col-1 channel chip + filter pill — `.ix-channel-row` (6 chip) + `.ix-filter-row` (4 pill with color dots), client-side filter functional (unread/done) + AI/VIP visual-only
-  - PR [#131](https://github.com/jaydenjoo/hesya/pull/131) M6.2c Dashboard 비대칭 bento — `.sd-row-2` (1.6fr:1fr:1fr) + `.sd-bento-3` (1.15fr:1fr:1fr) + uniform 4-col 3-row layout
-  - PR [#132](https://github.com/jaydenjoo/hesya/pull/132) M6.3d MessageView polish — `.ix-day-mark` 날짜 구분 chip + `.ix-th-meta` 통합 (channel · WindowStatus segment)
-  - PR [#133](https://github.com/jaydenjoo/hesya/pull/133) M6.3e ContextPanel polish — `.ix-ctx-head` (64px avatar + tabs 상단 분리) + `.ix-ctx-tabs` (16% inset 2px amber) + `.ix-ctx-block` (peach-50 carded) + `.ix-hist-row` (peach-50 + 26px white icon)
+- **Phase**: **Plan v3 M1~M5 100% + M6 23 PRs 머지 (전체 reference parity)**
+- **세션 24 추가 머지 (5 PRs)** — "모두 동일하게 적용 진행" gap 해소:
+  - PR [#134](https://github.com/jaydenjoo/hesya/pull/134) M6.3f Inbox AIAssist + ReplyComposer — `.ix-composer` (peach-50 → focus-within amber + white) + `.ix-tone-tab` active (white + amber-500 border, subtle 정합)
+  - PR [#135](https://github.com/jaydenjoo/hesya/pull/135) M6.3g empty/CTA states — MessageViewEmpty + ThreadListEmpty + ThreadListConnectCTA (peach-50 + round emoji + Fraunces italic)
+  - PR [#136](https://github.com/jaydenjoo/hesya/pull/136) M6.4b booking detail — `.bk-info-block` (peach-50 carded) + Settings 패턴 §01·Info/§02·Actions 정합 + price highlight
+  - PR [#137](https://github.com/jaydenjoo/hesya/pull/137) M6.7b store sub-pages — disputes/disputes/new/knowledge/inbox-skipped/inbox/connect (status pill 5종 + peach-50 thead + Fraunces italic 통일)
+  - PR [#138](https://github.com/jaydenjoo/hesya/pull/138) M6.9b admin sub-pages — disputes/store-verifications/store-deletion/store-reports/api-policy-alerts (bg-peach-50/30 → peach-50 + 통일된 list 패턴)
 - **다음 세션 시작점**:
   - 베타 출시 작업으로 전환 (시연 매장 5곳 매칭) — Jayden 비즈니스 사이드
   - (선택) E2E playwright run + visual diff capture
   - (선택) M6.1c Settings 추가 섹션 (lang tabs / channels / payments)
 
-## P0 Epic 시연 % 재산정 (세션 23 머지 반영)
+## P0 Epic 시연 % 재산정 (세션 24 머지 반영)
 
-| Phase / Epic                     | 기능 % | 디자인 %        | **시연 % (min)**            |
-| -------------------------------- | ------ | --------------- | --------------------------- |
-| M2 customer (`/c/*`, `/sign-in`) | 95%    | 80%             | **80%** ✅                  |
-| M3 owner pages (`/store/*` 8개)  | 100%   | **90%** ⬆️      | **90%** ✅ (inbox 3-col 완) |
-| M4 admin (`/admin/*`)            | 100%   | 75%             | **75%** 🟡                  |
-| M5 demo bypass                   | 100%   | n/a             | **100%** ✅                 |
-| Dashboard bright spot            | n/a    | **100%**        | (M6.2b)                     |
-| Dashboard bento layout           | n/a    | **100%** (신규) | (M6.2c)                     |
-| Inbox 3-col reference parity     | n/a    | **100%** (신규) | (M6.3c/d/e)                 |
+| Phase / Epic                     | 기능 % | 디자인 %        | **시연 % (min)**                 |
+| -------------------------------- | ------ | --------------- | -------------------------------- |
+| M2 customer (`/c/*`, `/sign-in`) | 95%    | 80%             | **80%** ✅                       |
+| M3 owner pages (`/store/*` 11개) | 100%   | **95%** ⬆️      | **95%** ✅ (sub-pages 완)        |
+| M4 admin (`/admin/*` 7개)        | 100%   | **90%** ⬆️      | **90%** ✅ (sub-pages list 정합) |
+| M5 demo bypass                   | 100%   | n/a             | **100%** ✅                      |
+| Inbox 내부 컴포넌트              | n/a    | **100%** (신규) | (M6.3f/g composer/assist/empty)  |
+| Booking detail page              | n/a    | **100%** (신규) | (M6.4b)                          |
 
-→ **M3 owner 90% 도달** — inbox 3-col (search/chip/filter/day-mark/meta/ctx-head/ctx-block) + dashboard bento layout 모두 reference 100% parity. 베타 출시 시연 단계로 진입 가능.
+→ **M3 owner 95%, M4 admin 90% 도달** — gap 영역 (inbox 내부 컴포넌트, booking detail, store/admin sub-pages) 모두 reference parity. 베타 출시 시연 단계 진입.
 
-## M6 phase 머지 PR 목록 (전체 18개)
+## M6 phase 머지 PR 목록 (전체 23개)
 
 - Phase 0 [#115](https://github.com/jaydenjoo/hesya/pull/115) 공통 컴포넌트
 - M6.1 [#117](https://github.com/jaydenjoo/hesya/pull/117), M6.1b [#126](https://github.com/jaydenjoo/hesya/pull/126) settings
-- M6.2 [#118](https://github.com/jaydenjoo/hesya/pull/118), M6.2b [#127](https://github.com/jaydenjoo/hesya/pull/127), M6.2c [#131](https://github.com/jaydenjoo/hesya/pull/131) dashboard (bright spot + bento)
-- M6.3 [#119](https://github.com/jaydenjoo/hesya/pull/119), M6.3b [#128](https://github.com/jaydenjoo/hesya/pull/128), M6.3c [#130](https://github.com/jaydenjoo/hesya/pull/130), M6.3d [#132](https://github.com/jaydenjoo/hesya/pull/132), M6.3e [#133](https://github.com/jaydenjoo/hesya/pull/133) inbox (3-col 완성)
-- M6.4 [#120](https://github.com/jaydenjoo/hesya/pull/120) bookings
+- M6.2 [#118](https://github.com/jaydenjoo/hesya/pull/118), M6.2b [#127](https://github.com/jaydenjoo/hesya/pull/127), M6.2c [#131](https://github.com/jaydenjoo/hesya/pull/131) dashboard
+- M6.3 [#119](https://github.com/jaydenjoo/hesya/pull/119), M6.3b [#128](https://github.com/jaydenjoo/hesya/pull/128), M6.3c [#130](https://github.com/jaydenjoo/hesya/pull/130), M6.3d [#132](https://github.com/jaydenjoo/hesya/pull/132), M6.3e [#133](https://github.com/jaydenjoo/hesya/pull/133), M6.3f [#134](https://github.com/jaydenjoo/hesya/pull/134), M6.3g [#135](https://github.com/jaydenjoo/hesya/pull/135) inbox (3-col + composer/assist/empty 완성)
+- M6.4 [#120](https://github.com/jaydenjoo/hesya/pull/120), M6.4b [#136](https://github.com/jaydenjoo/hesya/pull/136) bookings + detail
 - M6.5 [#121](https://github.com/jaydenjoo/hesya/pull/121) services
 - M6.6 [#122](https://github.com/jaydenjoo/hesya/pull/122) customers
-- M6.7 [#123](https://github.com/jaydenjoo/hesya/pull/123) knowledge/disputes/inbox-skipped
+- M6.7 [#123](https://github.com/jaydenjoo/hesya/pull/123), M6.7b [#137](https://github.com/jaydenjoo/hesya/pull/137) store sub-pages (knowledge/disputes/inbox-skipped/connect)
 - M6.8 [#124](https://github.com/jaydenjoo/hesya/pull/124) admin dashboard
-- M6.9 [#125](https://github.com/jaydenjoo/hesya/pull/125) admin sub-pages
+- M6.9 [#125](https://github.com/jaydenjoo/hesya/pull/125), M6.9b [#138](https://github.com/jaydenjoo/hesya/pull/138) admin sub-pages (disputes/verifications/deletion/reports/api-policy-alerts)
 - Admin polish [#129](https://github.com/jaydenjoo/hesya/pull/129) MetricCard
 
 ## 🆕 Plan v3 M6 — Owner/Admin 디자인 정합성 (전면)
