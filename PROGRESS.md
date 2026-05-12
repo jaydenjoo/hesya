@@ -3,14 +3,18 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-12 세션 25 종료 — M6 phase 24 PRs 머지, 100% reference parity)
+## 현재 위치 (2026-05-12 세션 26 종료 — M6 phase 26 PRs, subagent audit + playwright visual diff 검증)
 
-- **Phase**: **Plan v3 M1~M5 100% + M6 24 PRs 머지 (100% reference parity 달성)**
-- **세션 25 추가 머지 (1 PR)** — "100% 적용":
-  - PR [#139](https://github.com/jaydenjoo/hesya/pull/139) M6.9c + M6.14 — onboarding/kyc + onboarding/pending + store/account/deletion + admin/disputes/[id] + admin/store-verifications/[id] header polish (평이한 h1 → font-display 28px italic + eyebrow mono amber-600 + bg-peach-50 + PageHeader 통일)
+- **Phase**: **Plan v3 M1~M5 100% + M6 26 PRs 머지 (audit-verified parity)**
+- **세션 26 추가 머지 (2 PRs)** — Step 1 audit + Step 2 visual diff:
+  - PR [#140](https://github.com/jaydenjoo/hesya/pull/140) audit fix — pending-status (error tone crit token + pulse), kyc-form (bg opacity solid), store-verification-detail (Row 색/font 명시 + reject hover amber + textarea transition)
+  - PR [#141](https://github.com/jaydenjoo/hesya/pull/141) i18n fix — `CustomerLanding.resultsCount` ICU placeholder bug (playwright screenshot에서 발견)
+- **Audit 검증 결과**:
+  - Owner/Admin (subagent): 10 gap 발견, 5개 high/medium fix 완료
+  - Customer (grep audit): 0 slop signal, 12 Fraunces italic + 51 hesya token, 0 design TODO
+  - Visual diff (playwright): customer landing / customer sign-in / store sign-in 3페이지 reference parity 시각 확인 + i18n bug 1건 fix
 - **다음 세션 시작점**:
   - 베타 출시 작업으로 전환 (시연 매장 5곳 매칭) — Jayden 비즈니스 사이드
-  - (선택) E2E playwright run + visual diff capture
 
 ## P0 Epic 시연 % 최종 (세션 25 머지 반영)
 
@@ -24,7 +28,7 @@
 
 → **M3 owner / M4 admin 100% 달성** — 모든 헤더 + sub-pages + detail pages가 reference 일관성 통일. 베타 출시 시연 완전 준비.
 
-## M6 phase 머지 PR 목록 (전체 24개)
+## M6 phase 머지 PR 목록 (전체 26개)
 
 - Phase 0 [#115](https://github.com/jaydenjoo/hesya/pull/115) 공통 컴포넌트
 - M6.1 [#117](https://github.com/jaydenjoo/hesya/pull/117), M6.1b [#126](https://github.com/jaydenjoo/hesya/pull/126) settings
@@ -37,6 +41,8 @@
 - M6.8 [#124](https://github.com/jaydenjoo/hesya/pull/124) admin dashboard
 - M6.9 [#125](https://github.com/jaydenjoo/hesya/pull/125), M6.9b [#138](https://github.com/jaydenjoo/hesya/pull/138) admin sub-pages (disputes/verifications/deletion/reports/api-policy-alerts)
 - M6.9c + M6.14 [#139](https://github.com/jaydenjoo/hesya/pull/139) onboarding + account + admin detail headers
+- Audit fix [#140](https://github.com/jaydenjoo/hesya/pull/140) pending-status + kyc-form + verification-detail (subagent audit)
+- i18n fix [#141](https://github.com/jaydenjoo/hesya/pull/141) CustomerLanding.resultsCount (playwright visual diff)
 - Admin polish [#129](https://github.com/jaydenjoo/hesya/pull/129) MetricCard
 
 ## 🆕 Plan v3 M6 — Owner/Admin 디자인 정합성 (전면)
