@@ -37,6 +37,8 @@ export function ThreadHeader({
     channel === "instagram" ? "channelInstagram" : "channelUnknown";
   const channelIcon = CHANNEL_ICONS[channel] ?? "💬";
 
+  // M6.3d — reference `.ix-th-meta` 패턴 정합:
+  // [채널명] · [window status (분리된 시각 segment)]
   return (
     <header className="flex h-16 flex-shrink-0 items-center justify-between border-b border-hesya-peach-100 bg-white px-5">
       <div className="flex items-center gap-3">
@@ -59,15 +61,18 @@ export function ThreadHeader({
           <span className="kr text-sm font-semibold text-hesya-navy-900">
             {customerName || "—"}
           </span>
-          <span
+          <div
             data-testid="thread-header-meta"
-            className="kr mt-0.5 text-[11px] text-gray-500"
+            className="kr mt-0.5 flex items-center gap-1.5 text-[11px] text-gray-500"
           >
-            {t(channelKey)}
-          </span>
+            <span>{t(channelKey)}</span>
+            <span aria-hidden="true" className="opacity-50">
+              ·
+            </span>
+            <WindowStatus expiresAt={windowExpiresAt} />
+          </div>
         </div>
       </div>
-      <WindowStatus expiresAt={windowExpiresAt} />
     </header>
   );
 }
