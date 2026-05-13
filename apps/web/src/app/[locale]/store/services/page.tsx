@@ -3,8 +3,6 @@ import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
 import { PageHeader } from "@/components/ui/page-header";
-import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
-import { OwnerShell } from "@/features/shell/owner-shell";
 import {
   ServicesManager,
   type ServiceRow,
@@ -36,11 +34,7 @@ export default async function StoreServicesPage({
   }
 
   const db = createDbClient(env.DATABASE_URL);
-  const [rows, shell] = await Promise.all([
-    listServicesByStore(db, session.storeId),
-    getOwnerShellData(),
-  ]);
-  if (!shell) redirect(`/${locale}/sign-in`);
+  const rows = await listServicesByStore(db, session.storeId);
 
   const t = await getTranslations({ locale, namespace: "StoreServices" });
 
@@ -58,59 +52,52 @@ export default async function StoreServicesPage({
   }));
 
   return (
-    <OwnerShell
-      currentLocale={locale}
-      storeName={shell.storeName}
-      userName={shell.userName}
-      userInitial={shell.userInitial}
-    >
-      <div className="bg-hesya-peach-50">
-        <PageHeader
-          eyebrow="Operator · Services"
-          title={t("title")}
-          subtitle={t("subtitle")}
+    <div className="bg-hesya-peach-50">
+      <PageHeader
+        eyebrow="Operator · Services"
+        title={t("title")}
+        subtitle={t("subtitle")}
+      />
+      <div className="px-8 pb-10">
+        <ServicesManager
+          initialRows={initialRows}
+          labels={{
+            addButton: t("addButton"),
+            editButton: t("editButton"),
+            deleteButton: t("deleteButton"),
+            emptyText: t("emptyText"),
+            deleteConfirm: t("deleteConfirm"),
+            allCategoryLabel: t("allCategoryLabel"),
+            translatedLabel: t("translatedLabel"),
+            servicesCount: t.raw("servicesCount") as string,
+            requiredError: t("requiredError"),
+            editor: {
+              titleCreate: t("editorTitleCreate"),
+              titleEdit: t("editorTitleEdit"),
+              closeLabel: t("editorCloseLabel"),
+              langTabKo: t("langTabKo"),
+              langTabEn: t("langTabEn"),
+              langTabJa: t("langTabJa"),
+              langTabZhCn: t("langTabZhCn"),
+              langTabZhTw: t("langTabZhTw"),
+              langTabVi: t("langTabVi"),
+              nameLabel: t("editorNameLabel"),
+              aiSuggestLabel: t("editorAiSuggestLabel"),
+              aiTranslateAllLabel: t("editorAiTranslateAllLabel"),
+              aiSuggestNote: t("editorAiSuggestNote"),
+              priceKrwLabel: t("priceKrwLabel"),
+              durationLabel: t("durationLabel"),
+              categoryLabel: t("categoryLabel"),
+              categoryPlaceholder: t("editorCategoryPlaceholder"),
+              complianceTitle: t("editorComplianceTitle"),
+              complianceBody: t("editorComplianceBody"),
+              saveButton: t("saveButton"),
+              cancelButton: t("cancelButton"),
+              requiredAsterisk: t("editorRequiredAsterisk"),
+            },
+          }}
         />
-        <div className="px-8 pb-10">
-          <ServicesManager
-            initialRows={initialRows}
-            labels={{
-              addButton: t("addButton"),
-              editButton: t("editButton"),
-              deleteButton: t("deleteButton"),
-              emptyText: t("emptyText"),
-              deleteConfirm: t("deleteConfirm"),
-              allCategoryLabel: t("allCategoryLabel"),
-              translatedLabel: t("translatedLabel"),
-              servicesCount: t.raw("servicesCount") as string,
-              requiredError: t("requiredError"),
-              editor: {
-                titleCreate: t("editorTitleCreate"),
-                titleEdit: t("editorTitleEdit"),
-                closeLabel: t("editorCloseLabel"),
-                langTabKo: t("langTabKo"),
-                langTabEn: t("langTabEn"),
-                langTabJa: t("langTabJa"),
-                langTabZhCn: t("langTabZhCn"),
-                langTabZhTw: t("langTabZhTw"),
-                langTabVi: t("langTabVi"),
-                nameLabel: t("editorNameLabel"),
-                aiSuggestLabel: t("editorAiSuggestLabel"),
-                aiTranslateAllLabel: t("editorAiTranslateAllLabel"),
-                aiSuggestNote: t("editorAiSuggestNote"),
-                priceKrwLabel: t("priceKrwLabel"),
-                durationLabel: t("durationLabel"),
-                categoryLabel: t("categoryLabel"),
-                categoryPlaceholder: t("editorCategoryPlaceholder"),
-                complianceTitle: t("editorComplianceTitle"),
-                complianceBody: t("editorComplianceBody"),
-                saveButton: t("saveButton"),
-                cancelButton: t("cancelButton"),
-                requiredAsterisk: t("editorRequiredAsterisk"),
-              },
-            }}
-          />
-        </div>
       </div>
-    </OwnerShell>
+    </div>
   );
 }

@@ -11,7 +11,6 @@ import {
   type KpiEntry,
 } from "@/features/dashboard";
 import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
-import { OwnerShell } from "@/features/shell/owner-shell";
 import { env } from "@/shared/config/env";
 import {
   countBookingsByService,
@@ -37,7 +36,7 @@ import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
  * 디자이너 분포) + coming-soon placeholder 5개. Epic 2 결제 도입 후 매출·객단가·
  * 재방문률·노쇼율, ζ 베타 매칭 후 국적 분포가 활성화.
  *
- * D4-D1: OwnerShell wrap + 디자인 정합 header / KPI card 재구성.
+ * D4-D1: 디자인 정합 header / KPI card 재구성.
  */
 export default async function StoreDashboardPage({
   params,
@@ -279,52 +278,45 @@ export default async function StoreDashboardPage({
   }).format(now);
 
   return (
-    <OwnerShell
-      currentLocale={locale}
-      storeName={shell.storeName}
-      userName={shell.userName}
-      userInitial={shell.userInitial}
-    >
-      <div className="bg-hesya-peach-50">
-        <DashboardHeader
-          eyebrow="Operator · Dashboard"
-          greetingPrefix={t("greetingPrefix")}
-          storeName={shell.storeName}
-          greetingSuffix={t("greetingSuffix")}
-          subtitle={t("subtitle")}
-          dateDay={dateDay}
-          dateWeekday={dateWeekday}
+    <div className="bg-hesya-peach-50">
+      <DashboardHeader
+        eyebrow="Operator · Dashboard"
+        greetingPrefix={t("greetingPrefix")}
+        storeName={shell.storeName}
+        greetingSuffix={t("greetingSuffix")}
+        subtitle={t("subtitle")}
+        dateDay={dateDay}
+        dateWeekday={dateWeekday}
+      />
+      <div className="px-8 pb-10">
+        <BrightSpot
+          eyebrow={brightSpot.eyebrow}
+          eyebrowEn="Bright spot"
+          body={brightSpot.body}
         />
-        <div className="px-8 pb-10">
-          <BrightSpot
-            eyebrow={brightSpot.eyebrow}
-            eyebrowEn="Bright spot"
-            body={brightSpot.body}
+        <div className="space-y-4">
+          <KpiGrid
+            entries={rowHero}
+            comingSoonNote={t("comingSoonNote")}
+            testId="kpi-grid-hero"
+            className="grid grid-cols-1 gap-4 md:grid-cols-[1.6fr_1fr_1fr]"
           />
-          <div className="space-y-4">
-            <KpiGrid
-              entries={rowHero}
-              comingSoonNote={t("comingSoonNote")}
-              testId="kpi-grid-hero"
-              className="grid grid-cols-1 gap-4 md:grid-cols-[1.6fr_1fr_1fr]"
-            />
-            <KpiGrid
-              entries={rowMix}
-              comingSoonNote={t("comingSoonNote")}
-              testId="kpi-grid-mix"
-              className="grid grid-cols-1 gap-4 md:grid-cols-[1.15fr_1fr_1fr]"
-            />
-            <KpiGrid
-              entries={rowSecondary}
-              comingSoonNote={t("comingSoonNote")}
-              testId="kpi-grid-secondary"
-            />
-          </div>
-          <p className="mt-8 font-mono text-[11px] text-hesya-navy-900/55">
-            {t("footerNote")}
-          </p>
+          <KpiGrid
+            entries={rowMix}
+            comingSoonNote={t("comingSoonNote")}
+            testId="kpi-grid-mix"
+            className="grid grid-cols-1 gap-4 md:grid-cols-[1.15fr_1fr_1fr]"
+          />
+          <KpiGrid
+            entries={rowSecondary}
+            comingSoonNote={t("comingSoonNote")}
+            testId="kpi-grid-secondary"
+          />
         </div>
+        <p className="mt-8 font-mono text-[11px] text-hesya-navy-900/55">
+          {t("footerNote")}
+        </p>
       </div>
-    </OwnerShell>
+    </div>
   );
 }
