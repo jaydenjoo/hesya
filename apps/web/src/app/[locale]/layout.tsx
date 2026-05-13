@@ -70,6 +70,14 @@ export default async function LocaleLayout({
           clientOptions={{
             api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
             respect_dnt: true,
+            // 베타 5곳 단계 — pageview만 capture. autocapture 925ms 비용 회피.
+            // Heatmap / session recording / dead-clicks는 베타 운영 1개월 후 가치 재평가.
+            autocapture: false,
+            capture_dead_clicks: false,
+            capture_heatmaps: false,
+            disable_session_recording: true,
+            // 익명 user profile 생성 안 함 — identified_only로 person/event row 절감.
+            person_profiles: "identified_only",
           }}
         >
           <Suspense fallback={null}>

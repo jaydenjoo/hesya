@@ -11,6 +11,7 @@
  * 보안: 데이터는 서버에서 customerId로 격리. Client는 단순 표시 + action 호출.
  */
 
+import Link from "next/link";
 import { useState } from "react";
 import { Star } from "lucide-react";
 import type {
@@ -177,12 +178,12 @@ function UpcomingPane({
           </div>
           {b.storeId && (
             <div className="mt-3">
-              <a
+              <Link
                 href={`/${locale}/c/store/${b.storeId}`}
                 className="text-[12px] text-hesya-amber-600 hover:underline"
               >
                 {labels.actions.viewStore} →
-              </a>
+              </Link>
             </div>
           )}
         </article>
