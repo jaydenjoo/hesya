@@ -260,6 +260,10 @@ function StoreCard({
   return (
     <Link
       href={`/${locale}/c/store/${store.id}`}
+      // 동적 라우트 `/c/store/[id]` — default 'auto'는 layout만 prefetch.
+      // prefetch={true}로 전체 RSC payload viewport-entry 시 prefetch.
+      // 매장 60s unstable_cache hit이라 prefetch cost는 작음.
+      prefetch
       className="group block overflow-hidden rounded-3xl bg-white ring-1 ring-hesya-navy-900/10 transition hover:shadow-[0_8px_24px_-8px_rgba(26,34,56,0.15)]"
     >
       <div
