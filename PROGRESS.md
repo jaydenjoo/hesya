@@ -3,7 +3,30 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-13 세션 29 종료 — Admin Dashboard reference parity Phase 2 (PR #151))
+## 현재 위치 (2026-05-13 세션 30 종료 — A/B/C/D 4 묶음 5 PRs + 가이드 1 docs)
+
+- **Phase**: **Plan v3 M1~M5 100% + M6 31 PRs + 외부 데모 폴리시 + Admin chrome 전면 통합 + auth perf 객관화 + 위젯 실 데이터 2/5**
+- **세션 30 머지 (5 PRs + 1 docs commit)**:
+  - **A**: `docs/resend-domain-setup.md` — 베타 출시 차단선 외부 액션 청사진 (commit [3ba82e2](https://github.com/jaydenjoo/hesya/commit/3ba82e2), main 직접 push). Jayden 도메인 결정·구매·DNS·검증·Vercel env 변경 대기. code 변경 0건.
+  - **B1** PR [#152](https://github.com/jaydenjoo/hesya/pull/152) feat(admin) — chrome batch 1 (disputes/kyc-test/payment-monitoring). 헬퍼 `AdminShellLayout` 추출 + 1-line re-export 패턴. `<main>` nested 회피.
+  - **B2** PR [#153](https://github.com/jaydenjoo/hesya/pull/153) feat(admin) — chrome batch 2 (store-reports/store-deletion/api-policy-alerts).
+  - **B3** PR [#154](https://github.com/jaydenjoo/hesya/pull/154) feat(admin) — chrome batch 3 (ai-cost/ai-accuracy/store-verifications + `/[id]`) + **layout 통합** (10 sub-folder layout.tsx → admin 폴더 1개로 통합). ai-cost 중첩 main 해소.
+  - **C** PR [#155](https://github.com/jaydenjoo/hesya/pull/155) perf(auth) — PR #150 cookie cache TTFB benchmark. Playwright spec + `docs/auth-cookie-cache-bench.md`. **prod 측정 결과 warm avg 평균 12% 감소** (dashboard 18% / 826ms 절감, 모든 5 페이지에서 warm < cold → cookie cache 정상 작동 입증).
+  - **D** PR [#156](https://github.com/jaydenjoo/hesya/pull/156) feat(admin) — 5 위젯 중 2개 실 데이터 wire (monthly bar + AI cost spark). DAL `getMonthlyNewStoresCounts` + `getDailyAiCostSpark` 신규. Mock 완전 제거. 빈 데이터 fallback 정직 처리.
+- **L-082 시연 %**:
+  - M3 owner 100% / M4 admin 100% 유지
+  - **9 admin sub-page 모두 AdminShell chrome 통합 → 디자인 정합성 100% (이전 dashboard만 95% → 전체 100%)**
+  - Dashboard 위젯 5개 중 2개 실 데이터 (40%). 나머지 3개는 후속.
+- **다음 세션 시작점**:
+  - **Resend 도메인 검증** (Jayden 외부 액션) — 베타 출시 차단선 유지. 도메인 결정 후 `docs/resend-domain-setup.md` 단계별 진행.
+  - **Dashboard 위젯 3개 wire 후속**:
+    - SLA donut — disputes resolvedAt vs slaDueAt 처리율 (24h 또는 30d)
+    - Korea map — `stores.region` groupBy + 17 시도 매핑 (region normalize 필요)
+    - Top categories — bookings × `services.category` GMV sum (Epic 2 결제 도입 후 정확)
+  - **베타 5곳 매장 매칭** (Jayden 비즈니스 사이드).
+  - **`docs/auth-cookie-cache-bench.md` N≥10 통계화** (median + p95) — 후속 perf 작업.
+
+## 세션 29 (2026-05-13 — Admin Dashboard reference parity Phase 2 (PR #151))
 
 - **Phase**: **Plan v3 M1~M5 100% + M6 27 PRs + 외부 데모 폴리시 + Admin chrome 도입**
 - **세션 29 머지 (1 PR)**:
