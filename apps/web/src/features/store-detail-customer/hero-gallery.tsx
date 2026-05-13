@@ -12,11 +12,22 @@ import { useEffect, useRef, useState } from "react";
 interface Props {
   readonly photos: ReadonlyArray<string>;
   readonly placeholderLabel: string;
+  /**
+   * 사진 0건 매장에 대한 데모용 fallback 이미지 URL.
+   * 베타 5곳 매장이 사진 업로드하기 전까지 외부 손님이 빈 그라데이션을
+   * 보지 않도록 demo image 1장 제공. fallback URL 로드 실패 시 그라데이션으로 fall through.
+   */
+  readonly fallbackImageUrl?: string;
 }
 
-export function HeroGallery({ photos, placeholderLabel }: Props) {
+export function HeroGallery({
+  photos,
+  placeholderLabel,
+  fallbackImageUrl,
+}: Props) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
+  const [fallbackFailed, setFallbackFailed] = useState(false);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -30,6 +41,21 @@ export function HeroGallery({ photos, placeholderLabel }: Props) {
   }, []);
 
   if (photos.length === 0) {
+    if (fallbackImageUrl && !fallbackFailed) {
+      return (
+        <div className="relative h-[280px] w-full overflow-hidden lg:h-[320px]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={fallbackImageUrl}
+            alt=""
+            loading="eager"
+            onError={() => setFallbackFailed(true)}
+            className="h-full w-full object-cover"
+          />
+          <span className="sr-only">{placeholderLabel}</span>
+        </div>
+      );
+    }
     return (
       <div className="relative h-[280px] w-full overflow-hidden lg:h-[320px]">
         <div className="absolute inset-0 bg-gradient-to-br from-hesya-amber-500/30 via-hesya-peach-200 to-hesya-peach-50" />
