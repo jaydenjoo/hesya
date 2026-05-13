@@ -86,13 +86,40 @@ export function ReplyComposer({
     });
   }
 
+  // γ.2.3.3 — `.ix-comp-toolbar` 4 tool 버튼 (photo/voice/attach/templates) 시각 도입.
+  // 모두 비활성 + "곧 출시" tooltip — L-082 정직 처리 (UI 약속 ≠ 기능 약속).
+  // 실제 기능 도입은 별 PR (Vision photo / voice memo / file attach / template lib).
+  const TOOL_BUTTONS = [
+    { key: "photo", icon: "📷", labelKey: "toolPhoto" as const },
+    { key: "voice", icon: "🎙️", labelKey: "toolVoice" as const },
+    { key: "attach", icon: "📎", labelKey: "toolAttach" as const },
+    { key: "templates", icon: "💡", labelKey: "toolTemplates" as const },
+  ];
+
   return (
     <div
       data-testid="reply-composer"
       className="flex-shrink-0 border-t border-hesya-peach-100 bg-white px-4 pt-2.5 pb-3.5"
     >
-      {/* `.ix-comp-toolbar` 정합: spacer + tone learn button (right-aligned) */}
-      <div className="mb-2 flex items-center justify-end">
+      {/* `.ix-comp-toolbar` 정합: 좌측 tool 4 버튼 (disabled) + 우측 tone learn */}
+      <div className="mb-2 flex items-center gap-1.5">
+        {TOOL_BUTTONS.map((tool) => (
+          <button
+            key={tool.key}
+            type="button"
+            disabled
+            aria-label={`${t(tool.labelKey)} — ${t("toolComingSoon")}`}
+            title={`${t(tool.labelKey)} · ${t("toolComingSoon")}`}
+            className="kr inline-flex h-7 w-7 flex-shrink-0 cursor-not-allowed items-center justify-center rounded border border-transparent text-[14px] opacity-40 transition-opacity hover:opacity-60"
+          >
+            <span aria-hidden="true">{tool.icon}</span>
+          </button>
+        ))}
+        <span
+          aria-hidden="true"
+          className="mx-1 h-4 w-px flex-shrink-0 bg-hesya-peach-100"
+        />
+        <div className="flex-1" />
         <button
           type="button"
           onClick={handleLearnTone}
@@ -128,7 +155,19 @@ export function ReplyComposer({
               : "bg-gray-300 text-white cursor-not-allowed")
           }
         >
-          {t("send")}
+          <span>{t("send")}</span>
+          {/* reference `.ix-send-kbd` — Cmd+Enter 단축키 indicator. 실제 키 바인딩은 별 PR. */}
+          <span
+            aria-hidden="true"
+            className="ml-0.5 hidden items-center gap-0.5 sm:inline-flex"
+          >
+            <kbd className="mono rounded bg-white/20 px-1 py-px text-[9px] font-medium leading-none">
+              ⌘
+            </kbd>
+            <kbd className="mono rounded bg-white/20 px-1 py-px text-[9px] font-medium leading-none">
+              ↵
+            </kbd>
+          </span>
         </button>
       </div>
       {error ? <p className="mt-2 text-xs text-destructive">{error}</p> : null}

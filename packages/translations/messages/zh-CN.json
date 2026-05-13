@@ -130,7 +130,13 @@
       "sendErrorGeneric": "Something went wrong. Please try again.",
       "learnTone": "🎙️ Learn my store tone →",
       "learnToneSuccess": "Learned as your store tone",
-      "learnToneError": "Failed to learn. Please try again."
+      "learnToneError": "Failed to learn. Please try again.",
+      "toolPhoto": "Attach photo",
+      "toolVoice": "Voice memo",
+      "toolAttach": "Attach file",
+      "toolTemplates": "Templates",
+      "toolComingSoon": "Coming soon",
+      "sendShortcut": "Send"
     },
     "window": {
       "openWithTime": "Reply window — {time} remaining",
