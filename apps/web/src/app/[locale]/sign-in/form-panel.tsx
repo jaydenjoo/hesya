@@ -78,7 +78,27 @@ export function FormPanel({
           시작할 수 있습니다.
         </p>
 
-        <OwnerSignInForm locale={currentLocale} callbackUrl={callbackUrl} />
+        <OwnerSignInForm
+          locale={currentLocale}
+          callbackUrl={callbackUrl}
+          demoEmail={
+            process.env.NEXT_PUBLIC_DEMO_AUTOFILL === "true"
+              ? "demo@hesya.com"
+              : undefined
+          }
+          demoPassword={
+            process.env.NEXT_PUBLIC_DEMO_AUTOFILL === "true"
+              ? "Hesya!Demo2026"
+              : undefined
+          }
+        />
+
+        {process.env.NEXT_PUBLIC_DEMO_AUTOFILL === "true" && (
+          <p className="sl-demo-hint">
+            🧪 데모 자격증명 자동 입력됨: <strong>demo@hesya.com</strong> /{" "}
+            <strong>Hesya!Demo2026</strong>
+          </p>
+        )}
 
         <div className="sl-divider-or" aria-hidden="true">
           <span>또는</span>
