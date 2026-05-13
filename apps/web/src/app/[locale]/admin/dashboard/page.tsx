@@ -18,6 +18,7 @@
  */
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
+import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import { createDbClient } from "@hesya/database";
 
@@ -45,6 +46,57 @@ interface Props {
   params: Promise<{ locale: string }>;
 }
 
+/**
+ * Admin dashboard 8 DAL 묶음 30초 캐시 — monthKey 단일 key.
+ *
+ * 모든 admin이 같은 전사 데이터를 봄 (storeId 의존 X). 30s 캐시로 admin 여러 명
+ * 또는 새로고침 시 매번 8개 쿼리 polish.
+ */
+const getAdminDashboardCached = unstable_cache(
+  async (monthKey: string) => {
+    const [from, to] = monthKey.split("|");
+    const monthRange = {
+      fromDate: new Date(from!),
+      toDate: new Date(to!),
+    };
+    const db = createDbClient(env.DATABASE_URL);
+    const [
+      alerts,
+      kpi,
+      audit,
+      monthlyBars,
+      costSpark,
+      slaResolution,
+      regionDist,
+      topCategories,
+    ] = await Promise.all([
+      getAdminAlertCounts(db),
+      getAdminKpiSummary(db, monthRange),
+      getAdminAuditTrail(db, 12),
+      getMonthlyNewStoresCounts(db),
+      getDailyAiCostSpark(db),
+      getDisputeSlaResolution(db),
+      getStoreRegionDistribution(db),
+      getTopCategoriesByGmv(db),
+    ]);
+    return {
+      alerts,
+      kpi,
+      audit,
+      monthlyBars,
+      costSpark,
+      slaResolution,
+      regionDist,
+      topCategories,
+    };
+  },
+  ["admin-dashboard-v1"],
+  {
+    revalidate: 30,
+    tags: ["stores", "disputes", "bookings", "kyc", "api-policy-alerts"],
+  },
+);
+
 export default async function AdminDashboardPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -55,9 +107,9 @@ export default async function AdminDashboardPage({ params }: Props) {
     redirect(`/${locale}/sign-in`);
   }
 
-  const db = createDbClient(env.DATABASE_URL);
   const monthRange = getCurrentMonthRange();
-  const [
+  const monthKey = `${monthRange.fromDate.toISOString()}|${monthRange.toDate.toISOString()}`;
+  const {
     alerts,
     kpi,
     audit,
@@ -66,16 +118,7 @@ export default async function AdminDashboardPage({ params }: Props) {
     slaResolution,
     regionDist,
     topCategories,
-  ] = await Promise.all([
-    getAdminAlertCounts(db),
-    getAdminKpiSummary(db, monthRange),
-    getAdminAuditTrail(db, 12),
-    getMonthlyNewStoresCounts(db),
-    getDailyAiCostSpark(db),
-    getDisputeSlaResolution(db),
-    getStoreRegionDistribution(db),
-    getTopCategoriesByGmv(db),
-  ]);
+  } = await getAdminDashboardCached(monthKey);
 
   const t = await getTranslations({ locale, namespace: "AdminDashboard" });
 

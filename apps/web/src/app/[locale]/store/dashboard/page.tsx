@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
@@ -38,6 +39,63 @@ import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
  *
  * D4-D1: 디자인 정합 header / KPI card 재구성.
  */
+
+/**
+ * 매장 dashboard 10 DAL 묶음 30초 캐시 — storeId + month key.
+ *
+ * 매장 사장이 dashboard 새로고침 / 다른 페이지 갔다가 돌아오는 패턴에서 cache hit.
+ * 베타 5곳 × 1~2 month = 10 cache entry max. 메모리 부담 미미.
+ *
+ * 30s 짧게: 미응답 메시지 / 분쟁 등 즉시성 중요한 데이터 — stale 영향 최소화.
+ */
+const getStoreDashboardCached = unstable_cache(
+  async (storeId: string, monthKey: string) => {
+    const [from, to] = monthKey.split("|");
+    const monthRange = {
+      fromDate: new Date(from!),
+      toDate: new Date(to!),
+    };
+    const db = createDbClient(env.DATABASE_URL);
+    const [
+      inbox,
+      dispute,
+      kyc,
+      serviceCounts,
+      staffCounts,
+      servicesList,
+      staffList,
+      bookingStats,
+      nationalityMix,
+    ] = await Promise.all([
+      getInboxLoad(db, storeId),
+      getDisputeLoad(db, storeId),
+      getKycStatus(db, storeId),
+      countBookingsByService(db, storeId, monthRange),
+      countBookingsByStaff(db, storeId, monthRange),
+      listServicesByStore(db, storeId),
+      listStaffByStore(db, storeId),
+      getMonthlyBookingStats(db, storeId, monthRange),
+      getNationalityMix(db, storeId, monthRange),
+    ]);
+    return {
+      inbox,
+      dispute,
+      kyc,
+      serviceCounts,
+      staffCounts,
+      servicesList,
+      staffList,
+      bookingStats,
+      nationalityMix,
+    };
+  },
+  ["store-dashboard-v1"],
+  {
+    revalidate: 30,
+    tags: ["bookings", "conversations", "disputes", "services", "staff"],
+  },
+);
+
 export default async function StoreDashboardPage({
   params,
 }: {
@@ -55,9 +113,15 @@ export default async function StoreDashboardPage({
     throw err;
   }
 
-  const db = createDbClient(env.DATABASE_URL);
   const monthRange = getCurrentMonthRange();
-  const [
+  const monthKey = `${monthRange.fromDate.toISOString()}|${monthRange.toDate.toISOString()}`;
+
+  // shell은 세션 의존 (사용자별) — 캐시 X. 나머지 9 DAL은 storeId+month 캐시.
+  const [cached, shell] = await Promise.all([
+    getStoreDashboardCached(session.storeId, monthKey),
+    getOwnerShellData(),
+  ]);
+  const {
     inbox,
     dispute,
     kyc,
@@ -65,21 +129,9 @@ export default async function StoreDashboardPage({
     staffCounts,
     servicesList,
     staffList,
-    shell,
     bookingStats,
     nationalityMix,
-  ] = await Promise.all([
-    getInboxLoad(db, session.storeId),
-    getDisputeLoad(db, session.storeId),
-    getKycStatus(db, session.storeId),
-    countBookingsByService(db, session.storeId, monthRange),
-    countBookingsByStaff(db, session.storeId, monthRange),
-    listServicesByStore(db, session.storeId),
-    listStaffByStore(db, session.storeId),
-    getOwnerShellData(),
-    getMonthlyBookingStats(db, session.storeId, monthRange),
-    getNationalityMix(db, session.storeId, monthRange),
-  ]);
+  } = cached;
 
   if (!shell) redirect(`/${locale}/sign-in`);
 
