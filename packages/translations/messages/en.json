@@ -556,6 +556,25 @@
     "title": "Korean salons that speak your language.",
     "subtitle": "Verified spots picked for foreign travelers — book in your language, pay your way.",
     "searchPlaceholder": "Try \"K-drama layered cut\" or \"glass-skin makeup\"…",
+    "placeholders": [
+      "K-drama hair like 'The Glory'…",
+      "Hongdae nail salon for short stay…",
+      "Personal color consulting in English…",
+      "Glass-skin makeup in Hongdae…",
+      "Korean layered cut with English-speaking stylist…"
+    ],
+    "moodLabel": "Or browse by vibe",
+    "moods": [
+      "K-drama Song Hye-kyo look",
+      "Glass-skin makeup",
+      "Aegyo sal eyes",
+      "Cherry-blossom pink",
+      "Chunky lip liner",
+      "Diffused blush",
+      "Personal color session",
+      "Pink-blonde balayage",
+      "K-pop layered cut"
+    ],
     "regionLabel": "Region",
     "regionAll": "All",
     "resultsCount": "{n} salons",
@@ -563,7 +582,9 @@
     "emptySubtitle": "Try a different region or clear the search.",
     "signIn": "Sign in",
     "mypage": "My page",
-    "viewStore": "View"
+    "viewStore": "View",
+    "reviewCountSuffix": "({n})",
+    "verifiedBadge": "K-Verified"
   },
   "CustomerSignIn": {
     "eyebrow": "TRAVELER",

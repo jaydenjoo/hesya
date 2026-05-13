@@ -6,6 +6,7 @@ import {
   conversations,
   customers,
   payments,
+  reviews,
   services,
   staff,
   storeIntegrations,
@@ -213,6 +214,7 @@ describe("test-helpers/db", () => {
     expect(calls).toEqual([
       messages,
       conversations,
+      reviews,
       storeIntegrations,
       storeKnowledge,
       storeOwners,

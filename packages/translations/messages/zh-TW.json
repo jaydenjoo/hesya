@@ -556,6 +556,25 @@
     "title": "會說您語言的韓國美容院。",
     "subtitle": "為外國旅客精選的認證店家 — 用您熟悉的語言預約,以您習慣的方式付款。",
     "searchPlaceholder": "例如:K-drama 短髮、玻璃肌妝容…",
+    "placeholders": [
+      "K-drama 同款髮型《黑暗榮耀》…",
+      "弘大美甲(適合短行程)…",
+      "個人色彩諮詢(可用英文)…",
+      "弘大玻璃肌妝容…",
+      "韓式層次剪 (英語設計師)…"
+    ],
+    "moodLabel": "依風格瀏覽 / Or browse by vibe",
+    "moods": [
+      "K-drama 宋慧喬風",
+      "玻璃肌妝容",
+      "臥蠶妝",
+      "櫻花粉",
+      "厚唇線",
+      "暈染腮紅",
+      "個人色彩諮詢",
+      "粉金挑染",
+      "K-pop 層次剪"
+    ],
     "regionLabel": "地區",
     "regionAll": "全部",
     "resultsCount": "{n} 家店家",
@@ -563,7 +582,9 @@
     "emptySubtitle": "請嘗試其他地區或清除搜尋。",
     "signIn": "登入",
     "mypage": "我的頁面",
-    "viewStore": "查看"
+    "viewStore": "查看",
+    "reviewCountSuffix": "({n})",
+    "verifiedBadge": "K-Verified"
   },
   "CustomerSignIn": {
     "eyebrow": "旅行者",

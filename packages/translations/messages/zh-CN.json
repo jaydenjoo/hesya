@@ -556,6 +556,25 @@
     "title": "会说您语言的韩国美容院。",
     "subtitle": "面向外国旅行者认证的店铺 — 用您熟悉的语言预约,按您习惯的方式支付。",
     "searchPlaceholder": "例如:K-drama 短发、玻璃皮肤妆…",
+    "placeholders": [
+      "K-drama 同款发型《黑暗荣耀》…",
+      "弘大美甲(适合短行程)…",
+      "个人色彩诊断(可英语沟通)…",
+      "弘大玻璃皮肤妆…",
+      "韩式层次剪 (英语沟通设计师)…"
+    ],
+    "moodLabel": "按风格逛逛 / 分位기로 둘러보기",
+    "moods": [
+      "K-drama 宋慧乔风",
+      "玻璃皮肤妆",
+      "卧蚕妆",
+      "樱花粉",
+      "厚唇线",
+      "晕染腮红",
+      "个人色彩诊断",
+      "粉金挑染",
+      "K-pop 层次剪"
+    ],
     "regionLabel": "地区",
     "regionAll": "全部",
     "resultsCount": "{n} 家店铺",
@@ -563,7 +582,9 @@
     "emptySubtitle": "请尝试其他地区或清空搜索。",
     "signIn": "登录",
     "mypage": "我的",
-    "viewStore": "查看"
+    "viewStore": "查看",
+    "reviewCountSuffix": "({n})",
+    "verifiedBadge": "K-Verified"
   },
   "CustomerSignIn": {
     "eyebrow": "旅行者",

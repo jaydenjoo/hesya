@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import {
   createDbClient,
   eq,
+  reviews,
   storeVerifications,
   stores,
   type DbClient,
@@ -14,6 +15,7 @@ import {
   getStoreBotMode,
   getStorePublicById,
   getStoreVerificationDetail,
+  listPublicStores,
   listStoresPendingReview,
   rejectStore,
   setStoreBotMode,
@@ -342,6 +344,75 @@ describe.skipIf(!hasDb)("dal.stores (integration)", () => {
           "00000000-0000-0000-0000-000000000000",
         );
         expect(result).toBeNull();
+      });
+
+      it("리뷰 0건 매장 → rating null + reviewCount 0 (정직 처리)", async () => {
+        const storeId = await seedStore(db, { name: "신규 매장" });
+        await db
+          .update(stores)
+          .set({ verificationStatus: "auto_approved" })
+          .where(eq(stores.id, storeId));
+
+        const result = await getStorePublicById(db, storeId);
+        expect(result?.rating).toBeNull();
+        expect(result?.reviewCount).toBe(0);
+      });
+
+      it("리뷰 3건 매장 → rating avg + reviewCount 3", async () => {
+        const storeId = await seedStore(db, { name: "리뷰있는 매장" });
+        await db
+          .update(stores)
+          .set({ verificationStatus: "auto_approved" })
+          .where(eq(stores.id, storeId));
+        await db.insert(reviews).values([
+          { storeId, rating: 5 },
+          { storeId, rating: 4 },
+          { storeId, rating: 3 },
+        ]);
+
+        const result = await getStorePublicById(db, storeId);
+        expect(result?.rating).toBeCloseTo(4.0, 2);
+        expect(result?.reviewCount).toBe(3);
+      });
+    });
+
+    describe("listPublicStores rating aggregate (batch 2)", () => {
+      it("리뷰 0건 매장 → rating null + reviewCount 0", async () => {
+        const storeId = await seedStore(db, { name: "신규 매장" });
+        await db
+          .update(stores)
+          .set({ verificationStatus: "auto_approved" })
+          .where(eq(stores.id, storeId));
+
+        const list = await listPublicStores(db);
+        const target = list.find((s) => s.id === storeId);
+        expect(target?.rating).toBeNull();
+        expect(target?.reviewCount).toBe(0);
+      });
+
+      it("리뷰 N건 매장만 rating 채워짐 + 다른 매장은 영향 없음", async () => {
+        const storeWithReviews = await seedStore(db, { name: "리뷰 매장" });
+        const storeNoReviews = await seedStore(db, { name: "노 리뷰 매장" });
+        await db
+          .update(stores)
+          .set({ verificationStatus: "auto_approved" })
+          .where(eq(stores.id, storeWithReviews));
+        await db
+          .update(stores)
+          .set({ verificationStatus: "auto_approved" })
+          .where(eq(stores.id, storeNoReviews));
+        await db.insert(reviews).values([
+          { storeId: storeWithReviews, rating: 5 },
+          { storeId: storeWithReviews, rating: 5 },
+        ]);
+
+        const list = await listPublicStores(db);
+        const withR = list.find((s) => s.id === storeWithReviews);
+        const noR = list.find((s) => s.id === storeNoReviews);
+        expect(withR?.rating).toBeCloseTo(5.0, 2);
+        expect(withR?.reviewCount).toBe(2);
+        expect(noR?.rating).toBeNull();
+        expect(noR?.reviewCount).toBe(0);
       });
     });
 

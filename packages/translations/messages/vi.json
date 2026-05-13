@@ -556,6 +556,25 @@
     "title": "Salon Hàn Quốc nói ngôn ngữ của bạn.",
     "subtitle": "Cửa hàng đã xác minh dành cho du khách nước ngoài — đặt lịch bằng ngôn ngữ của bạn, thanh toán theo cách quen thuộc.",
     "searchPlaceholder": "Ví dụ: kiểu tóc K-drama, makeup glass-skin…",
+    "placeholders": [
+      "Tóc K-drama như 'The Glory'…",
+      "Nail salon ở Hongdae (chuyến ngắn)…",
+      "Tư vấn personal color (tiếng Anh)…",
+      "Makeup glass-skin ở Hongdae…",
+      "Cắt layered Hàn (stylist nói tiếng Anh)…"
+    ],
+    "moodLabel": "Hoặc duyệt theo phong cách",
+    "moods": [
+      "Phong cách Song Hye-kyo (K-drama)",
+      "Makeup glass-skin",
+      "Mắt aegyo sal",
+      "Hồng hoa anh đào",
+      "Viền môi chunky",
+      "Má hồng diffused",
+      "Tư vấn personal color",
+      "Nhuộm balayage hồng vàng",
+      "Cắt layered K-pop"
+    ],
     "regionLabel": "Khu vực",
     "regionAll": "Tất cả",
     "resultsCount": "{n} cửa hàng",
@@ -563,7 +582,9 @@
     "emptySubtitle": "Hãy thử khu vực khác hoặc xóa tìm kiếm.",
     "signIn": "Đăng nhập",
     "mypage": "Trang của tôi",
-    "viewStore": "Xem"
+    "viewStore": "Xem",
+    "reviewCountSuffix": "({n})",
+    "verifiedBadge": "K-Verified"
   },
   "CustomerSignIn": {
     "eyebrow": "DU KHÁCH",
