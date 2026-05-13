@@ -26,6 +26,8 @@ import {
   getAdminAlertCounts,
   getAdminAuditTrail,
   getAdminKpiSummary,
+  getDailyAiCostSpark,
+  getMonthlyNewStoresCounts,
 } from "@/shared/lib/dal/admin-dashboard";
 import { getCurrentMonthRange } from "@/shared/lib/dal/dashboard";
 
@@ -51,10 +53,12 @@ export default async function AdminDashboardPage({ params }: Props) {
 
   const db = createDbClient(env.DATABASE_URL);
   const monthRange = getCurrentMonthRange();
-  const [alerts, kpi, audit] = await Promise.all([
+  const [alerts, kpi, audit, monthlyBars, costSpark] = await Promise.all([
     getAdminAlertCounts(db),
     getAdminKpiSummary(db, monthRange),
     getAdminAuditTrail(db, 12),
+    getMonthlyNewStoresCounts(db),
+    getDailyAiCostSpark(db),
   ]);
 
   const t = await getTranslations({ locale, namespace: "AdminDashboard" });
@@ -201,7 +205,7 @@ export default async function AdminDashboardPage({ params }: Props) {
               labelEn="NEW SALONS · MONTHLY"
               labelKr="월별 신규 매장 — 최근 12개월"
             />
-            <DashboardBarChart />
+            <DashboardBarChart data={monthlyBars} />
           </Tile>
 
           <Tile span={3}>
@@ -210,11 +214,26 @@ export default async function AdminDashboardPage({ params }: Props) {
               <span className="mr-0.5 font-mono text-[12px] not-italic text-gray-500">
                 ₩
               </span>
-              28,420
+              {costSpark[costSpark.length - 1]?.v.toLocaleString("ko-KR") ??
+                "0"}
             </div>
-            <KpiMeta>30일 평균 대비 ▲ 7%</KpiMeta>
+            <KpiMeta>
+              {(() => {
+                const last = costSpark[costSpark.length - 1]?.v ?? 0;
+                const prior29 = costSpark.slice(0, -1);
+                const avg29 =
+                  prior29.length > 0
+                    ? prior29.reduce((s, r) => s + r.v, 0) / prior29.length
+                    : 0;
+                if (avg29 === 0)
+                  return last === 0 ? "AI 메시지 누적 전" : "표본 부족";
+                const delta = Math.round(((last - avg29) / avg29) * 100);
+                const arrow = delta > 0 ? "▲" : delta < 0 ? "▼" : "→";
+                return `30일 평균 대비 ${arrow} ${Math.abs(delta)}%`;
+              })()}
+            </KpiMeta>
             <div className="mt-3">
-              <DashboardSpark />
+              <DashboardSpark data={costSpark} />
             </div>
           </Tile>
 
