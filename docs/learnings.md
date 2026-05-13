@@ -36,6 +36,39 @@
 
 ## 기록
 
+### [2026-05-13] L-094 — Auth 변경 시 happy path 끝 단계(클릭/세션) 직접 검증 안 하고 "완료" 선언
+
+**증상**: PR #144 (owner magic link) 머지 후 종합 보고로 "✅ Prod 머지 + 검증 완료" 선언. Jayden이 prod에서 직접 메일 받아 클릭하니 `/api/auth/magic-link/verify?callbackURL=%2F` → `/ko` redirect → 로그인 페이지로 다시 → "왜 계속 오류와 실수가 발생하는건지" Jayden 명시 항의. 세션 내 누적 4건 fix 모두 같은 패턴.
+
+**원인**: HTTP 200 + sender 로그 + sent 페이지 redirect = "성공"으로 결론. 실제 사용자 입장 e2e (메일 → 클릭 → dashboard 도달)를 한 번도 직접 시뮬레이션 안 함. Resend 도메인 미검증으로 외부 메일 못 보낸다는 이유로 그 단계를 "검증 못 함"이 아니라 "검증 불필요"로 잘못 격하. 추가로, `/sign-in` 페이지 직접 진입 시 `callbackUrl` query 없으면 default 가 `/`라서 magic link URL의 callbackURL이 `%2F`로 인코딩 — 코드 리뷰만으로도 잡혔어야 함.
+
+**해결**: PR #145로 `sanitizeCallback`을 whitelist 방식 (`/{locale}/store/*`)로 강화 + fallback `/{locale}/store/dashboard`. 그 후 Jayden 본인 메일(`hidream72@gmail.com`)로 직접 메일 발송 → 받은 URL Jayden이 공유 → Claude가 Playwright로 클릭 → `/ko/store/dashboard` 도달 + 헤더에 "yj j (JAYDEN)" 확인 = 진짜 e2e.
+
+**규칙** ⭐:
+
+1. Auth/세션 흐름 PR은 **클릭 → 세션 설정 → 리다이렉트 도달 페이지 식별** 4단계를 직접 시뮬레이션해야 "완료" 선언. HTTP 200 + 로그만으로 "✅" 금지.
+2. Magic link / OAuth / password 어떤 인증이든 callback URL은 **whitelist 방식 (특정 path prefix만 허용)**으로 고정. default도 빈 문자열/`/` 가 아닌 **명시적 destination** (e.g., `/{locale}/store/dashboard`).
+3. **시연 / 데모 흐름은 메일 round-trip 없는 경로(Email+Password)를 default로**. Magic link는 대안 (분실 시 복구) 정도로. 메일 의존하면 도메인 검증 + inbox 접근 두 번 거쳐야 해서 시연 마찰 큼.
+4. Plan 단계에 "Happy path 한 문장 적기 → 그 중 직접 확인 못 한 단계가 있나? 있으면 해당 단계 Jayden에게 확인 부탁 명시" 의무. "✅ 검증 완료" 대신 "코드 머지 / e2e 1차 미확인 — Jayden 본인 메일 테스트 필요" 정확히 표기.
+
+**확인 방법**: PR 머지 후 prod 환경에서 Playwright 자동 e2e 1회 (가능한 경우) — 폼 submit + 도달 페이지 헤더 텍스트 / 권한 가드 결과까지 assert. 메일 발송 단계가 있으면 그 부분만 Jayden 수동 확인 단계로 표시.
+
+### [2026-05-13] L-095 — Prod migration drift 진단은 Vercel logs로 실제 에러 원인 확인 후 진행
+
+**증상**: prod `/ko/c` 500 + `/admin/dashboard` 500 발생. 이전 세션 메모에 "`stores.category` 컬럼 누락"이라 기록돼있어서 그 가정으로 plan 작성. 실제 Vercel logs로 확인 시 진짜 원인은 `column stores.deleted_at does not exist` (0025 `store_deletion` 미적용).
+
+**원인**: prod migration drift 진단을 "기억"이나 "이전 세션 메모"에 의존. 실측 안 함. 진짜 누락 컬럼/테이블을 잘못 식별하면 적용해야 할 마이그레이션 수도 바뀜 (실제로 0024+0025+0027 3건만 필요했는데 7건 적용 plan 작성했었음).
+
+**해결**: `vercel logs hesya-web.vercel.app -x --status-code 500 --environment production`로 실제 500 응답의 PG error message 직접 확인 → `errorMissingColumn` + 컬럼명 정확히 식별. 그 다음 `supabase db dump --linked --schema public`으로 prod 실제 스키마 dump → repo의 schema/migrations와 diff하여 누락 분만 식별.
+
+**규칙** ⭐:
+
+1. Prod 에러 진단은 **Vercel logs (`-x` flag로 full message)**부터. 추측/메모 기반 plan 금지.
+2. Migration drift 진단은 **`supabase db dump --linked --schema public`** (read-only, prod 안전)으로 실제 스키마 dump → repo migrations와 diff. 어떤 마이그가 적용됐는지 직접 확인.
+3. 모든 manual SQL migration에 **`IF NOT EXISTS` / `ADD COLUMN IF NOT EXISTS` 가드 의무** — 중복 적용 시에도 안전. 이미 적용된 마이그도 안전하게 재실행 가능 → drift 진단 부담 감소.
+
+**확인 방법**: `packages/database/CLAUDE.md`에 "신규 manual SQL은 IF NOT EXISTS 가드 의무" 룰 명시 (이미 일부 권장됨, 강화). PR 리뷰 시 가드 누락 체크.
+
 ### [2026-04-30] husky/lint-staged의 prettier 자동 재포맷이 Edit 도구와 충돌
 
 **증상**: PRD.md를 Edit으로 수정 → commit (husky pre-commit hook의 lint-staged가 prettier로 자동 재포맷) → 같은 파일에 추가 Edit 시도 → `File has been modified since read, either by the user or by a linter` 에러로 차단됨.

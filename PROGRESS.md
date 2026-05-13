@@ -3,18 +3,32 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-12 세션 26 종료 — M6 phase 26 PRs, subagent audit + playwright visual diff 검증)
+## 현재 위치 (2026-05-13 세션 27 종료 — 베타 출시 준비, 5 PRs + prod migration + demo account)
 
-- **Phase**: **Plan v3 M1~M5 100% + M6 26 PRs 머지 (audit-verified parity)**
-- **세션 26 추가 머지 (2 PRs)** — Step 1 audit + Step 2 visual diff:
-  - PR [#140](https://github.com/jaydenjoo/hesya/pull/140) audit fix — pending-status (error tone crit token + pulse), kyc-form (bg opacity solid), store-verification-detail (Row 색/font 명시 + reject hover amber + textarea transition)
-  - PR [#141](https://github.com/jaydenjoo/hesya/pull/141) i18n fix — `CustomerLanding.resultsCount` ICU placeholder bug (playwright screenshot에서 발견)
-- **Audit 검증 결과**:
-  - Owner/Admin (subagent): 10 gap 발견, 5개 high/medium fix 완료
-  - Customer (grep audit): 0 slop signal, 12 Fraunces italic + 51 hesya token, 0 design TODO
-  - Visual diff (playwright): customer landing / customer sign-in / store sign-in 3페이지 reference parity 시각 확인 + i18n bug 1건 fix
+- **Phase**: **Plan v3 M1~M5 100% + M6 26 PRs + 베타 출시 인프라 (auth + prod 정상화)**
+- **세션 27 머지 (5 PRs, prod ready 위주)**:
+  - PR [#142](https://github.com/jaydenjoo/hesya/pull/142) ICU `FORMATTING_ERROR` 2건 fix — `store/customers` + `store/services` page `t("...")` → `t.raw("...") as string` (PR #141 customer landing fix와 동일 패턴 누락 2건)
+  - PR [#143](https://github.com/jaydenjoo/hesya/pull/143) dev-demo.sh UUID v0 → v4 fix + `E2E_CUSTOMER_EMAIL` bypass 추가 — 로컬 `/store/*` + `/c/mypage` 데모 가능
+  - PR [#144](https://github.com/jaydenjoo/hesya/pull/144) Owner magic link — `/sign-in` 페이지에 이메일 magic link 폼 추가 (Better Auth + Resend), Google OAuth는 secondary
+  - PR [#145](https://github.com/jaydenjoo/hesya/pull/145) Sign-in callbackURL fallback fix — `/sign-in` 직접 진입 시 callback이 `/` 로 떨어져 magic link verify 후 dashboard 도달 못 함 → `/{locale}/store/*` whitelist 강화
+  - PR [#146](https://github.com/jaydenjoo/hesya/pull/146) Owner Email + Password 로그인 + magic link 보조 + `NEXT_PUBLIC_DEMO_AUTOFILL` 데모 자동입력 prop — 메일 round-trip 없이 즉시 로그인
+- **Prod migration 적용 (Jayden Supabase Studio)**:
+  - 0024 `api_policy_alerts` 테이블 (Epic 12.8)
+  - 0025 `stores.deleted_at` / `deletion_reason` / `store_deletion_requests` (Epic 12.9) ← `/ko/c` + `/admin/dashboard` 500 원인 해소
+  - 0027 `bookings_unique_active_staff_time` partial unique index (race condition 차단)
+  - (이미 prod에 있던 0022/0023/0026/0028은 skip)
+- **Demo 계정 prod 생성 + 매장 연결**:
+  - `demo@hesya.com` / `Hesya!Demo2026` (Better Auth `/api/auth/sign-up/email` curl)
+  - user_id `c7e164f3-ce68-421d-b171-34d87a38d89e`
+  - "Hesya 데모 헤어샵 (강남)" 매장에 `store_owners` 연결 (Jayden DO 블록 SQL)
+- **E2E 검증 (사용자 입장 직접 확인)** — L-082 규칙 준수:
+  - Magic link: hidream72@gmail.com 발송 → 메일 클릭 → `/ko/store/dashboard` 진입 ✅
+  - Password: demo@hesya.com 입력 → `/ko/store/dashboard` 즉시 진입 + 헤더 "Hesya Demo Owner" 표시 ✅
+  - Prod `/ko/c` + `/admin/dashboard` 200 복구 ✅
 - **다음 세션 시작점**:
-  - 베타 출시 작업으로 전환 (시연 매장 5곳 매칭) — Jayden 비즈니스 사이드
+  - **Admin Dashboard reference parity** (zip 디자인 100% 적용) — chrome (top bar + sidebar) + 5 위젯 (월별 바차트 / AI 비용 스파크라인 / 분쟁 SLA 도넛 / 한국 지도 / Top 5 카테고리) + audit rail. Mock 데이터 사용. 예상 3.5~4h, 1 PR
+  - 또는 Resend 도메인 검증 (외부 사장 메일 발송 가능) — 베타 출시 차단선
+  - 또는 베타 5곳 매장 매칭 (Jayden 비즈니스 사이드)
 
 ## P0 Epic 시연 % 최종 (세션 25 머지 반영)
 
