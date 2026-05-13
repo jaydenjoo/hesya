@@ -64,11 +64,15 @@ export async function seedStore(
 
 export async function seedCustomer(
   db: DbClient,
-  input: { channel: string; externalId: string },
+  input: { channel: string; externalId: string; name?: string },
 ): Promise<string> {
   const [row] = await db
     .insert(customers)
-    .values({ channel: input.channel, externalId: input.externalId })
+    .values({
+      channel: input.channel,
+      externalId: input.externalId,
+      name: input.name,
+    })
     .returning({ id: customers.id });
   if (!row) throw new Error("seedCustomer: insert returned no row");
   return row.id;

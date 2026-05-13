@@ -4,17 +4,16 @@
  * Epic 1B-UI A-2 — ThreadRow 시각 풍부화 (γ.2.3.1 디자인 정합성).
  *
  * 디자인 ref(`docs/design/reference/inbox-app.jsx` Col 1 thread row +
- * `inbox.css` `.ix-thread-row`) 기반. 1B 데이터 한계 — VIP, urgent, 번역
- * preview, 고객 이름은 1B 스코프 밖 → 생략. 다음 Epic(고객 정보 적재)에서
- * 자연 추가.
+ * `inbox.css` `.ix-thread-row`) 기반.
  *
- * 구성: avatar(첫 글자, 38px, 4색 cycling) + 채널 아이콘 + customerId(8자
- *      short) + 시간 + preview + unread badge + active 시 좌측 amber bar.
+ * 구성: avatar(첫 글자, 38px, 4색 cycling) + 채널 아이콘 + customerName(없으면
+ *      customerId 8자 short) + 시간 + preview + unread badge + active 시 좌측
+ *      amber bar.
  *
  * 시간 포맷: HH:mm (Intl.DateTimeFormat 로컬타임존 — 사장 컴퓨터 시각 기준).
  */
 
-import type { Conversation } from "../types";
+import type { ConversationListItem } from "../types";
 import { safeFormat } from "@/shared/lib/date-utils";
 
 const CHANNEL_ICONS: Record<string, string> = {
@@ -39,14 +38,14 @@ const TIME_FMT = new Intl.DateTimeFormat(undefined, {
   hour12: false,
 });
 
-function avatarChar(customerId: string): string {
-  return (customerId.charAt(0) || "?").toUpperCase();
+function avatarChar(seed: string): string {
+  return (seed.charAt(0) || "?").toUpperCase();
 }
 
-function avatarBg(customerId: string): string {
+function avatarBg(seed: string): string {
   let h = 0;
-  for (let i = 0; i < customerId.length; i++) {
-    h = (h * 31 + customerId.charCodeAt(i)) | 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = (h * 31 + seed.charCodeAt(i)) | 0;
   }
   return AVATAR_BGS[Math.abs(h) % AVATAR_BGS.length] ?? AVATAR_BGS[0];
 }
@@ -56,13 +55,18 @@ export function ThreadItem({
   isActive,
   onClick,
 }: {
-  conversation: Conversation;
+  conversation: ConversationListItem;
   isActive: boolean;
   onClick: () => void;
 }) {
   const hasUnread = conversation.unreadCount > 0;
   const channelIcon = CHANNEL_ICONS[conversation.channel] ?? "💬";
   const time = safeFormat(conversation.lastMessageAt, TIME_FMT, "");
+  // customerName 있으면 우선, 없으면 UUID 8자 prefix 폴백 (1B legacy 호환).
+  const displayName =
+    conversation.customerName ?? conversation.customerId.slice(0, 8);
+  // avatar seed: 이름 있으면 이름 첫 글자 / 색 → 시각적으로 안정.
+  const avatarSeed = conversation.customerName ?? conversation.customerId;
 
   // active → peach-100, unread → peach-100/40 (옅음), default → white.
   const rowBg = isActive
@@ -86,9 +90,9 @@ export function ThreadItem({
       <div className="relative flex-shrink-0">
         <div
           data-testid="thread-avatar"
-          className={`kr flex h-[38px] w-[38px] items-center justify-center rounded-full text-sm font-semibold text-hesya-navy-900 ${avatarBg(conversation.customerId)}`}
+          className={`kr flex h-[38px] w-[38px] items-center justify-center rounded-full text-sm font-semibold text-hesya-navy-900 ${avatarBg(avatarSeed)}`}
         >
-          {avatarChar(conversation.customerId)}
+          {avatarChar(avatarSeed)}
         </div>
         <div
           data-testid="thread-channel-icon"
@@ -103,7 +107,7 @@ export function ThreadItem({
           <span
             className={`truncate text-[13px] text-hesya-navy-900 ${hasUnread ? "font-bold" : "font-semibold"}`}
           >
-            {conversation.customerId.slice(0, 8)}
+            {displayName}
           </span>
           {time ? (
             <span

@@ -7,7 +7,7 @@ type Props = {
   subCopy: string;
   /** CTA 라벨 */
   ctaLabel: string;
-  /** 부 CTA: 고객 검색 안내 (Phase 1 미구현) */
+  /** 부 CTA: 손님 페이지(/c)로 데모 시연 진입 */
   customerNote: string;
 };
 
@@ -41,9 +41,12 @@ export function LandingHero({
           >
             {ctaLabel}
           </Link>
-          <span className="text-xs text-hesya-navy-900/55 sm:max-w-[24ch]">
+          <Link
+            href={`/${locale}/c`}
+            className="inline-flex h-12 items-center justify-center rounded-md border border-hesya-navy-900/15 px-6 text-sm font-medium text-hesya-navy-900 transition-colors hover:border-hesya-amber-500 hover:bg-hesya-amber-500/5 sm:max-w-[28ch]"
+          >
             {customerNote}
-          </span>
+          </Link>
         </div>
       </div>
     </section>

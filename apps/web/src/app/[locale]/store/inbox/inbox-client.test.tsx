@@ -50,13 +50,14 @@ afterEach(() => {
 });
 
 import { InboxClient } from "./inbox-client";
-import type { Conversation } from "@/features/inbox/types";
+import type { ConversationListItem } from "@/features/inbox/types";
 
-function makeConv(id: string, preview: string): Conversation {
+function makeConv(id: string, preview: string): ConversationListItem {
   return {
     id,
     storeId: "s1",
     customerId: "cust_" + id,
+    customerName: null,
     channel: "instagram",
     status: "open",
     externalThreadId: null,

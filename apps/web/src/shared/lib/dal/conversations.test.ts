@@ -103,6 +103,22 @@ describe.skipIf(!hasDb)("dal.conversations (integration)", () => {
     expect(list.map((r) => r.id)).toContain(c2.id);
   });
 
+  it("listByStore: customer.name 동봉 (UI가 UUID 대신 이름 표시)", async () => {
+    const namedCustomer = await seedCustomer(db, {
+      channel: "instagram",
+      externalId: "igsid_named",
+      name: "Mei Tanaka",
+    });
+    await upsertConversation(db, {
+      storeId,
+      customerId: namedCustomer,
+      channel: "instagram",
+    });
+    const list = await listByStore(db, storeId);
+    const row = list.find((r) => r.customerId === namedCustomer);
+    expect(row?.customerName).toBe("Mei Tanaka");
+  });
+
   it("incrementUnread + markAllRead", async () => {
     const c = await upsertConversation(db, {
       storeId,

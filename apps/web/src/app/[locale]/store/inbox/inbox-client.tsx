@@ -12,7 +12,7 @@ import {
 } from "@/features/inbox";
 import { InboxShell } from "@/features/inbox/components/inbox-shell";
 import { ContextPanel } from "@/features/inbox/components/context-panel";
-import type { Conversation, Customer, Message } from "@/features/inbox";
+import type { ConversationListItem, Customer, Message } from "@/features/inbox";
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -23,7 +23,7 @@ export function InboxClient({
   storeId,
   storeBotMode,
 }: {
-  initialConversations: Conversation[];
+  initialConversations: ConversationListItem[];
   hasIgIntegration: boolean;
   igTokenExpiresAt: Date | null;
   storeId: string;
@@ -31,7 +31,7 @@ export function InboxClient({
 }) {
   const t = useTranslations("Inbox");
   const [conversations, setConversations] =
-    useState<Conversation[]>(initialConversations);
+    useState<ConversationListItem[]>(initialConversations);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   // Customer 확장 (CC-5) — activeId의 customer 정보. /api/inbox/refresh 응답에서 동봉.
@@ -62,7 +62,7 @@ export function InboxClient({
           return;
         }
         const data = (await res.json()) as {
-          conversations: Conversation[];
+          conversations: ConversationListItem[];
           messages: Record<string, Message[]>;
           customers?: Record<string, Customer>;
         };
@@ -90,7 +90,9 @@ export function InboxClient({
 
   const active = conversations.find((c) => c.id === activeId) ?? null;
   const tokenExpired = getWindowStatus(igTokenExpiresAt).state === "expired";
-  const customerName = active ? active.customerId.slice(0, 8) : "";
+  const customerName = active
+    ? (active.customerName ?? active.customerId.slice(0, 8))
+    : "";
 
   return (
     <div className="flex h-[calc(100vh-64px)] flex-col bg-hesya-peach-50">

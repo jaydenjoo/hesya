@@ -2,8 +2,10 @@ import "server-only";
 import {
   and,
   conversations,
+  customers,
   desc,
   eq,
+  inArray,
   sql,
   type Channel,
   type DbClient,
@@ -11,6 +13,14 @@ import {
 
 type Conversation = typeof conversations.$inferSelect;
 type Status = "open" | "closed" | "snoozed";
+
+/**
+ * 인박스 thread list에서 사용. conversation row + `customers.name` 동봉으로
+ * UI가 customer UUID 대신 이름 표시.
+ */
+export interface ConversationListItem extends Conversation {
+  customerName: string | null;
+}
 
 export async function upsertConversation(
   db: DbClient,
@@ -60,8 +70,8 @@ export async function listByStore(
   db: DbClient,
   storeId: string,
   opts: { status?: Status; limit?: number } = {},
-): Promise<Conversation[]> {
-  return db
+): Promise<ConversationListItem[]> {
+  const rows = await db
     .select()
     .from(conversations)
     .where(
@@ -72,6 +82,22 @@ export async function listByStore(
     )
     .orderBy(desc(conversations.lastMessageAt))
     .limit(opts.limit ?? 50);
+
+  if (rows.length === 0) return [];
+
+  // customer.name 별도 fetch (join 대신 2 query — 50 row 한정이라 비용 미미,
+  // 가독성 ↑). customer row 없으면 customerName=null 폴백.
+  const customerIds = Array.from(new Set(rows.map((r) => r.customerId)));
+  const customerRows = await db
+    .select({ id: customers.id, name: customers.name })
+    .from(customers)
+    .where(inArray(customers.id, customerIds));
+  const nameMap = new Map(customerRows.map((c) => [c.id, c.name]));
+
+  return rows.map((r) => ({
+    ...r,
+    customerName: nameMap.get(r.customerId) ?? null,
+  }));
 }
 
 export async function incrementUnread(db: DbClient, id: string): Promise<void> {
