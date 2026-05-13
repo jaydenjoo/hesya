@@ -3,7 +3,32 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-13 세션 31 종료 — A/B/C 묶음 5 PRs 모두 머지)
+## 현재 위치 (2026-05-14 세션 32 종료 — Perf 3 PRs: 페이지 전환 3.4s → 546ms cold / 216ms cached)
+
+- **Phase**: **Plan v3 M1~M5 100% + M6 위젯 5/5 실 데이터 wire + γ.2 Phase 1 closure 진행 + 페이지 전환 perf 누적 -94%**
+- **세션 32 머지 (3 perf PRs, main 9번째 → 12번째 commit)**:
+  - PR [#162](https://github.com/jaydenjoo/hesya/pull/162) perf(web) — **PostHog autocapture off + customer 페이지 `<a>` → `<Link>`**. 925ms dead-clicks-autocapture.js blocking 제거 + landing/mypage hard reload(nav_type="navigate") → SPA nav 전환. 3.4s → 82ms (1st 클릭) → 40ms (2nd cache hit).
+  - PR [#163](https://github.com/jaydenjoo/hesya/pull/163) perf(web) — **unstable_cache 4-phase**. `/ko/c` 60s, `/ko/c/store/[id]` 60s + 3 DAL parallel, `/store/dashboard` 30s 9 DAL combined, `/admin/dashboard` 30s 8 DAL combined. SSR DAL 3초 병목 해소.
+  - PR [#164](https://github.com/jaydenjoo/hesya/pull/164) perf(web) — **잔여 병목 4개 일괄**. Sentry tracesSampleRate 0.1→0.05 (3 files) + Vercel `regions: ["icn1"]` (Seoul function, `x-vercel-id: icn1::iad1` → `icn1::icn1`) + 폰트 weight 슬림 (Fraunces 600 italic만, Source Sans 4단 weight, JBMono `preload: false`) + Fluid Compute 검증 (2025 기본값, 변경 불요).
+- **세션 32 측정 (Playwright prod)**:
+  - `/ko/c` cold cache-buster — load_complete **5291ms → 546ms (-90%)**, TTFB 9ms 유지
+  - `/ko/c` cached — load_complete **4010ms → 216ms (-95%)**
+  - 카드 → store 상세 SPA nav — RSC chunk 132ms (cold prefetch 포함, 이전 hard reload 3400ms)
+  - 폰트 woff2 — 각 1-9ms 다운로드 (이전 cold 905ms)
+- **L-082 시연 %**:
+  - M3 owner 100% / M4 admin 100% / Dashboard 위젯 5/5 / Customer 외부 진입 perf 베타-grade (페이지 전환 < 600ms)
+  - 디자인 정합성 batch 1 적용 유지 (inbox composer + landing greeting)
+- **L-095 추가** — 페이지 전환 3.4s는 단일 원인 아닌 복합 (PostHog autocapture + `<a>` hard reload + SSR uncached DAL 3종). Playwright `performance.getEntriesByType("resource")` + `nav.type` 동시 측정 의무.
+- **다음 세션 시작점**:
+  - **N=10 cookie cache bench prod 재실측** → `docs/auth-cookie-cache-bench.md` TBD 표 채우기 (perf -94% 누적 효과 cross-reference 가능)
+  - **E1 inbox 디자인 batch 2** 후보: AIAssist 톤 검증 pill / ContextPanel 4탭 / Day mark separator
+  - **Customer landing batch 2** 후보: placeholder rotator / mood chips / 매장 카드 rating bar
+  - **Customer store detail batch** — schedule grid 디자인 정합 (reference 차이 큰 페이지)
+  - **PR #156/#154 admin-dashboard test backfill** (5 DAL 함수)
+  - **Resend 도메인 검증** (Jayden 외부 액션, 보류 중)
+  - **베타 5곳 매장 매칭** (Jayden 비즈니스, 보류 중)
+
+## 이전 세션 31 종료 시점 (참고: 2026-05-13)
 
 - **Phase**: **Plan v3 M1~M5 100% + M6 위젯 5/5 실 데이터 wire + γ.2 Phase 1 closure 시작 (inbox composer + landing greeting)**
 - **세션 31 머지 (5 PRs, main 7번째 commit ~ 11번째 commit)**:

@@ -3468,3 +3468,36 @@ expected [ messages, conversations, …(11) ] to deeply equal
 **비유**: 사무실 9개 방에 각자 자체 책상·캐비넷 있는 상태에서 "공용 로비"를 도입하려는 것과 같음. 로비를 일괄 만들면 방마다 가구 재배치 필요 (모든 page 동시 수정 = 큰 PR). 대신 "쇼룸" 1개 방만 먼저 로비 적용 (dedicated layout), 나머지는 점진 리모델링 (후속 PR).
 
 **연관**: L-078 (Pre-Plan Inventory가 새 기능 도입 시 인접 패턴 검색 누락 함정 — 본 L-094는 인벤토리에 1항목 추가), L-082 (시연 % e2e 기준 — sub-page 통합 전까지 admin 디자인 정합성 sub-page 9개는 95% 미달 유지), 본 세션 PR #151 dedicated layout 결정.
+
+### [2026-05-14] L-095 — 페이지 전환 3.4s 진단은 단일 원인 추정 금지. 복합 원인 (관측 도구 + 라우팅 + SSR DAL)을 동시 측정해야 함
+
+**증상**: Jayden이 "페이지 전환 속도가 너무 늦어" 보고. `/ko/c` → 매장 카드 클릭 시 3.4초 정체. 초기 가정 "SSR cold start" 또는 "Vercel cold function"로 좁히려 했으나 실제로는 3개 원인이 동시에 작동.
+
+**원인** (Playwright `performance.getEntriesByType("resource")` + `nav.type` 측정으로 분리):
+
+1. **PostHog `dead-clicks-autocapture.js`** — 925ms blocking JS. autocapture 기본값이 ON이라 모든 페이지에서 로드. 1인 운영 베타 단계에서 dead-click 추적 가치 없음.
+2. **landing/mypage `<a>` 태그** — Next.js `<Link>` 가 아니라 raw `<a>` 사용. 클릭 시 `nav.type === "navigate"` (hard reload). SPA RSC navigation 활용 못 함 → 매번 HTML 풀 fetch + JS 재실행.
+3. **SSR DAL uncached** — `/ko/c` 페이지 server component 안에서 `listPublicStores()` + `listStoreOwners()` + `getStoreStats()` 3번 fetch 직렬 호출. region/search 필터 무관하게 매 요청 3 DB query.
+
+**해결** (3 PR로 분리, 누적 -94%):
+
+- PR #162 — `posthog clientOptions: { autocapture: false, capture_dead_clicks: false, capture_heatmaps: false, disable_session_recording: true }` + customer-landing/mypage `<a>` → `<Link prefetch>` 변환. 3400ms → 82ms (1st 클릭) → 40ms (2nd cache hit).
+- PR #163 — `unstable_cache` 4-phase. `/ko/c` 60s, `/ko/c/store/[id]` 60s + 3 DAL parallel, store/admin dashboard 30s combined. SSR DAL 직렬 3초 → 캐시 hit 시 0ms.
+- PR #164 — Sentry `tracesSampleRate` 0.1 → 0.05 (envelope upload 빈도 절반), Vercel `regions: ["icn1"]` (function이 Seoul로 이동, DB와 같은 region, `x-vercel-id: icn1::iad1` → `icn1::icn1`), 폰트 weight 슬림 (Fraunces 600 italic만, Source Sans 4단 weight, JBMono `preload: false`). cold load_complete 546ms 달성.
+
+**규칙** ⭐:
+
+1. **체감 perf 진단은 가설 단일화 전 multi-source 측정 의무** — 다음 3개를 동시에 보고 분리해야 진짜 병목 식별 가능:
+   - `performance.getEntriesByType("navigation")` → TTFB / DOMContentLoaded / loadEventEnd
+   - `performance.getEntriesByType("resource")` filter by duration desc → blocking JS / font / RSC chunk 상위 N건
+   - `nav.type` → "navigate" (hard reload) vs "back_forward" (cached) vs "prerender"
+2. **PostHog autocapture는 1인 운영 베타에서 OFF 기본값**. heatmap/session-recording/dead-clicks 모두 추후 가치 평가 후 ON. `clientOptions` 명시 안 하면 기본값 ON.
+3. **고객 페이지에서 `<a>` 사용 금지** — Next.js App Router는 `<Link>`만 SPA nav. raw `<a>` 1개라도 있으면 그 클릭은 hard reload → bundle 재실행 → 3-5초 손실. ESLint `@next/no-html-link-for-pages` 활성화 또는 PR 리뷰 시 의무 grep.
+4. **Vercel region 명시 의무** — `regions` 미지정 시 기본 us-east 또는 자동 선택. DB가 Seoul Supabase면 `regions: ["icn1"]` 필수. `x-vercel-id` 응답 헤더로 검증 (`icn1::icn1::...` 패턴).
+5. **`unstable_cache` revalidate는 컨텐츠 변경 빈도 ≥ 캐시 TTL** — 매장 목록 60s, dashboard 30s, 사용자별 데이터(예: 본인 inbox) 캐시 금지. `headers()` / `cookies()` 호출하는 함수는 캐시 불가 (Next.js 16 throw).
+
+**비유**: 차가 천천히 가는 이유를 "엔진 문제"로 추정하고 엔진만 분해하면, 실제로는 (a) 핸드브레이크 살짝 잠김 + (b) 타이어 공기압 부족 + (c) 트렁크 짐 과적이 동시에 작동 중일 수 있음. 측정 안 한 채 단일 원인 가설로 진단 시작하면 잘못된 곳을 깎게 됨.
+
+**확인 방법**: 페이지 전환 perf 작업 PR template에 다음 의무 체크리스트 추가 — (a) `nav.type` 측정값 (cold/cached) (b) top 5 blocking resource (duration desc) (c) Vercel region (`x-vercel-id` 헤더) (d) cache 적용 page list + TTL.
+
+**연관**: 본 세션 PR #162/163/164 누적 -94% (3400ms → 546ms cold / 216ms cached). L-082 (시연 % e2e 기준 — perf는 functional와 별개로 베타-grade 기준 < 1s 만족). 1인 운영 베타 폴리시 (memory `feedback_demo_no_personal_env_dependency.md`).
