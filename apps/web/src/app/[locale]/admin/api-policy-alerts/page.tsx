@@ -76,7 +76,7 @@ export default async function AdminApiPolicyAlertsPage({
   );
 
   return (
-    <main className="min-h-screen bg-hesya-peach-50">
+    <div className="min-h-full bg-hesya-peach-50">
       <PageHeader
         eyebrow="Admin · API Policy Alerts"
         title="API 정책 변경 알림"
@@ -177,7 +177,7 @@ export default async function AdminApiPolicyAlertsPage({
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }
 

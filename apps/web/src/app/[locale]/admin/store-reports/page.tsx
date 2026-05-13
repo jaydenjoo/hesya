@@ -38,7 +38,7 @@ const REASON_LABELS: Record<ReportReason, string> = {
 
 export default function StoreReportPage() {
   return (
-    <main className="min-h-screen bg-hesya-peach-50">
+    <div className="min-h-full bg-hesya-peach-50">
       <PageHeader
         eyebrow="Admin · Store Reports"
         title="외부 신고 접수"
@@ -47,7 +47,7 @@ export default function StoreReportPage() {
       <div className="mx-auto max-w-3xl space-y-8 px-8 pb-10">
         <ReportSection />
       </div>
-    </main>
+    </div>
   );
 }
 
