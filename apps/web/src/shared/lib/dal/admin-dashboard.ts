@@ -14,12 +14,14 @@ import {
   isNull,
   kycVerificationLogs,
   lte,
+  messages,
   ne,
   stores,
   storeDeletionRequests,
   sum,
   type DbClient,
 } from "@hesya/database";
+import { estimateCostKrw } from "@/lib/ai-cost/model-pricing";
 
 /**
  * Plan v3 M4.3 — admin 통합 대시보드 DAL.
@@ -237,4 +239,117 @@ export async function getAdminAuditTrail(
   return entries
     .sort((a, b) => b.occurredAt.getTime() - a.occurredAt.getTime())
     .slice(0, limit);
+}
+
+export interface MonthlyNewStoresRow {
+  /** 한국어 월 label — "5월" 등 */
+  month: string;
+  /** 해당 월 신규 매장 수 (soft-deleted 제외) */
+  value: number;
+}
+
+/**
+ * 최근 12개월 신규 매장 추이 (dashboard bar chart 위젯).
+ *
+ * `stores.createdAt` 기준 month bucket. soft-deleted (deletedAt NOT NULL) 제외.
+ * 12개월 array — 데이터 없는 달은 value=0 (차트가 12개 bar를 모두 그림).
+ */
+export async function getMonthlyNewStoresCounts(
+  db: DbClient,
+  now: Date = new Date(),
+): Promise<MonthlyNewStoresRow[]> {
+  const twelveMonthsAgo = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1),
+  );
+
+  const rows = await db
+    .select({
+      createdAt: stores.createdAt,
+    })
+    .from(stores)
+    .where(
+      and(gte(stores.createdAt, twelveMonthsAgo), isNull(stores.deletedAt)),
+    );
+
+  const bucket = new Map<string, number>();
+  for (const r of rows) {
+    if (!r.createdAt) continue;
+    const key = `${r.createdAt.getUTCFullYear()}-${r.createdAt.getUTCMonth()}`;
+    bucket.set(key, (bucket.get(key) ?? 0) + 1);
+  }
+
+  const monthFmt = new Intl.DateTimeFormat("ko-KR", {
+    month: "long",
+    timeZone: "Asia/Seoul",
+  });
+  const result: MonthlyNewStoresRow[] = [];
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1),
+    );
+    const key = `${d.getUTCFullYear()}-${d.getUTCMonth()}`;
+    result.push({
+      month: monthFmt.format(d),
+      value: bucket.get(key) ?? 0,
+    });
+  }
+  return result;
+}
+
+export interface DailyAiCostSparkRow {
+  /** 0..N-1 — sparkline x index */
+  d: number;
+  /** 일별 추정 cost (KRW) */
+  v: number;
+}
+
+/**
+ * 최근 30일 일별 AI 추정 cost (sparkline 위젯).
+ *
+ * `messages.aiModel` × 모델별 평균 단가. 메시지 0건 day는 v=0.
+ * ai-cost.ts의 `getAiCostSummary` last14Days 패턴을 30일로 확장.
+ */
+export async function getDailyAiCostSpark(
+  db: DbClient,
+  now: Date = new Date(),
+): Promise<DailyAiCostSparkRow[]> {
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const rows = await db
+    .select({
+      model: messages.aiModel,
+      createdAt: messages.createdAt,
+    })
+    .from(messages)
+    .where(
+      and(
+        isNotNull(messages.aiModel),
+        gte(messages.createdAt, thirtyDaysAgo),
+        lte(messages.createdAt, now),
+      ),
+    );
+
+  const dailyMap = new Map<string, number>();
+  for (const r of rows) {
+    if (!r.createdAt) continue;
+    const key = formatDateKstYmd(r.createdAt);
+    dailyMap.set(key, (dailyMap.get(key) ?? 0) + estimateCostKrw(r.model));
+  }
+
+  const result: DailyAiCostSparkRow[] = [];
+  for (let i = 29; i >= 0; i--) {
+    const day = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    const key = formatDateKstYmd(day);
+    result.push({ d: 29 - i, v: Math.round(dailyMap.get(key) ?? 0) });
+  }
+  return result;
+}
+
+function formatDateKstYmd(date: Date): string {
+  const fmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  return fmt.format(date);
 }
