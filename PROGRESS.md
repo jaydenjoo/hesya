@@ -3,9 +3,26 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-13 세션 27 종료 — 베타 출시 준비, 5 PRs + prod migration + demo account)
+## 현재 위치 (2026-05-13 세션 28 종료 — 외부 데모 폴리시 2 PRs + prod 재시드 + auth perf)
 
-- **Phase**: **Plan v3 M1~M5 100% + M6 26 PRs + 베타 출시 인프라 (auth + prod 정상화)**
+- **Phase**: **Plan v3 M1~M5 100% + M6 26 PRs + 외부 데모 폴리시 (auth 캐싱 + bookings/inbox/landing UX)**
+- **세션 28 머지 (2 PRs)**:
+  - PR [#149](https://github.com/jaydenjoo/hesya/pull/149) fix(demo) — 외부 데모 폴리시 3건 in 1 PR. (1) Landing customerNote 6 locale을 정보문 → CTA 카피 + `<span>` → `<Link href="/{locale}/c">` secondary 버튼. (2) Inbox UUID 8자 prefix → customer.name 표시 — `ConversationListItem` 타입 신규 + DAL `listByStore` 2-query 패턴(50 row 한정 join 대신 dedup). (3) seed-prod-demo.ts b3/b4/b5 bookings serviceId 명시 + 기존 prod row UPDATE 백필.
+  - PR [#150](https://github.com/jaydenjoo/hesya/pull/150) perf(auth) — Better Auth `session.cookieCache` 5분 TTL 활성화. `auth.api.getSession()` 매 nav DB SELECT가 cookie direct read로 대체. 로그아웃·revoke lag 5분 — owner UI 흐름상 결제 즉시 가드 없음 + 베타 outbound 메시지는 별도 권한 체크 → 허용 범위.
+- **Prod 재시드 (b3/b4/b5 serviceId 백필)**:
+  - `node --env-file=.env.local node_modules/.pnpm/tsx@4.21.0/node_modules/tsx/dist/cli.mjs apps/web/scripts/seed-prod-demo.ts` 실행 (idempotent ON CONFLICT DO NOTHING + 명시 UPDATE 3건). `/store/bookings` Service 컬럼 "—" 사라짐.
+- **외부 시연 감사 보고서** `docs/external-demo-audit.md` (3679498 → PR #149 squash에 포함됨):
+  - 진입 동선 / 5개 도메인 페이지 / 폴백 / 한계 / 디자인 정합성 / 베타 차단선. 1인 운영 외부 시연 baseline 명문화 (memory `feedback_demo_no_personal_env_dependency.md` 보완).
+- **L-082 시연 % 변화 없음** — 모든 변경은 정합성/perf 패치. M3 100% / M4 100% 유지.
+- **다음 세션 시작점**:
+  - **인증된 owner UI 체감 perf 측정** — demo@hesya.com 로그인 → Playwright trace 또는 Vercel Speed Insights로 cookieCache 전후 비교. 기대 매 nav 200~300ms 절감.
+  - **Resend 도메인 검증** (외부 사장 메일 발송) — 베타 출시 차단선. Resend 콘솔에서 `hesya.com` SPF/DKIM 등록.
+  - **Admin Dashboard reference parity** (zip 디자인 100% 적용) — chrome + 5 위젯 + audit rail. Mock 데이터 사용. 예상 3.5~4h, 1 PR.
+  - **베타 5곳 매장 매칭** (Jayden 비즈니스 사이드).
+
+## 세션 27 (2026-05-13 — 베타 출시 준비, 5 PRs + prod migration + demo account)
+
+- **Phase**: Plan v3 M1~M5 100% + M6 26 PRs + 베타 출시 인프라 (auth + prod 정상화)
 - **세션 27 머지 (5 PRs, prod ready 위주)**:
   - PR [#142](https://github.com/jaydenjoo/hesya/pull/142) ICU `FORMATTING_ERROR` 2건 fix — `store/customers` + `store/services` page `t("...")` → `t.raw("...") as string` (PR #141 customer landing fix와 동일 패턴 누락 2건)
   - PR [#143](https://github.com/jaydenjoo/hesya/pull/143) dev-demo.sh UUID v0 → v4 fix + `E2E_CUSTOMER_EMAIL` bypass 추가 — 로컬 `/store/*` + `/c/mypage` 데모 가능
@@ -25,10 +42,6 @@
   - Magic link: hidream72@gmail.com 발송 → 메일 클릭 → `/ko/store/dashboard` 진입 ✅
   - Password: demo@hesya.com 입력 → `/ko/store/dashboard` 즉시 진입 + 헤더 "Hesya Demo Owner" 표시 ✅
   - Prod `/ko/c` + `/admin/dashboard` 200 복구 ✅
-- **다음 세션 시작점**:
-  - **Admin Dashboard reference parity** (zip 디자인 100% 적용) — chrome (top bar + sidebar) + 5 위젯 (월별 바차트 / AI 비용 스파크라인 / 분쟁 SLA 도넛 / 한국 지도 / Top 5 카테고리) + audit rail. Mock 데이터 사용. 예상 3.5~4h, 1 PR
-  - 또는 Resend 도메인 검증 (외부 사장 메일 발송 가능) — 베타 출시 차단선
-  - 또는 베타 5곳 매장 매칭 (Jayden 비즈니스 사이드)
 
 ## P0 Epic 시연 % 최종 (세션 25 머지 반영)
 
