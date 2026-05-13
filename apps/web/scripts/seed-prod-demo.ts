@@ -178,19 +178,21 @@ async function seedServices(d: DbClient) {
 async function seedStaff(d: DbClient) {
   console.log("→ Staff: 기존 2명 portfolioUrls UPDATE + 신규 1명 추가");
 
+  // 외국인 손님 베타 대상이라 portfolio 사진은 여성 손님/디자이너 중심으로 curated.
+  // Unsplash hotlink 안정. 베타 출시 직전 self-host 교체 예정.
   const portfolioDavid = [
-    "https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=600",
-    "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=600",
-    "https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?w=600",
+    "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600",
+    "https://images.unsplash.com/photo-1560869713-7d0a29430803?w=600",
+    "https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=600",
   ];
   const portfolioMinji = [
-    "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600",
-    "https://images.unsplash.com/photo-1546877625-cb8c71916608?w=600",
-    "https://images.unsplash.com/photo-1610630917898-12f4d3a16b03?w=600",
+    "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=600",
+    "https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=600",
+    "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=600",
   ];
   const portfolioYuki = [
-    "https://images.unsplash.com/photo-1605980776566-0486c3ac7617?w=600",
-    "https://images.unsplash.com/photo-1559599101-f09722fb4948?w=600",
+    "https://images.unsplash.com/photo-1530268729831-4b0b9e170218?w=600",
+    "https://images.unsplash.com/photo-1525695230005-efd074980869?w=600",
   ];
 
   await d
