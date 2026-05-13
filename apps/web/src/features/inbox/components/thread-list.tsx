@@ -15,7 +15,7 @@
 
 import { useMemo, useState } from "react";
 
-import type { Conversation } from "../types";
+import type { ConversationListItem } from "../types";
 import { ThreadItem } from "./thread-item";
 import { ThreadListEmpty } from "./thread-list-empty";
 
@@ -61,7 +61,7 @@ export function ThreadList({
   onSelect,
   labels,
 }: {
-  conversations: Conversation[];
+  conversations: ConversationListItem[];
   activeId: string | null;
   onSelect: (id: string) => void;
   labels?: Labels;
@@ -119,13 +119,15 @@ export function ThreadList({
       if (activeFilter === "done" && !(c.unreadCount === 0)) return false;
       // ai / vip — functional 데이터 없음, 일치 항목 0건 처리
       if (activeFilter === "ai" || activeFilter === "vip") return false;
-      // Search
+      // Search — 이름 우선, 없으면 UUID, preview까지 fallback.
       if (trimmed.length > 0) {
+        const nameMatch =
+          c.customerName?.toLowerCase().includes(trimmed) ?? false;
         const idMatch = c.customerId.toLowerCase().includes(trimmed);
         const previewMatch = (c.lastMessagePreview ?? "")
           .toLowerCase()
           .includes(trimmed);
-        if (!idMatch && !previewMatch) return false;
+        if (!nameMatch && !idMatch && !previewMatch) return false;
       }
       return true;
     });

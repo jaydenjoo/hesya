@@ -437,6 +437,7 @@ async function seedBookings(d: DbClient) {
         id: ids.booking.b3,
         storeId: STORE_ID,
         customerId: ids.customer.sarahDemo,
+        serviceId: ids.service.glassSkin,
         scheduledAt: at(-14, 15, 0),
         status: "completed",
         totalPriceKrw: 120000,
@@ -447,6 +448,7 @@ async function seedBookings(d: DbClient) {
         id: ids.booking.b4,
         storeId: STORE_ID,
         customerId: ids.customer.mei,
+        serviceId: ids.service.glassSkin,
         scheduledAt: at(-7, 16, 0),
         status: "completed",
         totalPriceKrw: 90000,
@@ -457,6 +459,7 @@ async function seedBookings(d: DbClient) {
         id: ids.booking.b5,
         storeId: STORE_ID,
         customerId: ids.customer.linh,
+        serviceId: ids.service.kdramaBob,
         scheduledAt: at(-3, 15, 0),
         status: "no_show",
         totalPriceKrw: 35000,
@@ -465,6 +468,21 @@ async function seedBookings(d: DbClient) {
       },
     ])
     .onConflictDoNothing();
+
+  // 첫 prod seed에서 b3/b4가 serviceId 없이 들어가 bookings UI "—" 표시.
+  // onConflictDoNothing → 위 INSERT는 no-op이므로 명시 UPDATE로 백필.
+  await d
+    .update(bookings)
+    .set({ serviceId: ids.service.glassSkin })
+    .where(eq(bookings.id, ids.booking.b3));
+  await d
+    .update(bookings)
+    .set({ serviceId: ids.service.glassSkin })
+    .where(eq(bookings.id, ids.booking.b4));
+  await d
+    .update(bookings)
+    .set({ serviceId: ids.service.kdramaBob })
+    .where(eq(bookings.id, ids.booking.b5));
 }
 
 async function seedStoreKnowledge(d: DbClient) {

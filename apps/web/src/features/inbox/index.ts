@@ -28,6 +28,7 @@ export { toggleBotMode } from "./actions/toggle-bot-mode";
 // Types
 export type {
   Conversation,
+  ConversationListItem,
   Customer,
   Message,
   WindowState,

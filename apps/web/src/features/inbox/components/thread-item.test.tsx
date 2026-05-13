@@ -6,12 +6,13 @@ vi.mock("next-intl", () => ({
 }));
 
 import { ThreadItem } from "./thread-item";
-import type { Conversation } from "../types";
+import type { ConversationListItem } from "../types";
 
-const conv: Conversation = {
+const conv: ConversationListItem = {
   id: "conv_1",
   storeId: "s1",
   customerId: "cust_1",
+  customerName: null,
   channel: "instagram",
   status: "open",
   externalThreadId: null,
@@ -48,7 +49,7 @@ describe("ThreadItem (A-2 시각 풍부화)", () => {
     expect(screen.getByRole("button")).toHaveAttribute("aria-current", "page");
   });
 
-  it("avatar 표시 — customerId 첫 글자(대문자)", () => {
+  it("avatar 표시 — customerName 없으면 customerId 첫 글자(대문자)", () => {
     render(
       <ThreadItem
         conversation={{ ...conv, customerId: "abc12345-..." }}
@@ -57,6 +58,37 @@ describe("ThreadItem (A-2 시각 풍부화)", () => {
       />,
     );
     expect(screen.getByTestId("thread-avatar")).toHaveTextContent("A");
+  });
+
+  it("customerName 있으면 이름 표시 + avatar 첫 글자도 이름 기반", () => {
+    render(
+      <ThreadItem
+        conversation={{
+          ...conv,
+          customerId: "abc12345-...",
+          customerName: "Mei Tanaka",
+        }}
+        isActive={false}
+        onClick={() => {}}
+      />,
+    );
+    expect(screen.getByText("Mei Tanaka")).toBeInTheDocument();
+    expect(screen.getByTestId("thread-avatar")).toHaveTextContent("M");
+  });
+
+  it("customerName 없으면 customerId 8자 prefix 폴백 표시", () => {
+    render(
+      <ThreadItem
+        conversation={{
+          ...conv,
+          customerId: "abcd1234-efgh-...",
+          customerName: null,
+        }}
+        isActive={false}
+        onClick={() => {}}
+      />,
+    );
+    expect(screen.getByText("abcd1234")).toBeInTheDocument();
   });
 
   it("unreadCount > 0 → unread badge + bold preview", () => {

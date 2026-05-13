@@ -6,13 +6,14 @@ vi.mock("next-intl", () => ({
 }));
 
 import { ThreadList } from "./thread-list";
-import type { Conversation } from "../types";
+import type { ConversationListItem } from "../types";
 
-function makeConv(id: string, preview: string): Conversation {
+function makeConv(id: string, preview: string): ConversationListItem {
   return {
     id,
     storeId: "s1",
     customerId: "cust_" + id,
+    customerName: null,
     channel: "instagram",
     status: "open",
     externalThreadId: null,
