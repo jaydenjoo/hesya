@@ -44,7 +44,7 @@ export default async function AdminPaymentMonitoringPage({
   const hasData = metrics.totalCount > 0;
 
   return (
-    <main className="min-h-screen bg-hesya-peach-50/30">
+    <div className="min-h-full bg-hesya-peach-50/30">
       <PageHeader
         eyebrow="Admin · Payment Monitoring"
         title="결제이상 모니터링"
@@ -119,7 +119,7 @@ export default async function AdminPaymentMonitoringPage({
           </p>
         </section>
       </div>
-    </main>
+    </div>
   );
 }
 

@@ -33,11 +33,7 @@ export default function KycTestPage() {
   return (
     <>
       <SkipLink targetId="main" label="본문으로 건너뛰기" />
-      <main
-        id="main"
-        tabIndex={-1}
-        className="mx-auto max-w-3xl space-y-12 p-8"
-      >
+      <div id="main" tabIndex={-1} className="mx-auto max-w-3xl space-y-12 p-8">
         <header className="space-y-2">
           <h1 className="text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
             KYC 검증 페이지
@@ -59,7 +55,7 @@ export default function KycTestPage() {
         <CategoryClassifySection />
         <hr className="border-gray-200" />
         <OcrExtractSection />
-      </main>
+      </div>
     </>
   );
 }

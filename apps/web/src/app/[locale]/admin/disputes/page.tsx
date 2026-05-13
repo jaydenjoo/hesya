@@ -52,7 +52,7 @@ export default async function AdminDisputesPage({
   );
 
   return (
-    <main className="min-h-screen bg-hesya-peach-50">
+    <div className="min-h-full bg-hesya-peach-50">
       <PageHeader
         eyebrow="Admin · Disputes"
         title="분쟁 처리 큐"
@@ -63,6 +63,6 @@ export default async function AdminDisputesPage({
         {/* eslint-disable-next-line react-hooks/purity */}
         <DisputesList rows={rows} activeFilter={filter} nowMs={Date.now()} />
       </div>
-    </main>
+    </div>
   );
 }

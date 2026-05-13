@@ -29,7 +29,7 @@ export default async function AdminDisputeDetailPage({
   }
 
   return (
-    <main className="min-h-screen bg-hesya-peach-50">
+    <div className="min-h-full bg-hesya-peach-50">
       <PageHeader
         eyebrow="Admin · Disputes · Detail"
         title="분쟁 상세"
@@ -38,6 +38,6 @@ export default async function AdminDisputeDetailPage({
       <div className="mx-auto max-w-4xl px-8 pb-10">
         <DisputeDetail dispute={dispute} />
       </div>
-    </main>
+    </div>
   );
 }
