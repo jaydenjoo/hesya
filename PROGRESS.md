@@ -3,9 +3,22 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-13 세션 28 종료 — 외부 데모 폴리시 2 PRs + prod 재시드 + auth perf)
+## 현재 위치 (2026-05-13 세션 29 종료 — Admin Dashboard reference parity Phase 2 (PR #151))
 
-- **Phase**: **Plan v3 M1~M5 100% + M6 26 PRs + 외부 데모 폴리시 (auth 캐싱 + bookings/inbox/landing UX)**
+- **Phase**: **Plan v3 M1~M5 100% + M6 27 PRs + 외부 데모 폴리시 + Admin chrome 도입**
+- **세션 29 머지 (1 PR)**:
+  - PR [#151](https://github.com/jaydenjoo/hesya/pull/151) feat(admin) — `/admin/dashboard` reference parity Phase 2. Admin chrome (top bar + sidebar) 신규 + 5 위젯 (월별 바차트 / AI 비용 sparkline / 분쟁 SLA 도넛 / 한국 지도 / Top 5 카테고리, Mock data) + bento 12-col + sticky audit rail + i18n 6 locales `AdminShell`. dashboard 전용 layout — 다른 admin sub-page 9개는 각자 `min-h-screen` 이라 overflow 충돌 → 이번 PR은 dashboard만 적용. recharts BarChart/AreaChart/PieChart + SVG dot heatmap 사용. 5 위젯 모두 컴포넌트 내 const Mock — Phase 2 진입 시 admin-dashboard.ts DAL aggregate 추가 후 wire 예정.
+- **L-082 시연 %**: M4 admin 100% 유지. Mock data 위젯이라 실 데이터 시연 % 별도 추적 안 함. 디자인 정합성은 reference HTML과 95%+ (chrome + bento + 위젯).
+- **다음 세션 시작점**:
+  - **Resend 도메인 검증** (외부 사장 메일 발송) — 베타 출시 차단선. Resend 콘솔 SPF/DKIM 등록 + `from_email` 환경변수 변경. 예상 30~60분.
+  - **Admin sub-page 9개 chrome 통합** — `min-h-screen` 제거 + AdminShell wrap. 9개 → 3 PR (분쟁/KYC/결제 / 신고/삭제/API 알림 / AI cost/AI accuracy). 각 ~1.5h.
+  - **5 위젯 실 데이터 wire** — admin-dashboard.ts DAL에 monthly/region/category/SLA/spark aggregate 5종 추가 후 props로 주입. ~3~4h.
+  - **인증된 owner UI 체감 perf 측정** (PR #150 효과 객관화) — Playwright nav TTFB before/after, docs/auth-cookie-cache-bench.md. ~1~1.5h.
+  - **베타 5곳 매장 매칭** (Jayden 비즈니스 사이드).
+
+## 세션 28 (2026-05-13 — 외부 데모 폴리시 2 PRs + prod 재시드 + auth perf)
+
+- **Phase**: Plan v3 M1~M5 100% + M6 26 PRs + 외부 데모 폴리시 (auth 캐싱 + bookings/inbox/landing UX)
 - **세션 28 머지 (2 PRs)**:
   - PR [#149](https://github.com/jaydenjoo/hesya/pull/149) fix(demo) — 외부 데모 폴리시 3건 in 1 PR. (1) Landing customerNote 6 locale을 정보문 → CTA 카피 + `<span>` → `<Link href="/{locale}/c">` secondary 버튼. (2) Inbox UUID 8자 prefix → customer.name 표시 — `ConversationListItem` 타입 신규 + DAL `listByStore` 2-query 패턴(50 row 한정 join 대신 dedup). (3) seed-prod-demo.ts b3/b4/b5 bookings serviceId 명시 + 기존 prod row UPDATE 백필.
   - PR [#150](https://github.com/jaydenjoo/hesya/pull/150) perf(auth) — Better Auth `session.cookieCache` 5분 TTL 활성화. `auth.api.getSession()` 매 nav DB SELECT가 cookie direct read로 대체. 로그아웃·revoke lag 5분 — owner UI 흐름상 결제 즉시 가드 없음 + 베타 outbound 메시지는 별도 권한 체크 → 허용 범위.
@@ -14,11 +27,6 @@
 - **외부 시연 감사 보고서** `docs/external-demo-audit.md` (3679498 → PR #149 squash에 포함됨):
   - 진입 동선 / 5개 도메인 페이지 / 폴백 / 한계 / 디자인 정합성 / 베타 차단선. 1인 운영 외부 시연 baseline 명문화 (memory `feedback_demo_no_personal_env_dependency.md` 보완).
 - **L-082 시연 % 변화 없음** — 모든 변경은 정합성/perf 패치. M3 100% / M4 100% 유지.
-- **다음 세션 시작점**:
-  - **인증된 owner UI 체감 perf 측정** — demo@hesya.com 로그인 → Playwright trace 또는 Vercel Speed Insights로 cookieCache 전후 비교. 기대 매 nav 200~300ms 절감.
-  - **Resend 도메인 검증** (외부 사장 메일 발송) — 베타 출시 차단선. Resend 콘솔에서 `hesya.com` SPF/DKIM 등록.
-  - **Admin Dashboard reference parity** (zip 디자인 100% 적용) — chrome + 5 위젯 + audit rail. Mock 데이터 사용. 예상 3.5~4h, 1 PR.
-  - **베타 5곳 매장 매칭** (Jayden 비즈니스 사이드).
 
 ## 세션 27 (2026-05-13 — 베타 출시 준비, 5 PRs + prod migration + demo account)
 
