@@ -33,6 +33,14 @@ export function createAuth({
     // Without this, Better Auth sends a 32-char nanoid which Postgres rejects
     // with "invalid input syntax for type uuid".
     advanced: { database: { generateId: "uuid" } },
+    // Plan v3 M6.6 Phase 4 — 매 nav마다 `sessions` row SELECT 1건이 발생해 ICN1
+    // 함수와 Seoul Supabase 간이지만 누적 latency 큼. 5분 cookie cache로
+    // `getSession()` 호출 대다수를 DB-free로 처리. 보안 trade-off: 로그아웃/세션
+    // 무효화 반영이 최대 5분 지연. owner UI는 결제·신원변경을 즉시 요구하는 흐름이
+    // 없고 (베타 outbound 메시지는 별도 가드), 5분 lag 허용 범위로 판단.
+    session: {
+      cookieCache: { enabled: true, maxAge: 5 * 60 },
+    },
     emailAndPassword: { enabled: true },
     socialProviders: {
       google: {
