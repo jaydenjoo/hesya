@@ -79,7 +79,7 @@ export default async function StoreCustomersPage({
                 searchPlaceholder: t("searchPlaceholder"),
                 channelAll: t("channelAll"),
                 languageAll: t("languageAll"),
-                resultCount: t("resultCount"),
+                resultCount: t.raw("resultCount") as string,
               },
               table: {
                 columnName: t("columnName"),
