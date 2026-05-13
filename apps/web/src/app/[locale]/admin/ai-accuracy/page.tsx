@@ -42,7 +42,7 @@ export default async function AdminAiAccuracyPage({
   const accuracyExceeded = evaluated && metrics.accuracy < ACCURACY_THRESHOLD;
 
   return (
-    <main className="min-h-screen bg-hesya-peach-50/30">
+    <div className="min-h-full bg-hesya-peach-50/30">
       <PageHeader
         eyebrow="Admin · AI Accuracy"
         title="AI 응답 정확도"
@@ -125,7 +125,7 @@ export default async function AdminAiAccuracyPage({
           </p>
         </section>
       </div>
-    </main>
+    </div>
   );
 }
 

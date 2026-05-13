@@ -28,7 +28,7 @@ export default async function StoreVerificationsPage({
   const rows = await listStoresPendingReview(db);
 
   return (
-    <main className="min-h-screen bg-hesya-peach-50">
+    <div className="min-h-full bg-hesya-peach-50">
       <PageHeader
         eyebrow="Admin · Store Verifications"
         title="매장 검토 큐"
@@ -37,6 +37,6 @@ export default async function StoreVerificationsPage({
       <div className="mx-auto max-w-6xl px-8 pb-10">
         <StoreVerificationsList rows={rows} />
       </div>
-    </main>
+    </div>
   );
 }
