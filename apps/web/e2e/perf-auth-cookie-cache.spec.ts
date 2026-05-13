@@ -7,9 +7,11 @@
  *
  * 측정 방법:
  *   1. 데모 계정으로 password login (POST /api/auth/sign-in/email)
- *   2. 5개 인증 owner 페이지 × 6회씩 nav (iter 0 = cold, iter 1~5 = warm avg)
+ *   2. 5개 인증 owner 페이지 × 11회씩 nav (iter 0 = cold, iter 1~10 = warm)
  *   3. waitUntil: "commit"으로 TTFB 근사 측정 (첫 HTML byte 도착)
- *   4. cold (DB hit) vs warm (cookie cache hit) 평균 비교
+ *   4. cold (DB hit) vs warm 통계 (median + p95) 비교
+ *
+ * N≥10 통계화: avg는 outlier에 약함 → median + p95로 cold start 노이즈 격리.
  *
  * 환경변수:
  *   - PLAYWRIGHT_BASE_URL: prod 측정 권장 (예: https://hesya-web.vercel.app)
@@ -41,12 +43,21 @@ const TARGET_PATHS = [
   "/ko/store/services",
 ] as const;
 
-const ITER_PER_PAGE = 6; // 1 cold + 5 warm
+const ITER_PER_PAGE = 11; // 1 cold + 10 warm (N≥10 for median + p95)
 
 interface Sample {
   readonly path: string;
   readonly iter: number;
   readonly ttfbMs: number;
+}
+
+function percentile(sorted: readonly number[], p: number): number {
+  if (sorted.length === 0) return 0;
+  const rank = p * (sorted.length - 1);
+  const lo = Math.floor(rank);
+  const hi = Math.ceil(rank);
+  if (lo === hi) return sorted[lo];
+  return Math.round(sorted[lo] + (sorted[hi] - sorted[lo]) * (rank - lo));
 }
 
 async function loginViaApi(
@@ -93,7 +104,7 @@ test.describe("Auth cookie cache TTFB benchmark", () => {
     request,
     baseURL,
   }) => {
-    test.setTimeout(180_000); // 30 nav × 평균 1~3s = 90s 여유
+    test.setTimeout(360_000); // 55 nav × 평균 3s = 165s 여유 (N=11 × 5 pages)
 
     expect(baseURL, "baseURL 미설정").toBeTruthy();
     const baseUrl = baseURL!;
@@ -134,48 +145,46 @@ test.describe("Auth cookie cache TTFB benchmark", () => {
       }
     }
 
-    // 4) 페이지별 cold vs warm avg 출력
+    // 4) 페이지별 cold + warm 통계 (median + p95) 출력
+    const warmIterCount = ITER_PER_PAGE - 1;
     console.log("\n=== Auth Cookie Cache TTFB Benchmark Result ===");
     console.log(`baseURL: ${baseUrl}`);
-    console.log(`account: ${TEST_EMAIL} (5 pages × ${ITER_PER_PAGE} iter)`);
+    console.log(
+      `account: ${TEST_EMAIL} (5 pages × ${ITER_PER_PAGE} iter = 1 cold + ${warmIterCount} warm)`,
+    );
     console.log("");
     console.log(
-      "| Path                     | Cold (iter 0) | Warm avg (iter 1~5) | Δ (ms) | Δ (%) |",
+      "| Path                     | Cold  | Warm median | Warm p95 | Δ median | Δ % |",
     );
     console.log(
-      "|--------------------------|---------------|---------------------|--------|-------|",
+      "|--------------------------|-------|-------------|----------|----------|-----|",
     );
-    for (const path of TARGET_PATHS) {
+    const pageStats = TARGET_PATHS.map((path) => {
       const pathSamples = samples.filter((s) => s.path === path);
       const cold = pathSamples.find((s) => s.iter === 0)!.ttfbMs;
-      const warmSamples = pathSamples.filter((s) => s.iter > 0);
-      const warmAvg = Math.round(
-        warmSamples.reduce((sum, s) => sum + s.ttfbMs, 0) / warmSamples.length,
-      );
-      const delta = cold - warmAvg;
+      const warmSorted = pathSamples
+        .filter((s) => s.iter > 0)
+        .map((s) => s.ttfbMs)
+        .sort((a, b) => a - b);
+      const warmMedian = percentile(warmSorted, 0.5);
+      const warmP95 = percentile(warmSorted, 0.95);
+      const delta = cold - warmMedian;
       const deltaPct = cold > 0 ? Math.round((delta / cold) * 100) : 0;
       console.log(
-        `| ${path.padEnd(24)} | ${String(cold).padStart(10)}ms | ${String(warmAvg).padStart(16)}ms | ${String(delta).padStart(6)} | ${String(deltaPct).padStart(4)}% |`,
+        `| ${path.padEnd(24)} | ${String(cold).padStart(4)}ms | ${String(warmMedian).padStart(8)}ms | ${String(warmP95).padStart(5)}ms | ${String(delta).padStart(5)} | ${String(deltaPct).padStart(3)}% |`,
       );
-    }
+      return { path, cold, warmMedian, warmP95 };
+    });
     console.log("");
     console.log(
-      "해석: warm avg < cold이면 cookie cache hit (PR #150 효과). 같으면 cache miss 또는 cache 미적용.",
+      "해석: warm median < cold이면 cookie cache hit (PR #150 효과). p95는 outlier 영향 확인용.",
     );
 
-    // 5) 측정 sanity: 적어도 1개 페이지에서 warm < cold (cookie cache 작동 증명)
-    const pageStats = TARGET_PATHS.map((path) => {
-      const ps = samples.filter((s) => s.path === path);
-      const cold = ps.find((s) => s.iter === 0)!.ttfbMs;
-      const warmAvg =
-        ps.filter((s) => s.iter > 0).reduce((sum, s) => sum + s.ttfbMs, 0) /
-        (ITER_PER_PAGE - 1);
-      return { path, cold, warmAvg };
-    });
-    const anyWarmFaster = pageStats.some((s) => s.warmAvg < s.cold);
+    // 5) 측정 sanity: 적어도 1개 페이지에서 warm median < cold (cookie cache 작동 증명)
+    const anyWarmFaster = pageStats.some((s) => s.warmMedian < s.cold);
     expect(
       anyWarmFaster,
-      "최소 1개 페이지는 warm < cold여야 cookie cache가 작동 중",
+      "최소 1개 페이지는 warm median < cold여야 cookie cache가 작동 중",
     ).toBe(true);
   });
 });
