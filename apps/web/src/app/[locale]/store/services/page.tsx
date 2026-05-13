@@ -81,7 +81,7 @@ export default async function StoreServicesPage({
               deleteConfirm: t("deleteConfirm"),
               allCategoryLabel: t("allCategoryLabel"),
               translatedLabel: t("translatedLabel"),
-              servicesCount: t("servicesCount"),
+              servicesCount: t.raw("servicesCount") as string,
               requiredError: t("requiredError"),
               editor: {
                 titleCreate: t("editorTitleCreate"),
