@@ -10,8 +10,49 @@
  */
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import type { PublicStore } from "@/shared/lib/dal/stores";
+
+// 디자인 ref: `docs/design/reference/landing-app.jsx` greetings array.
+// 5 언어 환영 인사 rotation — 외국인 손님 첫 진입 시 다국어 친화 시그널.
+const GREETINGS: ReadonlyArray<{ lang: string; text: string; kr: boolean }> = [
+  { lang: "en", text: "Welcome to Korea.", kr: false },
+  { lang: "ko", text: "한국에 오신 것을 환영합니다.", kr: true },
+  { lang: "ja", text: "韓国へようこそ。", kr: true },
+  { lang: "zh", text: "欢迎来到韩国。", kr: true },
+  { lang: "vi", text: "Chào mừng đến Hàn Quốc.", kr: false },
+];
+const GREETING_ROTATION_MS = 3500;
+
+function GreetingRotator() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    // prefers-reduced-motion 존중 — 첫 인사만 표시.
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    const t = setInterval(
+      () => setIdx((i) => (i + 1) % GREETINGS.length),
+      GREETING_ROTATION_MS,
+    );
+    return () => clearInterval(t);
+  }, []);
+  const g = GREETINGS[idx]!;
+  return (
+    <p
+      data-testid="landing-greeting"
+      aria-live="polite"
+      lang={g.lang}
+      className={`mb-3 text-[13px] font-medium text-hesya-navy-900/70 transition-opacity duration-500 sm:text-[14px] ${g.kr ? "kr" : ""}`}
+    >
+      <span aria-hidden="true" className="mr-1.5 opacity-60">
+        🌏
+      </span>
+      {g.text}
+    </p>
+  );
+}
 
 export interface CustomerLandingLabels {
   eyebrow: string;
@@ -86,16 +127,19 @@ export function CustomerLanding({
           </a>
         </nav>
 
-        <header className="mb-7 max-w-2xl space-y-2.5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-hesya-amber-600">
-            {labels.eyebrow}
-          </p>
-          <h1 className="font-heading text-[34px] font-semibold italic leading-[1.1] tracking-[-0.025em] text-hesya-navy-900 sm:text-[44px]">
-            {labels.title}
-          </h1>
-          <p className="text-[14px] leading-relaxed text-hesya-navy-900/65 sm:text-[15px]">
-            {labels.subtitle}
-          </p>
+        <header className="mb-7 max-w-2xl">
+          <GreetingRotator />
+          <div className="space-y-2.5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-hesya-amber-600">
+              {labels.eyebrow}
+            </p>
+            <h1 className="font-heading text-[34px] font-semibold italic leading-[1.1] tracking-[-0.025em] text-hesya-navy-900 sm:text-[44px]">
+              {labels.title}
+            </h1>
+            <p className="text-[14px] leading-relaxed text-hesya-navy-900/65 sm:text-[15px]">
+              {labels.subtitle}
+            </p>
+          </div>
         </header>
 
         <form
