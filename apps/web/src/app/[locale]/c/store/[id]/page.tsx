@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createDbClient, type BusinessHours } from "@hesya/database";
@@ -28,6 +29,33 @@ import { getStorePublicById } from "@/shared/lib/dal/stores";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * 매장 상세 데이터 (store + services + staff) 60초 캐시.
+ *
+ * 외부 손님이 매장 카드 클릭 시 매번 3 DAL × ~1초 발생. 캐시로 cold ~3s →
+ * warm ~50ms 절감 (1분 안에 같은 매장 재방문 시).
+ *
+ * 무효화: 매장 owner가 services/staff 수정 시 별도 revalidatePath 호출 필요
+ * (현재 미적용 — 60초 후 자연 만료로 충분, owner UI는 자기 매장 직접 조회).
+ *
+ * 참고: DbClient는 직렬화 불가라 캐시 함수 안에서 새로 생성. 캐시 hit 시엔
+ * DB 연결 자체를 안 함.
+ */
+const getStoreDetailCached = unstable_cache(
+  async (storeId: string) => {
+    const db = createDbClient(env.DATABASE_URL);
+    const store = await getStorePublicById(db, storeId);
+    if (!store) return null;
+    const [services, staffList] = await Promise.all([
+      listServicesByStore(db, store.id),
+      listStaffByStore(db, store.id),
+    ]);
+    return { store, services, staffList };
+  },
+  ["store-detail-public-v1"],
+  { revalidate: 60, tags: ["stores", "services", "staff"] },
+);
 
 type ServiceNameKey =
   | "nameKo"
@@ -96,16 +124,11 @@ export default async function StoreDetailPage({
     notFound();
   }
 
-  const db = createDbClient(env.DATABASE_URL);
-  const store = await getStorePublicById(db, id);
-  if (!store) {
+  const data = await getStoreDetailCached(id);
+  if (!data) {
     notFound();
   }
-
-  const [services, staffList] = await Promise.all([
-    listServicesByStore(db, store.id),
-    listStaffByStore(db, store.id),
-  ]);
+  const { store, services, staffList } = data;
 
   const t = await getTranslations({ locale, namespace: "StoreDetail" });
   const tSettings = await getTranslations({
