@@ -467,6 +467,30 @@
       "settings": "Settings"
     }
   },
+  "AdminShell": {
+    "brandPill": "ADMIN",
+    "searchPlaceholder": "Search store / customer / tx ID / operator…",
+    "searchKbd": "⌘ K",
+    "notificationsLabel": "Notifications",
+    "signOut": "Sign out",
+    "nav": {
+      "groupOps": "OPERATIONS",
+      "groupSystem": "SYSTEM",
+      "dashboard": "Dashboard",
+      "kyc": "KYC verification",
+      "disputes": "Disputes",
+      "payment": "Payments",
+      "reports": "Store reports",
+      "deletion": "Store deletion",
+      "apiAlerts": "API alerts",
+      "aiCost": "AI cost",
+      "aiAccuracy": "AI accuracy"
+    },
+    "foot": {
+      "apiLabel": "API",
+      "dbLagLabel": "DB lag"
+    }
+  },
   "AdminAiCost": {
     "title": "AI cost (estimated)",
     "backToDashboard": "Back to dashboard",
@@ -481,7 +505,12 @@
     "messageCount": "{n} msgs"
   },
   "AdminDashboard": {
-    "title": "Operations dashboard",
+    "title": "Hesya operations",
+    "pageSub": "Today — reviews and refund requests are pending.",
+    "auto": "AUTO 30s",
+    "auditRailTitle": "Operations audit",
+    "auditRefresh": "Refresh",
+    "auditFresh": "fresh",
     "signedInAs": "Signed in as {email}",
     "alertBand": "Alerts",
     "kpiBand": "Today",

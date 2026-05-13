@@ -467,6 +467,30 @@
       "settings": "Cài đặt"
     }
   },
+  "AdminShell": {
+    "brandPill": "ADMIN",
+    "searchPlaceholder": "Tìm salon / khách / ID giao dịch / vận hành…",
+    "searchKbd": "⌘ K",
+    "notificationsLabel": "Thông báo",
+    "signOut": "Đăng xuất",
+    "nav": {
+      "groupOps": "VẬN HÀNH",
+      "groupSystem": "HỆ THỐNG",
+      "dashboard": "Bảng điều khiển",
+      "kyc": "Xác minh KYC",
+      "disputes": "Tranh chấp",
+      "payment": "Thanh toán",
+      "reports": "Báo cáo salon",
+      "deletion": "Xoá salon",
+      "apiAlerts": "Cảnh báo API",
+      "aiCost": "Chi phí AI",
+      "aiAccuracy": "Độ chính xác AI"
+    },
+    "foot": {
+      "apiLabel": "API",
+      "dbLagLabel": "DB lag"
+    }
+  },
   "AdminAiCost": {
     "title": "Chi phí AI (ước tính)",
     "backToDashboard": "Về bảng điều khiển",
@@ -481,7 +505,12 @@
     "messageCount": "{n} tin"
   },
   "AdminDashboard": {
-    "title": "Bảng điều khiển vận hành",
+    "title": "Hesya · Vận hành",
+    "pageSub": "Hôm nay — đang chờ duyệt và yêu cầu hoàn tiền.",
+    "auto": "AUTO 30s",
+    "auditRailTitle": "Nhật ký vận hành",
+    "auditRefresh": "Làm mới",
+    "auditFresh": "mới",
     "signedInAs": "Đang đăng nhập với {email}",
     "alertBand": "Cảnh báo",
     "kpiBand": "Hôm nay",

@@ -467,6 +467,30 @@
       "settings": "설정"
     }
   },
+  "AdminShell": {
+    "brandPill": "ADMIN",
+    "searchPlaceholder": "매장 / 고객 / 거래 ID / 운영자 검색…",
+    "searchKbd": "⌘ K",
+    "notificationsLabel": "알림",
+    "signOut": "로그아웃",
+    "nav": {
+      "groupOps": "운영",
+      "groupSystem": "시스템",
+      "dashboard": "대시보드",
+      "kyc": "KYC 검증",
+      "disputes": "분쟁",
+      "payment": "결제·정산",
+      "reports": "매장 신고",
+      "deletion": "매장 삭제",
+      "apiAlerts": "API 알림",
+      "aiCost": "AI 비용",
+      "aiAccuracy": "AI 정확도"
+    },
+    "foot": {
+      "apiLabel": "API",
+      "dbLagLabel": "DB lag"
+    }
+  },
   "AdminAiCost": {
     "title": "AI 비용 (추정)",
     "backToDashboard": "대시보드로",
@@ -481,12 +505,17 @@
     "messageCount": "{n}건"
   },
   "AdminDashboard": {
-    "title": "운영 대시보드",
+    "title": "Hesya 운영 현황",
+    "pageSub": "오늘 — 검토와 환불 요청이 대기 중입니다.",
+    "auto": "AUTO 30s",
     "signedInAs": "{email} 로그인",
     "alertBand": "긴급 알림",
     "kpiBand": "오늘",
     "subPages": "바로가기",
     "auditTrail": "최근 운영 활동",
+    "auditRailTitle": "운영 감사 로그",
+    "auditRefresh": "새로고침",
+    "auditFresh": "방금",
     "auditEmpty": "최근 활동이 없습니다.",
     "alerts": {
       "pendingKyc": "KYC 매뉴얼 검토",

@@ -467,6 +467,30 @@
       "settings": "设置"
     }
   },
+  "AdminShell": {
+    "brandPill": "ADMIN",
+    "searchPlaceholder": "搜索门店 / 客户 / 交易 ID / 运营…",
+    "searchKbd": "⌘ K",
+    "notificationsLabel": "通知",
+    "signOut": "登出",
+    "nav": {
+      "groupOps": "运营",
+      "groupSystem": "系统",
+      "dashboard": "仪表板",
+      "kyc": "KYC 验证",
+      "disputes": "争议",
+      "payment": "支付·结算",
+      "reports": "门店举报",
+      "deletion": "门店删除",
+      "apiAlerts": "API 警报",
+      "aiCost": "AI 费用",
+      "aiAccuracy": "AI 准确率"
+    },
+    "foot": {
+      "apiLabel": "API",
+      "dbLagLabel": "DB lag"
+    }
+  },
   "AdminAiCost": {
     "title": "AI 成本 (估算)",
     "backToDashboard": "返回仪表板",
@@ -481,7 +505,12 @@
     "messageCount": "{n} 条"
   },
   "AdminDashboard": {
-    "title": "运营仪表板",
+    "title": "Hesya · 运营",
+    "pageSub": "今日 — 审核与退款请求待处理。",
+    "auto": "AUTO 30s",
+    "auditRailTitle": "运营审计",
+    "auditRefresh": "刷新",
+    "auditFresh": "新",
     "signedInAs": "以 {email} 登录",
     "alertBand": "警报",
     "kpiBand": "今日",
