@@ -45,7 +45,7 @@ export default async function AdminAiCostPage({ params }: Props) {
     .join(" ");
 
   return (
-    <div className="min-h-screen bg-hesya-peach-50/30">
+    <div className="min-h-full bg-hesya-peach-50/30">
       <PageHeader
         eyebrow="Admin · AI Cost"
         title={t("title")}
@@ -59,7 +59,7 @@ export default async function AdminAiCostPage({ params }: Props) {
         }
       />
 
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <div className="mx-auto max-w-7xl px-6 py-8">
         <p className="mb-6 max-w-2xl text-[13px] leading-relaxed text-hesya-navy-900/65">
           {t("disclaimer")}
         </p>
@@ -173,7 +173,7 @@ export default async function AdminAiCostPage({ params }: Props) {
             </ul>
           )}
         </section>
-      </main>
+      </div>
     </div>
   );
 }

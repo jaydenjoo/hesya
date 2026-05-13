@@ -32,7 +32,7 @@ export default async function StoreVerificationDetailPage({
   const { store, verification } = detail;
 
   return (
-    <main className="min-h-screen bg-hesya-peach-50">
+    <div className="min-h-full bg-hesya-peach-50">
       <PageHeader
         eyebrow="Admin · Store Verifications · Detail"
         title="매장 검토 상세"
@@ -55,6 +55,6 @@ export default async function StoreVerificationDetailPage({
           }
         />
       </div>
-    </main>
+    </div>
   );
 }
