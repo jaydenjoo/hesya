@@ -12,20 +12,25 @@ import { cn } from "@/lib/utils";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
+  weight: ["600"],
+  style: ["italic"],
   variable: "--font-heading",
   display: "swap",
 });
 
 const sourceSans = Source_Sans_3({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-sans",
   display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
+  weight: ["400", "600"],
   variable: "--font-mono",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {

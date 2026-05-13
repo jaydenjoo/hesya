@@ -6,7 +6,8 @@ Sentry.init({
   dsn: env.SENTRY_DSN,
   enabled: process.env.NODE_ENV === "production",
   sendDefaultPii: false,
-  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
+  // 베타 5곳 단계 — 10% → 5%. 오류 수집 100% 유지.
+  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.05 : 1.0,
   beforeBreadcrumb(breadcrumb) {
     if (typeof breadcrumb.data?.url === "string") {
       breadcrumb.data.url = sanitizeUrl(breadcrumb.data.url);

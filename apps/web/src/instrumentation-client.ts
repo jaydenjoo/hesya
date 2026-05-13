@@ -8,7 +8,9 @@ Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   enabled: process.env.NODE_ENV === "production",
   sendDefaultPii: false,
-  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
+  // 베타 5곳 단계 — transaction sampling을 줄여 envelope upload 빈도 감소.
+  // 10% → 5%. 오류는 100% 수집 유지 (sampling은 정상 transaction만 영향).
+  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.05 : 1.0,
   replaysSessionSampleRate: 0,
   replaysOnErrorSampleRate: 0.1,
   integrations: [Sentry.replayIntegration()],
