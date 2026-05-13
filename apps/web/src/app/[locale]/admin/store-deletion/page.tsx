@@ -55,7 +55,7 @@ export default async function AdminStoreDeletionPage({
   const rows = await listDeletionRequestsForAdmin(db, { status: filter });
 
   return (
-    <main className="min-h-screen bg-hesya-peach-50">
+    <div className="min-h-full bg-hesya-peach-50">
       <PageHeader
         eyebrow="Admin · Store Deletion"
         title="매장 해지 / 데이터 삭제"
@@ -80,6 +80,6 @@ export default async function AdminStoreDeletionPage({
           locale={locale}
         />
       </div>
-    </main>
+    </div>
   );
 }
