@@ -3,8 +3,11 @@
  *
  * 매장 hero 바로 아래 4-chip 신뢰 신호. 외국인 손님이 매장에 대한 첫 신뢰감을
  * 얻는 핵심 요소 (PRD § 6.5 K-Verified). 데이터 부족한 항목은 의미 있는 fallback.
+ *
+ * Batch 3 (2026-05-14): 유니코드 아이콘 → lucide-react 정합 아이콘 (Check/Clock/Columns3/Globe).
  */
 
+import { Check, Clock, Columns3, Globe } from "lucide-react";
 import { SafetyChip } from "@/features/customer-frame/badges/safety-chip";
 
 interface Props {
@@ -31,14 +34,26 @@ export function SafetyProfileStrip({
   return (
     <div className="flex gap-2 px-5 pt-4">
       <SafetyChip
-        icon="✓"
+        icon={<Check size={16} strokeWidth={2.5} />}
         value={verifiedValue}
         label={kVerifiedLabel}
         active
       />
-      <SafetyChip icon="⏱" value={hoursValue} label={hoursLabel} />
-      <SafetyChip icon="◍" value={staffValue} label={staffLabel} />
-      <SafetyChip icon="🌐" value={langValue} label={langLabel} />
+      <SafetyChip
+        icon={<Clock size={16} strokeWidth={1.8} />}
+        value={hoursValue}
+        label={hoursLabel}
+      />
+      <SafetyChip
+        icon={<Columns3 size={16} strokeWidth={1.8} />}
+        value={staffValue}
+        label={staffLabel}
+      />
+      <SafetyChip
+        icon={<Globe size={16} strokeWidth={1.8} />}
+        value={langValue}
+        label={langLabel}
+      />
     </div>
   );
 }

@@ -31,6 +31,15 @@ const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
+ * 데모용 hero fallback image — 베타 5곳 매장이 사진 업로드 전까지 빈 그라데이션 회피.
+ * Unsplash 호스팅 (Adam Winger, 여성 손님 + 여성 디자이너 헤어 살롱). 직접 hotlink 안정.
+ * 매장 owner가 portfolioUrls 업로드하면 자동으로 그 사진 우선. fallback 로드 실패 시 그라데이션.
+ * TODO: 베타 출시 직전 self-host (Vercel Blob / public/)으로 교체 — Unsplash 의존 제거.
+ */
+const DEMO_HERO_FALLBACK =
+  "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=880&h=560&fit=crop&auto=format&q=80";
+
+/**
  * 매장 상세 데이터 (store + services + staff) 60초 캐시.
  *
  * 외부 손님이 매장 카드 클릭 시 매번 3 DAL × ~1초 발생. 캐시로 cold ~3s →
@@ -175,7 +184,11 @@ export default async function StoreDetailPage({
         bookLabel={t("bookCta")}
       />
 
-      <HeroGallery photos={photos} placeholderLabel={t("heroPlaceholderAlt")} />
+      <HeroGallery
+        photos={photos}
+        placeholderLabel={t("heroPlaceholderAlt")}
+        fallbackImageUrl={DEMO_HERO_FALLBACK}
+      />
 
       <div className="flex flex-col">
         <div className="px-5 pt-4">
