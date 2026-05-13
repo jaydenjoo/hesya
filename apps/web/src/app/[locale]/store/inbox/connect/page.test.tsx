@@ -19,18 +19,6 @@ vi.mock("@/shared/lib/store-owner-guard", () => ({
   })),
 }));
 
-vi.mock("@/features/shell/get-owner-shell-data", () => ({
-  getOwnerShellData: vi.fn(async () => ({
-    storeName: "Test Store",
-    userName: "Tester",
-    userInitial: "T",
-  })),
-}));
-
-vi.mock("@/features/shell/owner-shell", () => ({
-  OwnerShell: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-
 import ConnectPage from "./page";
 
 describe("ConnectPage", () => {

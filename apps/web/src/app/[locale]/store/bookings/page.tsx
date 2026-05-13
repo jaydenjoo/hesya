@@ -8,8 +8,6 @@ import {
   buildServiceLabels,
   buildStaffLabels,
 } from "@/features/booking";
-import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
-import { OwnerShell } from "@/features/shell/owner-shell";
 import { env } from "@/shared/config/env";
 import {
   BOOKING_STATUSES,
@@ -24,8 +22,6 @@ import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 
 /**
  * Epic 3 (δ) / Phase D4-D3 — 매장 예약 목록 (owner-side).
- *
- * OwnerShell wrap + Operator pill + Fraunces italic header (chrome 일관성).
  * ?status=<scheduled|completed|cancelled|no_show> 쿼리로 필터.
  */
 export default async function StoreBookingsPage({
@@ -54,14 +50,11 @@ export default async function StoreBookingsPage({
       : "all";
 
   const db = createDbClient(env.DATABASE_URL);
-  const [rows, servicesList, staffList, shell] = await Promise.all([
+  const [rows, servicesList, staffList] = await Promise.all([
     listBookingsByStore(db, session.storeId, { filter }),
     listServicesByStore(db, session.storeId),
     listStaffByStore(db, session.storeId),
-    getOwnerShellData(),
   ]);
-
-  if (!shell) redirect(`/${locale}/sign-in`);
 
   const t = await getTranslations({ locale, namespace: "Bookings" });
 
@@ -90,29 +83,22 @@ export default async function StoreBookingsPage({
   };
 
   return (
-    <OwnerShell
-      currentLocale={locale}
-      storeName={shell.storeName}
-      userName={shell.userName}
-      userInitial={shell.userInitial}
-    >
-      <div className="bg-hesya-peach-50">
-        <PageHeader
-          eyebrow="Operator · Bookings"
-          title={t("title")}
-          subtitle={t("subtitle")}
+    <div className="bg-hesya-peach-50">
+      <PageHeader
+        eyebrow="Operator · Bookings"
+        title={t("title")}
+        subtitle={t("subtitle")}
+      />
+      <div className="px-8 pb-10">
+        <BookingsList
+          locale={locale}
+          rows={rows}
+          filter={filter}
+          serviceLabels={buildServiceLabels(servicesList, locale)}
+          staffLabels={buildStaffLabels(staffList)}
+          labels={labels}
         />
-        <div className="px-8 pb-10">
-          <BookingsList
-            locale={locale}
-            rows={rows}
-            filter={filter}
-            serviceLabels={buildServiceLabels(servicesList, locale)}
-            staffLabels={buildStaffLabels(staffList)}
-            labels={labels}
-          />
-        </div>
       </div>
-    </OwnerShell>
+    </div>
   );
 }

@@ -2,8 +2,6 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { getInstagramOAuthUrl } from "@/features/inbox";
-import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
-import { OwnerShell } from "@/features/shell/owner-shell";
 import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 
@@ -39,9 +37,6 @@ export default async function ConnectPage({
     throw err;
   }
 
-  const shell = await getOwnerShellData();
-  if (!shell) redirect(`/${locale}/sign-in`);
-
   const t = await getTranslations("Inbox.notConnected");
   const tFailed = await getTranslations("Inbox.connect");
   const errorCode = isAllowedError(sp.error) ? sp.error : null;
@@ -53,45 +48,38 @@ export default async function ConnectPage({
   }
 
   return (
-    <OwnerShell
-      currentLocale={locale}
-      storeName={shell.storeName}
-      userName={shell.userName}
-      userInitial={shell.userInitial}
-    >
-      <div className="bg-hesya-peach-50 min-h-[calc(100vh-64px)]">
-        <div className="mx-auto max-w-xl px-6 py-10">
-          <header className="mb-8 space-y-1.5">
-            <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
-              Operator · Inbox · Connect
-            </p>
-            <h1 className="font-display text-[28px] italic tracking-tight text-hesya-navy-900">
-              {t("title")}
-            </h1>
-            <p className="kr text-[13px] text-gray-600">{t("description")}</p>
-          </header>
+    <div className="bg-hesya-peach-50 min-h-[calc(100vh-64px)]">
+      <div className="mx-auto max-w-xl px-6 py-10">
+        <header className="mb-8 space-y-1.5">
+          <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+            Operator · Inbox · Connect
+          </p>
+          <h1 className="font-display text-[28px] italic tracking-tight text-hesya-navy-900">
+            {t("title")}
+          </h1>
+          <p className="kr text-[13px] text-gray-600">{t("description")}</p>
+        </header>
 
-          {errorCode ? (
-            <div
-              role="alert"
-              className="kr mb-4 rounded-md border border-[#c9483a] bg-[#fbeae5] px-4 py-3 text-[13px] text-[#c9483a]"
-            >
-              {tFailed("failed", { reason: errorCode })}
-            </div>
-          ) : null}
+        {errorCode ? (
+          <div
+            role="alert"
+            className="kr mb-4 rounded-md border border-[#c9483a] bg-[#fbeae5] px-4 py-3 text-[13px] text-[#c9483a]"
+          >
+            {tFailed("failed", { reason: errorCode })}
+          </div>
+        ) : null}
 
-          <form action={start}>
-            <button
-              type="submit"
-              className="kr inline-flex items-center gap-1.5 rounded-md bg-hesya-amber-500 px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-hesya-amber-600"
-            >
-              <span aria-hidden="true">📱</span>
-              {t("button")}
-              <span aria-hidden="true">→</span>
-            </button>
-          </form>
-        </div>
+        <form action={start}>
+          <button
+            type="submit"
+            className="kr inline-flex items-center gap-1.5 rounded-md bg-hesya-amber-500 px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-hesya-amber-600"
+          >
+            <span aria-hidden="true">📱</span>
+            {t("button")}
+            <span aria-hidden="true">→</span>
+          </button>
+        </form>
       </div>
-    </OwnerShell>
+    </div>
   );
 }
