@@ -9,6 +9,7 @@
  * 디자인: peach 배경 + amber accent + Fraunces 헤딩 (기존 /c/* 일관성).
  */
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import type { PublicStore } from "@/shared/lib/dal/stores";
@@ -119,12 +120,12 @@ export function CustomerLanding({
           <span className="font-heading text-[20px] font-semibold italic tracking-[-0.02em] text-hesya-navy-900">
             Hesya
           </span>
-          <a
+          <Link
             href={isAuthed ? `/${locale}/c/mypage` : `/${locale}/c/sign-in`}
             className="rounded-full bg-white/70 px-4 py-1.5 text-[12px] font-medium text-hesya-navy-900 ring-1 ring-hesya-navy-900/10 hover:bg-white"
           >
             {isAuthed ? labels.mypage : labels.signIn}
-          </a>
+          </Link>
         </nav>
 
         <header className="mb-7 max-w-2xl">
@@ -257,7 +258,7 @@ function StoreCard({
   viewLabel: string;
 }) {
   return (
-    <a
+    <Link
       href={`/${locale}/c/store/${store.id}`}
       className="group block overflow-hidden rounded-3xl bg-white ring-1 ring-hesya-navy-900/10 transition hover:shadow-[0_8px_24px_-8px_rgba(26,34,56,0.15)]"
     >
@@ -282,6 +283,6 @@ function StoreCard({
           {viewLabel} →
         </p>
       </div>
-    </a>
+    </Link>
   );
 }
