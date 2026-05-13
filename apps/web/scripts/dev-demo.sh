@@ -55,8 +55,9 @@ echo "[dev:demo] ✓ DATABASE_URL → HESYA_TEST_DATABASE_URL override (시연�
 # 4. Next.js dev 서버 (background) — pnpm hoisting 회피 위해 .bin 직접 호출
 DATABASE_URL="$HESYA_TEST_URL" \
 IG_API_BASE_URL=http://localhost:4201 \
-E2E_AUTH_USER_ID=00000000-0000-0000-0000-000000000001 \
+E2E_AUTH_USER_ID=00000000-0000-4000-8000-000000000001 \
 E2E_ADMIN_EMAIL=demo-owner@hesya.local \
+E2E_CUSTOMER_EMAIL=demo-customer@hesya.local \
 ./node_modules/.bin/next dev -p 4200 &
 NEXT_PID=$!
 
