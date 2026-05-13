@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createAuthClient } from "@hesya/auth/client";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { OwnerSignInForm } from "@/features/store-auth/sign-in-form";
 
 const authClient = createAuthClient();
 
@@ -76,6 +77,12 @@ export function FormPanel({
           매장 매니저 계정으로 로그인하세요. 처음이라면 사업자등록번호로 가입을
           시작할 수 있습니다.
         </p>
+
+        <OwnerSignInForm locale={currentLocale} callbackUrl={callbackUrl} />
+
+        <div className="sl-divider-or" aria-hidden="true">
+          <span>또는</span>
+        </div>
 
         <button
           type="button"
