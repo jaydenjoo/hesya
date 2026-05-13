@@ -467,6 +467,30 @@
       "settings": "設定"
     }
   },
+  "AdminShell": {
+    "brandPill": "ADMIN",
+    "searchPlaceholder": "搜尋門市 / 客戶 / 交易 ID / 營運…",
+    "searchKbd": "⌘ K",
+    "notificationsLabel": "通知",
+    "signOut": "登出",
+    "nav": {
+      "groupOps": "營運",
+      "groupSystem": "系統",
+      "dashboard": "儀表板",
+      "kyc": "KYC 驗證",
+      "disputes": "爭議",
+      "payment": "支付·結算",
+      "reports": "門市檢舉",
+      "deletion": "門市刪除",
+      "apiAlerts": "API 警報",
+      "aiCost": "AI 費用",
+      "aiAccuracy": "AI 準確度"
+    },
+    "foot": {
+      "apiLabel": "API",
+      "dbLagLabel": "DB lag"
+    }
+  },
   "AdminAiCost": {
     "title": "AI 成本 (估算)",
     "backToDashboard": "返回儀表板",
@@ -481,7 +505,12 @@
     "messageCount": "{n} 則"
   },
   "AdminDashboard": {
-    "title": "營運儀表板",
+    "title": "Hesya · 營運",
+    "pageSub": "今日 — 審核與退款請求待處理。",
+    "auto": "AUTO 30s",
+    "auditRailTitle": "營運審計",
+    "auditRefresh": "重新整理",
+    "auditFresh": "新",
     "signedInAs": "以 {email} 登入",
     "alertBand": "警示",
     "kpiBand": "今日",

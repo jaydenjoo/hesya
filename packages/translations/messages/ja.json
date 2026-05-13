@@ -467,6 +467,30 @@
       "settings": "設定"
     }
   },
+  "AdminShell": {
+    "brandPill": "ADMIN",
+    "searchPlaceholder": "店舗 / 顧客 / 取引 ID / オペレーター検索…",
+    "searchKbd": "⌘ K",
+    "notificationsLabel": "通知",
+    "signOut": "ログアウト",
+    "nav": {
+      "groupOps": "運営",
+      "groupSystem": "システム",
+      "dashboard": "ダッシュボード",
+      "kyc": "KYC 検証",
+      "disputes": "紛争",
+      "payment": "決済・精算",
+      "reports": "店舗通報",
+      "deletion": "店舗削除",
+      "apiAlerts": "API アラート",
+      "aiCost": "AI コスト",
+      "aiAccuracy": "AI 精度"
+    },
+    "foot": {
+      "apiLabel": "API",
+      "dbLagLabel": "DB lag"
+    }
+  },
   "AdminAiCost": {
     "title": "AI コスト(推定)",
     "backToDashboard": "ダッシュボードへ",
@@ -481,7 +505,12 @@
     "messageCount": "{n} 件"
   },
   "AdminDashboard": {
-    "title": "運営ダッシュボード",
+    "title": "Hesya 運営状況",
+    "pageSub": "本日 — 確認と返金リクエストが保留中。",
+    "auto": "AUTO 30s",
+    "auditRailTitle": "運営監査ログ",
+    "auditRefresh": "更新",
+    "auditFresh": "新着",
     "signedInAs": "{email} としてログイン中",
     "alertBand": "アラート",
     "kpiBand": "今日",
