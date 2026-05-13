@@ -13,7 +13,8 @@
  *       | Korea map (span 8) + Top categories (span 4)
  *   - audit rail (옆 360px column — sticky)
  *
- * Mock data 위젯(5): bar / spark / donut / map / top. Phase 2 진입 시 DAL 추가 후 wire.
+ * 위젯(5) 실 데이터 wire 완료: monthly bar (#156) / AI spark (#156) /
+ * SLA donut / Korea map / top categories.
  */
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
@@ -27,7 +28,10 @@ import {
   getAdminAuditTrail,
   getAdminKpiSummary,
   getDailyAiCostSpark,
+  getDisputeSlaResolution,
   getMonthlyNewStoresCounts,
+  getStoreRegionDistribution,
+  getTopCategoriesByGmv,
 } from "@/shared/lib/dal/admin-dashboard";
 import { getCurrentMonthRange } from "@/shared/lib/dal/dashboard";
 
@@ -53,12 +57,24 @@ export default async function AdminDashboardPage({ params }: Props) {
 
   const db = createDbClient(env.DATABASE_URL);
   const monthRange = getCurrentMonthRange();
-  const [alerts, kpi, audit, monthlyBars, costSpark] = await Promise.all([
+  const [
+    alerts,
+    kpi,
+    audit,
+    monthlyBars,
+    costSpark,
+    slaResolution,
+    regionDist,
+    topCategories,
+  ] = await Promise.all([
     getAdminAlertCounts(db),
     getAdminKpiSummary(db, monthRange),
     getAdminAuditTrail(db, 12),
     getMonthlyNewStoresCounts(db),
     getDailyAiCostSpark(db),
+    getDisputeSlaResolution(db),
+    getStoreRegionDistribution(db),
+    getTopCategoriesByGmv(db),
   ]);
 
   const t = await getTranslations({ locale, namespace: "AdminDashboard" });
@@ -239,7 +255,7 @@ export default async function AdminDashboardPage({ params }: Props) {
 
           <Tile span={3}>
             <TileHead labelEn="DISPUTE SLA" labelKr="분쟁 처리 SLA" />
-            <DashboardSlaDonut />
+            <DashboardSlaDonut data={slaResolution} />
           </Tile>
 
           {/* Row 3 — Korea map (8) + Top 5 (4) */}
@@ -248,7 +264,7 @@ export default async function AdminDashboardPage({ params }: Props) {
               labelEn="REGIONAL DISTRIBUTION"
               labelKr="지역별 활성 매장 분포"
             />
-            <DashboardKoreaMap />
+            <DashboardKoreaMap data={regionDist} />
           </Tile>
 
           <Tile span={4}>
@@ -257,7 +273,7 @@ export default async function AdminDashboardPage({ params }: Props) {
               labelKr="상위 5 카테고리"
             />
             <div className="mt-2">
-              <DashboardTopCategories />
+              <DashboardTopCategories rows={topCategories} />
             </div>
           </Tile>
         </div>

@@ -16,6 +16,7 @@ import {
   lte,
   messages,
   ne,
+  services,
   stores,
   storeDeletionRequests,
   sum,
@@ -352,4 +353,261 @@ function formatDateKstYmd(date: Date): string {
     day: "2-digit",
   });
   return fmt.format(date);
+}
+
+/**
+ * 분쟁 SLA 처리율 위젯 — 최근 N일 resolved disputes 중 SLA 안에 처리된 비율.
+ *
+ * 분모: 기간 내 resolvedAt이 있는 disputes (status='resolved' 또는 'rejected'
+ *       이면서 resolvedAt NOT NULL — 완결된 분쟁).
+ * 분자: 위 중 resolvedAt <= slaDueAt (SLA 준수).
+ *
+ * 분모 0이면 pct=0 + empty=true (위젯에서 "측정 가능 자료 없음" 표시).
+ */
+export interface DisputeSlaResolution {
+  /** SLA 안에 처리된 건수 */
+  withinSla: number;
+  /** 기간 내 완결된 분쟁 총 건수 (resolvedAt NOT NULL) */
+  totalResolved: number;
+  /** 0..100 (정수, 반올림) */
+  pct: number;
+  /** 분모 0이면 true — 위젯이 빈 데이터 fallback 분기 */
+  empty: boolean;
+}
+
+export async function getDisputeSlaResolution(
+  db: DbClient,
+  days = 30,
+  now: Date = new Date(),
+): Promise<DisputeSlaResolution> {
+  const since = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+
+  const rows = await db
+    .select({
+      resolvedAt: disputes.resolvedAt,
+      slaDueAt: disputes.slaDueAt,
+    })
+    .from(disputes)
+    .where(
+      and(
+        isNotNull(disputes.resolvedAt),
+        gte(disputes.resolvedAt, since),
+        lte(disputes.resolvedAt, now),
+      ),
+    );
+
+  const totalResolved = rows.length;
+  if (totalResolved === 0) {
+    return { withinSla: 0, totalResolved: 0, pct: 0, empty: true };
+  }
+  const withinSla = rows.filter(
+    (r) =>
+      r.resolvedAt !== null &&
+      r.slaDueAt !== null &&
+      r.resolvedAt.getTime() <= r.slaDueAt.getTime(),
+  ).length;
+  const pct = Math.round((withinSla / totalResolved) * 100);
+  return { withinSla, totalResolved, pct, empty: false };
+}
+
+/**
+ * 17 시도 코드 (KOSIS).
+ *
+ * x/y는 100×100 viewBox 정규화 좌표 — Korea heatmap SVG에서 dot 위치.
+ * dashboard-korea-map.tsx의 기존 hardcoded 좌표와 동일하게 유지.
+ */
+const KOREA_REGIONS = [
+  { code: "11", name: "서울", x: 38, y: 32 },
+  { code: "26", name: "부산", x: 64, y: 70 },
+  { code: "27", name: "대구", x: 56, y: 58 },
+  { code: "28", name: "인천", x: 30, y: 33 },
+  { code: "29", name: "광주", x: 40, y: 70 },
+  { code: "30", name: "대전", x: 44, y: 50 },
+  { code: "31", name: "울산", x: 66, y: 62 },
+  { code: "36", name: "세종", x: 42, y: 46 },
+  { code: "41", name: "경기", x: 42, y: 35 },
+  { code: "42", name: "강원", x: 56, y: 26 },
+  { code: "43", name: "충북", x: 48, y: 44 },
+  { code: "44", name: "충남", x: 36, y: 47 },
+  { code: "45", name: "전북", x: 38, y: 60 },
+  { code: "46", name: "전남", x: 36, y: 72 },
+  { code: "47", name: "경북", x: 58, y: 50 },
+  { code: "48", name: "경남", x: 54, y: 68 },
+  { code: "50", name: "제주", x: 32, y: 88 },
+] as const;
+
+/**
+ * stores.region 자유 입력(예: "서울 강남구") → 시도 코드 정규화.
+ *
+ * 첫 단어가 시도 alias이면 매칭. 없으면 null (unknown 버킷).
+ * 영문/구버전 명칭(강원도, 강원특별자치도)도 동일 시도로 묶음.
+ */
+const REGION_ALIASES: ReadonlyMap<string, string> = new Map([
+  ["서울", "11"],
+  ["서울특별시", "11"],
+  ["부산", "26"],
+  ["부산광역시", "26"],
+  ["대구", "27"],
+  ["대구광역시", "27"],
+  ["인천", "28"],
+  ["인천광역시", "28"],
+  ["광주", "29"],
+  ["광주광역시", "29"],
+  ["대전", "30"],
+  ["대전광역시", "30"],
+  ["울산", "31"],
+  ["울산광역시", "31"],
+  ["세종", "36"],
+  ["세종특별자치시", "36"],
+  ["경기", "41"],
+  ["경기도", "41"],
+  ["강원", "42"],
+  ["강원도", "42"],
+  ["강원특별자치도", "42"],
+  ["충북", "43"],
+  ["충청북도", "43"],
+  ["충남", "44"],
+  ["충청남도", "44"],
+  ["전북", "45"],
+  ["전라북도", "45"],
+  ["전북특별자치도", "45"],
+  ["전남", "46"],
+  ["전라남도", "46"],
+  ["경북", "47"],
+  ["경상북도", "47"],
+  ["경남", "48"],
+  ["경상남도", "48"],
+  ["제주", "50"],
+  ["제주도", "50"],
+  ["제주특별자치도", "50"],
+]);
+
+export function normalizeRegionToCode(raw: string | null): string | null {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const firstToken = trimmed.split(/\s+/)[0]!;
+  return REGION_ALIASES.get(firstToken) ?? null;
+}
+
+export interface StoreRegionRow {
+  /** KOSIS 시도 코드 */
+  readonly code: string;
+  /** 한국어 시도 이름 */
+  readonly name: string;
+  /** 매장 수 (auto_approved + 미삭제) */
+  readonly stores: number;
+  /** SVG viewBox 좌표 (heatmap dot 위치) */
+  readonly x: number;
+  readonly y: number;
+}
+
+export interface StoreRegionDistribution {
+  /** 17개 시도 row — region 0건이라도 항목 유지 (stores=0) */
+  readonly regions: readonly StoreRegionRow[];
+  /** 활성 매장 중 region 매칭 안 된 수 */
+  readonly unknown: number;
+  /** regions.stores 합 0 + unknown 0이면 true */
+  readonly empty: boolean;
+}
+
+/**
+ * 지역별 활성 매장 분포 — 17 시도 + unknown 버킷.
+ *
+ * 분자: stores.verificationStatus='auto_approved' + deletedAt NULL.
+ * 정규화: 첫 단어가 시도 alias 매칭하면 해당 code, 아니면 unknown.
+ * 17 시도 모두 row 유지 (0건이어도) — UI dot grid가 항상 17개 그림.
+ */
+export async function getStoreRegionDistribution(
+  db: DbClient,
+): Promise<StoreRegionDistribution> {
+  const rows = await db
+    .select({ region: stores.region })
+    .from(stores)
+    .where(
+      and(
+        eq(stores.verificationStatus, "auto_approved"),
+        isNull(stores.deletedAt),
+      ),
+    );
+
+  const counts = new Map<string, number>();
+  let unknown = 0;
+  for (const r of rows) {
+    const code = normalizeRegionToCode(r.region);
+    if (code === null) {
+      unknown += 1;
+      continue;
+    }
+    counts.set(code, (counts.get(code) ?? 0) + 1);
+  }
+
+  const regions: StoreRegionRow[] = KOREA_REGIONS.map((r) => ({
+    code: r.code,
+    name: r.name,
+    stores: counts.get(r.code) ?? 0,
+    x: r.x,
+    y: r.y,
+  }));
+
+  const totalMatched = regions.reduce((sum, r) => sum + r.stores, 0);
+  return {
+    regions,
+    unknown,
+    empty: totalMatched === 0 && unknown === 0,
+  };
+}
+
+/**
+ * Top N 카테고리 (GMV 기준) 위젯 — 최근 N일 booking GMV를 services.category 합산.
+ *
+ * bookings INNER JOIN services. cancelled 제외. category NULL은 'uncategorized'
+ * 라벨로 묶음. shareRatio는 1위 대비 비율 (0..1).
+ *
+ * Epic 2 (결제) 정식 도입 전이라 bookings.totalPriceKrw가 booking 신청 시점
+ * 가격일 수 있음. 정확한 GMV는 결제 도입 후. 그때까지는 booking 가격 합산을
+ * 임시 GMV로 사용.
+ */
+export interface TopCategoryRow {
+  readonly name: string;
+  readonly gmvKrw: number;
+  readonly shareRatio: number;
+}
+
+export async function getTopCategoriesByGmv(
+  db: DbClient,
+  limit = 5,
+  days = 30,
+  now: Date = new Date(),
+): Promise<readonly TopCategoryRow[]> {
+  const since = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+
+  const rows = await db
+    .select({
+      category: services.category,
+      gmv: sum(bookings.totalPriceKrw).mapWith(Number),
+    })
+    .from(bookings)
+    .innerJoin(services, eq(bookings.serviceId, services.id))
+    .where(
+      and(
+        ne(bookings.status, "cancelled"),
+        gte(bookings.scheduledAt, since),
+        lte(bookings.scheduledAt, now),
+      ),
+    )
+    .groupBy(services.category)
+    .orderBy(desc(sum(bookings.totalPriceKrw)))
+    .limit(limit);
+
+  if (rows.length === 0) return [];
+  const top = rows[0]!.gmv || 0;
+  return rows.map((r) => {
+    const gmv = r.gmv ?? 0;
+    return {
+      name: r.category?.trim() || "기타",
+      gmvKrw: gmv,
+      shareRatio: top > 0 ? gmv / top : 0,
+    };
+  });
 }

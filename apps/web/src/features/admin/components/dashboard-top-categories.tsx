@@ -1,33 +1,37 @@
 /**
- * Plan v3 M6 — Top 5 categories (30D GMV 기준).
+ * Plan v3 M6 — Top N categories (30D GMV 기준).
  *
  * 디자인 ref: admin-dashboard.css `Top 5 categories` (line 640~).
- * Server component (차트 라이브러리 X — flex + bar 만).
- * Mock data — Phase 2 `services.category` aggregate 추가 후 wire.
+ * Server component (차트 라이브러리 X — flex + bar만).
  */
 
-interface CategoryRow {
-  readonly name: string;
-  readonly gmvKrw: number;
-  readonly shareRatio: number;
-}
+import type { TopCategoryRow } from "@/shared/lib/dal/admin-dashboard";
 
-const MOCK: readonly CategoryRow[] = [
-  { name: "헤어 컬러", gmvKrw: 38_400_000, shareRatio: 1 },
-  { name: "K-드라마 단발", gmvKrw: 22_650_000, shareRatio: 0.59 },
-  { name: "글래스 스킨 케어", gmvKrw: 18_120_000, shareRatio: 0.47 },
-  { name: "퍼머넌트", gmvKrw: 14_280_000, shareRatio: 0.37 },
-  { name: "두피 트리트먼트", gmvKrw: 9_840_000, shareRatio: 0.26 },
-];
+interface Props {
+  readonly rows: readonly TopCategoryRow[];
+}
 
 function formatKrw(n: number): string {
   return n.toLocaleString("ko-KR");
 }
 
-export function DashboardTopCategories() {
+export function DashboardTopCategories({ rows }: Props) {
+  if (rows.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 py-6">
+        <span className="font-heading text-[24px] font-medium italic leading-none tracking-[-0.025em] text-gray-300">
+          —
+        </span>
+        <span className="font-mono text-[9.5px] font-bold uppercase tracking-[0.18em] text-gray-400">
+          최근 30일 예약 자료 없음
+        </span>
+      </div>
+    );
+  }
+
   return (
     <ol className="flex flex-col gap-3">
-      {MOCK.map((row, i) => (
+      {rows.map((row, i) => (
         <li key={row.name} className="flex items-baseline gap-3">
           <span className="w-4 flex-shrink-0 font-mono text-[10px] font-bold text-gray-400">
             {String(i + 1).padStart(2, "0")}
