@@ -45,12 +45,15 @@ const UUID_RE =
 const getStoreDetailCached = unstable_cache(
   async (storeId: string) => {
     const db = createDbClient(env.DATABASE_URL);
-    const store = await getStorePublicById(db, storeId);
-    if (!store) return null;
-    const [services, staffList] = await Promise.all([
-      listServicesByStore(db, store.id),
-      listStaffByStore(db, store.id),
+    // Perf 3: 3 쿼리 모두 parallel — services/staff는 storeId만 알면 됨.
+    // store 없으면 services/staff 빈 배열 (FK 매칭 0) — 안전.
+    // Cache miss 시 max(3 query) ≈ 1 RTT (이전: store 후 Promise.all 2 RTT).
+    const [store, services, staffList] = await Promise.all([
+      getStorePublicById(db, storeId),
+      listServicesByStore(db, storeId),
+      listStaffByStore(db, storeId),
     ]);
+    if (!store) return null;
     return { store, services, staffList };
   },
   ["store-detail-public-v1"],
