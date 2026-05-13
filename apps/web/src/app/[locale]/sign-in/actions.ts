@@ -31,9 +31,9 @@ export type OwnerSignInResult =
   | { ok: false; error: "invalid_input"; message: string };
 
 function sanitizeCallback(raw: string | undefined, locale: string): string {
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) {
-    return `/${locale}/store/dashboard`;
-  }
+  const fallback = `/${locale}/store/dashboard`;
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return fallback;
+  if (!raw.startsWith(`/${locale}/store/`)) return fallback;
   return raw;
 }
 
