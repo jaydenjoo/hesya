@@ -3,26 +3,31 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-13 세션 31 — A/B/C 묶음 3 PRs, 머지 대기)
+## 현재 위치 (2026-05-13 세션 31 종료 — A/B/C 묶음 5 PRs 모두 머지)
 
-- **Phase**: **Plan v3 M1~M5 100% + M6 위젯 5/5 실 데이터 wire 완료 + 결정 검증 후 A/B/C 묶음 진행**
-- **세션 31 PRs (3건, 머지 대기 — CI 비활성 상태로 Jayden 수동 머지 필요)**:
-  - PR [#157](https://github.com/jaydenjoo/hesya/pull/157) perf(auth) — cookie cache bench N=10 median + p95. ITER 6→11, percentile() 헬퍼, 출력 표 갱신, sanity assertion warm avg→median. legacy N=5 표 유지 + N=10 TBD 표 + 판정 기준. + chore: 세션 30 스크린샷 18개 ignore 패턴 (`/[0-9][0-9]-*.png`, `/prod-*.png`).
-  - PR [#158](https://github.com/jaydenjoo/hesya/pull/158) feat(admin) — dashboard 위젯 5/5 wire 완료. `getDisputeSlaResolution` + `normalizeRegionToCode` (38 alias→17 KOSIS 코드) + `getStoreRegionDistribution` + `getTopCategoriesByGmv`. 위젯 3개 props refactor. 빈 데이터 fallback (L-082 정직 처리).
-  - PR [#159](https://github.com/jaydenjoo/hesya/pull/159) test(admin) — admin-dashboard DAL 통합 테스트 21건 추가 (7 unit normalize + 14 integration SLA/region/topCat). PR #156/#154 backfill은 별 PR.
-- **세션 31 결정 검증 결과 (도메인 외 작업 우선순위)**:
-  - **결정 1**: γ.2 KYC E2E vs E1 inbox 디자인 정합성 → **E1 inbox 우선** (디자인 first-class 메모: 기능 80% vs 디자인 18% 비대칭 = first-class 위반). KYC는 mock 통과 시연 됨.
-  - **결정 2**: 베타 약정서 / 데모 영상 → **세션 31에서 제외, ζ.6 단계로 연기** (시점 fresh + 디자인 100% 후 촬영).
+- **Phase**: **Plan v3 M1~M5 100% + M6 위젯 5/5 실 데이터 wire + γ.2 Phase 1 closure 시작 (inbox composer + landing greeting)**
+- **세션 31 머지 (5 PRs, main 7번째 commit ~ 11번째 commit)**:
+  - PR [#157](https://github.com/jaydenjoo/hesya/pull/157) perf(auth) — cookie cache bench N=10 median + p95. ITER 6→11, percentile() 헬퍼, 출력 표 갱신. legacy N=5 표 유지 + N=10 TBD 표 + 판정 기준. + chore: 세션 30 스크린샷 18개 ignore 패턴.
+  - PR [#158](https://github.com/jaydenjoo/hesya/pull/158) feat(admin) — dashboard 위젯 **5/5 wire 완료**. `getDisputeSlaResolution` + `normalizeRegionToCode` (38 alias→17 KOSIS 코드) + `getStoreRegionDistribution` + `getTopCategoriesByGmv`. 빈 데이터 fallback (L-082 정직 처리).
+  - PR [#159](https://github.com/jaydenjoo/hesya/pull/159) test(admin) — admin-dashboard DAL 통합 테스트 21건 (7 unit normalize + 14 integration). vitest 710→**717 passed**.
+  - PR [#160](https://github.com/jaydenjoo/hesya/pull/160) feat(inbox) — composer toolbar reference 정합 batch 1. 4 tool 버튼 (📷/🎙️/📎/💡, disabled + 정직 tooltip "곧 출시") + Send 버튼 ⌘+↵ kbd indicator. i18n 6 locale.
+  - PR [#161](https://github.com/jaydenjoo/hesya/pull/161) feat(customer) — landing 5 언어 환영 인사 rotator (en/ko/ja/zh/vi, 3.5s). prefers-reduced-motion 존중.
+- **세션 31 결정 검증**:
+  - **결정 1** (γ.2 KYC E2E vs E1 inbox 디자인): E1 inbox 우선 (디자인 first-class 메모 위반 해소).
+  - **결정 2** (베타 약정서/데모 영상): ζ.6 단계로 연기 (시점 fresh + 디자인 100% 후 촬영).
 - **L-082 시연 %**:
   - M3 owner 100% / M4 admin 100% 유지
-  - Dashboard 위젯 5/5 실 데이터 wire 완료 (코드만, prod 시연은 머지 후)
-  - E1 inbox 디자인 정합성 ~18% → 다음 batch로 향상 예정
+  - **Dashboard 위젯 5/5 실 데이터 wire 완료** (mock 0건)
+  - E1 inbox composer toolbar 정합 batch 1 적용 → 디자인 정합성 점진 향상
+  - Customer landing 다국어 환영 인사 → 외부 손님 첫 진입 친화
 - **다음 세션 시작점**:
-  - **PR #157/#158/#159 머지** (Jayden 수동, CI 비활성 상태) + Vercel preview 시연 확인.
-  - **N=10 bench prod 재실측** (PR #157 머지 후) → `docs/auth-cookie-cache-bench.md` TBD 표 채우기.
-  - **E1 inbox 디자인 정합성 batch 1** (γ.2.3) — 시나리오 B Phase 1 closure.
-  - **owner/customer 페이지 reference 적용 batch** — 디자인 first-class.
-  - **Resend 도메인 검증** (Jayden 외부 액션, 보류 중).
+  - **Vercel preview 시연 확인** — admin/dashboard 5/5 위젯 / inbox composer toolbar / landing greeting rotator
+  - **N=10 bench prod 재실측** → `docs/auth-cookie-cache-bench.md` TBD 표 채우기
+  - **E1 inbox 디자인 batch 2** 후보: AIAssist 톤 검증 pill / ContextPanel 4탭 / Day mark separator
+  - **Customer landing batch 2** 후보: placeholder rotator / mood chips / 매장 카드 rating
+  - **PR #156/#154 admin-dashboard test backfill** (5 DAL 함수)
+  - **Resend 도메인 검증** (Jayden 외부 액션, 보류 중)
+  - **베타 5곳 매장 매칭** (Jayden 비즈니스, 보류 중)
 
 ## 이전 세션 31 시작 시점 (참고: 세션 30 종료, 2026-05-13)
 
