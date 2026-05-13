@@ -60,3 +60,5 @@ next-env.d.ts
 /design-system-full.png
 /handoff-original-full.png
 /s[0-9]*.png
+/[0-9][0-9]-*.png
+/prod-*.png
