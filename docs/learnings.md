@@ -3438,3 +3438,33 @@ expected [ messages, conversations, …(11) ] to deeply equal
 **비유**: 회사가 매월 검사관 2000분 무료 노동 가능. 본인 회사 + 다른 회사 합산 한도 도달. 결제 카드 $0 (초과 결제 거부). 검사관 출근 거부. 회사는 자체 직원(Vercel) + 사내 자동 검사(lint-staged)로 임시 대체. 영업 비밀(코드)은 보존.
 
 **연관**: L-082 (자기평가 e2e 시연 prerequisite), L-089 (Vercel prod 검증 — 본 case 검증 layer 역할), 본 세션 PR #112/#113 admin squash 머지, Plan v3 (`docs/Plan-v3-mock-first.md`) — 본 L-093 발생 이후 CI 비활성화 + Mock-first 전환 동시 진행.
+
+### [2026-05-13] L-094 — 공유 chrome layout 도입은 인접 페이지의 `min-h-screen` 사용 여부 grep이 prerequisite. 모두 self-contained이면 폴더 레벨 layout이 overflow 충돌 → dedicated layout 또는 점진 이관 계획 필요.
+
+**증상**:
+
+- 세션 29 admin dashboard reference parity 작업 중 `app/[locale]/admin/layout.tsx`로 모든 admin sub-page에 공유 chrome (top bar + sidebar) 적용하려 했으나, 9개 admin sub-page (disputes, kyc-test, store-verifications, store-reports, store-deletion, api-policy-alerts, payment-monitoring, ai-cost, ai-accuracy)가 각자 `min-h-screen` 사용 중. 폴더 레벨 layout이 `min-h-screen grid` 컨테이너인 상태에서 자식 page가 또 `min-h-screen`이면 nested → 시각 깨짐.
+
+**원인**:
+
+- 기존 admin sub-page들은 layout-less standalone 가정으로 작성됨 (각자 자체 `<div className="min-h-screen ...">` wrap + PageHeader).
+- Next.js `app/<folder>/layout.tsx` 는 그 폴더 모든 page를 일괄 wrap → 기존 page의 wrapper 가정과 충돌.
+- 해당 9개 페이지 즉시 일괄 변경은 한 PR 스코프 초과 (PR Plan v1 risk 산정 단계에서 회피).
+
+**해결**:
+
+- 디자인 정합성 champion인 dashboard만 `app/[locale]/admin/dashboard/layout.tsx` dedicated layout 적용 (PR #151).
+- 나머지 sub-page 9개는 후속 PR (3 PR로 쪼개기 — 분쟁/KYC/결제 + 신고/삭제/API 알림 + AI 메트릭)에서 `min-h-screen` 제거 + 폴더 레벨 layout으로 점진 이관 계획.
+
+**규칙** (← 핵심):
+
+1. **공유 chrome layout 도입 전 Pre-Plan Inventory 의무 항목 추가** — `grep -rn "min-h-screen\|min-h-\[" <folder>/` + 자체 wrapper class 사용처 확인.
+   - 0건: 폴더 레벨 layout 즉시 가능
+   - 1~3건: 같은 PR에서 inline 일괄 변경
+   - 4건+: dedicated layout 또는 명시적 점진 이관 plan (이번 case)
+2. **dedicated layout 선택 시** — 어떤 페이지를 champion으로 갈지 1개 선정, 나머지는 후속 PR list화하여 PROGRESS.md에 명시. 무방향 dedicated layout이 누적되면 일관성 손실.
+3. **Plan v1 risk 섹션에 inventory 결과 명시 의무** — 본 case는 Plan v1 risk #1로 사전 인지·기록됐기에 구현 단계에서 회피 가능. 인벤토리 누락이었으면 작업 중 발견 → 폐기·재시작 (L-078 패턴).
+
+**비유**: 사무실 9개 방에 각자 자체 책상·캐비넷 있는 상태에서 "공용 로비"를 도입하려는 것과 같음. 로비를 일괄 만들면 방마다 가구 재배치 필요 (모든 page 동시 수정 = 큰 PR). 대신 "쇼룸" 1개 방만 먼저 로비 적용 (dedicated layout), 나머지는 점진 리모델링 (후속 PR).
+
+**연관**: L-078 (Pre-Plan Inventory가 새 기능 도입 시 인접 패턴 검색 누락 함정 — 본 L-094는 인벤토리에 1항목 추가), L-082 (시연 % e2e 기준 — sub-page 통합 전까지 admin 디자인 정합성 sub-page 9개는 95% 미달 유지), 본 세션 PR #151 dedicated layout 결정.
