@@ -539,6 +539,41 @@
   transform: none;
 }
 
+.sl-magic-link {
+  background: transparent;
+  border: none;
+  padding: 4px 0 0;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--hesya-amber-600);
+  text-align: center;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color var(--duration-fast);
+}
+.sl-magic-link:hover {
+  text-decoration: underline;
+}
+.sl-magic-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sl-demo-hint {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--hesya-peach-100);
+  border: 1px dashed var(--hesya-amber-500);
+  border-radius: var(--r-md);
+  font-size: 11px;
+  color: var(--gray-700);
+  line-height: 1.5;
+}
+.sl-demo-hint strong {
+  color: var(--hesya-navy-900);
+  font-family: var(--font-mono);
+}
+
 /* Divider 'OR' (magic link 와 Google 사이) */
 .sl-divider-or {
   display: flex;
