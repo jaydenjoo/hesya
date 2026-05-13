@@ -7,6 +7,7 @@ import {
   customers,
   messages,
   payments,
+  reviews,
   services,
   staff,
   storeIntegrations,
@@ -38,6 +39,7 @@ export async function resetDb(db: DbClient): Promise<void> {
   // users는 Better Auth 관리 — reset 안 함 (seedUser 누적은 dev/test DB에서만 무해).
   await db.delete(messages);
   await db.delete(conversations);
+  await db.delete(reviews);
   await db.delete(storeIntegrations);
   await db.delete(storeKnowledge);
   await db.delete(storeOwners);

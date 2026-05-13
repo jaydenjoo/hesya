@@ -7,6 +7,8 @@ import {
   ilike,
   isNull,
   or,
+  reviews,
+  sql,
   storeIntegrations,
   storeVerifications,
   stores,
@@ -318,6 +320,10 @@ export type PublicStore = {
   region: string | null;
   address: unknown;
   businessHours: BusinessHours | null;
+  /** avg(reviews.rating). 리뷰 0건 매장은 null → UI에서 rating bar 숨김. */
+  rating: number | null;
+  /** count(reviews.rating). 리뷰 0건이면 0. */
+  reviewCount: number;
 };
 
 /**
@@ -340,14 +346,27 @@ export async function getStorePublicById(
       region: stores.region,
       address: stores.address,
       businessHours: stores.businessHours,
+      rating: sql<number | null>`avg(${reviews.rating})::float`.as("rating"),
+      reviewCount: sql<number>`count(${reviews.rating})::int`.as(
+        "review_count",
+      ),
     })
     .from(stores)
+    .leftJoin(reviews, eq(reviews.storeId, stores.id))
     .where(
       and(
         eq(stores.id, id),
         eq(stores.verificationStatus, "auto_approved"),
         isNull(stores.deletedAt),
       ),
+    )
+    .groupBy(
+      stores.id,
+      stores.name,
+      stores.category,
+      stores.region,
+      stores.address,
+      stores.businessHours,
     )
     .limit(1);
   return rows[0] ?? null;
@@ -388,9 +407,23 @@ export async function listPublicStores(
       region: stores.region,
       address: stores.address,
       businessHours: stores.businessHours,
+      rating: sql<number | null>`avg(${reviews.rating})::float`.as("rating"),
+      reviewCount: sql<number>`count(${reviews.rating})::int`.as(
+        "review_count",
+      ),
     })
     .from(stores)
+    .leftJoin(reviews, eq(reviews.storeId, stores.id))
     .where(and(...conditions))
+    .groupBy(
+      stores.id,
+      stores.name,
+      stores.category,
+      stores.region,
+      stores.address,
+      stores.businessHours,
+      stores.createdAt,
+    )
     .orderBy(desc(stores.createdAt))
     .limit(opts.limit ?? 24);
 }

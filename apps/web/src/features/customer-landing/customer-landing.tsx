@@ -7,6 +7,8 @@
  * SSR 갱신 — 페이지 진입 시 검색 결과 SEO friendly.
  *
  * 디자인: peach 배경 + amber accent + Fraunces 헤딩 (기존 /c/* 일관성).
+ *
+ * Batch 2 (2026-05-14): placeholder rotator (5 string 3.5s) + mood chips (9) + StoreCard rating bar.
  */
 
 import Link from "next/link";
@@ -24,6 +26,41 @@ const GREETINGS: ReadonlyArray<{ lang: string; text: string; kr: boolean }> = [
   { lang: "vi", text: "Chào mừng đến Hàn Quốc.", kr: false },
 ];
 const GREETING_ROTATION_MS = 3500;
+const PLACEHOLDER_ROTATION_MS = 3500;
+
+// 9 mood — emoji + i18n text. 클릭 시 search input 자동 채움 + URL navigate.
+// `text`만 검색에 사용 (emoji 검색 X). reference: docs/design/reference/landing-app.jsx:29-39.
+const MOOD_ICONS = [
+  "🎬",
+  "✨",
+  "💗",
+  "🌸",
+  "💋",
+  "🎀",
+  "🌟",
+  "🔥",
+  "✂️",
+] as const;
+
+function useRotatedPlaceholder(
+  placeholders: ReadonlyArray<string>,
+  fallback: string,
+): string {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    if (placeholders.length === 0) return;
+    const t = setInterval(
+      () => setIdx((i) => (i + 1) % placeholders.length),
+      PLACEHOLDER_ROTATION_MS,
+    );
+    return () => clearInterval(t);
+  }, [placeholders.length]);
+  return placeholders[idx] ?? fallback;
+}
 
 function GreetingRotator() {
   const [idx, setIdx] = useState(0);
@@ -60,6 +97,12 @@ export interface CustomerLandingLabels {
   title: string;
   subtitle: string;
   searchPlaceholder: string;
+  /** Batch 2: 검색 placeholder rotation (5 items 권장). 빈 배열이면 정적 placeholder 사용. */
+  placeholders: ReadonlyArray<string>;
+  /** Batch 2: 분위기 chip 섹션 label (예: "Or browse by vibe / 분위기로 둘러보기"). */
+  moodLabel: string;
+  /** Batch 2: mood chip 텍스트 (9개 권장). icon은 클라이언트 상수 (MOOD_ICONS). */
+  moods: ReadonlyArray<string>;
   regionLabel: string;
   regionAll: string;
   resultsCount: string;
@@ -68,6 +111,10 @@ export interface CustomerLandingLabels {
   signIn: string;
   mypage: string;
   viewStore: string;
+  /** Batch 2: rating bar에서 "리뷰 N건" 카운트 단위 (예: "(412)"). 단순 prefix 표현 안 하고 caller가 ICU로 채움. */
+  reviewCountSuffix: string;
+  /** Batch 2: K-Verified badge. auto_approved 매장 모두 표시. */
+  verifiedBadge: string;
 }
 
 interface Props {
@@ -93,6 +140,10 @@ export function CustomerLanding({
   const [region, setRegion] = useState(initialRegion);
   const [search, setSearch] = useState(initialSearch);
   const [, startTransition] = useTransition();
+  const rotatedPlaceholder = useRotatedPlaceholder(
+    labels.placeholders,
+    labels.searchPlaceholder,
+  );
 
   const navigate = (nextRegion: string, nextSearch: string) => {
     const params = new URLSearchParams();
@@ -158,11 +209,42 @@ export function CustomerLanding({
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={labels.searchPlaceholder}
+              placeholder={rotatedPlaceholder}
+              data-testid="landing-search-input"
               className="flex-1 bg-transparent text-[14px] text-hesya-navy-900 placeholder:text-hesya-navy-900/40 focus:outline-none"
             />
           </div>
         </form>
+
+        {labels.moods.length > 0 && (
+          <div className="mb-6">
+            <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.18em] text-hesya-navy-900/55">
+              {labels.moodLabel}
+            </p>
+            <div
+              data-testid="landing-mood-row"
+              className="flex flex-wrap gap-1.5"
+            >
+              {labels.moods.map((text, i) => {
+                const icon = MOOD_ICONS[i % MOOD_ICONS.length];
+                return (
+                  <button
+                    key={text}
+                    type="button"
+                    onClick={() => {
+                      setSearch(text);
+                      navigate(region, text);
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3.5 py-1.5 text-[12px] font-medium text-hesya-navy-900/80 ring-1 ring-hesya-navy-900/10 transition hover:bg-white"
+                  >
+                    <span aria-hidden="true">{icon}</span>
+                    {text}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="mb-7">
           <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.18em] text-hesya-navy-900/55">
@@ -214,6 +296,8 @@ export function CustomerLanding({
                   store={s}
                   locale={locale}
                   viewLabel={labels.viewStore}
+                  verifiedBadge={labels.verifiedBadge}
+                  reviewCountSuffix={labels.reviewCountSuffix}
                 />
               ))}
             </div>
@@ -252,11 +336,16 @@ function StoreCard({
   store,
   locale,
   viewLabel,
+  verifiedBadge,
+  reviewCountSuffix,
 }: {
   store: PublicStore;
   locale: string;
   viewLabel: string;
+  verifiedBadge: string;
+  reviewCountSuffix: string;
 }) {
+  const showRating = store.rating != null && store.reviewCount > 0;
   return (
     <Link
       href={`/${locale}/c/store/${store.id}`}
@@ -283,6 +372,29 @@ function StoreCard({
             </>
           )}
         </div>
+        {(showRating || verifiedBadge) && (
+          <div
+            data-testid="landing-store-rating"
+            className="mt-2 flex items-center gap-1.5 text-[12px]"
+          >
+            {showRating && (
+              <>
+                <span aria-hidden="true" className="text-hesya-amber-600">
+                  ★
+                </span>
+                <span className="font-semibold text-hesya-navy-900">
+                  {store.rating!.toFixed(2)}
+                </span>
+                <span className="text-hesya-navy-900/55">
+                  {reviewCountSuffix.replace("{n}", String(store.reviewCount))}
+                </span>
+              </>
+            )}
+            <span className="ml-auto rounded-full bg-hesya-peach-100 px-2 py-0.5 text-[10.5px] font-semibold text-hesya-amber-600 ring-1 ring-hesya-amber-600/20">
+              ★ {verifiedBadge}
+            </span>
+          </div>
+        )}
         <p className="mt-3 text-[11px] font-medium uppercase tracking-wide text-hesya-amber-600 group-hover:underline">
           {viewLabel} →
         </p>

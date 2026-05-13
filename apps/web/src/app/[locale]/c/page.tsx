@@ -85,6 +85,10 @@ export default async function CustomerLandingPage({
         title: t("title"),
         subtitle: t("subtitle"),
         searchPlaceholder: t("searchPlaceholder"),
+        // Batch 2: 5 placeholder rotation. JSON에는 array 저장 → t.raw로 꺼냄.
+        placeholders: t.raw("placeholders") as string[],
+        moodLabel: t("moodLabel"),
+        moods: t.raw("moods") as string[],
         regionLabel: t("regionLabel"),
         regionAll: t("regionAll"),
         // next-intl 4.x: ICU `{n}` 변수는 t() 호출 시점에 채워야 함 (manual replace 안 됨).
@@ -94,6 +98,10 @@ export default async function CustomerLandingPage({
         signIn: t("signIn"),
         mypage: t("mypage"),
         viewStore: t("viewStore"),
+        // ICU 미사용 — review count 자체는 client 측 store.reviewCount로 채움.
+        // suffix는 "({n})" 같은 wrapper text로 client에서 replace.
+        reviewCountSuffix: t("reviewCountSuffix"),
+        verifiedBadge: t("verifiedBadge"),
       }}
     />
   );
