@@ -1,8 +1,37 @@
 import { describe, it, expect } from "vitest";
 
-import { formatPriceForLocale, getCurrencyCodeForLocale } from "./currency";
+import {
+  formatPriceForLocale,
+  getCurrencyCodeForLocale,
+  type RuntimeRates,
+} from "./currency";
+
+const liveRates: RuntimeRates = {
+  JPY: 0.108,
+  USD: 0.00072,
+  CNY: 0.00518,
+  VND: 18.3,
+};
 
 describe("booking-customer/currency", () => {
+  describe("runtime rates (Plan v4 Epic D)", () => {
+    it("ja: runtimeRates 주입 시 실시간 환율 사용 (¥5,400 — 50000 * 0.108)", () => {
+      expect(formatPriceForLocale(50000, "ja", liveRates)).toBe("¥5,400");
+    });
+
+    it("vi: runtimeRates 주입 시 ₫ VND 표시 (₫915,000 — 50000 * 18.3)", () => {
+      expect(formatPriceForLocale(50000, "vi", liveRates)).toBe("₫915,000");
+    });
+
+    it("vi: runtimeRates → currency code = VND", () => {
+      expect(getCurrencyCodeForLocale("vi", liveRates)).toBe("VND");
+    });
+
+    it("ko: 항상 ₩ KRW (rate=1, runtime 무관)", () => {
+      expect(formatPriceForLocale(50000, "ko", liveRates)).toBe("₩50,000");
+    });
+  });
+
   describe("formatPriceForLocale", () => {
     it("ko: 그대로 KRW (₩35,000)", () => {
       expect(formatPriceForLocale(35000, "ko")).toBe("₩35,000");

@@ -6,6 +6,7 @@ import {
   formatPriceForLocale,
   getSecondaryCurrencyDisplay,
 } from "@/features/booking-customer/currency";
+import { getCachedExchangeRates } from "@/lib/exchange-rate/fetch";
 import { MockPaymentForm } from "@/features/booking-customer/mock-payment-form";
 import { BookingProgressStrip } from "@/features/customer-frame/booking-progress-strip";
 import { CustomerFrame } from "@/features/customer-frame/customer-frame";
@@ -106,6 +107,9 @@ export default async function StoreMockPayPage({
   const depositKrw = Math.round(totalKrw * DEPOSIT_PCT);
   const remainingKrw = totalKrw - depositKrw;
 
+  // Plan v4 Epic D — Frankfurter 실시간 환율 (1h cache). 실패 시 정적 fallback.
+  const rates = await getCachedExchangeRates();
+
   const transit = {
     service: sp.service as string,
     staff: sp.staff as string,
@@ -154,11 +158,19 @@ export default async function StoreMockPayPage({
           storeId={store.id}
           locale={locale}
           priceKrw={totalKrw}
-          primaryFormatted={formatPriceForLocale(totalKrw, locale)}
-          secondaryFormatted={getSecondaryCurrencyDisplay(totalKrw, locale)}
-          depositPrimary={formatPriceForLocale(depositKrw, locale)}
-          depositSecondary={getSecondaryCurrencyDisplay(depositKrw, locale)}
-          remainingPrimary={formatPriceForLocale(remainingKrw, locale)}
+          primaryFormatted={formatPriceForLocale(totalKrw, locale, rates)}
+          secondaryFormatted={getSecondaryCurrencyDisplay(
+            totalKrw,
+            locale,
+            rates,
+          )}
+          depositPrimary={formatPriceForLocale(depositKrw, locale, rates)}
+          depositSecondary={getSecondaryCurrencyDisplay(
+            depositKrw,
+            locale,
+            rates,
+          )}
+          remainingPrimary={formatPriceForLocale(remainingKrw, locale, rates)}
           transit={transit}
           labels={{
             methodLabel: t("methodLabel"),
