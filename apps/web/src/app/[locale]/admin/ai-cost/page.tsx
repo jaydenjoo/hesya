@@ -10,6 +10,19 @@ import Link from "next/link";
 import { createDbClient } from "@hesya/database";
 
 import { PageHeader } from "@/components/ui/page-header";
+import {
+  AnomalyAlerts,
+  BudgetForecast,
+  EndpointCostTable,
+  HourlyHeatmap,
+  type AdminAiCostExtraLabels,
+} from "@/features/admin-ai-cost/mock-extras";
+import {
+  mockAnomalyAlerts,
+  mockBudgetForecast,
+  mockEndpointCosts,
+  mockHourlyHeatmap,
+} from "@/lib/mock-fixtures/admin-ai-cost";
 import { env } from "@/shared/config/env";
 import { requireAdminEmail } from "@/shared/lib/admin-guard";
 import { getAiCostSummary } from "@/shared/lib/dal/ai-cost";
@@ -30,6 +43,37 @@ export default async function AdminAiCostPage({ params }: Props) {
   const db = createDbClient(env.DATABASE_URL);
   const summary = await getAiCostSummary(db);
   const t = await getTranslations({ locale, namespace: "AdminAiCost" });
+
+  const extraLabels: AdminAiCostExtraLabels = {
+    heatmapTitle: t("heatmapTitle"),
+    heatmapSubtitle: t("heatmapSubtitle"),
+    endpointTitle: t("endpointTitle"),
+    endpointSubtitle: t("endpointSubtitle"),
+    endpointCols: {
+      endpoint: t("endpointCols.endpoint"),
+      calls: t("endpointCols.calls"),
+      cost: t("endpointCols.cost"),
+      share: t("endpointCols.share"),
+      p95: t("endpointCols.p95"),
+      error: t("endpointCols.error"),
+    },
+    anomalyTitle: t("anomalyTitle"),
+    forecastTitle: t("forecastTitle"),
+    forecastMtd: t("forecastMtd"),
+    forecastBudget: t("forecastBudget"),
+    forecastEom: t("forecastEom"),
+    forecastPacing: t("forecastPacing"),
+    forecastDaysRemaining: t("forecastDaysRemaining"),
+    daysLeft: {
+      mon: t("days.mon"),
+      tue: t("days.tue"),
+      wed: t("days.wed"),
+      thu: t("days.thu"),
+      fri: t("days.fri"),
+      sat: t("days.sat"),
+      sun: t("days.sun"),
+    },
+  };
 
   const overBudget = summary.dailyBudgetPct >= 100;
   const nearBudget = !overBudget && summary.dailyBudgetPct >= 80;
@@ -173,6 +217,44 @@ export default async function AdminAiCostPage({ params }: Props) {
             </ul>
           )}
         </section>
+
+        {env.MOCK_FIXTURES && (
+          <>
+            <div className="mt-10 mb-4 flex items-baseline gap-2">
+              <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+                {t("richSection")}
+              </span>
+              <span className="h-px flex-1 bg-hesya-navy-900/8" />
+            </div>
+
+            <div className="mb-4">
+              <BudgetForecast
+                monthToDateKrw={mockBudgetForecast.monthToDateKrw}
+                monthBudgetKrw={mockBudgetForecast.monthBudgetKrw}
+                forecastEomKrw={mockBudgetForecast.forecastEomKrw}
+                daysRemaining={mockBudgetForecast.daysRemaining}
+                pacingPct={mockBudgetForecast.pacingPct}
+                labels={extraLabels}
+              />
+            </div>
+
+            <div className="mb-4">
+              <HourlyHeatmap data={mockHourlyHeatmap} labels={extraLabels} />
+            </div>
+
+            <div className="mb-6">
+              <EndpointCostTable
+                rows={mockEndpointCosts}
+                labels={extraLabels}
+              />
+            </div>
+
+            <AnomalyAlerts
+              alerts={mockAnomalyAlerts}
+              title={t("anomalyTitle")}
+            />
+          </>
+        )}
       </div>
     </div>
   );

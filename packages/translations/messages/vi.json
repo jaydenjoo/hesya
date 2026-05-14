@@ -578,7 +578,36 @@
     "trend14d": "Xu hướng · 14 ngày",
     "byModel": "Theo model · tháng này",
     "byModelEmpty": "Tháng này chưa có tin nhắn AI.",
-    "messageCount": "{n} tin"
+    "messageCount": "{n} tin",
+    "richSection": "Giám sát sâu",
+    "heatmapTitle": "Bản đồ nhiệt theo giờ",
+    "heatmapSubtitle": "Thứ × giờ chi phí ước tính (7 ngày qua)",
+    "endpointTitle": "Chi phí theo endpoint",
+    "endpointSubtitle": "API endpoint × số lệnh / chi phí / p95 / tỉ lệ lỗi",
+    "endpointCols": {
+      "endpoint": "Endpoint",
+      "calls": "Gọi",
+      "cost": "Chi phí",
+      "share": "Tỉ lệ",
+      "p95": "p95",
+      "error": "Lỗi"
+    },
+    "anomalyTitle": "Cảnh báo bất thường",
+    "forecastTitle": "Pacing & dự báo cuối tháng",
+    "forecastMtd": "Từ đầu tháng",
+    "forecastBudget": "ngân sách",
+    "forecastEom": "Dự báo cuối tháng",
+    "forecastPacing": "Pacing",
+    "forecastDaysRemaining": "Ngày còn lại",
+    "days": {
+      "mon": "T2",
+      "tue": "T3",
+      "wed": "T4",
+      "thu": "T5",
+      "fri": "T6",
+      "sat": "T7",
+      "sun": "CN"
+    }
   },
   "AdminDashboard": {
     "title": "Hesya · Vận hành",

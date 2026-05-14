@@ -578,7 +578,36 @@
     "trend14d": "추세 · 14일",
     "byModel": "모델별 · 이번 달",
     "byModelEmpty": "이번 달 AI 메시지 없음.",
-    "messageCount": "{n}건"
+    "messageCount": "{n}건",
+    "richSection": "심층 모니터링",
+    "heatmapTitle": "시간대별 비용 히트맵",
+    "heatmapSubtitle": "요일 × 시간 추정 비용 (지난 7일)",
+    "endpointTitle": "Endpoint별 비용 분해",
+    "endpointSubtitle": "API endpoint × 호출 수 / 비용 / p95 latency / 오류율",
+    "endpointCols": {
+      "endpoint": "엔드포인트",
+      "calls": "호출",
+      "cost": "비용",
+      "share": "비중",
+      "p95": "p95",
+      "error": "오류율"
+    },
+    "anomalyTitle": "이상 알림",
+    "forecastTitle": "예산 페이싱 & 월말 예측",
+    "forecastMtd": "Month-to-Date",
+    "forecastBudget": "예산",
+    "forecastEom": "월말 예측",
+    "forecastPacing": "페이싱",
+    "forecastDaysRemaining": "남은 일수",
+    "days": {
+      "mon": "월",
+      "tue": "화",
+      "wed": "수",
+      "thu": "목",
+      "fri": "금",
+      "sat": "토",
+      "sun": "일"
+    }
   },
   "AdminDashboard": {
     "title": "Hesya 운영 현황",
