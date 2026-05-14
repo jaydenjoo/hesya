@@ -96,6 +96,38 @@
         "processing": "Processing...",
         "terminalNote": "This booking is already closed."
       }
+    },
+    "view": {
+      "calendar": "Calendar",
+      "list": "List",
+      "newBooking": "New booking",
+      "today": "Today",
+      "prevWeek": "Previous week",
+      "nextWeek": "Next week"
+    },
+    "calendar": {
+      "minSuffix": "m",
+      "statusPending": "Pending",
+      "filterForeign": "Foreign",
+      "filterPending": "Pending"
+    },
+    "detail": {
+      "close": "Close",
+      "vipBadge": "VIP",
+      "confirm": "Confirm",
+      "notify": "Send reminder",
+      "reschedule": "Reschedule",
+      "cancel": "Cancel",
+      "markNoshow": "No-show",
+      "tag": "Tag",
+      "exportIcs": ".ics",
+      "statusLabel": "Status",
+      "customerLabel": "Customer",
+      "serviceLabel": "Service",
+      "stylistLabel": "Stylist",
+      "paidLabel": "Paid",
+      "refundLabel": "Refund preview",
+      "refundHint": "24h+: 100% refund · 12h+: 50% · under 12h: 0%"
     }
   },
   "Inbox": {

@@ -96,6 +96,38 @@
         "processing": "処理中...",
         "terminalNote": "この予約は終了済みです。"
       }
+    },
+    "view": {
+      "calendar": "カレンダー",
+      "list": "リスト",
+      "newBooking": "新規予約",
+      "today": "今週",
+      "prevWeek": "前週",
+      "nextWeek": "翌週"
+    },
+    "calendar": {
+      "minSuffix": "分",
+      "statusPending": "保留",
+      "filterForeign": "外国人のみ",
+      "filterPending": "保留"
+    },
+    "detail": {
+      "close": "閉じる",
+      "vipBadge": "VIP",
+      "confirm": "確定",
+      "notify": "リマインダー送信",
+      "reschedule": "予約変更",
+      "cancel": "キャンセル",
+      "markNoshow": "ノーショー",
+      "tag": "タグ",
+      "exportIcs": ".ics",
+      "statusLabel": "ステータス",
+      "customerLabel": "お客様",
+      "serviceLabel": "施術",
+      "stylistLabel": "スタイリスト",
+      "paidLabel": "支払い金額",
+      "refundLabel": "返金プレビュー",
+      "refundHint": "24時間前: 100%返金 · 12時間前: 50% · 12時間未満: 0%"
     }
   },
   "Inbox": {

@@ -96,6 +96,38 @@
         "processing": "处理中...",
         "terminalNote": "该预约已结束。"
       }
+    },
+    "view": {
+      "calendar": "日历",
+      "list": "列表",
+      "newBooking": "新建预约",
+      "today": "本周",
+      "prevWeek": "上一周",
+      "nextWeek": "下一周"
+    },
+    "calendar": {
+      "minSuffix": "分钟",
+      "statusPending": "待定",
+      "filterForeign": "仅外国客",
+      "filterPending": "待定"
+    },
+    "detail": {
+      "close": "关闭",
+      "vipBadge": "VIP",
+      "confirm": "确认",
+      "notify": "发送提醒",
+      "reschedule": "改期",
+      "cancel": "取消",
+      "markNoshow": "爽约",
+      "tag": "标签",
+      "exportIcs": ".ics",
+      "statusLabel": "状态",
+      "customerLabel": "客户",
+      "serviceLabel": "服务",
+      "stylistLabel": "造型师",
+      "paidLabel": "已付款",
+      "refundLabel": "退款预览",
+      "refundHint": "24小时前: 100%退款 · 12小时前: 50% · 不足12小时: 0%"
     }
   },
   "Inbox": {
