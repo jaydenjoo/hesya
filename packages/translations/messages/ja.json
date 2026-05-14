@@ -364,6 +364,28 @@
     "topStaffTitle": "スタッフTOP5",
     "noData": "データなし"
   },
+  "StoreIntegrations": {
+    "title": "外部予約システム連携",
+    "subtitle": "Naver予約・KakaoTalk予約のスロットをHesyaと双方向同期します。",
+    "statusMock": "デモ — 事業者登録後に実連携",
+    "statusPendingBusiness": "事業者登録後に連携",
+    "badgeMock": "MOCK",
+    "badgePending": "準備中",
+    "connectPending": "事業者登録後に連携",
+    "pendingTooltip": "事業者登録および外部システムのビジネスアカウント承認後に有効化されます",
+    "bidirectional": "双方向スロット同期 (Hesya ↔ 外部)",
+    "businessNote": "Naver・KakaoTalk予約はいずれも事業者アカウント＋API利用承認が必要です。事業者登録後に一括申請をご案内します。",
+    "provider": {
+      "naver": {
+        "name": "Naver予約",
+        "description": "韓国国内のお客様の多くがすでに利用中の予約システム。Hesyaカレンダーとスロット自動同期。"
+      },
+      "kakao": {
+        "name": "KakaoTalk予約",
+        "description": "KakaoTalkチャネル経由の予約をHesyaと統合 — ダブルブッキング防止。"
+      }
+    }
+  },
   "StoreServices": {
     "title": "メニュー管理",
     "subtitle": "お店で提供するメニューを登録・管理します",
@@ -517,6 +539,7 @@
       "services": "メニュー",
       "customers": "顧客",
       "knowledge": "ナレッジ",
+      "integrations": "外部連携",
       "settings": "設定"
     }
   },

@@ -76,6 +76,7 @@ export async function OwnerShell({
           services: t("nav.services"),
           customers: t("nav.customers"),
           knowledge: t("nav.knowledge"),
+          integrations: t("nav.integrations"),
           settings: t("nav.settings"),
           storeStatus: t("storeStatus"),
           storeStatusActive: t("storeStatusActive"),

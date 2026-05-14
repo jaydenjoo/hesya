@@ -364,6 +364,28 @@
     "topStaffTitle": "設計師 TOP 5",
     "noData": "暫無資料"
   },
+  "StoreIntegrations": {
+    "title": "外部預約系統串接",
+    "subtitle": "Naver 預約與 KakaoTalk 預約的時段與 Hesya 雙向同步。",
+    "statusMock": "示範 — 工商登記後接入實際系統",
+    "statusPendingBusiness": "待工商登記",
+    "badgeMock": "MOCK",
+    "badgePending": "待定",
+    "connectPending": "待工商登記",
+    "pendingTooltip": "工商登記及外部系統商家審核後啟用",
+    "bidirectional": "雙向時段同步 (Hesya ↔ 外部)",
+    "businessNote": "Naver 與 KakaoTalk 預約皆須商家帳號 + API 使用審核。工商登記後我們將引導您批次申請。",
+    "provider": {
+      "naver": {
+        "name": "Naver 預約",
+        "description": "韓國本地客戶廣泛使用的預約系統。與 Hesya 日程自動同步時段。"
+      },
+      "kakao": {
+        "name": "KakaoTalk 預約",
+        "description": "透過 Kakao 頻道的預約與 Hesya 統一 — 避免重複預約。"
+      }
+    }
+  },
   "StoreServices": {
     "title": "服務管理",
     "subtitle": "管理門市提供的服務",
@@ -517,6 +539,7 @@
       "services": "服務",
       "customers": "客戶",
       "knowledge": "知識",
+      "integrations": "外部串接",
       "settings": "設定"
     }
   },

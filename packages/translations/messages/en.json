@@ -364,6 +364,28 @@
     "topStaffTitle": "Top staff",
     "noData": "No data"
   },
+  "StoreIntegrations": {
+    "title": "External booking integrations",
+    "subtitle": "Sync slots both ways between Hesya and Naver Booking / KakaoTalk Booking.",
+    "statusMock": "Demo — real sync after business registration",
+    "statusPendingBusiness": "Pending business registration",
+    "badgeMock": "MOCK",
+    "badgePending": "Pending",
+    "connectPending": "Pending business registration",
+    "pendingTooltip": "Activates after business registration and external system approval",
+    "bidirectional": "Bidirectional slot sync (Hesya ↔ external)",
+    "businessNote": "Both Naver and Kakao require business accounts and API approval. We'll guide you through batch applications after registration.",
+    "provider": {
+      "naver": {
+        "name": "Naver Booking",
+        "description": "Korea's most-used booking system. Sync slots automatically with Hesya calendar."
+      },
+      "kakao": {
+        "name": "KakaoTalk Booking",
+        "description": "Unify bookings via Kakao channel with Hesya — no double-bookings."
+      }
+    }
+  },
   "StoreServices": {
     "title": "Services",
     "subtitle": "Manage services offered by your store",
@@ -517,6 +539,7 @@
       "services": "Services",
       "customers": "Customers",
       "knowledge": "Knowledge",
+      "integrations": "Integrations",
       "settings": "Settings"
     }
   },
