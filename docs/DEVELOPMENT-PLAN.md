@@ -122,7 +122,6 @@ flowchart TB
     Epic2 --> Epic12
 
     Epic1 --> Epic5["Epic 5: 대면 통역<br/>(Phase 1.5)"]
-    Epic2 --> Epic6["Epic 6: 부가세 환급<br/>(Phase 1.5)"]
     Epic1 --> Epic7["Epic 7: 후기 모니터링<br/>(Phase 1.5)"]
     Epic1 --> Epic8["Epic 8: 사후관리 봇<br/>(Phase 1.5)"]
 
@@ -317,7 +316,7 @@ flowchart TB
 | Epic                                          | 기간      | 담당                |
 | --------------------------------------------- | --------- | ------------------- |
 | Epic 5 — 대면 통역 PWA (Whisper + ElevenLabs) | Day 46~90 | Worker (Sonnet 4.6) |
-| Epic 6 — 부가세 환급 (변호사 검수 후)         | Day 60~90 | Lead + 변호사       |
+| ~~Epic 6 — 부가세 환급~~                      | —         | **Plan v4 제거**    |
 | Epic 7 — 후기 모니터링 (n8n 크롤링)           | Day 60~90 | Worker + n8n        |
 | Epic 8 — 사후관리 봇 (1·7·30일 자동)          | Day 60~90 | Worker + n8n        |
 | Epic 10 — B2B 영업 자동화                     | Day 38~60 | Worker + n8n        |
