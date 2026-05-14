@@ -722,6 +722,30 @@
     "actionRequestMore": "请求补件",
     "realDataSection": "真实 DB 审核队列 (manual_review)"
   },
+  "AdminPayments": {
+    "richSection": "异常告警 & 交易 (mock)",
+    "anomalyTitle": "异常告警",
+    "txTitle": "近期交易 (24h, mock)",
+    "txSubtitle": "Stripe / Alipay / WeChat / LINE Pay 四渠道统一表",
+    "txCols": {
+      "providerId": "Provider ID",
+      "channel": "渠道",
+      "store": "门店",
+      "customer": "顾客",
+      "amount": "金额",
+      "status": "状态",
+      "capturedAt": "支付时间"
+    },
+    "status": {
+      "captured": "支付完成",
+      "refunded": "退款",
+      "partial_refund": "部分退款",
+      "disputed": "纠纷",
+      "failed": "失败"
+    },
+    "mixTitle": "渠道分布",
+    "mixGmv": "总 GMV"
+  },
   "AdminAiCost": {
     "title": "AI 成本 (估算)",
     "backToDashboard": "返回仪表板",

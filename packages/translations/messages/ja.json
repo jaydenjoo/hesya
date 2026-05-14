@@ -722,6 +722,30 @@
     "actionRequestMore": "追加書類要求",
     "realDataSection": "実 DB 審査キュー (manual_review)"
   },
+  "AdminPayments": {
+    "richSection": "異常アラート & 取引 (mock)",
+    "anomalyTitle": "異常アラート",
+    "txTitle": "最近の取引 (24h, mock)",
+    "txSubtitle": "Stripe / Alipay / WeChat / LINE Pay 4チャネル統合表",
+    "txCols": {
+      "providerId": "Provider ID",
+      "channel": "チャネル",
+      "store": "店舗",
+      "customer": "顧客",
+      "amount": "金額",
+      "status": "状態",
+      "capturedAt": "決済時刻"
+    },
+    "status": {
+      "captured": "決済済",
+      "refunded": "返金",
+      "partial_refund": "部分返金",
+      "disputed": "紛争",
+      "failed": "失敗"
+    },
+    "mixTitle": "チャネル比率",
+    "mixGmv": "総 GMV"
+  },
   "AdminAiCost": {
     "title": "AI コスト(推定)",
     "backToDashboard": "ダッシュボードへ",

@@ -722,6 +722,30 @@
     "actionRequestMore": "Request more docs",
     "realDataSection": "Real DB review queue (manual_review)"
   },
+  "AdminPayments": {
+    "richSection": "Anomaly & transactions (mock)",
+    "anomalyTitle": "Anomaly alerts",
+    "txTitle": "Recent transactions (24h, mock)",
+    "txSubtitle": "Unified table across Stripe / Alipay / WeChat / LINE Pay",
+    "txCols": {
+      "providerId": "Provider ID",
+      "channel": "Channel",
+      "store": "Store",
+      "customer": "Customer",
+      "amount": "Amount",
+      "status": "Status",
+      "capturedAt": "Captured at"
+    },
+    "status": {
+      "captured": "Captured",
+      "refunded": "Refunded",
+      "partial_refund": "Partial refund",
+      "disputed": "Disputed",
+      "failed": "Failed"
+    },
+    "mixTitle": "Channel mix",
+    "mixGmv": "Total GMV"
+  },
   "AdminAiCost": {
     "title": "AI cost (estimated)",
     "backToDashboard": "Back to dashboard",
