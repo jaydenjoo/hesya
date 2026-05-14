@@ -364,6 +364,28 @@
     "topStaffTitle": "Nhân viên TOP 5",
     "noData": "Chưa có dữ liệu"
   },
+  "StoreIntegrations": {
+    "title": "Tích hợp hệ thống đặt lịch ngoài",
+    "subtitle": "Đồng bộ hai chiều khung giờ giữa Hesya và Naver Booking / KakaoTalk Booking.",
+    "statusMock": "Demo — kết nối thật sau khi đăng ký kinh doanh",
+    "statusPendingBusiness": "Chờ đăng ký kinh doanh",
+    "badgeMock": "MOCK",
+    "badgePending": "Đang chờ",
+    "connectPending": "Chờ đăng ký kinh doanh",
+    "pendingTooltip": "Kích hoạt sau khi đăng ký kinh doanh và hệ thống ngoài duyệt",
+    "bidirectional": "Đồng bộ khung giờ hai chiều (Hesya ↔ ngoài)",
+    "businessNote": "Cả Naver và Kakao đều yêu cầu tài khoản doanh nghiệp + duyệt sử dụng API. Sau khi đăng ký kinh doanh, chúng tôi sẽ hỗ trợ nộp hồ sơ đồng loạt.",
+    "provider": {
+      "naver": {
+        "name": "Naver Booking",
+        "description": "Hệ thống đặt lịch nhiều khách Hàn Quốc đang dùng. Tự động đồng bộ khung giờ với lịch Hesya."
+      },
+      "kakao": {
+        "name": "KakaoTalk Booking",
+        "description": "Hợp nhất các lượt đặt qua kênh Kakao với Hesya — tránh trùng lịch."
+      }
+    }
+  },
   "StoreServices": {
     "title": "Quản lý dịch vụ",
     "subtitle": "Quản lý các dịch vụ của cửa hàng",
@@ -517,6 +539,7 @@
       "services": "Dịch vụ",
       "customers": "Khách hàng",
       "knowledge": "Tri thức",
+      "integrations": "Tích hợp ngoài",
       "settings": "Cài đặt"
     }
   },

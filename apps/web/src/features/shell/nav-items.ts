@@ -50,5 +50,11 @@ export const NAV_ITEMS: readonly NavItem[] = [
     labelKey: "knowledge",
     icon: "❋",
   },
+  {
+    key: "integrations",
+    href: "/store/integrations",
+    labelKey: "integrations",
+    icon: "⇄",
+  },
   { key: "settings", href: "/store/settings", labelKey: "settings", icon: "✱" },
 ];

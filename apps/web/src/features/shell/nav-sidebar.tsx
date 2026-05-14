@@ -21,6 +21,7 @@ interface NavLabels {
   readonly services: string;
   readonly customers: string;
   readonly knowledge: string;
+  readonly integrations: string;
   readonly settings: string;
   readonly storeStatus: string;
   readonly storeStatusActive: string;
