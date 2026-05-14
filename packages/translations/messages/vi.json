@@ -513,7 +513,26 @@
     "sectionEnBookingPolicy": "Booking Policy",
     "sectionEnPayments": "Payments",
     "sectionEnNotifications": "Notifications",
-    "sectionEnRisk": "Compliance"
+    "sectionEnRisk": "Compliance",
+    "mock": {
+      "multilingualHint": "Bản gốc tiếng Hàn → tự động dịch 5 ngôn ngữ. Duyệt trước khi công khai.",
+      "multilingualAutoBadge": "TỰ ĐỘNG",
+      "multilingualSourceBadge": "GỐC",
+      "channelConnected": "Đã kết nối",
+      "channelPending": "Đang xét duyệt",
+      "channelNeedsBusiness": "Kích hoạt sau khi đăng ký kinh doanh",
+      "bookingDepositLabel": "Đặt cọc",
+      "bookingDepositValue": "Cần đặt cọc {percent}% để xác nhận",
+      "bookingCancelLabel": "Hủy & hoàn tiền",
+      "bookingCancelValue": "{fullHours}h+: hoàn {full}% · {halfHours}h+: {half}% · dưới: 0%",
+      "bookingNoshowLabel": "Chính sách vắng mặt",
+      "bookingNoshowValue": "Tự động đánh dấu sau 2 lần vắng. Lặp lại thì kiểm tra thủ công.",
+      "paymentsHint": "Mock — kết nối PG sau khi đăng ký kinh doanh + KYB",
+      "paymentsEnabled": "ON",
+      "paymentsDisabled": "OFF",
+      "notificationsEnabled": "ON",
+      "notificationsDisabled": "OFF"
+    }
   },
   "BookingProgress": {
     "schedule": "Lịch",

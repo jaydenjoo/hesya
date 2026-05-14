@@ -513,7 +513,26 @@
     "sectionEnBookingPolicy": "Booking Policy",
     "sectionEnPayments": "Payments",
     "sectionEnNotifications": "Notifications",
-    "sectionEnRisk": "Compliance"
+    "sectionEnRisk": "Compliance",
+    "mock": {
+      "multilingualHint": "韓文原文 → 自動翻譯5種語言。審核後公開。",
+      "multilingualAutoBadge": "自動",
+      "multilingualSourceBadge": "原文",
+      "channelConnected": "已連接",
+      "channelPending": "審核中",
+      "channelNeedsBusiness": "工商登記後啟用",
+      "bookingDepositLabel": "訂金",
+      "bookingDepositValue": "確認需要{percent}%訂金",
+      "bookingCancelLabel": "取消和退款",
+      "bookingCancelValue": "{fullHours}h+: {full}%退款 · {halfHours}h+: {half}% · 不足: 0%",
+      "bookingNoshowLabel": "爽約政策",
+      "bookingNoshowValue": "爽約2次自動標記。重複時人工審核。",
+      "paymentsHint": "Mock — 工商登記 + KYB 完成後接入支付",
+      "paymentsEnabled": "ON",
+      "paymentsDisabled": "OFF",
+      "notificationsEnabled": "ON",
+      "notificationsDisabled": "OFF"
+    }
   },
   "BookingProgress": {
     "schedule": "日程",

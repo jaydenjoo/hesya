@@ -513,7 +513,26 @@
     "sectionEnBookingPolicy": "Booking Policy",
     "sectionEnPayments": "Payments",
     "sectionEnNotifications": "Notifications",
-    "sectionEnRisk": "Compliance"
+    "sectionEnRisk": "Compliance",
+    "mock": {
+      "multilingualHint": "韩文原文 → 自动翻译5种语言。审核后公开。",
+      "multilingualAutoBadge": "自动",
+      "multilingualSourceBadge": "原文",
+      "channelConnected": "已连接",
+      "channelPending": "审核中",
+      "channelNeedsBusiness": "工商登记后启用",
+      "bookingDepositLabel": "押金",
+      "bookingDepositValue": "确认需要{percent}%押金",
+      "bookingCancelLabel": "取消和退款",
+      "bookingCancelValue": "{fullHours}h+: {full}%退款 · {halfHours}h+: {half}% · 不足: 0%",
+      "bookingNoshowLabel": "爽约政策",
+      "bookingNoshowValue": "爽约2次自动标记。重复时人工审核。",
+      "paymentsHint": "Mock — 工商登记 + KYB 完成后接入支付",
+      "paymentsEnabled": "ON",
+      "paymentsDisabled": "OFF",
+      "notificationsEnabled": "ON",
+      "notificationsDisabled": "OFF"
+    }
   },
   "BookingProgress": {
     "schedule": "日程",

@@ -513,7 +513,26 @@
     "sectionEnBookingPolicy": "Booking Policy",
     "sectionEnPayments": "Payments",
     "sectionEnNotifications": "Notifications",
-    "sectionEnRisk": "Compliance"
+    "sectionEnRisk": "Compliance",
+    "mock": {
+      "multilingualHint": "韓国語原本 → 5言語自動翻訳。確認後に公開されます。",
+      "multilingualAutoBadge": "自動",
+      "multilingualSourceBadge": "原本",
+      "channelConnected": "接続完了",
+      "channelPending": "審査中",
+      "channelNeedsBusiness": "事業者登録後に有効化",
+      "bookingDepositLabel": "予約金",
+      "bookingDepositValue": "確定に予約金{percent}%必要",
+      "bookingCancelLabel": "キャンセル・返金",
+      "bookingCancelValue": "{fullHours}h前: {full}%返金 · {halfHours}h前: {half}% · 未満: 0%",
+      "bookingNoshowLabel": "ノーショー方針",
+      "bookingNoshowValue": "2回ノーショーで自動フラグ。繰り返しは手動レビュー。",
+      "paymentsHint": "Mock — 事業者登録 + KYB 完了後にPG接続",
+      "paymentsEnabled": "ON",
+      "paymentsDisabled": "OFF",
+      "notificationsEnabled": "ON",
+      "notificationsDisabled": "OFF"
+    }
   },
   "BookingProgress": {
     "schedule": "日程",
