@@ -1,14 +1,17 @@
 import { describe, it, expect, vi } from "vitest";
 import * as helpers from "./db";
 import {
+  apiPolicyAlerts,
   bookings,
   messages,
   conversations,
   customers,
+  disputes,
   payments,
   reviews,
   services,
   staff,
+  storeDeletionRequests,
   storeIntegrations,
   storeKnowledge,
   storeOwners,
@@ -223,6 +226,9 @@ describe("test-helpers/db", () => {
       bookings,
       services,
       staff,
+      disputes,
+      apiPolicyAlerts,
+      storeDeletionRequests,
       customers,
       stores,
     ]);
