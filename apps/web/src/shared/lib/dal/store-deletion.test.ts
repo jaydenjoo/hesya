@@ -1,15 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import {
-  createDbClient,
-  eq,
-  storeDeletionRequests,
-  storeIntegrations,
-  storeOwners,
-  storeVerifications,
-  stores,
-  type DbClient,
-} from "@hesya/database";
+import { createDbClient, eq, stores, type DbClient } from "@hesya/database";
 
+import { resetDb } from "@/test-helpers/db";
 import {
   cancelStoreDeletion,
   getActiveDeletionRequest,
@@ -37,13 +29,10 @@ describe.skipIf(!hasDb)("dal.store-deletion (integration)", () => {
   });
 
   beforeEach(async () => {
-    // stores 테이블 FK 의존 테이블 모두 cleanup. 다른 test 잔여 row가 stores
-    // delete를 막는 FK 위반(store_verifications_store_id_fk 등)을 차단.
-    await db.delete(storeDeletionRequests);
-    await db.delete(storeVerifications);
-    await db.delete(storeOwners);
-    await db.delete(storeIntegrations);
-    await db.delete(stores);
+    // 다른 integration test file이 시드한 잔여 row (bookings/messages/disputes
+    // 등)로 인한 stores DELETE FK violation 차단. resetDb는 FK-safe 순서로
+    // stores FK 의존 16 테이블 일괄 정리.
+    await resetDb(db);
   });
 
   it("requestStoreDeletion: stores.deletedAt set + request row INSERT, scheduled +30d", async () => {
