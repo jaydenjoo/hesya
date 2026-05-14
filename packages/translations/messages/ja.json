@@ -112,9 +112,40 @@
     "filterDone": "完了",
     "filterVip": "VIP",
     "notConnected": {
-      "title": "Connect your Instagram",
-      "description": "Connect an Instagram Business account to start receiving customer DMs",
-      "button": "Connect Instagram"
+      "title": "Instagramの連携が必要です",
+      "description": "お客様のDMを受信するにはInstagramビジネスアカウントを連携してください",
+      "button": "Instagramを連携"
+    },
+    "multiChannel": {
+      "title": "メッセージチャネル連携",
+      "description": "Instagramは今すぐ連携可能。他の4チャネルは事業者登録完了後に有効化されます。",
+      "statusOperational": "すぐに連携可能",
+      "statusMock": "デモ — 事業者登録後に実API連携",
+      "statusPendingBusiness": "事業者登録後に連携",
+      "badgeReady": "READY",
+      "badgeMock": "MOCK",
+      "badgePending": "準備中",
+      "connectPending": "事業者登録後に連携",
+      "pendingTooltip": "事業者登録およびチャネル承認後に有効化されます",
+      "businessNote": "WhatsApp/Kakao/LINE/Messengerは各プラットフォームのビジネスアカウント審査が必要です。事業者登録後に一括申請をご案内します。",
+      "channel": {
+        "whatsapp": {
+          "name": "WhatsApp Business",
+          "description": "東南アジア・インド・中東のお客様メッセージ統合"
+        },
+        "kakao": {
+          "name": "Kakaoビジネスチャネル",
+          "description": "韓国国内のお客様＋カカオトークAlimTalk通知"
+        },
+        "line": {
+          "name": "LINE公式アカウント",
+          "description": "日本・台湾のお客様メッセージ＋友だち追加"
+        },
+        "messenger": {
+          "name": "Facebook Messenger",
+          "description": "Meta Businessページのメッセージ統合"
+        }
+      }
     },
     "thread": {
       "noSelection": "Select a conversation from the left",

@@ -116,6 +116,37 @@
       "description": "고객 DM을 받으려면 Instagram 비즈니스 계정을 연결해 주세요",
       "button": "Instagram 연결"
     },
+    "multiChannel": {
+      "title": "메시지 채널 연결",
+      "description": "Instagram은 지금 바로 연결, 나머지 4개 채널은 사업자 등록 완료 후 활성화됩니다.",
+      "statusOperational": "실시간 연결 가능",
+      "statusMock": "데모 — 사업자 등록 후 실 연동",
+      "statusPendingBusiness": "사업자 등록 후 연동",
+      "badgeReady": "READY",
+      "badgeMock": "MOCK",
+      "badgePending": "준비 중",
+      "connectPending": "사업자 등록 후 연동",
+      "pendingTooltip": "사업자 등록 + 채널 사업자 승인 후 활성화됩니다",
+      "businessNote": "WhatsApp/Kakao/LINE/Messenger는 각 플랫폼의 비즈니스 계정 심사가 필요합니다. 사업자 등록 후 한 번에 신청 안내해 드립니다.",
+      "channel": {
+        "whatsapp": {
+          "name": "WhatsApp Business",
+          "description": "동남아·인도·중동 손님 메시지 통합"
+        },
+        "kakao": {
+          "name": "Kakao 비즈니스 채널",
+          "description": "국내 손님 + 카카오톡 알림톡"
+        },
+        "line": {
+          "name": "LINE Official Account",
+          "description": "일본·대만 손님 메시지 + 친구 추가"
+        },
+        "messenger": {
+          "name": "Facebook Messenger",
+          "description": "Meta Business 페이지 메시지 통합"
+        }
+      }
+    },
     "thread": {
       "noSelection": "왼쪽에서 대화를 선택하세요",
       "channelInstagram": "Instagram",

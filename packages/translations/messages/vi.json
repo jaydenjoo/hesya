@@ -112,9 +112,40 @@
     "filterDone": "Hoàn thành",
     "filterVip": "VIP",
     "notConnected": {
-      "title": "Connect your Instagram",
-      "description": "Connect an Instagram Business account to start receiving customer DMs",
-      "button": "Connect Instagram"
+      "title": "Cần kết nối Instagram",
+      "description": "Kết nối tài khoản Instagram Business để nhận tin nhắn từ khách",
+      "button": "Kết nối Instagram"
+    },
+    "multiChannel": {
+      "title": "Kết nối kênh tin nhắn",
+      "description": "Instagram kết nối ngay. Bốn kênh còn lại sẽ kích hoạt sau khi đăng ký kinh doanh xong.",
+      "statusOperational": "Sẵn sàng kết nối",
+      "statusMock": "Demo — kết nối API thật sau khi đăng ký kinh doanh",
+      "statusPendingBusiness": "Chờ đăng ký kinh doanh",
+      "badgeReady": "READY",
+      "badgeMock": "MOCK",
+      "badgePending": "Đang chờ",
+      "connectPending": "Chờ đăng ký kinh doanh",
+      "pendingTooltip": "Kích hoạt sau khi đăng ký kinh doanh và duyệt kênh",
+      "businessNote": "WhatsApp/Kakao/LINE/Messenger đều yêu cầu duyệt tài khoản doanh nghiệp riêng. Sau khi đăng ký kinh doanh, chúng tôi sẽ hỗ trợ nộp hồ sơ đồng loạt.",
+      "channel": {
+        "whatsapp": {
+          "name": "WhatsApp Business",
+          "description": "Hợp nhất tin nhắn khách Đông Nam Á, Ấn Độ và Trung Đông"
+        },
+        "kakao": {
+          "name": "Kênh Kakao Business",
+          "description": "Khách Hàn Quốc + thông báo KakaoTalk AlimTalk"
+        },
+        "line": {
+          "name": "Tài khoản LINE Official",
+          "description": "Tin nhắn khách Nhật Bản và Đài Loan + kết bạn"
+        },
+        "messenger": {
+          "name": "Facebook Messenger",
+          "description": "Hợp nhất tin nhắn trang Meta Business"
+        }
+      }
     },
     "thread": {
       "noSelection": "Select a conversation from the left",

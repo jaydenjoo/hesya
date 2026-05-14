@@ -112,9 +112,40 @@
     "filterDone": "已完成",
     "filterVip": "VIP",
     "notConnected": {
-      "title": "Connect your Instagram",
-      "description": "Connect an Instagram Business account to start receiving customer DMs",
-      "button": "Connect Instagram"
+      "title": "需要连接 Instagram",
+      "description": "请连接 Instagram 商业账号以接收客户私信",
+      "button": "连接 Instagram"
+    },
+    "multiChannel": {
+      "title": "消息渠道连接",
+      "description": "Instagram 现可连接。其余 4 个渠道将在工商注册完成后开放。",
+      "statusOperational": "可立即连接",
+      "statusMock": "演示 — 工商注册后接入实际 API",
+      "statusPendingBusiness": "待工商注册",
+      "badgeReady": "READY",
+      "badgeMock": "MOCK",
+      "badgePending": "待定",
+      "connectPending": "待工商注册",
+      "pendingTooltip": "工商注册及渠道商家审核后启用",
+      "businessNote": "WhatsApp/Kakao/LINE/Messenger 均需各平台的商家账号审核。工商注册后我们将引导您批量申请。",
+      "channel": {
+        "whatsapp": {
+          "name": "WhatsApp Business",
+          "description": "东南亚、印度、中东客户消息统一"
+        },
+        "kakao": {
+          "name": "Kakao 商业频道",
+          "description": "韩国本地客户 + KakaoTalk 通知短信"
+        },
+        "line": {
+          "name": "LINE 官方账号",
+          "description": "日本与台湾客户消息及好友添加"
+        },
+        "messenger": {
+          "name": "Facebook Messenger",
+          "description": "Meta Business 主页消息统一"
+        }
+      }
     },
     "thread": {
       "noSelection": "Select a conversation from the left",
