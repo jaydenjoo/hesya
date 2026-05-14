@@ -212,6 +212,10 @@ export async function createBookingAction(
         throw new Error("booking insert returned no row");
       }
 
+      // Plan v4 Epic D — escrow 흐름 명시화.
+      // status='escrow_held'는 결제는 성공이지만 매장 정산은 아직 안 된 상태.
+      // 실 PG 연동(KYB 후) 시: webhook으로 'escrow_released'(시술 완료) /
+      // 'escrow_refunded'(노쇼 24h 자동) 전환. mock 단계는 'escrow_held'로 시작.
       const [paymentRow] = await tx
         .insert(payments)
         .values({
@@ -220,7 +224,7 @@ export async function createBookingAction(
           provider:
             PAYMENT_METHOD_TO_PROVIDER[parsed.data.paymentMethod] ?? "mock",
           providerTransactionId: parsed.data.mockTxId,
-          status: "succeeded",
+          status: env.MOCK_PAYMENT ? "escrow_held" : "succeeded",
         })
         .returning({ id: payments.id });
       if (!paymentRow) {

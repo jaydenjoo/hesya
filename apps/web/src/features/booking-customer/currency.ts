@@ -1,39 +1,83 @@
 /**
- * Plan v3 M2.7 — customer-side 가격 다국어 환산.
+ * Plan v3 M2.7 / v4 Epic D — customer-side 가격 다국어 환산.
  *
- * 시연용 정적 환율. 실시간 환율 API는 베타 출시 후 정식 도입 (외부 service KYB
- * 필요). 손님이 모국 통화로 대략적인 비용을 즉시 가늠하도록 돕는 게 목적이며,
+ * 기본 환율은 시연용 정적 (fallback). 서버 측에서 Frankfurter 실시간 환율을 fetch한
+ * 경우 `runtimeRates`로 주입 — 1시간 cache, fetch 실패 시 정적 환율로 graceful
+ * degrade.
+ *
  * 청구 통화는 항상 KRW (Mock 결제 = KRW 청구).
- *
- * 환율 source: 2026-05 기준 평균값 — 정밀하지 않으나 시연 가치는 충분.
  */
 
-const KRW_PER_JPY = 0.11 as const;
-const KRW_PER_USD = 0.000714 as const; // 1 USD ≈ 1400 KRW
-const KRW_PER_CNY = 0.0053 as const; // 1 CNY ≈ 188 KRW
+const STATIC_KRW_PER_JPY = 0.11 as const;
+const STATIC_KRW_PER_USD = 0.000714 as const; // 1 USD ≈ 1400 KRW
+const STATIC_KRW_PER_CNY = 0.0053 as const; // 1 CNY ≈ 188 KRW
 
-const LOCALE_CURRENCY: Record<
+export interface RuntimeRates {
+  /** KRW 1단위가 해당 통화로 변환되는 계수. JPY=0.11, USD=0.000714, CNY=0.0053. */
+  readonly JPY: number;
+  readonly USD: number;
+  readonly CNY: number;
+  readonly VND: number;
+}
+
+function staticConfig(): Record<
   string,
   { code: string; rate: number; symbol: string; precision: number }
-> = {
-  ko: { code: "KRW", rate: 1, symbol: "₩", precision: 0 },
-  en: { code: "USD", rate: KRW_PER_USD, symbol: "$", precision: 0 },
-  ja: { code: "JPY", rate: KRW_PER_JPY, symbol: "¥", precision: 0 },
-  // VND/TWD 정밀 환율 부담 회피 — 중국어 zh-CN/zh-TW 둘 다 CNY 표시,
-  // vi는 KRW fallback (현 시점 환율 정확도 부족).
-  vi: { code: "KRW", rate: 1, symbol: "₩", precision: 0 },
-  "zh-CN": { code: "CNY", rate: KRW_PER_CNY, symbol: "¥", precision: 0 },
-  "zh-TW": { code: "CNY", rate: KRW_PER_CNY, symbol: "¥", precision: 0 },
-};
+> {
+  return {
+    ko: { code: "KRW", rate: 1, symbol: "₩", precision: 0 },
+    en: { code: "USD", rate: STATIC_KRW_PER_USD, symbol: "$", precision: 0 },
+    ja: { code: "JPY", rate: STATIC_KRW_PER_JPY, symbol: "¥", precision: 0 },
+    // vi는 VND 환율 정확도 부족했지만 runtimeRates 주입 시 정확함. 정적 fallback은 KRW.
+    vi: { code: "KRW", rate: 1, symbol: "₩", precision: 0 },
+    "zh-CN": {
+      code: "CNY",
+      rate: STATIC_KRW_PER_CNY,
+      symbol: "¥",
+      precision: 0,
+    },
+    "zh-TW": {
+      code: "CNY",
+      rate: STATIC_KRW_PER_CNY,
+      symbol: "¥",
+      precision: 0,
+    },
+  };
+}
 
-const DEFAULT = LOCALE_CURRENCY.ko;
+function localeConfig(
+  locale: string,
+  rates: RuntimeRates | undefined,
+): { code: string; rate: number; symbol: string; precision: number } | null {
+  if (rates) {
+    const map: Record<
+      string,
+      { code: string; rate: number; symbol: string; precision: number }
+    > = {
+      ko: { code: "KRW", rate: 1, symbol: "₩", precision: 0 },
+      en: { code: "USD", rate: rates.USD, symbol: "$", precision: 0 },
+      ja: { code: "JPY", rate: rates.JPY, symbol: "¥", precision: 0 },
+      vi: { code: "VND", rate: rates.VND, symbol: "₫", precision: 0 },
+      "zh-CN": { code: "CNY", rate: rates.CNY, symbol: "¥", precision: 0 },
+      "zh-TW": { code: "CNY", rate: rates.CNY, symbol: "¥", precision: 0 },
+    };
+    return map[locale] ?? null;
+  }
+  return staticConfig()[locale] ?? null;
+}
+
+const DEFAULT = staticConfig().ko;
 
 /**
- * KRW → locale 통화로 환산. ko는 그대로, 다른 locale은 정적 환율 적용.
- * 표시 형식: `<symbol><amount>`. ko는 ko-KR, 다른 locale은 en-US comma format.
+ * KRW → locale 통화로 환산. 표시 형식: `<symbol><amount>`. ko는 ko-KR, 다른 locale은
+ * en-US comma format. `runtimeRates` 주입 시 실시간 환율 사용.
  */
-export function formatPriceForLocale(priceKrw: number, locale: string): string {
-  const cfg = LOCALE_CURRENCY[locale] ?? DEFAULT;
+export function formatPriceForLocale(
+  priceKrw: number,
+  locale: string,
+  runtimeRates?: RuntimeRates,
+): string {
+  const cfg = localeConfig(locale, runtimeRates) ?? DEFAULT;
   if (!cfg) {
     return `₩${priceKrw.toLocaleString("ko-KR")}`;
   }
@@ -47,8 +91,11 @@ export function formatPriceForLocale(priceKrw: number, locale: string): string {
 /**
  * "From {price}" 같은 prefix를 외부에서 i18n으로 처리하고 가격만 받고 싶을 때.
  */
-export function getCurrencyCodeForLocale(locale: string): string {
-  return (LOCALE_CURRENCY[locale] ?? DEFAULT)?.code ?? "KRW";
+export function getCurrencyCodeForLocale(
+  locale: string,
+  runtimeRates?: RuntimeRates,
+): string {
+  return (localeConfig(locale, runtimeRates) ?? DEFAULT)?.code ?? "KRW";
 }
 
 /**
@@ -59,10 +106,11 @@ export function getCurrencyCodeForLocale(locale: string): string {
 export function getSecondaryCurrencyDisplay(
   priceKrw: number,
   locale: string,
+  runtimeRates?: RuntimeRates,
 ): string {
-  const cfg = LOCALE_CURRENCY[locale] ?? DEFAULT;
+  const cfg = localeConfig(locale, runtimeRates) ?? DEFAULT;
   if (cfg.code === "KRW") {
-    return formatPriceForLocale(priceKrw, "ja");
+    return formatPriceForLocale(priceKrw, "ja", runtimeRates);
   }
   return `₩${priceKrw.toLocaleString("ko-KR")}`;
 }
