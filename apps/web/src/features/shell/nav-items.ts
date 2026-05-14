@@ -31,6 +31,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     icon: "⤳",
   },
   { key: "bookings", href: "/store/bookings", labelKey: "bookings", icon: "▢" },
+  {
+    key: "analytics",
+    href: "/store/analytics",
+    labelKey: "analytics",
+    icon: "◐",
+  },
   { key: "services", href: "/store/services", labelKey: "services", icon: "✦" },
   {
     key: "customers",

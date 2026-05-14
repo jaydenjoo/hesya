@@ -17,6 +17,7 @@ interface NavLabels {
   readonly inbox: string;
   readonly inboxSkipped: string;
   readonly bookings: string;
+  readonly analytics: string;
   readonly services: string;
   readonly customers: string;
   readonly knowledge: string;
