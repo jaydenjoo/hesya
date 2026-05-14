@@ -146,6 +146,13 @@ const envSchema = z.object({
   MOCK_NOTIFICATION: mockFlag,
   MOCK_MULTI_CHANNEL: mockFlag,
 
+  // ─── Plan v5 (Sprint 2) — 디자인 100% 완성도 베타용 rich fixtures ───
+  // 모든 페이지에서 mock fixture (rotator/mood chip/trending/리뷰/예약 등)를 렌더.
+  // - preview/베타 데모: true → 외부 시연 시 풍부한 데이터로 "완성 제품" 임팩트
+  // - prod (베타 매장 매칭 후): false → 실 DB DAL로 자동 fallback
+  // lib/mock-fixtures/<page>.ts 의 시나리오 데이터 사용. MOCK_* 5개와 독립.
+  MOCK_FIXTURES: mockFlag,
+
   // ─── Plan v3 M5.1 — Vercel preview demo bypass ───
   // VERCEL_ENV는 Vercel 빌드 시 자동 주입 ('production'|'preview'|'development').
   // DEMO_USER_ID / DEMO_CUSTOMER_EMAIL은 preview 환경에서만 활성 → 인증 우회 가능.
