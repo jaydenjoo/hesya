@@ -3,30 +3,42 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-14 세션 32 종료 — Perf 3 PRs: 페이지 전환 3.4s → 546ms cold / 216ms cached)
+## 현재 위치 (2026-05-14 세션 33 종료 — Sprint 2 12 PR (mock-first) + N=10 bench + admin DAL backfill)
 
-- **Phase**: **Plan v3 M1~M5 100% + M6 위젯 5/5 실 데이터 wire + γ.2 Phase 1 closure 진행 + 페이지 전환 perf 누적 -94%**
-- **세션 32 머지 (3 perf PRs, main 9번째 → 12번째 commit)**:
-  - PR [#162](https://github.com/jaydenjoo/hesya/pull/162) perf(web) — **PostHog autocapture off + customer 페이지 `<a>` → `<Link>`**. 925ms dead-clicks-autocapture.js blocking 제거 + landing/mypage hard reload(nav_type="navigate") → SPA nav 전환. 3.4s → 82ms (1st 클릭) → 40ms (2nd cache hit).
-  - PR [#163](https://github.com/jaydenjoo/hesya/pull/163) perf(web) — **unstable_cache 4-phase**. `/ko/c` 60s, `/ko/c/store/[id]` 60s + 3 DAL parallel, `/store/dashboard` 30s 9 DAL combined, `/admin/dashboard` 30s 8 DAL combined. SSR DAL 3초 병목 해소.
-  - PR [#164](https://github.com/jaydenjoo/hesya/pull/164) perf(web) — **잔여 병목 4개 일괄**. Sentry tracesSampleRate 0.1→0.05 (3 files) + Vercel `regions: ["icn1"]` (Seoul function, `x-vercel-id: icn1::iad1` → `icn1::icn1`) + 폰트 weight 슬림 (Fraunces 600 italic만, Source Sans 4단 weight, JBMono `preload: false`) + Fluid Compute 검증 (2025 기본값, 변경 불요).
-- **세션 32 측정 (Playwright prod)**:
-  - `/ko/c` cold cache-buster — load_complete **5291ms → 546ms (-90%)**, TTFB 9ms 유지
-  - `/ko/c` cached — load_complete **4010ms → 216ms (-95%)**
-  - 카드 → store 상세 SPA nav — RSC chunk 132ms (cold prefetch 포함, 이전 hard reload 3400ms)
-  - 폰트 woff2 — 각 1-9ms 다운로드 (이전 cold 905ms)
+- **Phase**: **Plan v3 M1~M5 100% + Sprint 2 mock-first rich-data 페이지 12 PR 완료 + cookie cache bench N=10 baseline 확립**
+- **세션 33 머지 (Sprint 2 + post-sprint)**:
+  - **Sprint 2 base** (PR #174~#176): env SENTRY_DSN optional + MOCK_FIXTURES env + mock-fixtures skeleton
+  - **Sprint 2A — Customer** (PR [#177](https://github.com/jaydenjoo/hesya/pull/177)/[#178](https://github.com/jaydenjoo/hesya/pull/178)/[#179](https://github.com/jaydenjoo/hesya/pull/179)): Landing 5 reference 섹션 + Customer Chat 신규 라우트 (다국어 mock 대화) + MyPage 95%+ 정합
+  - **Sprint 2B — Owner** (PR [#180](https://github.com/jaydenjoo/hesya/pull/180)/[#181](https://github.com/jaydenjoo/hesya/pull/181)/[#182](https://github.com/jaydenjoo/hesya/pull/182)/[#183](https://github.com/jaydenjoo/hesya/pull/183)): Bookings calendar + Settings 5 sections + Analytics 4 rich charts + /store/photos AI Photos 신규 라우트 (18 mock)
+  - **Sprint 2C — Admin & Services** (PR [#184](https://github.com/jaydenjoo/hesya/pull/184)/[#185](https://github.com/jaydenjoo/hesya/pull/185)/[#186](https://github.com/jaydenjoo/hesya/pull/186)/[#187](https://github.com/jaydenjoo/hesya/pull/187)): Admin AI Cost rich monitoring + KYC review queue 8건 + Payment monitoring 거래·이상 알림 + Services AI 5 추가 제안 카드
+  - **post-sprint docs/test** (commit `9498aeb` + PR [#188](https://github.com/jaydenjoo/hesya/pull/188)): Plan v3 M5.1/M5.4 폐기 + N=10 bench 결과 + admin-dashboard DAL test backfill 3 함수 (alert + KPI + monthly)
+- **세션 33 N=10 bench prod 결과** (`docs/auth-cookie-cache-bench.md`):
+  - Cold 평균 **623ms** / Warm median **166ms** / Δ median **456ms (72%)** — 5 owner 페이지
+  - N=5 측정(2026-05-13) 대비 absolute TTFB **6~8배 단축** (3~5초 → 0.4~1.0초 cold) — PR #150 + #162/#163/#164 누적 효과
 - **L-082 시연 %**:
-  - M3 owner 100% / M4 admin 100% / Dashboard 위젯 5/5 / Customer 외부 진입 perf 베타-grade (페이지 전환 < 600ms)
-  - 디자인 정합성 batch 1 적용 유지 (inbox composer + landing greeting)
-- **L-095 추가** — 페이지 전환 3.4s는 단일 원인 아닌 복합 (PostHog autocapture + `<a>` hard reload + SSR uncached DAL 3종). Playwright `performance.getEntriesByType("resource")` + `nav.type` 동시 측정 의무.
+  - M3 owner 100% / M4 admin 100% / Dashboard 위젯 5/5 유지
+  - **Sprint 2 mock-first 페이지 12개** — Customer Chat / Owner Bookings calendar / Settings 5 / Analytics 4 차트 / Photos / AI Cost monitoring / KYC queue / Payment / Services 제안 모두 외부 prod URL에서 e2e 시연 가능
+  - 외부 시연 baseline: `https://hesya-web.vercel.app/ko` (demo 계정 prefill, ADMIN_EMAILS=demo@hesya.com)
+- **세션 33 정책 결정 (메모리 인용)**:
+  - **preview 환경 폐기** — RED 프로젝트 single demo baseline = prod 1곳. Plan v3 M5.1 (`?demo=1`) / M5.4 (Vercel Preview demo env 등록) 둘 다 폐기.
+  - **PR 워크플로 정착** — `auto-merge` 라벨 + auto-merge.yml. Sprint 2 12 PR 모두 squash-merge로 main 적재.
 - **다음 세션 시작점**:
-  - **N=10 cookie cache bench prod 재실측** → `docs/auth-cookie-cache-bench.md` TBD 표 채우기 (perf -94% 누적 효과 cross-reference 가능)
-  - **E1 inbox 디자인 batch 2** 후보: AIAssist 톤 검증 pill / ContextPanel 4탭 / Day mark separator
-  - **Customer landing batch 2** 후보: placeholder rotator / mood chips / 매장 카드 rating bar
-  - **Customer store detail batch** — schedule grid 디자인 정합 (reference 차이 큰 페이지)
-  - **PR #156/#154 admin-dashboard test backfill** (5 DAL 함수)
+  - **PR #188 CI 결과 확인** (현재 통과 대기 중) → 머지 후 4/5 admin DAL backfill 완료
+  - **audit trail + aiCost DAL backfill** (후속 PR) — `getAdminAuditTrail` (kyc_verification_logs IMMUTABLE 격리 전략) + `getDailyAiCostSpark` (messages FK chain seed)
+  - **Customer MyPage prod e2e** — magic link 자동화 불가, manual 시연 또는 OAuth fallback 추가 결정 필요
+  - **E1 inbox 디자인 batch 2** / **Customer landing batch 2** / **Customer store detail** — 디자인 정합성 후속
   - **Resend 도메인 검증** (Jayden 외부 액션, 보류 중)
   - **베타 5곳 매장 매칭** (Jayden 비즈니스, 보류 중)
+
+## 이전 세션 32 종료 시점 (참고: 2026-05-14 — Perf 3 PRs)
+
+- **Phase**: Plan v3 M1~M5 100% + M6 위젯 5/5 실 데이터 wire + γ.2 Phase 1 closure 진행 + 페이지 전환 perf 누적 -94%
+- **세션 32 머지 (3 perf PRs)**:
+  - PR [#162](https://github.com/jaydenjoo/hesya/pull/162) — PostHog autocapture off + `<a>` → `<Link>` (3.4s → 82ms)
+  - PR [#163](https://github.com/jaydenjoo/hesya/pull/163) — unstable_cache 4-phase (`/ko/c` 60s, `/store/dashboard` 30s 9 DAL combined 등)
+  - PR [#164](https://github.com/jaydenjoo/hesya/pull/164) — Sentry sampling↓ + Vercel `icn1` Seoul region + 폰트 weight 슬림
+- **세션 32 측정 (Playwright prod)**: `/ko/c` cold 5291ms → 546ms (-90%), cached 4010ms → 216ms (-95%)
+- **L-095 추가**: 페이지 전환 3.4s는 복합 원인 (PostHog + `<a>` + uncached DAL 3종). `performance.getEntriesByType("resource")` + `nav.type` 동시 측정 의무.
 
 ## 이전 세션 31 종료 시점 (참고: 2026-05-13)
 
