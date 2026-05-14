@@ -3590,3 +3590,64 @@ vitest 4 DEPRECATED 경고는 출력에 있었으나 (`DEPRECATED  test.poolOpti
 **확인 방법**: `bun run check:resetdb-coverage` 같은 sanity script 도입 (예: drizzle schema의 stores FK 의존 테이블 set과 `resetDb` 호출 set의 diff = 0).
 
 **연관**: PR [#190](https://github.com/jaydenjoo/hesya/pull/190) (file 자체 cleanup → resetDb 헬퍼 통일). PR [#191](https://github.com/jaydenjoo/hesya/pull/191) (4 테이블 누락 보강). L-098 (resetDb 보강 후에도 random fail 잔존 — 본질은 timing race).
+
+### [2026-05-14] L-100 — vitest 4의 `forks.singleFork: true`는 file 사이 sequential을 보장하지 않는다. `fileParallelism: false`가 정식 옵션 (직교 차원)
+
+**증상**: 세션 33 PR #189 (vitest v4 마이그 누락 복구)·#190 (store-deletion resetDb 통일)·#191 (resetDb stores FK 의존 4 테이블 추가)으로 단계적 복구 후에도 main e2e-integration에서 11~14 random fail 잔존. 같은 main commit에 3 dispatch 분포 12 / 11 / 14+ 변동 (L-098에서 random tail로 분류). fail 패턴 공통: **stores/services row가 INSERT 직후에도 query에서 보이지 않거나, DELETE 시 다른 테이블이 여전히 참조** (`expected +0 to be 2`, `23503 FK violation`).
+
+**원인** (vitest 4 docs 정독 후 확정):
+
+vitest 4의 두 옵션은 **직교 차원**이라 둘 다 명시해야 file 사이 race가 차단된다:
+
+| 옵션                          | 차원                  | 보장 내용                                            |
+| ----------------------------- | --------------------- | ---------------------------------------------------- |
+| `forks: { singleFork: true }` | **Process isolation** | 모든 file이 같은 child fork process에서 실행됨       |
+| `fileParallelism: false`      | **File scheduling**   | 같은 process 안에서도 file 사이 sequential 실행 보장 |
+
+`singleFork: true` 단독은 "fork 1개에 모든 file 모음"만 보장하지, **file 안 it들의 async 작업 사이에서 vitest scheduler가 다른 file의 lifecycle (beforeAll/beforeEach)을 interleave**하는 것을 막지 않는다. 즉:
+
+```
+file A 실행 흐름:
+  beforeEach → resetDb (await Promise) ───► 이 await 사이에 vitest가...
+                                          ───► file B beforeAll + beforeEach 진입
+                                          ───► file B의 db.delete(stores) 실행
+                                          ───► file A의 it 본체가 db.insert(stores) 진행 시점
+                                          ───► 둘 다 같은 Supabase DB → 23503 / row missing
+```
+
+vitest 4 default `fileParallelism: true`라 명시 `false` 안 하면 file scheduling이 비결정적.
+
+**해결** (PR #192, commit `8825484`): `apps/web/vitest.config.ts`에 1줄 추가.
+
+```typescript
+pool: "forks",
+forks: { singleFork: true },
+fileParallelism: false,   // ← 추가
+```
+
+**검증**:
+
+| Dispatch                         | 결과        | e2e-integration                             |
+| -------------------------------- | ----------- | ------------------------------------------- |
+| baseline 1회차 (PR #191 5292239) | failure     | stores 8 / admin 4 / disputes 0 = **12**    |
+| baseline 2회차 (main 1babc06)    | failure     | stores 3 / admin 6 / disputes 2 = **11**    |
+| baseline 3회차 (main 4c8d809)    | failure     | stores 6+ / admin 7+ / disputes 0 = **14+** |
+| patch 1회차 (fix branch)         | **success** | **0 fail**                                  |
+| patch 2회차 (fix branch)         | **success** | **0 fail** (variance 확인)                  |
+
+11~14 → 0. random tail 100% 제거.
+
+**규칙** ⭐:
+
+1. **vitest pool 옵션 사용 시 process isolation과 file scheduling은 직교 차원 의식 의무** — `forks: { singleFork: true }` 또는 `threads: { singleThread: true }`만 적용하면 같은 process 안 file scheduling은 default (parallel)임. 통합 테스트가 shared DB/file/global state 의존한다면 `fileParallelism: false`도 함께 명시.
+2. **shared DB integration test의 baseline은 `pool=forks + singleFork=true + fileParallelism=false`** — 3종 조합이 한 세트. 이 중 하나라도 누락 시 silent breakage 가능. README/CLAUDE.md에 명시.
+3. **major dep 마이그 시 deprecation 경고 100% 처리 + 직교 옵션 함께 검토 의무** — vitest 3→4 마이그 가이드 (`poolOptions` 분리)는 명시했지만 `fileParallelism` 같은 직교 옵션 영향은 명시 안 됨. dep bump PR review 시 새 옵션 default 변경 여부 + 우리 코드 가정과 충돌 여부 grep 추가.
+4. **L-098 prerequisite (random fail은 multi dispatch로 deterministic core 분리 먼저) 정직 준수가 본 patch의 prerequisite였음** — 1 run의 fail로 source 추적 시작했으면 잘못된 방향 (e.g. 특정 DAL bug fix) 추적 가능성 컸음. 3 dispatch + ∩ 연산으로 "deterministic core도 사실은 file race가 만든 pattern"임을 확인할 수 있었음.
+
+**확인 방법**: vitest dep bump PR template에 다음 추가 — `[ ] pool 옵션 (singleFork / singleThread / fileParallelism / isolate) default 변경 검토. shared state integration test가 있다면 3종 (process isolation + file scheduling + test isolation) 모두 명시 검증.`
+
+**비유**: "공장에 라인 1개만 두라(singleFork)"고 했더니, 같은 라인에서 작업자 2명이 동시에 다른 제품을 만들고 있었음 — 자재(DB row)가 섞임. `fileParallelism: false`는 "한 번에 한 제품만 만들라"는 추가 규칙. 라인 수와 동시 작업 수는 다른 차원의 규칙.
+
+**확인**: 향후 3개월 e2e-integration random fail 0건 유지하면 패턴 정착. vitest 5 mig 시 재검증.
+
+**연관**: L-096 (vitest 4 `poolOptions` 마이그 누락). L-097 (CI workflow_dispatch only 누적 메커니즘 — 본 L-100 회귀가 lockfile bump 동봉 PR에서 silent 누적된 패턴). L-098 (random fail multi dispatch 의무 — 본 L-100 진단의 prerequisite). L-099 (resetDb 4 테이블 추가 — race 완화는 했으나 본질 해결은 아니었음). PR [#192](https://github.com/jaydenjoo/hesya/pull/192) 8825484. vitest 4 공식 docs (context7 `/vitest-dev/vitest/v4.0.7`).

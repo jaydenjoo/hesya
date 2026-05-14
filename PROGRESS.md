@@ -3,7 +3,23 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-14 세션 33 종료 — Sprint 2 12 PR + N=10 bench + admin DAL backfill + main e2e-integration 회귀 진단·복구 (25+ → 9 fail))
+## 현재 위치 (2026-05-14 세션 34 — main e2e-integration random tail 0건 회복 (PR #192))
+
+- **Phase**: **Plan v3 M1~M5 100% + Sprint 2 12 PR + 세션 33 회귀 복구 + 세션 34 random tail 구조적 해결 (e2e-integration 0 fail)**
+- **세션 34 머지 (1 PR + L-100 docs)**:
+  - PR [#192](https://github.com/jaydenjoo/hesya/pull/192) fix(vitest) — `fileParallelism: false` 1줄 추가 (commit `8825484`). vitest 4의 `forks.singleFork: true`만으로는 file 사이 sequential 실행 보장 안 됨. 같은 child fork process 안에서도 async event loop interleave로 file A의 in-flight `await db.insert(...)` 도중 file B beforeEach `resetDb`가 시작 → shared Supabase DB state race → admin-dashboard / stores / disputes DAL test random fail 폭발.
+  - **검증**: baseline 3 dispatch 11~14 fail → patch 후 **0 fail × 2 dispatch** (variance 입증). random tail 100% 제거. ([CI run 25863877358](https://github.com/jaydenjoo/hesya/actions/runs/25863877358) + [25864427019](https://github.com/jaydenjoo/hesya/actions/runs/25864427019))
+- **L-100 추가** (`docs/learnings.md`): vitest 4의 `singleFork` (process isolation)와 `fileParallelism` (file scheduling)이 **직교 차원**. shared DB integration test는 3종 조합 (`pool=forks + singleFork=true + fileParallelism=false`) 한 세트로 명시 의무. dep bump PR template에 pool 옵션 default 변경 검토 체크박스 추가 권장.
+- **세션 34 진단 방법론** (L-098 prerequisite 정직 준수): single dispatch fail로 source 추적 시작 금지 → 3 dispatch + ∩ 연산으로 deterministic core 분리 → 모두 file race가 만든 pattern임을 확인 → context7 vitest 4 docs 정독 → minimal 1줄 patch. 진단 1.5시간, patch 5분, 검증 16분 (2회 × 8분).
+- **L-082 시연 % 변경 없음**: M3 owner 100% / M4 admin 100% / Sprint 2 mock-first 12 페이지 유지. CI 회귀 해소는 시연 prerequisite 안정성 보강 (시연 % 자체 영향 X).
+- **다음 세션 시작점**:
+  - **audit trail + aiCost DAL backfill** (세션 33 명시 후속) — `getAdminAuditTrail` (kyc_verification_logs IMMUTABLE 격리 전략, TRUNCATE는 row-level trigger 우회 가능 — L-100 진단 과정 부산물) + `getDailyAiCostSpark` (messages FK chain seed)
+  - **Customer MyPage prod e2e** — magic link 자동화 불가, manual 시연 또는 OAuth fallback 추가 결정 필요
+  - **E1 inbox 디자인 batch 2** / **Customer landing batch 2** / **Customer store detail** — 디자인 정합성 후속
+  - **Resend 도메인 검증** (Jayden 외부 액션, 보류 중)
+  - **베타 5곳 매장 매칭** (Jayden 비즈니스, 보류 중)
+
+## 이전 세션 33 종료 시점 (참고: 2026-05-14 — Sprint 2 12 PR + N=10 bench + main 회귀 진단·복구 (25+ → 9 fail))
 
 - **Phase**: **Plan v3 M1~M5 100% + Sprint 2 mock-first rich-data 페이지 12 PR 완료 + cookie cache bench N=10 baseline 확립**
 - **세션 33 머지 (Sprint 2 + post-sprint)**:
