@@ -54,8 +54,12 @@ const envSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().min(1),
 
   // ─── 운영 관측 (S-10 활성화) ───
-  SENTRY_DSN: z.url(),
-  NEXT_PUBLIC_SENTRY_DSN: z.url(),
+  // SENTRY_DSN은 valid URL 또는 빈 문자열 허용. 빈 값일 때 Sentry SDK는
+  // 자동으로 init을 no-op 처리해 빌드/런타임이 깨지지 않는다.
+  // (이전: z.url() 단독 → Vercel build cache 없는 raw rebuild 시 빈 값으로
+  //  주입되는 race로 page collection 단계에서 ZodError 발생 — L-096)
+  SENTRY_DSN: z.union([z.url(), z.literal("")]).optional(),
+  NEXT_PUBLIC_SENTRY_DSN: z.union([z.url(), z.literal("")]).optional(),
   NEXT_PUBLIC_POSTHOG_KEY: z.string().startsWith("phc_"),
   NEXT_PUBLIC_POSTHOG_HOST: z.url(),
 
