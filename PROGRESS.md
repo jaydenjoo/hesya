@@ -3,7 +3,7 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-14 세션 33 종료 — Sprint 2 12 PR (mock-first) + N=10 bench + admin DAL backfill)
+## 현재 위치 (2026-05-14 세션 33 종료 — Sprint 2 12 PR + N=10 bench + admin DAL backfill + main e2e-integration 회귀 진단·복구 (25+ → 9 fail))
 
 - **Phase**: **Plan v3 M1~M5 100% + Sprint 2 mock-first rich-data 페이지 12 PR 완료 + cookie cache bench N=10 baseline 확립**
 - **세션 33 머지 (Sprint 2 + post-sprint)**:
@@ -11,7 +11,11 @@
   - **Sprint 2A — Customer** (PR [#177](https://github.com/jaydenjoo/hesya/pull/177)/[#178](https://github.com/jaydenjoo/hesya/pull/178)/[#179](https://github.com/jaydenjoo/hesya/pull/179)): Landing 5 reference 섹션 + Customer Chat 신규 라우트 (다국어 mock 대화) + MyPage 95%+ 정합
   - **Sprint 2B — Owner** (PR [#180](https://github.com/jaydenjoo/hesya/pull/180)/[#181](https://github.com/jaydenjoo/hesya/pull/181)/[#182](https://github.com/jaydenjoo/hesya/pull/182)/[#183](https://github.com/jaydenjoo/hesya/pull/183)): Bookings calendar + Settings 5 sections + Analytics 4 rich charts + /store/photos AI Photos 신규 라우트 (18 mock)
   - **Sprint 2C — Admin & Services** (PR [#184](https://github.com/jaydenjoo/hesya/pull/184)/[#185](https://github.com/jaydenjoo/hesya/pull/185)/[#186](https://github.com/jaydenjoo/hesya/pull/186)/[#187](https://github.com/jaydenjoo/hesya/pull/187)): Admin AI Cost rich monitoring + KYC review queue 8건 + Payment monitoring 거래·이상 알림 + Services AI 5 추가 제안 카드
-  - **post-sprint docs/test** (commit `9498aeb` + PR [#188](https://github.com/jaydenjoo/hesya/pull/188)): Plan v3 M5.1/M5.4 폐기 + N=10 bench 결과 + admin-dashboard DAL test backfill 3 함수 (alert + KPI + monthly)
+  - **post-sprint docs/test** (commit `9498aeb` + PR [#188](https://github.com/jaydenjoo/hesya/pull/188)): Plan v3 M5.1/M5.4 폐기 + N=10 bench 결과 + admin-dashboard DAL test backfill 3 함수 (alert + KPI + monthly) + zod $strip declaration off + inbox connect test mock 갱신
+  - **세션 33 main 회귀 진단·복구** (PR [#189](https://github.com/jaydenjoo/hesya/pull/189) + [#190](https://github.com/jaydenjoo/hesya/pull/190)):
+    - **#189** vitest v4 마이그 누락 — `test.poolOptions`가 v4에서 제거됐는데 `forks` 최상위로 안 옮겨 silent ignore → 병렬 fork race → messages 10 / bookings 2 / disputes 2 / 기타 14 fail 폭발. config 1줄 수정 (`pool: "forks", forks: { singleFork: true }`)으로 회복.
+    - **#190** store-deletion.test.ts 자체 cleanup → `resetDb` 헬퍼 사용. file 간 stores FK 의존 잔여 row leak으로 23503 violation 9/9 fail → 9/9 회복.
+  - **세션 33 main e2e-integration 추세**: 25+ fail (sprint 2 회귀) → 23 fail (#189 후) → 9 fail (#190 후). 잔여 9 fail (stores 4 / admin-dashboard 5) — 다음 세션 분석 대상.
 - **세션 33 N=10 bench prod 결과** (`docs/auth-cookie-cache-bench.md`):
   - Cold 평균 **623ms** / Warm median **166ms** / Δ median **456ms (72%)** — 5 owner 페이지
   - N=5 측정(2026-05-13) 대비 absolute TTFB **6~8배 단축** (3~5초 → 0.4~1.0초 cold) — PR #150 + #162/#163/#164 누적 효과
@@ -23,12 +27,13 @@
   - **preview 환경 폐기** — RED 프로젝트 single demo baseline = prod 1곳. Plan v3 M5.1 (`?demo=1`) / M5.4 (Vercel Preview demo env 등록) 둘 다 폐기.
   - **PR 워크플로 정착** — `auto-merge` 라벨 + auto-merge.yml. Sprint 2 12 PR 모두 squash-merge로 main 적재.
 - **다음 세션 시작점**:
-  - **PR #188 CI 결과 확인** (현재 통과 대기 중) → 머지 후 4/5 admin DAL backfill 완료
+  - **잔여 9 e2e-integration fail 진단·복구** (stores 4 / admin-dashboard 5) — data leak 패턴 (`beforeEach resetDb` 후에도 0 expectation fail). it 시드 순서 의존 또는 resetDb 미커버 테이블 의심. 한 file씩 `pnpm --filter @hesya/web test <file>` 단독 실행 vs 일괄 실행 비교 권장.
   - **audit trail + aiCost DAL backfill** (후속 PR) — `getAdminAuditTrail` (kyc_verification_logs IMMUTABLE 격리 전략) + `getDailyAiCostSpark` (messages FK chain seed)
   - **Customer MyPage prod e2e** — magic link 자동화 불가, manual 시연 또는 OAuth fallback 추가 결정 필요
   - **E1 inbox 디자인 batch 2** / **Customer landing batch 2** / **Customer store detail** — 디자인 정합성 후속
   - **Resend 도메인 검증** (Jayden 외부 액션, 보류 중)
   - **베타 5곳 매장 매칭** (Jayden 비즈니스, 보류 중)
+- **L-097 추가 권장** — CI workflow_dispatch only 정책 + Sprint 2 lockfile 업데이트가 결합되어 vitest v4 마이그 누락이 main에 누적됐다 (Free 한도 정책 2026-06-01 리셋 시까지). main commit 머지 후 manual dispatch 1회로 회귀 catch하는 sanity 루틴 도입 권장 (5분 비용).
 
 ## 이전 세션 32 종료 시점 (참고: 2026-05-14 — Perf 3 PRs)
 
