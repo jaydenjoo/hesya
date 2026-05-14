@@ -511,7 +511,25 @@
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "安全自我申报",
     "editorComplianceBody": "本服务在韩国合法美容业/自由业范围内提供。不可登记医疗行为(填充、肉毒等)。",
-    "editorRequiredAsterisk": "*"
+    "editorRequiredAsterisk": "*",
+    "aiBand": {
+      "title": "AI 服务推荐",
+      "subtitle": "基于近30天客户咨询与流量数据,推荐具有营收潜力的新服务。(Beta 演示用 mock)",
+      "scanned": "已分析信号",
+      "lastScan": "上次扫描",
+      "demandScore": "需求",
+      "competitor": "周边均价",
+      "projected": "预估预约",
+      "evidence": "依据",
+      "suggestedPrice": "建议价",
+      "minutes": "分钟",
+      "perMonth": "/月",
+      "badgeTrending": "趋势",
+      "badgeGap": "供给不足",
+      "badgeVip": "VIP",
+      "actionAdd": "添加",
+      "actionDismiss": "跳过"
+    }
   },
   "StoreCustomers": {
     "title": "客户列表",

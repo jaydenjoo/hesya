@@ -511,7 +511,25 @@
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "安全自己申告",
     "editorComplianceBody": "本メニューは韓国の美容業・自由業の範囲内で提供されます。医療行為(フィラー・ボトックス等)は登録できません。",
-    "editorRequiredAsterisk": "*"
+    "editorRequiredAsterisk": "*",
+    "aiBand": {
+      "title": "AI メニュー追加提案",
+      "subtitle": "過去30日のお問い合わせとトラフィックを分析し、売上ポテンシャルの高いメニューを提案します。(ベータ用 mock)",
+      "scanned": "分析シグナル",
+      "lastScan": "最終スキャン",
+      "demandScore": "需要",
+      "competitor": "周辺平均",
+      "projected": "予測予約",
+      "evidence": "根拠",
+      "suggestedPrice": "提案価格",
+      "minutes": "分",
+      "perMonth": "/月",
+      "badgeTrending": "トレンド",
+      "badgeGap": "供給不足",
+      "badgeVip": "VIP",
+      "actionAdd": "追加",
+      "actionDismiss": "スキップ"
+    }
   },
   "StoreCustomers": {
     "title": "お客様一覧",

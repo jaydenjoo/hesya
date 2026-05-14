@@ -511,7 +511,25 @@
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "안전 자기신고",
     "editorComplianceBody": "본 시술은 한국 미용업/자유업 범위 내에서 제공됩니다. 의료 행위(필러·보톡스 등)는 등록할 수 없습니다.",
-    "editorRequiredAsterisk": "*"
+    "editorRequiredAsterisk": "*",
+    "aiBand": {
+      "title": "AI 시술 추가 제안",
+      "subtitle": "최근 30일 손님 문의·트래픽 데이터를 분석하여 매출 잠재력이 큰 시술을 제안합니다. (베타 시연용 mock)",
+      "scanned": "분석한 시그널",
+      "lastScan": "마지막 스캔",
+      "demandScore": "수요",
+      "competitor": "주변 평균",
+      "projected": "예상 예약",
+      "evidence": "근거",
+      "suggestedPrice": "제안 가격",
+      "minutes": "분",
+      "perMonth": "월",
+      "badgeTrending": "트렌드",
+      "badgeGap": "공급 부족",
+      "badgeVip": "VIP",
+      "actionAdd": "추가",
+      "actionDismiss": "넘기기"
+    }
   },
   "StoreCustomers": {
     "title": "고객 목록",

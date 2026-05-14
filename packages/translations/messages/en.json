@@ -511,7 +511,25 @@
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "Safety self-disclosure",
     "editorComplianceBody": "This service is provided within Korea's licensed beauty/personal-care scope. Medical procedures (filler, botox, etc.) cannot be registered.",
-    "editorRequiredAsterisk": "*"
+    "editorRequiredAsterisk": "*",
+    "aiBand": {
+      "title": "AI service suggestions",
+      "subtitle": "Surfaces high-revenue services based on the last 30 days of customer signals and traffic. (Beta showcase — mock data)",
+      "scanned": "Signals scanned",
+      "lastScan": "Last scan",
+      "demandScore": "Demand",
+      "competitor": "Comp. avg",
+      "projected": "Proj. bookings",
+      "evidence": "Evidence",
+      "suggestedPrice": "Suggested price",
+      "minutes": "min",
+      "perMonth": "/mo",
+      "badgeTrending": "Trending",
+      "badgeGap": "Supply gap",
+      "badgeVip": "VIP",
+      "actionAdd": "Add to menu",
+      "actionDismiss": "Dismiss"
+    }
   },
   "StoreCustomers": {
     "title": "Customers",
