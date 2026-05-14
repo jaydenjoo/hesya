@@ -3501,3 +3501,92 @@ expected [ messages, conversations, …(11) ] to deeply equal
 **확인 방법**: 페이지 전환 perf 작업 PR template에 다음 의무 체크리스트 추가 — (a) `nav.type` 측정값 (cold/cached) (b) top 5 blocking resource (duration desc) (c) Vercel region (`x-vercel-id` 헤더) (d) cache 적용 page list + TTL.
 
 **연관**: 본 세션 PR #162/163/164 누적 -94% (3400ms → 546ms cold / 216ms cached). L-082 (시연 % e2e 기준 — perf는 functional와 별개로 베타-grade 기준 < 1s 만족). 1인 운영 베타 폴리시 (memory `feedback_demo_no_personal_env_dependency.md`).
+
+### [2026-05-14] L-096 — vitest 4 마이그 누락: `test.poolOptions` silent ignore로 multi-file DAL test race 폭발 회귀
+
+**증상**: Sprint 2 12 PR 머지 후 CI manual dispatch로 main 검증 시도 → e2e-integration 25+ fail 폭발. messages 10 / stores 8 / store-deletion 9 / bookings 2 / disputes 2 / inbox connect 1 등 통합 테스트 광범위. PR #188 (admin-dashboard backfill) CI에서 발견. main이 broken 상태였으나 CI workflow_dispatch only 정책(L-093 + GitHub Actions Free 한도)으로 자동 catch 누락.
+
+**원인**: vitest 4에서 `test.poolOptions`가 제거되고 pool-specific 최상위 옵션(`forks` / `threads` / `vmThreads` / `vmForks`)으로 분리됨. 기존 `poolOptions: { forks: { singleFork: true } }` 설정은 v4에서 **silent ignore** → multi-file integration test가 같은 Supabase DB에 병렬 fork로 접근 → race condition 폭발 (file A `seedCustomer` ↔ file B `resetDb` 시간 race → file A `bookings INSERT` 시점 customers 부재 → PostgreSQL 23503 FK violation).
+
+vitest 4 DEPRECATED 경고는 출력에 있었으나 (`DEPRECATED  test.poolOptions was removed in Vitest 4`) Sprint 2 base PR #176에서 lockfile 업데이트 시 무시됨.
+
+**해결** (PR #189): `vitest.config.ts` 1 줄 수정 — `pool: "forks", forks: { singleFork: true }` 로 v4 형식 적용. type def에 `forks` 미반영이라 `@ts-expect-error` 유지 (이전 `poolOptions`와 동일 패턴).
+
+**규칙** ⭐:
+
+1. **major dep bump 시 deprecation 경고 무시 금지** — `pnpm install` 출력에 DEPRECATED 라인 보이면 즉시 lockfile + config 동기 migration. 특히 `vitest`/`vite`/`drizzle-orm` 같은 test/DB infra 패키지는 silent breakage가 치명적.
+2. **CI auto-trigger off 환경에서 main commit sanity 의무** — L-093 정책으로 push/PR trigger off일 때, main 머지 후 `gh workflow run CI --ref main` 1회 dispatch가 5분 비용. 누적 회귀 1주일 방치 비용은 25+ fail 진단 1~2일.
+3. **vitest config 변경 후 출력에 DEPRECATED 0건 확인 의무** — 매 test run마다 첫 줄 출력 점검. silent ignore = test isolation 손상 → CI random fail 폭발 직전 시그널.
+
+**비유**: 자동차 핸드브레이크 표시등이 켜져 있는데 무시하고 출발. 처음엔 엔진 더 힘이 들 뿐이지만, 누적되면 브레이크 패드 마모로 큰 정비비 발생. DEPRECATED 경고는 핸드브레이크 표시등이라 즉시 풀어줘야 함.
+
+**연관**: PR [#189](https://github.com/jaydenjoo/hesya/pull/189) 머지로 messages 10 / bookings 2 / disputes 2 = 14 fail 즉시 회복. L-093 (CI 한도 정책). L-097 (CI auto-trigger off 누적 메커니즘). L-098 (random fail 구분).
+
+### [2026-05-14] L-097 — CI workflow_dispatch only 정책에서 main 회귀 자동 누적: 머지 후 manual sanity dispatch 의무
+
+**증상**: Sprint 2 12 PR을 squash-merge 순차 적용. PR check은 Vercel preview build만 통과 표시 → 머지 OK. 하지만 lockfile 업데이트(vitest 4 등)로 인한 silent test breakage가 main에 누적되어, 4주 후 첫 manual dispatch에서 25+ fail 일괄 발견.
+
+**원인** (구조적):
+
+1. GitHub Actions Free 한도 (2000분/월) + 결제 잔액 0으로 2026-05-11 자동 trigger 비활성화 (L-093)
+2. `on: workflow_dispatch:` only → push/PR이 CI 발화 안 함
+3. Vercel preview build는 type-check + build만 → vitest 통합 test 비검증
+4. 머지 후 main sanity 루틴 미정의 → 회귀가 자동 감지 안 됨
+
+→ Sprint 2 12 PR이 lockfile 업데이트와 함께 머지되며 vitest v4 silent breakage가 누적. main을 dispatch한 시점에 모두 동시에 빨갛게 보임.
+
+**해결**: 본 세션에서 main commit 후 `gh workflow run CI --ref main` 수동 dispatch 1회 + 결과 분석 (5~7분 비용). 이 cadence를 PR 워크플로에 추가하면 회귀가 1 PR 단위로 즉시 잡힘.
+
+**규칙** ⭐:
+
+1. **CI auto-trigger off 환경의 머지 후 sanity 루틴 의무화** — squash-merge 직후 `gh workflow run CI --ref main` 1회 + 결과 5~7분 후 확인. 각 commit이 빨강 시그널을 발하는 자기 진단 책임 회복.
+2. **PR이 Vercel preview만 통과해도 vitest 통합 test 검증 X** — CI auto-trigger 복원 전까지, lockfile 변경이 동봉된 PR은 머지 전 manual dispatch 1회 dispatch 의무 (Vercel preview는 충분조건 아님).
+3. **AGENTS.md / CLAUDE.md에 sanity dispatch 절차 명시** — 본 규칙을 프로젝트 진입 시점 onboarding으로 노출. 미숙지로 인한 회귀 방치 차단.
+
+**확인 방법**: PR template "Test plan" 섹션에 다음 추가 — `[ ] main 머지 후 manual CI dispatch (gh workflow run CI --ref main)` 체크박스. 미체크 PR은 다음 PR 머지 전 dispatch 의무.
+
+**연관**: L-093 (Free 한도 origin). L-096 (이 정책이 결합되어 폭발한 vitest 회귀 사례). 본 세션 PROGRESS.md 다음 세션 시작점 메모.
+
+### [2026-05-14] L-098 — 같은 코드 두 CI run의 fail 분포 비대칭 = "순수 random" 판정 기준
+
+**증상**: PR #190 (e2e-integration 9 fail) → PR #191 (12 fail, +3 변동) → main baseline (11 fail, 또 다른 분포). 동일 PR branch CI vs 머지된 main CI에서 fail 분포가 매번 다름. `findStoreByExternalAccount`는 PR #190/#191 fail / main baseline pass. 단일 run으로는 deterministic vs random 구분 불가.
+
+**원인** (구조적 진단):
+
+1. vitest singleFork=true로 동일 fork 내 sequential 실행 보장 → 하지만 같은 file 안 it 사이는 timing/seed-order에 민감
+2. multiple test file이 같은 Supabase DB 공유 → file 사이 leakage가 resetDb로 100% 봉쇄 안 됨 (CASCADE/IMMUTABLE trigger 등 우회 길)
+3. CI 환경 timing 변동 (CPU/disk I/O, network jitter) → 같은 코드도 it 순서/race 결과 변동
+
+이 분포에서 `findStoreByExternalAccount > 일치 매장 반환`이 1번 fail / 1번 pass였다면, deterministic으로 단정하고 source 디버깅 진행 시 잘못된 영역을 파게 됨. 본 세션에서 2시간 가까이 access_token_encrypted bytea 인코딩 가설 추적했으나 결국 random race임이 baseline 측정으로 판명.
+
+**해결**: 같은 코드를 2번 dispatch + fail list 비교 → 비대칭이면 random 판정. baseline 2~3회 dispatch로 deterministic core (모든 run에서 fail)와 random tail (분포 변동)을 분리한 후, deterministic만 fix 시도.
+
+**규칙** ⭐:
+
+1. **단일 run의 fail = deterministic 추정 금지** — 변동성 가능성을 dispatch 2회 이상으로 검증한 후에야 source 디버깅 진입. 한 번 fail로 source 추적 시작은 잘못된 방향 발굴 비용 큼.
+2. **CI 환경 random fail은 source 패치로 해결 불가** — 구조적 해결책 (TRUNCATE CASCADE / per-file DB schema / fork-level isolation) 영역. 단일 PR 패치로 random tail 제거 시도 비효율.
+3. **fail 분포 측정 cadence를 진단 첫 단계로** — 새 회귀 의심 시 (a) main에서 2~3회 dispatch (b) PR branch 2~3회 dispatch (c) 공통 fail = deterministic, 변동 fail = random. 이 30분 측정이 며칠 잘못된 추적 비용 절감.
+
+**비유**: 의사가 환자 증상으로 단일 검진 결과로 진단 시작하면, 컨디션·계측 오차로 인한 일회성 수치를 만성 질환으로 오진할 수 있음. 두 번 측정해 추세를 보는 게 정확한 진단 baseline.
+
+**연관**: L-096 (vitest v4 회귀 본질). L-099 (resetDb 누락). 본 세션 PROGRESS.md 다음 세션 deeper isolation 전략 메모.
+
+### [2026-05-14] L-099 — `resetDb` 헬퍼는 stores FK 의존 모든 테이블 명시 의무: 누락 시 silent partial reset
+
+**증상**: PR #190 후 main e2e-integration 9 fail → PR #191에서 resetDb에 `photoAnalyses` / `customerSavedStores` / `storeToneExamples` / `storeReports` 4 테이블 추가했더니 admin-dashboard `getAdminKpiSummary > 빈 데이터 없음 → 0` fail 1개 회복 + 다른 fail 변동.
+
+**원인**: drizzle ORM의 `db.delete(stores)`는 PostgreSQL `DELETE FROM stores` 한 statement → FK 의존 row가 있으면 23503 throw. 그런데 throw 시 vitest beforeEach가 fail로 표시되어야 정상인데, 실제로는 silent하게 partial reset 후 it 진입 → 다음 it가 stale row 만남 → expectations fail.
+
+원인 추가 분석: drizzle의 `db.delete()` 내부 동작이 connection pool 또는 transaction wrapping에서 catch & swallow하는 path 가능성. 또는 single statement가 transaction 내부에서 일부 row만 삭제 후 commit하는 path. 추후 검증 필요 (현재 가설은 "silent partial reset 관찰").
+
+**해결** (PR #191): 새 stores FK 의존 테이블 schema 추가 시 `apps/web/src/test-helpers/db.ts` `resetDb`에 동기 delete 호출 의무화. `db.test.ts` expectation 배열도 동시 갱신 (length 회귀 catch).
+
+**규칙** ⭐:
+
+1. **새 schema 추가 PR template에 resetDb sync 체크박스 의무** — `[ ] grep -l "references.*stores" packages/database/src/schema/` 결과를 `resetDb` delete 호출 16~20 lines와 1:1 매칭 검증.
+2. **resetDb 호출 순서는 자식 → 부모 FK-safe** — 새 테이블 추가 시 의존 그래프 파악 후 배치. `db.test.ts` referential-equality assertion으로 순서 회귀 방어 (PR #190의 자체 assertion 패턴 따름).
+3. **stores처럼 hub 테이블의 FK 의존자는 한 곳에서 모두 추적** — `~/.claude/rules/inventory-protocol.md` 또는 `apps/web/src/shared/lib/CLAUDE.md`에 "stores FK 의존 테이블 N개" 명시. schema 추가 시 자동 노출.
+
+**확인 방법**: `bun run check:resetdb-coverage` 같은 sanity script 도입 (예: drizzle schema의 stores FK 의존 테이블 set과 `resetDb` 호출 set의 diff = 0).
+
+**연관**: PR [#190](https://github.com/jaydenjoo/hesya/pull/190) (file 자체 cleanup → resetDb 헬퍼 통일). PR [#191](https://github.com/jaydenjoo/hesya/pull/191) (4 테이블 누락 보강). L-098 (resetDb 보강 후에도 random fail 잔존 — 본질은 timing race).
