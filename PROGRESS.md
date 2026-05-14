@@ -15,7 +15,8 @@
   - **세션 33 main 회귀 진단·복구** (PR [#189](https://github.com/jaydenjoo/hesya/pull/189) + [#190](https://github.com/jaydenjoo/hesya/pull/190)):
     - **#189** vitest v4 마이그 누락 — `test.poolOptions`가 v4에서 제거됐는데 `forks` 최상위로 안 옮겨 silent ignore → 병렬 fork race → messages 10 / bookings 2 / disputes 2 / 기타 14 fail 폭발. config 1줄 수정 (`pool: "forks", forks: { singleFork: true }`)으로 회복.
     - **#190** store-deletion.test.ts 자체 cleanup → `resetDb` 헬퍼 사용. file 간 stores FK 의존 잔여 row leak으로 23503 violation 9/9 fail → 9/9 회복.
-  - **세션 33 main e2e-integration 추세**: 25+ fail (sprint 2 회귀) → 23 fail (#189 후) → 9 fail (#190 후). 잔여 9 fail (stores 4 / admin-dashboard 5) — 다음 세션 분석 대상.
+    - **#191** `resetDb`에 stores FK 의존 4 테이블 (photoAnalyses / customerSavedStores / storeToneExamples / storeReports) 추가. 누락으로 인한 silent partial reset (`stores DELETE` 23503 throw 안 됨) 차단. admin-dashboard `newStoresToday: 1` leak 1개 회복 + 변동성 fail은 별개 (deterministic findStoreByExternalAccount 2 fail 외 timing 영향).
+  - **세션 33 main e2e-integration 추세**: 25+ fail (sprint 2 회귀) → 23 fail (#189 후) → 9 fail (#190 후) → 변동성 9~12 fail (#191 후, 변동성 큼). 잔여 fail은 timing/seed-order 의존이라 단일 PR로 결정적 해결 불가 — **다음 세션 deeper 진단 권장**: (a) `findStoreByExternalAccount` deterministic fail의 access_token_encrypted bytea 손상 진단 (CI 로그 binary 문자), (b) stores/admin-dashboard 변동성 fail의 fork module-level state 또는 DB connection pool 가설 검증.
 - **세션 33 N=10 bench prod 결과** (`docs/auth-cookie-cache-bench.md`):
   - Cold 평균 **623ms** / Warm median **166ms** / Δ median **456ms (72%)** — 5 owner 페이지
   - N=5 측정(2026-05-13) 대비 absolute TTFB **6~8배 단축** (3~5초 → 0.4~1.0초 cold) — PR #150 + #162/#163/#164 누적 효과
