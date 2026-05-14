@@ -36,10 +36,14 @@ export default defineConfig({
     // Phase B-5d: integration test (HESYA_TEST_DATABASE_URL set 시) 다수 test
     // file이 같은 supabase DB를 공유. 병렬 worker fork가 resetDb/insert 중 race
     // → cross-file fail (단독 통과). singleFork로 직렬화. 단위 test는 cost 작음.
+    //
+    // Vitest 4: `test.poolOptions`는 제거되고 pool-specific 최상위 옵션
+    // (`forks` / `threads` / `vmThreads` / `vmForks`)로 분리됨. 이전
+    // `poolOptions: { forks: { singleFork } }`는 v4에서 silent ignore되어
+    // 병렬 fork race로 다수 DAL test FK violation 폭발 회귀를 유발했음 (2026-05-14).
     pool: "forks",
-    // vitest 4의 InlineConfig type 정의에 `poolOptions`이 누락 (runtime은 정상 수용).
-    // 신규 major(v4) 마이그레이션 중인 type 갭 — 의도적 ts-expect-error.
-    // @ts-expect-error vitest 4 type def에 poolOptions 누락
-    poolOptions: { forks: { singleFork: true } },
+    // @ts-expect-error vitest 4 InlineConfig type 정의에 pool-specific 옵션
+    // (`forks`/`threads`/...) 미반영. runtime은 정상 수용 (위 deprecation 참조).
+    forks: { singleFork: true },
   },
 });
