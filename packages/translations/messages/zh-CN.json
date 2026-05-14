@@ -656,7 +656,21 @@
     "reviewCountSuffix": "({n})",
     "verifiedBadge": "K-Verified",
     "aiPhotoCta": "让AI看你想要的造型",
-    "aiPhotoSubtitle": "1张照片 → 即时分析可行性和耗时"
+    "aiPhotoSubtitle": "1张照片 → 即时分析可行性和耗时",
+    "liveRow": "正在K-beauty社交平台流行",
+    "ugcTitle": "真实旅行者,真实效果",
+    "ugcSubtitle": "来自Instagram·小红书的故事",
+    "ugcShowMore": "查看更多",
+    "trendingTitle": "本周外国人最热门的护理",
+    "trendingSubtitle": "点击应用到搜索",
+    "reviewsTitle": "真实旅行者的真实评价",
+    "reviewsSubtitle": "自动翻译为您的语言",
+    "safetyTitle": "单独旅行者指南",
+    "safetyStat1": "韩国 — 女性旅行者Tier 2安全国",
+    "safetyStat2": "Hesya门店{percent}%配有女性造型师",
+    "safetyStat3": "所有门店距主要地铁站步行{min}分钟内",
+    "safetyStat4": "您的语言24/7聊天支持",
+    "safetySource": "来源 · CEOWORLD 2026 Solo Female Travel Index"
   },
   "PhotoAnalyze": {
     "back": "返回",

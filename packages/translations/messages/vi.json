@@ -656,7 +656,21 @@
     "reviewCountSuffix": "({n})",
     "verifiedBadge": "K-Verified",
     "aiPhotoCta": "Cho AI xem kiểu bạn muốn",
-    "aiPhotoSubtitle": "1 ảnh → phân tích khả thi + thời gian tức thì"
+    "aiPhotoSubtitle": "1 ảnh → phân tích khả thi + thời gian tức thì",
+    "liveRow": "Đang thịnh hành trên K-beauty SNS",
+    "ugcTitle": "Du khách thật, kết quả thật",
+    "ugcSubtitle": "Câu chuyện từ Instagram·Xiaohongshu",
+    "ugcShowMore": "Xem thêm",
+    "trendingTitle": "Dịch vụ hot nhất của du khách tuần này",
+    "trendingSubtitle": "Chạm để áp dụng vào tìm kiếm",
+    "reviewsTitle": "Đánh giá thật từ du khách thật",
+    "reviewsSubtitle": "Tự động dịch sang ngôn ngữ của bạn",
+    "safetyTitle": "Hướng dẫn cho du khách đi một mình",
+    "safetyStat1": "Hàn Quốc — Quốc gia Tier 2 an toàn cho phụ nữ du lịch",
+    "safetyStat2": "{percent}% cửa hàng Hesya có stylist nữ",
+    "safetyStat3": "Tất cả cửa hàng cách ga tàu điện ngầm chính {min} phút đi bộ",
+    "safetyStat4": "Hỗ trợ chat 24/7 bằng ngôn ngữ của bạn",
+    "safetySource": "Nguồn · CEOWORLD 2026 Solo Female Travel Index"
   },
   "PhotoAnalyze": {
     "back": "Quay lại",

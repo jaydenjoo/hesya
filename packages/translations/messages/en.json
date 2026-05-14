@@ -656,7 +656,21 @@
     "reviewCountSuffix": "({n})",
     "verifiedBadge": "K-Verified",
     "aiPhotoCta": "Show AI the look you want",
-    "aiPhotoSubtitle": "1 photo → instant feasibility + time estimate"
+    "aiPhotoSubtitle": "1 photo → instant feasibility + time estimate",
+    "liveRow": "Trending now on K-beauty SNS",
+    "ugcTitle": "Real travelers, real results",
+    "ugcSubtitle": "Stories from Instagram & Xiaohongshu",
+    "ugcShowMore": "Show more",
+    "trendingTitle": "Foreigners' top requests this week",
+    "trendingSubtitle": "Tap to filter your search",
+    "reviewsTitle": "Real reviews from real travelers",
+    "reviewsSubtitle": "Auto-translated to your language",
+    "safetyTitle": "For solo travelers",
+    "safetyStat1": "South Korea — Tier 2 Safe Country for female travelers",
+    "safetyStat2": "{percent}% of Hesya stores have female stylists on staff",
+    "safetyStat3": "All stores within {min} min of major subway stations",
+    "safetyStat4": "24/7 chat support in your language",
+    "safetySource": "Source · CEOWORLD 2026 Solo Female Travel Index"
   },
   "PhotoAnalyze": {
     "back": "Back",
