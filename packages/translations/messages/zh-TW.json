@@ -422,7 +422,25 @@
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "安全自我申報",
     "editorComplianceBody": "本服務在韓國合法美容業/自由業範圍內提供。不可登記醫療行為(填充、肉毒等)。",
-    "editorRequiredAsterisk": "*"
+    "editorRequiredAsterisk": "*",
+    "aiBand": {
+      "title": "AI 服務推薦",
+      "subtitle": "依據近30天客戶詢問與流量資料,推薦具有營收潛力的新服務。(Beta 展示用 mock)",
+      "scanned": "已分析訊號",
+      "lastScan": "上次掃描",
+      "demandScore": "需求",
+      "competitor": "周邊均價",
+      "projected": "預估預約",
+      "evidence": "依據",
+      "suggestedPrice": "建議價",
+      "minutes": "分鐘",
+      "perMonth": "/月",
+      "badgeTrending": "趨勢",
+      "badgeGap": "供給不足",
+      "badgeVip": "VIP",
+      "actionAdd": "加入",
+      "actionDismiss": "略過"
+    }
   },
   "StoreCustomers": {
     "title": "客戶列表",

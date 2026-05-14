@@ -4,9 +4,17 @@ import { createDbClient } from "@hesya/database";
 
 import { PageHeader } from "@/components/ui/page-header";
 import {
+  ServiceAiProposalBand,
+  type ServiceAiLabels,
+} from "@/features/store-services/ai-proposals";
+import {
   ServicesManager,
   type ServiceRow,
 } from "@/features/store-services/services-manager";
+import {
+  mockServiceProposals,
+  mockServiceProposalStats,
+} from "@/lib/mock-fixtures/services-ai";
 import { env } from "@/shared/config/env";
 import { listServicesByStore } from "@/shared/lib/dal/services";
 import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
@@ -59,6 +67,32 @@ export default async function StoreServicesPage({
         subtitle={t("subtitle")}
       />
       <div className="px-8 pb-10">
+        {env.MOCK_FIXTURES && (
+          <ServiceAiProposalBand
+            proposals={mockServiceProposals}
+            stats={mockServiceProposalStats}
+            labels={
+              {
+                bandTitle: t("aiBand.title"),
+                bandSubtitle: t("aiBand.subtitle"),
+                scannedFromMessages: t("aiBand.scanned"),
+                lastScanLabel: t("aiBand.lastScan"),
+                demandScore: t("aiBand.demandScore"),
+                competitorAvg: t("aiBand.competitor"),
+                projectedBookings: t("aiBand.projected"),
+                evidenceTitle: t("aiBand.evidence"),
+                suggestedPrice: t("aiBand.suggestedPrice"),
+                minutesSuffix: t("aiBand.minutes"),
+                perMonth: t("aiBand.perMonth"),
+                badgeTrending: t("aiBand.badgeTrending"),
+                badgeGap: t("aiBand.badgeGap"),
+                badgeVip: t("aiBand.badgeVip"),
+                actionAdd: t("aiBand.actionAdd"),
+                actionDismiss: t("aiBand.actionDismiss"),
+              } satisfies ServiceAiLabels
+            }
+          />
+        )}
         <ServicesManager
           initialRows={initialRows}
           labels={{

@@ -422,7 +422,25 @@
     "editorCategoryPlaceholder": "haircut / color / nail …",
     "editorComplianceTitle": "Tự khai báo an toàn",
     "editorComplianceBody": "Dịch vụ này được cung cấp trong phạm vi làm đẹp/dịch vụ cá nhân hợp pháp tại Hàn Quốc. Không đăng ký các thủ thuật y tế (filler, botox...).",
-    "editorRequiredAsterisk": "*"
+    "editorRequiredAsterisk": "*",
+    "aiBand": {
+      "title": "Đề xuất dịch vụ AI",
+      "subtitle": "Đề xuất dịch vụ có tiềm năng doanh thu cao dựa trên dữ liệu 30 ngày qua. (Demo beta)",
+      "scanned": "Tín hiệu đã quét",
+      "lastScan": "Lần quét cuối",
+      "demandScore": "Cầu",
+      "competitor": "TB lân cận",
+      "projected": "Dự kiến",
+      "evidence": "Bằng chứng",
+      "suggestedPrice": "Giá đề xuất",
+      "minutes": "phút",
+      "perMonth": "/tháng",
+      "badgeTrending": "Xu hướng",
+      "badgeGap": "Thiếu cung",
+      "badgeVip": "VIP",
+      "actionAdd": "Thêm",
+      "actionDismiss": "Bỏ qua"
+    }
   },
   "StoreCustomers": {
     "title": "Khách hàng",
