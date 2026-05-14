@@ -349,6 +349,21 @@
     "mapGoogle": "Google マップ",
     "mapNaver": "Naver マップ"
   },
+  "StoreAnalytics": {
+    "title": "店舗分析",
+    "subtitle": "直近6ヶ月の売上・再来店率・国籍構成・人気施術・スタッフ",
+    "kpiRevenue6m": "直近6ヶ月売上",
+    "kpiRepeatRate": "再来店率",
+    "kpiAvgTicket": "客単価",
+    "avgTicketHint": "売上 ÷ 予約数",
+    "bookingsUnit": "件",
+    "customersUnit": "名",
+    "monthlyRevenueTitle": "月別売上",
+    "nationalityTitle": "国籍構成",
+    "topServicesTitle": "施術TOP5",
+    "topStaffTitle": "スタッフTOP5",
+    "noData": "データなし"
+  },
   "StoreServices": {
     "title": "メニュー管理",
     "subtitle": "お店で提供するメニューを登録・管理します",
@@ -498,6 +513,7 @@
       "inbox": "受信箱",
       "inboxSkipped": "スキップしたメッセージ",
       "bookings": "予約",
+      "analytics": "分析",
       "services": "メニュー",
       "customers": "顧客",
       "knowledge": "ナレッジ",

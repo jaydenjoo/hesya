@@ -349,6 +349,21 @@
     "mapGoogle": "Google 地图",
     "mapNaver": "Naver 地图"
   },
+  "StoreAnalytics": {
+    "title": "店铺分析",
+    "subtitle": "近 6 个月营收、回头率、国籍分布、热门服务与设计师",
+    "kpiRevenue6m": "近6个月营收",
+    "kpiRepeatRate": "回头率",
+    "kpiAvgTicket": "客单价",
+    "avgTicketHint": "营收 ÷ 预约数",
+    "bookingsUnit": "次",
+    "customersUnit": "位",
+    "monthlyRevenueTitle": "月度营收",
+    "nationalityTitle": "国籍分布",
+    "topServicesTitle": "服务 TOP 5",
+    "topStaffTitle": "设计师 TOP 5",
+    "noData": "暂无数据"
+  },
   "StoreServices": {
     "title": "服务管理",
     "subtitle": "管理门店提供的服务",
@@ -498,6 +513,7 @@
       "inbox": "收件箱",
       "inboxSkipped": "已跳过消息",
       "bookings": "预约",
+      "analytics": "分析",
       "services": "服务",
       "customers": "客户",
       "knowledge": "知识",

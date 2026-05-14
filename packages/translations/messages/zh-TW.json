@@ -349,6 +349,21 @@
     "mapGoogle": "Google 地圖",
     "mapNaver": "Naver 地圖"
   },
+  "StoreAnalytics": {
+    "title": "店舖分析",
+    "subtitle": "近 6 個月營收、回頭率、國籍分佈、熱門服務與設計師",
+    "kpiRevenue6m": "近6個月營收",
+    "kpiRepeatRate": "回頭率",
+    "kpiAvgTicket": "客單價",
+    "avgTicketHint": "營收 ÷ 預約數",
+    "bookingsUnit": "次",
+    "customersUnit": "位",
+    "monthlyRevenueTitle": "月度營收",
+    "nationalityTitle": "國籍分佈",
+    "topServicesTitle": "服務 TOP 5",
+    "topStaffTitle": "設計師 TOP 5",
+    "noData": "暫無資料"
+  },
   "StoreServices": {
     "title": "服務管理",
     "subtitle": "管理門市提供的服務",
@@ -498,6 +513,7 @@
       "inbox": "收件匣",
       "inboxSkipped": "已略過的訊息",
       "bookings": "預約",
+      "analytics": "分析",
       "services": "服務",
       "customers": "客戶",
       "knowledge": "知識",

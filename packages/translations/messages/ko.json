@@ -349,6 +349,21 @@
     "mapGoogle": "Google 지도",
     "mapNaver": "네이버 지도"
   },
+  "StoreAnalytics": {
+    "title": "매장 분석",
+    "subtitle": "최근 6개월 매출·재방문률·국적 분포·시술·디자이너 순위",
+    "kpiRevenue6m": "최근 6개월 매출",
+    "kpiRepeatRate": "재방문률",
+    "kpiAvgTicket": "평균 객단가",
+    "avgTicketHint": "매출 / 예약 수",
+    "bookingsUnit": "건",
+    "customersUnit": "명",
+    "monthlyRevenueTitle": "월별 매출",
+    "nationalityTitle": "국적 분포",
+    "topServicesTitle": "시술 TOP 5",
+    "topStaffTitle": "디자이너 TOP 5",
+    "noData": "데이터 없음"
+  },
   "StoreServices": {
     "title": "시술 관리",
     "subtitle": "매장에서 제공하는 시술을 등록하고 관리하세요",
@@ -498,6 +513,7 @@
       "inbox": "인박스",
       "inboxSkipped": "건너뛴 메시지",
       "bookings": "예약",
+      "analytics": "분석",
       "services": "시술",
       "customers": "고객",
       "knowledge": "지식",

@@ -349,6 +349,21 @@
     "mapGoogle": "Google Maps",
     "mapNaver": "Naver Map"
   },
+  "StoreAnalytics": {
+    "title": "Store Analytics",
+    "subtitle": "Last 6 months · revenue, repeat rate, nationality, top services & staff",
+    "kpiRevenue6m": "Revenue (6 mo)",
+    "kpiRepeatRate": "Repeat rate",
+    "kpiAvgTicket": "Avg ticket",
+    "avgTicketHint": "Revenue ÷ bookings",
+    "bookingsUnit": " bookings",
+    "customersUnit": "customers",
+    "monthlyRevenueTitle": "Monthly revenue",
+    "nationalityTitle": "Nationality mix",
+    "topServicesTitle": "Top services",
+    "topStaffTitle": "Top staff",
+    "noData": "No data"
+  },
   "StoreServices": {
     "title": "Services",
     "subtitle": "Manage services offered by your store",
@@ -498,6 +513,7 @@
       "inbox": "Inbox",
       "inboxSkipped": "Skipped messages",
       "bookings": "Bookings",
+      "analytics": "Analytics",
       "services": "Services",
       "customers": "Customers",
       "knowledge": "Knowledge",

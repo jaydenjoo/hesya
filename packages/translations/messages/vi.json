@@ -349,6 +349,21 @@
     "mapGoogle": "Google Maps",
     "mapNaver": "Naver Map"
   },
+  "StoreAnalytics": {
+    "title": "Phân tích tiệm",
+    "subtitle": "6 tháng gần nhất · doanh thu, tỉ lệ quay lại, quốc tịch, dịch vụ & nhân viên",
+    "kpiRevenue6m": "Doanh thu 6 tháng",
+    "kpiRepeatRate": "Tỉ lệ quay lại",
+    "kpiAvgTicket": "Giá trị trung bình",
+    "avgTicketHint": "Doanh thu ÷ lượt đặt",
+    "bookingsUnit": " lượt",
+    "customersUnit": "khách",
+    "monthlyRevenueTitle": "Doanh thu theo tháng",
+    "nationalityTitle": "Cơ cấu quốc tịch",
+    "topServicesTitle": "Dịch vụ TOP 5",
+    "topStaffTitle": "Nhân viên TOP 5",
+    "noData": "Chưa có dữ liệu"
+  },
   "StoreServices": {
     "title": "Quản lý dịch vụ",
     "subtitle": "Quản lý các dịch vụ của cửa hàng",
@@ -498,6 +513,7 @@
       "inbox": "Tin nhắn",
       "inboxSkipped": "Tin nhắn đã bỏ qua",
       "bookings": "Đặt lịch",
+      "analytics": "Phân tích",
       "services": "Dịch vụ",
       "customers": "Khách hàng",
       "knowledge": "Tri thức",
