@@ -18,16 +18,27 @@ import {
   createDbClient,
   customers,
   disputes,
+  kycVerificationLogs,
+  messages,
   services,
+  sql,
   stores,
   storeDeletionRequests,
+  storeVerifications,
   type DbClient,
 } from "@hesya/database";
 
-import { resetDb, seedCustomer, seedStore } from "@/test-helpers/db";
+import {
+  resetDb,
+  seedConversation,
+  seedCustomer,
+  seedStore,
+} from "@/test-helpers/db";
 import {
   getAdminAlertCounts,
+  getAdminAuditTrail,
   getAdminKpiSummary,
+  getDailyAiCostSpark,
   getDisputeSlaResolution,
   getMonthlyNewStoresCounts,
   getStoreRegionDistribution,
@@ -827,6 +838,141 @@ describe.skipIf(!hasDb)("dal.admin-dashboard (integration)", () => {
         .values([{ name: "tooOld", createdAt: thirteenAgo }]);
       const rows = await getMonthlyNewStoresCounts(db, now);
       expect(rows.every((r) => r.value === 0)).toBe(true);
+    });
+  });
+
+  describe("getAdminAuditTrail (kyc_verification_logs IMMUTABLE 격리)", () => {
+    // resetDb는 kyc_verification_logs를 안 지움 (BEFORE DELETE FOR EACH ROW
+    // trigger). TRUNCATE는 row-level trigger를 우회하고 statement-level만 fire —
+    // 본 테이블엔 statement trigger 없어 안전 (0006 마이그 정의). L-100 진단 부산물.
+    beforeEach(async () => {
+      await db.execute(sql`TRUNCATE TABLE kyc_verification_logs CASCADE`);
+    });
+
+    it("kyc logs + disputes 병합 + 시간순 desc + kind 분리", async () => {
+      const storeId = await seedStore(db);
+      const [sv] = await db
+        .insert(storeVerifications)
+        .values({
+          storeId,
+          businessNumber: "0000000001",
+          representativeName: "Rep",
+          verificationStatus: "manual_review",
+        })
+        .returning({ id: storeVerifications.id });
+      if (!sv) throw new Error("seed storeVerifications failed");
+
+      const t0 = new Date(Date.now() - 5_000);
+      const t1 = new Date(Date.now() - 3_000);
+      const t2 = new Date(Date.now() - 1_000);
+
+      await db.insert(kycVerificationLogs).values([
+        { verificationId: sv.id, eventType: "nts_check", createdAt: t0 },
+        { verificationId: sv.id, eventType: "status_change", createdAt: t1 },
+      ]);
+      await db.insert(disputes).values({
+        storeId,
+        category: "refund",
+        description: "x",
+        status: "resolved",
+        slaDueAt: new Date(Date.now() + 86_400_000),
+        resolvedAt: t2,
+        updatedAt: t2,
+      });
+
+      const rows = await getAdminAuditTrail(db, 5);
+      expect(rows).toHaveLength(3);
+      // 시간순 desc: dispute(t2) → status_change(t1) → nts_check(t0)
+      expect(rows[0]!.kind).toBe("dispute");
+      expect(rows[0]!.summary).toBe("dispute:resolved");
+      expect(rows[1]!.kind).toBe("kyc");
+      expect(rows[1]!.summary).toBe("status_change");
+      expect(rows[2]!.kind).toBe("kyc");
+      expect(rows[2]!.summary).toBe("nts_check");
+    });
+
+    it("limit N — 5건 inserted, limit 3 → 최신 3건", async () => {
+      const storeId = await seedStore(db);
+      const [sv] = await db
+        .insert(storeVerifications)
+        .values({
+          storeId,
+          businessNumber: "0000000002",
+          representativeName: "Rep",
+          verificationStatus: "manual_review",
+        })
+        .returning({ id: storeVerifications.id });
+      if (!sv) throw new Error("seed storeVerifications failed");
+
+      const now = Date.now();
+      await db.insert(kycVerificationLogs).values(
+        Array.from({ length: 5 }, (_, i) => ({
+          verificationId: sv.id,
+          eventType: "nts_check" as const,
+          createdAt: new Date(now - (5 - i) * 1000),
+        })),
+      );
+
+      const rows = await getAdminAuditTrail(db, 3);
+      expect(rows).toHaveLength(3);
+    });
+
+    it("빈 데이터 → []", async () => {
+      const rows = await getAdminAuditTrail(db, 12);
+      expect(rows).toEqual([]);
+    });
+  });
+
+  describe("getDailyAiCostSpark", () => {
+    it("배열 길이 항상 30 + d 인덱스 0..29", async () => {
+      const rows = await getDailyAiCostSpark(db);
+      expect(rows).toHaveLength(30);
+      expect(rows[0]!.d).toBe(0);
+      expect(rows[29]!.d).toBe(29);
+    });
+
+    it("aiModel NULL 제외 + 명시된 모델만 cost 합산", async () => {
+      const storeId = await seedStore(db);
+      const customerId = await seedCustomer(db, {
+        channel: "instagram",
+        externalId: "spark-1",
+      });
+      const conversationId = await seedConversation(db, {
+        storeId,
+        customerId,
+        channel: "instagram",
+      });
+
+      await db.insert(messages).values([
+        {
+          conversationId,
+          storeId,
+          customerId,
+          channel: "instagram",
+          direction: "outbound",
+          originalText: "with-model",
+          aiModel: "claude-sonnet-4-6",
+        },
+        {
+          conversationId,
+          storeId,
+          customerId,
+          channel: "instagram",
+          direction: "outbound",
+          originalText: "no-model",
+          // aiModel null
+        },
+      ]);
+
+      const rows = await getDailyAiCostSpark(db);
+      const today = rows[29]!;
+      // aiModel 있는 1건만 → cost > 0 (NULL row 제외)
+      expect(today.v).toBeGreaterThan(0);
+    });
+
+    it("메시지 0건 → 모든 v=0", async () => {
+      const rows = await getDailyAiCostSpark(db);
+      expect(rows.every((r) => r.v === 0)).toBe(true);
     });
   });
 });
