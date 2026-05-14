@@ -96,6 +96,38 @@
         "processing": "Đang xử lý...",
         "terminalNote": "Đặt lịch này đã kết thúc."
       }
+    },
+    "view": {
+      "calendar": "Lịch",
+      "list": "Danh sách",
+      "newBooking": "Đặt lịch mới",
+      "today": "Tuần này",
+      "prevWeek": "Tuần trước",
+      "nextWeek": "Tuần sau"
+    },
+    "calendar": {
+      "minSuffix": "phút",
+      "statusPending": "Chờ",
+      "filterForeign": "Chỉ khách ngoại",
+      "filterPending": "Chờ"
+    },
+    "detail": {
+      "close": "Đóng",
+      "vipBadge": "VIP",
+      "confirm": "Xác nhận",
+      "notify": "Gửi nhắc nhở",
+      "reschedule": "Đổi lịch",
+      "cancel": "Hủy",
+      "markNoshow": "Vắng",
+      "tag": "Nhãn",
+      "exportIcs": ".ics",
+      "statusLabel": "Trạng thái",
+      "customerLabel": "Khách",
+      "serviceLabel": "Dịch vụ",
+      "stylistLabel": "Stylist",
+      "paidLabel": "Đã thanh toán",
+      "refundLabel": "Xem trước hoàn tiền",
+      "refundHint": "Trước 24h: hoàn 100% · trước 12h: 50% · dưới 12h: 0%"
     }
   },
   "Inbox": {

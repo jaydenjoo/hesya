@@ -96,6 +96,38 @@
         "processing": "處理中...",
         "terminalNote": "該預約已結束。"
       }
+    },
+    "view": {
+      "calendar": "日曆",
+      "list": "列表",
+      "newBooking": "新增預約",
+      "today": "本週",
+      "prevWeek": "上一週",
+      "nextWeek": "下一週"
+    },
+    "calendar": {
+      "minSuffix": "分鐘",
+      "statusPending": "待定",
+      "filterForeign": "僅外國客",
+      "filterPending": "待定"
+    },
+    "detail": {
+      "close": "關閉",
+      "vipBadge": "VIP",
+      "confirm": "確認",
+      "notify": "傳送提醒",
+      "reschedule": "改期",
+      "cancel": "取消",
+      "markNoshow": "爽約",
+      "tag": "標籤",
+      "exportIcs": ".ics",
+      "statusLabel": "狀態",
+      "customerLabel": "顧客",
+      "serviceLabel": "服務",
+      "stylistLabel": "造型師",
+      "paidLabel": "已付款",
+      "refundLabel": "退款預覽",
+      "refundHint": "24小時前: 100%退款 · 12小時前: 50% · 不足12小時: 0%"
     }
   },
   "Inbox": {

@@ -96,6 +96,38 @@
         "processing": "처리 중...",
         "terminalNote": "이미 종료된 예약입니다."
       }
+    },
+    "view": {
+      "calendar": "캘린더",
+      "list": "리스트",
+      "newBooking": "새 예약",
+      "today": "이번 주",
+      "prevWeek": "이전 주",
+      "nextWeek": "다음 주"
+    },
+    "calendar": {
+      "minSuffix": "분",
+      "statusPending": "보류",
+      "filterForeign": "외국인만",
+      "filterPending": "보류"
+    },
+    "detail": {
+      "close": "닫기",
+      "vipBadge": "VIP",
+      "confirm": "확정하기",
+      "notify": "알림 보내기",
+      "reschedule": "일정 변경",
+      "cancel": "취소",
+      "markNoshow": "노쇼",
+      "tag": "태그",
+      "exportIcs": ".ics",
+      "statusLabel": "상태",
+      "customerLabel": "손님",
+      "serviceLabel": "시술",
+      "stylistLabel": "디자이너",
+      "paidLabel": "결제 금액",
+      "refundLabel": "환불 미리보기",
+      "refundHint": "24시간 전: 100% 환불 · 12시간 전: 50% · 12시간 미만: 0%"
     }
   },
   "Inbox": {

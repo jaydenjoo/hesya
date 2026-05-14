@@ -5,9 +5,18 @@ import { createDbClient } from "@hesya/database";
 import { PageHeader } from "@/components/ui/page-header";
 import {
   BookingsList,
+  BookingsViewSwitcher,
   buildServiceLabels,
   buildStaffLabels,
 } from "@/features/booking";
+import {
+  mockBookingCounts,
+  mockBookings,
+  mockHours,
+  mockStylists,
+  mockWeekDays,
+  mockWeekLabel,
+} from "@/lib/mock-fixtures/bookings";
 import { env } from "@/shared/config/env";
 import {
   BOOKING_STATUSES,
@@ -82,6 +91,18 @@ export default async function StoreBookingsPage({
     },
   };
 
+  const useFixtures = env.MOCK_FIXTURES;
+  const list = (
+    <BookingsList
+      locale={locale}
+      rows={rows}
+      filter={filter}
+      serviceLabels={buildServiceLabels(servicesList, locale)}
+      staffLabels={buildStaffLabels(staffList)}
+      labels={labels}
+    />
+  );
+
   return (
     <div className="bg-hesya-peach-50">
       <PageHeader
@@ -90,14 +111,63 @@ export default async function StoreBookingsPage({
         subtitle={t("subtitle")}
       />
       <div className="px-8 pb-10">
-        <BookingsList
-          locale={locale}
-          rows={rows}
-          filter={filter}
-          serviceLabels={buildServiceLabels(servicesList, locale)}
-          staffLabels={buildStaffLabels(staffList)}
-          labels={labels}
-        />
+        {useFixtures ? (
+          <BookingsViewSwitcher
+            weekLabel={mockWeekLabel}
+            days={mockWeekDays}
+            hours={mockHours}
+            mockBookings={mockBookings}
+            stylists={mockStylists}
+            counts={mockBookingCounts}
+            switcherLabels={{
+              tabCalendar: t("view.calendar"),
+              tabList: t("view.list"),
+              newBooking: t("view.newBooking"),
+            }}
+            weekLabels={{
+              title: t("title"),
+              today: t("view.today"),
+              prev: t("view.prevWeek"),
+              next: t("view.nextWeek"),
+              statusConfirmed: t("statuses.scheduled"),
+              statusPending: t("calendar.statusPending"),
+              statusCompleted: t("statuses.completed"),
+              statusNoshow: t("statuses.no_show"),
+              filterAll: t("filterAll"),
+              filterForeign: t("calendar.filterForeign"),
+              filterConfirmed: t("filtersByStatus.scheduled"),
+              filterPending: t("calendar.filterPending"),
+              filterNoshow: t("filtersByStatus.no_show"),
+              minSuffix: t("calendar.minSuffix"),
+            }}
+            detailLabels={{
+              close: t("detail.close"),
+              minSuffix: t("calendar.minSuffix"),
+              vipBadge: t("detail.vipBadge"),
+              confirm: t("detail.confirm"),
+              notify: t("detail.notify"),
+              reschedule: t("detail.reschedule"),
+              cancel: t("detail.cancel"),
+              markNoshow: t("detail.markNoshow"),
+              tag: t("detail.tag"),
+              exportIcs: t("detail.exportIcs"),
+              statusLabel: t("detail.statusLabel"),
+              statusConfirmed: t("statuses.scheduled"),
+              statusPending: t("calendar.statusPending"),
+              statusCompleted: t("statuses.completed"),
+              statusNoshow: t("statuses.no_show"),
+              customerLabel: t("detail.customerLabel"),
+              serviceLabel: t("detail.serviceLabel"),
+              stylistLabel: t("detail.stylistLabel"),
+              paidLabel: t("detail.paidLabel"),
+              refundLabel: t("detail.refundLabel"),
+              refundHint: t("detail.refundHint"),
+            }}
+            listChildren={list}
+          />
+        ) : (
+          list
+        )}
       </div>
     </div>
   );
