@@ -545,7 +545,26 @@
     "sectionEnBookingPolicy": "Booking Policy",
     "sectionEnPayments": "Payments",
     "sectionEnNotifications": "Notifications",
-    "sectionEnRisk": "Compliance"
+    "sectionEnRisk": "Compliance",
+    "mock": {
+      "multilingualHint": "한국어 원본 → 5개 언어 자동 번역. 검수 후 공개됩니다.",
+      "multilingualAutoBadge": "자동",
+      "multilingualSourceBadge": "원본",
+      "channelConnected": "연결 완료",
+      "channelPending": "심사 진행 중",
+      "channelNeedsBusiness": "사업자 등록 후 활성화",
+      "bookingDepositLabel": "예약금",
+      "bookingDepositValue": "확정에 예약금 {percent}% 필요",
+      "bookingCancelLabel": "취소·환불",
+      "bookingCancelValue": "{fullHours}h+: {full}% 환불 · {halfHours}h+: {half}% · 미만: 0%",
+      "bookingNoshowLabel": "노쇼 정책",
+      "bookingNoshowValue": "2회 노쇼 시 자동 표시. 반복 시 매뉴얼 검토.",
+      "paymentsHint": "Mock — 사업자 등록 + KYB 완료 후 실 PG 연동",
+      "paymentsEnabled": "ON",
+      "paymentsDisabled": "OFF",
+      "notificationsEnabled": "ON",
+      "notificationsDisabled": "OFF"
+    }
   },
   "BookingProgress": {
     "schedule": "일정",

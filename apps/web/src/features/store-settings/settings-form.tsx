@@ -100,6 +100,14 @@ interface Props {
   readonly initial: SettingsFormValue;
   readonly labels: SettingsFormLabels;
   readonly shellMeta: ShellMeta;
+  /** Sprint 2C: 5 placeholder section을 mock 카드로 대체. 미설정 시 기존 placeholder 유지. */
+  readonly mockSections?: {
+    readonly multilingual: React.ReactNode;
+    readonly channels: React.ReactNode;
+    readonly bookingPolicy: React.ReactNode;
+    readonly payments: React.ReactNode;
+    readonly notifications: React.ReactNode;
+  };
 }
 
 type DayState = {
@@ -139,7 +147,12 @@ const SECTION_NUMS: Readonly<Record<(typeof SECTION_IDS)[number], string>> = {
   risk: "09",
 };
 
-export function SettingsForm({ initial, labels, shellMeta }: Props) {
+export function SettingsForm({
+  initial,
+  labels,
+  shellMeta,
+  mockSections,
+}: Props) {
   const [name, setName] = useState(initial.name);
   const [phone, setPhone] = useState(initial.phone ?? "");
   const [line1, setLine1] = useState(initial.addressLine1);
@@ -394,36 +407,46 @@ export function SettingsForm({ initial, labels, shellMeta }: Props) {
           num={SECTION_NUMS["multilingual"]}
           title={labels.sectionMultilingual}
           en={labels.sectionEn.multilingual}
-          placeholder={labels.placeholderText}
-        />
+          placeholder={mockSections ? undefined : labels.placeholderText}
+        >
+          {mockSections?.multilingual}
+        </SectionShell>
         <SectionShell
           id="channels"
           num={SECTION_NUMS["channels"]}
           title={labels.sectionChannels}
           en={labels.sectionEn.channels}
-          placeholder={labels.placeholderText}
-        />
+          placeholder={mockSections ? undefined : labels.placeholderText}
+        >
+          {mockSections?.channels}
+        </SectionShell>
         <SectionShell
           id="booking-policy"
           num={SECTION_NUMS["booking-policy"]}
           title={labels.sectionBookingPolicy}
           en={labels.sectionEn.bookingPolicy}
-          placeholder={labels.placeholderText}
-        />
+          placeholder={mockSections ? undefined : labels.placeholderText}
+        >
+          {mockSections?.bookingPolicy}
+        </SectionShell>
         <SectionShell
           id="payments"
           num={SECTION_NUMS["payments"]}
           title={labels.sectionPayments}
           en={labels.sectionEn.payments}
-          placeholder={labels.placeholderText}
-        />
+          placeholder={mockSections ? undefined : labels.placeholderText}
+        >
+          {mockSections?.payments}
+        </SectionShell>
         <SectionShell
           id="notifications"
           num={SECTION_NUMS["notifications"]}
           title={labels.sectionNotifications}
           en={labels.sectionEn.notifications}
-          placeholder={labels.placeholderText}
-        />
+          placeholder={mockSections ? undefined : labels.placeholderText}
+        >
+          {mockSections?.notifications}
+        </SectionShell>
 
         <section
           id="section-risk"

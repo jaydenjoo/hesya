@@ -5,10 +5,24 @@ import { createDbClient } from "@hesya/database";
 import { PageHeader } from "@/components/ui/page-header";
 import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
 import {
+  BookingPolicyMockSection,
+  ChannelsMockSection,
+  MultilingualMockSection,
+  NotificationsMockSection,
+  PaymentsMockSection,
+} from "@/features/store-settings/mock-sections";
+import {
   SettingsForm,
   type BusinessHoursValue,
   type SettingsFormValue,
 } from "@/features/store-settings/settings-form";
+import {
+  mockBookingPolicy,
+  mockChannels,
+  mockMultilingualNames,
+  mockNotificationChannels,
+  mockPaymentMethods,
+} from "@/lib/mock-fixtures/settings";
 import { env } from "@/shared/config/env";
 import { getStoreSettings } from "@/shared/lib/dal/stores";
 import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
@@ -83,6 +97,152 @@ export default async function StoreSettingsPage({
 
       <SettingsForm
         initial={initial}
+        mockSections={
+          env.MOCK_FIXTURES
+            ? {
+                multilingual: (
+                  <MultilingualMockSection
+                    names={mockMultilingualNames}
+                    labels={{
+                      multilingualHint: t("mock.multilingualHint"),
+                      multilingualAutoBadge: t("mock.multilingualAutoBadge"),
+                      multilingualSourceBadge: t(
+                        "mock.multilingualSourceBadge",
+                      ),
+                      channelStatusConnected: t("mock.channelConnected"),
+                      channelStatusPending: t("mock.channelPending"),
+                      channelStatusNeedsBusiness: t(
+                        "mock.channelNeedsBusiness",
+                      ),
+                      bookingDepositLabel: t("mock.bookingDepositLabel"),
+                      bookingCancelLabel: t("mock.bookingCancelLabel"),
+                      bookingNoshowLabel: t("mock.bookingNoshowLabel"),
+                      bookingDepositValue: t("mock.bookingDepositValue", {
+                        percent: mockBookingPolicy.depositPercent,
+                      }),
+                      bookingCancelValue: t("mock.bookingCancelValue", {
+                        full: mockBookingPolicy.refundFullPercent,
+                        fullHours: mockBookingPolicy.cancelHoursThreshold,
+                        half: mockBookingPolicy.refundHalfPercent,
+                        halfHours: mockBookingPolicy.refundHalfHoursThreshold,
+                      }),
+                      bookingNoshowValue: t("mock.bookingNoshowValue"),
+                      paymentsHint: t("mock.paymentsHint"),
+                      paymentsEnabled: t("mock.paymentsEnabled"),
+                      paymentsDisabled: t("mock.paymentsDisabled"),
+                      notificationsEnabled: t("mock.notificationsEnabled"),
+                      notificationsDisabled: t("mock.notificationsDisabled"),
+                    }}
+                  />
+                ),
+                channels: (
+                  <ChannelsMockSection
+                    channels={mockChannels}
+                    labels={{
+                      multilingualHint: "",
+                      multilingualAutoBadge: "",
+                      multilingualSourceBadge: "",
+                      channelStatusConnected: t("mock.channelConnected"),
+                      channelStatusPending: t("mock.channelPending"),
+                      channelStatusNeedsBusiness: t(
+                        "mock.channelNeedsBusiness",
+                      ),
+                      bookingDepositLabel: "",
+                      bookingCancelLabel: "",
+                      bookingNoshowLabel: "",
+                      bookingDepositValue: "",
+                      bookingCancelValue: "",
+                      bookingNoshowValue: "",
+                      paymentsHint: "",
+                      paymentsEnabled: "",
+                      paymentsDisabled: "",
+                      notificationsEnabled: "",
+                      notificationsDisabled: "",
+                    }}
+                  />
+                ),
+                bookingPolicy: (
+                  <BookingPolicyMockSection
+                    policy={mockBookingPolicy}
+                    labels={{
+                      multilingualHint: "",
+                      multilingualAutoBadge: "",
+                      multilingualSourceBadge: "",
+                      channelStatusConnected: "",
+                      channelStatusPending: "",
+                      channelStatusNeedsBusiness: "",
+                      bookingDepositLabel: t("mock.bookingDepositLabel"),
+                      bookingCancelLabel: t("mock.bookingCancelLabel"),
+                      bookingNoshowLabel: t("mock.bookingNoshowLabel"),
+                      bookingDepositValue: t("mock.bookingDepositValue", {
+                        percent: mockBookingPolicy.depositPercent,
+                      }),
+                      bookingCancelValue: t("mock.bookingCancelValue", {
+                        full: mockBookingPolicy.refundFullPercent,
+                        fullHours: mockBookingPolicy.cancelHoursThreshold,
+                        half: mockBookingPolicy.refundHalfPercent,
+                        halfHours: mockBookingPolicy.refundHalfHoursThreshold,
+                      }),
+                      bookingNoshowValue: t("mock.bookingNoshowValue"),
+                      paymentsHint: "",
+                      paymentsEnabled: "",
+                      paymentsDisabled: "",
+                      notificationsEnabled: "",
+                      notificationsDisabled: "",
+                    }}
+                  />
+                ),
+                payments: (
+                  <PaymentsMockSection
+                    methods={mockPaymentMethods}
+                    labels={{
+                      multilingualHint: "",
+                      multilingualAutoBadge: "",
+                      multilingualSourceBadge: "",
+                      channelStatusConnected: "",
+                      channelStatusPending: "",
+                      channelStatusNeedsBusiness: "",
+                      bookingDepositLabel: "",
+                      bookingCancelLabel: "",
+                      bookingNoshowLabel: "",
+                      bookingDepositValue: "",
+                      bookingCancelValue: "",
+                      bookingNoshowValue: "",
+                      paymentsHint: t("mock.paymentsHint"),
+                      paymentsEnabled: t("mock.paymentsEnabled"),
+                      paymentsDisabled: t("mock.paymentsDisabled"),
+                      notificationsEnabled: "",
+                      notificationsDisabled: "",
+                    }}
+                  />
+                ),
+                notifications: (
+                  <NotificationsMockSection
+                    channels={mockNotificationChannels}
+                    labels={{
+                      multilingualHint: "",
+                      multilingualAutoBadge: "",
+                      multilingualSourceBadge: "",
+                      channelStatusConnected: "",
+                      channelStatusPending: "",
+                      channelStatusNeedsBusiness: "",
+                      bookingDepositLabel: "",
+                      bookingCancelLabel: "",
+                      bookingNoshowLabel: "",
+                      bookingDepositValue: "",
+                      bookingCancelValue: "",
+                      bookingNoshowValue: "",
+                      paymentsHint: "",
+                      paymentsEnabled: "",
+                      paymentsDisabled: "",
+                      notificationsEnabled: t("mock.notificationsEnabled"),
+                      notificationsDisabled: t("mock.notificationsDisabled"),
+                    }}
+                  />
+                ),
+              }
+            : undefined
+        }
         labels={{
           navBasic: t("navBasic"),
           navAddress: t("navAddress"),

@@ -545,7 +545,26 @@
     "sectionEnBookingPolicy": "Booking Policy",
     "sectionEnPayments": "Payments",
     "sectionEnNotifications": "Notifications",
-    "sectionEnRisk": "Compliance"
+    "sectionEnRisk": "Compliance",
+    "mock": {
+      "multilingualHint": "Auto-translated from Korean. Review and approve before publishing.",
+      "multilingualAutoBadge": "AUTO",
+      "multilingualSourceBadge": "SOURCE",
+      "channelConnected": "Connected and live",
+      "channelPending": "Approval in progress",
+      "channelNeedsBusiness": "Activates after business registration",
+      "bookingDepositLabel": "Deposit",
+      "bookingDepositValue": "{percent}% deposit required to confirm",
+      "bookingCancelLabel": "Cancel & refund",
+      "bookingCancelValue": "{fullHours}h+: {full}% refund · {halfHours}h+: {half}% · under: 0%",
+      "bookingNoshowLabel": "No-show policy",
+      "bookingNoshowValue": "Auto-flag customers after 2 no-shows. Manual review for repeats.",
+      "paymentsHint": "Mock — wires to PG after business registration & KYB",
+      "paymentsEnabled": "ON",
+      "paymentsDisabled": "OFF",
+      "notificationsEnabled": "ON",
+      "notificationsDisabled": "OFF"
+    }
   },
   "BookingProgress": {
     "schedule": "Schedule",
