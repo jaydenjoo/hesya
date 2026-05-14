@@ -722,6 +722,30 @@
     "actionRequestMore": "Yêu cầu thêm",
     "realDataSection": "Hàng chờ DB thực (manual_review)"
   },
+  "AdminPayments": {
+    "richSection": "Cảnh báo & giao dịch (mock)",
+    "anomalyTitle": "Cảnh báo bất thường",
+    "txTitle": "Giao dịch gần đây (24h, mock)",
+    "txSubtitle": "Bảng hợp nhất Stripe / Alipay / WeChat / LINE Pay",
+    "txCols": {
+      "providerId": "Provider ID",
+      "channel": "Kênh",
+      "store": "Cửa hàng",
+      "customer": "Khách",
+      "amount": "Số tiền",
+      "status": "Trạng thái",
+      "capturedAt": "Thời gian"
+    },
+    "status": {
+      "captured": "Thành công",
+      "refunded": "Hoàn tiền",
+      "partial_refund": "Hoàn một phần",
+      "disputed": "Tranh chấp",
+      "failed": "Thất bại"
+    },
+    "mixTitle": "Phân bổ kênh",
+    "mixGmv": "Tổng GMV"
+  },
   "AdminAiCost": {
     "title": "Chi phí AI (ước tính)",
     "backToDashboard": "Về bảng điều khiển",

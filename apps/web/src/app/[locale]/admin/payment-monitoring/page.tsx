@@ -1,7 +1,19 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
 import { PageHeader } from "@/components/ui/page-header";
+import {
+  ChannelMix,
+  PaymentAnomalyBand,
+  TransactionTable,
+  type PaymentExtraLabels,
+} from "@/features/admin-payments/mock-extras";
+import {
+  mockPaymentAnomalies,
+  mockPaymentStats,
+  mockTransactions,
+} from "@/lib/mock-fixtures/admin-payments";
 import { env } from "@/shared/config/env";
 import {
   REFUND_RATE_MIN_SAMPLE_SIZE,
@@ -42,6 +54,31 @@ export default async function AdminPaymentMonitoringPage({
     metrics.totalCount >= REFUND_RATE_MIN_SAMPLE_SIZE &&
     metrics.refundRate > REFUND_RATE_THRESHOLD;
   const hasData = metrics.totalCount > 0;
+
+  const t = await getTranslations({ locale, namespace: "AdminPayments" });
+  const extraLabels: PaymentExtraLabels = {
+    anomalyTitle: t("anomalyTitle"),
+    txTitle: t("txTitle"),
+    txSubtitle: t("txSubtitle"),
+    txCols: {
+      providerId: t("txCols.providerId"),
+      channel: t("txCols.channel"),
+      store: t("txCols.store"),
+      customer: t("txCols.customer"),
+      amount: t("txCols.amount"),
+      status: t("txCols.status"),
+      capturedAt: t("txCols.capturedAt"),
+    },
+    statusLabel: {
+      captured: t("status.captured"),
+      refunded: t("status.refunded"),
+      partial_refund: t("status.partial_refund"),
+      disputed: t("status.disputed"),
+      failed: t("status.failed"),
+    },
+    mixTitle: t("mixTitle"),
+    mixGmv: t("mixGmv"),
+  };
 
   return (
     <div className="min-h-full bg-hesya-peach-50/30">
@@ -118,6 +155,30 @@ export default async function AdminPaymentMonitoringPage({
             ). 베타 운영 데이터 누적 후 admin UI 설정으로 전환 예정.
           </p>
         </section>
+
+        {env.MOCK_FIXTURES && (
+          <>
+            <div className="mt-10 mb-4 flex items-baseline gap-2">
+              <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+                {t("richSection")}
+              </span>
+              <span className="h-px flex-1 bg-hesya-navy-900/8" />
+            </div>
+
+            <PaymentAnomalyBand
+              anomalies={mockPaymentAnomalies}
+              title={extraLabels.anomalyTitle}
+            />
+
+            <ChannelMix
+              data={mockPaymentStats.channelMix}
+              title={extraLabels.mixTitle}
+              gmvLabel={extraLabels.mixGmv}
+            />
+
+            <TransactionTable rows={mockTransactions} labels={extraLabels} />
+          </>
+        )}
       </div>
     </div>
   );
