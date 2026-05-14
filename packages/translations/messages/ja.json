@@ -771,6 +771,19 @@
       "submit": "送信",
       "languageNote": "レビューは他の旅行者のために自動翻訳されます。",
       "skipAll": "すべてのレビューをスキップ"
+    },
+    "upcoming": {
+      "showQr": "QRを表示",
+      "directions": "道案内",
+      "chat": "チャット",
+      "reminder": "ご来店 <b>1時間前</b> にリマインダーをお送りします。",
+      "modify": "予約を変更",
+      "cancel": "キャンセル"
+    },
+    "perks": {
+      "title": "{count}回の予約完了",
+      "subtitle": "次回ご来店 · <b>{percent}% OFF</b>",
+      "footer": "{done}/{target} · あと{remaining}回で特典"
     }
   },
   "InboxSkipped": {

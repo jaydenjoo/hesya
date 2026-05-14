@@ -771,6 +771,19 @@
       "submit": "提交",
       "languageNote": "我们会自动翻译您的评价给其他旅行者。",
       "skipAll": "跳过全部评价"
+    },
+    "upcoming": {
+      "showQr": "显示二维码",
+      "directions": "路线",
+      "chat": "聊天",
+      "reminder": "我们将在到店 <b>1小时前</b> 提醒您。",
+      "modify": "修改预约",
+      "cancel": "取消"
+    },
+    "perks": {
+      "title": "完成{count}次预约",
+      "subtitle": "下次到访 · <b>{percent}%折扣</b>",
+      "footer": "{done}/{target} · 再{remaining}次即可享受优惠"
     }
   },
   "InboxSkipped": {
