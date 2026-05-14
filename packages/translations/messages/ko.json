@@ -567,6 +567,34 @@
       "dbLagLabel": "DB lag"
     }
   },
+  "AdminKycQueue": {
+    "title": "매장 검토 큐",
+    "subtitle": "신규 매장의 사업자 정보를 검토하고 K-Verified 자격을 부여합니다.",
+    "statsPending": "대기 중",
+    "statsSlaBreached": "SLA 초과",
+    "statsAvgRisk": "평균 위험도",
+    "statsToday": "오늘",
+    "statsApproved": "승인",
+    "statsRejected": "거절",
+    "statsAutoApproved": "자동 승인 (주간)",
+    "riskLow": "Low",
+    "riskMedium": "Med",
+    "riskHigh": "High",
+    "slaRemaining": "SLA 남음",
+    "slaBreachedShort": "SLA 초과",
+    "docStatus": {
+      "ok": "OK",
+      "blurry": "흐림",
+      "expired": "만료",
+      "missing": "누락"
+    },
+    "aiHintsTitle": "AI 검토 힌트",
+    "priorIncidentsTitle": "과거 분쟁",
+    "actionApprove": "승인",
+    "actionReject": "거절",
+    "actionRequestMore": "추가 자료 요청",
+    "realDataSection": "실 DB 검토 큐 (manual_review)"
+  },
   "AdminAiCost": {
     "title": "AI 비용 (추정)",
     "backToDashboard": "대시보드로",

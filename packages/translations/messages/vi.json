@@ -567,6 +567,34 @@
       "dbLagLabel": "DB lag"
     }
   },
+  "AdminKycQueue": {
+    "title": "Hàng chờ xét duyệt cửa hàng",
+    "subtitle": "Xét duyệt thông tin doanh nghiệp và cấp trạng thái K-Verified.",
+    "statsPending": "Đang chờ",
+    "statsSlaBreached": "Quá SLA",
+    "statsAvgRisk": "Rủi ro TB",
+    "statsToday": "Hôm nay",
+    "statsApproved": "duyệt",
+    "statsRejected": "từ chối",
+    "statsAutoApproved": "Tự động duyệt (tuần)",
+    "riskLow": "Thấp",
+    "riskMedium": "TB",
+    "riskHigh": "Cao",
+    "slaRemaining": "SLA còn",
+    "slaBreachedShort": "Quá SLA",
+    "docStatus": {
+      "ok": "OK",
+      "blurry": "Mờ",
+      "expired": "Hết hạn",
+      "missing": "Thiếu"
+    },
+    "aiHintsTitle": "Gợi ý AI",
+    "priorIncidentsTitle": "Sự cố trước đây",
+    "actionApprove": "Duyệt",
+    "actionReject": "Từ chối",
+    "actionRequestMore": "Yêu cầu thêm",
+    "realDataSection": "Hàng chờ DB thực (manual_review)"
+  },
   "AdminAiCost": {
     "title": "Chi phí AI (ước tính)",
     "backToDashboard": "Về bảng điều khiển",
