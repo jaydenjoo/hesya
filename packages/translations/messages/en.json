@@ -672,6 +672,27 @@
     "safetyStat4": "24/7 chat support in your language",
     "safetySource": "Source · CEOWORLD 2026 Solo Female Travel Index"
   },
+  "CustomerChat": {
+    "back": "Back",
+    "statusOnline": "online",
+    "statusResponds": "responds in {time}",
+    "translateOn": "ON",
+    "translateOff": "OFF",
+    "translateLabel": "Toggle auto-translate",
+    "composerPlaceholder": "Type in any language…",
+    "composerPhoto": "Attach photo",
+    "composerVoice": "Voice memo",
+    "composerSend": "Send",
+    "aiHint": "AI is helping you reply",
+    "aiHintPill": "Yes, I'll be there soon!",
+    "voiceTranscriptLabel": "Auto-transcript",
+    "auditTitle": "Translation audit",
+    "auditOriginal": "Original ({lang})",
+    "auditTranslated": "Translated ({lang})",
+    "auditConfident": "✓ Confident translation",
+    "auditAmbiguousDefault": "Some ambiguity — original shown above.",
+    "auditClose": "Got it"
+  },
   "PhotoAnalyze": {
     "back": "Back",
     "title": "Show us the look.",

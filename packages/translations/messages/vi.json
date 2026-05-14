@@ -672,6 +672,27 @@
     "safetyStat4": "Hỗ trợ chat 24/7 bằng ngôn ngữ của bạn",
     "safetySource": "Nguồn · CEOWORLD 2026 Solo Female Travel Index"
   },
+  "CustomerChat": {
+    "back": "Quay lại",
+    "statusOnline": "đang online",
+    "statusResponds": "trả lời trong {time}",
+    "translateOn": "ON",
+    "translateOff": "OFF",
+    "translateLabel": "Bật/tắt tự động dịch",
+    "composerPlaceholder": "Nhập bằng bất kỳ ngôn ngữ nào…",
+    "composerPhoto": "Đính kèm ảnh",
+    "composerVoice": "Tin nhắn thoại",
+    "composerSend": "Gửi",
+    "aiHint": "AI đang giúp bạn trả lời",
+    "aiHintPill": "Vâng, em sắp tới!",
+    "voiceTranscriptLabel": "Tự động chuyển thành chữ",
+    "auditTitle": "Kiểm tra bản dịch",
+    "auditOriginal": "Bản gốc ({lang})",
+    "auditTranslated": "Đã dịch ({lang})",
+    "auditConfident": "✓ Bản dịch chính xác",
+    "auditAmbiguousDefault": "Có chỗ mơ hồ — xem bản gốc ở trên.",
+    "auditClose": "Hiểu rồi"
+  },
   "PhotoAnalyze": {
     "back": "Quay lại",
     "title": "Cho chúng tôi xem kiểu bạn muốn.",
