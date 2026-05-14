@@ -687,7 +687,36 @@
     "trend14d": "推移 · 14日間",
     "byModel": "モデル別 · 今月",
     "byModelEmpty": "今月の AI メッセージなし。",
-    "messageCount": "{n} 件"
+    "messageCount": "{n} 件",
+    "richSection": "詳細モニタリング",
+    "heatmapTitle": "時間帯別コストヒートマップ",
+    "heatmapSubtitle": "曜日 × 時間の推定コスト (過去7日)",
+    "endpointTitle": "エンドポイント別コスト",
+    "endpointSubtitle": "API エンドポイント × 呼出数 / コスト / p95 / エラー率",
+    "endpointCols": {
+      "endpoint": "エンドポイント",
+      "calls": "呼出",
+      "cost": "コスト",
+      "share": "比率",
+      "p95": "p95",
+      "error": "エラー"
+    },
+    "anomalyTitle": "異常アラート",
+    "forecastTitle": "予算ペーシング & 月末予測",
+    "forecastMtd": "Month-to-date",
+    "forecastBudget": "予算",
+    "forecastEom": "月末予測",
+    "forecastPacing": "ペース",
+    "forecastDaysRemaining": "残日数",
+    "days": {
+      "mon": "月",
+      "tue": "火",
+      "wed": "水",
+      "thu": "木",
+      "fri": "金",
+      "sat": "土",
+      "sun": "日"
+    }
   },
   "AdminDashboard": {
     "title": "Hesya 運営状況",

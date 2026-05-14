@@ -687,7 +687,36 @@
     "trend14d": "趨勢 · 14 天",
     "byModel": "依模型 · 本月",
     "byModelEmpty": "本月無 AI 訊息。",
-    "messageCount": "{n} 則"
+    "messageCount": "{n} 則",
+    "richSection": "深度監控",
+    "heatmapTitle": "依小時成本熱力圖",
+    "heatmapSubtitle": "星期 × 小時估算成本 (近7天)",
+    "endpointTitle": "Endpoint 成本拆解",
+    "endpointSubtitle": "API endpoint × 呼叫數 / 成本 / p95 延遲 / 錯誤率",
+    "endpointCols": {
+      "endpoint": "Endpoint",
+      "calls": "呼叫",
+      "cost": "成本",
+      "share": "佔比",
+      "p95": "p95",
+      "error": "錯誤率"
+    },
+    "anomalyTitle": "異常告警",
+    "forecastTitle": "預算節奏 & 月末預測",
+    "forecastMtd": "本月至今",
+    "forecastBudget": "預算",
+    "forecastEom": "月末預測",
+    "forecastPacing": "節奏",
+    "forecastDaysRemaining": "剩餘天數",
+    "days": {
+      "mon": "週一",
+      "tue": "週二",
+      "wed": "週三",
+      "thu": "週四",
+      "fri": "週五",
+      "sat": "週六",
+      "sun": "週日"
+    }
   },
   "AdminDashboard": {
     "title": "Hesya · 營運",

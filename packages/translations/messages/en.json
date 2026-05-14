@@ -687,7 +687,36 @@
     "trend14d": "Trend · 14 days",
     "byModel": "By model · this month",
     "byModelEmpty": "No AI messages this month.",
-    "messageCount": "{n} msgs"
+    "messageCount": "{n} msgs",
+    "richSection": "Deep monitoring",
+    "heatmapTitle": "Hourly cost heatmap",
+    "heatmapSubtitle": "Day × hour estimated cost (last 7 days)",
+    "endpointTitle": "Endpoint cost breakdown",
+    "endpointSubtitle": "API endpoint × calls / cost / p95 latency / error rate",
+    "endpointCols": {
+      "endpoint": "Endpoint",
+      "calls": "Calls",
+      "cost": "Cost",
+      "share": "Share",
+      "p95": "p95",
+      "error": "Error"
+    },
+    "anomalyTitle": "Anomaly alerts",
+    "forecastTitle": "Budget pacing & EOM forecast",
+    "forecastMtd": "Month-to-date",
+    "forecastBudget": "budget",
+    "forecastEom": "EOM forecast",
+    "forecastPacing": "Pacing",
+    "forecastDaysRemaining": "Days remaining",
+    "days": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    }
   },
   "AdminDashboard": {
     "title": "Hesya operations",
