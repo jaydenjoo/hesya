@@ -1,10 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
+// namespace 별로 다른 prefix를 echo하도록 mock 확장.
+// 같은 키("description")가 multi-namespace 페이지에 중복 등장하므로
+// getByText("description") 충돌 회피.
 vi.mock("next-intl/server", () => ({
-  getTranslations: async () =>
+  getTranslations: async (namespace: string) =>
     function t(key: string) {
-      return key;
+      return `${namespace}.${key}`;
     },
 }));
 
@@ -27,9 +30,12 @@ describe("ConnectPage", () => {
     const sp = Promise.resolve({});
     const ui = await ConnectPage({ params, searchParams: sp });
     render(ui);
-    expect(screen.getByText("title")).toBeInTheDocument();
-    expect(screen.getByText("description")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "button" })).toBeInTheDocument();
+    expect(
+      screen.getByText("Inbox.notConnected.description"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Inbox\.notConnected\.button/ }),
+    ).toBeInTheDocument();
   });
 
   it("searchParams.error 화이트리스트 값 → 에러 메시지(failed 키) 표시", async () => {
@@ -37,7 +43,7 @@ describe("ConnectPage", () => {
     const sp = Promise.resolve({ error: "exchange_failed" });
     const ui = await ConnectPage({ params, searchParams: sp });
     render(ui);
-    expect(screen.getByRole("alert")).toHaveTextContent("failed");
+    expect(screen.getByRole("alert")).toHaveTextContent("Inbox.connect.failed");
   });
 
   it("searchParams.error 알 수 없는 값 → 에러 표시 안 함 (reflected injection 차단)", async () => {
