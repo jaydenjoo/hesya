@@ -1,29 +1,35 @@
 /**
  * admin-dashboard DAL — unit + integration tests.
  *
- * 본 파일은 PR #158이 추가한 3 DAL 함수 중심:
- *   - normalizeRegionToCode (unit, no DB)
- *   - getDisputeSlaResolution (integration)
- *   - getStoreRegionDistribution (integration)
- *   - getTopCategoriesByGmv (integration)
+ * Cover 함수:
+ *   - PR #158: normalizeRegionToCode (unit), getDisputeSlaResolution,
+ *              getStoreRegionDistribution, getTopCategoriesByGmv
+ *   - PR #154: getAdminAlertCounts, getAdminKpiSummary
+ *   - PR #156: getMonthlyNewStoresCounts
  *
- * PR #156이 추가한 getMonthlyNewStoresCounts / getDailyAiCostSpark 및
- * PR #154가 추가한 getAdminAlertCounts / getAdminKpiSummary /
- * getAdminAuditTrail은 별 PR backfill.
+ * 별도 PR backfill 예정 (격리 제약):
+ *   - getAdminAuditTrail — kyc_verification_logs IMMUTABLE (BEFORE DELETE trigger)
+ *   - getDailyAiCostSpark — messages FK chain (conversations + customers seed 필요)
  */
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
+  apiPolicyAlerts,
   bookings,
   createDbClient,
+  customers,
   disputes,
   services,
   stores,
+  storeDeletionRequests,
   type DbClient,
 } from "@hesya/database";
 
 import { resetDb, seedCustomer, seedStore } from "@/test-helpers/db";
 import {
+  getAdminAlertCounts,
+  getAdminKpiSummary,
   getDisputeSlaResolution,
+  getMonthlyNewStoresCounts,
   getStoreRegionDistribution,
   getTopCategoriesByGmv,
   normalizeRegionToCode,
@@ -453,6 +459,374 @@ describe.skipIf(!hasDb)("dal.admin-dashboard (integration)", () => {
       expect(rows).toHaveLength(3);
       expect(rows[0]!.name).toBe("g"); // 70k
       expect(rows[2]!.name).toBe("e"); // 50k
+    });
+  });
+
+  describe("getAdminAlertCounts", () => {
+    it("아무 데이터 없음 → 4 필드 모두 0", async () => {
+      const r = await getAdminAlertCounts(db);
+      expect(r).toEqual({
+        pendingKyc: 0,
+        openDisputes: 0,
+        newApiPolicyAlerts: 0,
+        pendingStoreDeletions: 0,
+      });
+    });
+
+    it("manual_review 매장 2건 → pendingKyc=2 (auto_approved/soft-deleted 제외)", async () => {
+      await db.insert(stores).values([
+        { name: "검토중1", verificationStatus: "manual_review" },
+        { name: "검토중2", verificationStatus: "manual_review" },
+        { name: "승인됨", verificationStatus: "auto_approved" },
+        {
+          name: "검토중-삭제됨",
+          verificationStatus: "manual_review",
+          deletedAt: new Date(),
+        },
+      ]);
+      const r = await getAdminAlertCounts(db);
+      expect(r.pendingKyc).toBe(2);
+    });
+
+    it("open + in_review 분쟁만 openDisputes에 합산", async () => {
+      const storeId = await seedStore(db);
+      const future = new Date(Date.now() + 86_400_000);
+      await db.insert(disputes).values([
+        {
+          storeId,
+          category: "refund",
+          description: "x",
+          status: "open",
+          slaDueAt: future,
+        },
+        {
+          storeId,
+          category: "refund",
+          description: "x",
+          status: "in_review",
+          slaDueAt: future,
+        },
+        {
+          storeId,
+          category: "refund",
+          description: "x",
+          status: "resolved",
+          slaDueAt: future,
+          resolvedAt: new Date(),
+        },
+      ]);
+      const r = await getAdminAlertCounts(db);
+      expect(r.openDisputes).toBe(2);
+    });
+
+    it("status='new' API 정책 알림만 newApiPolicyAlerts에 합산", async () => {
+      await db.insert(apiPolicyAlerts).values([
+        {
+          source: "meta",
+          title: "t1",
+          link: "https://x.test/1",
+          guid: "g1",
+          status: "new",
+        },
+        {
+          source: "meta",
+          title: "t2",
+          link: "https://x.test/2",
+          guid: "g2",
+          status: "new",
+        },
+        {
+          source: "meta",
+          title: "t3",
+          link: "https://x.test/3",
+          guid: "g3",
+          status: "reviewed",
+        },
+      ]);
+      const r = await getAdminAlertCounts(db);
+      expect(r.newApiPolicyAlerts).toBe(2);
+    });
+
+    it("cancelledAt NULL 삭제 요청만 pendingStoreDeletions에 합산", async () => {
+      const future = new Date(Date.now() + 30 * 86_400_000);
+      await db.insert(storeDeletionRequests).values([
+        {
+          storeNameSnapshot: "S1",
+          source: "owner",
+          requestedByEmail: "a@x.test",
+          scheduledPurgeAt: future,
+        },
+        {
+          storeNameSnapshot: "S2",
+          source: "admin",
+          requestedByEmail: "b@x.test",
+          scheduledPurgeAt: future,
+        },
+        {
+          storeNameSnapshot: "S3-cancelled",
+          source: "owner",
+          requestedByEmail: "c@x.test",
+          scheduledPurgeAt: future,
+          cancelledAt: new Date(),
+          cancelledByEmail: "c@x.test",
+        },
+      ]);
+      const r = await getAdminAlertCounts(db);
+      expect(r.pendingStoreDeletions).toBe(2);
+    });
+  });
+
+  describe("getAdminKpiSummary", () => {
+    const range = () => {
+      const now = new Date();
+      const fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      const toDate = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+      );
+      return { fromDate, toDate };
+    };
+
+    it("아무 데이터 없음 → 모든 카운트 0 + 빈 nationality 배열", async () => {
+      const r = await getAdminKpiSummary(db, range());
+      expect(r).toEqual({
+        activeStores: 0,
+        totalRegistered: 0,
+        newStoresToday: 0,
+        foreignGmvMtdKrw: 0,
+        foreignBookingsMtd: 0,
+        foreignBookingsByNationality: [],
+      });
+    });
+
+    it("auto_approved=3 + manual_review=2 + soft-deleted=1 → active=3, total=5", async () => {
+      await db.insert(stores).values([
+        { name: "A1", verificationStatus: "auto_approved" },
+        { name: "A2", verificationStatus: "auto_approved" },
+        { name: "A3", verificationStatus: "auto_approved" },
+        { name: "M1", verificationStatus: "manual_review" },
+        { name: "M2", verificationStatus: "manual_review" },
+        {
+          name: "DEL",
+          verificationStatus: "auto_approved",
+          deletedAt: new Date(),
+        },
+      ]);
+      const r = await getAdminKpiSummary(db, range());
+      expect(r.activeStores).toBe(3);
+      expect(r.totalRegistered).toBe(5);
+    });
+
+    it("오늘 createdAt 매장만 newStoresToday 합산", async () => {
+      const todayStart = new Date();
+      todayStart.setUTCHours(12, 0, 0, 0);
+      const yesterday = new Date(Date.now() - 86_400_000);
+      await db.insert(stores).values([
+        { name: "오늘1", verificationStatus: "auto_approved" }, // defaultNow
+        { name: "오늘2", verificationStatus: "auto_approved" },
+        {
+          name: "어제",
+          verificationStatus: "auto_approved",
+          createdAt: yesterday,
+        },
+      ]);
+      const r = await getAdminKpiSummary(db, range());
+      expect(r.newStoresToday).toBe(2);
+    });
+
+    it("이번달 booking GMV 합산 (cancelled 제외)", async () => {
+      const storeId = await seedStore(db);
+      const customerId = await seedCustomer(db, {
+        channel: "instagram",
+        externalId: "kpi-1",
+      });
+      const [svc] = await db
+        .insert(services)
+        .values({ storeId, nameKo: "x", priceKrw: 50_000 })
+        .returning({ id: services.id });
+      const now = new Date();
+      const thisMonth = new Date(now.getFullYear(), now.getMonth(), 10);
+      await db.insert(bookings).values([
+        {
+          storeId,
+          customerId,
+          serviceId: svc!.id,
+          scheduledAt: thisMonth,
+          status: "confirmed",
+          totalPriceKrw: 80_000,
+        },
+        {
+          storeId,
+          customerId,
+          serviceId: svc!.id,
+          scheduledAt: thisMonth,
+          status: "completed",
+          totalPriceKrw: 120_000,
+        },
+        {
+          storeId,
+          customerId,
+          serviceId: svc!.id,
+          scheduledAt: thisMonth,
+          status: "cancelled",
+          totalPriceKrw: 999_999,
+        },
+      ]);
+      const r = await getAdminKpiSummary(db, range());
+      expect(r.foreignGmvMtdKrw).toBe(200_000);
+      expect(r.foreignBookingsMtd).toBe(2);
+    });
+
+    it("nationality 그룹 + count 정렬 (desc) + null/공백 → 'unknown'", async () => {
+      const storeId = await seedStore(db);
+      const [svc] = await db
+        .insert(services)
+        .values({ storeId, nameKo: "x", priceKrw: 10_000 })
+        .returning({ id: services.id });
+      const [jp1] = await db
+        .insert(customers)
+        .values({
+          channel: "instagram",
+          externalId: "jp1",
+          nationality: "JP",
+        })
+        .returning({ id: customers.id });
+      const [jp2] = await db
+        .insert(customers)
+        .values({
+          channel: "instagram",
+          externalId: "jp2",
+          nationality: "JP",
+        })
+        .returning({ id: customers.id });
+      const [us1] = await db
+        .insert(customers)
+        .values({
+          channel: "instagram",
+          externalId: "us1",
+          nationality: "US",
+        })
+        .returning({ id: customers.id });
+      const [unk1] = await db
+        .insert(customers)
+        .values({
+          channel: "instagram",
+          externalId: "unk1",
+          nationality: null,
+        })
+        .returning({ id: customers.id });
+
+      const now = new Date();
+      const thisMonth = new Date(now.getFullYear(), now.getMonth(), 10);
+      await db.insert(bookings).values([
+        {
+          storeId,
+          customerId: jp1!.id,
+          serviceId: svc!.id,
+          scheduledAt: thisMonth,
+          status: "confirmed",
+          totalPriceKrw: 10_000,
+        },
+        {
+          storeId,
+          customerId: jp2!.id,
+          serviceId: svc!.id,
+          scheduledAt: thisMonth,
+          status: "confirmed",
+          totalPriceKrw: 10_000,
+        },
+        {
+          storeId,
+          customerId: us1!.id,
+          serviceId: svc!.id,
+          scheduledAt: thisMonth,
+          status: "confirmed",
+          totalPriceKrw: 10_000,
+        },
+        {
+          storeId,
+          customerId: unk1!.id,
+          serviceId: svc!.id,
+          scheduledAt: thisMonth,
+          status: "confirmed",
+          totalPriceKrw: 10_000,
+        },
+      ]);
+      const r = await getAdminKpiSummary(db, range());
+      expect(r.foreignBookingsByNationality[0]).toEqual({
+        nationality: "JP",
+        count: 2,
+      });
+      const us = r.foreignBookingsByNationality.find(
+        (n) => n.nationality === "US",
+      );
+      const unk = r.foreignBookingsByNationality.find(
+        (n) => n.nationality === "unknown",
+      );
+      expect(us?.count).toBe(1);
+      expect(unk?.count).toBe(1);
+    });
+  });
+
+  describe("getMonthlyNewStoresCounts", () => {
+    it("0건 → 12 row 모두 value=0", async () => {
+      const rows = await getMonthlyNewStoresCounts(db);
+      expect(rows).toHaveLength(12);
+      expect(rows.every((r) => r.value === 0)).toBe(true);
+    });
+
+    it("최근 3개월 매장 시드 → 마지막 3 bucket에 분배", async () => {
+      const now = new Date();
+      // 이번 달, 1개월 전, 2개월 전 시드 (각 1건씩).
+      const thisMonth = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 15),
+      );
+      const oneAgo = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 15),
+      );
+      const twoAgo = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 2, 15),
+      );
+      await db.insert(stores).values([
+        { name: "thisMonth", createdAt: thisMonth },
+        { name: "oneAgo", createdAt: oneAgo },
+        { name: "twoAgo", createdAt: twoAgo },
+      ]);
+      const rows = await getMonthlyNewStoresCounts(db, now);
+      expect(rows).toHaveLength(12);
+      expect(rows[11]!.value).toBe(1); // 이번 달 (가장 최근)
+      expect(rows[10]!.value).toBe(1); // 1개월 전
+      expect(rows[9]!.value).toBe(1); // 2개월 전
+      expect(rows.slice(0, 9).every((r) => r.value === 0)).toBe(true);
+    });
+
+    it("soft-deleted (deletedAt NOT NULL) 매장 제외", async () => {
+      const now = new Date();
+      const thisMonth = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 10),
+      );
+      await db.insert(stores).values([
+        { name: "live", createdAt: thisMonth },
+        { name: "deleted", createdAt: thisMonth, deletedAt: new Date() },
+      ]);
+      const rows = await getMonthlyNewStoresCounts(db, now);
+      expect(rows[11]!.value).toBe(1);
+    });
+
+    it("12개월 초과 (13개월 전) 매장 제외", async () => {
+      const now = new Date();
+      const thirteenAgo = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 13, 15),
+      );
+      await db
+        .insert(stores)
+        .values([{ name: "tooOld", createdAt: thirteenAgo }]);
+      const rows = await getMonthlyNewStoresCounts(db, now);
+      expect(rows.every((r) => r.value === 0)).toBe(true);
     });
   });
 });

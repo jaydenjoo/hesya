@@ -2,14 +2,17 @@
 // Helper는 schema reference만 — client에서 import해도 DB 연결 부작용 없음.
 // Production bundle 보호는 코드 리뷰·디렉토리 컨벤션에 의존 (test-helpers/**).
 import {
+  apiPolicyAlerts,
   bookings,
   conversations,
   customers,
+  disputes,
   messages,
   payments,
   reviews,
   services,
   staff,
+  storeDeletionRequests,
   storeIntegrations,
   storeKnowledge,
   storeOwners,
@@ -36,7 +39,11 @@ export async function resetDb(db: DbClient): Promise<void> {
   // store_integrations / store_owners → stores, customers → 자체
   // store_owners.storeId는 onDelete 미지정(NO ACTION)이라 명시 delete 필요.
   // payments → bookings → stores/customers (모두 onDelete 미지정 = NO ACTION).
+  // disputes → stores (NO ACTION), apiPolicyAlerts → 독립 (FK 없음),
+  // storeDeletionRequests → stores (SET NULL이지만 row 잔존하므로 명시 삭제).
   // users는 Better Auth 관리 — reset 안 함 (seedUser 누적은 dev/test DB에서만 무해).
+  // kyc_verification_logs는 IMMUTABLE (BEFORE DELETE trigger) → reset 불가.
+  // audit trail 통합 테스트는 별도 격리 전략 필요.
   await db.delete(messages);
   await db.delete(conversations);
   await db.delete(reviews);
@@ -48,6 +55,9 @@ export async function resetDb(db: DbClient): Promise<void> {
   await db.delete(bookings);
   await db.delete(services);
   await db.delete(staff);
+  await db.delete(disputes);
+  await db.delete(apiPolicyAlerts);
+  await db.delete(storeDeletionRequests);
   await db.delete(customers);
   await db.delete(stores);
 }
