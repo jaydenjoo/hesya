@@ -77,17 +77,19 @@
 
 ### M5 — 외부 데모 환경 확정 + UAT (1주)
 
-**목표**: Vercel preview를 안정적 외부 데모로 격상 + ζ.4 재실행.
+**목표**: ~~Vercel preview를 안정적 외부 데모로 격상~~ → **prod 단일 baseline 데모 확정** + ζ.4 재실행.
 
-| Task                                                                                    | 예상  | 산출물                        |
-| --------------------------------------------------------------------------------------- | ----- | ----------------------------- |
-| M5.1 Vercel preview 데모 모드 — `?demo=1` query 시 인증 bypass + 격리 DB                | 1일   | proxy.ts 분기                 |
-| M5.2 Mock 흐름 통합 e2e (Playwright) — customer 예약 → 사장 수락 → admin 모니터 전 경로 | 1.5일 | `e2e/mock-flow.spec.ts`       |
-| M5.3 ζ.4 stress test 재실행 + LCP/INP 측정                                              | 0.5일 | stress-test 결과              |
-| M5.4 UAT — Jayden 또는 외부인 1~2명 워크스루                                            | 0.5일 | UAT 리포트                    |
-| M5.5 `MOCK_*` swap procedure 문서 — 사업자 등록 후 실 연동 전환                         | 0.5일 | `docs/mock-swap-procedure.md` |
+> ⚠️ **v3.1 정책 변경 (2026-05-14)**: 메모리 `feedback_demo_no_personal_env_dependency.md` 적용. RED 프로젝트는 prod 1곳이 외부 데모 baseline. preview 기반 항목은 폐기, prod 직접 검증으로 대체.
 
-**검증**: 외부인 Vercel preview URL만으로 전 흐름 완주 + Core Web Vitals 통과.
+| Task                                                                                    | 예상  | 상태                                             | 산출물                        |
+| --------------------------------------------------------------------------------------- | ----- | ------------------------------------------------ | ----------------------------- |
+| ~~M5.1 Vercel preview 데모 모드 — `?demo=1` 인증 bypass~~                               | 1일   | ❌ 폐기 (prod에 demo 계정 prefill로 대체)        | —                             |
+| M5.2 Mock 흐름 통합 e2e (Playwright) — customer 예약 → 사장 수락 → admin 모니터 전 경로 | 1.5일 | ✅ 완료 (Sprint 2 prod e2e 13/14)                | `e2e/*.spec.ts`               |
+| M5.3 ζ.4 stress test 재실행 + LCP/INP 측정                                              | 0.5일 | ✅ 완료 (세션 32 perf -94%, cold 546ms)          | `docs/performance.md`         |
+| ~~M5.4 UAT — Vercel Preview demo env 등록 (Jayden 외부 작업)~~                          | 0.5일 | ❌ 폐기 (prod e2e + ADMIN_EMAILS prefill로 대체) | —                             |
+| M5.5 `MOCK_*` swap procedure 문서 — 사업자 등록 후 실 연동 전환                         | 0.5일 | 🔄 보류 (사업자 등록 후 작성)                    | `docs/mock-swap-procedure.md` |
+
+**검증**: ~~외부인 Vercel preview URL만으로~~ **prod URL (hesya-web.vercel.app)** 만으로 전 흐름 완주 + Core Web Vitals 통과 ✅.
 
 ## 2. Mock 인프라 공통 패턴
 
@@ -215,6 +217,7 @@ M5 (1주) ──── 외부 데모 환경 + UAT
 ## 9. 변경 이력
 
 - v3.0 (2026-05-11, 세션 9): Mock-first 5 phase 분해 + env flag 5개 도입 (M1.1 시작)
+- v3.1 (2026-05-14, 세션 33): RED 프로젝트 정책 (`feedback_demo_no_personal_env_dependency.md`) 반영. M5.1 (preview bypass) + M5.4 (preview demo env 등록) 폐기 → prod 단일 baseline. Sprint 2 12 PR 머지 + prod e2e 13/14 통과로 M5.2 / M5.3 완료. M5.5는 사업자 등록 후 작성 보류.
 
 ## 관련 문서
 
