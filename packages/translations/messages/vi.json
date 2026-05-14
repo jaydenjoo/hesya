@@ -584,7 +584,46 @@
     "mypage": "Trang của tôi",
     "viewStore": "Xem",
     "reviewCountSuffix": "({n})",
-    "verifiedBadge": "K-Verified"
+    "verifiedBadge": "K-Verified",
+    "aiPhotoCta": "Cho AI xem kiểu bạn muốn",
+    "aiPhotoSubtitle": "1 ảnh → phân tích khả thi + thời gian tức thì"
+  },
+  "PhotoAnalyze": {
+    "back": "Quay lại",
+    "title": "Cho chúng tôi xem kiểu bạn muốn.",
+    "dropHint": "Kéo thả ảnh, hoặc bấm để chọn.",
+    "cameraButton": "Chụp ảnh",
+    "libraryButton": "Chọn từ thư viện",
+    "privacy": "Ảnh chụp K-drama, tạp chí, selfie đều được. Ảnh chỉ dùng để phân tích và sẽ bị xóa sau đó.",
+    "analyzing": {
+      "reading": "Đang đọc",
+      "matching": "Khớp phong cách",
+      "capability": "Khả năng thực hiện",
+      "done": "Hoàn tất",
+      "encourage": "Đang phân tích từng sợi tóc…",
+      "poweredBy": "Hesya Vision AI"
+    },
+    "result": {
+      "heading": "Salon Hàn Quốc làm được.",
+      "styleLabel": "Phong cách nhận dạng",
+      "difficultyLabel": "Độ khó",
+      "difficultyEasy": "Dễ",
+      "difficultyMedium": "Trung bình",
+      "difficultyHard": "Khó",
+      "timeLabel": "Thời gian dự kiến",
+      "timeMinutes": "{n} phút",
+      "compatibilityLabel": "Hợp với tóc",
+      "confidenceLabel": "Độ tin cậy",
+      "retryButton": "Thử phong cách khác",
+      "disclaimer": "Mô phỏng này là ước tính AI. Kết quả thực tế phụ thuộc vào kết cấu tóc, độ dài và cách stylist diễn giải. Hãy hỏi stylist qua chat trước khi đặt lịch."
+    },
+    "errors": {
+      "tooLarge": "File quá lớn (tối đa 8MB).",
+      "invalidType": "Chỉ hỗ trợ JPEG/PNG/WebP.",
+      "rateLimited": "Quá nhiều yêu cầu. Vui lòng thử lại sau.",
+      "visionFailed": "AI phân tích thất bại. Vui lòng thử lại.",
+      "generic": "Đã xảy ra lỗi."
+    }
   },
   "CustomerSignIn": {
     "eyebrow": "DU KHÁCH",

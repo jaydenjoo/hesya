@@ -102,6 +102,8 @@ export default async function CustomerLandingPage({
         // suffix는 "({n})" 같은 wrapper text로 client에서 replace.
         reviewCountSuffix: t("reviewCountSuffix"),
         verifiedBadge: t("verifiedBadge"),
+        aiPhotoCta: t("aiPhotoCta"),
+        aiPhotoSubtitle: t("aiPhotoSubtitle"),
       }}
     />
   );

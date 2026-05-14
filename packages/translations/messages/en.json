@@ -584,7 +584,46 @@
     "mypage": "My page",
     "viewStore": "View",
     "reviewCountSuffix": "({n})",
-    "verifiedBadge": "K-Verified"
+    "verifiedBadge": "K-Verified",
+    "aiPhotoCta": "Show AI the look you want",
+    "aiPhotoSubtitle": "1 photo → instant feasibility + time estimate"
+  },
+  "PhotoAnalyze": {
+    "back": "Back",
+    "title": "Show us the look.",
+    "dropHint": "Drop a photo, or tap to choose.",
+    "cameraButton": "Take photo",
+    "libraryButton": "From library",
+    "privacy": "Works with K-drama screenshots, magazine clippings, or selfies. Your photo stays private — we delete it after analysis.",
+    "analyzing": {
+      "reading": "Reading",
+      "matching": "Matching styles",
+      "capability": "Salon capability",
+      "done": "Done",
+      "encourage": "Looking at every strand. One sec…",
+      "poweredBy": "Hesya Vision AI"
+    },
+    "result": {
+      "heading": "Korean salons can do this.",
+      "styleLabel": "Style recognized",
+      "difficultyLabel": "Difficulty",
+      "difficultyEasy": "Easy",
+      "difficultyMedium": "Medium",
+      "difficultyHard": "Advanced",
+      "timeLabel": "Estimated time",
+      "timeMinutes": "{n} min",
+      "compatibilityLabel": "Hair compatibility",
+      "confidenceLabel": "Confidence",
+      "retryButton": "Try a different style",
+      "disclaimer": "This simulation is an AI estimate. The actual result depends on your hair texture, length, and the stylist's interpretation. We always recommend confirming with the stylist via chat before booking."
+    },
+    "errors": {
+      "tooLarge": "File too large (max 8MB).",
+      "invalidType": "Only JPEG/PNG/WebP supported.",
+      "rateLimited": "Too many requests. Please try again later.",
+      "visionFailed": "AI analysis failed. Please try again.",
+      "generic": "Something went wrong."
+    }
   },
   "CustomerSignIn": {
     "eyebrow": "TRAVELER",
