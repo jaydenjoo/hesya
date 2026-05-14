@@ -362,7 +362,25 @@
     "nationalityTitle": "Nationality mix",
     "topServicesTitle": "Top services",
     "topStaffTitle": "Top staff",
-    "noData": "No data"
+    "noData": "No data",
+    "richSection": "Deeper insights",
+    "heatmapTitle": "Service hour heatmap",
+    "heatmapSubtitle": "Day × hour booking intensity (last 30 days)",
+    "funnelTitle": "Purchase funnel",
+    "funnelSubtitle": "Landing → store view → booking → payment → visit",
+    "funnelConvSuffix": "%",
+    "cohortTitle": "New-customer cohorts",
+    "cohortSubtitle": "Monthly cohorts, 6-month retention trail",
+    "cohortNewLabel": "New",
+    "stackedBarTitle": "Revenue by payment method",
+    "stackedBarSubtitle": "Stripe · Alipay · WeChat Pay · LINE Pay (₩)",
+    "stackedBarLegend": {
+      "stripe": "Stripe",
+      "alipay": "Alipay",
+      "wechat": "WeChat Pay",
+      "linepay": "LINE Pay"
+    },
+    "insightsTitle": "AI insights"
   },
   "StoreIntegrations": {
     "title": "External booking integrations",

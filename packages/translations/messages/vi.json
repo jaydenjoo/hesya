@@ -362,7 +362,25 @@
     "nationalityTitle": "Cơ cấu quốc tịch",
     "topServicesTitle": "Dịch vụ TOP 5",
     "topStaffTitle": "Nhân viên TOP 5",
-    "noData": "Chưa có dữ liệu"
+    "noData": "Chưa có dữ liệu",
+    "richSection": "Thông tin chuyên sâu",
+    "heatmapTitle": "Bản đồ nhiệt giờ dịch vụ",
+    "heatmapSubtitle": "Cường độ đặt lịch theo thứ × giờ (30 ngày qua)",
+    "funnelTitle": "Phễu mua hàng",
+    "funnelSubtitle": "Trang chủ → cửa hàng → đặt lịch → thanh toán → đến nơi",
+    "funnelConvSuffix": "%",
+    "cohortTitle": "Nhóm khách hàng mới",
+    "cohortSubtitle": "Tỷ lệ quay lại 6 tháng theo từng tháng",
+    "cohortNewLabel": "Mới",
+    "stackedBarTitle": "Doanh thu theo phương thức thanh toán",
+    "stackedBarSubtitle": "Stripe · Alipay · WeChat Pay · LINE Pay (₩)",
+    "stackedBarLegend": {
+      "stripe": "Stripe",
+      "alipay": "Alipay",
+      "wechat": "WeChat Pay",
+      "linepay": "LINE Pay"
+    },
+    "insightsTitle": "Thông tin AI"
   },
   "StoreIntegrations": {
     "title": "Tích hợp hệ thống đặt lịch ngoài",

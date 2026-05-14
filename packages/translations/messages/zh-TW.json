@@ -362,7 +362,25 @@
     "nationalityTitle": "國籍分佈",
     "topServicesTitle": "服務 TOP 5",
     "topStaffTitle": "設計師 TOP 5",
-    "noData": "暫無資料"
+    "noData": "暫無資料",
+    "richSection": "深度洞察",
+    "heatmapTitle": "服務時段熱力圖",
+    "heatmapSubtitle": "星期 × 小時預約強度 (近30天)",
+    "funnelTitle": "購買漏斗",
+    "funnelSubtitle": "落地頁 → 門店 → 預約 → 支付 → 到店",
+    "funnelConvSuffix": "%",
+    "cohortTitle": "新客戶世代",
+    "cohortSubtitle": "按月分組的新客戶六個月留存",
+    "cohortNewLabel": "新",
+    "stackedBarTitle": "支付方式收入",
+    "stackedBarSubtitle": "Stripe · Alipay · WeChat Pay · LINE Pay (₩)",
+    "stackedBarLegend": {
+      "stripe": "Stripe",
+      "alipay": "支付寶",
+      "wechat": "微信支付",
+      "linepay": "LINE Pay"
+    },
+    "insightsTitle": "AI 洞察"
   },
   "StoreIntegrations": {
     "title": "外部預約系統串接",
