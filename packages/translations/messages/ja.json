@@ -394,7 +394,25 @@
     "nationalityTitle": "国籍構成",
     "topServicesTitle": "施術TOP5",
     "topStaffTitle": "スタッフTOP5",
-    "noData": "データなし"
+    "noData": "データなし",
+    "richSection": "深掘りインサイト",
+    "heatmapTitle": "施術時間帯ヒートマップ",
+    "heatmapSubtitle": "曜日 × 時間の予約強度 (過去30日)",
+    "funnelTitle": "購入ファネル",
+    "funnelSubtitle": "ランディング → 店舗 → 予約 → 決済 → 来店",
+    "funnelConvSuffix": "%",
+    "cohortTitle": "新規顧客コホート",
+    "cohortSubtitle": "月別の新規顧客、6か月の再来店推移",
+    "cohortNewLabel": "新規",
+    "stackedBarTitle": "決済手段別売上",
+    "stackedBarSubtitle": "Stripe · Alipay · WeChat Pay · LINE Pay (₩)",
+    "stackedBarLegend": {
+      "stripe": "Stripe",
+      "alipay": "Alipay",
+      "wechat": "WeChat Pay",
+      "linepay": "LINE Pay"
+    },
+    "insightsTitle": "AI インサイト"
   },
   "StoreIntegrations": {
     "title": "外部予約システム連携",

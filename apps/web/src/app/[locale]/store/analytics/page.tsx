@@ -5,6 +5,24 @@ import { createDbClient } from "@hesya/database";
 
 import { DistributionPie } from "@/features/dashboard";
 import { MonthlyRevenueChart } from "@/features/analytics/monthly-revenue-chart";
+import {
+  CohortTable,
+  FunnelChart,
+  HeatmapChart,
+  InsightBand,
+  StackedBarChart,
+  type AnalyticsMockChartLabels,
+} from "@/features/analytics/mock-charts";
+import {
+  mockCohortRows,
+  mockCohortSlots,
+  mockFunnelStages,
+  mockHeatmapData,
+  mockHeatmapDays,
+  mockHeatmapHours,
+  mockInsights,
+  mockStackedBarData,
+} from "@/lib/mock-fixtures/analytics";
 import { env } from "@/shared/config/env";
 import {
   getMonthlyRevenue,
@@ -65,6 +83,26 @@ export default async function StoreAnalyticsPage({
 
   const t = await getTranslations("StoreAnalytics");
   const data = await getCachedAnalytics(storeId);
+
+  const mockChartLabels: AnalyticsMockChartLabels = {
+    heatmapTitle: t("heatmapTitle"),
+    heatmapSubtitle: t("heatmapSubtitle"),
+    funnelTitle: t("funnelTitle"),
+    funnelSubtitle: t("funnelSubtitle"),
+    funnelConvSuffix: t("funnelConvSuffix"),
+    cohortTitle: t("cohortTitle"),
+    cohortSubtitle: t("cohortSubtitle"),
+    cohortNewLabel: t("cohortNewLabel"),
+    stackedBarTitle: t("stackedBarTitle"),
+    stackedBarSubtitle: t("stackedBarSubtitle"),
+    stackedBarLegend: {
+      stripe: t("stackedBarLegend.stripe"),
+      alipay: t("stackedBarLegend.alipay"),
+      wechat: t("stackedBarLegend.wechat"),
+      linepay: t("stackedBarLegend.linepay"),
+    },
+    insightsTitle: t("insightsTitle"),
+  };
 
   const repeatPct = Math.round(data.repeat.repeatRate * 100);
   const totalRevenue = data.monthly.reduce((a, b) => a + b.revenueKrw, 0);
@@ -160,6 +198,47 @@ export default async function StoreAnalyticsPage({
             emptyLabel={t("noData")}
           />
         </section>
+
+        {env.MOCK_FIXTURES && (
+          <>
+            <div className="mt-10 mb-4 flex items-baseline gap-2">
+              <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+                {t("richSection")}
+              </span>
+              <span className="h-px flex-1 bg-hesya-navy-900/8" />
+            </div>
+
+            <section className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <HeatmapChart
+                data={mockHeatmapData}
+                days={mockHeatmapDays}
+                hours={mockHeatmapHours}
+                labels={mockChartLabels}
+              />
+              <FunnelChart stages={mockFunnelStages} labels={mockChartLabels} />
+            </section>
+
+            <section className="mb-4">
+              <CohortTable
+                rows={mockCohortRows}
+                slots={mockCohortSlots}
+                labels={mockChartLabels}
+              />
+            </section>
+
+            <section className="mb-6">
+              <StackedBarChart
+                data={mockStackedBarData}
+                labels={mockChartLabels}
+              />
+            </section>
+
+            <InsightBand
+              insights={mockInsights}
+              title={mockChartLabels.insightsTitle}
+            />
+          </>
+        )}
       </div>
     </div>
   );

@@ -394,7 +394,25 @@
     "nationalityTitle": "국적 분포",
     "topServicesTitle": "시술 TOP 5",
     "topStaffTitle": "디자이너 TOP 5",
-    "noData": "데이터 없음"
+    "noData": "데이터 없음",
+    "richSection": "심층 인사이트",
+    "heatmapTitle": "시술 시간대 히트맵",
+    "heatmapSubtitle": "요일 × 시간 예약 강도 (지난 30일)",
+    "funnelTitle": "구매 깔때기",
+    "funnelSubtitle": "Landing → 매장 진입 → 예약 → 결제 → 방문",
+    "funnelConvSuffix": "%",
+    "cohortTitle": "신규 손님 코호트",
+    "cohortSubtitle": "월별 신규 손님의 6개월 재방문 추이",
+    "cohortNewLabel": "신규",
+    "stackedBarTitle": "결제 수단별 매출",
+    "stackedBarSubtitle": "Stripe · Alipay · WeChat Pay · LINE Pay (₩)",
+    "stackedBarLegend": {
+      "stripe": "Stripe",
+      "alipay": "Alipay",
+      "wechat": "WeChat Pay",
+      "linepay": "LINE Pay"
+    },
+    "insightsTitle": "AI 인사이트"
   },
   "StoreIntegrations": {
     "title": "외부 예약 시스템 연동",
