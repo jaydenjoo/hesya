@@ -115,6 +115,10 @@ export interface CustomerLandingLabels {
   reviewCountSuffix: string;
   /** Batch 2: K-Verified badge. auto_approved 매장 모두 표시. */
   verifiedBadge: string;
+  /** Epic B (2026-05-14): AI Photo Analysis CTA 제목. 미설정 시 CTA 숨김. */
+  aiPhotoCta?: string;
+  /** Epic B: CTA 서브 라인. */
+  aiPhotoSubtitle?: string;
 }
 
 interface Props {
@@ -244,6 +248,27 @@ export function CustomerLanding({
               })}
             </div>
           </div>
+        )}
+
+        {labels.aiPhotoCta && labels.aiPhotoSubtitle && (
+          <Link
+            href={`/${locale}/c/photo-analyze`}
+            data-testid="landing-photo-cta"
+            className="mb-7 flex items-center gap-4 rounded-3xl bg-gradient-to-br from-hesya-amber-100 to-hesya-peach-100 px-5 py-4 ring-1 ring-hesya-amber-600/20 transition hover:shadow-[0_8px_24px_-8px_rgba(216,139,91,0.25)]"
+          >
+            <span aria-hidden="true" className="text-[28px]" role="img">
+              ✨
+            </span>
+            <div className="flex-1">
+              <p className="text-[14px] font-semibold text-hesya-navy-900">
+                {labels.aiPhotoCta}
+              </p>
+              <p className="text-[11.5px] text-hesya-navy-900/65">
+                {labels.aiPhotoSubtitle}
+              </p>
+            </div>
+            <span className="text-hesya-amber-600">→</span>
+          </Link>
         )}
 
         <div className="mb-7">

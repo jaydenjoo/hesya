@@ -584,7 +584,46 @@
     "mypage": "我的頁面",
     "viewStore": "查看",
     "reviewCountSuffix": "({n})",
-    "verifiedBadge": "K-Verified"
+    "verifiedBadge": "K-Verified",
+    "aiPhotoCta": "讓AI看您想要的造型",
+    "aiPhotoSubtitle": "1張照片 → 即時分析可行性與耗時"
+  },
+  "PhotoAnalyze": {
+    "back": "返回",
+    "title": "展示您想要的造型。",
+    "dropHint": "拖曳照片,或點擊選擇。",
+    "cameraButton": "拍照",
+    "libraryButton": "從相簿選擇",
+    "privacy": "K-drama 截圖、雜誌圖片、自拍皆可。照片僅用於分析,完成後立即刪除。",
+    "analyzing": {
+      "reading": "正在讀取",
+      "matching": "匹配風格",
+      "capability": "判斷可行性",
+      "done": "完成",
+      "encourage": "正在逐根分析髮絲…",
+      "poweredBy": "Hesya Vision AI"
+    },
+    "result": {
+      "heading": "韓國美容院可以完成。",
+      "styleLabel": "辨識風格",
+      "difficultyLabel": "難度",
+      "difficultyEasy": "簡單",
+      "difficultyMedium": "中等",
+      "difficultyHard": "高難度",
+      "timeLabel": "預估時間",
+      "timeMinutes": "{n} 分鐘",
+      "compatibilityLabel": "髮質適配",
+      "confidenceLabel": "可信度",
+      "retryButton": "換一個風格試試",
+      "disclaimer": "此模擬為AI推估。實際效果取決於您的髮質、長度及設計師詮釋。預約前建議與設計師確認。"
+    },
+    "errors": {
+      "tooLarge": "檔案過大(最大8MB)。",
+      "invalidType": "僅支援 JPEG/PNG/WebP。",
+      "rateLimited": "請求過多,請稍後再試。",
+      "visionFailed": "AI 分析失敗,請重試。",
+      "generic": "發生未知錯誤。"
+    }
   },
   "CustomerSignIn": {
     "eyebrow": "旅行者",

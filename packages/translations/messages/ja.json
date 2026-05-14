@@ -584,7 +584,46 @@
     "mypage": "マイページ",
     "viewStore": "見る",
     "reviewCountSuffix": "({n})",
-    "verifiedBadge": "K-Verified"
+    "verifiedBadge": "K-Verified",
+    "aiPhotoCta": "なりたいスタイルをAIに見せる",
+    "aiPhotoSubtitle": "写真1枚 → 施術可否・所要時間を即時分析"
+  },
+  "PhotoAnalyze": {
+    "back": "戻る",
+    "title": "なりたいスタイルを見せてください。",
+    "dropHint": "写真をドロップするか、タップして選択。",
+    "cameraButton": "撮影",
+    "libraryButton": "ライブラリから",
+    "privacy": "K-ドラマのスクリーンショット、雑誌、自撮りでもOK。写真は分析後に削除され、外部には共有されません。",
+    "analyzing": {
+      "reading": "写真を解析中",
+      "matching": "スタイル照合",
+      "capability": "施術可否",
+      "done": "完了",
+      "encourage": "髪一本一本を見ています…",
+      "poweredBy": "Hesya Vision AI"
+    },
+    "result": {
+      "heading": "韓国のサロンで再現可能です。",
+      "styleLabel": "認識されたスタイル",
+      "difficultyLabel": "難易度",
+      "difficultyEasy": "簡単",
+      "difficultyMedium": "普通",
+      "difficultyHard": "高難度",
+      "timeLabel": "所要時間",
+      "timeMinutes": "{n}分",
+      "compatibilityLabel": "髪質との相性",
+      "confidenceLabel": "信頼度",
+      "retryButton": "別のスタイルを試す",
+      "disclaimer": "このシミュレーションはAIの推定です。実際の仕上がりは髪質・長さ・スタイリストの解釈で異なる場合があります。予約前にスタイリストとの相談をおすすめします。"
+    },
+    "errors": {
+      "tooLarge": "ファイルが大きすぎます(最大8MB)。",
+      "invalidType": "JPEG/PNG/WebPのみ対応。",
+      "rateLimited": "リクエストが多すぎます。少し待ってからもう一度お試しください。",
+      "visionFailed": "AI解析に失敗しました。もう一度お試しください。",
+      "generic": "エラーが発生しました。"
+    }
   },
   "CustomerSignIn": {
     "eyebrow": "旅行者",

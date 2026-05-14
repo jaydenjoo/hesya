@@ -10,6 +10,7 @@ export * from "./disputes";
 export * from "./kyc-verification-logs";
 export * from "./messages";
 export * from "./payments";
+export * from "./photo-analyses";
 export * from "./reviews";
 export * from "./services";
 export * from "./staff";

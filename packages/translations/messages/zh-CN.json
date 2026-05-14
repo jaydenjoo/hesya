@@ -584,7 +584,46 @@
     "mypage": "我的",
     "viewStore": "查看",
     "reviewCountSuffix": "({n})",
-    "verifiedBadge": "K-Verified"
+    "verifiedBadge": "K-Verified",
+    "aiPhotoCta": "让AI看你想要的造型",
+    "aiPhotoSubtitle": "1张照片 → 即时分析可行性和耗时"
+  },
+  "PhotoAnalyze": {
+    "back": "返回",
+    "title": "展示你想要的造型。",
+    "dropHint": "拖拽照片,或点击选择。",
+    "cameraButton": "拍照",
+    "libraryButton": "从相册选择",
+    "privacy": "K-drama 截图、杂志图片、自拍都可以。照片仅用于分析,完成后立即删除。",
+    "analyzing": {
+      "reading": "正在读取",
+      "matching": "匹配风格",
+      "capability": "判断可行性",
+      "done": "完成",
+      "encourage": "正在逐根分析头发…",
+      "poweredBy": "Hesya Vision AI"
+    },
+    "result": {
+      "heading": "韩国美容院可以完成。",
+      "styleLabel": "识别风格",
+      "difficultyLabel": "难度",
+      "difficultyEasy": "简单",
+      "difficultyMedium": "中等",
+      "difficultyHard": "高难度",
+      "timeLabel": "预计时间",
+      "timeMinutes": "{n} 分钟",
+      "compatibilityLabel": "发质适配",
+      "confidenceLabel": "可信度",
+      "retryButton": "换一个风格试试",
+      "disclaimer": "此模拟为AI估算。实际效果取决于您的发质、长度及设计师理解。预约前建议与设计师沟通。"
+    },
+    "errors": {
+      "tooLarge": "文件过大(最大8MB)。",
+      "invalidType": "仅支持 JPEG/PNG/WebP。",
+      "rateLimited": "请求过多,请稍后再试。",
+      "visionFailed": "AI 分析失败,请重试。",
+      "generic": "发生未知错误。"
+    }
   },
   "CustomerSignIn": {
     "eyebrow": "旅行者",
