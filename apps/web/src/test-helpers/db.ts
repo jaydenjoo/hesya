@@ -6,9 +6,11 @@ import {
   bookings,
   conversations,
   customers,
+  customerSavedStores,
   disputes,
   messages,
   payments,
+  photoAnalyses,
   reviews,
   services,
   staff,
@@ -16,6 +18,8 @@ import {
   storeIntegrations,
   storeKnowledge,
   storeOwners,
+  storeReports,
+  storeToneExamples,
   storeVerifications,
   stores,
   users,
@@ -41,6 +45,10 @@ export async function resetDb(db: DbClient): Promise<void> {
   // payments → bookings → stores/customers (모두 onDelete 미지정 = NO ACTION).
   // disputes → stores (NO ACTION), apiPolicyAlerts → 독립 (FK 없음),
   // storeDeletionRequests → stores (SET NULL이지만 row 잔존하므로 명시 삭제).
+  // photoAnalyses / customerSavedStores / storeToneExamples / storeReports
+  // → stores (PR #190 후 누락 식별, 2026-05-14): file 간 잔여 row가 stores DELETE
+  // 시 23503 FK violation 시그널 → silent partial reset → 다음 file의 expect 0 fail
+  // 폭발(예: admin-dashboard `getAdminKpiSummary 빈 데이터` → newStoresToday: 1).
   // users는 Better Auth 관리 — reset 안 함 (seedUser 누적은 dev/test DB에서만 무해).
   // kyc_verification_logs는 IMMUTABLE (BEFORE DELETE trigger) → reset 불가.
   // audit trail 통합 테스트는 별도 격리 전략 필요.
@@ -58,6 +66,10 @@ export async function resetDb(db: DbClient): Promise<void> {
   await db.delete(disputes);
   await db.delete(apiPolicyAlerts);
   await db.delete(storeDeletionRequests);
+  await db.delete(photoAnalyses);
+  await db.delete(customerSavedStores);
+  await db.delete(storeToneExamples);
+  await db.delete(storeReports);
   await db.delete(customers);
   await db.delete(stores);
 }
