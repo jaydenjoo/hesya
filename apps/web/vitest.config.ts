@@ -41,9 +41,17 @@ export default defineConfig({
     // (`forks` / `threads` / `vmThreads` / `vmForks`)로 분리됨. 이전
     // `poolOptions: { forks: { singleFork } }`는 v4에서 silent ignore되어
     // 병렬 fork race로 다수 DAL test FK violation 폭발 회귀를 유발했음 (2026-05-14).
+    //
+    // `singleFork`만으로는 file 사이 sequential 보장 안 됨 — 같은 fork process
+    // 안에서도 async event loop interleave로 file A의 in-flight `await db.insert`
+    // 중 file B beforeEach `resetDb`가 시작 → shared DB state race → admin-dashboard
+    // / stores / disputes DAL test random fail (2026-05-14 baseline 3회 dispatch
+    // 분포: 12/11/14, deterministic core 외 random tail 큼). `fileParallelism: false`로
+    // file 사이도 sequential 명시 (vitest 4 정식 옵션).
     pool: "forks",
     // @ts-expect-error vitest 4 InlineConfig type 정의에 pool-specific 옵션
     // (`forks`/`threads`/...) 미반영. runtime은 정상 수용 (위 deprecation 참조).
     forks: { singleFork: true },
+    fileParallelism: false,
   },
 });
