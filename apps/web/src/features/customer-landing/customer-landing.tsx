@@ -11,10 +11,16 @@
  * Batch 2 (2026-05-14): placeholder rotator (5 string 3.5s) + mood chips (9) + StoreCard rating bar.
  */
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import type { PublicStore } from "@/shared/lib/dal/stores";
+import type {
+  MockReview,
+  MockTrendingSearch,
+  MockUGCCard,
+} from "@/lib/mock-fixtures/landing";
 
 // 디자인 ref: `docs/design/reference/landing-app.jsx` greetings array.
 // 5 언어 환영 인사 rotation — 외국인 손님 첫 진입 시 다국어 친화 시그널.
@@ -119,6 +125,23 @@ export interface CustomerLandingLabels {
   aiPhotoCta?: string;
   /** Epic B: CTA 서브 라인. */
   aiPhotoSubtitle?: string;
+  /** Sprint 2A: live row / UGC / trending / reviews / safety 5섹션 labels. 미설정 시 섹션 숨김. */
+  liveRow?: string;
+  ugcTitle?: string;
+  ugcSubtitle?: string;
+  ugcShowMore?: string;
+  trendingTitle?: string;
+  trendingSubtitle?: string;
+  reviewsTitle?: string;
+  reviewsSubtitle?: string;
+  safetyTitle?: string;
+  safetyStat1?: string;
+  /** ICU `{percent}` 채워서 전달 (e.g., "92%의 매장에..."). */
+  safetyStat2?: string;
+  /** ICU `{min}` 채워서 전달. */
+  safetyStat3?: string;
+  safetyStat4?: string;
+  safetySource?: string;
 }
 
 interface Props {
@@ -129,6 +152,10 @@ interface Props {
   regions: string[];
   stores: PublicStore[];
   labels: CustomerLandingLabels;
+  /** Sprint 2A: MOCK_FIXTURES=true 시 page.tsx에서 주입. 빈 배열이면 섹션 숨김. */
+  mockUGCCards?: ReadonlyArray<MockUGCCard>;
+  mockTrending?: ReadonlyArray<MockTrendingSearch>;
+  mockReviews?: ReadonlyArray<MockReview>;
 }
 
 export function CustomerLanding({
@@ -139,6 +166,9 @@ export function CustomerLanding({
   regions,
   stores,
   labels,
+  mockUGCCards,
+  mockTrending,
+  mockReviews,
 }: Props) {
   const router = useRouter();
   const [region, setRegion] = useState(initialRegion);
@@ -247,6 +277,21 @@ export function CustomerLanding({
                 );
               })}
             </div>
+            {labels.liveRow && (
+              <div
+                data-testid="landing-live-row"
+                className="mt-3 flex items-center gap-2 text-[11px] font-medium text-hesya-navy-900/55"
+              >
+                <span
+                  aria-hidden="true"
+                  className="relative inline-flex h-1.5 w-1.5"
+                >
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                </span>
+                {labels.liveRow}
+              </div>
+            )}
           </div>
         )}
 
@@ -328,6 +373,182 @@ export function CustomerLanding({
             </div>
           </>
         )}
+
+        {mockTrending && mockTrending.length > 0 && labels.trendingTitle && (
+          <section data-testid="landing-trending" className="mt-12">
+            <header className="mb-3">
+              <h3 className="font-heading text-[18px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900 sm:text-[20px]">
+                {labels.trendingTitle}
+              </h3>
+              {labels.trendingSubtitle && (
+                <p className="mt-1 text-[12px] text-hesya-navy-900/55">
+                  {labels.trendingSubtitle}
+                </p>
+              )}
+            </header>
+            <div className="flex flex-wrap gap-2">
+              {mockTrending.map((t) => (
+                <button
+                  key={t.rank}
+                  type="button"
+                  onClick={() => {
+                    setSearch(t.text);
+                    navigate(region, t.text);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-[13px] text-hesya-navy-900 ring-1 ring-hesya-peach-200 transition hover:bg-hesya-peach-100"
+                >
+                  <span className="font-mono text-[11px] font-bold text-hesya-amber-600">
+                    #{t.rank}
+                  </span>
+                  {t.text}
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {mockUGCCards && mockUGCCards.length > 0 && labels.ugcTitle && (
+          <section data-testid="landing-ugc" className="mt-12">
+            <header className="mb-4">
+              <h3 className="font-heading text-[18px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900 sm:text-[20px]">
+                {labels.ugcTitle}
+              </h3>
+              {labels.ugcSubtitle && (
+                <p className="mt-1 text-[12px] text-hesya-navy-900/55">
+                  {labels.ugcSubtitle}
+                </p>
+              )}
+            </header>
+            <div className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+              {mockUGCCards.map((c) => (
+                <article
+                  key={c.id}
+                  className="flex h-[250px] w-[200px] flex-shrink-0 flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-hesya-navy-900/10"
+                >
+                  <div className="relative h-[168px] flex-shrink-0 bg-gradient-to-br from-hesya-peach-100 to-hesya-amber-200">
+                    <Image
+                      src={c.imageUrl}
+                      alt={`${c.name} — ${c.quote}`}
+                      width={200}
+                      height={168}
+                      loading="lazy"
+                      sizes="200px"
+                      className="h-full w-full object-cover"
+                    />
+                    <span
+                      aria-label={
+                        c.source === "instagram" ? "Instagram" : "Xiaohongshu"
+                      }
+                      className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/85 text-[10px] font-bold backdrop-blur"
+                      style={{
+                        color: c.source === "instagram" ? "#C13584" : "#FE2C55",
+                      }}
+                    >
+                      {c.source === "instagram" ? "◉" : "红"}
+                    </span>
+                  </div>
+                  <div className="flex flex-1 flex-col justify-between p-3">
+                    <div className="flex items-center gap-1.5 text-[12px]">
+                      <span aria-hidden="true">{c.flag}</span>
+                      <span className="font-medium text-hesya-navy-900">
+                        {c.name}
+                      </span>
+                      <span
+                        aria-label={`${c.stars} stars`}
+                        className="ml-auto text-[11px] text-hesya-amber-500"
+                      >
+                        {"★".repeat(c.stars)}
+                      </span>
+                    </div>
+                    <p className="text-[11px] leading-relaxed text-hesya-navy-900/80 [word-break:keep-all]">
+                      &ldquo;{c.quote}&rdquo;
+                    </p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {mockReviews && mockReviews.length > 0 && labels.reviewsTitle && (
+          <section data-testid="landing-reviews" className="mt-12">
+            <header className="mb-4">
+              <h3 className="font-heading text-[18px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900 sm:text-[20px]">
+                {labels.reviewsTitle}
+              </h3>
+              {labels.reviewsSubtitle && (
+                <p className="mt-1 text-[12px] text-hesya-navy-900/55">
+                  {labels.reviewsSubtitle}
+                </p>
+              )}
+            </header>
+            <div className="flex flex-col gap-3">
+              {mockReviews.map((r) => (
+                <article
+                  key={r.id}
+                  className="flex gap-3 rounded-2xl bg-white p-4 ring-1 ring-hesya-peach-200"
+                >
+                  <div className="flex flex-shrink-0 flex-col items-center gap-1">
+                    <span aria-hidden="true" className="text-[22px]">
+                      {r.flag}
+                    </span>
+                    <span
+                      aria-label={`${r.stars} stars`}
+                      className="text-[11px] text-hesya-amber-500"
+                    >
+                      {"★".repeat(r.stars)}
+                    </span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[14px] font-medium leading-relaxed text-hesya-navy-900 [word-break:keep-all]">
+                      &ldquo;{r.quote}&rdquo;
+                    </p>
+                    <p className="mt-1.5 text-[12px] italic text-hesya-navy-900/55">
+                      → {r.translation}
+                    </p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {labels.safetyTitle &&
+          labels.safetyStat1 &&
+          labels.safetyStat2 &&
+          labels.safetyStat3 &&
+          labels.safetyStat4 && (
+            <section data-testid="landing-safety" className="mt-12">
+              <div className="rounded-2xl bg-hesya-peach-100 px-5 py-5 ring-1 ring-hesya-amber-600/15">
+                <h3 className="mb-3 text-[13px] font-semibold uppercase tracking-[0.12em] text-hesya-navy-900">
+                  {labels.safetyTitle}
+                </h3>
+                <ul className="flex flex-col gap-2.5">
+                  {[
+                    ["🇰🇷", labels.safetyStat1],
+                    ["👥", labels.safetyStat2],
+                    ["📍", labels.safetyStat3],
+                    ["💬", labels.safetyStat4],
+                  ].map(([icon, text], i) => (
+                    <li
+                      key={i}
+                      className="grid grid-cols-[24px_1fr] items-start gap-2.5 text-[12px] leading-relaxed text-hesya-navy-900/75 [word-break:keep-all]"
+                    >
+                      <span aria-hidden="true" className="text-[14px]">
+                        {icon}
+                      </span>
+                      <span>{text}</span>
+                    </li>
+                  ))}
+                </ul>
+                {labels.safetySource && (
+                  <p className="mt-3 border-t border-dashed border-hesya-navy-900/10 pt-2.5 text-[10px] tracking-[0.02em] text-hesya-navy-900/45">
+                    {labels.safetySource}
+                  </p>
+                )}
+              </div>
+            </section>
+          )}
       </div>
     </div>
   );

@@ -18,6 +18,12 @@ import { auth } from "@/lib/auth";
 import { env } from "@/shared/config/env";
 import { listPublicStores } from "@/shared/lib/dal/stores";
 import { CustomerLanding } from "@/features/customer-landing/customer-landing";
+import {
+  mockReviews,
+  mockSafetyStats,
+  mockTrendingSearches,
+  mockUGCCards,
+} from "@/lib/mock-fixtures/landing";
 
 /**
  * 공개 매장 목록 60초 캐시 — region/search 조합별.
@@ -72,6 +78,10 @@ export default async function CustomerLandingPage({
 
   const t = await getTranslations({ locale, namespace: "CustomerLanding" });
 
+  // Sprint 2A: MOCK_FIXTURES=true 시 풍부한 mock 섹션 (UGC/trending/reviews).
+  // false면 빈 배열 → 컴포넌트가 섹션 자동 숨김 (실 DAL fallback은 Phase 1.5).
+  const useFixtures = env.MOCK_FIXTURES;
+
   return (
     <CustomerLanding
       locale={locale}
@@ -80,6 +90,9 @@ export default async function CustomerLandingPage({
       initialSearch={q?.trim() ?? ""}
       stores={stores}
       regions={[...REGIONS]}
+      mockUGCCards={useFixtures ? mockUGCCards : undefined}
+      mockTrending={useFixtures ? mockTrendingSearches : undefined}
+      mockReviews={useFixtures ? mockReviews : undefined}
       labels={{
         eyebrow: t("eyebrow"),
         title: t("title"),
@@ -104,6 +117,25 @@ export default async function CustomerLandingPage({
         verifiedBadge: t("verifiedBadge"),
         aiPhotoCta: t("aiPhotoCta"),
         aiPhotoSubtitle: t("aiPhotoSubtitle"),
+        // Sprint 2A: 5 신규 reference 섹션 labels.
+        liveRow: useFixtures ? t("liveRow") : undefined,
+        ugcTitle: useFixtures ? t("ugcTitle") : undefined,
+        ugcSubtitle: useFixtures ? t("ugcSubtitle") : undefined,
+        ugcShowMore: useFixtures ? t("ugcShowMore") : undefined,
+        trendingTitle: useFixtures ? t("trendingTitle") : undefined,
+        trendingSubtitle: useFixtures ? t("trendingSubtitle") : undefined,
+        reviewsTitle: useFixtures ? t("reviewsTitle") : undefined,
+        reviewsSubtitle: useFixtures ? t("reviewsSubtitle") : undefined,
+        safetyTitle: useFixtures ? t("safetyTitle") : undefined,
+        safetyStat1: useFixtures ? t("safetyStat1") : undefined,
+        safetyStat2: useFixtures
+          ? t("safetyStat2", { percent: mockSafetyStats.femalePercent })
+          : undefined,
+        safetyStat3: useFixtures
+          ? t("safetyStat3", { min: mockSafetyStats.subwayMinutes })
+          : undefined,
+        safetyStat4: useFixtures ? t("safetyStat4") : undefined,
+        safetySource: useFixtures ? t("safetySource") : undefined,
       }}
     />
   );

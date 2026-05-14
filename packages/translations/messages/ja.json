@@ -656,7 +656,21 @@
     "reviewCountSuffix": "({n})",
     "verifiedBadge": "K-Verified",
     "aiPhotoCta": "なりたいスタイルをAIに見せる",
-    "aiPhotoSubtitle": "写真1枚 → 施術可否・所要時間を即時分析"
+    "aiPhotoSubtitle": "写真1枚 → 施術可否・所要時間を即時分析",
+    "liveRow": "今、K-beauty SNSでトレンド",
+    "ugcTitle": "本物の旅人、本物の結果",
+    "ugcSubtitle": "Instagram・小紅書からのストーリー",
+    "ugcShowMore": "もっと見る",
+    "trendingTitle": "今週、外国人に最も人気の施術",
+    "trendingSubtitle": "タップで検索に適用",
+    "reviewsTitle": "本物の旅人のリアルなレビュー",
+    "reviewsSubtitle": "あなたの言語に自動翻訳",
+    "safetyTitle": "ソロ旅行者向けガイド",
+    "safetyStat1": "韓国 — 女性旅行者向けTier 2安全国",
+    "safetyStat2": "Hesya加盟店の{percent}%に女性スタイリストが在籍",
+    "safetyStat3": "全店舗が主要駅から徒歩{min}分以内",
+    "safetyStat4": "あなたの言語で24/7チャットサポート",
+    "safetySource": "出典 · CEOWORLD 2026 Solo Female Travel Index"
   },
   "PhotoAnalyze": {
     "back": "戻る",

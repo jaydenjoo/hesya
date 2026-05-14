@@ -656,7 +656,21 @@
     "reviewCountSuffix": "({n})",
     "verifiedBadge": "K-Verified",
     "aiPhotoCta": "AI에게 원하는 스타일 보여주기",
-    "aiPhotoSubtitle": "사진 1장 → 시술 가능 여부·예상 시간 즉시 분석"
+    "aiPhotoSubtitle": "사진 1장 → 시술 가능 여부·예상 시간 즉시 분석",
+    "liveRow": "지금 K-뷰티 SNS에서 인기",
+    "ugcTitle": "진짜 여행자들이 공유한 모습",
+    "ugcSubtitle": "Instagram·샤오홍슈에서 가져온 후기",
+    "ugcShowMore": "더 보기",
+    "trendingTitle": "이번 주 외국인이 가장 많이 찾은 시술",
+    "trendingSubtitle": "탭하면 검색에 자동 적용",
+    "reviewsTitle": "진짜 후기, 진짜 여행자",
+    "reviewsSubtitle": "번역은 자동으로 표시됩니다",
+    "safetyTitle": "솔로 여행자 안내",
+    "safetyStat1": "대한민국 — 여성 여행자 Tier 2 안전 국가",
+    "safetyStat2": "Hesya 매장 {percent}%에 여성 스타일리스트 상주",
+    "safetyStat3": "모든 매장 주요 지하철역 도보 {min}분 이내",
+    "safetyStat4": "내 언어로 24/7 채팅 지원",
+    "safetySource": "출처 · CEOWORLD 2026 Solo Female Travel Index"
   },
   "PhotoAnalyze": {
     "back": "뒤로",
