@@ -676,6 +676,34 @@
       "dbLagLabel": "DB lag"
     }
   },
+  "AdminKycQueue": {
+    "title": "門店審核佇列",
+    "subtitle": "審核新門店的事業者資訊並授予 K-Verified 資格。",
+    "statsPending": "待審核",
+    "statsSlaBreached": "超 SLA",
+    "statsAvgRisk": "平均風險",
+    "statsToday": "今日",
+    "statsApproved": "通過",
+    "statsRejected": "拒絕",
+    "statsAutoApproved": "自動通過 (週)",
+    "riskLow": "低",
+    "riskMedium": "中",
+    "riskHigh": "高",
+    "slaRemaining": "SLA 剩",
+    "slaBreachedShort": "超 SLA",
+    "docStatus": {
+      "ok": "OK",
+      "blurry": "模糊",
+      "expired": "過期",
+      "missing": "缺失"
+    },
+    "aiHintsTitle": "AI 審核提示",
+    "priorIncidentsTitle": "過往糾紛",
+    "actionApprove": "通過",
+    "actionReject": "拒絕",
+    "actionRequestMore": "請求補件",
+    "realDataSection": "真實 DB 審核佇列 (manual_review)"
+  },
   "AdminAiCost": {
     "title": "AI 成本 (估算)",
     "backToDashboard": "返回儀表板",

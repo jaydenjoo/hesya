@@ -676,6 +676,34 @@
       "dbLagLabel": "DB lag"
     }
   },
+  "AdminKycQueue": {
+    "title": "门店审核队列",
+    "subtitle": "审核新门店的商家信息并授予 K-Verified 资格。",
+    "statsPending": "待审核",
+    "statsSlaBreached": "超 SLA",
+    "statsAvgRisk": "平均风险",
+    "statsToday": "今天",
+    "statsApproved": "通过",
+    "statsRejected": "拒绝",
+    "statsAutoApproved": "自动通过 (周)",
+    "riskLow": "低",
+    "riskMedium": "中",
+    "riskHigh": "高",
+    "slaRemaining": "SLA 剩",
+    "slaBreachedShort": "超 SLA",
+    "docStatus": {
+      "ok": "OK",
+      "blurry": "模糊",
+      "expired": "过期",
+      "missing": "缺失"
+    },
+    "aiHintsTitle": "AI 审核提示",
+    "priorIncidentsTitle": "过往纠纷",
+    "actionApprove": "通过",
+    "actionReject": "拒绝",
+    "actionRequestMore": "请求补件",
+    "realDataSection": "真实 DB 审核队列 (manual_review)"
+  },
   "AdminAiCost": {
     "title": "AI 成本 (估算)",
     "backToDashboard": "返回仪表板",

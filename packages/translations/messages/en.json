@@ -676,6 +676,34 @@
       "dbLagLabel": "DB lag"
     }
   },
+  "AdminKycQueue": {
+    "title": "Store verification queue",
+    "subtitle": "Review new store business documents and grant K-Verified status.",
+    "statsPending": "Pending",
+    "statsSlaBreached": "SLA breached",
+    "statsAvgRisk": "Avg risk",
+    "statsToday": "Today",
+    "statsApproved": "approved",
+    "statsRejected": "rejected",
+    "statsAutoApproved": "Auto-approved (week)",
+    "riskLow": "Low",
+    "riskMedium": "Med",
+    "riskHigh": "High",
+    "slaRemaining": "SLA remaining",
+    "slaBreachedShort": "SLA breached",
+    "docStatus": {
+      "ok": "OK",
+      "blurry": "Blurry",
+      "expired": "Expired",
+      "missing": "Missing"
+    },
+    "aiHintsTitle": "AI review hints",
+    "priorIncidentsTitle": "Prior incidents",
+    "actionApprove": "Approve",
+    "actionReject": "Reject",
+    "actionRequestMore": "Request more docs",
+    "realDataSection": "Real DB review queue (manual_review)"
+  },
   "AdminAiCost": {
     "title": "AI cost (estimated)",
     "backToDashboard": "Back to dashboard",

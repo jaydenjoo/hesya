@@ -676,6 +676,34 @@
       "dbLagLabel": "DB lag"
     }
   },
+  "AdminKycQueue": {
+    "title": "店舗審査キュー",
+    "subtitle": "新規店舗の事業者情報を審査し K-Verified を付与します。",
+    "statsPending": "待機中",
+    "statsSlaBreached": "SLA超過",
+    "statsAvgRisk": "平均リスク",
+    "statsToday": "本日",
+    "statsApproved": "承認",
+    "statsRejected": "却下",
+    "statsAutoApproved": "自動承認 (週)",
+    "riskLow": "Low",
+    "riskMedium": "Med",
+    "riskHigh": "High",
+    "slaRemaining": "SLA残り",
+    "slaBreachedShort": "SLA超過",
+    "docStatus": {
+      "ok": "OK",
+      "blurry": "ぼやけ",
+      "expired": "期限切れ",
+      "missing": "欠落"
+    },
+    "aiHintsTitle": "AI 審査ヒント",
+    "priorIncidentsTitle": "過去の問題",
+    "actionApprove": "承認",
+    "actionReject": "却下",
+    "actionRequestMore": "追加書類要求",
+    "realDataSection": "実 DB 審査キュー (manual_review)"
+  },
   "AdminAiCost": {
     "title": "AI コスト(推定)",
     "backToDashboard": "ダッシュボードへ",
