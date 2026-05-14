@@ -771,6 +771,19 @@
       "submit": "등록",
       "languageNote": "후기는 다른 손님을 위해 자동 번역됩니다.",
       "skipAll": "모든 후기 건너뛰기"
+    },
+    "upcoming": {
+      "showQr": "QR 보기",
+      "directions": "길찾기",
+      "chat": "채팅",
+      "reminder": "방문 <b>1시간 전</b> 알림을 보내드려요.",
+      "modify": "예약 변경",
+      "cancel": "취소"
+    },
+    "perks": {
+      "title": "{count}회 예약 완료",
+      "subtitle": "다음 방문 · <b>{percent}% 할인</b>",
+      "footer": "{done}/{target} · {remaining}회 더하면 혜택"
     }
   },
   "InboxSkipped": {

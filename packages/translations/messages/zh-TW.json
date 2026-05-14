@@ -771,6 +771,19 @@
       "submit": "送出",
       "languageNote": "我們會自動翻譯您的評論給其他旅行者。",
       "skipAll": "跳過全部評論"
+    },
+    "upcoming": {
+      "showQr": "顯示QR碼",
+      "directions": "路線",
+      "chat": "聊天",
+      "reminder": "我們將在到店 <b>1小時前</b> 提醒您。",
+      "modify": "修改預約",
+      "cancel": "取消"
+    },
+    "perks": {
+      "title": "完成{count}次預約",
+      "subtitle": "下次到訪 · <b>{percent}%優惠</b>",
+      "footer": "{done}/{target} · 再{remaining}次即可享受優惠"
     }
   },
   "InboxSkipped": {

@@ -771,6 +771,19 @@
       "submit": "Gửi",
       "languageNote": "Chúng tôi sẽ dịch đánh giá của bạn cho du khách khác.",
       "skipAll": "Bỏ qua tất cả đánh giá"
+    },
+    "upcoming": {
+      "showQr": "Hiện QR",
+      "directions": "Chỉ đường",
+      "chat": "Chat",
+      "reminder": "Chúng tôi sẽ nhắc bạn <b>1 giờ trước</b> khi đến.",
+      "modify": "Sửa đặt lịch",
+      "cancel": "Hủy"
+    },
+    "perks": {
+      "title": "{count} lượt đặt hoàn thành",
+      "subtitle": "Lần ghé tiếp · <b>giảm {percent}%</b>",
+      "footer": "{done}/{target} · còn {remaining} lần để nhận ưu đãi"
     }
   },
   "InboxSkipped": {

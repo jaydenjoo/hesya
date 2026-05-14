@@ -12,6 +12,15 @@ import { redirect } from "next/navigation";
 import { createDbClient } from "@hesya/database";
 import { CustomerFrame } from "@/features/customer-frame/customer-frame";
 import { MyPageTabs } from "@/features/customer-mypage/my-page-tabs";
+import {
+  mockCustomerProfile,
+  mockMiniTimeline,
+  mockPastBookings,
+  mockPendingReviews,
+  mockPerks,
+  mockSavedStores,
+  mockUpcomingBookings,
+} from "@/lib/mock-fixtures/mypage";
 import { env } from "@/shared/config/env";
 import { requireCustomerAuth } from "@/shared/lib/customer-guard";
 import {
@@ -43,14 +52,42 @@ export default async function CustomerMyPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "CustomerMyPage" });
   const db = createDbClient(env.DATABASE_URL);
 
-  const [upcoming, past, saved, pendingReviews] = await Promise.all([
-    listUpcomingBookings(db, session.customerId),
-    listPastBookings(db, session.customerId),
-    listSavedStoresByCustomer(db, session.customerId),
-    listPendingReviewBookings(db, session.customerId),
-  ]);
+  const [realUpcoming, realPast, realSaved, realPendingReviews] =
+    await Promise.all([
+      listUpcomingBookings(db, session.customerId),
+      listPastBookings(db, session.customerId),
+      listSavedStoresByCustomer(db, session.customerId),
+      listPendingReviewBookings(db, session.customerId),
+    ]);
 
-  const displayName = session.name?.trim() || t("defaultName");
+  // Sprint 2A: MOCK_FIXTURES=true + 실 데이터 비어있을 때만 rich mock fallback.
+  // 외부 데모 (preview/베타) 시연용. prod 실 매장 매칭 후 자동 끝.
+  const useFixtures = env.MOCK_FIXTURES;
+  const upcoming =
+    useFixtures && realUpcoming.length === 0
+      ? [...mockUpcomingBookings]
+      : realUpcoming;
+  const past =
+    useFixtures && realPast.length === 0 ? [...mockPastBookings] : realPast;
+  const saved =
+    useFixtures && realSaved.length === 0 ? [...mockSavedStores] : realSaved;
+  const pendingReviews =
+    useFixtures && realPendingReviews.length === 0
+      ? [...mockPendingReviews]
+      : realPendingReviews;
+
+  // Header traveler 정보 — useFixtures 시 mock profile, 아니면 session name만.
+  const displayName = useFixtures
+    ? mockCustomerProfile.displayName
+    : session.name?.trim() || t("defaultName");
+  const travelerInfo = useFixtures
+    ? {
+        flag: mockCustomerProfile.flag,
+        locale: mockCustomerProfile.locale,
+        hometown: mockCustomerProfile.hometown,
+        tripLabel: mockCustomerProfile.tripLabel,
+      }
+    : null;
 
   return (
     <CustomerFrame>
@@ -66,14 +103,35 @@ export default async function CustomerMyPage({ params }: Props) {
             <h1 className="font-heading text-[22px] font-semibold italic leading-tight tracking-[-0.02em] text-hesya-navy-900">
               {t("greeting", { name: displayName })}
             </h1>
-            <p className="mt-0.5 text-[11px] text-hesya-navy-900/55">
-              {session.email}
-            </p>
+            {travelerInfo ? (
+              <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-hesya-navy-900/55">
+                <span>
+                  <span aria-hidden="true" className="mr-0.5">
+                    {travelerInfo.flag}
+                  </span>
+                  {travelerInfo.locale}
+                </span>
+                <span aria-hidden="true" className="opacity-40">
+                  ·
+                </span>
+                <span>📍 {travelerInfo.hometown}</span>
+                <span aria-hidden="true" className="opacity-40">
+                  ·
+                </span>
+                <span>✈️ {travelerInfo.tripLabel}</span>
+              </p>
+            ) : (
+              <p className="mt-0.5 text-[11px] text-hesya-navy-900/55">
+                {session.email}
+              </p>
+            )}
           </div>
         </header>
 
         <MyPageTabs
           locale={locale}
+          miniTimeline={useFixtures ? [...mockMiniTimeline] : null}
+          perks={useFixtures ? { ...mockPerks } : null}
           labels={{
             tabs: {
               upcoming: t("tabs.upcoming"),
@@ -102,6 +160,31 @@ export default async function CustomerMyPage({ params }: Props) {
               languageNote: t("review.languageNote"),
               skipAll: t("review.skipAll"),
             },
+            upcomingExtras: useFixtures
+              ? {
+                  showQr: t("upcoming.showQr"),
+                  directions: t("upcoming.directions"),
+                  chat: t("upcoming.chat"),
+                  reminder: t("upcoming.reminder"),
+                  modify: t("upcoming.modify"),
+                  cancel: t("upcoming.cancel"),
+                }
+              : undefined,
+            perks: useFixtures
+              ? {
+                  title: t("perks.title", {
+                    count: mockPerks.completedCount,
+                  }),
+                  subtitle: t("perks.subtitle", {
+                    percent: mockPerks.discountPercent,
+                  }),
+                  footer: t("perks.footer", {
+                    done: mockPerks.completedCount,
+                    target: mockPerks.targetCount,
+                    remaining: mockPerks.targetCount - mockPerks.completedCount,
+                  }),
+                }
+              : undefined,
           }}
           data={{
             upcoming,

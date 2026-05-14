@@ -47,11 +47,41 @@ export interface MyPageTabsLabels {
     languageNote: string;
     skipAll: string;
   };
+  /** Sprint 2A: upcoming reference 추가 요소 (mini timeline 미만, 3 pills + reminder). 미설정 시 미렌더. */
+  upcomingExtras?: {
+    showQr: string;
+    directions: string;
+    chat: string;
+    reminder: string;
+    modify: string;
+    cancel: string;
+  };
+  /** Sprint 2A: perks band — ICU `{count}`, `{percent}`, `{done}/{target}/{remaining}` 채운 후 전달. */
+  perks?: {
+    title: string;
+    subtitle: string;
+    footer: string;
+  };
+}
+
+interface MiniTimelineCell {
+  readonly day: string;
+  readonly month: string;
+  readonly today?: boolean;
+  readonly booked?: boolean;
 }
 
 interface Props {
   locale: string;
   labels: MyPageTabsLabels;
+  /** Sprint 2A: upcoming pane 위 5일 mini timeline. null이면 미렌더. */
+  miniTimeline: ReadonlyArray<MiniTimelineCell> | null;
+  /** Sprint 2A: 멤버십 perk band. null이면 미렌더. */
+  perks: {
+    readonly completedCount: number;
+    readonly targetCount: number;
+    readonly discountPercent: number;
+  } | null;
   data: {
     upcoming: CustomerBookingRow[];
     past: CustomerBookingRow[];
@@ -62,7 +92,13 @@ interface Props {
 
 type TabKey = "upcoming" | "past" | "saved" | "reviews";
 
-export function MyPageTabs({ locale, labels, data }: Props) {
+export function MyPageTabs({
+  locale,
+  labels,
+  miniTimeline,
+  perks,
+  data,
+}: Props) {
   const [tab, setTab] = useState<TabKey>("upcoming");
 
   const counts: Record<TabKey, number> = {
@@ -109,7 +145,12 @@ export function MyPageTabs({ locale, labels, data }: Props) {
 
       <div key={tab}>
         {tab === "upcoming" && (
-          <UpcomingPane rows={data.upcoming} labels={labels} locale={locale} />
+          <UpcomingPane
+            rows={data.upcoming}
+            labels={labels}
+            locale={locale}
+            miniTimeline={miniTimeline}
+          />
         )}
         {tab === "past" && (
           <PastPane rows={data.past} labels={labels} locale={locale} />
@@ -125,6 +166,53 @@ export function MyPageTabs({ locale, labels, data }: Props) {
           />
         )}
       </div>
+
+      {/* Sprint 2A: 멤버십 perk band — 모든 탭 공통 footer. */}
+      {perks && labels.perks && (
+        <section
+          data-testid="mypage-perks"
+          className="mt-6 rounded-2xl bg-gradient-to-br from-hesya-peach-100 to-hesya-amber-200/40 p-4 ring-1 ring-hesya-amber-600/15"
+        >
+          <div className="flex items-center gap-3">
+            <span aria-hidden="true" className="text-[28px]">
+              🎉
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-heading text-[15px] font-semibold italic text-hesya-navy-900">
+                {labels.perks.title}
+              </p>
+              <p
+                className="mt-0.5 text-[12px] text-hesya-navy-900/65"
+                dangerouslySetInnerHTML={{ __html: labels.perks.subtitle }}
+              />
+            </div>
+          </div>
+          <div className="relative mt-3 h-2 rounded-full bg-white/60">
+            <div
+              className="h-full rounded-full bg-hesya-amber-500 transition-all"
+              style={{
+                width: `${(perks.completedCount / perks.targetCount) * 100}%`,
+              }}
+            />
+            <div className="absolute inset-0 flex items-center justify-between px-1">
+              {Array.from({ length: perks.targetCount }).map((_, i) => (
+                <span
+                  key={i}
+                  aria-hidden="true"
+                  className={`inline-block h-2.5 w-2.5 rounded-full border-2 ${
+                    i < perks.completedCount
+                      ? "border-hesya-amber-500 bg-white"
+                      : "border-white/80 bg-hesya-navy-900/10"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+          <p className="mt-2 text-[11px] text-hesya-navy-900/55">
+            {labels.perks.footer}
+          </p>
+        </section>
+      )}
     </div>
   );
 }
@@ -151,16 +239,56 @@ function UpcomingPane({
   rows,
   labels,
   locale,
+  miniTimeline,
 }: {
   rows: CustomerBookingRow[];
   labels: MyPageTabsLabels;
   locale: string;
+  miniTimeline: ReadonlyArray<MiniTimelineCell> | null;
 }) {
   if (rows.length === 0) {
     return <EmptyMessage text={labels.empty.upcoming} />;
   }
   return (
     <div className="space-y-3">
+      {miniTimeline && miniTimeline.length > 0 && (
+        <div
+          data-testid="mypage-mini-timeline"
+          className="-mx-1 flex gap-1.5 px-1"
+        >
+          {miniTimeline.map((c, i) => (
+            <div
+              key={i}
+              className={`flex flex-1 flex-col items-center justify-center rounded-xl py-2 text-center ring-1 transition ${
+                c.booked
+                  ? "bg-hesya-amber-500 ring-hesya-amber-500"
+                  : c.today
+                    ? "bg-white ring-hesya-amber-600 shadow-sm"
+                    : "bg-white/50 ring-hesya-navy-900/5"
+              }`}
+            >
+              <span
+                className={`font-heading text-[15px] font-semibold italic ${
+                  c.booked
+                    ? "text-white"
+                    : c.today
+                      ? "text-hesya-amber-600"
+                      : "text-hesya-navy-900/70"
+                }`}
+              >
+                {c.day}
+              </span>
+              <span
+                className={`text-[9px] uppercase tracking-[0.12em] ${
+                  c.booked ? "text-white/80" : "text-hesya-navy-900/45"
+                }`}
+              >
+                {c.month}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
       {rows.map((b) => (
         <article
           key={b.id}
@@ -169,25 +297,78 @@ function UpcomingPane({
           <div className="text-[11px] font-semibold uppercase tracking-wide text-hesya-amber-600">
             {formatDateTime(b.scheduledAt, locale)}
           </div>
-          <div className="mt-1 font-heading text-[17px] font-semibold italic text-hesya-navy-900">
-            {b.storeName ?? "—"}
-          </div>
-          <div className="mt-0.5 text-[12px] text-hesya-navy-900/65">
-            {b.serviceName ?? "—"}
-            {b.staffName ? ` · ${b.staffName}` : null}
-          </div>
-          {b.storeId && (
-            <div className="mt-3">
-              <Link
-                href={`/${locale}/c/store/${b.storeId}`}
-                className="text-[12px] text-hesya-amber-600 hover:underline"
-              >
-                {labels.actions.viewStore} →
-              </Link>
+          <div className="mt-1 flex items-start gap-3">
+            <div
+              aria-hidden="true"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-hesya-amber-200 to-hesya-amber-600 font-heading text-[18px] font-semibold italic text-white"
+            >
+              {(b.storeName ?? "?").charAt(0).toUpperCase()}
             </div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-heading text-[17px] font-semibold italic text-hesya-navy-900">
+                {b.storeName ?? "—"}
+              </div>
+              <div className="text-[12px] text-hesya-navy-900/65">
+                {b.serviceName ?? "—"}
+              </div>
+              {b.staffName && (
+                <div className="mt-0.5 text-[11px] text-hesya-navy-900/55">
+                  w/ {b.staffName}
+                </div>
+              )}
+            </div>
+          </div>
+          {labels.upcomingExtras && (
+            <>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-hesya-navy-900 px-3 py-1.5 text-[11px] font-semibold text-hesya-peach-50 transition hover:bg-hesya-navy-900/90"
+                >
+                  <span aria-hidden="true">📱</span>
+                  {labels.upcomingExtras.showQr}
+                </button>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-medium text-hesya-navy-900 ring-1 ring-hesya-navy-900/10 transition hover:bg-hesya-peach-100"
+                >
+                  <span aria-hidden="true">📍</span>
+                  {labels.upcomingExtras.directions}
+                </button>
+                <Link
+                  href={`/${locale}/c/chat`}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-medium text-hesya-navy-900 ring-1 ring-hesya-navy-900/10 transition hover:bg-hesya-peach-100"
+                >
+                  <span aria-hidden="true">💬</span>
+                  {labels.upcomingExtras.chat}
+                </Link>
+              </div>
+              <div className="mt-3 flex items-center gap-2 text-[11px] text-hesya-navy-900/45">
+                <button type="button" className="hover:underline">
+                  {labels.upcomingExtras.modify}
+                </button>
+                <span aria-hidden="true">·</span>
+                <button type="button" className="hover:underline">
+                  {labels.upcomingExtras.cancel}
+                </button>
+              </div>
+            </>
           )}
         </article>
       ))}
+      {labels.upcomingExtras && (
+        <div
+          data-testid="mypage-reminder"
+          className="flex items-center gap-2 rounded-2xl bg-hesya-peach-100/70 px-4 py-3 text-[12px] text-hesya-navy-900/75"
+        >
+          <span aria-hidden="true" className="text-[16px]">
+            🔔
+          </span>
+          <span
+            dangerouslySetInnerHTML={{ __html: labels.upcomingExtras.reminder }}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -771,6 +771,19 @@
       "submit": "Submit",
       "languageNote": "We translate your review for future travelers.",
       "skipAll": "Skip all reviews"
+    },
+    "upcoming": {
+      "showQr": "Show QR",
+      "directions": "Directions",
+      "chat": "Chat",
+      "reminder": "We'll send a reminder <b>1 hour before</b>.",
+      "modify": "Modify booking",
+      "cancel": "Cancel"
+    },
+    "perks": {
+      "title": "{count} bookings completed",
+      "subtitle": "Next visit · <b>{percent}% off</b>",
+      "footer": "{done} of {target} · {remaining} more for the perk"
     }
   },
   "InboxSkipped": {
