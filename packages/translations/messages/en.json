@@ -116,6 +116,37 @@
       "description": "Connect an Instagram Business account to start receiving customer DMs",
       "button": "Connect Instagram"
     },
+    "multiChannel": {
+      "title": "Messaging channels",
+      "description": "Instagram connects now. The other four channels go live after business registration completes.",
+      "statusOperational": "Ready to connect",
+      "statusMock": "Demo — wires to real API after business registration",
+      "statusPendingBusiness": "Pending business registration",
+      "badgeReady": "READY",
+      "badgeMock": "MOCK",
+      "badgePending": "Pending",
+      "connectPending": "Pending business registration",
+      "pendingTooltip": "Activates after business registration and channel approval",
+      "businessNote": "WhatsApp, Kakao, LINE, and Messenger each require a verified business account. We'll guide you through batch applications after registration.",
+      "channel": {
+        "whatsapp": {
+          "name": "WhatsApp Business",
+          "description": "Unified inbox for SE Asia, India, and Middle East customers"
+        },
+        "kakao": {
+          "name": "Kakao Business Channel",
+          "description": "Korean customers plus KakaoTalk AlimTalk alerts"
+        },
+        "line": {
+          "name": "LINE Official Account",
+          "description": "Japan and Taiwan customer messages plus friend-adds"
+        },
+        "messenger": {
+          "name": "Facebook Messenger",
+          "description": "Meta Business page message unification"
+        }
+      }
+    },
     "thread": {
       "noSelection": "Select a conversation from the left",
       "channelInstagram": "Instagram",

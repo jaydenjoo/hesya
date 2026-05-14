@@ -112,9 +112,40 @@
     "filterDone": "已完成",
     "filterVip": "VIP",
     "notConnected": {
-      "title": "Connect your Instagram",
-      "description": "Connect an Instagram Business account to start receiving customer DMs",
-      "button": "Connect Instagram"
+      "title": "需要連接 Instagram",
+      "description": "請連接 Instagram 商業帳號以接收客戶私訊",
+      "button": "連接 Instagram"
+    },
+    "multiChannel": {
+      "title": "訊息頻道連接",
+      "description": "Instagram 現可連接。其餘 4 個頻道將在工商登記完成後開放。",
+      "statusOperational": "可立即連接",
+      "statusMock": "示範 — 工商登記後接入實際 API",
+      "statusPendingBusiness": "待工商登記",
+      "badgeReady": "READY",
+      "badgeMock": "MOCK",
+      "badgePending": "待定",
+      "connectPending": "待工商登記",
+      "pendingTooltip": "工商登記及頻道商家審核後啟用",
+      "businessNote": "WhatsApp/Kakao/LINE/Messenger 皆須各平台的商家帳號審核。工商登記後我們將引導您批次申請。",
+      "channel": {
+        "whatsapp": {
+          "name": "WhatsApp Business",
+          "description": "東南亞、印度、中東客戶訊息統一"
+        },
+        "kakao": {
+          "name": "Kakao 商業頻道",
+          "description": "韓國本地客戶 + KakaoTalk 通知簡訊"
+        },
+        "line": {
+          "name": "LINE 官方帳號",
+          "description": "日本與台灣客戶訊息及好友新增"
+        },
+        "messenger": {
+          "name": "Facebook Messenger",
+          "description": "Meta Business 粉絲專頁訊息統一"
+        }
+      }
     },
     "thread": {
       "noSelection": "Select a conversation from the left",
