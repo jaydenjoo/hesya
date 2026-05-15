@@ -13,13 +13,16 @@
     "greetingPrefix": "Welcome back,",
     "greetingSuffix": "",
     "brightSpot": {
-      "urgent": "Urgent",
-      "today": "Today",
-      "inboxUnread": "{count} unanswered — {threads} open threads. Quick replies boost rebooking.",
-      "disputesActive": "{count} active disputes. Replying early gives SLA more buffer.",
-      "disputesSlaExceeded": "{count} SLA-breached dispute(s) — needs priority attention.",
-      "allClear": "No pending replies or disputes today. Smooth flow."
+      "eyebrow": "Today's bright spot",
+      "eyebrowEn": "Today's bright spot",
+      "viewMore": "View more",
+      "items": {
+        "review5Star": "3 Japanese guests yesterday — all 5-star reviews",
+        "newForeignRecord": "7 new foreign guests — a record this week",
+        "aiTimeSaved": "AI handled 28 messages yesterday — ~4 hours saved"
+      }
     },
+    "weatherMock": "Cloudy 18°",
     "subtitle": "Epic 4 — Foreign customer revenue, retention, nationality (activates after beta data lands)",
     "greetingSubtitle": "<strong>{todayBookings}</strong> foreign bookings today · <strong>{unread}</strong> unread messages · <strong>{newReviews}</strong> new reviews",
     "criticalAlert": {

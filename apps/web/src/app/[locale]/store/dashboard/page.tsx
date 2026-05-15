@@ -71,35 +71,14 @@ export default async function StoreDashboardPage({
 
   const t = await getTranslations({ locale, namespace: "Dashboard" });
 
-  const brightSpot = (() => {
-    if (dispute.slaExceeded > 0) {
-      return {
-        eyebrow: t("brightSpot.urgent"),
-        body: t("brightSpot.disputesSlaExceeded", {
-          count: dispute.slaExceeded,
-        }),
-      };
-    }
-    if (inbox.unreadMessages > 0) {
-      return {
-        eyebrow: t("brightSpot.today"),
-        body: t("brightSpot.inboxUnread", {
-          count: inbox.unreadMessages,
-          threads: inbox.openThreads,
-        }),
-      };
-    }
-    if (dispute.active > 0) {
-      return {
-        eyebrow: t("brightSpot.today"),
-        body: t("brightSpot.disputesActive", { count: dispute.active }),
-      };
-    }
-    return {
-      eyebrow: t("brightSpot.today"),
-      body: t("brightSpot.allClear"),
-    };
-  })();
+  // Reference 정합 PR 4 — BrightSpot은 reference의 celebratory rotating 3-msg.
+  // 이전 동적 brightSpot (dispute/inbox 상태 기반)은 제거 — CriticalAlert가
+  // urgent 케이스를 별도 처리. BrightSpot은 mock 3 메시지 (i18n).
+  const brightSpotItems: ReadonlyArray<string> = [
+    t("brightSpot.items.review5Star"),
+    t("brightSpot.items.newForeignRecord"),
+    t("brightSpot.items.aiTimeSaved"),
+  ];
 
   const now = new Date();
   const dateDay = new Intl.DateTimeFormat(locale, {
@@ -107,9 +86,12 @@ export default async function StoreDashboardPage({
     month: "long",
     day: "numeric",
   }).format(now);
-  const dateWeekday = new Intl.DateTimeFormat(locale, {
+  const weekday = new Intl.DateTimeFormat(locale, {
     weekday: "long",
   }).format(now);
+  // Reference 정합 PR 4 — 날씨 정보 mock 표시. 실 weather API 연결은 별도
+  // task (기상청 / OpenWeatherMap). 현재는 i18n 라벨로 고정 표시.
+  const dateWeekday = `${weekday} · ${t("weatherMock")}`;
 
   // O1 fast track 단계 1 (W13) — Greeting subtitle 숫자 wire.
   // 실 데이터: 미답 메시지 (inbox.unreadMessages). 오늘 외국인 예약 / 새 후기는
@@ -138,7 +120,6 @@ export default async function StoreDashboardPage({
   return (
     <div className="bg-hesya-peach-50">
       <DashboardHeader
-        eyebrow="Operator · Dashboard"
         greetingPrefix={t("greetingPrefix")}
         storeName={shell.storeName}
         greetingSuffix={t("greetingSuffix")}
@@ -165,9 +146,10 @@ export default async function StoreDashboardPage({
           />
         ) : null}
         <BrightSpot
-          eyebrow={brightSpot.eyebrow}
-          eyebrowEn="Bright spot"
-          body={brightSpot.body}
+          items={brightSpotItems}
+          eyebrow={t("brightSpot.eyebrow")}
+          eyebrowEn={t("brightSpot.eyebrowEn")}
+          viewMoreLabel={t("brightSpot.viewMore")}
         />
         {/* Reference Bento Row 1 — 3-col (1.15fr:1fr:1fr):
             TodayBookings | WeeklyGmv | InboxTile. */}

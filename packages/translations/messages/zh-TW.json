@@ -13,13 +13,16 @@
     "greetingPrefix": "您好,",
     "greetingSuffix": "店長",
     "brightSpot": {
-      "urgent": "緊急",
-      "today": "今日",
-      "inboxUnread": "未回覆訊息 {count} 則 — 進行中的對話 {threads} 個。快速回覆可提升回頭率。",
-      "disputesActive": "處理中的爭議 {count} 件。及早回應可為 SLA 留出緩衝。",
-      "disputesSlaExceeded": "超過 SLA 的爭議 {count} 件 — 需優先處理。",
-      "allClear": "今日無未回覆或爭議。狀態良好。"
+      "eyebrow": "今日好消息",
+      "eyebrowEn": "Today's bright spot",
+      "viewMore": "查看更多",
+      "items": {
+        "review5Star": "昨日 3 位日本顧客都留下了 5 星好評",
+        "newForeignRecord": "新增外國顧客 7 位 — 本週新紀錄",
+        "aiTimeSaved": "AI 昨日自動處理 28 則訊息 — 約節省 4 小時"
+      }
     },
+    "weatherMock": "多雲 18°",
     "subtitle": "Epic 4 — 外國人銷售·回訪·國籍分析(Beta 資料蓄積後啟用)",
     "greetingSubtitle": "今日外國人預約 <strong>{todayBookings}</strong>件 · 未讀訊息 <strong>{unread}</strong>件 · 新評論 <strong>{newReviews}</strong>件",
     "criticalAlert": {

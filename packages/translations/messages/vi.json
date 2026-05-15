@@ -13,13 +13,16 @@
     "greetingPrefix": "Xin chào,",
     "greetingSuffix": "",
     "brightSpot": {
-      "urgent": "Khẩn",
-      "today": "Hôm nay",
-      "inboxUnread": "{count} tin chưa trả lời — {threads} cuộc trò chuyện mở. Trả lời nhanh tăng tỷ lệ quay lại.",
-      "disputesActive": "{count} tranh chấp đang xử lý. Phản hồi sớm giúp đệm SLA tốt hơn.",
-      "disputesSlaExceeded": "{count} tranh chấp vượt SLA — cần xử lý ưu tiên.",
-      "allClear": "Hôm nay không có tin chưa đọc hoặc tranh chấp. Luồng tốt."
+      "eyebrow": "Tin tốt hôm nay",
+      "eyebrowEn": "Today's bright spot",
+      "viewMore": "Xem thêm",
+      "items": {
+        "review5Star": "3 khách Nhật hôm qua đều để lại đánh giá 5 sao",
+        "newForeignRecord": "7 khách nước ngoài mới — kỷ lục tuần này",
+        "aiTimeSaved": "AI xử lý tự động 28 tin nhắn hôm qua — tiết kiệm ~4 giờ"
+      }
     },
+    "weatherMock": "Có mây 18°",
     "subtitle": "Epic 4 — Doanh thu, tỉ lệ quay lại, quốc tịch khách nước ngoài (mở khi dữ liệu beta tích lũy)",
     "greetingSubtitle": "Đặt lịch khách nước ngoài hôm nay <strong>{todayBookings}</strong> · Tin chưa trả lời <strong>{unread}</strong> · Đánh giá mới <strong>{newReviews}</strong>",
     "criticalAlert": {
