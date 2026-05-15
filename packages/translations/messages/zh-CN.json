@@ -593,7 +593,8 @@
     "safetyTip1": "到店后请通过收件箱聊天告知我们,我们会确认。",
     "safetyTip2": "需要翻译?扫描平板 QR 即可开始。",
     "safetyTip3": "紧急 · 韩国 112 或店铺直拨 070-XXXX",
-    "safetyFirstOnly": "仅对首次预约的客人显示。"
+    "safetyFirstOnly": "仅对首次预约的客人显示。",
+    "naverRecommended": "推荐"
   },
   "StoreAnalytics": {
     "title": "店铺分析",

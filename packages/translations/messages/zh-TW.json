@@ -593,7 +593,8 @@
     "safetyTip1": "到店後請透過收件匣聊天告知我們,我們會確認。",
     "safetyTip2": "需要翻譯?掃描平板 QR 即可開始。",
     "safetyTip3": "緊急 · 韓國 112 或店家直撥 070-XXXX",
-    "safetyFirstOnly": "僅對首次預約的客人顯示。"
+    "safetyFirstOnly": "僅對首次預約的客人顯示。",
+    "naverRecommended": "推薦"
   },
   "StoreAnalytics": {
     "title": "店舖分析",

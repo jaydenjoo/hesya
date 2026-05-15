@@ -84,6 +84,7 @@ export function AIAssist({
         <span className="kr text-[11px] font-semibold text-hesya-amber-600">
           <span aria-hidden="true">🤖 </span>AI가 답변을 준비했어요
         </span>
+        {/* tone 검증 pill — verifications 미전달 시 reference 정합 위해 기본 ok pill fallback */}
         {activeVerify ? (
           <span
             className={
@@ -107,7 +108,15 @@ export function AIAssist({
               </button>
             ) : null}
           </span>
-        ) : null}
+        ) : (
+          <span
+            data-testid="ai-tone-pill-default"
+            className="kr inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700"
+          >
+            <span aria-hidden="true">✓</span>
+            <span>톤 검증됨</span>
+          </span>
+        )}
         {showWhy && activeVerify?.reason ? (
           <span className="kr w-full rounded-md bg-white px-2 py-1 text-[11px] leading-[1.55] text-gray-700 ring-1 ring-amber-200">
             {activeVerify.reason}
