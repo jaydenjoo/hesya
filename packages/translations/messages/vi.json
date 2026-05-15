@@ -63,6 +63,24 @@
       "renewalLabel": "Gia hạn tiếp theo",
       "historyLink": "Xem lịch sử xác minh"
     },
+    "nationalityTile": {
+      "title": "Quốc tịch khách nước ngoài tuần này",
+      "subtotal": "Tổng {count} khách",
+      "centerCaption": "khách",
+      "donutAria": "Biểu đồ vành khuyên {count} khách nước ngoài theo quốc tịch"
+    },
+    "recentReviews": {
+      "title": "Đánh giá gần đây",
+      "viewAllLink": "Xem tất cả đánh giá",
+      "aiDraftLink": "Xem bản nháp AI",
+      "starsAria": "{count} sao",
+      "photoLabel": "Đánh giá có ảnh",
+      "time": {
+        "twoHoursAgo": "2 giờ trước",
+        "sixHoursAgo": "6 giờ trước",
+        "yesterday": "Hôm qua"
+      }
+    },
     "comingSoonNote": "Kích hoạt sau khi có dữ liệu thanh toán & đặt lịch",
     "kpis": {
       "inboxUnread": "Tin nhắn chưa đọc",

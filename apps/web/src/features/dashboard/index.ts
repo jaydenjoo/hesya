@@ -7,6 +7,8 @@ export { KpiGrid, type KpiEntry } from "./components/kpi-grid";
 export { TodayTimeline } from "./components/today-timeline";
 export { WeeklyGmv } from "./components/weekly-gmv";
 export { KVerified } from "./components/k-verified";
+export { NationalityTile } from "./components/nationality-tile";
+export { RecentReviews } from "./components/recent-reviews";
 export {
   DistributionPie,
   type DistributionSlice,

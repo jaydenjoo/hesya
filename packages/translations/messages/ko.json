@@ -63,6 +63,24 @@
       "renewalLabel": "다음 재검증",
       "historyLink": "검증 이력 보기"
     },
+    "nationalityTile": {
+      "title": "주간 외국인 손님 국적",
+      "subtotal": "전체 {count}명",
+      "centerCaption": "손님",
+      "donutAria": "외국인 손님 {count}명 국적별 분포 도넛 차트"
+    },
+    "recentReviews": {
+      "title": "최근 후기",
+      "viewAllLink": "전체 후기",
+      "aiDraftLink": "AI 답변 초안 보기",
+      "starsAria": "{count}점 별점",
+      "photoLabel": "포토 후기",
+      "time": {
+        "twoHoursAgo": "2시간 전",
+        "sixHoursAgo": "6시간 전",
+        "yesterday": "어제"
+      }
+    },
     "comingSoonNote": "결제·예약 데이터 적재 후 자동 활성화",
     "kpis": {
       "inboxUnread": "미응답 메시지",
