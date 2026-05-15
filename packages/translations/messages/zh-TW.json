@@ -21,6 +21,15 @@
       "allClear": "今日無未回覆或爭議。狀態良好。"
     },
     "subtitle": "Epic 4 — 外國人銷售·回訪·國籍分析(Beta 資料蓄積後啟用)",
+    "greetingSubtitle": "今日外國人預約 <strong>{todayBookings}</strong>件 · 未讀訊息 <strong>{unread}</strong>件 · 新評論 <strong>{newReviews}</strong>件",
+    "criticalAlert": {
+      "title": "退款請求 {count} 件",
+      "detail": "近期付款存在退款請求,需於 24 小時內回覆。",
+      "action": "立即處理"
+    },
+    "channelBreakdown": {
+      "title": "依管道未讀"
+    },
     "comingSoonNote": "在結帳和預約資料記錄後自動啟用",
     "kpis": {
       "inboxUnread": "未讀訊息",

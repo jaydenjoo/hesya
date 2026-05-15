@@ -21,6 +21,15 @@
       "allClear": "本日の未返信・紛争はありません。良い流れです。"
     },
     "subtitle": "Epic 4 — 外国人売上・再来訪・国籍分析(ベータデータ蓄積後に有効化)",
+    "greetingSubtitle": "本日の外国人予約 <strong>{todayBookings}</strong>件 · 未読メッセージ <strong>{unread}</strong>件 · 新着レビュー <strong>{newReviews}</strong>件",
+    "criticalAlert": {
+      "title": "返金リクエスト {count}件",
+      "detail": "直近の決済に対する返金リクエストがあります。24時間以内の対応が必要です。",
+      "action": "今すぐ対応"
+    },
+    "channelBreakdown": {
+      "title": "チャネル別 未読"
+    },
     "comingSoonNote": "決済・予約データ蓄積後に自動有効化",
     "kpis": {
       "inboxUnread": "未読メッセージ",

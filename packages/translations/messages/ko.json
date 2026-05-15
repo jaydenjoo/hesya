@@ -21,6 +21,15 @@
       "allClear": "오늘은 미답·분쟁 0건. 좋은 흐름입니다."
     },
     "subtitle": "Epic 4 — 외국인 매출·재방문·국적 분석 (베타 데이터 적재 후 활성화)",
+    "greetingSubtitle": "오늘 외국인 예약 <strong>{todayBookings}</strong>건 · 미답 메시지 <strong>{unread}</strong>건 · 새 후기 <strong>{newReviews}</strong>건",
+    "criticalAlert": {
+      "title": "환불 요청 {count}건",
+      "detail": "최근 결제 건에 대한 환불 요청이 있습니다. 24시간 내 회신이 필요합니다.",
+      "action": "지금 처리"
+    },
+    "channelBreakdown": {
+      "title": "채널별 미답"
+    },
     "comingSoonNote": "결제·예약 데이터 적재 후 자동 활성화",
     "kpis": {
       "inboxUnread": "미응답 메시지",

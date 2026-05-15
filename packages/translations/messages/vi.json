@@ -21,6 +21,15 @@
       "allClear": "Hôm nay không có tin chưa đọc hoặc tranh chấp. Luồng tốt."
     },
     "subtitle": "Epic 4 — Doanh thu, tỉ lệ quay lại, quốc tịch khách nước ngoài (mở khi dữ liệu beta tích lũy)",
+    "greetingSubtitle": "Đặt lịch khách nước ngoài hôm nay <strong>{todayBookings}</strong> · Tin chưa trả lời <strong>{unread}</strong> · Đánh giá mới <strong>{newReviews}</strong>",
+    "criticalAlert": {
+      "title": "{count} yêu cầu hoàn tiền",
+      "detail": "Có yêu cầu hoàn tiền cho thanh toán gần đây. Cần phản hồi trong 24 giờ.",
+      "action": "Xử lý ngay"
+    },
+    "channelBreakdown": {
+      "title": "Tin chưa đọc theo kênh"
+    },
     "comingSoonNote": "Kích hoạt sau khi có dữ liệu thanh toán & đặt lịch",
     "kpis": {
       "inboxUnread": "Tin nhắn chưa đọc",

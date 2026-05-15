@@ -21,6 +21,15 @@
       "allClear": "No pending replies or disputes today. Smooth flow."
     },
     "subtitle": "Epic 4 — Foreign customer revenue, retention, nationality (activates after beta data lands)",
+    "greetingSubtitle": "<strong>{todayBookings}</strong> foreign bookings today · <strong>{unread}</strong> unread messages · <strong>{newReviews}</strong> new reviews",
+    "criticalAlert": {
+      "title": "{count} refund request(s)",
+      "detail": "There is a refund request on a recent payment. A response is needed within 24 hours.",
+      "action": "Handle now"
+    },
+    "channelBreakdown": {
+      "title": "Unread by channel"
+    },
     "comingSoonNote": "Activates after payment & booking data is recorded",
     "kpis": {
       "inboxUnread": "Unread messages",

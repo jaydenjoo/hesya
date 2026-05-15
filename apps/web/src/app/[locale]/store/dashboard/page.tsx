@@ -5,6 +5,8 @@ import { createDbClient } from "@hesya/database";
 
 import {
   BrightSpot,
+  ChannelBreakdown,
+  CriticalAlert,
   DashboardHeader,
   DistributionPie,
   KpiGrid,
@@ -329,6 +331,30 @@ export default async function StoreDashboardPage({
     weekday: "long",
   }).format(now);
 
+  // O1 fast track 단계 1 (W13) — Greeting subtitle 숫자 wire.
+  // 실 데이터: 미답 메시지 (inbox.unreadMessages). 오늘 외국인 예약 / 새 후기는
+  // mock (Today bookings DAL 신규 + reviews 테이블 ζ phase 도입 prerequisite).
+  const todayBookingsMock = 0;
+  const newReviewsMock = 0;
+
+  // O1 fast track 단계 1 (W3) — 채널별 미답 분포 (mock).
+  // 실 DAL은 conversations group by channel 필요. 현재 fixed ratio:
+  // 40% IG / 30% WA / 20% Kakao / 10% LINE → unreadMessages 총합 보존.
+  const unread = inbox.unreadMessages;
+  const channelEntries = (() => {
+    const ratios = [0.4, 0.3, 0.2, 0.1] as const;
+    const channels = [
+      { key: "instagram", label: "Instagram", icon: "📱" },
+      { key: "whatsapp", label: "WhatsApp", icon: "💚" },
+      { key: "kakao", label: "Kakao", icon: "💛" },
+      { key: "line", label: "LINE", icon: "💬" },
+    ];
+    const raw = ratios.map((r) => Math.floor(unread * r));
+    const drift = unread - raw.reduce((s, n) => s + n, 0);
+    if (drift > 0 && raw.length > 0) raw[0] = (raw[0] ?? 0) + drift;
+    return channels.map((c, i) => ({ ...c, count: raw[i] ?? 0 }));
+  })();
+
   return (
     <div className="bg-hesya-peach-50">
       <DashboardHeader
@@ -336,11 +362,31 @@ export default async function StoreDashboardPage({
         greetingPrefix={t("greetingPrefix")}
         storeName={shell.storeName}
         greetingSuffix={t("greetingSuffix")}
-        subtitle={t("subtitle")}
+        subtitle={t.rich("greetingSubtitle", {
+          todayBookings: todayBookingsMock,
+          unread,
+          newReviews: newReviewsMock,
+          strong: (chunks) => (
+            <strong className="font-semibold text-hesya-navy-900">
+              {chunks}
+            </strong>
+          ),
+        })}
         dateDay={dateDay}
         dateWeekday={dateWeekday}
       />
       <div className="px-8 pb-10">
+        {dispute.active > 0 ? (
+          <CriticalAlert
+            title={t("criticalAlert.title", { count: dispute.active })}
+            body={t("criticalAlert.detail")}
+            actionLabel={t("criticalAlert.action")}
+          />
+        ) : null}
+        <ChannelBreakdown
+          title={t("channelBreakdown.title")}
+          entries={channelEntries}
+        />
         <BrightSpot
           eyebrow={brightSpot.eyebrow}
           eyebrowEn="Bright spot"

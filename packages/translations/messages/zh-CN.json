@@ -21,6 +21,15 @@
       "allClear": "今日无未回复或纠纷。状态良好。"
     },
     "subtitle": "Epic 4 — 外国人销售·复访·国籍分析(Beta 数据落地后启用)",
+    "greetingSubtitle": "今日外国人预约 <strong>{todayBookings}</strong>件 · 未读消息 <strong>{unread}</strong>件 · 新评价 <strong>{newReviews}</strong>件",
+    "criticalAlert": {
+      "title": "退款请求 {count} 件",
+      "detail": "近期支付存在退款请求,需要在 24 小时内回复。",
+      "action": "立即处理"
+    },
+    "channelBreakdown": {
+      "title": "按渠道未读"
+    },
     "comingSoonNote": "在结算和预订数据记录后自动启用",
     "kpis": {
       "inboxUnread": "未读消息",
