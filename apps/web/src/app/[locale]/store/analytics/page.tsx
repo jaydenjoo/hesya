@@ -113,14 +113,52 @@ export default async function StoreAnalyticsPage({
   return (
     <div className="bg-hesya-peach-50 min-h-[calc(100vh-64px)]">
       <div className="mx-auto max-w-5xl px-6 py-10">
-        <header className="mb-8 space-y-1.5">
-          <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
-            Operator · Analytics
-          </p>
-          <h1 className="font-display text-[28px] italic tracking-tight text-hesya-navy-900">
-            {t("title")}
-          </h1>
-          <p className="kr text-[13px] text-gray-600">{t("subtitle")}</p>
+        <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-1.5">
+            <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+              Operator · Analytics
+            </p>
+            <h1 className="font-display text-[28px] italic tracking-tight text-hesya-navy-900">
+              {t("title")}
+            </h1>
+            <p className="kr text-[13px] text-gray-600">{t("subtitle")}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div
+              role="tablist"
+              aria-label="Time range"
+              className="inline-flex items-center rounded-full bg-white p-1 ring-1 ring-hesya-peach-200"
+            >
+              {[
+                { k: "day", l: "일" },
+                { k: "week", l: "주" },
+                { k: "month", l: "월", active: true },
+                { k: "quarter", l: "분기" },
+              ].map((p) => (
+                <button
+                  key={p.k}
+                  type="button"
+                  role="tab"
+                  aria-selected={!!p.active}
+                  className={
+                    "rounded-full px-3 py-1 text-[11px] font-semibold transition " +
+                    (p.active
+                      ? "bg-hesya-amber-500 text-white shadow-[0_2px_6px_rgba(232,169,122,0.35)]"
+                      : "text-hesya-navy-900/65 hover:bg-hesya-peach-50")
+                  }
+                >
+                  {p.l}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 rounded-full bg-hesya-navy-900 px-3.5 py-1.5 text-[11px] font-semibold text-hesya-peach-50 transition hover:bg-hesya-navy-900/90"
+            >
+              <span aria-hidden="true">⬇</span>
+              PDF
+            </button>
+          </div>
         </header>
 
         {/* KPI 3개 row */}
@@ -144,13 +182,13 @@ export default async function StoreAnalyticsPage({
 
         {/* 차트 row 1 — 매출 + 국적 */}
         <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <article className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm lg:col-span-2">
+          <article className="rounded-2xl border border-hesya-peach-100 bg-white p-5 shadow-[0_2px_8px_rgba(26,34,56,0.04),0_4px_16px_rgba(26,34,56,0.06)] lg:col-span-2">
             <h2 className="mb-3 font-semibold text-[14px] text-hesya-navy-900">
               {t("monthlyRevenueTitle")}
             </h2>
             <MonthlyRevenueChart data={data.monthly} />
           </article>
-          <article className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+          <article className="rounded-2xl border border-hesya-peach-100 bg-white p-5 shadow-[0_2px_8px_rgba(26,34,56,0.04),0_4px_16px_rgba(26,34,56,0.06)]">
             <h2 className="mb-3 font-semibold text-[14px] text-hesya-navy-900">
               {t("nationalityTitle")}
             </h2>
@@ -284,7 +322,7 @@ function RankList({
   emptyLabel: string;
 }) {
   return (
-    <article className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+    <article className="rounded-2xl border border-hesya-peach-100 bg-white p-5 shadow-[0_2px_8px_rgba(26,34,56,0.04),0_4px_16px_rgba(26,34,56,0.06)]">
       <h2 className="mb-3 font-semibold text-[14px] text-hesya-navy-900">
         {title}
       </h2>
