@@ -3,15 +3,19 @@ import { getTranslations } from "next-intl/server";
 import {
   bookings as bookingsTable,
   createDbClient,
+  customers as customersTable,
   eq,
   services as servicesTable,
   staff as staffTable,
 } from "@hesya/database";
 
+import { AppointmentCard } from "@/features/booking-success/appointment-card";
 import { HospitalityHero } from "@/features/booking-success/hospitality-hero";
 import { MapCard } from "@/features/booking-success/map-card";
 import { MockQr } from "@/features/booking-success/mock-qr";
 import { NextStepsTimeline } from "@/features/booking-success/next-steps-timeline";
+import { SafetyTips } from "@/features/booking-success/safety-tips";
+import { StoryShareCard } from "@/features/booking-success/story-share-card";
 import { BookingProgressStrip } from "@/features/customer-frame/booking-progress-strip";
 import { CustomerFrame } from "@/features/customer-frame/customer-frame";
 import { Link } from "@/i18n/navigation";
@@ -29,13 +33,15 @@ function buildAddressText(address: unknown, fallback: string): string {
   return [a.line1, a.city, a.country].filter(Boolean).join(", ") || fallback;
 }
 
-/**
- * Plan v3 M2.6 / Phase D2-B1 — 예약 완료 페이지 (디자인 정합 재구성).
- *
- * 공통 frame + progress strip(done) + hospitality hero + QR card + next-steps
- * timeline + map card. 외국인 손님의 마지막 인상 (소셜 공유로 이어질 가능성)
- * 의 핵심 페이지.
- */
+function formatBookingCode(
+  bookingId: string,
+  scheduledAt: Date | null,
+): string {
+  const year = (scheduledAt ?? new Date()).getUTCFullYear();
+  const tail = bookingId.replace(/-/g, "").slice(-4).toUpperCase();
+  return `HSYA-${year}-${tail}`;
+}
+
 export default async function StorePaySuccessPage({
   params,
   searchParams,
@@ -60,7 +66,7 @@ export default async function StorePaySuccessPage({
     notFound();
   }
 
-  const [storePublic, svcRowArr, stfRowArr] = await Promise.all([
+  const [storePublic, svcRowArr, stfRowArr, custRowArr] = await Promise.all([
     getStorePublicById(db, id),
     bookingRow.serviceId
       ? db
@@ -80,10 +86,18 @@ export default async function StorePaySuccessPage({
           .where(eq(staffTable.id, bookingRow.staffId))
           .limit(1)
       : Promise.resolve([null] as const),
+    bookingRow.customerId
+      ? db
+          .select({ name: customersTable.name })
+          .from(customersTable)
+          .where(eq(customersTable.id, bookingRow.customerId))
+          .limit(1)
+      : Promise.resolve([null] as const),
   ]);
 
   const svcRow = svcRowArr[0];
   const stfRow = stfRowArr[0];
+  const custRow = custRowArr[0];
 
   const t = await getTranslations({ locale, namespace: "BookSuccess" });
   const tProgress = await getTranslations({
@@ -106,10 +120,25 @@ export default async function StorePaySuccessPage({
       }).format(bookingRow.scheduledAt)
     : "-";
 
+  const shortDate = bookingRow.scheduledAt
+    ? new Intl.DateTimeFormat(locale, {
+        timeZone: "Asia/Seoul",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(bookingRow.scheduledAt)
+    : "-";
+
   const addressText = buildAddressText(
     storePublic?.address,
     storePublic?.name ?? "Hesya store",
   );
+  const customerName = custRow?.name ?? "";
+  const bookingCode = formatBookingCode(bookingRow.id, bookingRow.scheduledAt);
+  const storeName = storePublic?.name ?? "—";
 
   return (
     <CustomerFrame>
@@ -123,63 +152,85 @@ export default async function StorePaySuccessPage({
         }}
       />
 
-      <HospitalityHero subtitle={t("hospitalitySubtitle")} />
+      <p className="text-center font-heading text-[14px] italic tracking-[0.05em] text-hesya-amber-600">
+        {t("calligraphy")}
+      </p>
+
+      <HospitalityHero
+        headingTemplate={t("headingTemplate")}
+        customerName={customerName}
+      />
 
       <div className="space-y-4 px-5 pb-8">
         <header className="text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-hesya-amber-600">
-            {t("eyebrow")}
-          </p>
-          <p className="mt-1 font-heading text-[14px] italic tracking-[0.05em] text-hesya-amber-600">
-            {t("calligraphy")}
-          </p>
-          <h1 className="mt-1 font-heading text-[24px] font-semibold italic leading-tight tracking-[-0.02em] text-hesya-navy-900">
-            {t("heading")}
-          </h1>
-          <p className="mt-2 text-[13px] text-hesya-navy-900/70 leading-relaxed">
+          <p className="text-[13px] text-hesya-navy-900/70 leading-relaxed">
             {t("subheading")}
           </p>
         </header>
 
-        <section className="rounded-2xl border border-hesya-peach-200 bg-white px-5 py-5">
+        <section className="relative rounded-2xl bg-white px-5 py-5 shadow-[0_8px_24px_rgba(26,34,56,0.08)]">
+          <button
+            type="button"
+            aria-label={t("shareAriaLabel")}
+            className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-hesya-peach-100 text-hesya-amber-600 transition hover:bg-hesya-peach-200"
+          >
+            <span aria-hidden="true" className="text-[14px]">
+              ↗
+            </span>
+          </button>
           <div className="flex flex-col items-center text-center">
-            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
-              {t("qrCardTitle")}
+            <p className="text-[12px] font-medium text-hesya-navy-900/70 [word-break:keep-all]">
+              {storeName}
             </p>
-            <MockQr bookingId={bookingRow.id} />
-            <p className="mt-3 font-mono text-[10px] text-hesya-navy-900/55">
-              {bookingRow.id.slice(0, 8)}…{bookingRow.id.slice(-4)}
+            <div className="mt-3 rounded-xl border-2 border-hesya-navy-900 p-2">
+              <MockQr bookingId={bookingRow.id} size={148} />
+            </div>
+            <p className="mono mt-3 text-[13px] tracking-[0.05em] text-hesya-navy-900">
+              {bookingCode}
             </p>
             <p className="mt-2 text-[11px] text-hesya-navy-900/55">
               {t("qrCardNote")}
             </p>
           </div>
-
-          <dl className="mt-5 space-y-2 border-t border-hesya-peach-100 pt-4 text-[13px]">
-            {serviceLabel && (
-              <div className="flex justify-between gap-3">
-                <dt className="text-hesya-navy-900/55">{t("service")}</dt>
-                <dd className="text-right font-medium text-hesya-navy-900">
-                  {serviceLabel}
-                </dd>
-              </div>
-            )}
-            {stfRow && (
-              <div className="flex justify-between gap-3">
-                <dt className="text-hesya-navy-900/55">{t("staff")}</dt>
-                <dd className="text-right font-medium text-hesya-navy-900">
-                  {stfRow.name}
-                </dd>
-              </div>
-            )}
-            <div className="flex justify-between gap-3">
-              <dt className="text-hesya-navy-900/55">{t("datetime")}</dt>
-              <dd className="text-right font-medium text-hesya-navy-900">
-                {displayDateTime}
-              </dd>
-            </div>
-          </dl>
         </section>
+
+        <StoryShareCard
+          title={t("storyShareTitle")}
+          subtitle={t("storyShareSubtitle")}
+          brandLabel={t("storyShareBrand")}
+          customerName={customerName || t("storyShareGuestFallback")}
+          serviceText={serviceLabel ?? t("storyShareServiceFallback")}
+          dateText={shortDate}
+          locationText={storeName}
+          handle={t("storyShareHandle")}
+          tagLine={t("storyShareTagLine")}
+          actions={{
+            save: t("storyShareSave"),
+            send: t("storyShareSend"),
+            copy: t("storyShareCopy"),
+          }}
+        />
+
+        <AppointmentCard
+          dateLine={displayDateTime}
+          serviceLine={serviceLabel ?? "—"}
+          staffLine={stfRow?.name}
+          storeName={storeName}
+          walkLine={t("apptWalkMock")}
+          paymentPaid={t("apptPaidMock")}
+          paymentDue={t("apptDueMock")}
+          addToCalendar={t("apptAddToCalendar")}
+        />
+
+        <MapCard
+          title={t("mapCardTitle")}
+          addressText={addressText}
+          labels={{
+            apple: t("mapApple"),
+            google: t("mapGoogle"),
+            naver: t("mapNaver"),
+          }}
+        />
 
         <NextStepsTimeline
           title={t("timelineTitle")}
@@ -192,14 +243,12 @@ export default async function StorePaySuccessPage({
           ]}
         />
 
-        <MapCard
-          title={t("mapCardTitle")}
-          addressText={addressText}
-          labels={{
-            apple: t("mapApple"),
-            google: t("mapGoogle"),
-            naver: t("mapNaver"),
-          }}
+        <SafetyTips
+          title={t("safetyTitle")}
+          tip1={t("safetyTip1")}
+          tip2={t("safetyTip2")}
+          tip3={t("safetyTip3")}
+          firstOnly={t("safetyFirstOnly")}
         />
 
         <p className="text-center text-[11px] text-hesya-navy-900/55">
