@@ -438,3 +438,72 @@ export const mockBookingCounts = {
   pending: mockBookings.filter((b) => b.status === "pending").length,
   noshow: mockBookings.filter((b) => b.status === "noshow").length,
 } as const;
+
+/** Booking detail panel — History tab mock (booking id 기준). */
+export interface MockVisitHistory {
+  readonly date: string;
+  readonly icon: string;
+  readonly title: string;
+  readonly priceKrw: number;
+  readonly rating: number | null;
+  readonly note?: string;
+}
+
+export const mockBookingHistory: ReadonlyArray<MockVisitHistory> = [
+  {
+    date: "2026.03.22",
+    icon: "✂",
+    title: "K-Beauty 메이크업",
+    priceKrw: 140000,
+    rating: 5,
+  },
+  {
+    date: "2025.11.18",
+    icon: "🎨",
+    title: "퍼스널컬러 + 메이크업",
+    priceKrw: 140000,
+    rating: 5,
+    note: "첫 방문",
+  },
+];
+
+/** Booking detail panel — Notes tab mock. */
+export interface MockBookingNote {
+  readonly date: string;
+  readonly author: string;
+  readonly body: string;
+}
+
+export const mockBookingNotes: ReadonlyArray<MockBookingNote> = [
+  {
+    date: "2026.03.22",
+    author: "김지영",
+    body: "두피 민감해서 약산성 샴푸로 진행. 다음에도 동일하게.",
+  },
+];
+
+/** Booking detail panel — Risk tab mock. */
+export interface MockBookingRisk {
+  readonly kind: "compliance" | "emotion";
+  readonly tone: "ok" | "warn" | "neutral";
+  readonly icon: string;
+  readonly title: string;
+  readonly meta: string;
+}
+
+export const mockBookingRisk: ReadonlyArray<MockBookingRisk> = [
+  {
+    kind: "compliance",
+    tone: "ok",
+    icon: "✓",
+    title: "최근 30일 무사고",
+    meta: "컴플라이언스 깨끗",
+  },
+  {
+    kind: "emotion",
+    tone: "neutral",
+    icon: "◐",
+    title: "감정 무게 — 보통",
+    meta: "최근 메시지 톤: 기대 / 호의적",
+  },
+];
