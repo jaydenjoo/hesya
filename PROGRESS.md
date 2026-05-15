@@ -3,7 +3,48 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 40 — 🎯 P0 8 페이지 정합 추가 2 PR, 누적 15 PR)
+## 현재 위치 (2026-05-15 세션 41 — 🎯 P1 16 페이지 quick wins 8 PR, 누적 23 PR)
+
+- **세션 41 (2026-05-15)**: P0 외 16 페이지 reference 정합 시작. 진단 결과 모두 구조적 격차 큼 (~30-75% 정합). 페이지당 quick win 1 PR로 진행.
+- **시정 작업 8 PR (1세션 누적 머지)**:
+  - PR [#232](https://github.com/jaydenjoo/hesya/pull/232) — Owner Bookings: Now-line + ⌘N + amber "이번 주" 뱃지 (~52% → ~62%)
+  - PR [#233](https://github.com/jaydenjoo/hesya/pull/233) — Owner Customers: avatar 3색 cycling + 국기 badge (~30% → ~40%)
+  - PR [#234](https://github.com/jaydenjoo/hesya/pull/234) — Owner Services: CategorySidebar 색 반전 + ServiceCard photo 4색 + 인기 pill (~45% → ~60%)
+  - PR [#235](https://github.com/jaydenjoo/hesya/pull/235) — Photos 4col masonry + Settings K-Verified 배지 (Photos ~68→78%, Settings ~55→62%)
+  - PR [#236](https://github.com/jaydenjoo/hesya/pull/236) — Owner Analytics: 헤더 기간 토글 + PDF + 카드 토큰 (~30% → ~45%)
+  - PR [#237](https://github.com/jaydenjoo/hesya/pull/237) — Customer flow: Photo pulse + Schedule HandBow + Payment Suggested pill/썸네일 (Photo 55→65%, Schedule 75→82%, Payment 70→80%)
+  - PR [#238](https://github.com/jaydenjoo/hesya/pull/238) — Admin Dashboard alert meta + AI Cost 기간 토글 (Dashboard 88→93%, AI Cost 60→72%)
+  - PR [#239](https://github.com/jaydenjoo/hesya/pull/239) — C5 StickyMiniHeader avatar + rating + amber CTA (~88% → ~93%)
+- **세션 41 정합 결과**:
+  | 페이지 | 진단 시작 | 시정 후 | PR |
+  | --- | --- | --- | --- |
+  | Owner Bookings | ~52% | ~62% | #232 |
+  | Owner Customers | ~30% | ~40% | #233 |
+  | Owner Services | ~45% | ~60% | #234 |
+  | Owner Photos | ~68% | ~78% | #235 |
+  | Owner Settings | ~55% | ~62% | #235 |
+  | Owner Analytics | ~30% | ~45% | #236 |
+  | Customer Photo Analyze | ~55% | ~65% | #237 |
+  | Customer Booking Schedule | ~75% | ~82% | #237 |
+  | Customer Payment | ~70% | ~80% | #237 |
+  | Admin Dashboard | ~88% | ~93% | #238 |
+  | Admin AI Cost | ~60% | ~72% | #238 |
+  | C5 (StickyMiniHeader 보강) | ~88% | ~93% | #239 |
+- **잔여 작업 (다음 세션 이상, 구조적 큰 작업)**:
+  - **Admin KYC** (~25%) — 3-col 레이아웃 + 6단계 파이프라인 미니 인디케이터 (P0)
+  - **Admin Payments** (~15%) — Epic 2 결제 인프라 의존, 현재 모니터링 위주
+  - **Admin Login** (~10%) — 보류 정책 (Jayden 재확인 필요 — admin/store 분리 vs 동일 페이지)
+  - **Customer Photo Analyze P0 잔여** — B/A 슬라이더 + 스타일리스트 carousel
+  - **Owner Bookings P0 잔여** — Side panel 4탭 + 취소 inline + Header 통합
+  - **Owner Customers P0 잔여** — Split-view + KPI strip + status pill
+  - **Owner Services P0 잔여** — sv-header sticky + LangPill 3-state + Editor 전체
+  - **Owner Settings P0 잔여** — LangTabs + 영업시간 grid + 위험 영역 서약
+  - **Owner Analytics P0 잔여** — KPI sparkline + LineChart dual + InsightBand 단일 + Bento 12-col
+  - **Detail Live UGC + Compare 탭** — 9-tile grid 신규
+- **세션 41 누적 23 PR (세션 37~41)**. 모든 페이지 ≥40% 정합. P0 페이지 ≥92%.
+- **세션 41 검증**: type-check / lint / vitest 732 매 PR 통과.
+
+## 이전 위치 (2026-05-15 세션 40 — 🎯 P0 8 페이지 정합 추가 2 PR, 누적 15 PR)
 
 - **세션 40 (2026-05-15 종반)**: 세션 39의 잔여 항목 (C2 voice/audit, O2 AI tone pill, C3 Map pill state) 2 PR로 보완.
 - **시정 작업 2 PR**:
