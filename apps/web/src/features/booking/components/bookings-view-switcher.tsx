@@ -106,10 +106,21 @@ export function BookingsViewSwitcher({
         </div>
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-full bg-hesya-amber-500 px-3.5 py-1.5 text-[12px] font-semibold text-white transition hover:bg-hesya-amber-600"
+          className="inline-flex items-center gap-1.5 rounded-full bg-hesya-amber-500 px-3.5 py-1.5 text-[12px] font-semibold text-white shadow-[0_4px_10px_rgba(232,169,122,0.35)] transition hover:bg-hesya-amber-600"
         >
           <span aria-hidden="true">+</span>
           {switcherLabels.newBooking}
+          <span
+            aria-hidden="true"
+            className="ml-1 inline-flex items-center gap-0.5"
+          >
+            <kbd className="mono rounded bg-white/20 px-1 py-px text-[9px] font-medium leading-none">
+              ⌘
+            </kbd>
+            <kbd className="mono rounded bg-white/20 px-1 py-px text-[9px] font-medium leading-none">
+              N
+            </kbd>
+          </span>
         </button>
       </div>
 
