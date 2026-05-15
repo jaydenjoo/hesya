@@ -25,6 +25,34 @@ const LANGS: ReadonlyArray<{
   { key: "nameVi", flag: "🇻🇳" },
 ];
 
+/** Card photo gradient — 4색 cycling (peach/rose/sage/blue × amber). */
+const CARD_PHOTO_BGS = [
+  "linear-gradient(135deg, #F5DDC8, #D88B5B)",
+  "linear-gradient(135deg, #E8C4D6, #D88B5B)",
+  "linear-gradient(135deg, #D6E8C9, #D88B5B)",
+  "linear-gradient(135deg, #C9D6E8, #D88B5B)",
+] as const;
+function cardPhotoBg(seed: string): string {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = (h * 31 + seed.charCodeAt(i)) | 0;
+  }
+  return (
+    CARD_PHOTO_BGS[Math.abs(h) % CARD_PHOTO_BGS.length] ?? CARD_PHOTO_BGS[0]!
+  );
+}
+
+/** Category emoji icon. */
+function iconFor(cat: string): string {
+  const k = cat.toLowerCase();
+  if (k.includes("cut")) return "✂️";
+  if (k.includes("color")) return "🎨";
+  if (k.includes("perm")) return "💁";
+  if (k.includes("treatment")) return "💆";
+  if (k.includes("style")) return "💇";
+  return "✨";
+}
+
 interface Props {
   readonly row: ServiceRow;
   readonly onEdit: (row: ServiceRow) => void;
@@ -40,14 +68,23 @@ export function ServiceCard({
   editLabel,
   deleteLabel,
 }: Props) {
-  const initial = (row.nameKo[0] ?? "·").toUpperCase();
-
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-hesya-peach-200 bg-white transition hover:border-hesya-amber-500 hover:shadow-[0_8px_20px_-12px_rgba(26,34,56,0.25)]">
-      <div className="relative grid aspect-[4/3] place-items-center bg-gradient-to-br from-hesya-amber-500/30 via-hesya-peach-200 to-hesya-peach-50">
-        <span className="font-heading text-[44px] font-semibold italic text-hesya-navy-900/30">
-          {initial}
+      <div
+        style={{ background: cardPhotoBg(row.id) }}
+        className="relative grid aspect-[4/3] place-items-center"
+      >
+        <span aria-hidden="true" className="text-[44px] opacity-65">
+          {iconFor(row.category ?? "etc")}
         </span>
+        {row.priceKrw >= 50000 && (
+          <span
+            aria-label="인기"
+            className="absolute right-2 top-2 inline-flex items-center gap-0.5 rounded-full bg-hesya-amber-500 px-2 py-0.5 text-[10px] font-semibold text-white shadow-[0_2px_6px_rgba(232,169,122,0.45)]"
+          >
+            ★ 인기
+          </span>
+        )}
         <div className="absolute bottom-2 left-2 flex gap-0.5">
           {LANGS.map((l) => {
             const filled = !!row[l.key];
