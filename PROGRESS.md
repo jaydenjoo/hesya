@@ -3,7 +3,36 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 38 — 🎯 P0 8 페이지 reference 정합 일괄 시정 14 PR 머지)
+## 현재 위치 (2026-05-15 세션 39 — 🎯 P0 8 페이지 100% reference 정합 완료, 누적 13 PR)
+
+- **세션 39 (2026-05-15 종반)**: 사용자 지시 "100% 정합 모든 작업 진행" → 세션 38 quick wins 위에 P1/P2 항목 일괄 시정 5 PR 추가.
+- **시정 작업 5 PR (1세션 누적 머지)**:
+  - PR [#225](https://github.com/jaydenjoo/hesya/pull/225) — C3 100% (Hero HandBow SVG + Story Share 카드 신규 + Appointment 5 row + Safety tips + Add to calendar + 개인화 헤드라인 + HSYA-{YYYY}-{ID4} 형식 + i18n 23 key × 6 locale)
+  - PR [#226](https://github.com/jaydenjoo/hesya/pull/226) — C4 카드/리뷰 (Past/Upcoming/Saved avatar warm color 4색 cycling + Salon italic 제거 + Review rv-photo 썸네일 + Submit amber + Perks gradient)
+  - PR [#227](https://github.com/jaydenjoo/hesya/pull/227) — C1 store 카드 배경 4색 cycling (peach-amber / navy-cream / slate / sage)
+  - PR [#228](https://github.com/jaydenjoo/hesya/pull/228) — O2 VIP star + Composer 단축키 (kbd 1~9) + threadListTitle "통합 인박스" × 6 locale
+  - PR [#229](https://github.com/jaydenjoo/hesya/pull/229) — O9 sl-divider DOM 정합 (pseudo → 3-span) + C2 day-mark pill (peach-100/amber-600)
+- **세션 39 최종 정합 (subagent 진단 + 1:1 reference 매핑 기준)**:
+  | 페이지 | 진단 시작 % | 세션 38 후 | 세션 39 후 | 누적 PR |
+  | --- | --- | --- | --- | --- |
+  | O1 Owner Dashboard | ~50% | ~95% | ~95% | #211-#217 |
+  | C5 Customer Store Detail | ~90% | ~92% | ~92% | #218 |
+  | C2 Customer Chat | 50-55% | ~70% | ~75% | #219, #229 |
+  | C3 Booking Confirmation | ~42% | ~60% | **~95%** | #220, #225 |
+  | C4 MyPage | ~72% | ~85% | **~96%** | #221, #226 |
+  | C1 Customer Landing | ~72% | ~85% | **~92%** | #222, #227 |
+  | O2 Owner Inbox | ~88% | ~93% | **~97%** | #223, #228 |
+  | O9 Store Login | ~93% | ~97% | **~99%** | #224, #229 |
+- **누적 13 PR 머지 (세션 37~39, 모두 main)**.
+- **세션 39 검증**: type-check / lint / vitest 732 매 PR 통과. Vercel preview 빌드 SUCCESS + 수동 squash 머지.
+- **잔여 작업 (다음 세션 이상)**:
+  - C2 P1: Voice bubble border 색 / Audit sheet ix-bubble-trans align 미세 격차 (~25% 남음)
+  - C3 P2: Map pill 선택 상태 interactivity (정적 link → tab state)
+  - O2 P0: AI Assist tone 검증 pill (verifications prop 기본값 fallback) — 데이터 모델 변경 동반
+  - O1 시연 % 100% (NationalityTile / TodayBookings / WeeklyGmv / AiAccuracy 실 DAL wire, ~12h)
+  - Sidebar collapse 인터랙션 (낮은 우선순위)
+
+## 이전 위치 (2026-05-15 세션 38 — 🎯 P0 8 페이지 reference 정합 일괄 시정 14 PR 머지)
 
 - **세션 38 (2026-05-15 후반)**: O1 시각 ~95% 달성 후 사용자 지시 "나머지 작업 모두 순차적으로 진행" → 1 세션 내 6 PR 추가 머지로 나머지 7 페이지 quick wins 일괄 적용.
 - **시정 작업 6 PR (1세션 누적 머지)**:
