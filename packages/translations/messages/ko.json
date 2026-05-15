@@ -13,13 +13,16 @@
     "greetingPrefix": "안녕하세요,",
     "greetingSuffix": "사장님",
     "brightSpot": {
-      "urgent": "긴급",
-      "today": "오늘",
-      "inboxUnread": "미응답 메시지 {count}건 — 열린 대화 {threads}개. 빠른 응답이 재방문률을 올립니다.",
-      "disputesActive": "처리 중 분쟁 {count}건. 일찍 응답할수록 SLA에 여유가 생깁니다.",
-      "disputesSlaExceeded": "SLA 초과 분쟁 {count}건 — 우선 처리 필요.",
-      "allClear": "오늘은 미답·분쟁 0건. 좋은 흐름입니다."
+      "eyebrow": "오늘의 좋은 소식",
+      "eyebrowEn": "Today's bright spot",
+      "viewMore": "더 보기",
+      "items": {
+        "review5Star": "어제 일본인 손님 3명 모두 5점 리뷰 남겼어요",
+        "newForeignRecord": "신규 외국인 손님 7명 — 이번 주 신기록",
+        "aiTimeSaved": "AI가 어제 28건 메시지 자동 처리 — 약 4시간 절약"
+      }
     },
+    "weatherMock": "흐림 18°",
     "subtitle": "Epic 4 — 외국인 매출·재방문·국적 분석 (베타 데이터 적재 후 활성화)",
     "greetingSubtitle": "오늘 외국인 예약 <strong>{todayBookings}</strong>건 · 미답 메시지 <strong>{unread}</strong>건 · 새 후기 <strong>{newReviews}</strong>건",
     "criticalAlert": {

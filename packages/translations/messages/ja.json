@@ -13,13 +13,16 @@
     "greetingPrefix": "こんにちは、",
     "greetingSuffix": "オーナー様",
     "brightSpot": {
-      "urgent": "緊急",
-      "today": "本日",
-      "inboxUnread": "未返信メッセージ {count}件 — オープン中の会話 {threads}件。素早い返信が再来店率を高めます。",
-      "disputesActive": "対応中の紛争 {count}件。早めの返答でSLAに余裕が生まれます。",
-      "disputesSlaExceeded": "SLA超過の紛争 {count}件 — 優先対応が必要です。",
-      "allClear": "本日の未返信・紛争はありません。良い流れです。"
+      "eyebrow": "本日の明るいニュース",
+      "eyebrowEn": "Today's bright spot",
+      "viewMore": "もっと見る",
+      "items": {
+        "review5Star": "昨日、日本人のお客様3名全員が5点レビューを残しました",
+        "newForeignRecord": "新規の外国人のお客様7名 — 今週の新記録",
+        "aiTimeSaved": "AIが昨日28件のメッセージを自動処理 — 約4時間節約"
+      }
     },
+    "weatherMock": "曇り 18°",
     "subtitle": "Epic 4 — 外国人売上・再来訪・国籍分析(ベータデータ蓄積後に有効化)",
     "greetingSubtitle": "本日の外国人予約 <strong>{todayBookings}</strong>件 · 未読メッセージ <strong>{unread}</strong>件 · 新着レビュー <strong>{newReviews}</strong>件",
     "criticalAlert": {

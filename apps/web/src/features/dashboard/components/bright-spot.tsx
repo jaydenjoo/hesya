@@ -1,40 +1,98 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 /**
- * Plan v3 M6.2b — Dashboard 상단 bright spot strip.
+ * Reference 정합 PR 4 — Rotating bright spot carousel.
  *
- * Reference dashboard.css `.sd-bright-spot`:
- * - peach-100 bg + amber-500 border + 135deg diagonal gradient overlay
- * - eyebrow (amber-600 11px + Fraunces italic en) + body (15px navy 500 line-height 1.45)
- * - 우측 dots indicator + "더보기" link slot
+ * Reference: `docs/design/reference/dashboard-app.jsx:91-118` `BrightSpot`.
+ * - 3 message rotating (15s interval) — `prefers-reduced-motion` 존중
+ * - eyebrow: ✨ + 한국어 + 영어 italic subtitle ("Today's bright spot")
+ * - 우측 dots indicator (active=amber-500, dim=peach-200)
+ * - "더 보기 →" link (mock — Inbox/Reviews 페이지 연결은 별도 task)
  *
- * 가장 시급한 상태 1개를 "오늘의 한 줄"로 강조. KpiGrid 위에 full-width 표시.
+ * 이전 동적 brightSpot (dispute/inbox 상태 기반)은 제거. CriticalAlert가 urgent
+ * 케이스를 별도 처리하므로 BrightSpot은 reference 의도 (celebratory 메시지
+ * rotating)에 충실.
  */
 
+const ROTATION_MS = 15_000;
+
 type Props = {
+  /** 회전 표시할 메시지 (3개 권장) — i18n 매핑은 page.tsx에서 */
+  items: ReadonlyArray<string>;
   eyebrow: string;
   eyebrowEn: string;
-  body: React.ReactNode;
+  viewMoreLabel: string;
 };
 
-export function BrightSpot({ eyebrow, eyebrowEn, body }: Props) {
+export function BrightSpot({
+  items,
+  eyebrow,
+  eyebrowEn,
+  viewMoreLabel,
+}: Props) {
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    if (items.length <= 1) return;
+    if (typeof window === "undefined") return;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (reduce) return;
+    const t = setInterval(
+      () => setIdx((i) => (i + 1) % items.length),
+      ROTATION_MS,
+    );
+    return () => clearInterval(t);
+  }, [items.length]);
+
+  const currentBody = items[idx] ?? items[0] ?? "";
+
   return (
-    <div className="relative mb-4 grid grid-cols-1 items-center gap-4 overflow-hidden rounded-lg border border-hesya-amber-500 bg-hesya-peach-100 px-5 py-3.5 sm:grid-cols-[auto_1fr_auto]">
+    <div className="relative mb-4 grid grid-cols-1 items-center gap-4 overflow-hidden rounded-lg border border-hesya-amber-500 bg-hesya-peach-100 px-5 py-3.5 sm:grid-cols-[auto_1fr_auto_auto]">
       <span
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-gradient-to-br from-transparent from-50% to-white/35"
       />
       <div className="relative flex items-baseline gap-1.5 whitespace-nowrap font-mono text-[11px] font-semibold uppercase tracking-[0.04em] text-hesya-amber-600">
+        <span aria-hidden="true" className="text-[14px]">
+          ✨
+        </span>
         {eyebrow}
-        <span className="font-heading text-[11px] font-medium italic not-italic text-gray-500">
-          <span className="italic">{eyebrowEn}</span>
+        <span className="font-heading text-[11px] font-medium italic text-gray-500">
+          {eyebrowEn}
         </span>
       </div>
-      <p className="relative min-w-0 text-[15px] font-medium leading-[1.45] text-hesya-navy-900">
-        {body}
+      <p
+        key={idx}
+        className="kr relative min-w-0 text-[15px] font-medium leading-[1.45] text-hesya-navy-900 animate-[fadeIn_0.35s_ease-out]"
+        aria-live="polite"
+      >
+        {currentBody}
       </p>
-      <div className="relative flex items-center gap-1" aria-hidden="true">
-        <span className="h-[5px] w-[5px] rounded-full bg-hesya-amber-500" />
-        <span className="h-[5px] w-[5px] rounded-full bg-hesya-peach-200" />
-        <span className="h-[5px] w-[5px] rounded-full bg-hesya-peach-200" />
+      <button
+        type="button"
+        data-testid="bright-spot-view-more"
+        className="kr relative text-[12px] font-medium text-hesya-amber-600 hover:underline"
+      >
+        {viewMoreLabel} →
+      </button>
+      <div
+        className="relative flex items-center gap-1"
+        aria-label={`${idx + 1} / ${items.length}`}
+      >
+        {items.map((_, i) => (
+          <span
+            key={i}
+            aria-hidden="true"
+            className={
+              "h-[5px] w-[5px] rounded-full transition-colors " +
+              (i === idx ? "bg-hesya-amber-500" : "bg-hesya-peach-200")
+            }
+          />
+        ))}
       </div>
     </div>
   );

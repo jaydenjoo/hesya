@@ -1,7 +1,9 @@
 import { PageHeader } from "@/components/ui/page-header";
 
 type Props = {
-  eyebrow: string;
+  /** Reference 정합 PR 4 — 제거됨. 기존 caller 호환을 위한 optional. 미전달
+      시 PageHeader eyebrow 없음. */
+  eyebrow?: string;
   greetingPrefix: string;
   storeName: string;
   greetingSuffix: string;
