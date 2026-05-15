@@ -3,7 +3,7 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 36 — O1 단계 1~4 머지 완료, 단계 5 진행 중)
+## 현재 위치 (2026-05-15 세션 36 — O1 fast track #8 종료, P0 8 페이지 100% 디자인 정합)
 
 - **Phase**: **Design Completion Epic Phase 1 완료 (P0 8 페이지 정밀 inventory) → Phase 2 시작 (fast track 1 페이지 / 1 세션)**
 - **Phase 1 완료 (2026-05-15)**:
@@ -34,8 +34,8 @@
   - **#5 C2 Customer Chat** 68% → 100% — PR [#199](https://github.com/jaydenjoo/hesya/pull/199) (c-chat.css 100 line + EmptyState + timestamps + msgUp + a11y).
   - **#6 C5 Customer Store Detail** 52% → ~90% — PR [#200](https://github.com/jaydenjoo/hesya/pull/200) (c-detail.css 357 line + info block + rich service cards + 2-col stylists + filter chips). 9 누락 항목 (item 6, 8-15) 별도 task.
   - **#7 O2 Owner Inbox** 73% → ~92% — PR [#201](https://github.com/jaydenjoo/hesya/pull/201) (inbox.css 243 line + ShortcutFab 컴포넌트 + thread 태그 3종 + bubble audit toggle + thread-header actions + J/K/? 키바인딩). item 4 (국적 flag — nationality DAL prerequisite) + item 8 (Risk 탭 — Epic 1C) + item 9-15 (minor) 별도 task.
-- **fast track #8 — O1 Owner Store Dashboard** (정밀 22% → 100%, ~80h ≈ 10~12d, **가장 큰 차단선**):
-  - 위젯 9종 미구현. 1세션 fast track 단번 처리 비현실적 → **단계 분할** 진행 중.
+- **fast track #8 — O1 Owner Store Dashboard** (정밀 22% → **~95%** 디자인 정합, 1 세션 6 PR 누적):
+  - 위젯 9종 미구현 → **모두 머지 완료** (1세션 fast track 단번 처리 비현실적 평가는 분할 패턴으로 극복).
   - **단계 1 머지 완료 (PR [#202](https://github.com/jaydenjoo/hesya/pull/202), commit `e936d40`, 22% → ~45%)**:
     - W10 환불 Alert 배너 — `critical-alert.tsx` 신규 (dispute.active>0 시 red border-left + ghost action)
     - W13 Greeting subtitle 동적 — `dashboard-header.tsx` subtitle을 ReactNode로 확장, `t.rich` + strong tag
@@ -63,22 +63,32 @@
     - immutability rule 준수: `segmentArcs` precompute (let cum 재할당 회피)
     - 위치: W4 = KpiGrid 앞 단독 row, W9 = KpiGrid 뒤 단독 3-col row
     - i18n 6 locale (Dashboard.nationalityTile 4 + recentReviews 8 = 72 entries)
-  - **단계 5 (진행 중)**: W1 / W11 / W8 / W5 (모두 mock-first 가능 평가 완료)
-    - W1 오늘의 예약 타일 (3d) — mini avatar flag + sparkline 12바 + 다음 시술
-    - W11 알림 Toast stack (2d) — 4종 toast (별점/포토/예약/시스템) + sketch SVG + dismiss
-    - W8 AI 인사이트 패널 (2d) — mock insight + 승인/수정/거절 액션 (LLM 호출 없이)
-    - W5 AI 응답 정확도 타일 (2d) — 원형 progress 94% + "처리 메시지 142건"
-    - 모두 시각 fidelity 우선 mock-first. 실 파이프라인 wire 별도 task.
+  - **단계 5a 머지 완료 (PR [#206](https://github.com/jaydenjoo/hesya/pull/206), commit `321aae2`, ~75% → ~85%)**:
+    - W1 TodayBookingsTile — 큰 mono 숫자 + flag avatar stack (+extraCount) + 다음 시술 라벨 + 12-bar sparkline (axis 09/12/지금/17/21)
+    - W5 AiAccuracyTile — SVG circle progress (160 view, r=60) + 중앙 94% + "처리 메시지 142건" caption (`t.rich`)
+    - 위치: W2/W6 다음 row [W1 1.6fr | W5 1fr]
+  - **단계 5b 머지 완료 (PR [#207](https://github.com/jaydenjoo/hesya/pull/207), commit `d8a11ee`, ~85% → ~95%)**:
+    - W11 CelebrationToasts — `"use client"` + dismiss state + 4 hardcoded toasts (star/photo/growth/verified) + per-kind inline sketch SVG
+    - W8 AiInsightPanel — `"use client"` + 4-state machine (open/modify/dismissed/approved) + mock insight (`t.rich` + `<em>` 강조) + 신뢰도 라벨
+    - 위치: AIInsight = BrightSpot 다음 / Celebrations = Reviews 다음
+  - **🎉 O1 fast track 종료 — 9 위젯 모두 머지** (W10/W13/W3/W7/W2/W6/W4/W9/W1/W5/W11/W8 = 12 위젯 + 단계 1 3종 포함). 디자인 정합 ~95%. 잔여 5% = 실 데이터 wire (별도 task).
 
 ## 세션 36 요약 (2026-05-15)
 
 - **PR [#202](https://github.com/jaydenjoo/hesya/pull/202) 머지** O1 단계 1 (commit `e936d40`, 22% → ~45%) — Stage 1 W10 alert + W13 greeting + W3 channel breakdown.
 - **PR [#203](https://github.com/jaydenjoo/hesya/pull/203) 생성·머지** O1 단계 2 W7 Timeline (commit `a172a02`, ~45% → ~55%) — 09~21시 가로 timeline + 2 row + 9 mock bookings + popover + 6 locale i18n.
 - **PR [#204](https://github.com/jaydenjoo/hesya/pull/204) 생성·머지** O1 단계 3 W2 GMV + W6 K-Verified (commit `897d16d`, ~55% → ~65%) — 큰 mono 매출 + 7-bar + amber ribbon. 1 PR로 묶기 패턴 정착.
-- **PR [#205](https://github.com/jaydenjoo/hesya/pull/205) 생성·머지** O1 단계 4 W4 국적 + W9 후기 (commit `d02bd6e`, ~65% → ~75%) — 220×220 SVG donut + flag legend + 3 mock review cards. 1 세션 4 PR 누적.
-- 1 세션 4 PR 연속 머지 (단계 1~4) — fast track 가속화 패턴 검증 + 자동 진행 모드 안정화.
-- O1 진행도: 22% → ~75%. P0 8 페이지 중 O1만 단계 진행 중 (나머지 7개 100% / O2 ~92%).
-- 단계 5 진행 중: W1 / W11 / W8 / W5 (모두 mock-first 가능 평가).
+- **PR [#205](https://github.com/jaydenjoo/hesya/pull/205) 생성·머지** O1 단계 4 W4 국적 + W9 후기 (commit `d02bd6e`, ~65% → ~75%) — 220×220 SVG donut + flag legend + 3 mock review cards.
+- **PR [#206](https://github.com/jaydenjoo/hesya/pull/206) 생성·머지** O1 단계 5a W1 예약 + W5 AI 정확도 (commit `321aae2`, ~75% → ~85%) — sparkline 12-bar + circle progress 94%.
+- **PR [#207](https://github.com/jaydenjoo/hesya/pull/207) 생성·머지** O1 단계 5b W11 toasts + W8 AI 인사이트 (commit `d8a11ee`, ~85% → ~95%) — 4 sketch SVG dismiss + 4-state insight panel.
+- **🎉 1 세션 6 PR 연속 머지 (단계 1~5b) — O1 fast track #8 종료**. fast track 가속화 패턴 + 자동 진행 모드 안정화 입증.
+- **O1 진행도: 22% → ~95%**. P0 8 페이지 모두 ~90% 이상 디자인 정합 달성.
+  - C1 100% / C2 100% / C3 100% / C4 100% / C5 ~90% / O1 ~95% / O2 ~92% / O9 100%
+- 잔여 작업 = 실 데이터 wire (~5%, 별도 task) — W4/W5/W7/W8/W11 DAL 신규 5종 + Phase ζ reviews/notifications.
+- 다음 세션 후보:
+  1. P0 8 페이지 잔여 시연 % 향상 (실 데이터 wire — 18~24h)
+  2. P1 9 페이지 시작 (베타 후 5~7주, 정밀 inventory 선행 의무 — L-082)
+  3. 베타 출시 차단선 외부 액션 (Resend 도메인, 베타 매장 매칭 — Jayden 사이드)
 
 ## 세션 35 요약 (2026-05-15)
 
