@@ -12,6 +12,12 @@ interface Props {
   readonly bookLabel: string;
   readonly favoriteLabel: string;
   readonly chatLabel: string;
+  /**
+   * C5 100% — 선택된 시술 라벨 (메뉴 + 가격). 표시 시 CTA 안에 2-line 스택.
+   * Reference detail-app.jsx:665-674 sd-cta-stack + selected-svc.
+   * 미지정 시 기본 single-line CTA.
+   */
+  readonly selectedServiceLabel?: string;
 }
 
 export function BottomActionBar({
@@ -19,6 +25,7 @@ export function BottomActionBar({
   bookLabel,
   favoriteLabel,
   chatLabel,
+  selectedServiceLabel,
 }: Props) {
   return (
     <div className="sticky bottom-0 z-20 flex items-center gap-2 border-t border-hesya-peach-200 bg-hesya-peach-50/95 px-4 py-3 backdrop-blur">
@@ -42,9 +49,24 @@ export function BottomActionBar({
       </button>
       <Link
         href={bookHref}
-        className="flex h-11 flex-1 items-center justify-center rounded-full bg-hesya-navy-900 px-5 text-sm font-semibold text-hesya-peach-50 transition hover:bg-hesya-navy-900/90"
+        className={
+          "flex flex-1 items-center justify-center rounded-full bg-hesya-navy-900 px-5 text-sm font-semibold text-hesya-peach-50 transition hover:bg-hesya-navy-900/90 " +
+          (selectedServiceLabel ? "py-2" : "h-11")
+        }
       >
-        {bookLabel} →
+        {selectedServiceLabel ? (
+          <span className="flex flex-col items-center gap-0.5">
+            <span>{bookLabel} →</span>
+            <span
+              data-testid="bottom-bar-selected-svc"
+              className="text-[10px] font-normal text-hesya-peach-50/80"
+            >
+              {selectedServiceLabel}
+            </span>
+          </span>
+        ) : (
+          <>{bookLabel} →</>
+        )}
       </Link>
     </div>
   );

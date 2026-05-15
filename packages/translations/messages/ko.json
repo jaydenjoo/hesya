@@ -334,6 +334,45 @@
     "safetyHoursLabel": "영업시간",
     "safetyStaffLabel": "디자이너",
     "safetyLangLabel": "응대 언어",
+    "safetySheets": {
+      "closeAria": "닫기",
+      "verified": {
+        "title": "247명 외국인 인증 방문",
+        "row1": "112 · 일본",
+        "row2": "68 · 중국·대만",
+        "row3": "41 · 미국·캐나다",
+        "row4": "26 · 베트남·동남아",
+        "footer": "Hesya 검증 예약 기준. 매일 갱신."
+      },
+      "hours": {
+        "title": "10–20시 안전 운영",
+        "row1": "주변 거리가 활발한 낮 시간대만 운영합니다.",
+        "row2": "홍대 파출소 250m, 24/7 순찰 구역.",
+        "row3": "측면 출입구는 야간에도 환하게 조명."
+      },
+      "designers": {
+        "title": "여성 디자이너 6 / 8",
+        "row1": "현재 8명 중 6명이 여성 디자이너입니다.",
+        "row2": "K-glow / K-드라마 스타일 전문 4명.",
+        "row3": "개별 시술 룸 — 프라이버시 보장."
+      },
+      "walk": {
+        "title": "도보 4분 · 홍대입구역 9번 출구",
+        "row1": "Line 2·6·AREX 모두 홍대입구역 연결.",
+        "row2": "양화로 메인 도보 — 야간 골목 우회 없음.",
+        "row3": "Kakao 택시 픽업존 50m."
+      }
+    },
+    "allergy": {
+      "title": "이 시술의 안전 정보 / Treatment safety",
+      "productsTitle": "사용 제품 (브랜드·성분) / Products used",
+      "allergyTitle": "알러지 사전 안내 / Allergy disclosure",
+      "aftercareTitle": "시술 후 모발/피부 케어 / Aftercare guide",
+      "allergyBody": "컬러 시술은 PPD-free 염료를 사용합니다. 첫 방문자는 48시간 전 패치 테스트 권장. 헤어 제품 알러지 이력이 있으면 직원에게 알려주세요.",
+      "aftercareBody": "48시간: 세발 금지. 황산염 무첨가 샴푸 사용. 2주간 열기구 150°C 이하. 30일간 본인 언어로 무료 애프터케어 상담 제공.",
+      "footerNote": "처음이세요? 시술 전 디자이너와 상담하세요.",
+      "sendQsLabel": "사전 질문 보내기"
+    },
     "favoriteLabel": "즐겨찾기",
     "chatLabel": "문의하기",
     "heroPlaceholderAlt": "매장 사진 준비 중",
