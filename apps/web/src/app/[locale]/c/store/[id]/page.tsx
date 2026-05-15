@@ -14,6 +14,7 @@ import { StickyMiniHeader } from "@/features/store-detail-customer/sticky-mini-h
 import { TabInfo } from "@/features/store-detail-customer/tab-info";
 import { TabPlaceholder } from "@/features/store-detail-customer/tab-placeholder";
 import { TabReviews } from "@/features/store-detail-customer/tab-reviews";
+import { TabLiveUgc } from "@/features/store-detail-customer/tab-live-ugc";
 import {
   TabServices,
   type ServiceItem,
@@ -423,10 +424,10 @@ export default async function StoreDetailPage({
             heading={t("compareHeading")}
             body={t("compareBody")}
           />
-          <TabPlaceholder
-            icon="◐"
-            heading={t("liveUgcHeading")}
-            body={t("liveUgcBody")}
+          <TabLiveUgc
+            comingSoonLabel={t("liveUgcHeading")}
+            filterAllLabel={t("filterAllLabel")}
+            disclaimerLabel={t("liveUgcBody")}
           />
         </DetailTabs>
       </div>
