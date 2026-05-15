@@ -27,8 +27,11 @@
       "detail": "There is a refund request on a recent payment. A response is needed within 24 hours.",
       "action": "Handle now"
     },
-    "channelBreakdown": {
-      "title": "Unread by channel"
+    "inboxTile": {
+      "title": "Unified inbox",
+      "unreadSuffix": "unread",
+      "viewAllLink": "View all",
+      "viewAllComingSoon": "Coming soon — Inbox page link"
     },
     "priorityViewLabel": "View today's priorities",
     "timeline": {

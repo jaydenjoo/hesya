@@ -8,9 +8,9 @@ import {
   AiInsightPanel,
   BrightSpot,
   CelebrationToasts,
-  ChannelBreakdown,
   CriticalAlert,
   DashboardHeader,
+  InboxTile,
   KVerified,
   NationalityTile,
   RecentReviews,
@@ -24,10 +24,10 @@ import { getDisputeLoad, getInboxLoad } from "@/shared/lib/dal/dashboard";
 import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 
-// Reference 정합 PR 1 — KpiGrid 3행 제거 (rowHero/Mix/Secondary). 실 KPI는
-// /store/analytics 페이지로 이관 (별도 task). dashboard는 reference 6 Bento tile
-// + Timeline + AIInsight + Reviews 구조로 단순화.
-// AIInsight ↔ Timeline 순서 swap — reference 순서 (Timeline 먼저).
+// Reference 정합 — dashboard는 reference 6 Bento tile + Timeline + AIInsight +
+// Reviews 구조. Row 1 (3-col 1.15fr:1fr:1fr): TodayBookings | WeeklyGmv |
+// InboxTile. Row 2 (3-col 1.6fr:1fr:1fr): NationalityTile | AiAccuracy |
+// KVerified. ChannelBreakdown은 InboxTile 안으로 흡수.
 const getStoreDashboardCached = unstable_cache(
   async (storeId: string) => {
     const db = createDbClient(env.DATABASE_URL);
@@ -165,35 +165,14 @@ export default async function StoreDashboardPage({
             actionLabel={t("criticalAlert.action")}
           />
         ) : null}
-        <ChannelBreakdown
-          title={t("channelBreakdown.title")}
-          entries={channelEntries}
-        />
         <BrightSpot
           eyebrow={brightSpot.eyebrow}
           eyebrowEn="Bright spot"
           body={brightSpot.body}
         />
-        <TodayTimeline />
-        <AiInsightPanel />
-        {/* O1 fast track 단계 3 — W2 GMV + W6 K-Verified.
-            mock-first: 실 weekly GMV DAL + kyc tier/renewal schema 확장 별도 task. */}
-        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-[1.4fr_1fr]">
-          <WeeklyGmv
-            amountKrw={4_280_000}
-            deltaPct={24}
-            weekHeights={[40, 55, 48, 70, 62, 85, 92]}
-            locale={locale}
-          />
-          <KVerified
-            tier="Gold"
-            renewalDate="2026-07-15"
-            comingSoonLabel={t("timeline.popoverComingSoon")}
-          />
-        </div>
-        {/* O1 fast track 단계 5a — W1 오늘 예약 + W5 AI 정확도.
-            mock-first: bookings 시간대별 집계 / AI 처리 통계 별도 task. */}
-        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-[1.6fr_1fr]">
+        {/* Reference Bento Row 1 — 3-col (1.15fr:1fr:1fr):
+            TodayBookings | WeeklyGmv | InboxTile. */}
+        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-[1.15fr_1fr_1fr]">
           <TodayBookingsTile
             count={7}
             avatars={[
@@ -206,12 +185,20 @@ export default async function StoreDashboardPage({
             sparkHours={[1, 2, 0, 3, 1, 0, 2, 1, 1, 0, 2, 0]}
             nowBarIndex={5}
           />
-          <AiAccuracyTile pct={94} processedCount={142} />
+          <WeeklyGmv
+            amountKrw={4_280_000}
+            deltaPct={24}
+            weekHeights={[40, 55, 48, 70, 62, 85, 92]}
+            locale={locale}
+          />
+          <InboxTile
+            unreadTotal={inbox.unreadMessages}
+            channels={channelEntries}
+          />
         </div>
-        {/* O1 fast track 단계 4 — W4 국적 대형 타일.
-            Reference 색상 5 segments (Hesya peach/amber + navy + 강조 핑크).
-            mock-first: page에서 5 segments 주입. 실 DAL은 nationalitySlices 매핑. */}
-        <div className="mb-4">
+        {/* Reference Bento Row 2 — 3-col (1.6fr:1fr:1fr):
+            NationalityTile | AiAccuracy | KVerified. */}
+        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-[1.6fr_1fr_1fr]">
           <NationalityTile
             totalCount={47}
             segments={[
@@ -222,7 +209,15 @@ export default async function StoreDashboardPage({
               { flag: "🇻🇳", label: "베트남", pct: 8, color: "#E8C4D6" },
             ]}
           />
+          <AiAccuracyTile pct={94} processedCount={142} />
+          <KVerified
+            tier="Gold"
+            renewalDate="2026-07-15"
+            comingSoonLabel={t("timeline.popoverComingSoon")}
+          />
         </div>
+        <TodayTimeline />
+        <AiInsightPanel />
         {/* O1 fast track 단계 4 — W9 최근 후기 cards.
             mock-first: 3 mock reviews (jp/en/zh-CN). reviews 테이블 ζ phase. */}
         <div className="mt-6">

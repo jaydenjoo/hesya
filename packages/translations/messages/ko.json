@@ -27,8 +27,11 @@
       "detail": "최근 결제 건에 대한 환불 요청이 있습니다. 24시간 내 회신이 필요합니다.",
       "action": "지금 처리"
     },
-    "channelBreakdown": {
-      "title": "채널별 미답"
+    "inboxTile": {
+      "title": "통합 인박스",
+      "unreadSuffix": "미답",
+      "viewAllLink": "전체 보기",
+      "viewAllComingSoon": "곧 출시 — Inbox 페이지 연동"
     },
     "priorityViewLabel": "오늘의 우선순위 보기",
     "timeline": {

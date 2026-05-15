@@ -1,5 +1,4 @@
 export { BrightSpot } from "./components/bright-spot";
-export { ChannelBreakdown } from "./components/channel-breakdown";
 export { CriticalAlert } from "./components/critical-alert";
 export { DashboardHeader } from "./components/dashboard-header";
 export { KpiCard, type KpiState } from "./components/kpi-card";
@@ -13,6 +12,7 @@ export { TodayBookingsTile } from "./components/today-bookings-tile";
 export { AiAccuracyTile } from "./components/ai-accuracy-tile";
 export { CelebrationToasts } from "./components/celebration-toasts";
 export { AiInsightPanel } from "./components/ai-insight-panel";
+export { InboxTile } from "./components/inbox-tile";
 export {
   DistributionPie,
   type DistributionSlice,

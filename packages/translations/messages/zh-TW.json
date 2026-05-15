@@ -27,8 +27,11 @@
       "detail": "近期付款存在退款請求,需於 24 小時內回覆。",
       "action": "立即處理"
     },
-    "channelBreakdown": {
-      "title": "依管道未讀"
+    "inboxTile": {
+      "title": "整合收件匣",
+      "unreadSuffix": "未讀",
+      "viewAllLink": "查看全部",
+      "viewAllComingSoon": "即將推出 — Inbox 頁面連動"
     },
     "priorityViewLabel": "查看今日優先事項",
     "timeline": {

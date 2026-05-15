@@ -27,8 +27,11 @@
       "detail": "直近の決済に対する返金リクエストがあります。24時間以内の対応が必要です。",
       "action": "今すぐ対応"
     },
-    "channelBreakdown": {
-      "title": "チャネル別 未読"
+    "inboxTile": {
+      "title": "統合インボックス",
+      "unreadSuffix": "未読",
+      "viewAllLink": "すべて見る",
+      "viewAllComingSoon": "近日提供 — Inboxページ連動"
     },
     "priorityViewLabel": "本日の優先事項を見る",
     "timeline": {
