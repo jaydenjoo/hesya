@@ -416,7 +416,8 @@
     "compareHeading": "비교 기능 준비 중",
     "compareBody": "비슷한 매장과 나란히 비교하는 기능은 베타 출시 후 제공됩니다.",
     "liveUgcHeading": "라이브 피드 준비 중",
-    "liveUgcBody": "인스타·샤오홍슈 실시간 손님 사진 연동 개발 중입니다."
+    "liveUgcBody": "인스타·샤오홍슈 실시간 손님 사진 연동 개발 중입니다.",
+    "reviewTranslateLabel": "영어로 번역"
   },
   "StorePhotos": {
     "eyebrow": "사진",

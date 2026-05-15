@@ -395,6 +395,7 @@ export default async function StoreDetailPage({
             sampleQuote2={t("reviewSampleQuote2")}
             sampleQuote3={t("reviewSampleQuote3")}
             filterAllLabel={t("filterAllLabel")}
+            translateLabel={t("reviewTranslateLabel")}
           />
           <TabInfo
             hours={store.businessHours}
