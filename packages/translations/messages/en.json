@@ -489,7 +489,11 @@
     "totalLabel": "Total",
     "slotFew": "Few",
     "closedLabel": "Closed",
-    "closedDayNote": "The salon is closed on this day. Please pick another date."
+    "closedDayNote": "The salon is closed on this day. Please pick another date.",
+    "slotLeft": "left",
+    "legendOpen": "Open",
+    "legendFew": "Few left",
+    "legendFull": "Booked"
   },
   "BookConfirm": {
     "eyebrow": "Booking Confirmation",
