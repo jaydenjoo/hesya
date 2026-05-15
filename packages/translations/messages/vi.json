@@ -27,8 +27,11 @@
       "detail": "Có yêu cầu hoàn tiền cho thanh toán gần đây. Cần phản hồi trong 24 giờ.",
       "action": "Xử lý ngay"
     },
-    "channelBreakdown": {
-      "title": "Tin chưa đọc theo kênh"
+    "inboxTile": {
+      "title": "Hộp thư tích hợp",
+      "unreadSuffix": "chưa đọc",
+      "viewAllLink": "Xem tất cả",
+      "viewAllComingSoon": "Sắp ra mắt — liên kết trang Inbox"
     },
     "priorityViewLabel": "Xem ưu tiên hôm nay",
     "timeline": {

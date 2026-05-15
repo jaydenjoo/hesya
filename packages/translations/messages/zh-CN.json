@@ -27,8 +27,11 @@
       "detail": "近期支付存在退款请求,需要在 24 小时内回复。",
       "action": "立即处理"
     },
-    "channelBreakdown": {
-      "title": "按渠道未读"
+    "inboxTile": {
+      "title": "统一收件箱",
+      "unreadSuffix": "未读",
+      "viewAllLink": "查看全部",
+      "viewAllComingSoon": "即将推出 — Inbox 页面联动"
     },
     "priorityViewLabel": "查看今日优先事项",
     "timeline": {
