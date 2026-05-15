@@ -72,6 +72,43 @@ function flagForNationality(code: string): string {
   return FLAGS[code.toLowerCase()] ?? "🌍";
 }
 
+type CustomerStatus = "vip" | "active" | "dormant" | "new";
+
+function deriveStatus(row: CustomerRow): CustomerStatus {
+  const visits = row.totalVisits ?? 0;
+  const ltv = row.ltvKrw ?? 0;
+  if (visits >= 5 && ltv >= 300000) return "vip";
+  if (visits >= 3) return "active";
+  if (visits === 0) return "new";
+  return "dormant";
+}
+
+const STATUS_STYLES: Record<
+  CustomerStatus,
+  { icon: string; label: string; cls: string }
+> = {
+  vip: {
+    icon: "★",
+    label: "VIP",
+    cls: "bg-hesya-amber-500/15 text-hesya-amber-700 ring-1 ring-hesya-amber-500/40",
+  },
+  active: {
+    icon: "●",
+    label: "활성",
+    cls: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+  },
+  new: {
+    icon: "✦",
+    label: "신규",
+    cls: "bg-hesya-peach-100 text-hesya-amber-600 ring-1 ring-hesya-peach-200",
+  },
+  dormant: {
+    icon: "○",
+    label: "휴면",
+    cls: "bg-hesya-navy-900/5 text-hesya-navy-900/45 ring-1 ring-hesya-navy-900/10",
+  },
+};
+
 export function CustomersTable({ rows, labels, onSelect, selectedId }: Props) {
   return (
     <div className="overflow-hidden rounded-2xl border border-hesya-peach-200 bg-white">
@@ -115,9 +152,26 @@ export function CustomersTable({ rows, labels, onSelect, selectedId }: Props) {
               </span>
 
               <div className="min-w-0">
-                <p className="truncate font-medium text-hesya-navy-900">
-                  {row.name ?? labels.unknownName}
-                </p>
+                <div className="flex items-center gap-1.5">
+                  <p className="truncate font-medium text-hesya-navy-900">
+                    {row.name ?? labels.unknownName}
+                  </p>
+                  {(() => {
+                    const s = STATUS_STYLES[deriveStatus(row)];
+                    return (
+                      <span
+                        className={
+                          "inline-flex flex-shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5 font-mono text-[9px] font-semibold " +
+                          s.cls
+                        }
+                        title={s.label}
+                      >
+                        <span aria-hidden="true">{s.icon}</span>
+                        <span className="kr">{s.label}</span>
+                      </span>
+                    );
+                  })()}
+                </div>
                 <p className="mt-0.5 truncate text-[11px] text-hesya-navy-900/55 md:hidden">
                   {row.channel ?? "—"} ·{" "}
                   {row.preferredLanguage?.toUpperCase() ?? "—"}

@@ -12,7 +12,6 @@ import { HeroGallery } from "@/features/store-detail-customer/hero-gallery";
 import { SafetyProfileStrip } from "@/features/store-detail-customer/safety-profile-strip";
 import { StickyMiniHeader } from "@/features/store-detail-customer/sticky-mini-header";
 import { TabInfo } from "@/features/store-detail-customer/tab-info";
-import { TabPlaceholder } from "@/features/store-detail-customer/tab-placeholder";
 import { TabCompare } from "@/features/store-detail-customer/tab-compare";
 import { TabReviews } from "@/features/store-detail-customer/tab-reviews";
 import { TabLiveUgc } from "@/features/store-detail-customer/tab-live-ugc";
