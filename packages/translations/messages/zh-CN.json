@@ -30,6 +30,7 @@
     "channelBreakdown": {
       "title": "按渠道未读"
     },
+    "priorityViewLabel": "查看今日优先事项",
     "timeline": {
       "title": "今日日程",
       "now": "现在 {time}",

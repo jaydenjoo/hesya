@@ -30,6 +30,7 @@
     "channelBreakdown": {
       "title": "채널별 미답"
     },
+    "priorityViewLabel": "오늘의 우선순위 보기",
     "timeline": {
       "title": "오늘의 일정",
       "now": "지금 {time}",

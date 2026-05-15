@@ -30,6 +30,7 @@
     "channelBreakdown": {
       "title": "依管道未讀"
     },
+    "priorityViewLabel": "查看今日優先事項",
     "timeline": {
       "title": "今日行程",
       "now": "現在 {time}",

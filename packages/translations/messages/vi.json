@@ -30,6 +30,7 @@
     "channelBreakdown": {
       "title": "Tin chưa đọc theo kênh"
     },
+    "priorityViewLabel": "Xem ưu tiên hôm nay",
     "timeline": {
       "title": "Lịch trình hôm nay",
       "now": "Bây giờ {time}",
