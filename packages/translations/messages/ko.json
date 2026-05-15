@@ -94,6 +94,28 @@
       "svgAria": "AI 응답 정확도 {pct}%",
       "caption": "이번 주 AI가 처리한 메시지 <strong>{count}건</strong>"
     },
+    "aiInsight": {
+      "eyebrow": "AI 인사이트",
+      "confidence": "신뢰도 높음",
+      "text": "일본인 손님 +40% — <em>사장님 응대 정말 잘하고 계세요.</em> 더 도움드리려면 일본어 시술 메뉴 페이지를 보강하면 좋겠어요. 객단가 약 12% 상승 가능.",
+      "actionEdit": "메뉴 편집",
+      "actionModify": "제안 수정",
+      "actionDismiss": "다음에 보기",
+      "modifyConfirm": "수정한 내용으로 진행",
+      "modifyCancel": "취소",
+      "modifyAria": "AI 제안 수정 입력",
+      "approvedMessage": "승인됨 — 작업이 백그라운드에서 진행 중이에요."
+    },
+    "celebrations": {
+      "title": "오늘의 작은 축하",
+      "dismissAria": "알림 닫기",
+      "time": {
+        "justNow": "방금",
+        "minutesAgo": "{count}분 전",
+        "morning": "오전",
+        "yesterday": "어제"
+      }
+    },
     "comingSoonNote": "결제·예약 데이터 적재 후 자동 활성화",
     "kpis": {
       "inboxUnread": "미응답 메시지",

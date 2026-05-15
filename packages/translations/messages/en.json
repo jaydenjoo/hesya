@@ -94,6 +94,28 @@
       "svgAria": "AI reply accuracy {pct}%",
       "caption": "Messages handled by AI this week <strong>{count}</strong>"
     },
+    "aiInsight": {
+      "eyebrow": "AI insight",
+      "confidence": "High confidence",
+      "text": "Japanese customers +40% — <em>You're doing a great job responding.</em> To help further, strengthening the Japanese treatment menu page could lift average ticket by ~12%.",
+      "actionEdit": "Edit menu",
+      "actionModify": "Modify suggestion",
+      "actionDismiss": "Later",
+      "modifyConfirm": "Proceed with edits",
+      "modifyCancel": "Cancel",
+      "modifyAria": "Modify AI suggestion",
+      "approvedMessage": "Approved — task is running in the background."
+    },
+    "celebrations": {
+      "title": "Small wins today",
+      "dismissAria": "Dismiss notification",
+      "time": {
+        "justNow": "Just now",
+        "minutesAgo": "{count} min ago",
+        "morning": "This morning",
+        "yesterday": "Yesterday"
+      }
+    },
     "comingSoonNote": "Activates after payment & booking data is recorded",
     "kpis": {
       "inboxUnread": "Unread messages",

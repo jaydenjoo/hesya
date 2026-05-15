@@ -94,6 +94,28 @@
       "svgAria": "AI 応答精度 {pct}%",
       "caption": "今週AIが処理したメッセージ <strong>{count}件</strong>"
     },
+    "aiInsight": {
+      "eyebrow": "AI インサイト",
+      "confidence": "信頼度 高",
+      "text": "日本人顧客 +40% — <em>オーナー様の対応、素晴らしいです。</em> さらに後押しするには、日本語の施術メニューページを強化すると客単価が約12%向上します。",
+      "actionEdit": "メニューを編集",
+      "actionModify": "提案を修正",
+      "actionDismiss": "あとで",
+      "modifyConfirm": "修正内容で進める",
+      "modifyCancel": "キャンセル",
+      "modifyAria": "AI提案を修正",
+      "approvedMessage": "承認 — タスクがバックグラウンドで実行中です。"
+    },
+    "celebrations": {
+      "title": "本日の小さなお祝い",
+      "dismissAria": "通知を閉じる",
+      "time": {
+        "justNow": "たった今",
+        "minutesAgo": "{count}分前",
+        "morning": "午前",
+        "yesterday": "昨日"
+      }
+    },
     "comingSoonNote": "決済・予約データ蓄積後に自動有効化",
     "kpis": {
       "inboxUnread": "未読メッセージ",

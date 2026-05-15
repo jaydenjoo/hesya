@@ -1,0 +1,129 @@
+"use client";
+
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+
+/**
+ * O1 Dashboard fast track 단계 5b — W8 AI 인사이트 panel.
+ *
+ * Reference: `docs/design/reference/dashboard-app.jsx:628-696` `AIInsight`.
+ * 4-state machine (open / modify / dismissed / approved):
+ * - open: insight 텍스트 + 3 액션 (메뉴 편집 / 제안 수정 / 다음에 보기)
+ * - modify: textarea + (수정한 내용으로 진행 / 취소)
+ * - approved: ✓ 승인됨 알림
+ * - dismissed: 컴포넌트 unmount (return null)
+ *
+ * **mock-first**: insight 텍스트 + 신뢰도 라벨 mock i18n. "메뉴 편집" 액션은
+ * 라우팅 없이 approved 상태로 전환만 (Stage 1/3 disabled 패턴 변형 — 인터랙션
+ * 자체는 시연 가능, 실제 server action wire 별도 task).
+ */
+
+type InsightState = "open" | "modify" | "dismissed" | "approved";
+
+const DEFAULT_MODIFY_TEXT =
+  "메뉴 보강은 좋지만, 일본어 후기 강화가 먼저 필요해요.";
+
+export function AiInsightPanel() {
+  const t = useTranslations("Dashboard.aiInsight");
+  const [state, setState] = useState<InsightState>("open");
+  const [modifyText, setModifyText] = useState(DEFAULT_MODIFY_TEXT);
+
+  if (state === "dismissed") return null;
+
+  return (
+    <section
+      data-testid="dashboard-ai-insight"
+      aria-label={t("eyebrow")}
+      className="mb-4 flex items-start gap-3 rounded-lg border border-hesya-peach-200 bg-hesya-peach-50/50 p-4"
+    >
+      <span aria-hidden="true" className="text-[24px]">
+        💡
+      </span>
+      <div className="flex-1">
+        <header className="mb-2 flex items-center gap-2">
+          <span className="kr text-[11px] font-semibold uppercase tracking-[0.08em] text-hesya-amber-600">
+            {t("eyebrow")}
+          </span>
+          <span className="kr rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+            {t("confidence")}
+          </span>
+        </header>
+
+        <p className="kr text-[14px] leading-relaxed text-hesya-navy-900">
+          {t.rich("text", {
+            em: (chunks) => (
+              <em className="not-italic font-semibold text-hesya-amber-600">
+                {chunks}
+              </em>
+            ),
+          })}
+        </p>
+
+        {state === "modify" ? (
+          <div className="mt-3">
+            <textarea
+              data-testid="ai-insight-modify-textarea"
+              value={modifyText}
+              onChange={(e) => setModifyText(e.target.value)}
+              className="kr w-full resize-none rounded-md border border-hesya-peach-200 bg-white px-3 py-2 text-[13px] focus-visible:border-hesya-amber-500 focus-visible:outline-none"
+              rows={2}
+              aria-label={t("modifyAria")}
+            />
+            <div className="mt-2 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setState("approved")}
+                className="kr rounded-md bg-hesya-amber-500 px-3 py-1.5 text-[12px] font-medium text-white hover:bg-hesya-amber-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
+              >
+                {t("modifyConfirm")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setState("open")}
+                className="kr rounded-md border border-hesya-peach-200 px-3 py-1.5 text-[12px] text-gray-700 hover:border-hesya-amber-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
+              >
+                {t("modifyCancel")}
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {state === "approved" ? (
+          <p
+            role="status"
+            data-testid="ai-insight-approved"
+            className="kr mt-3 rounded-md bg-emerald-50 px-3 py-2 text-[12px] text-emerald-700"
+          >
+            ✓ {t("approvedMessage")}
+          </p>
+        ) : null}
+      </div>
+
+      {state === "open" ? (
+        <div className="flex shrink-0 flex-col gap-1.5">
+          <button
+            type="button"
+            onClick={() => setState("approved")}
+            className="kr rounded-md bg-hesya-amber-500 px-3 py-1.5 text-[12px] font-medium text-white hover:bg-hesya-amber-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
+          >
+            {t("actionEdit")} →
+          </button>
+          <button
+            type="button"
+            onClick={() => setState("modify")}
+            className="kr rounded-md border border-hesya-peach-200 px-3 py-1.5 text-[12px] text-gray-700 hover:border-hesya-amber-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
+          >
+            {t("actionModify")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setState("dismissed")}
+            className="kr rounded-md px-3 py-1.5 text-[12px] text-gray-500 hover:bg-hesya-peach-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
+          >
+            {t("actionDismiss")}
+          </button>
+        </div>
+      ) : null}
+    </section>
+  );
+}
