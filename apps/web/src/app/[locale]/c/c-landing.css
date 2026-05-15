@@ -364,9 +364,9 @@
   flex-shrink: 0;
   width: 200px;
   height: 250px;
-  border: 2px dashed var(--hesya-peach-200);
+  border: 1.5px dashed var(--hesya-amber-500);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(245, 221, 200, 0.3);
   display: flex;
   flex-direction: column;
   align-items: center;
