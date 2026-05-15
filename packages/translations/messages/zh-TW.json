@@ -878,7 +878,14 @@
     "safetyStat2": "Hesya門店{percent}%配有女性造型師",
     "safetyStat3": "所有門店距主要地鐵站步行{min}分鐘內",
     "safetyStat4": "您的語言24/7聊天支援",
-    "safetySource": "來源 · CEOWORLD 2026 Solo Female Travel Index"
+    "safetySource": "來源 · CEOWORLD 2026 Solo Female Travel Index",
+    "countryTitle": "您國家旅客喜愛的店家",
+    "countrySubtitle": "依預訂語言精選",
+    "langSheetTitle": "選擇語言",
+    "tabSearch": "搜尋",
+    "tabBookings": "預約",
+    "tabChat": "聊天",
+    "tabMypage": "我的"
   },
   "CustomerChat": {
     "back": "返回",

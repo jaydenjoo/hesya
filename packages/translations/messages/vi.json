@@ -878,7 +878,14 @@
     "safetyStat2": "{percent}% cửa hàng Hesya có stylist nữ",
     "safetyStat3": "Tất cả cửa hàng cách ga tàu điện ngầm chính {min} phút đi bộ",
     "safetyStat4": "Hỗ trợ chat 24/7 bằng ngôn ngữ của bạn",
-    "safetySource": "Nguồn · CEOWORLD 2026 Solo Female Travel Index"
+    "safetySource": "Nguồn · CEOWORLD 2026 Solo Female Travel Index",
+    "countryTitle": "Salon được du khách từ nước bạn yêu thích",
+    "countrySubtitle": "Tuyển chọn theo ngôn ngữ đặt chỗ",
+    "langSheetTitle": "Chọn ngôn ngữ",
+    "tabSearch": "Tìm",
+    "tabBookings": "Đặt chỗ",
+    "tabChat": "Trò chuyện",
+    "tabMypage": "Của tôi"
   },
   "CustomerChat": {
     "back": "Quay lại",

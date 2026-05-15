@@ -878,7 +878,14 @@
     "safetyStat2": "Hesya 매장 {percent}%에 여성 스타일리스트 상주",
     "safetyStat3": "모든 매장 주요 지하철역 도보 {min}분 이내",
     "safetyStat4": "내 언어로 24/7 채팅 지원",
-    "safetySource": "출처 · CEOWORLD 2026 Solo Female Travel Index"
+    "safetySource": "출처 · CEOWORLD 2026 Solo Female Travel Index",
+    "countryTitle": "같은 나라 여행자들이 사랑하는 매장",
+    "countrySubtitle": "예약 언어 기준 큐레이션",
+    "langSheetTitle": "언어 선택",
+    "tabSearch": "검색",
+    "tabBookings": "예약",
+    "tabChat": "채팅",
+    "tabMypage": "마이페이지"
   },
   "CustomerChat": {
     "back": "뒤로",

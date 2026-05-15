@@ -24,6 +24,7 @@ import {
   mockTrendingSearches,
   mockUGCCards,
 } from "@/lib/mock-fixtures/landing";
+import "./c-landing.css";
 
 /**
  * 공개 매장 목록 60초 캐시 — region/search 조합별.
@@ -136,6 +137,13 @@ export default async function CustomerLandingPage({
           : undefined,
         safetyStat4: useFixtures ? t("safetyStat4") : undefined,
         safetySource: useFixtures ? t("safetySource") : undefined,
+        countryTitle: t("countryTitle"),
+        countrySubtitle: t("countrySubtitle"),
+        langSheetTitle: t("langSheetTitle"),
+        tabSearch: t("tabSearch"),
+        tabBookings: t("tabBookings"),
+        tabChat: t("tabChat"),
+        tabMypage: t("tabMypage"),
       }}
     />
   );
