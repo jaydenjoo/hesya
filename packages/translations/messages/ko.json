@@ -42,6 +42,27 @@
       "popoverReschedule": "변경",
       "popoverComingSoon": "곧 출시"
     },
+    "weeklyGmv": {
+      "title": "이번 주 외국인 매출",
+      "currency": "₩",
+      "deltaPositive": "지난주 대비 +{pct}%",
+      "deltaNegative": "지난주 대비 -{pct}%",
+      "chartAria": "최근 {count}일 매출 막대 차트",
+      "dayMon": "월",
+      "dayTue": "화",
+      "dayWed": "수",
+      "dayThu": "목",
+      "dayFri": "금",
+      "daySat": "토",
+      "daySun": "일"
+    },
+    "kVerified": {
+      "title": "K-Verified 상태",
+      "statusVerified": "인증 완료",
+      "levelLabel": "레벨",
+      "renewalLabel": "다음 재검증",
+      "historyLink": "검증 이력 보기"
+    },
     "comingSoonNote": "결제·예약 데이터 적재 후 자동 활성화",
     "kpis": {
       "inboxUnread": "미응답 메시지",

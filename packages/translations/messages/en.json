@@ -42,6 +42,27 @@
       "popoverReschedule": "Reschedule",
       "popoverComingSoon": "Coming soon"
     },
+    "weeklyGmv": {
+      "title": "This week's foreign revenue",
+      "currency": "₩",
+      "deltaPositive": "+{pct}% vs last week",
+      "deltaNegative": "-{pct}% vs last week",
+      "chartAria": "Last {count}-day revenue bar chart",
+      "dayMon": "Mon",
+      "dayTue": "Tue",
+      "dayWed": "Wed",
+      "dayThu": "Thu",
+      "dayFri": "Fri",
+      "daySat": "Sat",
+      "daySun": "Sun"
+    },
+    "kVerified": {
+      "title": "K-Verified status",
+      "statusVerified": "Verified",
+      "levelLabel": "Tier",
+      "renewalLabel": "Next renewal",
+      "historyLink": "View verification history"
+    },
     "comingSoonNote": "Activates after payment & booking data is recorded",
     "kpis": {
       "inboxUnread": "Unread messages",

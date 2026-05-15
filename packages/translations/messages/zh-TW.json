@@ -42,6 +42,27 @@
       "popoverReschedule": "改期",
       "popoverComingSoon": "即將推出"
     },
+    "weeklyGmv": {
+      "title": "本週外國客營收",
+      "currency": "₩",
+      "deltaPositive": "較上週 +{pct}%",
+      "deltaNegative": "較上週 -{pct}%",
+      "chartAria": "最近{count}天營收長條圖",
+      "dayMon": "週一",
+      "dayTue": "週二",
+      "dayWed": "週三",
+      "dayThu": "週四",
+      "dayFri": "週五",
+      "daySat": "週六",
+      "daySun": "週日"
+    },
+    "kVerified": {
+      "title": "K-Verified 狀態",
+      "statusVerified": "已認證",
+      "levelLabel": "等級",
+      "renewalLabel": "下次複審",
+      "historyLink": "查看認證紀錄"
+    },
     "comingSoonNote": "在結帳和預約資料記錄後自動啟用",
     "kpis": {
       "inboxUnread": "未讀訊息",

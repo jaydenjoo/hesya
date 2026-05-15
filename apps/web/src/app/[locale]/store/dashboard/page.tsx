@@ -9,8 +9,10 @@ import {
   CriticalAlert,
   DashboardHeader,
   DistributionPie,
+  KVerified,
   KpiGrid,
   TodayTimeline,
+  WeeklyGmv,
   type DistributionSlice,
   type KpiEntry,
 } from "@/features/dashboard";
@@ -394,6 +396,21 @@ export default async function StoreDashboardPage({
           body={brightSpot.body}
         />
         <TodayTimeline />
+        {/* O1 fast track 단계 3 — W2 GMV + W6 K-Verified.
+            mock-first: 실 weekly GMV DAL + kyc tier/renewal schema 확장 별도 task. */}
+        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-[1.4fr_1fr]">
+          <WeeklyGmv
+            amountKrw={4_280_000}
+            deltaPct={24}
+            weekHeights={[40, 55, 48, 70, 62, 85, 92]}
+            locale={locale}
+          />
+          <KVerified
+            tier="Gold"
+            renewalDate="2026-07-15"
+            comingSoonLabel={t("timeline.popoverComingSoon")}
+          />
+        </div>
         <div className="space-y-4">
           <KpiGrid
             entries={rowHero}
