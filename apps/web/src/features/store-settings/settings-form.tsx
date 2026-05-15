@@ -289,6 +289,25 @@ export function SettingsForm({
           title={labels.sectionBasic}
           en={labels.sectionEn.basic}
         >
+          <div className="mb-4 flex items-center gap-2 rounded-xl bg-hesya-peach-50 px-3 py-2 ring-1 ring-hesya-peach-200">
+            <span
+              aria-hidden="true"
+              className="grid h-7 w-7 place-items-center rounded-full bg-hesya-amber-500 text-[12px] font-bold text-white shadow-[0_2px_6px_rgba(232,169,122,0.45)]"
+            >
+              ✓
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-[12px] font-semibold text-hesya-navy-900">
+                K-Verified · 인증 완료
+              </p>
+              <p className="text-[10.5px] text-hesya-navy-900/55">
+                사업자등록 · 외국인 응대 자격 확인 완료
+              </p>
+            </div>
+            <span className="font-mono text-[10px] text-hesya-navy-900/45">
+              000-00-00000
+            </span>
+          </div>
           <FormRow label={labels.nameLabel}>
             <input
               type="text"
