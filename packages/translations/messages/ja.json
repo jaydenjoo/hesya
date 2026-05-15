@@ -30,6 +30,7 @@
     "channelBreakdown": {
       "title": "チャネル別 未読"
     },
+    "priorityViewLabel": "本日の優先事項を見る",
     "timeline": {
       "title": "本日のスケジュール",
       "now": "現在 {time}",

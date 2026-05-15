@@ -12,6 +12,12 @@ type Props = {
   subtitle: React.ReactNode;
   dateDay: string;
   dateWeekday: string;
+  /**
+   * O1 fast track 100% — W12 우선순위 보기 버튼.
+   * Reference `dashboard-app.jsx:941` `sd-btn-amber sd-priority`.
+   * 라벨 미지정 시 버튼 미표시. 클릭 액션은 추후 wire (현재 mock).
+   */
+  priorityLabel?: string;
 };
 
 /**
@@ -29,6 +35,7 @@ export function DashboardHeader({
   subtitle,
   dateDay,
   dateWeekday,
+  priorityLabel,
 }: Props) {
   return (
     <PageHeader
@@ -46,11 +53,23 @@ export function DashboardHeader({
       }
       subtitle={subtitle}
       right={
-        <div className="text-right font-mono">
-          <p className="text-[13px] font-semibold tracking-wide text-hesya-navy-900">
-            {dateDay}
-          </p>
-          <p className="mt-0.5 text-[11px] text-gray-500">{dateWeekday}</p>
+        <div className="flex flex-col items-end gap-2">
+          <div className="text-right font-mono">
+            <p className="text-[13px] font-semibold tracking-wide text-hesya-navy-900">
+              {dateDay}
+            </p>
+            <p className="mt-0.5 text-[11px] text-gray-500">{dateWeekday}</p>
+          </div>
+          {priorityLabel ? (
+            <button
+              type="button"
+              data-testid="dashboard-priority-button"
+              className="kr inline-flex items-center gap-1.5 rounded-md bg-hesya-amber-500 px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-hesya-amber-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
+            >
+              <span aria-hidden="true">📌</span>
+              {priorityLabel}
+            </button>
+          ) : null}
         </div>
       }
     />

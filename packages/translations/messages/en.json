@@ -30,6 +30,7 @@
     "channelBreakdown": {
       "title": "Unread by channel"
     },
+    "priorityViewLabel": "View today's priorities",
     "timeline": {
       "title": "Today's schedule",
       "now": "Now {time}",

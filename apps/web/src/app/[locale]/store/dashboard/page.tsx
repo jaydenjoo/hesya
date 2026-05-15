@@ -383,6 +383,7 @@ export default async function StoreDashboardPage({
         })}
         dateDay={dateDay}
         dateWeekday={dateWeekday}
+        priorityLabel={t("priorityViewLabel")}
       />
       <div className="px-8 pb-10">
         {dispute.active > 0 ? (
