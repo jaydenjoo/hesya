@@ -63,6 +63,24 @@
       "renewalLabel": "次回更新",
       "historyLink": "認証履歴を見る"
     },
+    "nationalityTile": {
+      "title": "週次 外国人顧客 国籍",
+      "subtotal": "全{count}名",
+      "centerCaption": "ゲスト",
+      "donutAria": "外国人{count}名の国籍別ドーナツチャート"
+    },
+    "recentReviews": {
+      "title": "最近のレビュー",
+      "viewAllLink": "すべてのレビュー",
+      "aiDraftLink": "AI返信ドラフトを見る",
+      "starsAria": "{count}つ星",
+      "photoLabel": "写真レビュー",
+      "time": {
+        "twoHoursAgo": "2時間前",
+        "sixHoursAgo": "6時間前",
+        "yesterday": "昨日"
+      }
+    },
     "comingSoonNote": "決済・予約データ蓄積後に自動有効化",
     "kpis": {
       "inboxUnread": "未読メッセージ",

@@ -63,6 +63,24 @@
       "renewalLabel": "下次复审",
       "historyLink": "查看认证记录"
     },
+    "nationalityTile": {
+      "title": "本周外国客户国籍",
+      "subtotal": "共{count}人",
+      "centerCaption": "客人",
+      "donutAria": "{count}名外国客户国籍分布环形图"
+    },
+    "recentReviews": {
+      "title": "最近评价",
+      "viewAllLink": "全部评价",
+      "aiDraftLink": "查看 AI 回复草稿",
+      "starsAria": "{count}星",
+      "photoLabel": "图片评价",
+      "time": {
+        "twoHoursAgo": "2小时前",
+        "sixHoursAgo": "6小时前",
+        "yesterday": "昨天"
+      }
+    },
     "comingSoonNote": "在结算和预订数据记录后自动启用",
     "kpis": {
       "inboxUnread": "未读消息",

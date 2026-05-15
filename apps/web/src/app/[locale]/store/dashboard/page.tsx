@@ -11,6 +11,8 @@ import {
   DistributionPie,
   KVerified,
   KpiGrid,
+  NationalityTile,
+  RecentReviews,
   TodayTimeline,
   WeeklyGmv,
   type DistributionSlice,
@@ -411,6 +413,21 @@ export default async function StoreDashboardPage({
             comingSoonLabel={t("timeline.popoverComingSoon")}
           />
         </div>
+        {/* O1 fast track 단계 4 — W4 국적 대형 타일.
+            Reference 색상 5 segments (Hesya peach/amber + navy + 강조 핑크).
+            mock-first: page에서 5 segments 주입. 실 DAL은 nationalitySlices 매핑. */}
+        <div className="mb-4">
+          <NationalityTile
+            totalCount={47}
+            segments={[
+              { flag: "🇯🇵", label: "일본", pct: 35, color: "#D88B5B" },
+              { flag: "🇨🇳", label: "중국 (간체)", pct: 25, color: "#E8A97A" },
+              { flag: "🇨🇳", label: "중국 (번체)", pct: 18, color: "#F5DDC8" },
+              { flag: "🇺🇸", label: "미국", pct: 14, color: "#1A2238" },
+              { flag: "🇻🇳", label: "베트남", pct: 8, color: "#E8C4D6" },
+            ]}
+          />
+        </div>
         <div className="space-y-4">
           <KpiGrid
             entries={rowHero}
@@ -429,6 +446,11 @@ export default async function StoreDashboardPage({
             comingSoonNote={t("comingSoonNote")}
             testId="kpi-grid-secondary"
           />
+        </div>
+        {/* O1 fast track 단계 4 — W9 최근 후기 cards.
+            mock-first: 3 mock reviews (jp/en/zh-CN). reviews 테이블 ζ phase. */}
+        <div className="mt-6">
+          <RecentReviews comingSoonLabel={t("timeline.popoverComingSoon")} />
         </div>
         <p className="mt-8 font-mono text-[11px] text-hesya-navy-900/55">
           {t("footerNote")}

@@ -63,6 +63,24 @@
       "renewalLabel": "下次複審",
       "historyLink": "查看認證紀錄"
     },
+    "nationalityTile": {
+      "title": "本週外國客戶國籍",
+      "subtotal": "共{count}人",
+      "centerCaption": "客人",
+      "donutAria": "{count}名外國客戶國籍分布環形圖"
+    },
+    "recentReviews": {
+      "title": "最近評價",
+      "viewAllLink": "全部評價",
+      "aiDraftLink": "查看 AI 回覆草稿",
+      "starsAria": "{count}星",
+      "photoLabel": "圖片評價",
+      "time": {
+        "twoHoursAgo": "2小時前",
+        "sixHoursAgo": "6小時前",
+        "yesterday": "昨天"
+      }
+    },
     "comingSoonNote": "在結帳和預約資料記錄後自動啟用",
     "kpis": {
       "inboxUnread": "未讀訊息",

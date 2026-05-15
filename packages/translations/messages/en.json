@@ -63,6 +63,24 @@
       "renewalLabel": "Next renewal",
       "historyLink": "View verification history"
     },
+    "nationalityTile": {
+      "title": "Weekly foreign customer nationality",
+      "subtotal": "{count} customers total",
+      "centerCaption": "guests",
+      "donutAria": "Donut chart of {count} foreign customers by nationality"
+    },
+    "recentReviews": {
+      "title": "Recent reviews",
+      "viewAllLink": "View all reviews",
+      "aiDraftLink": "View AI reply draft",
+      "starsAria": "{count} stars",
+      "photoLabel": "Photo review",
+      "time": {
+        "twoHoursAgo": "2 hours ago",
+        "sixHoursAgo": "6 hours ago",
+        "yesterday": "Yesterday"
+      }
+    },
     "comingSoonNote": "Activates after payment & booking data is recorded",
     "kpis": {
       "inboxUnread": "Unread messages",
