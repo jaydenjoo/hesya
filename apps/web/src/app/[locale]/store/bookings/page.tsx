@@ -11,6 +11,9 @@ import {
 } from "@/features/booking";
 import {
   mockBookingCounts,
+  mockBookingHistory,
+  mockBookingNotes,
+  mockBookingRisk,
   mockBookings,
   mockHours,
   mockStylists,
@@ -162,7 +165,33 @@ export default async function StoreBookingsPage({
               paidLabel: t("detail.paidLabel"),
               refundLabel: t("detail.refundLabel"),
               refundHint: t("detail.refundHint"),
+              tabInfo: t("detail.tabInfo"),
+              tabHistory: t("detail.tabHistory"),
+              tabNotes: t("detail.tabNotes"),
+              tabRisk: t("detail.tabRisk"),
+              cancelConfirmTitle: t("detail.cancelConfirmTitle"),
+              cancelConfirmBody: t("detail.cancelConfirmBody"),
+              cancelConfirmFee: t("detail.cancelConfirmFee"),
+              cancelConfirmCta: t("detail.cancelConfirmCta"),
+              cancelDontCancel: t("detail.cancelDontCancel"),
+              infoLangChannelLabel: t("detail.infoLangChannelLabel"),
+              infoNotesLabel: t("detail.infoNotesLabel"),
+              infoForeignChannel: t("detail.infoForeignChannel"),
+              infoLocalChannel: t("detail.infoLocalChannel"),
+              infoSamplePrefs: t("detail.infoSamplePrefs"),
+              infoCrossInboxLink: t("detail.infoCrossInboxLink"),
+              paymentCompleted: t("detail.paymentCompleted"),
+              paymentNoshowRefunded: t("detail.paymentNoshowRefunded"),
+              paymentUnpaid: t("detail.paymentUnpaid"),
+              historyTotalLabel: t("detail.historyTotalLabel"),
+              notesInternalHint: t("detail.notesInternalHint"),
+              notesPlaceholder: t("detail.notesPlaceholder"),
+              notesAddButton: t("detail.notesAddButton"),
+              noNotesYet: t("detail.noNotesYet"),
             }}
+            history={mockBookingHistory}
+            notes={mockBookingNotes}
+            risk={mockBookingRisk}
             listChildren={list}
           />
         ) : (

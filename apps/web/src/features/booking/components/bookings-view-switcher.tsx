@@ -13,7 +13,10 @@
 import { useState } from "react";
 import type {
   MockBookingCard,
+  MockBookingNote,
+  MockBookingRisk,
   MockStylist,
+  MockVisitHistory,
 } from "@/lib/mock-fixtures/bookings";
 import { BookingDetailPanel } from "./booking-detail-panel";
 import {
@@ -51,6 +54,9 @@ interface Props {
   readonly detailLabels: BookingDetailLabels;
   /** Existing BookingsList component to render in List view tab (real DB rows). */
   readonly listChildren: React.ReactNode;
+  readonly history?: ReadonlyArray<MockVisitHistory>;
+  readonly notes?: ReadonlyArray<MockBookingNote>;
+  readonly risk?: ReadonlyArray<MockBookingRisk>;
 }
 
 export function BookingsViewSwitcher({
@@ -64,6 +70,9 @@ export function BookingsViewSwitcher({
   weekLabels,
   detailLabels,
   listChildren,
+  history,
+  notes,
+  risk,
 }: Props) {
   const [view, setView] = useState<"calendar" | "list">("calendar");
   const [selected, setSelected] = useState<MockBookingCard | null>(null);
@@ -147,6 +156,9 @@ export function BookingsViewSwitcher({
           day={selectedDayLabel}
           labels={detailLabels}
           onClose={() => setSelected(null)}
+          history={history}
+          notes={notes}
+          risk={risk}
         />
       )}
     </div>
