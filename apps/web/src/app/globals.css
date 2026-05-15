@@ -197,6 +197,23 @@
   animation: tileReveal 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
+/* Reference ai-flow-app.jsx — analyzing 단계 사진 pulse-border. */
+@keyframes photoAnalyzePulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.01);
+  }
+}
+
+.photo-analyze-pulse {
+  animation: photoAnalyzePulse 1.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

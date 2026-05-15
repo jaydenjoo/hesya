@@ -112,7 +112,32 @@ export default async function StoreBookSchedulePage({
         }}
       />
       <div className="px-6 pb-8 pt-4">
-        <header className="mb-8 space-y-2">
+        <header className="mb-8 flex flex-col items-center space-y-2 text-center">
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 200 110"
+            className="h-[64px] w-[112px] text-hesya-amber-600"
+            fill="none"
+          >
+            <g
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            >
+              <circle cx="100" cy="35" r="14" />
+              <path d="M86 28 Q88 18 100 18 Q112 18 114 28" />
+              <path d="M70 80 Q76 60 90 50 L110 50 Q124 60 130 80" />
+              <path d="M82 70 Q100 76 118 70" />
+              <path d="M40 30 v8 M36 34 h8" />
+              <path d="M160 50 v6 M157 53 h6" />
+              <path d="M50 80 v4 M48 82 h4" />
+            </g>
+          </svg>
+          <p className="font-heading text-[12px] italic tracking-[0.05em] text-hesya-amber-600">
+            환대 · hospitality
+          </p>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
             {t("eyebrow")}
           </p>
