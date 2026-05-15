@@ -180,6 +180,7 @@ export default async function AdminDashboardPage({ params }: Props) {
           label={t("alerts.pendingKyc")}
           count={alerts.pendingKyc}
           href={`/${locale}/admin/store-verifications`}
+          meta="SLA 22h"
         />
         <AlertChip
           level="warn"
@@ -187,6 +188,7 @@ export default async function AdminDashboardPage({ params }: Props) {
           label={t("alerts.openDisputes")}
           count={alerts.openDisputes}
           href={`/${locale}/admin/disputes`}
+          meta="최고 ₩185,000"
         />
         <AlertChip
           level="budg"
@@ -194,6 +196,7 @@ export default async function AdminDashboardPage({ params }: Props) {
           label={t("alerts.newApiPolicyAlerts")}
           count={alerts.newApiPolicyAlerts}
           href={`/${locale}/admin/api-policy-alerts`}
+          meta="24h 신규"
         />
         <AlertChip
           level="flag"
@@ -201,6 +204,7 @@ export default async function AdminDashboardPage({ params }: Props) {
           label={t("alerts.pendingStoreDeletions")}
           count={alerts.pendingStoreDeletions}
           href={`/${locale}/admin/store-deletion`}
+          meta="7d 보존"
         />
       </div>
 
@@ -479,12 +483,14 @@ function AlertChip({
   label,
   count,
   href,
+  meta,
 }: {
   level: "crit" | "warn" | "budg" | "flag";
   icon: string;
   label: string;
   count: number;
   href: string;
+  meta?: string;
 }) {
   const palette = {
     crit: {
@@ -532,6 +538,11 @@ function AlertChip({
       >
         {count}
       </span>
+      {meta && (
+        <span className="ml-1 font-mono text-[10.5px] text-hesya-navy-900/55">
+          · {meta}
+        </span>
+      )}
       <span className="ml-1 font-mono text-[11px] text-gray-500">→</span>
     </Link>
   );
