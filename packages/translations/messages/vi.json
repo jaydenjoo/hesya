@@ -906,7 +906,14 @@
     "auditTranslated": "Đã dịch ({lang})",
     "auditConfident": "✓ Bản dịch chính xác",
     "auditAmbiguousDefault": "Có chỗ mơ hồ — xem bản gốc ở trên.",
-    "auditClose": "Hiểu rồi"
+    "auditClose": "Hiểu rồi",
+    "emptyCap": "Hãy chào bằng bất kỳ ngôn ngữ nào.",
+    "emptyCapEm": "Phần còn lại để chúng tôi lo.",
+    "opener1": "Xin chào, tôi vừa đặt chỗ!",
+    "opener2": "Tôi có thể mang ảnh tham khảo không?",
+    "opener3": "Salon của bạn ở đâu?",
+    "emptyRestore": "← Xem cuộc trò chuyện mẫu",
+    "emptySee": "Xem trạng thái trống →"
   },
   "PhotoAnalyze": {
     "back": "Quay lại",

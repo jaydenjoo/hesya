@@ -906,7 +906,14 @@
     "auditTranslated": "번역 ({lang})",
     "auditConfident": "✓ 정확한 번역",
     "auditAmbiguousDefault": "일부 모호함 — 위 원문을 확인하세요.",
-    "auditClose": "확인"
+    "auditClose": "확인",
+    "emptyCap": "어떤 언어든 인사해보세요.",
+    "emptyCapEm": "나머지는 저희가 처리합니다.",
+    "opener1": "안녕하세요, 예약했어요!",
+    "opener2": "참고 사진 가져가도 되나요?",
+    "opener3": "매장 위치가 어디인가요?",
+    "emptyRestore": "← 예시 대화 보기",
+    "emptySee": "빈 상태 보기 →"
   },
   "PhotoAnalyze": {
     "back": "뒤로",

@@ -906,7 +906,14 @@
     "auditTranslated": "翻译 ({lang})",
     "auditConfident": "✓ 准确翻译",
     "auditAmbiguousDefault": "部分歧义 — 请参考上方原文。",
-    "auditClose": "知道了"
+    "auditClose": "知道了",
+    "emptyCap": "用任何语言打个招呼吧。",
+    "emptyCapEm": "其余的交给我们。",
+    "opener1": "你好,我刚刚预订了!",
+    "opener2": "我可以带参考照片吗?",
+    "opener3": "你们店在哪里?",
+    "emptyRestore": "← 查看对话示例",
+    "emptySee": "查看空状态 →"
   },
   "PhotoAnalyze": {
     "back": "返回",

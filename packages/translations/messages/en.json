@@ -906,7 +906,14 @@
     "auditTranslated": "Translated ({lang})",
     "auditConfident": "✓ Confident translation",
     "auditAmbiguousDefault": "Some ambiguity — original shown above.",
-    "auditClose": "Got it"
+    "auditClose": "Got it",
+    "emptyCap": "Say hello in any language.",
+    "emptyCapEm": "We'll do the rest.",
+    "opener1": "Hi, I just booked!",
+    "opener2": "Can I bring a reference photo?",
+    "opener3": "Where is your salon?",
+    "emptyRestore": "← Show example conversation",
+    "emptySee": "See empty state →"
   },
   "PhotoAnalyze": {
     "back": "Back",
