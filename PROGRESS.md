@@ -33,8 +33,12 @@
   - **#4 C3 Customer MyPage** 68% → 100% — PR [#198](https://github.com/jaydenjoo/hesya/pull/198) (c-mypage.css 344 line + my-page-tabs + 6 locale greeting `<em>{name}</em>`).
   - **#5 C2 Customer Chat** 68% → 100% — PR [#199](https://github.com/jaydenjoo/hesya/pull/199) (c-chat.css 100 line + EmptyState + timestamps + msgUp + a11y).
   - **#6 C5 Customer Store Detail** 52% → ~90% — PR [#200](https://github.com/jaydenjoo/hesya/pull/200) (c-detail.css 357 line + info block + rich service cards + 2-col stylists + filter chips). 9 누락 항목 (item 6, 8-15) 별도 task.
-- **다음 fast track #7 — O2 Owner Inbox** (정밀 73% → 100%, ~28h ≈ 3~4d):
-  - 정밀 inventory에서 가장 큰 잔여 페이지 중간 (#8 O1 Dashboard 80h 대비). 신규 누락 분석 후 진행.
+  - **#7 O2 Owner Inbox** 73% → ~92% — PR [#201](https://github.com/jaydenjoo/hesya/pull/201) (inbox.css 243 line + ShortcutFab 컴포넌트 + thread 태그 3종 + bubble audit toggle + thread-header actions + J/K/? 키바인딩). item 4 (국적 flag — nationality DAL prerequisite) + item 8 (Risk 탭 — Epic 1C) + item 9-15 (minor) 별도 task.
+- **다음 fast track #8 — O1 Owner Store Dashboard** (정밀 22% → 100%, ~80h ≈ 10~12d, **가장 큰 차단선**):
+  - 위젯 9종 미구현. 1세션 fast track 단번 처리 비현실적 → **단계 분할**.
+  - **단계 1 (이번 세션)**: W10 환불 Alert 배너 (1d) + W13 Greeting 숫자 wire (1d) + W3 채널별 inbox 분해 (1d) — 가장 저비용 + 최대 효과. 정합 22% → ~45% 목표.
+  - 단계 2 (다음 세션): W7 오늘 일정 Timeline (3d, 가장 시각적 차이 큰 위젯)
+  - 단계 3~5 (이후 세션들): W2/W9 → W6/W4 → W1/W11/W8/W5 (데이터 prerequisite 충족 후)
 
 ## 이전 위치 (2026-05-15 세션 34 연장 — Task 1 backfill + Task 3 decision doc + 옵션 B Customer OAuth fallback 머지)
 
