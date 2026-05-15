@@ -3,10 +3,10 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 42 — 🎯 P1 구조적 quick wins 8 PR 추가, 누적 31 PR)
+## 현재 위치 (2026-05-15 세션 42 — 🎯 P1 구조적 quick wins 10 PR 추가, 누적 33 PR)
 
-- **세션 42 (2026-05-15, /loop dynamic mode)**: 세션 41 P1 16 페이지 quick wins에 이어 구조적 격차가 큰 페이지·탭에 집중. 페이지당 1 PR (~30-90분), 5분 wakeup 사이클로 8 PR 추가 머지.
-- **시정 작업 8 PR (세션 42 누적 머지)**:
+- **세션 42 (2026-05-15, /loop dynamic mode)**: 세션 41 P1 16 페이지 quick wins에 이어 구조적 격차가 큰 페이지·탭에 집중. 페이지당 1 PR (~30-90분), 4.5분 wakeup 사이클로 10 PR 추가 머지.
+- **시정 작업 10 PR (세션 42 누적 머지)**:
   - PR [#240](https://github.com/jaydenjoo/hesya/pull/240) — Admin KYC: 상태 pill row + 6단계 pipeline mini indicator (~25% → ~45%)
   - PR [#241](https://github.com/jaydenjoo/hesya/pull/241) — Owner Analytics: KPI sparkline + trend % + ProgressRing + 카드 토큰 통일 (~45% → ~58%)
   - PR [#242](https://github.com/jaydenjoo/hesya/pull/242) — Photo Analyze: Recommended stylists 3-card carousel (~65% → ~75%)
@@ -15,6 +15,8 @@
   - PR [#245](https://github.com/jaydenjoo/hesya/pull/245) — Owner Services: ServiceCard LangPill row (6 locale coverage) (~60% → ~68%)
   - PR [#246](https://github.com/jaydenjoo/hesya/pull/246) — C2 Live UGC tab: 9-tile grid + JP/CN/US/TW filter (placeholder → ~60%)
   - PR [#247](https://github.com/jaydenjoo/hesya/pull/247) — C2 Compare tab: 8-row 비교 표 + 가이드 aside (placeholder → ~62%)
+  - PR [#248](https://github.com/jaydenjoo/hesya/pull/248) — Owner Customers: 4-state status pill (vip/active/new/dormant) (~40% → ~50%)
+  - PR [#249](https://github.com/jaydenjoo/hesya/pull/249) — Customer Schedule: slot legend + "N left" 카운트 + 6 locale (~82% → ~88%)
 - **세션 42 정합 결과**:
   | 페이지 / 탭 | 진단 시작 | 시정 후 | PR |
   | --- | --- | --- | --- |
@@ -26,11 +28,13 @@
   | Owner Services | ~60% | ~68% | #245 |
   | C2 Live UGC tab (신규) | placeholder | ~60% | #246 |
   | C2 Compare tab (신규) | placeholder | ~62% | #247 |
-- **세션 42 검증**: 매 PR type-check / lint / vitest 732 통과. /loop dynamic mode + 5분 wakeup으로 CI 대기 cache-warm 사이클 효율화.
+  | Owner Customers | ~40% | ~50% | #248 |
+  | Customer Schedule | ~82% | ~88% | #249 |
+- **세션 42 검증**: 매 PR type-check / lint / vitest 732 통과. /loop dynamic mode + 4.5분 wakeup으로 CI 대기 cache-warm 사이클 효율화 (대당 PR ~10-15분 e2e).
 - **잔여 큰 작업 (다음 세션 이상)**:
   - Owner Bookings: Side panel 4탭 + 취소 inline (P0 잔여)
-  - Owner Customers: Split-view + KPI strip (P0 잔여)
-  - Customer Schedule: slot picker variations
+  - Owner Customers: Split-view + KPI strip (현재 status pill만 추가, split-view는 잔여)
+  - Customer Schedule: 슬롯별 stylist 매칭 + 대체 시간 추천
   - Admin Payments (~15%) — Epic 2 결제 인프라 의존
   - Admin Login (~10%) — 정책 재확인 대기
   - Design System verification (Section 5 NavBlock 아이콘)
