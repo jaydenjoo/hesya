@@ -342,6 +342,8 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
         {labels.result.disclaimer}
       </p>
 
+      <RecommendedStylists confidence={result.confidence} />
+
       <button
         type="button"
         onClick={reset}
@@ -350,5 +352,89 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
         {labels.result.retryButton}
       </button>
     </div>
+  );
+}
+
+const RECOMMENDED_STYLISTS = [
+  {
+    id: "su-jin",
+    name: "이수진 Su-jin",
+    salon: "Stylista — 홍대",
+    matchBoost: 0.04,
+    priceKrw: 85000,
+    durationLabel: "2.5h",
+    avatarTone: "linear-gradient(135deg, #F5DDC8, #D88B5B)",
+  },
+  {
+    id: "min-ji",
+    name: "박민지 Min-ji",
+    salon: "유리 살롱 — 청담",
+    matchBoost: 0.01,
+    priceKrw: 95000,
+    durationLabel: "2h",
+    avatarTone: "linear-gradient(135deg, #E8C4D6, #D88B5B)",
+  },
+  {
+    id: "ha-neul",
+    name: "정하늘 Ha-neul",
+    salon: "Mirror Glass — 성수",
+    matchBoost: -0.02,
+    priceKrw: 78000,
+    durationLabel: "2h",
+    avatarTone: "linear-gradient(135deg, #C9D6E8, #D88B5B)",
+  },
+] as const;
+
+function RecommendedStylists({ confidence }: { confidence: number }) {
+  return (
+    <section className="mt-6">
+      <h3 className="mb-2 font-heading text-[15px] font-semibold italic text-hesya-navy-900">
+        Recommended stylists
+      </h3>
+      <p className="mb-3 text-[11px] text-hesya-navy-900/55">
+        Stylists with 5+ similar past works.
+      </p>
+      <div className="-mx-1 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-1 pb-2">
+        {RECOMMENDED_STYLISTS.map((s) => {
+          const match = Math.max(0, Math.min(0.99, confidence + s.matchBoost));
+          return (
+            <article
+              key={s.id}
+              className="flex w-[180px] flex-shrink-0 snap-start flex-col gap-2 rounded-3xl border border-hesya-peach-200 bg-white p-3 shadow-[0_2px_8px_rgba(26,34,56,0.04)]"
+            >
+              <div className="flex items-center gap-2">
+                <span
+                  aria-hidden="true"
+                  className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-full font-heading text-[13px] font-semibold italic text-white"
+                  style={{ background: s.avatarTone }}
+                >
+                  {s.name.charAt(0)}
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-[12px] font-semibold text-hesya-navy-900">
+                    {s.name}
+                  </p>
+                  <p className="truncate text-[10.5px] text-hesya-navy-900/60">
+                    {s.salon}
+                  </p>
+                </div>
+              </div>
+              <span className="inline-flex items-center gap-1 self-start rounded-full bg-hesya-amber-500/15 px-2 py-0.5 font-mono text-[10px] font-semibold text-hesya-amber-700">
+                ★ {(match * 100).toFixed(0)}% match
+              </span>
+              <p className="text-[11px] text-hesya-navy-900/70">
+                ₩{s.priceKrw.toLocaleString("ko-KR")} · {s.durationLabel}
+              </p>
+              <button
+                type="button"
+                className="mt-auto rounded-full bg-hesya-navy-900 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-hesya-navy-800"
+              >
+                Book →
+              </button>
+            </article>
+          );
+        })}
+      </div>
+    </section>
   );
 }
