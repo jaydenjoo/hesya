@@ -50,6 +50,24 @@ function avatarBg(seed: string): string {
   return AVATAR_BGS[Math.abs(h) % AVATAR_BGS.length] ?? AVATAR_BGS[0];
 }
 
+/**
+ * O2 fast track #7 — 태그 3종 (#1 reference 정합).
+ *
+ * 실 데이터(`conversation`)로 판정:
+ * - AI 대기 → unreadCount > 0 (사장이 봐야할 메시지)
+ * - 완료 ✓ → unreadCount === 0 + lastMessageAt 존재 (확인 마침)
+ * - 환불 → preview에 "환불"/"refund" 키워드 포함 시 (mock 패턴 — DAL 확장 후 실 thread.urgent로 교체)
+ *
+ * 우선순위: urgent > ai > done.
+ */
+function pickTag(c: ConversationListItem): "urgent" | "ai" | "done" | null {
+  const preview = (c.lastMessagePreview ?? "").toLowerCase();
+  if (preview.includes("환불") || preview.includes("refund")) return "urgent";
+  if (c.unreadCount > 0) return "ai";
+  if (c.lastMessageAt) return "done";
+  return null;
+}
+
 export function ThreadItem({
   conversation,
   isActive,
@@ -123,16 +141,41 @@ export function ThreadItem({
         >
           {conversation.lastMessagePreview ?? ""}
         </p>
-        {hasUnread ? (
-          <div className="mt-1 flex justify-end">
+        <div className="mt-1 flex items-center gap-1.5">
+          {(() => {
+            const tag = pickTag(conversation);
+            if (tag === "urgent")
+              return (
+                <span
+                  data-testid="thread-tag-urgent"
+                  className="ix-urgent-tag kr"
+                >
+                  환불
+                </span>
+              );
+            if (tag === "ai")
+              return (
+                <span data-testid="thread-tag-ai" className="ix-ai-tag kr">
+                  🤖 AI 대기
+                </span>
+              );
+            if (tag === "done")
+              return (
+                <span data-testid="thread-tag-done" className="ix-done-tag kr">
+                  ✓
+                </span>
+              );
+            return null;
+          })()}
+          {hasUnread ? (
             <span
               data-testid="unread-badge"
-              className="mono inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-hesya-amber-500 px-1.5 text-xs font-semibold text-white"
+              className="mono ml-auto inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-hesya-amber-500 px-1.5 text-xs font-semibold text-white"
             >
               {conversation.unreadCount}
             </span>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </div>
     </button>
   );

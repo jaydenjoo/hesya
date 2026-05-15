@@ -12,7 +12,9 @@ import {
 } from "@/features/inbox";
 import { InboxShell } from "@/features/inbox/components/inbox-shell";
 import { ContextPanel } from "@/features/inbox/components/context-panel";
+import { ShortcutFab } from "@/features/inbox";
 import type { ConversationListItem, Customer, Message } from "@/features/inbox";
+import "./inbox.css";
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -36,6 +38,55 @@ export function InboxClient({
   const [messages, setMessages] = useState<Message[]>([]);
   // Customer 확장 (CC-5) — activeId의 customer 정보. /api/inbox/refresh 응답에서 동봉.
   const [activeCustomer, setActiveCustomer] = useState<Customer | null>(null);
+  // O2 fast track #7 (#5) — Shortcut modal open state.
+  const [shortcutOpen, setShortcutOpen] = useState(false);
+
+  // O2 fast track #7 (#6) — keyboard binding: J/K (이전/다음), ? (modal toggle).
+  // 입력 요소 focus 중에는 무시 (composer 타이핑 방해 방지).
+  useEffect(() => {
+    function isTypingTarget(target: EventTarget | null): boolean {
+      if (!(target instanceof HTMLElement)) return false;
+      const tag = target.tagName;
+      return (
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT" ||
+        target.isContentEditable
+      );
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (isTypingTarget(e.target)) return;
+      if (e.key === "?" || (e.shiftKey && e.key === "/")) {
+        e.preventDefault();
+        setShortcutOpen((v) => !v);
+        return;
+      }
+      if (e.key === "Escape" && shortcutOpen) {
+        setShortcutOpen(false);
+        return;
+      }
+      const k = e.key.toLowerCase();
+      if (k !== "j" && k !== "k") return;
+      const ids = conversations.map((c) => c.id);
+      if (ids.length === 0) return;
+      const cur = activeId ?? ids[0]!;
+      const idx = ids.indexOf(cur);
+      const baseIdx = idx === -1 ? 0 : idx;
+      const nextIdx =
+        k === "j"
+          ? Math.min(ids.length - 1, baseIdx + 1)
+          : Math.max(0, baseIdx - 1);
+      const nextId = ids[nextIdx];
+      if (nextId && nextId !== activeId) {
+        setActiveId(nextId);
+        setActiveCustomer(null);
+        setMessages([]);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [conversations, activeId, shortcutOpen]);
 
   useEffect(() => {
     if (!hasIgIntegration) return;
@@ -111,6 +162,7 @@ export function InboxClient({
         </div>
         <BotModeToggle storeId={storeId} initialValue={storeBotMode} />
       </div>
+      <ShortcutFab open={shortcutOpen} onOpenChange={setShortcutOpen} />
       <div className="flex-1 overflow-hidden">
         <InboxShell
           threadColumn={
