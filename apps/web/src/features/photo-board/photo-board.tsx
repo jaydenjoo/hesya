@@ -144,16 +144,25 @@ function PhotoGrid({
   onSelect: (id: number) => void;
   labels: PhotoBoardLabels;
 }) {
+  // Reference store-photos.jsx masonry — 4 cols 분배, 각 열 독립 height (타일 h 다양).
+  const cols: MockPhoto[][] = [[], [], [], []];
+  photos.forEach((p, i) => {
+    cols[i % 4]!.push(p);
+  });
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-      {photos.map((p) => (
-        <PhotoTile
-          key={p.id}
-          photo={p}
-          selected={p.id === selectedId}
-          onClick={() => onSelect(p.id)}
-          labels={labels}
-        />
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+      {cols.map((col, ci) => (
+        <div key={ci} className="flex flex-col gap-3">
+          {col.map((p) => (
+            <PhotoTile
+              key={p.id}
+              photo={p}
+              selected={p.id === selectedId}
+              onClick={() => onSelect(p.id)}
+              labels={labels}
+            />
+          ))}
+        </div>
       ))}
     </div>
   );
@@ -197,7 +206,13 @@ function PhotoTile({
           : "ring-hesya-navy-900/8 hover:ring-hesya-navy-900/20"
       }`}
     >
-      <div className="relative h-36 w-full" style={{ background: photoBg }}>
+      <div
+        className="relative w-full"
+        style={{
+          background: photoBg,
+          height: `${180 + (photo.id % 4) * 40}px`,
+        }}
+      >
         <div
           className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold text-white shadow-sm ring-2 ring-white/80"
           style={{ background: stylistColor }}
