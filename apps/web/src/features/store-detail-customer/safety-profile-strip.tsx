@@ -42,6 +42,9 @@ interface Props {
   /** C5 100% — 4 sheet contents (i18n에서 page가 주입). */
   readonly sheets: Record<SheetKind, SheetContent>;
   readonly closeAria: string;
+  /** Reference 정합 PR 8 — chip 위 section header. */
+  readonly sectionTitle: string;
+  readonly sectionBadge: string;
 }
 
 export function SafetyProfileStrip({
@@ -55,12 +58,23 @@ export function SafetyProfileStrip({
   langValue,
   sheets,
   closeAria,
+  sectionTitle,
+  sectionBadge,
 }: Props) {
   const [activeSheet, setActiveSheet] = useState<SheetKind | null>(null);
 
   return (
     <>
-      <div className="flex gap-2 px-5 pt-4">
+      {/* Reference 정합 PR 8 — Safety profile section header (chip 위 label row). */}
+      <div className="mt-4 flex items-center gap-2 px-5">
+        <span className="kr text-[12px] font-semibold uppercase tracking-[0.06em] text-hesya-navy-900/70">
+          {sectionTitle}
+        </span>
+        <span className="kr inline-flex items-center gap-1 rounded-full bg-hesya-peach-100 px-2 py-0.5 text-[10px] font-semibold text-hesya-amber-600">
+          ✓ {sectionBadge}
+        </span>
+      </div>
+      <div className="flex gap-2 px-5 pt-2">
         <SafetyChip
           icon={<Check size={16} strokeWidth={2.5} />}
           value={verifiedValue}

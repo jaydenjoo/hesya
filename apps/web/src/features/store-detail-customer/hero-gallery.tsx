@@ -18,12 +18,21 @@ interface Props {
    * 보지 않도록 demo image 1장 제공. fallback URL 로드 실패 시 그라데이션으로 fall through.
    */
   readonly fallbackImageUrl?: string;
+  /** Reference 정합 PR 8 — top-left back button label (a11y). */
+  readonly backLabel: string;
+  /** Reference 정합 PR 8 — top-right locale pill (e.g., "EN"). */
+  readonly currentLocaleBadge: string;
+  /** 뒤로 가기 동작 (router.back 또는 namespaced link). */
+  readonly onBack?: () => void;
 }
 
 export function HeroGallery({
   photos,
   placeholderLabel,
   fallbackImageUrl,
+  backLabel,
+  currentLocaleBadge,
+  onBack,
 }: Props) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
@@ -103,27 +112,24 @@ export function HeroGallery({
           ))}
         </div>
       ) : null}
-      {/* C5 fast track item 3: overlay + glass action buttons (♡ ↗ 🌐) */}
+      {/* Reference 정합 PR 8 — hero overlay + back button (top-left) + locale pill (top-right). */}
       <div className="c-detail-hero-overlay" aria-hidden="true" />
-      <div className="c-detail-hero-actions">
-        <button
-          type="button"
-          className="c-detail-glass-btn"
-          aria-label="favorite"
-        >
-          ♡
-        </button>
-        <button type="button" className="c-detail-glass-btn" aria-label="share">
-          ↗
-        </button>
-        <button
-          type="button"
-          className="c-detail-glass-btn"
-          aria-label="language"
-        >
-          🌐
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={onBack}
+        aria-label={backLabel}
+        className="absolute left-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-white/85 text-hesya-navy-900 backdrop-blur-sm transition hover:bg-white"
+      >
+        <span aria-hidden="true" className="text-[18px] leading-none">
+          ←
+        </span>
+      </button>
+      <span
+        aria-hidden="true"
+        className="absolute right-3 top-3 z-10 inline-flex h-9 items-center gap-1 rounded-full bg-white/85 px-3 mono text-[11px] font-semibold uppercase tracking-[0.06em] text-hesya-navy-900 backdrop-blur-sm"
+      >
+        🌐 {currentLocaleBadge}
+      </span>
     </div>
   );
 }
