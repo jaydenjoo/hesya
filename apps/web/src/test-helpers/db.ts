@@ -13,6 +13,7 @@ import {
   photoAnalyses,
   reviews,
   services,
+  sql,
   staff,
   storeDeletionRequests,
   storeIntegrations,
@@ -50,8 +51,12 @@ export async function resetDb(db: DbClient): Promise<void> {
   // 시 23503 FK violation 시그널 → silent partial reset → 다음 file의 expect 0 fail
   // 폭발(예: admin-dashboard `getAdminKpiSummary 빈 데이터` → newStoresToday: 1).
   // users는 Better Auth 관리 — reset 안 함 (seedUser 누적은 dev/test DB에서만 무해).
-  // kyc_verification_logs는 IMMUTABLE (BEFORE DELETE trigger) → reset 불가.
-  // audit trail 통합 테스트는 별도 격리 전략 필요.
+  // kyc_verification_logs는 IMMUTABLE (BEFORE DELETE FOR EACH ROW trigger) — DELETE
+  // 막힘. 그러나 TRUNCATE는 row-level trigger 우회 (statement-level만 fire, 본 테이블엔
+  // 없음 — 0006 마이그 확인). store_verifications가 부모라 먼저 TRUNCATE해야 후속
+  // resetDb의 db.delete(storeVerifications)가 FK 위반 안 함 (file 사이 leakage 차단).
+  // L-100 진단 부산물 활용 (2026-05-15 추가).
+  await db.execute(sql`TRUNCATE TABLE kyc_verification_logs CASCADE`);
   await db.delete(messages);
   await db.delete(conversations);
   await db.delete(reviews);

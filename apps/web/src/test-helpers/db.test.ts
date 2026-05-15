@@ -214,7 +214,12 @@ describe("test-helpers/db", () => {
       calls.push(table);
       return Promise.resolve();
     });
-    const fakeDb = { delete: deleteSpy } as unknown as DbClient;
+    // L-100 후속: resetDb 첫 줄에 TRUNCATE kyc_verification_logs CASCADE 추가됨.
+    // db.execute 호출이라 calls sequence에는 영향 없음. mock만 추가.
+    const fakeDb = {
+      delete: deleteSpy,
+      execute: vi.fn(() => Promise.resolve()),
+    } as unknown as DbClient;
 
     await helpers.resetDb(fakeDb);
 
