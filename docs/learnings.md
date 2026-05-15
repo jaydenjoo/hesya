@@ -3732,3 +3732,37 @@ fileParallelism: false,   // ← 추가
 **확인**: 다음 P1 9 페이지 작업 시 같은 압축률(10x) 달성 가능한지 검증. 단, P1 페이지 중 데이터 의존 비율이 P0보다 높으면 (e.g., 분석 dashboard) 압축률 떨어질 가능성.
 
 **연관**: 본 세션 36 PR #202~210 (10 PR 연속 머지). PROGRESS.md "fast track 가속화 패턴". L-082 (시연 % e2e 기준 — 디자인 정합과 직교 차원). L-093 (CI workflow_dispatch only 정책). L-097 (auto-merge yml).
+
+### [2026-05-15] L-102 — `/loop` dynamic mode + 4.5분 wakeup으로 1 세션 10 PR 머지 (CI workflow_dispatch only 환경)
+
+**증상**: 세션 41에서 P1 16 페이지 quick win 8 PR 머지에 이어, 세션 42 (같은 날)에서 `/loop continue 16 page reference parity work` dynamic mode로 10 PR 연속 머지 (#240-#249). 평균 PR e2e 사이클 ~10-15분 (작업 5분 + CI 4-5분 + merge 1분). 세션 41 누적 23 PR → 세션 42 누적 33 PR.
+
+**원인**: 다음 4 조건의 결합으로 cache-warm wakeup 패턴이 효율적:
+
+1. **CI는 workflow_dispatch only** (L-093) — pull_request trigger 비활성화. 매 PR마다 수동 `gh workflow run CI --ref <branch>` 필요. 자동 auto-merge yml은 workflow_run 후 fire되지만 `pull_request` 컨텍스트 필요해서 미동작 (수동 머지 의무).
+2. **PR 작업 단위 ≤90분** — quick win pattern. 각 PR 단일 파일 또는 단일 컴포넌트, 단일 reference 정합 차원에 집중. 인벤토리·계획 부담 최소.
+3. **CI run ~5분** — Prompt cache 5분 TTL과 거의 동기. 270s wakeup 설정 시 cache miss 1회 비용으로 약 5분 wait.
+4. **/loop dynamic mode** — `ScheduleWakeup(delaySeconds=270, ...)`로 다음 iteration trigger. 매 tick:
+   - 이전 PR CI green 확인 → 머지 → main 풀
+   - 다음 페이지 reference + 코드 diff → 새 branch + 1-2 파일 edit → push + PR + CI 트리거
+   - 다음 wakeup 예약 → 종료
+
+**해결**: 위 패턴을 동일 환경에서 재사용 가능. 단, **다음 4 조건 동시 충족**해야 함:
+
+1. PR 작업이 진짜 ≤90분 quick win (계획 부담 없는 단일 컴포넌트 변경)
+2. CI ~5분 이내 (긴 CI는 cache miss 비용 ↑)
+3. 의존 PR 없음 (8개 PR 모두 별개 파일 또는 별개 영역)
+4. /loop 호출자가 인내 (10 PR × 15분 = 2.5h 사이클)
+
+**규칙** (앞으로 reference 정합 작업):
+
+- "한 세션 8-10 PR" 목표면 /loop dynamic + ScheduleWakeup 270s 표준 패턴 사용. 수동 호출 대비 ~3-4x 효율 (claim: 매 wakeup tick에서 1 PR e2e 머지 가능).
+- 단, 의존 있는 PR (예: 같은 파일 수정, 같은 schema 변경)은 직렬 의무 — /loop 안에 sleep 추가 또는 분리 세션.
+- CI green 대기 시 사용자에게 wakeup 사유 한 줄 설명 의무 (예: "PR #248 CI finishes ~5 min").
+- /loop 종료 시점: 잔여 quick win 없음 ↔ 큰 구조 작업만 남았을 때. 그 시점 ScheduleWakeup 호출 omit + 누적 결과 요약.
+
+**비유**: 빵 굽기 5분 타이머와 작업 5분이 정확히 맞으면, 같은 시간에 굽기 + 다음 반죽 = 2배 효율. /loop dynamic + 270s wakeup이 그 패턴. 단, 반죽 시간이 빵 시간보다 길거나 짧으면 idle time 발생.
+
+**확인**: 세션 42에서 10 PR × 평균 12분 = 약 2시간 만에 머지. 세션 41 fast track (mock-first, L-101)과 직교 패턴 — fast track은 작업 시간 압축, /loop dynamic은 PR e2e 사이클 압축.
+
+**연관**: 본 세션 42 PR [#240-#249](https://github.com/jaydenjoo/hesya/pulls?q=is%3Apr+%23240..%23249). L-093 (CI workflow_dispatch only 정책 — 본 패턴의 trigger 동의어). L-097 (auto-merge yml만으로는 부족, 수동 `gh pr merge` 의무). L-101 (fast track 압축 — 작업 시간 단축, 본 L-102는 사이클 단축).
