@@ -26,13 +26,15 @@
   - A2/A3/A4 mock data를 reference와 동일하게 (실 데이터 wire는 별도)
   - **fast track (1 페이지 / 1 세션)**
   - **권장 진행 순서**: O9 → C4 → C1 → C3 → C2 → C5 → O2 → O1
-- **Phase 2 fast track #1 — O9 Owner Store Login** (정밀 62% → 100%):
-  - PR [#195](https://github.com/jaydenjoo/hesya/pull/195) feat(o9) — `apps/web/src/features/store-auth/sign-in-form.tsx` + `apps/web/src/app/[locale]/sign-in/sign-in.css` 218 line +
-  - 5개 핵심 누락 해소: floating-label `.sl-field` / 비밀번호 reveal / 자동 로그인 + 비밀번호 찾기 row / amber `.sl-btn-primary` + → arrow / Better Auth `rememberMe: true` 전달
-  - i18n 연결만 skip (Owner panel 한국어 전용 의도, 별도 task)
-  - DB / API breaking change 0건. 새 컴포넌트 0건.
-- **다음 fast track #2 — C4 Customer Sign-in** (정밀 45% → 100%, 9~12h):
-  - 핵심 누락: Hesya wordmark + ink-motif SVG + 2-step flow. PR #194에서 OAuth fallback은 작동하나 reference 디자인 정합 추가 필요.
+- **Phase 2 fast track 진행 현황 (#1~#6 머지 완료)**:
+  - **#1 O9 Owner Store Login** 62% → 100% — PR [#195](https://github.com/jaydenjoo/hesya/pull/195) (sign-in-form + sign-in.css 218 line). floating-label `.sl-field` / pwd reveal / amber `.sl-btn-primary` + rememberMe.
+  - **#2 C4 Customer Sign-in** 45% → 100% — PR [#196](https://github.com/jaydenjoo/hesya/pull/196) (customer-sign-in-shell + c-login.css). Hesya wordmark + ink-motif SVG + 2-step flow.
+  - **#3 C1 Customer Landing** 72% → 100% — PR [#197](https://github.com/jaydenjoo/hesya/pull/197) (c-landing.css 529 line + customer-landing 재작성).
+  - **#4 C3 Customer MyPage** 68% → 100% — PR [#198](https://github.com/jaydenjoo/hesya/pull/198) (c-mypage.css 344 line + my-page-tabs + 6 locale greeting `<em>{name}</em>`).
+  - **#5 C2 Customer Chat** 68% → 100% — PR [#199](https://github.com/jaydenjoo/hesya/pull/199) (c-chat.css 100 line + EmptyState + timestamps + msgUp + a11y).
+  - **#6 C5 Customer Store Detail** 52% → ~90% — PR [#200](https://github.com/jaydenjoo/hesya/pull/200) (c-detail.css 357 line + info block + rich service cards + 2-col stylists + filter chips). 9 누락 항목 (item 6, 8-15) 별도 task.
+- **다음 fast track #7 — O2 Owner Inbox** (정밀 73% → 100%, ~28h ≈ 3~4d):
+  - 정밀 inventory에서 가장 큰 잔여 페이지 중간 (#8 O1 Dashboard 80h 대비). 신규 누락 분석 후 진행.
 
 ## 이전 위치 (2026-05-15 세션 34 연장 — Task 1 backfill + Task 3 decision doc + 옵션 B Customer OAuth fallback 머지)
 
