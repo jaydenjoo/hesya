@@ -28,7 +28,8 @@ export function AiAccuracyTile({ pct, processedCount }: Props) {
     <section
       data-testid="dashboard-ai-accuracy"
       aria-label={t("title")}
-      className="flex flex-col rounded-lg border border-hesya-peach-200 bg-white p-5"
+      className="tile-reveal flex flex-col rounded-lg border border-hesya-peach-200 bg-white p-5"
+      style={{ animationDelay: "160ms" }}
     >
       <header className="mb-3">
         <h3 className="kr text-[14px] font-semibold text-hesya-navy-900">

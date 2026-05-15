@@ -31,7 +31,8 @@ export function InboxTile({ unreadTotal, channels }: Props) {
     <section
       data-testid="dashboard-inbox-tile"
       aria-label={t("title")}
-      className="flex flex-col rounded-lg border border-hesya-peach-200 bg-white p-5"
+      className="tile-reveal flex flex-col rounded-lg border border-hesya-peach-200 bg-white p-5"
+      style={{ animationDelay: "80ms" }}
     >
       <header className="mb-4 flex items-center justify-between">
         <h3 className="kr text-[14px] font-semibold text-hesya-navy-900">
