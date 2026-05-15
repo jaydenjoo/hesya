@@ -81,6 +81,19 @@
         "yesterday": "Yesterday"
       }
     },
+    "todayBookings": {
+      "title": "Today's foreign bookings",
+      "viewBookingsLink": "View bookings",
+      "comingSoon": "Coming soon",
+      "nextLabel": "Next appointment — {value}",
+      "sparkAria": "Bookings per hour chart, last {count} hours",
+      "nowAxis": "Now"
+    },
+    "aiAccuracy": {
+      "title": "AI reply accuracy",
+      "svgAria": "AI reply accuracy {pct}%",
+      "caption": "Messages handled by AI this week <strong>{count}</strong>"
+    },
     "comingSoonNote": "Activates after payment & booking data is recorded",
     "kpis": {
       "inboxUnread": "Unread messages",

@@ -81,6 +81,19 @@
         "yesterday": "昨天"
       }
     },
+    "todayBookings": {
+      "title": "今日外國客預約",
+      "viewBookingsLink": "查看預約",
+      "comingSoon": "即將推出",
+      "nextLabel": "下次預約 — {value}",
+      "sparkAria": "最近{count}小時預約量圖表",
+      "nowAxis": "現在"
+    },
+    "aiAccuracy": {
+      "title": "AI 回覆準確率",
+      "svgAria": "AI 回覆準確率 {pct}%",
+      "caption": "本週 AI 處理訊息 <strong>{count}則</strong>"
+    },
     "comingSoonNote": "在結帳和預約資料記錄後自動啟用",
     "kpis": {
       "inboxUnread": "未讀訊息",

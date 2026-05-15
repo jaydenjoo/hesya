@@ -9,6 +9,8 @@ export { WeeklyGmv } from "./components/weekly-gmv";
 export { KVerified } from "./components/k-verified";
 export { NationalityTile } from "./components/nationality-tile";
 export { RecentReviews } from "./components/recent-reviews";
+export { TodayBookingsTile } from "./components/today-bookings-tile";
+export { AiAccuracyTile } from "./components/ai-accuracy-tile";
 export {
   DistributionPie,
   type DistributionSlice,

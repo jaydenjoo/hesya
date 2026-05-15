@@ -81,6 +81,19 @@
         "yesterday": "昨天"
       }
     },
+    "todayBookings": {
+      "title": "今日外国客预订",
+      "viewBookingsLink": "查看预订",
+      "comingSoon": "即将推出",
+      "nextLabel": "下次预约 — {value}",
+      "sparkAria": "最近{count}小时预订量图表",
+      "nowAxis": "现在"
+    },
+    "aiAccuracy": {
+      "title": "AI 回复准确率",
+      "svgAria": "AI 回复准确率 {pct}%",
+      "caption": "本周 AI 处理消息 <strong>{count}条</strong>"
+    },
     "comingSoonNote": "在结算和预订数据记录后自动启用",
     "kpis": {
       "inboxUnread": "未读消息",

@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { createDbClient } from "@hesya/database";
 
 import {
+  AiAccuracyTile,
   BrightSpot,
   ChannelBreakdown,
   CriticalAlert,
@@ -13,6 +14,7 @@ import {
   KpiGrid,
   NationalityTile,
   RecentReviews,
+  TodayBookingsTile,
   TodayTimeline,
   WeeklyGmv,
   type DistributionSlice,
@@ -412,6 +414,23 @@ export default async function StoreDashboardPage({
             renewalDate="2026-07-15"
             comingSoonLabel={t("timeline.popoverComingSoon")}
           />
+        </div>
+        {/* O1 fast track 단계 5a — W1 오늘 예약 + W5 AI 정확도.
+            mock-first: bookings 시간대별 집계 / AI 처리 통계 별도 task. */}
+        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-[1.6fr_1fr]">
+          <TodayBookingsTile
+            count={7}
+            avatars={[
+              { flag: "🇯🇵", bgClass: "bg-hesya-peach-200" },
+              { flag: "🇨🇳", bgClass: "bg-hesya-peach-100" },
+              { flag: "🇺🇸", bgClass: "bg-hesya-peach-50" },
+            ]}
+            extraCount={4}
+            nextLabel="14:00 사쿠라님"
+            sparkHours={[1, 2, 0, 3, 1, 0, 2, 1, 1, 0, 2, 0]}
+            nowBarIndex={5}
+          />
+          <AiAccuracyTile pct={94} processedCount={142} />
         </div>
         {/* O1 fast track 단계 4 — W4 국적 대형 타일.
             Reference 색상 5 segments (Hesya peach/amber + navy + 강조 핑크).

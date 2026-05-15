@@ -81,6 +81,19 @@
         "yesterday": "어제"
       }
     },
+    "todayBookings": {
+      "title": "오늘의 외국인 예약",
+      "viewBookingsLink": "예약 보기",
+      "comingSoon": "곧 출시",
+      "nextLabel": "다음 시술 — {value}",
+      "sparkAria": "최근 {count}시간대 예약 수 차트",
+      "nowAxis": "지금"
+    },
+    "aiAccuracy": {
+      "title": "AI 응답 정확도",
+      "svgAria": "AI 응답 정확도 {pct}%",
+      "caption": "이번 주 AI가 처리한 메시지 <strong>{count}건</strong>"
+    },
     "comingSoonNote": "결제·예약 데이터 적재 후 자동 활성화",
     "kpis": {
       "inboxUnread": "미응답 메시지",
