@@ -655,24 +655,24 @@
   font-family: var(--font-mono);
 }
 
-/* Divider 'OR' (magic link 와 Google 사이) */
-.sl-divider-or {
+/* Divider 'OR' (reference 3-span 구조 정합) */
+.sl-divider {
   display: flex;
   align-items: center;
   gap: 10px;
   margin: 20px 0;
+}
+.sl-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--hesya-peach-200);
+}
+.sl-divider-or {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(26, 34, 56, 0.4);
-}
-.sl-divider-or::before,
-.sl-divider-or::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--hesya-peach-200);
 }
 
 /* sent 페이지 전용 */
