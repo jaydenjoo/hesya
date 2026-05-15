@@ -30,6 +30,7 @@ import {
   listUpcomingBookings,
 } from "@/shared/lib/dal/customer-mypage";
 import { UnauthorizedError } from "@/shared/lib/errors";
+import "./c-mypage.css";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -91,43 +92,58 @@ export default async function CustomerMyPage({ params }: Props) {
 
   return (
     <CustomerFrame>
-      <div className="px-5 pb-8 pt-6">
-        <header className="mb-5 flex items-start gap-3">
-          <div
-            aria-hidden="true"
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-hesya-amber-200 to-hesya-amber-600 text-[18px] font-semibold text-hesya-navy-900"
-          >
+      <header className="cm-header">
+        <div className="cm-top-row">
+          <div aria-hidden="true" className="cm-avatar">
             {displayName.charAt(0).toUpperCase()}
           </div>
-          <div className="flex-1">
-            <h1 className="font-heading text-[22px] font-semibold italic leading-tight tracking-[-0.02em] text-hesya-navy-900">
-              {t("greeting", { name: displayName })}
+          <div className="cm-greet">
+            <h1>
+              {t.rich("greeting", {
+                name: displayName,
+                em: (chunks) => <em>{chunks}</em>,
+              })}
             </h1>
             {travelerInfo ? (
-              <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-hesya-navy-900/55">
+              <p className="cm-traveler">
                 <span>
                   <span aria-hidden="true" className="mr-0.5">
                     {travelerInfo.flag}
                   </span>
                   {travelerInfo.locale}
                 </span>
-                <span aria-hidden="true" className="opacity-40">
+                <span aria-hidden="true" className="cm-dvd">
                   ·
                 </span>
                 <span>📍 {travelerInfo.hometown}</span>
-                <span aria-hidden="true" className="opacity-40">
+                <span aria-hidden="true" className="cm-dvd">
                   ·
                 </span>
                 <span>✈️ {travelerInfo.tripLabel}</span>
               </p>
             ) : (
-              <p className="mt-0.5 text-[11px] text-hesya-navy-900/55">
-                {session.email}
-              </p>
+              <p className="cm-traveler">{session.email}</p>
             )}
           </div>
-        </header>
-
+          <button type="button" className="cm-cog-btn" aria-label="Settings">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </button>
+        </div>
+      </header>
+      <div className="px-5 pb-8 pt-2">
         <MyPageTabs
           locale={locale}
           miniTimeline={useFixtures ? [...mockMiniTimeline] : null}

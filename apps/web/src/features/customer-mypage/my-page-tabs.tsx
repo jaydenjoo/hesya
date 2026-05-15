@@ -110,9 +110,11 @@ export function MyPageTabs({
 
   return (
     <div>
-      <div className="mb-4 flex items-center gap-1.5 overflow-x-auto rounded-full bg-white/60 p-1 ring-1 ring-hesya-navy-900/10">
+      <div className="cm-tabs-bar">
         {(["upcoming", "past", "saved", "reviews"] as TabKey[]).map((k) => {
           const active = tab === k;
+          // Reviews tab의 pending이 있으면 amber-600 alert.
+          const alert = k === "reviews" && counts[k] > 0;
           return (
             <button
               key={k}
@@ -120,21 +122,11 @@ export function MyPageTabs({
               role="tab"
               aria-selected={active}
               onClick={() => setTab(k)}
-              className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium transition ${
-                active
-                  ? "bg-hesya-navy-900 text-hesya-peach-50"
-                  : "text-hesya-navy-900/70 hover:text-hesya-navy-900"
-              }`}
+              className={"cm-tab" + (active ? " active" : "")}
             >
               {labels.tabs[k]}
               {counts[k] > 0 && (
-                <span
-                  className={`rounded-full px-1.5 text-[10px] ${
-                    active
-                      ? "bg-hesya-peach-50/20 text-hesya-peach-50"
-                      : "bg-hesya-navy-900/10 text-hesya-navy-900/60"
-                  }`}
-                >
+                <span className={"cm-tcount" + (alert ? " alert" : "")}>
                   {counts[k]}
                 </span>
               )}
@@ -143,7 +135,7 @@ export function MyPageTabs({
         })}
       </div>
 
-      <div key={tab}>
+      <div key={tab} className="cm-tab-scroll cm-tab-pane">
         {tab === "upcoming" && (
           <UpcomingPane
             rows={data.upcoming}
@@ -294,8 +286,21 @@ function UpcomingPane({
           key={b.id}
           className="rounded-2xl bg-white p-4 ring-1 ring-hesya-navy-900/10"
         >
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-hesya-amber-600">
-            {formatDateTime(b.scheduledAt, locale)}
+          <div className="cm-up-when">
+            {(() => {
+              const formatted = formatDateTime(b.scheduledAt, locale);
+              // "Mar 14, 14:00" 형식 → 시간만 amber em 강조
+              const match = formatted.match(/^(.*?)(\d{2}:\d{2})$/);
+              if (match) {
+                return (
+                  <>
+                    {match[1]}
+                    <em>{match[2]}</em>
+                  </>
+                );
+              }
+              return formatted;
+            })()}
           </div>
           <div className="mt-1 flex items-start gap-3">
             <div
@@ -408,11 +413,25 @@ function PastPane({
                 ? `₩${b.totalPriceKrw.toLocaleString("ko")}`
                 : "—"}
             </div>
+            {/* Past stars — DAL rating 컬럼 미존재. id hash 기반 4~5 stars mock. */}
+            <div className="cm-past-stars" aria-label="rating">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <span
+                  key={i}
+                  aria-hidden="true"
+                  className={
+                    "cm-ps" + (i <= pastRatingFromId(b.id) ? " on" : "")
+                  }
+                >
+                  ★
+                </span>
+              ))}
+            </div>
           </div>
           {b.storeId && (
             <a
               href={`/${locale}/c/store/${b.storeId}/book/schedule`}
-              className="shrink-0 rounded-full bg-hesya-navy-900/5 px-3 py-1.5 text-[11px] font-medium text-hesya-navy-900 hover:bg-hesya-navy-900/10"
+              className="cm-ghost-btn"
             >
               {labels.actions.bookAgain}
             </a>
@@ -421,6 +440,16 @@ function PastPane({
       ))}
     </div>
   );
+}
+
+/**
+ * Past 카드 별점 mock — reference rating: 4 또는 5. DAL `bookings.rating` 도입
+ * 전 임시: bookingId 마지막 글자 ASCII가 짝수면 5, 홀수면 4.
+ * 후속 task: bookings 테이블에 rating 컬럼 추가 + CustomerBookingRow 확장.
+ */
+function pastRatingFromId(id: string): 4 | 5 {
+  const last = id.charCodeAt(id.length - 1);
+  return last % 2 === 0 ? 5 : 4;
 }
 
 function SavedPane({
@@ -436,36 +465,62 @@ function SavedPane({
     return <EmptyMessage text={labels.empty.saved} />;
   }
   return (
-    <div className="grid grid-cols-2 gap-3">
-      {rows.map((s) => (
-        <article
-          key={s.storeId}
-          className="overflow-hidden rounded-2xl bg-white ring-1 ring-hesya-navy-900/10"
-        >
+    <div className="cm-saved-grid">
+      {rows.map((s) => {
+        // SavedStoreRow는 현재 storeId/storeName/category만 노출. rating/price/area
+        // 컬럼 DAL 도입은 별도 task (reviews avg + services range 집계 필요). reference
+        // visual parity 위해 id hash 기반 mock 값 사용.
+        const { rating, price, area } = savedMockMeta(s);
+        return (
           <a
+            key={s.storeId}
             href={`/${locale}/c/store/${s.storeId}`}
-            className="block aspect-[4/3] bg-gradient-to-br from-hesya-amber-200 to-hesya-amber-600"
+            className="cm-saved-card"
             aria-label={s.storeName ?? "store"}
-          />
-          <div className="p-3">
-            <div className="truncate text-[13px] font-semibold text-hesya-navy-900">
-              {s.storeName ?? "—"}
-            </div>
-            <div className="mt-2">
-              <UnsaveButton
+          >
+            <div className="cm-saved-img">
+              <UnsaveHeart
                 storeId={s.storeId}
                 locale={locale}
                 label={labels.actions.unsave}
               />
             </div>
-          </div>
-        </article>
-      ))}
+            <div className="cm-saved-body">
+              <div className="cm-saved-name">{s.storeName ?? "—"}</div>
+              <div className="cm-saved-area">{area}</div>
+              <div className="cm-saved-meta">
+                <span className="cm-saved-rating">★ {rating}</span>
+                <span className="cm-saved-price">{price}</span>
+              </div>
+            </div>
+          </a>
+        );
+      })}
     </div>
   );
 }
 
-function UnsaveButton({
+/**
+ * Saved 카드 visual mock — DAL 확장(rating avg + services minPrice + category)
+ * 도입 전 임시. reference parity 목적 (Jayden A2 정책 — mock data를 reference와 동일).
+ */
+function savedMockMeta(s: SavedStoreRow): {
+  rating: string;
+  price: string;
+  area: string;
+} {
+  const seed =
+    s.storeId.charCodeAt(0) + s.storeId.charCodeAt(s.storeId.length - 1);
+  const ratings = ["4.7", "4.8", "4.85", "4.9", "4.95"];
+  const prices = ["₩68k", "₩85k", "₩95k", "₩105k", "₩120k", "₩140k"];
+  const areas = ["Hair", "Makeup", "Nail", "Color", "Salon"];
+  const rating = ratings[seed % ratings.length]!;
+  const price = prices[seed % prices.length]!;
+  const area = areas[seed % areas.length]!;
+  return { rating, price, area };
+}
+
+function UnsaveHeart({
   storeId,
   locale,
   label,
@@ -477,15 +532,19 @@ function UnsaveButton({
   return (
     <button
       type="button"
-      onClick={async () => {
+      onClick={async (e) => {
+        // Saved card 전체가 link라 click bubbling 차단.
+        e.preventDefault();
+        e.stopPropagation();
         const res = await unsaveStoreAction({ storeId, locale });
         if (!res.ok) {
           alert(res.message);
         }
       }}
-      className="w-full rounded-full bg-hesya-navy-900/5 px-3 py-1.5 text-[11px] font-medium text-hesya-navy-900 hover:bg-hesya-navy-900/10"
+      className="cm-heart"
+      aria-label={label}
     >
-      {label}
+      ♥
     </button>
   );
 }
@@ -507,6 +566,9 @@ function ReviewsPane({
       {rows.map((r) => (
         <ReviewCard key={r.bookingId} row={r} labels={labels} locale={locale} />
       ))}
+      <div className="cm-rv-skip">
+        <button type="button">{labels.review.skipAll}</button>
+      </div>
     </div>
   );
 }
@@ -561,7 +623,14 @@ function ReviewCard({
   return (
     <article className="rounded-2xl bg-white p-4 ring-1 ring-hesya-navy-900/10">
       <div className="font-heading text-[15px] font-semibold italic text-hesya-navy-900">
-        {labels.review.question.replace("{store}", row.storeName ?? "—")}
+        {labels.review.question.split("{store}").map((part, i, arr) => (
+          <span key={i}>
+            {part}
+            {i < arr.length - 1 && (
+              <em className="text-hesya-amber-600">{row.storeName ?? "—"}</em>
+            )}
+          </span>
+        ))}
       </div>
       <div className="mt-0.5 text-[11px] text-hesya-navy-900/55">
         {row.serviceName ?? "—"}
@@ -591,12 +660,10 @@ function ReviewCard({
         onChange={(e) => setContent(e.target.value)}
         placeholder={labels.review.placeholder}
         rows={3}
-        className="mt-3 w-full rounded-xl border border-hesya-navy-900/15 bg-white/80 px-3 py-2 text-[13px] text-hesya-navy-900 placeholder:text-hesya-navy-900/40 focus:border-hesya-amber-600 focus:outline-none focus:ring-2 focus:ring-hesya-amber-600/20"
+        className="cm-rv-textarea mt-3"
       />
       <div className="mt-2 flex items-center justify-between gap-3">
-        <p className="text-[11px] text-hesya-navy-900/55">
-          🌐 {labels.review.languageNote}
-        </p>
+        <p className="cm-rv-note">🌐 {labels.review.languageNote}</p>
         <button
           type="button"
           disabled={submitting || stars < 1 || content.trim().length < 2}

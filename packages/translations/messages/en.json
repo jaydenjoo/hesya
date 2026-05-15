@@ -986,7 +986,7 @@
     "backToHome": "Back"
   },
   "CustomerMyPage": {
-    "greeting": "Hi, {name}",
+    "greeting": "Hi, <em>{name}</em>",
     "defaultName": "traveler",
     "tabs": {
       "upcoming": "Upcoming",

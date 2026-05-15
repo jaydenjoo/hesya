@@ -986,7 +986,7 @@
     "backToHome": "返回"
   },
   "CustomerMyPage": {
-    "greeting": "你好,{name}",
+    "greeting": "你好,<em>{name}</em>",
     "defaultName": "旅行者",
     "tabs": {
       "upcoming": "即将到来",

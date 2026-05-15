@@ -986,7 +986,7 @@
     "backToHome": "뒤로"
   },
   "CustomerMyPage": {
-    "greeting": "{name}님 안녕하세요",
+    "greeting": "<em>{name}</em>님 안녕하세요",
     "defaultName": "여행자",
     "tabs": {
       "upcoming": "예정",

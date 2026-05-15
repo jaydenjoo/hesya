@@ -986,7 +986,7 @@
     "backToHome": "戻る"
   },
   "CustomerMyPage": {
-    "greeting": "{name}さん、こんにちは",
+    "greeting": "<em>{name}</em>さん、こんにちは",
     "defaultName": "旅行者",
     "tabs": {
       "upcoming": "予定",
