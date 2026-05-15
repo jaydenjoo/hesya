@@ -104,9 +104,44 @@ export default async function AdminAiCostPage({ params }: Props) {
       />
 
       <div className="mx-auto max-w-7xl px-6 py-8">
-        <p className="mb-6 max-w-2xl text-[13px] leading-relaxed text-hesya-navy-900/65">
-          {t("disclaimer")}
-        </p>
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <p className="max-w-2xl text-[13px] leading-relaxed text-hesya-navy-900/65">
+            {t("disclaimer")}
+          </p>
+          <div className="flex items-center gap-2">
+            <div
+              role="tablist"
+              aria-label="Time range"
+              className="inline-flex items-center rounded-full bg-white p-1 ring-1 ring-hesya-peach-200"
+            >
+              {[
+                { k: "today", l: "오늘" },
+                { k: "week", l: "이번 주" },
+                { k: "month", l: "이번 달", active: true },
+                { k: "quarter", l: "분기" },
+              ].map((p) => (
+                <button
+                  key={p.k}
+                  type="button"
+                  role="tab"
+                  aria-selected={!!p.active}
+                  className={
+                    "rounded-full px-3 py-1 text-[11px] font-semibold transition " +
+                    (p.active
+                      ? "bg-hesya-amber-500 text-white shadow-[0_2px_6px_rgba(232,169,122,0.35)]"
+                      : "text-hesya-navy-900/65 hover:bg-hesya-peach-50")
+                  }
+                >
+                  {p.l}
+                </button>
+              ))}
+            </div>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-hesya-peach-100 px-3 py-1 text-[10.5px] font-semibold text-hesya-amber-600">
+              <span aria-hidden="true">⚡</span>
+              일일 예산 87% 사용
+            </span>
+          </div>
+        </div>
 
         {/* Today's cost + budget */}
         <section className="mb-8">
