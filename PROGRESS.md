@@ -3,7 +3,30 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 39 — 🎯 P0 8 페이지 100% reference 정합 완료, 누적 13 PR)
+## 현재 위치 (2026-05-15 세션 40 — 🎯 P0 8 페이지 정합 추가 2 PR, 누적 15 PR)
+
+- **세션 40 (2026-05-15 종반)**: 세션 39의 잔여 항목 (C2 voice/audit, O2 AI tone pill, C3 Map pill state) 2 PR로 보완.
+- **시정 작업 2 PR**:
+  - PR [#230](https://github.com/jaydenjoo/hesya/pull/230) — C2 Chat bubble translation 정합 + voice 색 분기 (border-top dashed + italic + globe-tag not-italic + play-btn salon/user 분기 + waveform 색 + image 200×140 gradient thumb)
+  - PR [#231](https://github.com/jaydenjoo/hesya/pull/231) — O2 AI tone pill default fallback + C3 Map pill interactive tab state (Naver default + "추천" 표기 × 6 locale)
+- **세션 40 최종 정합**:
+  | 페이지 | 세션 39 | 세션 40 | 누적 PR |
+  | --- | --- | --- | --- |
+  | O1 Owner Dashboard | ~95% | ~95% | #211-#217 |
+  | C2 Customer Chat | ~75% | **~92%** ⭐ | #219, #229, #230 |
+  | C3 Booking Confirmation | ~95% | **~97%** ⭐ | #220, #225, #231 |
+  | C4 MyPage | ~96% | ~96% | #221, #226 |
+  | C1 Customer Landing | ~92% | ~92% | #222, #227 |
+  | C5 Customer Store Detail | ~92% | ~92% | #218 |
+  | O2 Owner Inbox | ~97% | **~98%** ⭐ | #223, #228, #231 |
+  | O9 Store Login | ~99% | ~99% | #224, #229 |
+- **누적 15 PR 머지 (세션 37~40, 모두 main, 모든 페이지 ≥92% 정합)**.
+- **잔여 작업 (다음 세션 이상)**:
+  - O1 시연 % 100% (NationalityTile / TodayBookings / WeeklyGmv / AiAccuracy 실 DAL wire, ~12h) — 코드 머지 ≠ 시연. e2e 데이터 파이프라인 필요.
+  - Sidebar collapse 인터랙션 (낮은 우선순위, default 상태 정합 ✓)
+  - C2/C3/O2 미세 P2 (Map pill click→active toggle, AI Assist verifications 실 wire, Voice transcript label i18n 등)
+
+## 이전 위치 (2026-05-15 세션 39 — 🎯 P0 8 페이지 100% reference 정합 완료, 누적 13 PR)
 
 - **세션 39 (2026-05-15 종반)**: 사용자 지시 "100% 정합 모든 작업 진행" → 세션 38 quick wins 위에 P1/P2 항목 일괄 시정 5 PR 추가.
 - **시정 작업 5 PR (1세션 누적 머지)**:
