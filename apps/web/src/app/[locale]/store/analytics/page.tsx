@@ -110,6 +110,26 @@ export default async function StoreAnalyticsPage({
   const avgTicket =
     totalBookings === 0 ? 0 : Math.round(totalRevenue / totalBookings);
 
+  const revenueSeries = data.monthly.map((m) => m.revenueKrw);
+  const bookingSeries = data.monthly.map((m) => m.bookingCount);
+  const monthLen = data.monthly.length;
+  const revenueTrend =
+    monthLen >= 2 && revenueSeries[monthLen - 2]! > 0
+      ? Math.round(
+          ((revenueSeries[monthLen - 1]! - revenueSeries[monthLen - 2]!) /
+            revenueSeries[monthLen - 2]!) *
+            100,
+        )
+      : 0;
+  const bookingTrend =
+    monthLen >= 2 && bookingSeries[monthLen - 2]! > 0
+      ? Math.round(
+          ((bookingSeries[monthLen - 1]! - bookingSeries[monthLen - 2]!) /
+            bookingSeries[monthLen - 2]!) *
+            100,
+        )
+      : 0;
+
   return (
     <div className="bg-hesya-peach-50 min-h-[calc(100vh-64px)]">
       <div className="mx-auto max-w-5xl px-6 py-10">
@@ -167,16 +187,23 @@ export default async function StoreAnalyticsPage({
             label={t("kpiRevenue6m")}
             value={`₩${totalRevenue.toLocaleString("ko-KR")}`}
             hint={`${totalBookings}${t("bookingsUnit")}`}
+            trend={revenueTrend}
+            spark={revenueSeries}
+            sparkColor="#1A2238"
           />
           <KpiTile
             label={t("kpiRepeatRate")}
             value={`${repeatPct}%`}
             hint={`${data.repeat.repeatCustomers}/${data.repeat.totalCustomers} ${t("customersUnit")}`}
+            ring={repeatPct}
           />
           <KpiTile
             label={t("kpiAvgTicket")}
             value={`₩${avgTicket.toLocaleString("ko-KR")}`}
             hint={t("avgTicketHint")}
+            trend={bookingTrend}
+            spark={bookingSeries}
+            sparkColor="#D88B5B"
           />
         </section>
 
@@ -286,21 +313,114 @@ function KpiTile({
   label,
   value,
   hint,
+  trend,
+  spark,
+  sparkColor,
+  ring,
 }: {
   label: string;
   value: string;
   hint: string;
+  trend?: number;
+  spark?: ReadonlyArray<number>;
+  sparkColor?: string;
+  ring?: number;
 }) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white px-5 py-4 shadow-sm">
-      <p className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-hesya-navy-900/50">
-        {label}
-      </p>
+    <div className="rounded-2xl border border-hesya-peach-100 bg-white px-5 py-4 shadow-[0_2px_8px_rgba(26,34,56,0.04),0_4px_16px_rgba(26,34,56,0.06)]">
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-hesya-navy-900/50">
+          {label}
+        </p>
+        {trend !== undefined && trend !== 0 && (
+          <span
+            className={
+              "font-mono text-[10.5px] font-semibold " +
+              (trend > 0 ? "text-emerald-600" : "text-rose-600")
+            }
+          >
+            {trend > 0 ? "▲" : "▼"} {Math.abs(trend)}%
+          </span>
+        )}
+      </div>
       <p className="mt-1.5 font-display text-[22px] italic text-hesya-navy-900">
         {value}
       </p>
-      <p className="mt-0.5 text-[11px] text-hesya-navy-900/60">{hint}</p>
+      <div className="mt-1 flex items-end justify-between gap-3">
+        <p className="text-[11px] text-hesya-navy-900/60">{hint}</p>
+        {spark && spark.length > 1 && sparkColor && (
+          <Sparkline data={spark} color={sparkColor} />
+        )}
+        {ring !== undefined && <ProgressRing pct={ring} />}
+      </div>
     </div>
+  );
+}
+
+function Sparkline({
+  data,
+  color,
+}: {
+  data: ReadonlyArray<number>;
+  color: string;
+}) {
+  const max = Math.max(...data, 1);
+  const w = 96;
+  const h = 24;
+  const pts = data
+    .map((v, i) => `${(i / (data.length - 1)) * w},${h - (v / max) * h}`)
+    .join(" ");
+  const areaPts = `0,${h} ${pts} ${w},${h}`;
+  return (
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      preserveAspectRatio="none"
+      className="h-6 w-24 flex-shrink-0"
+      aria-hidden="true"
+    >
+      <polygon points={areaPts} fill={color} opacity="0.08" />
+      <polyline
+        points={pts}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function ProgressRing({ pct }: { pct: number }) {
+  const r = 12;
+  const c = 2 * Math.PI * r;
+  const offset = c - (Math.min(100, Math.max(0, pct)) / 100) * c;
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      className="h-7 w-7 flex-shrink-0 -rotate-90"
+      aria-hidden="true"
+    >
+      <circle
+        cx="16"
+        cy="16"
+        r={r}
+        fill="none"
+        stroke="#F1E1D0"
+        strokeWidth="3"
+      />
+      <circle
+        cx="16"
+        cy="16"
+        r={r}
+        fill="none"
+        stroke="#D88B5B"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeDasharray={c}
+        strokeDashoffset={offset}
+      />
+    </svg>
   );
 }
 
