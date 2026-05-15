@@ -11,13 +11,46 @@
  * drag-drop 일정 변경은 Phase 1.5 (mock에서는 클릭 → side panel 만).
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   MockBookingCard,
   MockStylist,
 } from "@/lib/mock-fixtures/bookings";
 
 const ROW_HEIGHT = 56;
+
+/**
+ * Now-line — 오늘 컬럼에 현재 시각 빨간 점 + 라벨 (reference `bk-now-line`).
+ * 9:00~22:00 범위 안일 때만 표시. 15초마다 자동 갱신.
+ */
+function NowLine({ hours }: { hours: ReadonlyArray<number> }) {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 15000);
+    return () => clearInterval(t);
+  }, []);
+  const cur = now.getHours() + now.getMinutes() / 60;
+  const minHour = hours[0]!;
+  const maxHour = hours[hours.length - 1]! + 1;
+  if (cur < minHour || cur >= maxHour) return null;
+  const top = (cur - minHour) * ROW_HEIGHT;
+  const label = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-x-0 z-10"
+      style={{ top: `${top}px` }}
+    >
+      <div className="relative">
+        <span className="absolute -left-1 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-red-500 shadow-[0_0_0_3px_rgba(239,68,68,0.18)]" />
+        <span className="block h-px bg-red-500/80" />
+        <span className="mono absolute right-1 -translate-y-1/2 rounded bg-red-500 px-1 py-px text-[9px] font-semibold text-white">
+          {label}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export interface WeekCalendarLabels {
   readonly title: string;
@@ -118,7 +151,7 @@ export function WeekCalendarView({
           >
             ›
           </button>
-          <span className="ml-1 inline-flex items-center rounded-full bg-hesya-peach-100 px-2 py-0.5 text-[10.5px] font-semibold text-hesya-amber-600">
+          <span className="ml-1 inline-flex items-center rounded-full bg-hesya-amber-500 px-2 py-0.5 text-[10.5px] font-semibold text-white shadow-[0_2px_6px_rgba(232,169,122,0.35)]">
             {labels.today}
           </span>
         </div>
@@ -219,6 +252,8 @@ export function WeekCalendarView({
                     style={{ top: `${i * ROW_HEIGHT}px`, height: 1 }}
                   />
                 ))}
+                {/* Now-line (reference bk-now-line) — 오늘 컬럼만, 9-22h 안일 때 표시 */}
+                {d.today && <NowLine hours={hours} />}
                 {/* Bookings */}
                 {filtered
                   .filter((b) => b.day === dayIdx)
