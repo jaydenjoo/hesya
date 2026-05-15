@@ -5,7 +5,9 @@ import { createDbClient } from "@hesya/database";
 
 import {
   AiAccuracyTile,
+  AiInsightPanel,
   BrightSpot,
+  CelebrationToasts,
   ChannelBreakdown,
   CriticalAlert,
   DashboardHeader,
@@ -399,6 +401,10 @@ export default async function StoreDashboardPage({
           eyebrowEn="Bright spot"
           body={brightSpot.body}
         />
+        {/* O1 fast track 단계 5b — W8 AI 인사이트 panel.
+            mock-first: insight 텍스트 + 신뢰도 라벨 i18n. 실 LLM 호출 없이
+            interactive 4-state (open/modify/approved/dismissed) 시연 가능. */}
+        <AiInsightPanel />
         <TodayTimeline />
         {/* O1 fast track 단계 3 — W2 GMV + W6 K-Verified.
             mock-first: 실 weekly GMV DAL + kyc tier/renewal schema 확장 별도 task. */}
@@ -470,6 +476,12 @@ export default async function StoreDashboardPage({
             mock-first: 3 mock reviews (jp/en/zh-CN). reviews 테이블 ζ phase. */}
         <div className="mt-6">
           <RecentReviews comingSoonLabel={t("timeline.popoverComingSoon")} />
+        </div>
+        {/* O1 fast track 단계 5b — W11 알림 Toast stack.
+            mock-first: 4 hardcoded toasts (star/photo/growth/verified) + dismiss.
+            실 notifications 파이프라인 별도 task. */}
+        <div className="mt-6">
+          <CelebrationToasts />
         </div>
         <p className="mt-8 font-mono text-[11px] text-hesya-navy-900/55">
           {t("footerNote")}

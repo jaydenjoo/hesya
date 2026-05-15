@@ -94,6 +94,28 @@
       "svgAria": "AI 回复准确率 {pct}%",
       "caption": "本周 AI 处理消息 <strong>{count}条</strong>"
     },
+    "aiInsight": {
+      "eyebrow": "AI 洞察",
+      "confidence": "高置信度",
+      "text": "日本客户 +40% — <em>您的接待非常到位。</em> 进一步加强日语项目菜单页面，客单价预计可提升约 12%。",
+      "actionEdit": "编辑菜单",
+      "actionModify": "修改建议",
+      "actionDismiss": "稍后查看",
+      "modifyConfirm": "按修改内容执行",
+      "modifyCancel": "取消",
+      "modifyAria": "修改 AI 建议",
+      "approvedMessage": "已批准 — 任务在后台执行中。"
+    },
+    "celebrations": {
+      "title": "今日小小的喜悦",
+      "dismissAria": "关闭通知",
+      "time": {
+        "justNow": "刚刚",
+        "minutesAgo": "{count}分钟前",
+        "morning": "今早",
+        "yesterday": "昨天"
+      }
+    },
     "comingSoonNote": "在结算和预订数据记录后自动启用",
     "kpis": {
       "inboxUnread": "未读消息",

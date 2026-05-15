@@ -94,6 +94,28 @@
       "svgAria": "Độ chính xác AI {pct}%",
       "caption": "Tin nhắn AI xử lý tuần này <strong>{count}</strong>"
     },
+    "aiInsight": {
+      "eyebrow": "AI Insight",
+      "confidence": "Độ tin cậy cao",
+      "text": "Khách Nhật +40% — <em>Bạn đang phản hồi rất tốt.</em> Để hỗ trợ thêm, củng cố trang menu dịch vụ tiếng Nhật có thể nâng giá trị đơn hàng ~12%.",
+      "actionEdit": "Sửa menu",
+      "actionModify": "Sửa đề xuất",
+      "actionDismiss": "Để sau",
+      "modifyConfirm": "Tiến hành với chỉnh sửa",
+      "modifyCancel": "Huỷ",
+      "modifyAria": "Sửa đề xuất AI",
+      "approvedMessage": "Đã duyệt — tác vụ đang chạy nền."
+    },
+    "celebrations": {
+      "title": "Niềm vui nhỏ hôm nay",
+      "dismissAria": "Đóng thông báo",
+      "time": {
+        "justNow": "Vừa xong",
+        "minutesAgo": "{count} phút trước",
+        "morning": "Sáng nay",
+        "yesterday": "Hôm qua"
+      }
+    },
     "comingSoonNote": "Kích hoạt sau khi có dữ liệu thanh toán & đặt lịch",
     "kpis": {
       "inboxUnread": "Tin nhắn chưa đọc",
