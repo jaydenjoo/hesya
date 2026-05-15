@@ -41,11 +41,52 @@ export function MultilingualMockSection({
   names: ReadonlyArray<MockMultilingualName>;
   labels: MockSectionLabels;
 }) {
+  const filledCount = names.filter((n) => n.value.length > 0).length;
   return (
     <div className="space-y-3">
       <p className="text-[12px] text-hesya-navy-900/55">
         {labels.multilingualHint}
       </p>
+      <div
+        role="tablist"
+        aria-label="언어 커버리지"
+        className="flex flex-wrap items-center gap-1.5 rounded-xl border border-hesya-peach-200 bg-hesya-peach-50/60 p-1.5"
+      >
+        {names.map((n, idx) => {
+          const isFilled = n.value.length > 0;
+          const isPrimary = idx === 0;
+          return (
+            <span
+              key={n.locale}
+              role="tab"
+              aria-selected={isPrimary}
+              className={
+                "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium transition " +
+                (isPrimary
+                  ? "bg-white text-hesya-navy-900 shadow-[0_1px_3px_rgba(232,169,122,0.18)] ring-1 ring-hesya-amber-500/30"
+                  : "text-hesya-navy-900/65")
+              }
+            >
+              <span aria-hidden="true" className="text-[12px]">
+                {n.flag}
+              </span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.08em]">
+                {n.locale.split("-")[0]}
+              </span>
+              <span
+                aria-hidden="true"
+                className={
+                  "h-1.5 w-1.5 rounded-full " +
+                  (isFilled ? "bg-hesya-amber-500" : "bg-hesya-navy-900/15")
+                }
+              />
+            </span>
+          );
+        })}
+        <span className="ml-auto pl-2 pr-1 font-mono text-[10px] uppercase tracking-[0.12em] text-hesya-navy-900/55">
+          {filledCount}/{names.length}
+        </span>
+      </div>
       <div className="space-y-2">
         {names.map((n) => (
           <div
