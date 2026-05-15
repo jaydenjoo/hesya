@@ -5,7 +5,11 @@ type Props = {
   greetingPrefix: string;
   storeName: string;
   greetingSuffix: string;
-  subtitle: string;
+  /**
+   * O1 fast track 단계 1 — W13 동적 subtitle.
+   * ReactNode 허용 → `t.rich`로 `<strong>` count 강조 가능.
+   */
+  subtitle: React.ReactNode;
   dateDay: string;
   dateWeekday: string;
 };
