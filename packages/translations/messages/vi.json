@@ -417,7 +417,8 @@
     "compareBody": "Tính năng so sánh giữa các tiệm tương tự sẽ mở sau khi ra mắt beta.",
     "liveUgcHeading": "Live feed sắp ra mắt",
     "liveUgcBody": "Đang phát triển kết nối ảnh real-time từ Instagram và Xiaohongshu.",
-    "reviewTranslateLabel": "Dịch sang tiếng Anh"
+    "reviewTranslateLabel": "Dịch sang tiếng Anh",
+    "compareGuideTitle": "Hướng dẫn so sánh"
   },
   "StorePhotos": {
     "eyebrow": "Ảnh",

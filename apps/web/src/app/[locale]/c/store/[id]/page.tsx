@@ -13,6 +13,7 @@ import { SafetyProfileStrip } from "@/features/store-detail-customer/safety-prof
 import { StickyMiniHeader } from "@/features/store-detail-customer/sticky-mini-header";
 import { TabInfo } from "@/features/store-detail-customer/tab-info";
 import { TabPlaceholder } from "@/features/store-detail-customer/tab-placeholder";
+import { TabCompare } from "@/features/store-detail-customer/tab-compare";
 import { TabReviews } from "@/features/store-detail-customer/tab-reviews";
 import { TabLiveUgc } from "@/features/store-detail-customer/tab-live-ugc";
 import {
@@ -419,10 +420,11 @@ export default async function StoreDetailPage({
               sun: tSettings("daySun"),
             }}
           />
-          <TabPlaceholder
-            icon="⇋"
-            heading={t("compareHeading")}
-            body={t("compareBody")}
+          <TabCompare
+            storeName={store.name}
+            comingSoonLabel={t("compareHeading")}
+            guideTitle={t("compareGuideTitle")}
+            guideBody={t("compareBody")}
           />
           <TabLiveUgc
             comingSoonLabel={t("liveUgcHeading")}

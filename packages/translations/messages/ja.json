@@ -417,7 +417,8 @@
     "compareBody": "近隣サロンとの比較表示はベータ公開後に提供します。",
     "liveUgcHeading": "ライブフィードは準備中",
     "liveUgcBody": "Instagram と Xiaohongshu のリアルタイム写真連携を開発中です。",
-    "reviewTranslateLabel": "英語に翻訳"
+    "reviewTranslateLabel": "英語に翻訳",
+    "compareGuideTitle": "比較ガイド"
   },
   "StorePhotos": {
     "eyebrow": "写真",

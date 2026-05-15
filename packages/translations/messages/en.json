@@ -417,7 +417,8 @@
     "compareBody": "Side-by-side comparison with similar salons opens after beta launch.",
     "liveUgcHeading": "Live feed coming soon",
     "liveUgcBody": "Real-time photos from Instagram and Xiaohongshu are in development.",
-    "reviewTranslateLabel": "Translate to English"
+    "reviewTranslateLabel": "Translate to English",
+    "compareGuideTitle": "Why this matters"
   },
   "StorePhotos": {
     "eyebrow": "Photos",
