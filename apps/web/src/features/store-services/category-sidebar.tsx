@@ -46,7 +46,7 @@ export function CategorySidebar({
   return (
     <nav
       aria-label="Service categories"
-      className="flex w-full flex-shrink-0 gap-1.5 overflow-x-auto md:w-[180px] md:flex-col md:gap-px md:overflow-visible"
+      className="flex w-full flex-shrink-0 gap-1.5 overflow-x-auto md:w-[240px] md:flex-col md:gap-px md:overflow-visible"
       style={{ scrollbarWidth: "none" }}
     >
       {items.map((item) => {
@@ -58,17 +58,17 @@ export function CategorySidebar({
             type="button"
             onClick={() => onChange(item.key)}
             className={[
-              "flex flex-shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] transition md:w-full",
+              "flex flex-shrink-0 items-center gap-2 border-l-[3px] px-3 py-2 text-left text-[13px] transition md:w-full",
               isActive
-                ? "bg-hesya-navy-900 font-semibold text-hesya-peach-50"
-                : "text-hesya-navy-900 hover:bg-hesya-peach-50",
+                ? "border-hesya-amber-500 bg-hesya-peach-100 font-semibold text-hesya-navy-900"
+                : "border-transparent text-hesya-navy-900/75 hover:bg-hesya-peach-50",
             ].join(" ")}
           >
             <span
               aria-hidden="true"
               className={[
                 "w-4 flex-shrink-0 text-center text-sm",
-                isActive ? "text-hesya-amber-500" : "text-hesya-navy-900/45",
+                isActive ? "text-hesya-amber-600" : "text-hesya-navy-900/45",
               ].join(" ")}
             >
               {isAll ? "▦" : iconFor(item.key)}
@@ -78,7 +78,7 @@ export function CategorySidebar({
               className={[
                 "rounded-full px-1.5 text-[10px] font-mono",
                 isActive
-                  ? "bg-hesya-amber-500/30 text-hesya-peach-50"
+                  ? "bg-hesya-amber-500 text-white"
                   : "bg-hesya-peach-100 text-hesya-navy-900/65",
               ].join(" ")}
             >
