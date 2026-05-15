@@ -170,7 +170,24 @@
     "columnPrice": "金額",
     "columnStatus": "状態",
     "empty": "予約はまだありません",
-    "detail": "詳細 →",
+    "detail": {
+      "close": "閉じる",
+      "vipBadge": "VIP",
+      "confirm": "確定",
+      "notify": "リマインダー送信",
+      "reschedule": "予約変更",
+      "cancel": "キャンセル",
+      "markNoshow": "ノーショー",
+      "tag": "タグ",
+      "exportIcs": ".ics",
+      "statusLabel": "ステータス",
+      "customerLabel": "お客様",
+      "serviceLabel": "施術",
+      "stylistLabel": "スタイリスト",
+      "paidLabel": "支払い金額",
+      "refundLabel": "返金プレビュー",
+      "refundHint": "24時間前: 100%返金 · 12時間前: 50% · 12時間未満: 0%"
+    },
     "statuses": {
       "scheduled": "予定",
       "completed": "完了",
@@ -212,30 +229,12 @@
       "statusPending": "保留",
       "filterForeign": "外国人のみ",
       "filterPending": "保留"
-    },
-    "detail": {
-      "close": "閉じる",
-      "vipBadge": "VIP",
-      "confirm": "確定",
-      "notify": "リマインダー送信",
-      "reschedule": "予約変更",
-      "cancel": "キャンセル",
-      "markNoshow": "ノーショー",
-      "tag": "タグ",
-      "exportIcs": ".ics",
-      "statusLabel": "ステータス",
-      "customerLabel": "お客様",
-      "serviceLabel": "施術",
-      "stylistLabel": "スタイリスト",
-      "paidLabel": "支払い金額",
-      "refundLabel": "返金プレビュー",
-      "refundHint": "24時間前: 100%返金 · 12時間前: 50% · 12時間未満: 0%"
     }
   },
   "Inbox": {
     "title": "統合インボックス",
     "empty": "メッセージはまだありません",
-    "threadListTitle": "スレッド",
+    "threadListTitle": "統合インボックス",
     "threadListUnread": "未読",
     "searchPlaceholder": "名前またはメッセージで検索",
     "searchAriaLabel": "スレッド検索",
@@ -301,7 +300,8 @@
       "toolAttach": "Attach file",
       "toolTemplates": "Templates",
       "toolComingSoon": "Coming soon",
-      "sendShortcut": "Send"
+      "sendShortcut": "Send",
+      "shortcutsLabel": "ショートカット"
     },
     "window": {
       "openWithTime": "Reply window — {time} remaining",

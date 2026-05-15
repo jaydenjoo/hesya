@@ -170,7 +170,24 @@
     "columnPrice": "金額",
     "columnStatus": "狀態",
     "empty": "暫無預約",
-    "detail": "詳情 →",
+    "detail": {
+      "close": "關閉",
+      "vipBadge": "VIP",
+      "confirm": "確認",
+      "notify": "傳送提醒",
+      "reschedule": "改期",
+      "cancel": "取消",
+      "markNoshow": "爽約",
+      "tag": "標籤",
+      "exportIcs": ".ics",
+      "statusLabel": "狀態",
+      "customerLabel": "顧客",
+      "serviceLabel": "服務",
+      "stylistLabel": "造型師",
+      "paidLabel": "已付款",
+      "refundLabel": "退款預覽",
+      "refundHint": "24小時前: 100%退款 · 12小時前: 50% · 不足12小時: 0%"
+    },
     "statuses": {
       "scheduled": "已預約",
       "completed": "已完成",
@@ -212,30 +229,12 @@
       "statusPending": "待定",
       "filterForeign": "僅外國客",
       "filterPending": "待定"
-    },
-    "detail": {
-      "close": "關閉",
-      "vipBadge": "VIP",
-      "confirm": "確認",
-      "notify": "傳送提醒",
-      "reschedule": "改期",
-      "cancel": "取消",
-      "markNoshow": "爽約",
-      "tag": "標籤",
-      "exportIcs": ".ics",
-      "statusLabel": "狀態",
-      "customerLabel": "顧客",
-      "serviceLabel": "服務",
-      "stylistLabel": "造型師",
-      "paidLabel": "已付款",
-      "refundLabel": "退款預覽",
-      "refundHint": "24小時前: 100%退款 · 12小時前: 50% · 不足12小時: 0%"
     }
   },
   "Inbox": {
     "title": "統一收件匣",
     "empty": "暫無訊息",
-    "threadListTitle": "對話",
+    "threadListTitle": "統一收件匣",
     "threadListUnread": "未讀",
     "searchPlaceholder": "依姓名或訊息搜尋",
     "searchAriaLabel": "搜尋對話",
@@ -301,7 +300,8 @@
       "toolAttach": "Attach file",
       "toolTemplates": "Templates",
       "toolComingSoon": "Coming soon",
-      "sendShortcut": "Send"
+      "sendShortcut": "Send",
+      "shortcutsLabel": "快捷鍵"
     },
     "window": {
       "openWithTime": "Reply window — {time} remaining",

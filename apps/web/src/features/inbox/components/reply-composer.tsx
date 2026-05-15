@@ -130,6 +130,18 @@ export function ReplyComposer({
           {t("learnTone")}
         </button>
       </div>
+      {/* reference `.ix-comp-shortcuts` — 단축키 행 (kbd 1~9 = 템플릿 슬롯). */}
+      <div className="mb-2 hidden items-center gap-1.5 text-[10px] text-gray-500 sm:flex">
+        <span className="kr">{t("shortcutsLabel")}</span>
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+          <kbd
+            key={n}
+            className="mono inline-flex h-4 min-w-[14px] items-center justify-center rounded border border-hesya-peach-200 bg-hesya-peach-50 px-1 font-medium text-gray-700"
+          >
+            {n}
+          </kbd>
+        ))}
+      </div>
       {/* `.ix-comp-input-wrap` 정합: peach-50 + peach-200 → focus-within amber+white */}
       <div className="flex items-end gap-2.5 rounded-md border border-hesya-peach-200 bg-hesya-peach-50 px-3 py-2.5 transition-colors focus-within:border-hesya-amber-500 focus-within:bg-white">
         <textarea

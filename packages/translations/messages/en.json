@@ -170,7 +170,24 @@
     "columnPrice": "Price",
     "columnStatus": "Status",
     "empty": "No bookings yet",
-    "detail": "Detail →",
+    "detail": {
+      "close": "Close",
+      "vipBadge": "VIP",
+      "confirm": "Confirm",
+      "notify": "Send reminder",
+      "reschedule": "Reschedule",
+      "cancel": "Cancel",
+      "markNoshow": "No-show",
+      "tag": "Tag",
+      "exportIcs": ".ics",
+      "statusLabel": "Status",
+      "customerLabel": "Customer",
+      "serviceLabel": "Service",
+      "stylistLabel": "Stylist",
+      "paidLabel": "Paid",
+      "refundLabel": "Refund preview",
+      "refundHint": "24h+: 100% refund · 12h+: 50% · under 12h: 0%"
+    },
     "statuses": {
       "scheduled": "Scheduled",
       "completed": "Completed",
@@ -212,30 +229,12 @@
       "statusPending": "Pending",
       "filterForeign": "Foreign",
       "filterPending": "Pending"
-    },
-    "detail": {
-      "close": "Close",
-      "vipBadge": "VIP",
-      "confirm": "Confirm",
-      "notify": "Send reminder",
-      "reschedule": "Reschedule",
-      "cancel": "Cancel",
-      "markNoshow": "No-show",
-      "tag": "Tag",
-      "exportIcs": ".ics",
-      "statusLabel": "Status",
-      "customerLabel": "Customer",
-      "serviceLabel": "Service",
-      "stylistLabel": "Stylist",
-      "paidLabel": "Paid",
-      "refundLabel": "Refund preview",
-      "refundHint": "24h+: 100% refund · 12h+: 50% · under 12h: 0%"
     }
   },
   "Inbox": {
     "title": "Unified Inbox",
     "empty": "No messages yet",
-    "threadListTitle": "Threads",
+    "threadListTitle": "Unified Inbox",
     "threadListUnread": "unread",
     "searchPlaceholder": "Search name or message",
     "searchAriaLabel": "Search threads",
@@ -301,7 +300,8 @@
       "toolAttach": "Attach file",
       "toolTemplates": "Templates",
       "toolComingSoon": "Coming soon",
-      "sendShortcut": "Send"
+      "sendShortcut": "Send",
+      "shortcutsLabel": "Shortcuts"
     },
     "window": {
       "openWithTime": "Reply window — {time} remaining",
