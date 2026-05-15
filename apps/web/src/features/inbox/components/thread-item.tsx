@@ -111,13 +111,19 @@ export function ThreadItem({
   const activeBar = isActive
     ? "before:absolute before:bottom-0 before:left-0 before:top-0 before:w-[3px] before:bg-hesya-amber-500 before:content-['']"
     : "";
+  const tag = pickTag(conversation);
+  const isUrgent = tag === "urgent";
+  // urgent 시 우상단 6px 빨간 dot (reference `.ix-thread-row.urgent::after`).
+  const urgentDot = isUrgent
+    ? "after:absolute after:right-3 after:top-3 after:h-1.5 after:w-1.5 after:rounded-full after:bg-red-500 after:content-['']"
+    : "";
 
   return (
     <button
       type="button"
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
-      className={`kr relative flex w-full items-start gap-2.5 px-3.5 py-2.5 text-left transition-colors ${rowBg} ${activeBar}`}
+      className={`kr relative flex w-full items-start gap-2.5 px-3.5 py-2.5 text-left transition-colors ${rowBg} ${activeBar} ${urgentDot}`}
     >
       <div className="relative flex-shrink-0">
         <div
@@ -160,13 +166,12 @@ export function ThreadItem({
           ) : null}
         </div>
         <p
-          className={`mt-0.5 truncate break-keep text-[12px] ${hasUnread ? "font-medium text-hesya-navy-900" : "text-gray-700"}`}
+          className={`mt-0.5 truncate break-keep text-[12px] italic ${hasUnread ? "font-medium text-hesya-navy-900" : "text-gray-700"}`}
         >
           {conversation.lastMessagePreview ?? ""}
         </p>
         <div className="mt-1 flex items-center gap-1.5">
           {(() => {
-            const tag = pickTag(conversation);
             if (tag === "urgent")
               return (
                 <span
