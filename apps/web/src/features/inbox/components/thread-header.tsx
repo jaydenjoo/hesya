@@ -20,6 +20,23 @@ const CHANNEL_ICONS: Record<string, string> = {
   messenger: "📘",
 };
 
+// O2 fast track — mock 국적 flag + 언어 (deterministic by name hash).
+// Reference inbox-app.jsx:386 `.ix-th-flag` + 언어명.
+const FLAG_LANG: ReadonlyArray<readonly [string, string]> = [
+  ["🇯🇵", "日本語"],
+  ["🇨🇳", "中文"],
+  ["🇺🇸", "English"],
+  ["🇻🇳", "Tiếng Việt"],
+  ["🇰🇷", "한국어"],
+];
+function mockFlagLang(seed: string): readonly [string, string] {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = (h * 31 + seed.charCodeAt(i)) | 0;
+  }
+  return FLAG_LANG[Math.abs(h) % FLAG_LANG.length] ?? FLAG_LANG[0]!;
+}
+
 function avatarChar(name: string): string {
   return (name.trim().charAt(0) || "?").toUpperCase();
 }
@@ -44,6 +61,7 @@ export function ThreadHeader({
   // online 판정: windowState=open 일 때 (mock — 추후 presence DAL로 교체).
   // getWindowStatus는 Date.now 호출하지만 lib 함수라 purity 룰 미적용.
   const isOnline = getWindowStatus(windowExpiresAt).state === "open";
+  const [flag, langName] = mockFlagLang(customerName || channel);
   return (
     <header className="flex h-16 flex-shrink-0 items-center justify-between border-b border-hesya-peach-100 bg-white px-5">
       <div className="flex items-center gap-3">
@@ -63,8 +81,21 @@ export function ThreadHeader({
           </div>
         </div>
         <div className="flex min-w-0 flex-col">
-          <span className="kr text-sm font-semibold text-hesya-navy-900">
-            {customerName || "—"}
+          <span className="kr flex items-center gap-1.5 text-sm font-semibold text-hesya-navy-900">
+            <span>{customerName || "—"}</span>
+            <span
+              data-testid="thread-header-flag"
+              aria-hidden="true"
+              className="text-[13px]"
+            >
+              {flag}
+            </span>
+            <span
+              data-testid="thread-header-lang"
+              className="kr rounded-full bg-hesya-peach-50 px-1.5 py-0.5 text-[10px] font-medium text-hesya-amber-600"
+            >
+              {langName}
+            </span>
           </span>
           <div
             data-testid="thread-header-meta"
