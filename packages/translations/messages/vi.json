@@ -334,6 +334,45 @@
     "safetyHoursLabel": "Giờ mở",
     "safetyStaffLabel": "Stylist",
     "safetyLangLabel": "Ngôn ngữ",
+    "safetySheets": {
+      "closeAria": "Đóng",
+      "verified": {
+        "title": "247 lượt khách nước ngoài đã xác minh",
+        "row1": "112 · Nhật Bản",
+        "row2": "68 · Trung Quốc & Đài Loan",
+        "row3": "41 · Mỹ / Canada",
+        "row4": "26 · Việt Nam & Đông Nam Á",
+        "footer": "Chỉ tính các đặt lịch đã xác minh qua Hesya. Cập nhật hàng ngày."
+      },
+      "hours": {
+        "title": "10–20h khung giờ an toàn",
+        "row1": "Chỉ hoạt động vào ban ngày khi phố xung quanh đông đúc.",
+        "row2": "Đồn cảnh sát Hongdae cách 250m, tuần tra 24/7.",
+        "row3": "Cửa phụ vẫn sáng đèn sau giờ đóng cửa."
+      },
+      "designers": {
+        "title": "Stylist nữ 6 / 8",
+        "row1": "6 trên 8 stylist là nữ.",
+        "row2": "4 chuyên về K-glow / K-drama style.",
+        "row3": "Phòng làm tóc riêng — đảm bảo riêng tư."
+      },
+      "walk": {
+        "title": "Đi bộ 4 phút · Ga ĐH Hongik lối ra 9",
+        "row1": "Tuyến 2·6·AREX đều kết nối tại ga ĐH Hongik.",
+        "row2": "Đi đường chính Yanghwa-ro — không qua hẻm tối.",
+        "row3": "Điểm đón Kakao Taxi cách salon 50m."
+      }
+    },
+    "allergy": {
+      "title": "Thông tin an toàn của dịch vụ",
+      "productsTitle": "Sản phẩm sử dụng (thương hiệu · thành phần)",
+      "allergyTitle": "Khai báo dị ứng",
+      "aftercareTitle": "Hướng dẫn chăm sóc sau",
+      "allergyBody": "Dịch vụ nhuộm sử dụng thuốc nhuộm không PPD. Khuyến nghị khách lần đầu thử dán bản 48h trước. Báo nhân viên nếu có tiền sử dị ứng sản phẩm tóc.",
+      "aftercareBody": "48 giờ: tránh gội đầu. Dùng dầu gội không sulfate. 2 tuần dùng máy nhiệt ≤ 150°C. Tư vấn chăm sóc miễn phí 30 ngày bằng ngôn ngữ của bạn.",
+      "footerNote": "Lần đầu? Hãy trao đổi với stylist trước khi làm.",
+      "sendQsLabel": "Gửi câu hỏi trước"
+    },
     "favoriteLabel": "Lưu",
     "chatLabel": "Nhắn tin",
     "heroPlaceholderAlt": "Ảnh cửa hàng sắp có",

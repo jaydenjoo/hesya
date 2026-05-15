@@ -334,6 +334,45 @@
     "safetyHoursLabel": "Hours",
     "safetyStaffLabel": "Stylists",
     "safetyLangLabel": "Languages",
+    "safetySheets": {
+      "closeAria": "Close",
+      "verified": {
+        "title": "247 verified foreign visits",
+        "row1": "112 · Japan",
+        "row2": "68 · China & Taiwan",
+        "row3": "41 · USA / Canada",
+        "row4": "26 · Vietnam & SEA",
+        "footer": "Numbers reflect verified Hesya bookings only. Updated daily."
+      },
+      "hours": {
+        "title": "10–20h safe operating window",
+        "row1": "Salon operates only during daylight hours when the street is busy.",
+        "row2": "Hongdae police box 250m, 24/7 patrol on this block.",
+        "row3": "Side entrance is well-lit even after closing."
+      },
+      "designers": {
+        "title": "Female stylists 6 / 8",
+        "row1": "6 out of 8 stylists are female.",
+        "row2": "4 are specialists in K-glow / K-drama styles.",
+        "row3": "Private treatment rooms — privacy guaranteed."
+      },
+      "walk": {
+        "title": "4-min walk · Hongik Univ Stn Exit 9",
+        "row1": "Line 2·6·AREX all connect at Hongik Univ Station.",
+        "row2": "Walking route on main Yanghwa-ro — no alley shortcuts after dark.",
+        "row3": "Kakao Taxi pickup zone 50m from salon."
+      }
+    },
+    "allergy": {
+      "title": "Treatment safety information",
+      "productsTitle": "Products used (brand · ingredient)",
+      "allergyTitle": "Allergy disclosure",
+      "aftercareTitle": "Aftercare guide",
+      "allergyBody": "Color services contain PPD-free dyes. Patch test recommended 48h prior for first-time visitors. Notify staff of any prior allergic reactions to hair products.",
+      "aftercareBody": "48h: avoid washing. Use sulfate-free shampoo. Heat ≤ 150°C for 2 weeks. Free aftercare consultation in your language for 30 days.",
+      "footerNote": "First time? Discuss with stylist before treatment.",
+      "sendQsLabel": "Send pre-treatment Qs"
+    },
     "favoriteLabel": "Save",
     "chatLabel": "Message",
     "heroPlaceholderAlt": "Store photos coming soon",

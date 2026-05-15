@@ -14,18 +14,32 @@ interface Props {
   readonly value: string;
   readonly label: string;
   readonly active?: boolean;
+  /** C5 100% — 클릭 시 SafetySheet 오픈. 미지정 시 정적 span 렌더 (backward-compat). */
+  readonly onClick?: () => void;
+  /** onClick 동시 a11y aria-label. */
+  readonly clickAriaLabel?: string;
 }
 
-export function SafetyChip({ icon, value, label, active = false }: Props) {
-  return (
-    <span
-      className={[
-        "flex flex-1 min-w-[68px] flex-col items-center gap-1 rounded-xl border px-2 py-2.5 text-center transition",
-        active
-          ? "border-trust-rose bg-trust-rose/10"
-          : "border-hesya-peach-200 bg-white",
-      ].join(" ")}
-    >
+export function SafetyChip({
+  icon,
+  value,
+  label,
+  active = false,
+  onClick,
+  clickAriaLabel,
+}: Props) {
+  const className = [
+    "flex flex-1 min-w-[68px] flex-col items-center gap-1 rounded-xl border px-2 py-2.5 text-center transition",
+    active
+      ? "border-trust-rose bg-trust-rose/10"
+      : "border-hesya-peach-200 bg-white",
+    onClick
+      ? "cursor-pointer hover:border-hesya-amber-500 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
+      : "",
+  ].join(" ");
+
+  const inner = (
+    <>
       <span
         aria-hidden="true"
         className="flex h-4 w-4 items-center justify-center text-hesya-navy-900/75"
@@ -38,6 +52,21 @@ export function SafetyChip({ icon, value, label, active = false }: Props) {
       <span className="text-[9.5px] uppercase tracking-[0.06em] text-hesya-navy-900/55">
         {label}
       </span>
-    </span>
+    </>
   );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={clickAriaLabel ?? `${value} ${label}`}
+        className={className}
+      >
+        {inner}
+      </button>
+    );
+  }
+
+  return <span className={className}>{inner}</span>;
 }

@@ -6,6 +6,7 @@ import { createDbClient, type BusinessHours } from "@hesya/database";
 import { formatPriceForLocale } from "@/features/booking-customer/currency";
 import { KVerifiedBadge } from "@/features/customer-frame/badges/k-verified-badge";
 import { CustomerFrame } from "@/features/customer-frame/customer-frame";
+import { AllergyDisclosure } from "@/features/store-detail-customer/allergy-disclosure";
 import { BottomActionBar } from "@/features/store-detail-customer/bottom-action-bar";
 import { HeroGallery } from "@/features/store-detail-customer/hero-gallery";
 import { SafetyProfileStrip } from "@/features/store-detail-customer/safety-profile-strip";
@@ -298,6 +299,43 @@ export default async function StoreDetailPage({
           staffValue={staffList.length.toString()}
           langLabel={t("safetyLangLabel")}
           langValue={languageSet.size.toString()}
+          closeAria={t("safetySheets.closeAria")}
+          sheets={{
+            verified: {
+              title: t("safetySheets.verified.title"),
+              rows: [
+                { icon: "🇯🇵", body: t("safetySheets.verified.row1") },
+                { icon: "🇨🇳", body: t("safetySheets.verified.row2") },
+                { icon: "🇺🇸", body: t("safetySheets.verified.row3") },
+                { icon: "🇻🇳", body: t("safetySheets.verified.row4") },
+              ],
+              footer: t("safetySheets.verified.footer"),
+            },
+            hours: {
+              title: t("safetySheets.hours.title"),
+              rows: [
+                { icon: "🌅", body: t("safetySheets.hours.row1") },
+                { icon: "🚓", body: t("safetySheets.hours.row2") },
+                { icon: "💡", body: t("safetySheets.hours.row3") },
+              ],
+            },
+            designers: {
+              title: t("safetySheets.designers.title"),
+              rows: [
+                { icon: "👥", body: t("safetySheets.designers.row1") },
+                { icon: "✨", body: t("safetySheets.designers.row2") },
+                { icon: "📋", body: t("safetySheets.designers.row3") },
+              ],
+            },
+            walk: {
+              title: t("safetySheets.walk.title"),
+              rows: [
+                { icon: "🚇", body: t("safetySheets.walk.row1") },
+                { icon: "📍", body: t("safetySheets.walk.row2") },
+                { icon: "🚖", body: t("safetySheets.walk.row3") },
+              ],
+            },
+          }}
         />
 
         <DetailTabs
@@ -310,11 +348,39 @@ export default async function StoreDetailPage({
             t("tabLiveUgc"),
           ]}
         >
-          <TabServices
-            items={serviceItems}
-            emptyLabel={t("emptyServices")}
-            langOkSuffix={t("langOkSuffix")}
-          />
+          <div>
+            <TabServices
+              items={serviceItems}
+              emptyLabel={t("emptyServices")}
+              langOkSuffix={t("langOkSuffix")}
+            />
+            {/* C5 100% — Allergy / Treatment safety disclosure 3-accordion (mock-first). */}
+            <div className="px-5">
+              <AllergyDisclosure
+                title={t("allergy.title")}
+                productsTitle={t("allergy.productsTitle")}
+                allergyTitle={t("allergy.allergyTitle")}
+                aftercareTitle={t("allergy.aftercareTitle")}
+                products={[
+                  {
+                    name: "Olaplex No.3 Hair Perfector",
+                    ewg: "EWG 3",
+                    tone: "low",
+                  },
+                  {
+                    name: "L'Oréal Inoa Color (PPD-free)",
+                    ewg: "EWG 4",
+                    tone: "low",
+                  },
+                  { name: "Mucota Aire Treatment", ewg: "EWG 5", tone: "mid" },
+                ]}
+                allergyBody={t("allergy.allergyBody")}
+                aftercareBody={t("allergy.aftercareBody")}
+                footerNote={t("allergy.footerNote")}
+                sendQsLabel={t("allergy.sendQsLabel")}
+              />
+            </div>
+          </div>
           <TabStylists items={stylistItems} emptyLabel={t("emptyStylists")} />
           <TabReviews
             comingSoonLabel={t("reviewsComingSoon")}
@@ -365,6 +431,11 @@ export default async function StoreDetailPage({
         bookLabel={t("bookCta")}
         favoriteLabel={t("favoriteLabel")}
         chatLabel={t("chatLabel")}
+        selectedServiceLabel={
+          serviceItems.length > 0
+            ? `${serviceItems[0]!.name} · ${serviceItems[0]!.priceFormatted}`
+            : undefined
+        }
       />
     </CustomerFrame>
   );

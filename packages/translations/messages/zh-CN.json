@@ -334,6 +334,45 @@
     "safetyHoursLabel": "营业时间",
     "safetyStaffLabel": "设计师",
     "safetyLangLabel": "服务语言",
+    "safetySheets": {
+      "closeAria": "关闭",
+      "verified": {
+        "title": "247 位外国客户认证到店",
+        "row1": "112 · 日本",
+        "row2": "68 · 中国·台湾",
+        "row3": "41 · 美国/加拿大",
+        "row4": "26 · 越南/东南亚",
+        "footer": "仅统计 Hesya 验证预订。每日更新。"
+      },
+      "hours": {
+        "title": "10–20 时安全营业",
+        "row1": "仅在周围街道热闹的白天时段营业。",
+        "row2": "弘大派出所 250m，24/7 巡逻。",
+        "row3": "侧门即使闭店后也有明亮照明。"
+      },
+      "designers": {
+        "title": "女性设计师 6 / 8",
+        "row1": "8 名设计师中 6 名为女性。",
+        "row2": "4 名专精 K-glow / K-drama 造型。",
+        "row3": "独立施术室 — 隐私保障。"
+      },
+      "walk": {
+        "title": "步行 4 分钟 · 弘大入口站 9 号出口",
+        "row1": "2·6·AREX 三线在弘大入口站交汇。",
+        "row2": "沿杨花路主街 — 夜间不走小巷。",
+        "row3": "Kakao 出租车上车点距店 50m。"
+      }
+    },
+    "allergy": {
+      "title": "本项治疗的安全信息",
+      "productsTitle": "使用产品（品牌·成分）",
+      "allergyTitle": "过敏事先说明",
+      "aftercareTitle": "护理后头发/皮肤指南",
+      "allergyBody": "染发使用 PPD-free 染料。首次到店者建议提前 48 小时做斑贴试验。如有发品过敏史请告知员工。",
+      "aftercareBody": "48 小时：避免洗发。使用无硫酸盐洗发水。2 周内热风机不超过 150°C。30 天内提供您语言的免费护理咨询。",
+      "footerNote": "首次到店？请在治疗前与设计师沟通。",
+      "sendQsLabel": "发送治疗前问题"
+    },
     "favoriteLabel": "收藏",
     "chatLabel": "咨询",
     "heroPlaceholderAlt": "店铺照片即将上传",
