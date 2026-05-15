@@ -3,11 +3,14 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 42 — 🎯 P1 quick wins 10 PR + 큰 구조 2 PR, 누적 35 PR)
+## 현재 위치 (2026-05-15 세션 42 — 🎯 P1 quick wins 10 PR + 큰 구조 2 PR + Photo Analyze 정밀화 2 PR, 누적 37 PR)
 
-- **세션 42 추가 작업 (Jayden 승인 후 큰 구조 작업)**:
+- **세션 42 추가 작업 (Jayden 승인 후 큰 구조 + 정밀화)**:
   - PR [#250](https://github.com/jaydenjoo/hesya/pull/250) — **Owner Bookings SidePanel 4-tab + cancel inline refund preview**. 10 파일, 679+/57-. Info/History/Notes/Risk 4 탭 + cancel 인라인 refund 카드. mock fixture 3종 추가 (History/Notes/Risk). 23 detail.\* 라벨 × 6 locale. **진단 ~62% → ~80%**.
   - PR [#251](https://github.com/jaydenjoo/hesya/pull/251) — **Owner Customers Split-view (lg+)**. 2 파일, 228+/182-. DetailSheet `mode` prop (`modal`/`inline`). lg+에서 `grid-cols-[1fr_440px]` 자동 split (table + detail 동시 표시). 모바일/태블릿(<lg)은 기존 모달 유지. **진단 ~50% → ~65%**.
+  - PR [#252](https://github.com/jaydenjoo/hesya/pull/252) — **Photo Analyze "Save the look" 9:16 share card**. peach→amber gradient + Hesya 브랜드 + 스타일명 + Save to Story/Photos/Copy link 3 액션. **진단 ~75% → ~82%**.
+  - PR [#253](https://github.com/jaydenjoo/hesya/pull/253) — **Photo Analyze Audit accordion** ("Why these recommendations?"). 4-row 이유 list (strand thickness / cut technique / stylists shown / hair-tone simulation 신뢰도). CI 진행 중 (세션 종료 시점). **진단 ~82% → ~88%** (예상).
+- **세션 42 큰 작업 추가 패턴 (PR ~3h × 2)**: Jayden plan 승인 → 단일 PR refactor + mock 확장 + 6 locale. /loop dynamic + 270s wakeup 사이클로 CI 대기 cache-warm.
 
 - **세션 42 (2026-05-15, /loop dynamic mode)**: 세션 41 P1 16 페이지 quick wins에 이어 구조적 격차가 큰 페이지·탭에 집중. 페이지당 1 PR (~30-90분), 4.5분 wakeup 사이클로 10 PR 추가 머지.
 - **시정 작업 10 PR (세션 42 누적 머지)**:
