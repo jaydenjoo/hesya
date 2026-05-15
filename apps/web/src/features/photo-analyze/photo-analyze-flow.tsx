@@ -344,6 +344,8 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
 
       <RecommendedStylists confidence={result.confidence} />
 
+      <AuditAccordion confidence={result.confidence} />
+
       <SaveLookCard styleName={result.styleName} />
 
       <button
@@ -354,6 +356,61 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
         {labels.result.retryButton}
       </button>
     </div>
+  );
+}
+
+function AuditAccordion({ confidence }: { confidence: number }) {
+  const [open, setOpen] = useState(false);
+  const pct = Math.round(confidence * 100);
+  const items = [
+    { k: "Strand thickness analyzed", v: "medium-fine" },
+    { k: "Cut technique required", v: "point-cut + slide" },
+    { k: "Stylists shown", v: "5+ similar past works" },
+    { k: "Hair-tone simulation", v: `${pct}% confidence` },
+  ] as const;
+  return (
+    <section className="mt-5">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2 rounded-2xl border border-hesya-peach-200 bg-white px-4 py-3 text-left text-[12px] font-medium text-hesya-navy-900 transition hover:border-hesya-amber-500"
+      >
+        <span
+          aria-hidden="true"
+          className="grid h-6 w-6 place-items-center rounded-full bg-hesya-amber-500/15 text-[12px] text-hesya-amber-700"
+        >
+          ✓
+        </span>
+        <span className="flex-1">Why these recommendations?</span>
+        <span
+          aria-hidden="true"
+          className={
+            "text-hesya-navy-900/55 transition-transform " +
+            (open ? "rotate-90" : "")
+          }
+        >
+          ›
+        </span>
+      </button>
+      {open && (
+        <ul className="mt-2 space-y-1.5 rounded-2xl bg-hesya-peach-50/60 px-4 py-3">
+          {items.map((it) => (
+            <li
+              key={it.k}
+              className="flex items-start gap-2 text-[11.5px] leading-relaxed text-hesya-navy-900/75 [word-break:keep-all]"
+            >
+              <span aria-hidden="true" className="mt-0.5 text-hesya-amber-600">
+                ·
+              </span>
+              <span>
+                <b className="text-hesya-navy-900">{it.k}:</b> {it.v}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 
