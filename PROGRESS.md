@@ -26,11 +26,13 @@
   - A2/A3/A4 mock data를 reference와 동일하게 (실 데이터 wire는 별도)
   - **fast track (1 페이지 / 1 세션)**
   - **권장 진행 순서**: O9 → C4 → C1 → C3 → C2 → C5 → O2 → O1
-- **다음 세션 시작점 — O9 Owner Store Login (정밀 62% → 100%)**:
-  - 위치: `apps/web/src/app/[locale]/store/sign-in/page.tsx` (또는 `apps/web/src/app/[locale]/sign-in/page.tsx`)
-  - Reference: `docs/design/reference/` (HTML + JSX + CSS 4종 파일 세트)
-  - 핵심 누락 5개: floating-label 이메일·비번 입력 (2h) / 비밀번호 reveal 버튼 (30분) / 자동 로그인 체크박스 + 비번 찾기 row (45분) / CTA amber 교체 (30분) / i18n 연결 (1h)
-  - 예상 PR 1개, 5~6h, single session 완료
+- **Phase 2 fast track #1 — O9 Owner Store Login** (정밀 62% → 100%):
+  - PR [#195](https://github.com/jaydenjoo/hesya/pull/195) feat(o9) — `apps/web/src/features/store-auth/sign-in-form.tsx` + `apps/web/src/app/[locale]/sign-in/sign-in.css` 218 line +
+  - 5개 핵심 누락 해소: floating-label `.sl-field` / 비밀번호 reveal / 자동 로그인 + 비밀번호 찾기 row / amber `.sl-btn-primary` + → arrow / Better Auth `rememberMe: true` 전달
+  - i18n 연결만 skip (Owner panel 한국어 전용 의도, 별도 task)
+  - DB / API breaking change 0건. 새 컴포넌트 0건.
+- **다음 fast track #2 — C4 Customer Sign-in** (정밀 45% → 100%, 9~12h):
+  - 핵심 누락: Hesya wordmark + ink-motif SVG + 2-step flow. PR #194에서 OAuth fallback은 작동하나 reference 디자인 정합 추가 필요.
 
 ## 이전 위치 (2026-05-15 세션 34 연장 — Task 1 backfill + Task 3 decision doc + 옵션 B Customer OAuth fallback 머지)
 
