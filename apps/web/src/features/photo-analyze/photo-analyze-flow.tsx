@@ -218,12 +218,18 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
     return (
       <div className="mx-auto w-full max-w-md px-5 pt-6">
         {previewUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={previewUrl}
-            alt=""
-            className="mx-auto mb-6 h-64 w-full max-w-sm rounded-3xl object-cover ring-1 ring-hesya-navy-900/10"
-          />
+          <div className="relative mx-auto mb-6 h-64 w-full max-w-sm overflow-hidden rounded-3xl">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewUrl}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 rounded-3xl ring-4 ring-hesya-amber-500/70 photo-analyze-pulse"
+            />
+          </div>
         )}
         <div className="rounded-3xl bg-white px-5 py-4 ring-1 ring-hesya-navy-900/10">
           <div className="mb-3 flex flex-wrap gap-1.5">

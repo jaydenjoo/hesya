@@ -70,6 +70,8 @@ export interface MockPaymentLabels {
   readonly payNow: string;
   readonly termsNote: string;
   readonly errorGeneric: string;
+  readonly serviceTitle?: string;
+  readonly serviceMeta?: string;
 }
 
 interface Props {
@@ -209,7 +211,9 @@ export function MockPaymentForm({
                   {methodLabel(opt.value, labels)}
                 </span>
                 {opt.suggested ? (
-                  <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-hesya-amber-500" />
+                  <span className="absolute -top-2 right-2 inline-flex items-center rounded-full bg-hesya-amber-500 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.05em] text-white shadow-[0_2px_6px_rgba(232,169,122,0.45)]">
+                    {labels.suggested}
+                  </span>
                 ) : null}
               </button>
             );
@@ -285,9 +289,25 @@ export function MockPaymentForm({
       ) : null}
 
       <section className="rounded-2xl border border-hesya-peach-200 bg-white px-4 py-4">
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
           {labels.summaryTitle}
         </p>
+        <div className="mb-3 flex items-center gap-3 border-b border-hesya-peach-100 pb-3">
+          <div
+            aria-hidden="true"
+            className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-hesya-peach-200 to-hesya-amber-500 text-[24px] shadow-[0_4px_10px_rgba(232,169,122,0.25)]"
+          >
+            ✂️
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="truncate text-[13px] font-semibold text-hesya-navy-900">
+              {labels.serviceTitle ?? "Service"}
+            </p>
+            <p className="truncate text-[11px] text-hesya-navy-900/55">
+              {labels.serviceMeta ?? ""}
+            </p>
+          </div>
+        </div>
         <dl className="space-y-1.5 text-[13px]">
           <div className="flex justify-between">
             <dt className="text-hesya-navy-900/65">{labels.summarySubtotal}</dt>
