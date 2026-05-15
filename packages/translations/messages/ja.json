@@ -906,7 +906,14 @@
     "auditTranslated": "翻訳 ({lang})",
     "auditConfident": "✓ 正確な翻訳",
     "auditAmbiguousDefault": "一部曖昧 — 上の原文をご確認ください。",
-    "auditClose": "わかった"
+    "auditClose": "わかった",
+    "emptyCap": "どんな言語でもご挨拶を。",
+    "emptyCapEm": "あとはお任せください。",
+    "opener1": "こんにちは、予約しました!",
+    "opener2": "参考写真を持っていってもいいですか?",
+    "opener3": "サロンはどこですか?",
+    "emptyRestore": "← 会話例を見る",
+    "emptySee": "空の状態を見る →"
   },
   "PhotoAnalyze": {
     "back": "戻る",

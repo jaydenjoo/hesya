@@ -16,6 +16,7 @@ import {
 } from "@/lib/mock-fixtures/chat";
 import { CustomerFrame } from "@/features/customer-frame/customer-frame";
 import { CustomerChat } from "@/features/customer-chat/customer-chat";
+import "./c-chat.css";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -54,6 +55,13 @@ export default async function CustomerChatPage({ params }: Props) {
           auditConfident: t("auditConfident"),
           auditAmbiguousDefault: t("auditAmbiguousDefault"),
           auditClose: t("auditClose"),
+          emptyCap: t("emptyCap"),
+          emptyCapEm: t("emptyCapEm"),
+          opener1: t("opener1"),
+          opener2: t("opener2"),
+          opener3: t("opener3"),
+          emptyRestore: t("emptyRestore"),
+          emptySee: t("emptySee"),
         }}
       />
     </CustomerFrame>

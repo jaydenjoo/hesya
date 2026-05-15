@@ -34,6 +34,14 @@ export interface CustomerChatLabels {
   readonly auditConfident: string;
   readonly auditAmbiguousDefault: string;
   readonly auditClose: string;
+  /** Empty state — 처음 진입 시 messages 미존재 또는 사용자가 "see empty state" 선택. 미설정 시 empty state 미렌더. */
+  readonly emptyCap?: string;
+  readonly emptyCapEm?: string;
+  readonly opener1?: string;
+  readonly opener2?: string;
+  readonly opener3?: string;
+  readonly emptyRestore?: string;
+  readonly emptySee?: string;
 }
 
 interface Props {
@@ -56,6 +64,9 @@ export function CustomerChat({
   const [translateOn, setTranslateOn] = useState(true);
   const [draft, setDraft] = useState("");
   const [audit, setAudit] = useState<ChatTextMessage | null>(null);
+  // Empty state — messages.length === 0이거나 사용자가 "See empty state" 선택.
+  const [showEmpty, setShowEmpty] = useState(messages.length === 0);
+  const auditTitleId = "c-chat-audit-title";
 
   return (
     <div className="relative flex h-full min-h-screen flex-col bg-hesya-peach-50/30 lg:min-h-[820px]">
@@ -104,39 +115,66 @@ export function CustomerChat({
         </button>
       </header>
 
-      {/* Message stream */}
+      {/* Message stream OR empty state */}
       <main
         data-testid="chat-stream"
         className="flex-1 space-y-2 overflow-y-auto px-4 py-4"
       >
-        <p className="my-3 text-center text-[11px] font-medium text-hesya-navy-900/40">
-          {day}
-        </p>
-        {messages.map((m) => (
-          <Bubble
-            key={m.id}
-            msg={m}
-            translateOn={translateOn}
-            voiceTranscriptLabel={labels.voiceTranscriptLabel}
-            onAudit={(text) => setAudit(text)}
+        {showEmpty && labels.emptyCap ? (
+          <EmptyState
+            labels={labels}
+            onShowMessages={
+              messages.length > 0 ? () => setShowEmpty(false) : undefined
+            }
+            onOpener={(text) => setDraft(text)}
           />
-        ))}
-        {/* Typing indicator */}
-        <div className="flex justify-start">
-          <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-white px-4 py-3 ring-1 ring-hesya-navy-900/5">
-            {[0, 1, 2].map((i) => (
-              <span
-                key={i}
-                aria-hidden="true"
-                className="inline-block h-1.5 w-1.5 rounded-full bg-hesya-navy-900/30"
-                style={{
-                  animation: "chatTyping 1.2s infinite",
-                  animationDelay: `${i * 0.2}s`,
-                }}
-              />
+        ) : (
+          <>
+            <p className="my-3 text-center text-[11px] font-medium text-hesya-navy-900/40">
+              {day}
+            </p>
+            {messages.map((m, i) => (
+              <div key={m.id}>
+                <Bubble
+                  msg={m}
+                  translateOn={translateOn}
+                  voiceTranscriptLabel={labels.voiceTranscriptLabel}
+                  onAudit={(text) => setAudit(text)}
+                />
+                {/* Time stamps — 2번째 메시지마다 (reference 패턴) */}
+                {(i + 1) % 2 === 0 && i < messages.length - 1 && (
+                  <p className="c-chat-time-stamp">{formatTimeFromIndex(i)}</p>
+                )}
+              </div>
             ))}
-          </div>
-        </div>
+            {/* Typing indicator */}
+            <div className="flex justify-start">
+              <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-white px-4 py-3 ring-1 ring-hesya-navy-900/5">
+                {[0, 1, 2].map((i) => (
+                  <span
+                    key={i}
+                    aria-hidden="true"
+                    className="inline-block h-1.5 w-1.5 rounded-full bg-hesya-navy-900/30"
+                    style={{
+                      animation: "chatTyping 1.2s infinite",
+                      animationDelay: `${i * 0.2}s`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+            {/* "See empty state →" link (사용자가 다시 빈 상태 보고 싶을 때) */}
+            {labels.emptySee && messages.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowEmpty(true)}
+                className="c-chat-empty-restore mx-auto"
+              >
+                {labels.emptySee}
+              </button>
+            )}
+          </>
+        )}
       </main>
 
       {/* Composer */}
@@ -207,6 +245,9 @@ export function CustomerChat({
           onClick={() => setAudit(null)}
           className="fixed inset-0 z-40 bg-hesya-navy-900/40 backdrop-blur-sm lg:absolute"
           data-testid="chat-audit-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={auditTitleId}
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -216,7 +257,10 @@ export function CustomerChat({
               aria-hidden="true"
               className="mx-auto mb-3 block h-1 w-9 rounded-full bg-hesya-navy-900/15"
             />
-            <h3 className="mb-3 font-heading text-[18px] font-semibold italic text-hesya-navy-900">
+            <h3
+              id={auditTitleId}
+              className="mb-3 font-heading text-[18px] font-semibold italic text-hesya-navy-900"
+            >
               {labels.auditTitle}
             </h3>
             <div className="space-y-3">
@@ -274,6 +318,89 @@ export function CustomerChat({
   );
 }
 
+/** EmptyState — SVG 말풍선 + 3 opener pills + "show messages" link. */
+function EmptyState({
+  labels,
+  onShowMessages,
+  onOpener,
+}: {
+  labels: CustomerChatLabels;
+  onShowMessages?: () => void;
+  onOpener: (text: string) => void;
+}) {
+  return (
+    <div className="c-chat-empty">
+      <div className="c-chat-empty-illust" aria-hidden="true">
+        <svg viewBox="0 0 200 140" fill="none">
+          <g
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          >
+            <path d="M30 50 Q30 30 50 30 L90 30 Q110 30 110 50 Q110 70 90 70 L70 70 L55 84 L60 70 L50 70 Q30 70 30 50z" />
+            <text
+              x="55"
+              y="55"
+              fontSize="14"
+              fontFamily="Fraunces, serif"
+              fill="currentColor"
+              stroke="none"
+            >
+              안녕
+            </text>
+            <path d="M120 90 Q120 70 140 70 L180 70 Q200 70 200 90 Q200 110 180 110 L160 110 L145 124 L150 110 L140 110 Q120 110 120 90z" />
+            <text
+              x="140"
+              y="95"
+              fontSize="14"
+              fontFamily="Source Sans 3, sans-serif"
+              fill="currentColor"
+              stroke="none"
+            >
+              Hi!
+            </text>
+            <path d="M105 60 Q115 75 125 80" strokeDasharray="2 3" />
+          </g>
+        </svg>
+      </div>
+      <div className="c-chat-empty-cap">
+        {labels.emptyCap}
+        <br />
+        <em>{labels.emptyCapEm}</em>
+      </div>
+      <div className="c-chat-opener-pills">
+        {[labels.opener1, labels.opener2, labels.opener3]
+          .filter((s): s is string => Boolean(s))
+          .map((text) => (
+            <button key={text} type="button" onClick={() => onOpener(text)}>
+              {text}
+            </button>
+          ))}
+      </div>
+      {onShowMessages && labels.emptyRestore && (
+        <button
+          type="button"
+          className="c-chat-empty-restore"
+          onClick={onShowMessages}
+        >
+          {labels.emptyRestore}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Time stamp mock — message index에서 13:48 형태 가짜 시간 생성. */
+function formatTimeFromIndex(i: number): string {
+  const base = 13 * 60 + 48; // 13:48
+  const minutes = base + Math.floor(i / 2) * 3;
+  const h = Math.floor(minutes / 60) % 24;
+  const m = minutes % 60;
+  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+}
+
 function Bubble({
   msg,
   translateOn,
@@ -294,7 +421,7 @@ function Bubble({
 
   if (msg.type === "image") {
     return (
-      <div className={`flex ${align}`}>
+      <div className={`flex c-chat-bubble-row ${align}`}>
         <div
           className={`flex max-w-[78%] flex-col overflow-hidden rounded-2xl ${corner} ${bg}`}
         >
@@ -319,7 +446,7 @@ function Bubble({
 
   if (msg.type === "voice") {
     return (
-      <div className={`flex ${align}`}>
+      <div className={`flex c-chat-bubble-row ${align}`}>
         <div
           className={`flex max-w-[78%] flex-col rounded-2xl ${corner} ${bg}`}
         >
@@ -366,7 +493,7 @@ function Bubble({
   }
 
   return (
-    <div className={`flex ${align}`}>
+    <div className={`flex c-chat-bubble-row ${align}`}>
       <div className={`max-w-[78%] rounded-2xl ${corner} ${bg} px-3.5 py-2.5`}>
         <p className="text-[14px] leading-relaxed [word-break:keep-all]">
           {isSalon ? msg.kr : msg.src}
