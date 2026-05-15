@@ -106,8 +106,8 @@ export function CustomerChat({
           aria-label={labels.translateLabel}
           className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${
             translateOn
-              ? "bg-hesya-amber-500 text-white"
-              : "bg-hesya-peach-100 text-hesya-navy-900/70"
+              ? "bg-hesya-peach-100 text-hesya-amber-600"
+              : "bg-hesya-navy-900/5 text-hesya-navy-900/50"
           }`}
         >
           <span aria-hidden="true">🌐</span>
@@ -149,7 +149,7 @@ export function CustomerChat({
             ))}
             {/* Typing indicator */}
             <div className="flex justify-start">
-              <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-white px-4 py-3 ring-1 ring-hesya-navy-900/5">
+              <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-hesya-peach-100 px-4 py-3">
                 {[0, 1, 2].map((i) => (
                   <span
                     key={i}
@@ -178,7 +178,7 @@ export function CustomerChat({
       </main>
 
       {/* Composer */}
-      <footer className="sticky bottom-0 z-10 border-t border-hesya-navy-900/5 bg-white px-3 pb-5 pt-3">
+      <footer className="sticky bottom-0 z-10 border-t border-hesya-navy-900/5 bg-hesya-peach-50 px-3 pb-5 pt-3">
         {draft.length > 0 && (
           <div className="mb-2 flex items-center gap-2 rounded-2xl bg-hesya-peach-100 px-3 py-2 text-[11.5px] text-hesya-navy-900/80">
             <span aria-hidden="true">✨</span>
@@ -188,7 +188,7 @@ export function CustomerChat({
             </span>
           </div>
         )}
-        <div className="flex items-center gap-1.5 rounded-full bg-hesya-peach-50 px-2 py-1.5 ring-1 ring-hesya-navy-900/5">
+        <div className="flex items-center gap-1.5 rounded-full bg-white px-2 py-1.5 ring-1 ring-hesya-navy-900/5">
           <button
             type="button"
             aria-label={labels.composerPhoto}
@@ -301,7 +301,7 @@ export function CustomerChat({
             <button
               type="button"
               onClick={() => setAudit(null)}
-              className="mt-4 w-full rounded-full bg-hesya-navy-900 px-4 py-3 text-[13px] font-semibold text-white"
+              className="mt-4 w-full rounded-xl bg-hesya-amber-500 px-4 py-3 text-[13px] font-semibold text-white transition hover:bg-hesya-amber-600"
             >
               {labels.auditClose}
             </button>
@@ -415,7 +415,7 @@ function Bubble({
   const isSalon = msg.from === "salon";
   const align = isSalon ? "justify-start" : "justify-end";
   const bg = isSalon
-    ? "bg-white text-hesya-navy-900 ring-1 ring-hesya-navy-900/5"
+    ? "bg-hesya-peach-100 text-hesya-navy-900"
     : "bg-hesya-amber-500 text-white";
   const corner = isSalon ? "rounded-bl-md" : "rounded-br-md";
 
