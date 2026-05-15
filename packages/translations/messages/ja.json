@@ -804,8 +804,9 @@
     "localeToggleAlt": "言語切替",
     "sectionMain": "メニュー",
     "rightPanelLabel": "最近の通知",
-    "storeStatus": "ステータス:",
-    "storeStatusActive": "営業中",
+    "storeStatus": "営業中 ·",
+    "storeStatusActive": "09:00–21:00",
+    "storeLogoAlt": "店舗ロゴ",
     "nav": {
       "dashboard": "ダッシュボード",
       "inbox": "受信箱",

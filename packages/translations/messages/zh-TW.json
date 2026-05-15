@@ -804,8 +804,9 @@
     "localeToggleAlt": "切換語言",
     "sectionMain": "選單",
     "rightPanelLabel": "最近通知",
-    "storeStatus": "狀態:",
-    "storeStatusActive": "營業中",
+    "storeStatus": "營業中 ·",
+    "storeStatusActive": "09:00–21:00",
+    "storeLogoAlt": "店鋪標誌",
     "nav": {
       "dashboard": "儀表板",
       "inbox": "收件匣",

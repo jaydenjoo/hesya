@@ -25,8 +25,8 @@ export default async function StoreLayout({
 
   if (!shell) redirect(`/${locale}/sign-in`);
 
-  // Reference 정합 PR 5 — bell pulse badge mock count. 실 데이터: notifications
-  // 테이블 + 사용자별 unread count DAL (별도 task).
+  // Reference 정합 PR 5/6 — bell badge mock (3) + Inbox sidebar badge mock (12).
+  // 실 데이터: notifications 테이블 / getInboxLoad DAL (별도 task).
   return (
     <OwnerShell
       currentLocale={locale}
@@ -34,6 +34,7 @@ export default async function StoreLayout({
       userName={shell.userName}
       userInitial={shell.userInitial}
       notificationCount={3}
+      navCounts={{ inbox: { count: 12 } }}
     >
       {children}
     </OwnerShell>

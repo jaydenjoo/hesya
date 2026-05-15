@@ -71,19 +71,17 @@ export async function OwnerShell({
         storeName={storeName}
         counts={navCounts}
         labels={{
-          sectionMain: t("sectionMain"),
           dashboard: t("nav.dashboard"),
           inbox: t("nav.inbox"),
-          inboxSkipped: t("nav.inboxSkipped"),
           bookings: t("nav.bookings"),
-          analytics: t("nav.analytics"),
           services: t("nav.services"),
           customers: t("nav.customers"),
-          knowledge: t("nav.knowledge"),
-          integrations: t("nav.integrations"),
+          analytics: t("nav.analytics"),
+          photos: t("nav.photos"),
           settings: t("nav.settings"),
           storeStatus: t("storeStatus"),
           storeStatusActive: t("storeStatusActive"),
+          storeLogoAlt: t("storeLogoAlt"),
         }}
       />
       <main className="row-start-2 lg:col-start-2 overflow-y-auto">

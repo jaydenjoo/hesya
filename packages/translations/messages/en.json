@@ -804,8 +804,9 @@
     "localeToggleAlt": "Toggle language",
     "sectionMain": "MENU",
     "rightPanelLabel": "Recent alerts",
-    "storeStatus": "Status:",
-    "storeStatusActive": "Active",
+    "storeStatus": "Open ·",
+    "storeStatusActive": "09:00–21:00",
+    "storeLogoAlt": "Store logo",
     "nav": {
       "dashboard": "Dashboard",
       "inbox": "Inbox",
