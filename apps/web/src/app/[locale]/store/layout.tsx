@@ -25,12 +25,15 @@ export default async function StoreLayout({
 
   if (!shell) redirect(`/${locale}/sign-in`);
 
+  // Reference 정합 PR 5 — bell pulse badge mock count. 실 데이터: notifications
+  // 테이블 + 사용자별 unread count DAL (별도 task).
   return (
     <OwnerShell
       currentLocale={locale}
       storeName={shell.storeName}
       userName={shell.userName}
       userInitial={shell.userInitial}
+      notificationCount={3}
     >
       {children}
     </OwnerShell>

@@ -63,6 +63,8 @@ export async function OwnerShell({
           searchKbd: t("searchKbd"),
           signOut: t("signOut"),
           avatarAlt: t("avatarAlt"),
+          notificationsAlt: t("notificationsAlt"),
+          localeToggleAlt: t("localeToggleAlt"),
         }}
       />
       <NavSidebar

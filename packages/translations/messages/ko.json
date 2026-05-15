@@ -795,11 +795,13 @@
     "done": "완료"
   },
   "OwnerShell": {
-    "brandPill": "OPERATOR",
-    "searchPlaceholder": "검색...",
+    "brandPill": "Store",
+    "searchPlaceholder": "검색 — 손님, 예약, 시술…",
     "searchKbd": "⌘K",
     "signOut": "로그아웃",
     "avatarAlt": "내 계정",
+    "notificationsAlt": "알림",
+    "localeToggleAlt": "언어 전환",
     "sectionMain": "메뉴",
     "rightPanelLabel": "최근 알림",
     "storeStatus": "매장 상태:",

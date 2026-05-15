@@ -795,11 +795,13 @@
     "done": "完成"
   },
   "OwnerShell": {
-    "brandPill": "OPERATOR",
-    "searchPlaceholder": "搜尋...",
+    "brandPill": "Store",
+    "searchPlaceholder": "搜尋 — 顧客、預約、服務…",
     "searchKbd": "⌘K",
     "signOut": "登出",
     "avatarAlt": "帳號",
+    "notificationsAlt": "通知",
+    "localeToggleAlt": "切換語言",
     "sectionMain": "選單",
     "rightPanelLabel": "最近通知",
     "storeStatus": "狀態:",

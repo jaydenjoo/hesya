@@ -1,10 +1,18 @@
 "use client";
 
 /**
- * Plan v3 Phase D1-A1 — Owner Shell TopBar.
+ * Reference 정합 PR 5 — Owner Shell TopBar.
  *
- * 64px 높이, 브랜드 + 검색(⌘K placeholder) + locale 토글 + 알림 + 아바타.
- * 검색은 현재 placeholder only (Phase D2 이후 실제 wire).
+ * Reference: `docs/design/reference/dashboard-app.jsx:66-89` `TopHeader` +
+ * `docs/design/reference/dashboard.css` `.sd-topbar`.
+ *
+ * 변경:
+ * - brand pill "OPERATOR"(회색) → "Store" amber-600 + peach-100 bg
+ * - 검색창 회색 → peach-200 border + 흰 bg + focus amber-500 ring
+ * - 알림 bell ◔ → 🔔 + pulse-pulse-pulse amber-500 badge
+ * - 언어 `<select>` → "🌐 한/영" cycling 토글 버튼 (한↔영 1회 클릭)
+ * - avatar flat amber-500 → 135deg linear-gradient(amber-500, amber-600)
+ * - 사용자 이름 + 로그아웃 텍스트 제거 → avatar 단독 (클릭 시 sign-out)
  */
 
 import { useState } from "react";
@@ -25,6 +33,8 @@ interface TopBarLabels {
   readonly searchKbd: string;
   readonly signOut: string;
   readonly avatarAlt: string;
+  readonly notificationsAlt: string;
+  readonly localeToggleAlt: string;
 }
 
 interface Props {
@@ -35,6 +45,16 @@ interface Props {
   readonly notificationCount?: number;
   readonly labels: TopBarLabels;
 }
+
+/** "🌐 한/영" 토글에 표시할 약어 — 영문 2글자 (KO / EN / JA / VI / ZH). */
+const LOCALE_BADGE: Readonly<Record<string, string>> = {
+  ko: "한",
+  en: "EN",
+  ja: "日",
+  vi: "VI",
+  "zh-CN": "简",
+  "zh-TW": "繁",
+};
 
 export function TopBar({
   currentLocale,
@@ -48,9 +68,10 @@ export function TopBar({
   const pathname = usePathname();
   const [signingOut, setSigningOut] = useState(false);
 
-  const handleLocaleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLocale = e.target.value;
-    router.replace(pathname, { locale: newLocale as "ko" });
+  const handleLocaleCycle = () => {
+    const idx = locales.findIndex((l) => l.code === currentLocale);
+    const next = locales[(idx + 1) % locales.length];
+    if (next) router.replace(pathname, { locale: next.code as "ko" });
   };
 
   const handleSignOut = async () => {
@@ -63,85 +84,82 @@ export function TopBar({
     }
   };
 
+  const currentBadge = LOCALE_BADGE[currentLocale] ?? "?";
+  const nextLocale =
+    locales[
+      (locales.findIndex((l) => l.code === currentLocale) + 1) % locales.length
+    ];
+  const nextBadge = nextLocale ? (LOCALE_BADGE[nextLocale.code] ?? "?") : "—";
+
   return (
-    <header className="row-start-1 col-span-full z-50 flex items-center gap-4 border-b border-gray-200 bg-white px-6 shadow-[0_1px_2px_rgba(26,34,56,0.04)]">
-      <div className="flex w-56 flex-shrink-0 items-center gap-3">
-        <span className="flex h-7 w-7 items-center justify-center rounded-md border-[1.5px] border-hesya-navy-900 font-heading text-[15px] font-semibold italic tracking-tight text-hesya-navy-900">
-          H
-        </span>
-        <span className="font-heading text-lg font-semibold italic text-hesya-navy-900">
+    <header className="row-start-1 col-span-full z-50 flex h-16 items-center gap-6 border-b border-hesya-peach-100 bg-hesya-peach-50/95 px-6 shadow-[0_1px_2px_rgba(26,34,56,0.04)] backdrop-blur-[14px]">
+      <div className="flex w-50 flex-shrink-0 items-baseline gap-2 pr-3">
+        <span className="font-heading text-[22px] font-semibold italic tracking-[-0.02em] text-hesya-navy-900">
           Hesya
         </span>
-        <span className="ml-1 rounded bg-hesya-navy-900 px-2 py-0.5 text-[9.5px] font-bold tracking-[0.22em] text-hesya-peach-100">
+        <span className="kr rounded bg-hesya-peach-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-hesya-amber-600">
           {labels.brandPill}
         </span>
       </div>
 
-      <div className="relative mx-6 hidden max-w-md flex-1 md:block">
+      <div className="relative mx-2 hidden max-w-xl flex-1 md:block">
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400"
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500"
         >
           ⌕
         </span>
         <input
           type="search"
           placeholder={labels.searchPlaceholder}
-          className="h-9 w-full rounded-md border border-gray-200 bg-gray-50 px-10 text-[13px] text-hesya-navy-900 outline-none transition placeholder:text-gray-400 focus:border-hesya-navy-900 focus:bg-white focus:shadow-[0_0_0_3px_rgba(26,34,56,0.06)]"
+          className="h-[38px] w-full rounded-md border border-hesya-peach-200 bg-white px-10 text-[13px] text-hesya-navy-900 outline-none transition placeholder:text-gray-400 focus:border-hesya-amber-500 focus:shadow-[0_0_0_3px_rgba(232,169,122,0.18)]"
         />
-        <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border border-gray-200 bg-white px-1.5 py-0.5 font-mono text-[10px] text-gray-500 lg:block">
+        <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border border-hesya-peach-200 bg-hesya-peach-50 px-1.5 py-0.5 font-mono text-[11px] text-gray-700 lg:block">
           {labels.searchKbd}
         </kbd>
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
-        <select
-          aria-label="Locale"
-          value={currentLocale}
-          onChange={handleLocaleChange}
-          className="rounded-md border border-gray-200 bg-white px-2 py-1.5 text-xs text-hesya-navy-900 outline-none focus:border-hesya-navy-900"
-        >
-          {locales.map((l) => (
-            <option key={l.code} value={l.code}>
-              {l.label}
-            </option>
-          ))}
-        </select>
-
+      <div className="ml-auto flex items-center gap-3">
         <button
           type="button"
-          aria-label="Notifications"
-          className="relative grid h-9 w-9 place-items-center rounded-md border border-gray-200 bg-white text-gray-500 transition hover:border-hesya-navy-900 hover:text-hesya-navy-900"
+          aria-label={labels.notificationsAlt}
+          className="relative grid h-[38px] w-[38px] place-items-center rounded-md border border-transparent bg-transparent text-base transition hover:bg-hesya-peach-100"
         >
-          <span aria-hidden="true" className="text-sm">
-            ◔
-          </span>
+          <span aria-hidden="true">🔔</span>
           {notificationCount > 0 ? (
-            <span className="absolute -right-1 -top-1 inline-flex min-w-[16px] items-center justify-center rounded-full border-2 border-white bg-[#c9483a] px-1 font-mono text-[9.5px] font-bold leading-none text-white">
+            <span
+              data-testid="topbar-notification-badge"
+              className="absolute right-0.5 top-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 border-hesya-peach-50 bg-[#c9483a] px-1 font-mono text-[9px] font-bold leading-none text-white animate-[pulse_2.4s_ease-in-out_infinite]"
+            >
               {notificationCount > 99 ? "99+" : notificationCount}
             </span>
           ) : null}
         </button>
 
-        <div className="ml-2 flex items-center gap-2 border-l border-gray-200 pl-3">
-          <span
-            aria-label={labels.avatarAlt}
-            className="grid h-8 w-8 place-items-center rounded-full bg-hesya-amber-500 text-sm font-semibold text-hesya-navy-900"
-          >
-            {userInitial}
+        <button
+          type="button"
+          onClick={handleLocaleCycle}
+          aria-label={`${labels.localeToggleAlt}: ${currentBadge} → ${nextBadge}`}
+          className="inline-flex h-[34px] items-center gap-1 rounded-md border border-hesya-peach-200 bg-white px-3 text-[13px] font-medium text-hesya-navy-900 transition hover:border-hesya-amber-500"
+        >
+          <span aria-hidden="true">🌐</span>
+          <span className="kr">{currentBadge}</span>
+          <span aria-hidden="true" className="mx-0.5 text-gray-400">
+            /
           </span>
-          <span className="hidden font-medium text-hesya-navy-900 lg:inline text-[13px]">
-            {userName}
-          </span>
-          <button
-            type="button"
-            onClick={handleSignOut}
-            disabled={signingOut}
-            className="ml-1 rounded-md px-2 py-1 text-xs text-gray-600 transition hover:bg-gray-50 disabled:opacity-50"
-          >
-            {labels.signOut}
-          </button>
-        </div>
+          <span className="kr text-gray-500">{nextBadge}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={handleSignOut}
+          disabled={signingOut}
+          aria-label={`${labels.avatarAlt} (${userName}) — ${labels.signOut}`}
+          title={`${userName} — ${labels.signOut}`}
+          className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-hesya-amber-500 to-hesya-amber-600 text-[13px] font-semibold text-white shadow-sm transition hover:shadow-md disabled:opacity-50"
+        >
+          {userInitial}
+        </button>
       </div>
     </header>
   );

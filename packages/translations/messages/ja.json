@@ -795,11 +795,13 @@
     "done": "完了"
   },
   "OwnerShell": {
-    "brandPill": "OPERATOR",
-    "searchPlaceholder": "検索...",
+    "brandPill": "Store",
+    "searchPlaceholder": "検索 — お客様、予約、施術…",
     "searchKbd": "⌘K",
     "signOut": "ログアウト",
     "avatarAlt": "アカウント",
+    "notificationsAlt": "通知",
+    "localeToggleAlt": "言語切替",
     "sectionMain": "メニュー",
     "rightPanelLabel": "最近の通知",
     "storeStatus": "ステータス:",
