@@ -45,6 +45,54 @@ const TIME_FMT = new Intl.DateTimeFormat(undefined, {
 
 const KRW_FMT = new Intl.NumberFormat("ko-KR");
 
+/**
+ * O2 100% — mock 국적 flag + 도시 (deterministic by customerId hash).
+ * Reference inbox-app.jsx:646-651 `.ix-ctx-flagrow`.
+ * 실 nationality DAL wire 별도 task.
+ */
+const NATIONALITY_CYCLE: ReadonlyArray<{
+  readonly flag: string;
+  readonly country: string;
+  readonly nativeName: string;
+  readonly romName: string;
+}> = [
+  {
+    flag: "🇯🇵",
+    country: "일본 도쿄",
+    nativeName: "佐藤さくら",
+    romName: "Sato Sakura",
+  },
+  { flag: "🇨🇳", country: "중국 상하이", nativeName: "李偉", romName: "Li Wei" },
+  {
+    flag: "🇺🇸",
+    country: "미국 LA",
+    nativeName: "Emma Carter",
+    romName: "Emma Carter",
+  },
+  {
+    flag: "🇻🇳",
+    country: "베트남 호치민",
+    nativeName: "Nguyễn Linh",
+    romName: "Nguyen Linh",
+  },
+  {
+    flag: "🇰🇷",
+    country: "한국 서울",
+    nativeName: "김민서",
+    romName: "Kim Minseo",
+  },
+];
+function mockNationality(seed: string): (typeof NATIONALITY_CYCLE)[number] {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = (h * 31 + seed.charCodeAt(i)) | 0;
+  }
+  return (
+    NATIONALITY_CYCLE[Math.abs(h) % NATIONALITY_CYCLE.length] ??
+    NATIONALITY_CYCLE[0]!
+  );
+}
+
 export function ContextPanel({
   conversation,
   messages,
@@ -67,10 +115,13 @@ export function ContextPanel({
 
   const displayName = customer?.name ?? conversation.customerId.slice(0, 8);
   const avatarChar = (displayName.trim().charAt(0) || "?").toUpperCase();
+  // O2 100% — mock 국적/도시 (실 nationality DAL wire 별도 task).
+  const nat = mockNationality(conversation.customerId);
 
   return (
     <>
-      {/* M6.3e — reference `.ix-ctx-head` 정합: 64px avatar + 이름 + 채널 chip */}
+      {/* M6.3e — reference `.ix-ctx-head` 정합: 64px avatar + 이름 + 채널 chip
+          O2 100% — 원어 이름 + flag/도시 row 추가 (mock). */}
       <div
         data-testid="ctx-head"
         className="flex flex-shrink-0 flex-col items-center border-b border-hesya-peach-100 px-4 pt-5 pb-3.5 text-center"
@@ -81,8 +132,23 @@ export function ContextPanel({
         <p className="kr text-base font-semibold text-hesya-navy-900">
           {displayName}
         </p>
-        <p className="kr mt-1 text-[11px] text-gray-500">
-          {conversation.channel}
+        <p
+          data-testid="ctx-native-name"
+          className="mt-0.5 text-[11px] text-gray-700"
+        >
+          <span>{nat.nativeName}</span>
+          <span className="ml-1 text-gray-400">/ {nat.romName}</span>
+        </p>
+        <p
+          data-testid="ctx-flag-row"
+          className="kr mt-1 flex items-center justify-center gap-1.5 text-[11px] text-gray-600"
+        >
+          <span aria-hidden="true">{nat.flag}</span>
+          <span>{nat.country}</span>
+          <span aria-hidden="true" className="text-gray-300">
+            ·
+          </span>
+          <span>{conversation.channel}</span>
         </p>
       </div>
 
@@ -130,11 +196,7 @@ export function ContextPanel({
         {tab === "notes" ? (
           <NotesTab conversationId={conversation.id} customer={customer} />
         ) : null}
-        {tab === "risk" ? (
-          <p className="kr break-keep text-sm text-gray-500">
-            위험 신호 감지는 다음 업데이트에서 추가됩니다.
-          </p>
-        ) : null}
+        {tab === "risk" ? <RiskTab /> : null}
       </div>
     </>
   );
@@ -343,6 +405,79 @@ function NotesForm({
           {notice.msg}
         </p>
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * O2 100% — Risk tab mock content (Epic 1C 정식 도입 전 시각 fidelity).
+ * Reference inbox-app.jsx:769-808 `.ix-ctx-risk` (warning + ok + emo rows + divider).
+ *
+ * 실 위험 감지는 Epic 1C-Risk 또는 1D-Compliance — 별도 task. 본 mock은
+ * "디자인 시연 가능"을 위한 정적 표시 + "감사 이력 보기" 링크 disabled.
+ */
+function RiskTab() {
+  return (
+    <div data-testid="ctx-risk" className="kr flex flex-col gap-2.5 text-sm">
+      <div className="flex items-start gap-2.5 rounded-md border border-yellow-200 bg-yellow-50 p-3">
+        <span aria-hidden="true" className="text-[16px] text-yellow-700">
+          ⚠
+        </span>
+        <div className="flex-1">
+          <p className="font-semibold text-hesya-navy-900">
+            마사지 키워드 감지
+          </p>
+          <p className="mt-0.5 text-[11px] text-gray-600">
+            2026.03.12 · 자동 차단됨
+          </p>
+          <p className="mt-1 text-[12px] text-gray-700">
+            &ldquo;머리 마사지도 받을 수 있나요?&rdquo; — 일반 두피 케어 문의로
+            판단되어 후속 조치 없음.
+          </p>
+          <span
+            className="mt-2 inline-block cursor-not-allowed text-[11px] text-hesya-amber-600"
+            title="곧 출시"
+            aria-disabled="true"
+          >
+            감사 이력 보기 →
+          </span>
+        </div>
+      </div>
+
+      <div className="flex items-start gap-2.5 rounded-md border border-emerald-200 bg-emerald-50 p-3">
+        <span aria-hidden="true" className="text-[16px] text-emerald-700">
+          ✓
+        </span>
+        <div className="flex-1">
+          <p className="font-semibold text-hesya-navy-900">최근 30일 무사고</p>
+          <p className="mt-0.5 text-[11px] text-gray-600">컴플라이언스 깨끗</p>
+        </div>
+      </div>
+
+      <div className="my-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.08em] text-gray-500">
+        <span className="h-px flex-1 bg-hesya-peach-200" aria-hidden="true" />
+        <span>대화 컨텍스트</span>
+        <span className="h-px flex-1 bg-hesya-peach-200" aria-hidden="true" />
+      </div>
+
+      <div className="flex items-start gap-2.5 rounded-md bg-hesya-peach-50/50 p-3">
+        <span aria-hidden="true" className="text-[16px] text-hesya-amber-600">
+          ◐
+        </span>
+        <div className="flex-1">
+          <p className="font-semibold text-hesya-navy-900">감정 무게 — 보통</p>
+          <p className="mt-0.5 text-[11px] text-gray-600">
+            최근 메시지 톤: 기대 / 호의적
+          </p>
+          <p className="mt-1 text-[12px] text-gray-700">
+            평소와 비슷한 톤이에요. 평상시 응대 방식으로 충분합니다.
+          </p>
+        </div>
+      </div>
+
+      <p className="mt-2 text-[10px] text-gray-400">
+        * Epic 1C 도입 시 실 위험 감지 + 감사 이력 자동 wire.
+      </p>
     </div>
   );
 }

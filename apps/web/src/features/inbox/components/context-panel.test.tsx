@@ -111,12 +111,13 @@ describe("ContextPanel (Epic 1B-UI A-4)", () => {
     expect(screen.getByText(/고객 정보 로딩 중/)).toBeInTheDocument();
   });
 
-  it("Risk 탭 → 1B 스코프 밖 placeholder", () => {
+  it("Risk 탭 → mock content (마사지 키워드 + 무사고 + 감정 무게)", () => {
     render(<ContextPanel conversation={makeConv()} messages={[]} />);
     fireEvent.click(screen.getByRole("tab", { name: "Risk" }));
-    expect(
-      screen.getByText(/위험 신호 감지는 다음 업데이트/),
-    ).toBeInTheDocument();
+    // O2 100% — mock Risk tab (Epic 1C 정식 도입 전 시각 fidelity)
+    expect(screen.getByText("마사지 키워드 감지")).toBeInTheDocument();
+    expect(screen.getByText("최근 30일 무사고")).toBeInTheDocument();
+    expect(screen.getByText("감정 무게 — 보통")).toBeInTheDocument();
   });
 
   it("탭 클릭 → active 시각 상태 (aria-selected)", () => {

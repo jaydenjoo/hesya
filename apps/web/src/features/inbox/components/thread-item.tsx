@@ -32,6 +32,20 @@ const AVATAR_BGS = [
   "bg-trust-rose",
 ] as const;
 
+/**
+ * O2 100% — mock 국적 flag (deterministic by customerId hash).
+ * Reference inbox-app.jsx:315 `.ix-thread-flag`.
+ * 실 nationality DAL wire 별도 task — 현재는 시각 fidelity 위해 cycling.
+ */
+const FLAG_CYCLE = ["🇯🇵", "🇨🇳", "🇺🇸", "🇻🇳", "🇰🇷"] as const;
+function mockFlag(seed: string): string {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = (h * 31 + seed.charCodeAt(i)) | 0;
+  }
+  return FLAG_CYCLE[Math.abs(h) % FLAG_CYCLE.length] ?? FLAG_CYCLE[0];
+}
+
 const TIME_FMT = new Intl.DateTimeFormat(undefined, {
   hour: "2-digit",
   minute: "2-digit",
@@ -122,10 +136,19 @@ export function ThreadItem({
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">
-          <span
-            className={`truncate text-[13px] text-hesya-navy-900 ${hasUnread ? "font-bold" : "font-semibold"}`}
-          >
-            {displayName}
+          <span className="flex min-w-0 items-baseline gap-1.5">
+            <span
+              className={`truncate text-[13px] text-hesya-navy-900 ${hasUnread ? "font-bold" : "font-semibold"}`}
+            >
+              {displayName}
+            </span>
+            <span
+              data-testid="thread-flag"
+              aria-hidden="true"
+              className="flex-shrink-0 text-[12px]"
+            >
+              {mockFlag(avatarSeed)}
+            </span>
           </span>
           {time ? (
             <span
