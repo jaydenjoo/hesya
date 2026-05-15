@@ -1,0 +1,243 @@
+/*
+ * O2 Owner Inbox — fast track design 정합 추가 CSS.
+ *
+ * scope: .ix-* (reference `docs/design/reference/inbox.css` 정합)
+ * 적용 범위: bubble audit / thread tags / thread-header actions /
+ *           floating shortcut FAB + modal
+ */
+
+/* Thread tags — AI 대기 / 환불 / 완료 ✓ */
+.ix-ai-tag,
+.ix-urgent-tag,
+.ix-done-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ix-ai-tag {
+  background: rgba(232, 161, 23, 0.12);
+  color: var(--hesya-amber-600, #c47e15);
+}
+.ix-urgent-tag {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+.ix-done-tag {
+  background: rgba(42, 157, 92, 0.1);
+  color: #2a9d5c;
+}
+
+/* ThreadHeader actions */
+.ix-th-actions {
+  display: flex;
+  gap: 6px;
+}
+.ix-th-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid var(--hesya-peach-200, #f3d9bc);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--hesya-navy-900, #1a2238);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+.ix-th-btn:hover {
+  border-color: var(--hesya-amber-500, #e8a117);
+  color: var(--hesya-amber-600, #c47e15);
+}
+.ix-th-btn.icon-only {
+  padding: 6px 8px;
+  font-size: 14px;
+}
+.ix-online-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #2a9d5c;
+  border-radius: 999px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* Bubble audit panel */
+.ix-bubble-more {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 10px;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  padding: 4px 0 0;
+  text-decoration: underline;
+  text-decoration-color: rgba(0, 0, 0, 0.2);
+}
+.ix-bubble-more:hover {
+  opacity: 1;
+}
+.ix-bubble-audit {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(26, 34, 56, 0.18);
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ix-msg-owner .ix-bubble-audit {
+  border-top-color: rgba(255, 255, 255, 0.35);
+}
+.ix-audit-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  line-height: 1.45;
+}
+.ix-audit-key {
+  width: 76px;
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+.ix-audit-val {
+  flex: 1;
+  word-break: break-word;
+}
+.ix-audit-val.high {
+  color: #2a9d5c;
+}
+.ix-audit-val.medium {
+  color: #c47e15;
+}
+.ix-msg-owner .ix-audit-val.high,
+.ix-msg-owner .ix-audit-val.medium {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+/* Floating Shortcut FAB + Modal */
+.ix-shortcut-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--hesya-navy-900, #1a2238);
+  color: #fff;
+  border: none;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  z-index: 50;
+  transition: background 0.15s;
+}
+.ix-shortcut-fab:hover {
+  background: var(--hesya-amber-600, #c47e15);
+}
+.ix-shortcut-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(26, 34, 56, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: ixFadeIn 0.18s ease;
+}
+@keyframes ixFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.ix-shortcut-modal {
+  width: 480px;
+  max-width: calc(100vw - 32px);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  padding: 24px;
+}
+.ix-shortcut-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.ix-shortcut-head h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--hesya-navy-900, #1a2238);
+}
+.ix-shortcut-close {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0 4px;
+}
+.ix-shortcut-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+}
+.ix-shortcut-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+.ix-shortcut-keys {
+  display: flex;
+  gap: 3px;
+  min-width: 76px;
+}
+.ix-shortcut-keys kbd {
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--hesya-peach-50, #fdf6ec);
+  color: var(--hesya-navy-900, #1a2238);
+  border: 1px solid var(--hesya-peach-200, #f3d9bc);
+  border-radius: 4px;
+  padding: 2px 7px;
+  min-width: 20px;
+  text-align: center;
+}
+.ix-shortcut-dash {
+  color: #6b7280;
+  font-size: 11px;
+  align-self: center;
+}
+.ix-shortcut-desc {
+  font-size: 12px;
+  color: #374151;
+}
+.ix-shortcut-foot {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hesya-peach-100, #faead1);
+  font-size: 11px;
+  color: #6b7280;
+  text-align: center;
+}

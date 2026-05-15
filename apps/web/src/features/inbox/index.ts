@@ -16,6 +16,7 @@ export { TokenExpiredBanner } from "./components/token-expired-banner";
 export { WindowStatus } from "./components/window-status";
 export { BotModeToggle } from "./components/bot-mode-toggle";
 export { DraftReviewPanel } from "./components/draft-review-panel";
+export { ShortcutFab } from "./components/shortcut-fab";
 
 // Server Actions
 export { sendOutbound } from "./actions/send-outbound";

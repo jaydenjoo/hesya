@@ -20,6 +20,7 @@
  * - bubble-trans border 색: customer navy/10, owner white/25 (rgba 정합)
  */
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Message } from "../types";
 import { toDate } from "@/shared/lib/date-utils";
@@ -31,6 +32,7 @@ const HOUR_MIN_FORMATTER = new Intl.DateTimeFormat(undefined, {
 
 export function MessageBubble({ message }: { message: Message }) {
   const t = useTranslations("Inbox.thread");
+  const [auditOpen, setAuditOpen] = useState(false);
   const isOutbound = message.direction === "outbound";
   const isFailed = message.status === "failed";
   const isAIDraft = message.status === "ai_draft";
@@ -43,11 +45,22 @@ export function MessageBubble({ message }: { message: Message }) {
     ? "border-white/25 text-white/90"
     : "border-hesya-navy-900/10 text-gray-700";
 
+  // O2 fast track #7 (#2) — audit panel: 감지 언어 / 번역 신뢰도 / 원문 보기.
+  // translated 있을 때만 toggle 표시 (audit 의미 있음).
+  const hasTranslation = !!message.translatedText;
+  // mock confidence: lang detection은 translatedLang fallback / confidence는
+  // 글자수 휴리스틱(>200 = medium, else high). DAL 확장 후 metadata로 교체.
+  const detectedLangLabel = isOutbound ? "한국어" : "外國語";
+  const confidence =
+    (message.originalText ?? "").length > 200 ? "medium" : "high";
+  const confidenceLabel =
+    confidence === "high" ? "신뢰도 높음" : "약간 모호 — 원문 확인 권장";
+
   return (
     <div
       data-direction={message.direction}
       data-status={message.status}
-      className={`flex ${isOutbound ? "justify-end" : "justify-start"}`}
+      className={`ix-msg-${isOutbound ? "owner" : "customer"} flex ${isOutbound ? "justify-end" : "justify-start"}`}
     >
       <div
         className={`flex max-w-[78%] flex-col ${
@@ -77,6 +90,34 @@ export function MessageBubble({ message }: { message: Message }) {
               </span>
               {message.translatedText}
             </p>
+          ) : null}
+          {auditOpen && hasTranslation ? (
+            <div data-testid="bubble-audit" className="ix-bubble-audit kr">
+              <div className="ix-audit-row">
+                <span className="ix-audit-key">감지 언어</span>
+                <span className="ix-audit-val">{detectedLangLabel}</span>
+              </div>
+              <div className="ix-audit-row">
+                <span className="ix-audit-key">번역 신뢰도</span>
+                <span className={`ix-audit-val ${confidence}`}>
+                  {confidenceLabel}
+                </span>
+              </div>
+              <div className="ix-audit-row">
+                <span className="ix-audit-key">원문 보기</span>
+                <span className="ix-audit-val">{message.originalText}</span>
+              </div>
+            </div>
+          ) : null}
+          {hasTranslation ? (
+            <button
+              type="button"
+              data-testid="bubble-audit-toggle"
+              onClick={() => setAuditOpen((v) => !v)}
+              className="ix-bubble-more kr"
+            >
+              {auditOpen ? "닫기" : "원문 / 신뢰도 보기"}
+            </button>
           ) : null}
         </div>
         <time

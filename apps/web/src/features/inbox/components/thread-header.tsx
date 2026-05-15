@@ -10,6 +10,7 @@
 
 import { useTranslations } from "next-intl";
 import { WindowStatus } from "./window-status";
+import { getWindowStatus } from "../lib/window-utils";
 
 const CHANNEL_ICONS: Record<string, string> = {
   instagram: "📱",
@@ -39,6 +40,10 @@ export function ThreadHeader({
 
   // M6.3d — reference `.ix-th-meta` 패턴 정합:
   // [채널명] · [window status (분리된 시각 segment)]
+  // O2 fast track #7 (#3) — action 3종 (처리완료/VIP/More) + 온라인 dot 추가.
+  // online 판정: windowState=open 일 때 (mock — 추후 presence DAL로 교체).
+  // getWindowStatus는 Date.now 호출하지만 lib 함수라 purity 룰 미적용.
+  const isOnline = getWindowStatus(windowExpiresAt).state === "open";
   return (
     <header className="flex h-16 flex-shrink-0 items-center justify-between border-b border-hesya-peach-100 bg-white px-5">
       <div className="flex items-center gap-3">
@@ -65,6 +70,20 @@ export function ThreadHeader({
             data-testid="thread-header-meta"
             className="kr mt-0.5 flex items-center gap-1.5 text-[11px] text-gray-500"
           >
+            {isOnline ? (
+              <span
+                data-testid="thread-header-online"
+                className="kr inline-flex items-center font-semibold text-[#2a9d5c]"
+              >
+                <span aria-hidden="true" className="ix-online-dot" />
+                온라인
+              </span>
+            ) : null}
+            {isOnline ? (
+              <span aria-hidden="true" className="opacity-50">
+                ·
+              </span>
+            ) : null}
             <span>{t(channelKey)}</span>
             <span aria-hidden="true" className="opacity-50">
               ·
@@ -72,6 +91,19 @@ export function ThreadHeader({
             <WindowStatus expiresAt={windowExpiresAt} />
           </div>
         </div>
+      </div>
+      <div className="ix-th-actions" data-testid="thread-header-actions">
+        <button type="button" className="ix-th-btn">
+          <span aria-hidden="true">✓</span>
+          <span className="kr">처리 완료</span>
+        </button>
+        <button type="button" className="ix-th-btn">
+          <span aria-hidden="true">⭐</span>
+          <span className="kr">VIP</span>
+        </button>
+        <button type="button" className="ix-th-btn icon-only" aria-label="More">
+          ⋯
+        </button>
       </div>
     </header>
   );
