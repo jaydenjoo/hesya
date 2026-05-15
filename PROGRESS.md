@@ -3,7 +3,7 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 36 — O1 fast track #8 종료, P0 8 페이지 100% 디자인 정합)
+## 현재 위치 (2026-05-15 세션 36 — 🎉 P0 8 페이지 모두 100% 디자인 정합 달성)
 
 - **Phase**: **Design Completion Epic Phase 1 완료 (P0 8 페이지 정밀 inventory) → Phase 2 시작 (fast track 1 페이지 / 1 세션)**
 - **Phase 1 완료 (2026-05-15)**:
@@ -81,14 +81,23 @@
 - **PR [#205](https://github.com/jaydenjoo/hesya/pull/205) 생성·머지** O1 단계 4 W4 국적 + W9 후기 (commit `d02bd6e`, ~65% → ~75%) — 220×220 SVG donut + flag legend + 3 mock review cards.
 - **PR [#206](https://github.com/jaydenjoo/hesya/pull/206) 생성·머지** O1 단계 5a W1 예약 + W5 AI 정확도 (commit `321aae2`, ~75% → ~85%) — sparkline 12-bar + circle progress 94%.
 - **PR [#207](https://github.com/jaydenjoo/hesya/pull/207) 생성·머지** O1 단계 5b W11 toasts + W8 AI 인사이트 (commit `d8a11ee`, ~85% → ~95%) — 4 sketch SVG dismiss + 4-state insight panel.
-- **🎉 1 세션 6 PR 연속 머지 (단계 1~5b) — O1 fast track #8 종료**. fast track 가속화 패턴 + 자동 진행 모드 안정화 입증.
-- **O1 진행도: 22% → ~95%**. P0 8 페이지 모두 ~90% 이상 디자인 정합 달성.
-  - C1 100% / C2 100% / C3 100% / C4 100% / C5 ~90% / O1 ~95% / O2 ~92% / O9 100%
-- 잔여 작업 = 실 데이터 wire (~5%, 별도 task) — W4/W5/W7/W8/W11 DAL 신규 5종 + Phase ζ reviews/notifications.
+- **PR [#208](https://github.com/jaydenjoo/hesya/pull/208) 생성·머지** O1 100% W12 priority button (commit `000d647`, ~95% → 100%) — DashboardHeader.priorityLabel prop + amber 📌 버튼 + 6 locale.
+- **PR [#209](https://github.com/jaydenjoo/hesya/pull/209) 생성·머지** C5 100% Safety sheets + Allergy disclosure + BottomActionBar selectedSvc (commit `674c198`, ~90% → 100%) — 4 bottom sheet modal + 3-accordion + CTA 2-line stack + 6 locale.
+- **PR [#210](https://github.com/jaydenjoo/hesya/pull/210) 생성·머지** O2 100% ThreadItem mock flag + ContextPanel 원어/flag/Risk tab (commit `7ba26c3`, ~92% → 100%) — mock 5-cycle nationality + Risk 3 row mock content.
+- **🎉 1 세션 10 PR 연속 머지 (단계 1~5b + O1/C5/O2 100% 마감) — P0 8 페이지 모두 100% 디자인 정합 달성**. fast track 가속화 + 자동 진행 모드 안정화 + 100% 마감 정밀 패턴 입증.
+- **P0 디자인 정합 매트릭스 (모두 100%)**:
+  - **Customer**: C1 / C2 / C3 / C4 / C5 = 100%
+  - **Owner**: O1 / O2 / O9 = 100%
+- 잔여 작업 = 실 데이터 wire (시연 % 향상, 별도 task):
+  - W4/W5/W7/W8/W11 DAL 신규 5종 (~12h)
+  - Phase ζ reviews/notifications 테이블 + 파이프라인 (~6~10h)
+  - C5 Safety sheet 실 데이터 (verified booking count, walk time DAL ~3h)
+  - O2 nationality DAL wire (mock flag → 실 customer.nationality ~2h)
 - 다음 세션 후보:
-  1. P0 8 페이지 잔여 시연 % 향상 (실 데이터 wire — 18~24h)
-  2. P1 9 페이지 시작 (베타 후 5~7주, 정밀 inventory 선행 의무 — L-082)
-  3. 베타 출시 차단선 외부 액션 (Resend 도메인, 베타 매장 매칭 — Jayden 사이드)
+  1. **P1 9 페이지 시작** — 베타 후 5~7주, 정밀 inventory 선행 의무 (L-082)
+  2. **실 데이터 wire 일괄** (~25h, P0 시연 % 100% 진입선)
+  3. **베타 출시 차단선 외부 액션** (Resend 도메인 + 베타 매장 매칭 — Jayden 사이드)
+  4. **P0 회고 + L-101 도출** — 1 세션 10 PR 패턴 효과/한계 학습 정리
 
 ## 세션 35 요약 (2026-05-15)
 
