@@ -118,6 +118,28 @@ function GreetingStack() {
   );
 }
 
+/** CamIllust SVG — AI photo card 우측 사이드 일러스트 (reference landing-app.jsx CamIllust 정합). */
+function CamIllust() {
+  return (
+    <svg
+      viewBox="0 0 80 80"
+      aria-hidden="true"
+      className="h-[80px] w-[80px]"
+      fill="none"
+    >
+      <g stroke="#1A2238" strokeWidth="2" strokeLinecap="round" fill="none">
+        <rect x="14" y="24" width="48" height="34" rx="6" />
+        <circle cx="38" cy="42" r="10" />
+        <circle cx="38" cy="42" r="5" />
+        <path d="M28 24 L34 18 H42 L48 24" />
+      </g>
+      <g stroke="#D88B5B" strokeWidth="1.5" fill="none">
+        <path d="M60 18 L62 22 L66 24 L62 26 L60 30 L58 26 L54 24 L58 22 Z" />
+      </g>
+    </svg>
+  );
+}
+
 /** HeroMotif SVG — reference 정합. */
 function HeroMotif() {
   return (
@@ -382,20 +404,23 @@ export function CustomerLanding({
           <Link
             href={`/${locale}/c/photo-analyze`}
             data-testid="landing-photo-cta"
-            className="mx-5 mb-2 mt-4 flex items-center gap-4 rounded-3xl bg-gradient-to-br from-hesya-amber-100 to-hesya-peach-100 px-5 py-4 ring-1 ring-hesya-amber-600/20 transition hover:shadow-[0_8px_24px_-8px_rgba(216,139,91,0.25)]"
+            className="mx-5 mb-2 mt-4 grid grid-cols-[1fr_80px] items-center gap-3 rounded-3xl bg-hesya-peach-200 px-5 py-5 transition hover:shadow-[0_8px_24px_-8px_rgba(216,139,91,0.35)]"
           >
-            <span aria-hidden="true" className="text-[28px]" role="img">
-              ✨
-            </span>
-            <div className="flex-1">
-              <p className="text-[14px] font-semibold text-hesya-navy-900">
+            <div className="flex flex-col gap-1.5">
+              <h4 className="font-heading text-[22px] font-semibold italic leading-[1.2] text-hesya-navy-900">
                 {labels.aiPhotoCta}
-              </p>
+              </h4>
               <p className="text-[11.5px] text-hesya-navy-900/65">
                 {labels.aiPhotoSubtitle}
               </p>
+              <span
+                aria-hidden="true"
+                className="mt-1 inline-flex w-fit items-center gap-1 rounded-full bg-hesya-amber-500 px-3 py-1 text-[11px] font-semibold text-white shadow-[0_4px_10px_rgba(232,169,122,0.35)]"
+              >
+                ✨ →
+              </span>
             </div>
-            <span className="text-hesya-amber-600">→</span>
+            <CamIllust />
           </Link>
         )}
 
@@ -649,8 +674,11 @@ export function CustomerLanding({
           labels.safetyStat2 &&
           labels.safetyStat3 &&
           labels.safetyStat4 && (
-            <section data-testid="landing-safety" className="mt-12 px-5">
-              <div className="rounded-2xl bg-hesya-peach-100 px-5 py-5 ring-1 ring-hesya-amber-600/15">
+            <section
+              data-testid="landing-safety"
+              className="mt-12 border-t border-[var(--trust-rose,#e8c4d6)] px-5 pt-6"
+            >
+              <div className="rounded-2xl bg-hesya-peach-100 px-5 py-5">
                 <h3 className="mb-3 text-[13px] font-semibold uppercase tracking-[0.12em] text-hesya-navy-900">
                   {labels.safetyTitle}
                 </h3>
