@@ -174,7 +174,7 @@ export function CelebrationToasts() {
         </span>
       </header>
 
-      <ul className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-4">
+      <ul className="flex flex-col gap-2">
         {items.map((toast) => (
           <li
             key={toast.id}

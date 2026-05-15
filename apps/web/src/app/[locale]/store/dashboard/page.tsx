@@ -7,7 +7,6 @@ import {
   AiAccuracyTile,
   AiInsightPanel,
   BrightSpot,
-  CelebrationToasts,
   CriticalAlert,
   DashboardHeader,
   InboxTile,
@@ -223,12 +222,8 @@ export default async function StoreDashboardPage({
         <div className="mt-6">
           <RecentReviews comingSoonLabel={t("timeline.popoverComingSoon")} />
         </div>
-        {/* O1 fast track 단계 5b — W11 알림 Toast stack.
-            mock-first: 4 hardcoded toasts (star/photo/growth/verified) + dismiss.
-            실 notifications 파이프라인 별도 task. */}
-        <div className="mt-6">
-          <CelebrationToasts />
-        </div>
+        {/* CelebrationToasts (W11)는 reference 정합 PR 3에서 OwnerShell 우측
+            패널로 이동 — 모든 /store/* 페이지에서 표시. */}
         <p className="mt-8 font-mono text-[11px] text-hesya-navy-900/55">
           {t("footerNote")}
         </p>

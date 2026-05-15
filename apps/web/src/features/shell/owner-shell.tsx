@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
+import { CelebrationToasts } from "@/features/dashboard";
+
 import type { NavCountMap } from "./nav-items";
 import { NavSidebar } from "./nav-sidebar";
 import { TopBar } from "./top-bar";
@@ -48,7 +50,7 @@ export async function OwnerShell({
   });
 
   return (
-    <div className="grid min-h-screen bg-[#fafbfc] lg:grid-cols-[240px_1fr] lg:grid-rows-[64px_1fr]">
+    <div className="grid min-h-screen bg-[#fafbfc] lg:grid-cols-[240px_1fr_320px] lg:grid-rows-[64px_1fr]">
       <TopBar
         currentLocale={currentLocale}
         locales={LOCALE_OPTIONS}
@@ -85,6 +87,12 @@ export async function OwnerShell({
       <main className="row-start-2 lg:col-start-2 overflow-y-auto">
         {children}
       </main>
+      <aside
+        aria-label={t("rightPanelLabel")}
+        className="hidden border-l border-hesya-peach-200 bg-hesya-peach-50 px-4 py-5 lg:col-start-3 lg:row-start-2 lg:block lg:overflow-y-auto"
+      >
+        <CelebrationToasts />
+      </aside>
     </div>
   );
 }
