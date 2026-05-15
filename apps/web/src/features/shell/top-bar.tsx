@@ -64,7 +64,7 @@ export function TopBar({
   };
 
   return (
-    <header className="row-start-1 col-span-2 z-50 flex items-center gap-4 border-b border-gray-200 bg-white px-6 shadow-[0_1px_2px_rgba(26,34,56,0.04)]">
+    <header className="row-start-1 col-span-full z-50 flex items-center gap-4 border-b border-gray-200 bg-white px-6 shadow-[0_1px_2px_rgba(26,34,56,0.04)]">
       <div className="flex w-56 flex-shrink-0 items-center gap-3">
         <span className="flex h-7 w-7 items-center justify-center rounded-md border-[1.5px] border-hesya-navy-900 font-heading text-[15px] font-semibold italic tracking-tight text-hesya-navy-900">
           H
