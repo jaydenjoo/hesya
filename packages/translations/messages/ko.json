@@ -804,8 +804,9 @@
     "localeToggleAlt": "언어 전환",
     "sectionMain": "메뉴",
     "rightPanelLabel": "최근 알림",
-    "storeStatus": "매장 상태:",
-    "storeStatusActive": "운영 중",
+    "storeStatus": "영업 중 ·",
+    "storeStatusActive": "09:00–21:00",
+    "storeLogoAlt": "매장 로고",
     "nav": {
       "dashboard": "대시보드",
       "inbox": "인박스",

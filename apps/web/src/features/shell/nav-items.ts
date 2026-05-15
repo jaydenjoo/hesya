@@ -1,8 +1,12 @@
 /**
- * Plan v3 Phase D1-A1 — Owner shell nav 정의.
+ * Reference 정합 PR 6 — Owner shell nav 정의.
  *
- * 라우트와 라벨 매핑. label은 i18n key (OwnerShell.nav.*).
- * 활성 매칭은 pathname.startsWith(href) (locale prefix는 사용처에서 제거).
+ * Reference: `docs/design/reference/dashboard-app.jsx:28-37` Sidebar items.
+ * 8 항목 (Dashboard / Inbox / Bookings / Services / Customers / Analytics /
+ * AI Photos / Settings) — reference 순서 동일.
+ *
+ * 이전 11 항목 (inboxSkipped / knowledge / integrations 포함) 축소. 제거된
+ * 항목들의 라우트는 유지 (페이지 자체는 보존, settings sub-menu에서 향후 link).
  */
 
 export interface NavItem {
@@ -24,38 +28,20 @@ export const NAV_ITEMS: readonly NavItem[] = [
     icon: "▦",
   },
   { key: "inbox", href: "/store/inbox", labelKey: "inbox", icon: "✉" },
-  {
-    key: "inboxSkipped",
-    href: "/store/inbox-skipped",
-    labelKey: "inboxSkipped",
-    icon: "⤳",
-  },
-  { key: "bookings", href: "/store/bookings", labelKey: "bookings", icon: "▢" },
-  {
-    key: "analytics",
-    href: "/store/analytics",
-    labelKey: "analytics",
-    icon: "◐",
-  },
-  { key: "services", href: "/store/services", labelKey: "services", icon: "✦" },
-  { key: "photos", href: "/store/photos", labelKey: "photos", icon: "❉" },
+  { key: "bookings", href: "/store/bookings", labelKey: "bookings", icon: "▥" },
+  { key: "services", href: "/store/services", labelKey: "services", icon: "✂" },
   {
     key: "customers",
     href: "/store/customers",
     labelKey: "customers",
-    icon: "◍",
+    icon: "◉",
   },
   {
-    key: "knowledge",
-    href: "/store/knowledge",
-    labelKey: "knowledge",
-    icon: "❋",
+    key: "analytics",
+    href: "/store/analytics",
+    labelKey: "analytics",
+    icon: "◫",
   },
-  {
-    key: "integrations",
-    href: "/store/integrations",
-    labelKey: "integrations",
-    icon: "⇄",
-  },
-  { key: "settings", href: "/store/settings", labelKey: "settings", icon: "✱" },
+  { key: "photos", href: "/store/photos", labelKey: "photos", icon: "✦" },
+  { key: "settings", href: "/store/settings", labelKey: "settings", icon: "⚙" },
 ];

@@ -804,8 +804,9 @@
     "localeToggleAlt": "Đổi ngôn ngữ",
     "sectionMain": "MENU",
     "rightPanelLabel": "Thông báo gần đây",
-    "storeStatus": "Trạng thái:",
-    "storeStatusActive": "Đang mở",
+    "storeStatus": "Đang mở ·",
+    "storeStatusActive": "09:00–21:00",
+    "storeLogoAlt": "Logo cửa hàng",
     "nav": {
       "dashboard": "Trang chủ",
       "inbox": "Tin nhắn",
