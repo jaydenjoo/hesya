@@ -3,17 +3,27 @@
 /**
  * Plan v3 M4.5 — customer 랜딩 Client 컴포넌트.
  *
+ * Phase 2 fast track #3 (2026-05-15): reference `docs/design/reference/landing-app.jsx`
+ * + `landing.css` 정합 적용. 10 items:
+ *  1. Mood/Region chips horizontal scroll
+ *  2. Sticky topbar (brand + lang pill, blur backdrop)
+ *  3. Greeting opacity crossfade stack (5 abs-positioned)
+ *  4. HeroMotif SVG + animated underline
+ *  5. Search input mic button (peach circle)
+ *  6. Lang pill + language bottom sheet (6 locale)
+ *  7. UGC "Show more" dashed card
+ *  8. verifiedBadge 조건 적용 (reviewCount >= 100 heuristic)
+ *  9. Tab bar (Search/Bookings/Chat/MyPage 4-tab fixed bottom)
+ * 10. "Loved by travelers from your country" horizontal scroll
+ *
  * region chip / search input은 URL 쿼리 동기화 (?region= / ?q=). useTransition + router.push로
  * SSR 갱신 — 페이지 진입 시 검색 결과 SEO friendly.
- *
- * 디자인: peach 배경 + amber accent + Fraunces 헤딩 (기존 /c/* 일관성).
- *
- * Batch 2 (2026-05-14): placeholder rotator (5 string 3.5s) + mood chips (9) + StoreCard rating bar.
  */
 
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { usePathname, useRouter as useI18nRouter } from "@/i18n/navigation";
 import { useEffect, useState, useTransition } from "react";
 import type { PublicStore } from "@/shared/lib/dal/stores";
 import type {
@@ -22,8 +32,6 @@ import type {
   MockUGCCard,
 } from "@/lib/mock-fixtures/landing";
 
-// 디자인 ref: `docs/design/reference/landing-app.jsx` greetings array.
-// 5 언어 환영 인사 rotation — 외국인 손님 첫 진입 시 다국어 친화 시그널.
 const GREETINGS: ReadonlyArray<{ lang: string; text: string; kr: boolean }> = [
   { lang: "en", text: "Welcome to Korea.", kr: false },
   { lang: "ko", text: "한국에 오신 것을 환영합니다.", kr: true },
@@ -31,11 +39,9 @@ const GREETINGS: ReadonlyArray<{ lang: string; text: string; kr: boolean }> = [
   { lang: "zh", text: "欢迎来到韩国。", kr: true },
   { lang: "vi", text: "Chào mừng đến Hàn Quốc.", kr: false },
 ];
-const GREETING_ROTATION_MS = 3500;
+const GREETING_ROTATION_MS = 3000;
 const PLACEHOLDER_ROTATION_MS = 3500;
 
-// 9 mood — emoji + i18n text. 클릭 시 search input 자동 채움 + URL navigate.
-// `text`만 검색에 사용 (emoji 검색 X). reference: docs/design/reference/landing-app.jsx:29-39.
 const MOOD_ICONS = [
   "🎬",
   "✨",
@@ -46,6 +52,15 @@ const MOOD_ICONS = [
   "🌟",
   "🔥",
   "✂️",
+] as const;
+
+const LANG_OPTIONS = [
+  { code: "ko", display: "KR", label: "한국어" },
+  { code: "en", display: "EN", label: "English" },
+  { code: "ja", display: "JP", label: "日本語" },
+  { code: "zh-CN", display: "CN", label: "中文(简)" },
+  { code: "zh-TW", display: "TW", label: "中文(繁)" },
+  { code: "vi", display: "VI", label: "Tiếng Việt" },
 ] as const;
 
 function useRotatedPlaceholder(
@@ -68,10 +83,10 @@ function useRotatedPlaceholder(
   return placeholders[idx] ?? fallback;
 }
 
-function GreetingRotator() {
+/** Greeting stack — 5 abs-positioned, active만 opacity 1. */
+function GreetingStack() {
   const [idx, setIdx] = useState(0);
   useEffect(() => {
-    // prefers-reduced-motion 존중 — 첫 인사만 표시.
     const reduce =
       typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -82,19 +97,49 @@ function GreetingRotator() {
     );
     return () => clearInterval(t);
   }, []);
-  const g = GREETINGS[idx]!;
   return (
-    <p
+    <div
+      className="c-greeting-stack"
       data-testid="landing-greeting"
       aria-live="polite"
-      lang={g.lang}
-      className={`mb-3 text-[13px] font-medium text-hesya-navy-900/70 transition-opacity duration-500 sm:text-[14px] ${g.kr ? "kr" : ""}`}
     >
-      <span aria-hidden="true" className="mr-1.5 opacity-60">
-        🌏
-      </span>
-      {g.text}
-    </p>
+      {GREETINGS.map((g, i) => (
+        <div
+          key={i}
+          className={
+            "c-greeting" + (g.kr ? " kr" : "") + (i === idx ? " active" : "")
+          }
+          lang={g.lang}
+        >
+          {g.text}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** HeroMotif SVG — reference 정합. */
+function HeroMotif() {
+  return (
+    <svg className="c-hero-motif" viewBox="0 0 200 200" aria-hidden="true">
+      <g stroke="#D88B5B" strokeWidth="2.5" strokeLinecap="round" fill="none">
+        <path d="M40 50h32M56 38v22" />
+        <circle cx="56" cy="92" r="22" />
+      </g>
+      <g
+        stroke="rgba(216,139,91,0.55)"
+        strokeWidth="1.2"
+        fill="none"
+        strokeDasharray="2 4"
+      >
+        <path d="M88 95 Q115 75 140 95" />
+      </g>
+      <g stroke="#D88B5B" strokeWidth="2.5" strokeLinecap="round" fill="none">
+        <path d="M132 70 L122 156" />
+        <path d="M168 64 L158 150" />
+        <path d="M126 108h36" />
+      </g>
+    </svg>
   );
 }
 
@@ -103,11 +148,8 @@ export interface CustomerLandingLabels {
   title: string;
   subtitle: string;
   searchPlaceholder: string;
-  /** Batch 2: 검색 placeholder rotation (5 items 권장). 빈 배열이면 정적 placeholder 사용. */
   placeholders: ReadonlyArray<string>;
-  /** Batch 2: 분위기 chip 섹션 label (예: "Or browse by vibe / 분위기로 둘러보기"). */
   moodLabel: string;
-  /** Batch 2: mood chip 텍스트 (9개 권장). icon은 클라이언트 상수 (MOOD_ICONS). */
   moods: ReadonlyArray<string>;
   regionLabel: string;
   regionAll: string;
@@ -117,15 +159,10 @@ export interface CustomerLandingLabels {
   signIn: string;
   mypage: string;
   viewStore: string;
-  /** Batch 2: rating bar에서 "리뷰 N건" 카운트 단위 (예: "(412)"). 단순 prefix 표현 안 하고 caller가 ICU로 채움. */
   reviewCountSuffix: string;
-  /** Batch 2: K-Verified badge. auto_approved 매장 모두 표시. */
   verifiedBadge: string;
-  /** Epic B (2026-05-14): AI Photo Analysis CTA 제목. 미설정 시 CTA 숨김. */
   aiPhotoCta?: string;
-  /** Epic B: CTA 서브 라인. */
   aiPhotoSubtitle?: string;
-  /** Sprint 2A: live row / UGC / trending / reviews / safety 5섹션 labels. 미설정 시 섹션 숨김. */
   liveRow?: string;
   ugcTitle?: string;
   ugcSubtitle?: string;
@@ -136,12 +173,18 @@ export interface CustomerLandingLabels {
   reviewsSubtitle?: string;
   safetyTitle?: string;
   safetyStat1?: string;
-  /** ICU `{percent}` 채워서 전달 (e.g., "92%의 매장에..."). */
   safetyStat2?: string;
-  /** ICU `{min}` 채워서 전달. */
   safetyStat3?: string;
   safetyStat4?: string;
   safetySource?: string;
+  /** C1 fast track #3 신규: country curation 섹션. */
+  countryTitle?: string;
+  countrySubtitle?: string;
+  langSheetTitle?: string;
+  tabSearch?: string;
+  tabBookings?: string;
+  tabChat?: string;
+  tabMypage?: string;
 }
 
 interface Props {
@@ -152,7 +195,6 @@ interface Props {
   regions: string[];
   stores: PublicStore[];
   labels: CustomerLandingLabels;
-  /** Sprint 2A: MOCK_FIXTURES=true 시 page.tsx에서 주입. 빈 배열이면 섹션 숨김. */
   mockUGCCards?: ReadonlyArray<MockUGCCard>;
   mockTrending?: ReadonlyArray<MockTrendingSearch>;
   mockReviews?: ReadonlyArray<MockReview>;
@@ -171,13 +213,19 @@ export function CustomerLanding({
   mockReviews,
 }: Props) {
   const router = useRouter();
+  const i18nRouter = useI18nRouter();
+  const pathname = usePathname();
   const [region, setRegion] = useState(initialRegion);
   const [search, setSearch] = useState(initialSearch);
   const [, startTransition] = useTransition();
+  const [langSheetOpen, setLangSheetOpen] = useState(false);
   const rotatedPlaceholder = useRotatedPlaceholder(
     labels.placeholders,
     labels.searchPlaceholder,
   );
+
+  const currentLang =
+    LANG_OPTIONS.find((l) => l.code === locale) ?? LANG_OPTIONS[1];
 
   const navigate = (nextRegion: string, nextSearch: string) => {
     const params = new URLSearchParams();
@@ -189,8 +237,13 @@ export function CustomerLanding({
     });
   };
 
+  const handleLocaleChange = (code: string) => {
+    setLangSheetOpen(false);
+    i18nRouter.replace(pathname, { locale: code as "ko" });
+  };
+
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-hesya-peach-50">
+    <div className="c-landing relative min-h-screen overflow-x-hidden bg-hesya-peach-50">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[60vh]"
@@ -199,44 +252,63 @@ export function CustomerLanding({
             "radial-gradient(ellipse 1000px 600px at 50% -100px, var(--hesya-peach-200), transparent 55%)",
         }}
       />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[40vh]"
+        style={{
+          background:
+            "radial-gradient(ellipse 900px 500px at 50% 100%, var(--hesya-peach-100), transparent 60%)",
+        }}
+      />
 
-      <div className="mx-auto w-full max-w-5xl px-5 pb-16 pt-6">
-        <nav className="mb-8 flex items-center justify-between">
-          <span className="font-heading text-[20px] font-semibold italic tracking-[-0.02em] text-hesya-navy-900">
-            Hesya
-          </span>
-          <Link
-            href={isAuthed ? `/${locale}/c/mypage` : `/${locale}/c/sign-in`}
-            className="rounded-full bg-white/70 px-4 py-1.5 text-[12px] font-medium text-hesya-navy-900 ring-1 ring-hesya-navy-900/10 hover:bg-white"
-          >
-            {isAuthed ? labels.mypage : labels.signIn}
-          </Link>
-        </nav>
-
-        <header className="mb-7 max-w-2xl">
-          <GreetingRotator />
-          <div className="space-y-2.5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-hesya-amber-600">
-              {labels.eyebrow}
-            </p>
-            <h1 className="font-heading text-[34px] font-semibold italic leading-[1.1] tracking-[-0.025em] text-hesya-navy-900 sm:text-[44px]">
-              {labels.title}
-            </h1>
-            <p className="text-[14px] leading-relaxed text-hesya-navy-900/65 sm:text-[15px]">
-              {labels.subtitle}
-            </p>
+      {/* Sticky topbar — brand + lang pill */}
+      <header className="c-landing-topbar">
+        <div className="c-landing-topbar-inner mx-auto max-w-5xl">
+          <span className="c-landing-brand">Hesya</span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="c-lang-pill"
+              onClick={() => setLangSheetOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={langSheetOpen}
+            >
+              <span aria-hidden="true">🌐</span>
+              <span>{currentLang.display}</span>
+              <span aria-hidden="true" className="text-[10px] opacity-50">
+                ▾
+              </span>
+            </button>
+            <Link
+              href={isAuthed ? `/${locale}/c/mypage` : `/${locale}/c/sign-in`}
+              className="rounded-full bg-white/70 px-4 py-1.5 text-[12px] font-medium text-hesya-navy-900 ring-1 ring-hesya-navy-900/10 hover:bg-white"
+            >
+              {isAuthed ? labels.mypage : labels.signIn}
+            </Link>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate(region, search);
-          }}
-          className="mb-5"
-        >
-          <div className="flex items-center gap-2 rounded-full bg-white px-5 py-3 ring-1 ring-hesya-navy-900/10 focus-within:ring-2 focus-within:ring-hesya-amber-600/30">
-            <span aria-hidden="true" className="text-hesya-navy-900/40">
+      <div className="c-landing-body mx-auto w-full max-w-5xl">
+        {/* Hero with HeroMotif + animated underline */}
+        <section className="c-hero">
+          <HeroMotif />
+          <p className="c-hero-eyebrow">{labels.eyebrow}</p>
+          <GreetingStack />
+          <div className="c-hero-underline" />
+          <p className="c-hero-sub">{labels.subtitle}</p>
+        </section>
+
+        {/* Search input + mic */}
+        <section className="c-search-zone">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              navigate(region, search);
+            }}
+            className="c-search-input"
+          >
+            <span className="c-lead" aria-hidden="true">
               🔍
             </span>
             <input
@@ -245,20 +317,39 @@ export function CustomerLanding({
               onChange={(e) => setSearch(e.target.value)}
               placeholder={rotatedPlaceholder}
               data-testid="landing-search-input"
-              className="flex-1 bg-transparent text-[14px] text-hesya-navy-900 placeholder:text-hesya-navy-900/40 focus:outline-none"
+              aria-label={labels.searchPlaceholder}
             />
-          </div>
-        </form>
-
-        {labels.moods.length > 0 && (
-          <div className="mb-6">
-            <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.18em] text-hesya-navy-900/55">
-              {labels.moodLabel}
-            </p>
-            <div
-              data-testid="landing-mood-row"
-              className="flex flex-wrap gap-1.5"
+            <button
+              type="button"
+              className="c-mic"
+              aria-label="Voice search"
+              onClick={() => {
+                /* Voice search UI mock — Web Speech API 베타 후 wire */
+              }}
             >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="9" y="2" width="6" height="13" rx="3" />
+                <path d="M19 10a7 7 0 0 1-14 0M12 19v3" />
+              </svg>
+            </button>
+          </form>
+        </section>
+
+        {/* Mood chips horizontal scroll */}
+        {labels.moods.length > 0 && (
+          <>
+            <div className="c-mood-cap">{labels.moodLabel}</div>
+            <div data-testid="landing-mood-row" className="c-mood-scroll">
               {labels.moods.map((text, i) => {
                 const icon = MOOD_ICONS[i % MOOD_ICONS.length];
                 return (
@@ -269,7 +360,7 @@ export function CustomerLanding({
                       setSearch(text);
                       navigate(region, text);
                     }}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3.5 py-1.5 text-[12px] font-medium text-hesya-navy-900/80 ring-1 ring-hesya-navy-900/10 transition hover:bg-white"
+                    className="c-mood-chip"
                   >
                     <span aria-hidden="true">{icon}</span>
                     {text}
@@ -278,28 +369,20 @@ export function CustomerLanding({
               })}
             </div>
             {labels.liveRow && (
-              <div
-                data-testid="landing-live-row"
-                className="mt-3 flex items-center gap-2 text-[11px] font-medium text-hesya-navy-900/55"
-              >
-                <span
-                  aria-hidden="true"
-                  className="relative inline-flex h-1.5 w-1.5"
-                >
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                </span>
+              <div data-testid="landing-live-row" className="c-live-row">
+                <span aria-hidden="true" className="c-live-dot" />
                 {labels.liveRow}
               </div>
             )}
-          </div>
+          </>
         )}
 
+        {/* AI photo entry */}
         {labels.aiPhotoCta && labels.aiPhotoSubtitle && (
           <Link
             href={`/${locale}/c/photo-analyze`}
             data-testid="landing-photo-cta"
-            className="mb-7 flex items-center gap-4 rounded-3xl bg-gradient-to-br from-hesya-amber-100 to-hesya-peach-100 px-5 py-4 ring-1 ring-hesya-amber-600/20 transition hover:shadow-[0_8px_24px_-8px_rgba(216,139,91,0.25)]"
+            className="mx-5 mb-2 mt-4 flex items-center gap-4 rounded-3xl bg-gradient-to-br from-hesya-amber-100 to-hesya-peach-100 px-5 py-4 ring-1 ring-hesya-amber-600/20 transition hover:shadow-[0_8px_24px_-8px_rgba(216,139,91,0.25)]"
           >
             <span aria-hidden="true" className="text-[28px]" role="img">
               ✨
@@ -316,66 +399,99 @@ export function CustomerLanding({
           </Link>
         )}
 
-        <div className="mb-7">
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.18em] text-hesya-navy-900/55">
-            {labels.regionLabel}
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            <Chip
-              active={!region}
+        {/* Region chips horizontal scroll */}
+        <section className="c-region-row">
+          <div className="c-region-label">{labels.regionLabel}</div>
+          <div className="c-region-scroll">
+            <button
+              type="button"
+              className={"c-region-chip" + (!region ? " active" : "")}
               onClick={() => {
                 setRegion("");
                 navigate("", search);
               }}
             >
               {labels.regionAll}
-            </Chip>
+            </button>
             {regions.map((r) => (
-              <Chip
+              <button
                 key={r}
-                active={region === r}
+                type="button"
+                className={"c-region-chip" + (region === r ? " active" : "")}
                 onClick={() => {
                   setRegion(r);
                   navigate(r, search);
                 }}
               >
-                📍 {r}
-              </Chip>
+                <span aria-hidden="true">📍</span>
+                {r}
+              </button>
             ))}
           </div>
+        </section>
+
+        {/* Stores grid */}
+        <div className="px-5 pt-6">
+          {stores.length === 0 ? (
+            <div className="rounded-3xl bg-white/60 px-6 py-16 text-center ring-1 ring-hesya-navy-900/10">
+              <h2 className="font-heading text-[20px] font-semibold italic text-hesya-navy-900">
+                {labels.emptyTitle}
+              </h2>
+              <p className="mt-2 text-[13px] text-hesya-navy-900/55">
+                {labels.emptySubtitle}
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="mb-4 text-[12px] text-hesya-navy-900/55">
+                {labels.resultsCount}
+              </p>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {stores.map((s) => (
+                  <StoreCard
+                    key={s.id}
+                    store={s}
+                    locale={locale}
+                    viewLabel={labels.viewStore}
+                    verifiedBadge={labels.verifiedBadge}
+                    reviewCountSuffix={labels.reviewCountSuffix}
+                  />
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
-        {stores.length === 0 ? (
-          <div className="rounded-3xl bg-white/60 px-6 py-16 text-center ring-1 ring-hesya-navy-900/10">
-            <h2 className="font-heading text-[20px] font-semibold italic text-hesya-navy-900">
-              {labels.emptyTitle}
-            </h2>
-            <p className="mt-2 text-[13px] text-hesya-navy-900/55">
-              {labels.emptySubtitle}
-            </p>
-          </div>
-        ) : (
-          <>
-            <p className="mb-4 text-[12px] text-hesya-navy-900/55">
-              {labels.resultsCount}
-            </p>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {stores.map((s) => (
-                <StoreCard
-                  key={s.id}
-                  store={s}
-                  locale={locale}
-                  viewLabel={labels.viewStore}
-                  verifiedBadge={labels.verifiedBadge}
-                  reviewCountSuffix={labels.reviewCountSuffix}
-                />
-              ))}
+        {/* "Loved by travelers from your country" horizontal scroll */}
+        {stores.length > 0 && labels.countryTitle && (
+          <section data-testid="landing-country" className="c-country-section">
+            <header className="c-country-head">
+              <h3>{labels.countryTitle}</h3>
+              {labels.countrySubtitle && (
+                <span className="c-sub">{labels.countrySubtitle}</span>
+              )}
+            </header>
+            <div className="c-country-scroll">
+              {[...stores]
+                .sort((a, b) => b.reviewCount - a.reviewCount)
+                .slice(0, 8)
+                .map((s) => (
+                  <StoreCard
+                    key={`country-${s.id}`}
+                    store={s}
+                    locale={locale}
+                    viewLabel={labels.viewStore}
+                    verifiedBadge={labels.verifiedBadge}
+                    reviewCountSuffix={labels.reviewCountSuffix}
+                  />
+                ))}
             </div>
-          </>
+          </section>
         )}
 
+        {/* Trending */}
         {mockTrending && mockTrending.length > 0 && labels.trendingTitle && (
-          <section data-testid="landing-trending" className="mt-12">
+          <section data-testid="landing-trending" className="mt-12 px-5">
             <header className="mb-3">
               <h3 className="font-heading text-[18px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900 sm:text-[20px]">
                 {labels.trendingTitle}
@@ -407,8 +523,9 @@ export function CustomerLanding({
           </section>
         )}
 
+        {/* UGC + Show more dashed card */}
         {mockUGCCards && mockUGCCards.length > 0 && labels.ugcTitle && (
-          <section data-testid="landing-ugc" className="mt-12">
+          <section data-testid="landing-ugc" className="mt-12 px-5">
             <header className="mb-4">
               <h3 className="font-heading text-[18px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900 sm:text-[20px]">
                 {labels.ugcTitle}
@@ -466,12 +583,25 @@ export function CustomerLanding({
                   </div>
                 </article>
               ))}
+              {labels.ugcShowMore && (
+                <button
+                  type="button"
+                  className="c-ugc-more"
+                  data-testid="landing-ugc-more"
+                >
+                  <span aria-hidden="true" className="text-[20px]">
+                    ↗
+                  </span>
+                  <span>{labels.ugcShowMore}</span>
+                </button>
+              )}
             </div>
           </section>
         )}
 
+        {/* Reviews */}
         {mockReviews && mockReviews.length > 0 && labels.reviewsTitle && (
-          <section data-testid="landing-reviews" className="mt-12">
+          <section data-testid="landing-reviews" className="mt-12 px-5">
             <header className="mb-4">
               <h3 className="font-heading text-[18px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900 sm:text-[20px]">
                 {labels.reviewsTitle}
@@ -513,12 +643,13 @@ export function CustomerLanding({
           </section>
         )}
 
+        {/* Safety */}
         {labels.safetyTitle &&
           labels.safetyStat1 &&
           labels.safetyStat2 &&
           labels.safetyStat3 &&
           labels.safetyStat4 && (
-            <section data-testid="landing-safety" className="mt-12">
+            <section data-testid="landing-safety" className="mt-12 px-5">
               <div className="rounded-2xl bg-hesya-peach-100 px-5 py-5 ring-1 ring-hesya-amber-600/15">
                 <h3 className="mb-3 text-[13px] font-semibold uppercase tracking-[0.12em] text-hesya-navy-900">
                   {labels.safetyTitle}
@@ -550,31 +681,160 @@ export function CustomerLanding({
             </section>
           )}
       </div>
+
+      {/* Tab bar (fixed bottom nav) */}
+      <nav className="c-tabbar" aria-label="Main navigation">
+        <TabbarItem
+          href={`/${locale}/c`}
+          active
+          label={labels.tabSearch ?? "Search"}
+          icon={<TabIconSearch />}
+        />
+        <TabbarItem
+          href={`/${locale}/c/mypage`}
+          label={labels.tabBookings ?? "Bookings"}
+          icon={<TabIconCalendar />}
+        />
+        <TabbarItem
+          href={`/${locale}/c/chat`}
+          label={labels.tabChat ?? "Chat"}
+          icon={<TabIconMessage />}
+        />
+        <TabbarItem
+          href={`/${locale}/c/mypage`}
+          label={labels.tabMypage ?? "MyPage"}
+          icon={<TabIconUser />}
+        />
+      </nav>
+
+      {/* Language bottom sheet */}
+      {langSheetOpen && (
+        <div
+          className="c-lang-sheet-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label={labels.langSheetTitle ?? "Choose language"}
+          onClick={() => setLangSheetOpen(false)}
+        >
+          <div className="c-lang-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="c-lang-sheet-handle" aria-hidden="true" />
+            <h3 className="c-lang-sheet-title">
+              {labels.langSheetTitle ?? "Choose language"}
+            </h3>
+            {LANG_OPTIONS.map((l) => (
+              <button
+                key={l.code}
+                type="button"
+                className={
+                  "c-lang-sheet-item" + (l.code === locale ? " active" : "")
+                }
+                onClick={() => handleLocaleChange(l.code)}
+              >
+                <span>{l.label}</span>
+                {l.code === locale && (
+                  <span className="c-lang-sheet-check" aria-hidden="true">
+                    ✓
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function Chip({
+function TabbarItem({
+  href,
   active,
-  onClick,
-  children,
+  label,
+  icon,
 }: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
+  href: string;
+  active?: boolean;
+  label: string;
+  icon: React.ReactNode;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-full px-3.5 py-1.5 text-[12px] font-medium transition ${
-        active
-          ? "bg-hesya-navy-900 text-hesya-peach-50"
-          : "bg-white/70 text-hesya-navy-900/70 ring-1 ring-hesya-navy-900/10 hover:bg-white"
-      }`}
+    <Link href={href} className={"c-tabbar-item" + (active ? " active" : "")}>
+      {icon}
+      <span>{label}</span>
+    </Link>
+  );
+}
+
+function TabIconSearch() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
     >
-      {children}
-    </button>
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  );
+}
+function TabIconCalendar() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+  );
+}
+function TabIconMessage() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+function TabIconUser() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
   );
 }
 
@@ -592,12 +852,12 @@ function StoreCard({
   reviewCountSuffix: string;
 }) {
   const showRating = store.rating != null && store.reviewCount > 0;
+  // 인벤토리 item 8: 항상 표시 → 조건부. reviewCount 100건 이상 = 정착 매장.
+  // 실 verified 필드 도입은 후속 DAL 확장 task.
+  const showVerified = store.reviewCount >= 100;
   return (
     <Link
       href={`/${locale}/c/store/${store.id}`}
-      // 동적 라우트 `/c/store/[id]` — default 'auto'는 layout만 prefetch.
-      // prefetch={true}로 전체 RSC payload viewport-entry 시 prefetch.
-      // 매장 60s unstable_cache hit이라 prefetch cost는 작음.
       prefetch
       className="group block overflow-hidden rounded-3xl bg-white ring-1 ring-hesya-navy-900/10 transition hover:shadow-[0_8px_24px_-8px_rgba(26,34,56,0.15)]"
     >
@@ -618,7 +878,7 @@ function StoreCard({
             </>
           )}
         </div>
-        {(showRating || verifiedBadge) && (
+        {(showRating || showVerified) && (
           <div
             data-testid="landing-store-rating"
             className="mt-2 flex items-center gap-1.5 text-[12px]"
@@ -636,9 +896,11 @@ function StoreCard({
                 </span>
               </>
             )}
-            <span className="ml-auto rounded-full bg-hesya-peach-100 px-2 py-0.5 text-[10.5px] font-semibold text-hesya-amber-600 ring-1 ring-hesya-amber-600/20">
-              ★ {verifiedBadge}
-            </span>
+            {showVerified && (
+              <span className="ml-auto rounded-full bg-hesya-peach-100 px-2 py-0.5 text-[10.5px] font-semibold text-hesya-amber-600 ring-1 ring-hesya-amber-600/20">
+                ★ {verifiedBadge}
+              </span>
+            )}
           </div>
         )}
         <p className="mt-3 text-[11px] font-medium uppercase tracking-wide text-hesya-amber-600 group-hover:underline">

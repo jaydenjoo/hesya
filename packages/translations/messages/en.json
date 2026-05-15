@@ -878,7 +878,14 @@
     "safetyStat2": "{percent}% of Hesya stores have female stylists on staff",
     "safetyStat3": "All stores within {min} min of major subway stations",
     "safetyStat4": "24/7 chat support in your language",
-    "safetySource": "Source · CEOWORLD 2026 Solo Female Travel Index"
+    "safetySource": "Source · CEOWORLD 2026 Solo Female Travel Index",
+    "countryTitle": "Loved by travelers from your country",
+    "countrySubtitle": "Curated by the language you booked from",
+    "langSheetTitle": "Choose language",
+    "tabSearch": "Search",
+    "tabBookings": "Bookings",
+    "tabChat": "Chat",
+    "tabMypage": "MyPage"
   },
   "CustomerChat": {
     "back": "Back",

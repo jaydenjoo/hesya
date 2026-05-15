@@ -878,7 +878,14 @@
     "safetyStat2": "Hesya加盟店の{percent}%に女性スタイリストが在籍",
     "safetyStat3": "全店舗が主要駅から徒歩{min}分以内",
     "safetyStat4": "あなたの言語で24/7チャットサポート",
-    "safetySource": "出典 · CEOWORLD 2026 Solo Female Travel Index"
+    "safetySource": "出典 · CEOWORLD 2026 Solo Female Travel Index",
+    "countryTitle": "同じ国の旅行者に愛されているサロン",
+    "countrySubtitle": "予約言語別キュレーション",
+    "langSheetTitle": "言語を選択",
+    "tabSearch": "検索",
+    "tabBookings": "予約",
+    "tabChat": "チャット",
+    "tabMypage": "マイページ"
   },
   "CustomerChat": {
     "back": "戻る",
