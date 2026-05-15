@@ -50,7 +50,7 @@ export function BottomActionBar({
       <Link
         href={bookHref}
         className={
-          "flex flex-1 items-center justify-center rounded-full bg-hesya-navy-900 px-5 text-sm font-semibold text-hesya-peach-50 transition hover:bg-hesya-navy-900/90 " +
+          "flex flex-1 items-center justify-center rounded-full bg-hesya-amber-500 px-5 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(232,169,122,0.35)] transition hover:bg-hesya-amber-600 " +
           (selectedServiceLabel ? "py-2" : "h-11")
         }
       >
@@ -59,7 +59,7 @@ export function BottomActionBar({
             <span>{bookLabel} →</span>
             <span
               data-testid="bottom-bar-selected-svc"
-              className="text-[10px] font-normal text-hesya-peach-50/80"
+              className="text-[10px] font-normal text-white/85"
             >
               {selectedServiceLabel}
             </span>

@@ -233,6 +233,8 @@ export default async function StoreDetailPage({
         photos={photos}
         placeholderLabel={t("heroPlaceholderAlt")}
         fallbackImageUrl={DEMO_HERO_FALLBACK}
+        backLabel={t("heroBackLabel")}
+        currentLocaleBadge={locale.toUpperCase().slice(0, 2)}
       />
 
       <div className="flex flex-col">
@@ -291,6 +293,8 @@ export default async function StoreDetailPage({
         </div>
 
         <SafetyProfileStrip
+          sectionTitle={t("safetyProfileTitle")}
+          sectionBadge={t("safetyProfileBadge")}
           kVerifiedLabel={t("safetyKVerifiedLabel")}
           verifiedValue={t("safetyKVerifiedValue")}
           hoursLabel={t("safetyHoursLabel")}
