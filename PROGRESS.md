@@ -34,7 +34,7 @@
   - **Resend 도메인 검증** (Jayden 외부 액션, 보류 중) — `docs/resend-domain-setup.md` 참조. 베타 출시 차단선.
   - **베타 5곳 매장 매칭** (Jayden 비즈니스, 보류 중) — Plan v3 baseline 충족 후 진행.
   - **Owner Dashboard 풀 디자인 Epic 결정** (참고: 본 세션 PDF 검토) — 위젯 9종 + shell sidebar + AI 인사이트 + 알림 panel 추가 (5~7일, 38~50h). 베타 매장 매칭이 데이터 prerequisite. 우선순위 재합의 필요 시 Epic 분리 plan doc 작성.
-  - **(코드 작업 자동 진행 후보 0건)** — 본 세션에서 모든 자동 진행 가능 task 완료. 추가 작업은 위 4개 Jayden 결정 후.
+  - **디자인 작업 마무리 후 진행할 코드 task 목록** → `docs/post-design-dev-tasks.md` 참조 — A 테스트 백필 / C Unsplash self-host / F L-082 객관 검증 / J 보안 audit / I PRD gap (즉시 진행 가능 5.5~8h) + 데이터 prerequisite 후 진행 (B/D/E 18h+) + 시점 의존 (G CI 복원 / H dep 마이그). 디자인 작업과 직교 차원.
 
 ## 이전 세션 33 종료 시점 (참고: 2026-05-14 — Sprint 2 12 PR + N=10 bench + main 회귀 진단·복구 (25+ → 9 fail))
 
