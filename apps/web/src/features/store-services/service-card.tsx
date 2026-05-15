@@ -15,14 +15,15 @@ const LANGS: ReadonlyArray<{
     ServiceRow,
     "nameKo" | "nameEn" | "nameJa" | "nameZhCn" | "nameZhTw" | "nameVi"
   >;
+  readonly id: string;
   readonly flag: string;
 }> = [
-  { key: "nameKo", flag: "🇰🇷" },
-  { key: "nameEn", flag: "🇺🇸" },
-  { key: "nameJa", flag: "🇯🇵" },
-  { key: "nameZhCn", flag: "🇨🇳" },
-  { key: "nameZhTw", flag: "🇹🇼" },
-  { key: "nameVi", flag: "🇻🇳" },
+  { key: "nameKo", id: "ko", flag: "🇰🇷" },
+  { key: "nameEn", id: "en", flag: "🇺🇸" },
+  { key: "nameJa", id: "ja", flag: "🇯🇵" },
+  { key: "nameZhCn", id: "zh", flag: "🇨🇳" },
+  { key: "nameZhTw", id: "zh-繁", flag: "🇹🇼" },
+  { key: "nameVi", id: "vi", flag: "🇻🇳" },
 ];
 
 /** Card photo gradient — 4색 cycling (peach/rose/sage/blue × amber). */
@@ -85,24 +86,6 @@ export function ServiceCard({
             ★ 인기
           </span>
         )}
-        <div className="absolute bottom-2 left-2 flex gap-0.5">
-          {LANGS.map((l) => {
-            const filled = !!row[l.key];
-            return (
-              <span
-                key={l.key}
-                aria-hidden="true"
-                className={[
-                  "grid h-5 w-5 place-items-center rounded text-[10px] leading-none",
-                  filled ? "bg-white/90" : "bg-white/30 opacity-50",
-                ].join(" ")}
-                title={`${l.key}: ${filled ? "ok" : "missing"}`}
-              >
-                {l.flag}
-              </span>
-            );
-          })}
-        </div>
       </div>
 
       <div className="flex flex-1 flex-col gap-1 px-3 py-3">
@@ -114,6 +97,26 @@ export function ServiceCard({
             {row.nameEn}
           </p>
         ) : null}
+        <div className="flex flex-wrap items-center gap-1 pt-2">
+          {LANGS.map((l) => {
+            const filled = !!row[l.key];
+            return (
+              <span
+                key={l.key}
+                title={`${l.id}: ${filled ? "ok" : "missing"}`}
+                className={
+                  "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.06em] " +
+                  (filled
+                    ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                    : "bg-hesya-navy-900/5 text-hesya-navy-900/40 ring-1 ring-hesya-navy-900/10")
+                }
+              >
+                <span aria-hidden="true">{filled ? "✓" : "—"}</span>
+                <span>{l.id}</span>
+              </span>
+            );
+          })}
+        </div>
         <div className="mt-auto flex items-center justify-between pt-2">
           <p className="font-mono text-[13px] font-semibold text-hesya-amber-600">
             ₩{row.priceKrw.toLocaleString("ko-KR")}
