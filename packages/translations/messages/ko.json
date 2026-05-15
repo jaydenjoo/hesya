@@ -489,7 +489,11 @@
     "totalLabel": "합계",
     "slotFew": "마감 임박",
     "closedLabel": "휴무",
-    "closedDayNote": "이 날은 매장이 휴무입니다. 다른 날을 선택해주세요."
+    "closedDayNote": "이 날은 매장이 휴무입니다. 다른 날을 선택해주세요.",
+    "slotLeft": "남음",
+    "legendOpen": "여유",
+    "legendFew": "임박",
+    "legendFull": "마감"
   },
   "BookConfirm": {
     "eyebrow": "예약 확정",

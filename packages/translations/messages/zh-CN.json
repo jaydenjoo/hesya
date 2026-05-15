@@ -489,7 +489,11 @@
     "totalLabel": "合计",
     "slotFew": "余少",
     "closedLabel": "休息",
-    "closedDayNote": "本日门店休息,请选择其他日期。"
+    "closedDayNote": "本日门店休息,请选择其他日期。",
+    "slotLeft": "剩余",
+    "legendOpen": "充足",
+    "legendFew": "紧张",
+    "legendFull": "已满"
   },
   "BookConfirm": {
     "eyebrow": "预约确认",

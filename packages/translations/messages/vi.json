@@ -489,7 +489,11 @@
     "totalLabel": "Tổng",
     "slotFew": "Sắp hết",
     "closedLabel": "Nghỉ",
-    "closedDayNote": "Cửa hàng nghỉ ngày này. Vui lòng chọn ngày khác."
+    "closedDayNote": "Cửa hàng nghỉ ngày này. Vui lòng chọn ngày khác.",
+    "slotLeft": "còn",
+    "legendOpen": "Còn nhiều",
+    "legendFew": "Sắp hết",
+    "legendFull": "Đã đặt"
   },
   "BookConfirm": {
     "eyebrow": "Xác nhận đặt lịch",

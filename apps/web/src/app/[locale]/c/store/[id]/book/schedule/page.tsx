@@ -172,6 +172,10 @@ export default async function StoreBookSchedulePage({
             depositBody: t("depositBody"),
             totalLabel: t("totalLabel"),
             slotFew: t("slotFew"),
+            slotLeft: t("slotLeft"),
+            legendOpen: t("legendOpen"),
+            legendFew: t("legendFew"),
+            legendFull: t("legendFull"),
             closedLabel: t("closedLabel"),
             closedDayNote: t("closedDayNote"),
           }}

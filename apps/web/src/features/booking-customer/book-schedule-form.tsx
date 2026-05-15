@@ -49,6 +49,10 @@ export interface ScheduleFormLabels {
   readonly depositBody: string;
   readonly totalLabel: string;
   readonly slotFew: string;
+  readonly slotLeft?: string;
+  readonly legendOpen?: string;
+  readonly legendFew?: string;
+  readonly legendFull?: string;
   readonly closedLabel: string;
   readonly closedDayNote: string;
 }
@@ -76,6 +80,14 @@ function availabilityFor(date: string, time: string): Avail {
   if (mod < 1) return "full";
   if (mod < 4) return "few";
   return "open";
+}
+
+function fewLeftFor(date: string, time: string): number {
+  let h = 0;
+  const src = `${date}|${time}|few`;
+  for (let i = 0; i < src.length; i++)
+    h = ((h << 5) - h + src.charCodeAt(i)) | 0;
+  return (Math.abs(h) % 2) + 1;
 }
 
 export function BookScheduleForm({
@@ -288,6 +300,29 @@ export function BookScheduleForm({
               {labels.closedDayNote}
             </p>
           ) : null}
+          <div className="mb-2 flex flex-wrap items-center gap-2 text-[10px] text-hesya-navy-900/55">
+            <span className="inline-flex items-center gap-1">
+              <span
+                aria-hidden="true"
+                className="h-2 w-2 rounded-full bg-emerald-500"
+              />
+              {labels.legendOpen ?? "Open"}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span
+                aria-hidden="true"
+                className="h-2 w-2 rounded-full bg-hesya-amber-500"
+              />
+              {labels.legendFew ?? "Few left"}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span
+                aria-hidden="true"
+                className="h-2 w-2 rounded-full bg-hesya-navy-900/25"
+              />
+              {labels.legendFull ?? "Booked"}
+            </span>
+          </div>
           <div className="grid grid-cols-4 gap-1.5">
             {timeSlots.map((slot) => {
               const active = time === slot.value;
@@ -310,8 +345,10 @@ export function BookScheduleForm({
                 >
                   {slot.value}
                   {avail === "few" && !active ? (
-                    <span className="absolute -right-0.5 -top-0.5 rounded-full bg-hesya-amber-500 px-1 py-px text-[8px] font-bold uppercase text-hesya-navy-900">
-                      {labels.slotFew}
+                    <span className="absolute -right-0.5 -top-0.5 rounded-full bg-hesya-amber-500 px-1 py-px text-[8px] font-bold uppercase text-white shadow-[0_1px_3px_rgba(232,169,122,0.4)]">
+                      {date
+                        ? `${fewLeftFor(date, slot.value)} ${labels.slotLeft ?? "left"}`
+                        : labels.slotFew}
                     </span>
                   ) : null}
                 </button>

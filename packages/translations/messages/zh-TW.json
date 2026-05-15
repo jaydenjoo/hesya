@@ -489,7 +489,11 @@
     "totalLabel": "合計",
     "slotFew": "餘少",
     "closedLabel": "公休",
-    "closedDayNote": "本日門市公休,請選擇其他日期。"
+    "closedDayNote": "本日門市公休,請選擇其他日期。",
+    "slotLeft": "剩餘",
+    "legendOpen": "充足",
+    "legendFew": "緊張",
+    "legendFull": "已滿"
   },
   "BookConfirm": {
     "eyebrow": "預約確認",

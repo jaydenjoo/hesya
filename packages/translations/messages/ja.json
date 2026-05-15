@@ -489,7 +489,11 @@
     "totalLabel": "合計",
     "slotFew": "残少",
     "closedLabel": "定休",
-    "closedDayNote": "この日は店休日です。別の日を選んでください。"
+    "closedDayNote": "この日は店休日です。別の日を選んでください。",
+    "slotLeft": "残り",
+    "legendOpen": "余裕あり",
+    "legendFew": "残りわずか",
+    "legendFull": "満員"
   },
   "BookConfirm": {
     "eyebrow": "ご予約確認",
