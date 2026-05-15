@@ -163,7 +163,7 @@ export function MyPageTabs({
       {perks && labels.perks && (
         <section
           data-testid="mypage-perks"
-          className="mt-6 rounded-2xl bg-gradient-to-br from-hesya-peach-100 to-hesya-amber-200/40 p-4 ring-1 ring-hesya-amber-600/15"
+          className="mt-6 rounded-2xl bg-hesya-peach-100 p-4"
         >
           <div className="flex items-center gap-3">
             <span aria-hidden="true" className="text-[28px]">
@@ -181,7 +181,7 @@ export function MyPageTabs({
           </div>
           <div className="relative mt-3 h-2 rounded-full bg-white/60">
             <div
-              className="h-full rounded-full bg-hesya-amber-500 transition-all"
+              className="h-full rounded-full bg-gradient-to-r from-hesya-amber-500 to-hesya-amber-600 transition-all"
               style={{
                 width: `${(perks.completedCount / perks.targetCount) * 100}%`,
               }}
@@ -284,6 +284,9 @@ function UpcomingPane({
       {rows.map((b) => (
         <article
           key={b.id}
+          style={{
+            ["--up-tint" as never]: pickWarmColor(b.id),
+          }}
           className="rounded-2xl bg-white p-4 shadow-[0_8px_24px_rgba(26,34,56,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(26,34,56,0.10)]"
         >
           <div className="cm-up-when">
@@ -305,12 +308,15 @@ function UpcomingPane({
           <div className="mt-1 flex items-start gap-3">
             <div
               aria-hidden="true"
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-hesya-amber-200 to-hesya-amber-600 font-heading text-[18px] font-semibold italic text-white"
+              style={{
+                background: `linear-gradient(135deg, ${pickWarmColor(b.id)}, var(--hesya-amber-600))`,
+              }}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl font-heading text-[18px] font-semibold italic text-white"
             >
               {(b.storeName ?? "?").charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="truncate font-heading text-[17px] font-semibold italic text-hesya-navy-900">
+              <div className="truncate text-[14px] font-semibold text-hesya-navy-900">
                 {b.storeName ?? "—"}
               </div>
               <div className="text-[12px] text-hesya-navy-900/65">
@@ -397,11 +403,17 @@ function PastPane({
           key={b.id}
           className="flex items-start gap-3 rounded-2xl bg-white p-4 ring-1 ring-hesya-navy-900/10"
         >
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-hesya-amber-200 to-hesya-amber-600 text-[18px] font-semibold text-hesya-navy-900">
+          <div
+            aria-hidden="true"
+            style={{
+              background: `linear-gradient(135deg, ${pickWarmColor(b.id)}, var(--hesya-amber-600))`,
+            }}
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-[18px] font-semibold text-white"
+          >
             {(b.storeName ?? "?").charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate font-heading text-[15px] font-semibold italic text-hesya-navy-900">
+            <div className="truncate text-[14px] font-semibold text-hesya-navy-900">
               {b.storeName ?? "—"}
             </div>
             <div className="truncate text-[12px] text-hesya-navy-900/65">
@@ -452,6 +464,19 @@ function pastRatingFromId(id: string): 4 | 5 {
   return last % 2 === 0 ? 5 : 4;
 }
 
+/**
+ * 카드 개성 색 cycling — reference mypage-app.jsx의 booking/store별 다른 warm
+ * color (peach / trust-rose / sage / cool-blue). booking.color 컬럼 도입 전 mock.
+ */
+const WARM_PALETTE = ["#F5DDC8", "#E8C4D6", "#D6E8C9", "#C9D6E8"] as const;
+function pickWarmColor(seed: string): string {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = (h * 31 + seed.charCodeAt(i)) | 0;
+  }
+  return WARM_PALETTE[Math.abs(h) % WARM_PALETTE.length] ?? WARM_PALETTE[0]!;
+}
+
 function SavedPane({
   rows,
   labels,
@@ -478,7 +503,12 @@ function SavedPane({
             className="cm-saved-card"
             aria-label={s.storeName ?? "store"}
           >
-            <div className="cm-saved-img">
+            <div
+              className="cm-saved-img"
+              style={{
+                background: `linear-gradient(135deg, ${pickWarmColor(s.storeId)}, var(--hesya-amber-600))`,
+              }}
+            >
               <UnsaveHeart
                 storeId={s.storeId}
                 locale={locale}
@@ -622,18 +652,33 @@ function ReviewCard({
 
   return (
     <article className="rounded-2xl bg-white p-4 ring-1 ring-hesya-navy-900/10">
-      <div className="font-heading text-[15px] font-semibold italic text-hesya-navy-900">
-        {labels.review.question.split("{store}").map((part, i, arr) => (
-          <span key={i}>
-            {part}
-            {i < arr.length - 1 && (
-              <em className="text-hesya-amber-600">{row.storeName ?? "—"}</em>
-            )}
-          </span>
-        ))}
-      </div>
-      <div className="mt-0.5 text-[11px] text-hesya-navy-900/55">
-        {row.serviceName ?? "—"}
+      <div className="flex items-start gap-3">
+        <div
+          aria-hidden="true"
+          style={{
+            background: `linear-gradient(135deg, ${pickWarmColor(row.bookingId)}, var(--hesya-amber-600))`,
+          }}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[16px] font-semibold text-white"
+        >
+          {(row.storeName ?? "?").charAt(0).toUpperCase()}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[15px] font-semibold text-hesya-navy-900 [word-break:keep-all]">
+            {labels.review.question.split("{store}").map((part, i, arr) => (
+              <span key={i}>
+                {part}
+                {i < arr.length - 1 && (
+                  <em className="not-italic text-hesya-amber-600">
+                    {row.storeName ?? "—"}
+                  </em>
+                )}
+              </span>
+            ))}
+          </div>
+          <div className="mt-0.5 text-[11px] text-hesya-navy-900/55">
+            {row.serviceName ?? "—"}
+          </div>
+        </div>
       </div>
       <div className="mt-3 flex items-center gap-1">
         {[1, 2, 3, 4, 5].map((i) => (
@@ -668,7 +713,11 @@ function ReviewCard({
           type="button"
           disabled={submitting || stars < 1 || content.trim().length < 2}
           onClick={handleSubmit}
-          className="rounded-full bg-hesya-navy-900 px-4 py-1.5 text-[12px] font-semibold text-hesya-peach-50 disabled:opacity-50"
+          className={
+            stars < 1 || content.trim().length < 2
+              ? "rounded-full bg-hesya-navy-900/15 px-4 py-1.5 text-[12px] font-semibold text-hesya-navy-900/40 cursor-not-allowed"
+              : "rounded-full bg-hesya-amber-500 px-4 py-1.5 text-[12px] font-semibold text-white shadow-[0_4px_10px_rgba(232,169,122,0.35)] transition hover:bg-hesya-amber-600 disabled:opacity-50"
+          }
         >
           {submitting ? "…" : labels.review.submit}
         </button>
