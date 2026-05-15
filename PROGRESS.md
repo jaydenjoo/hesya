@@ -3,7 +3,29 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 36 — 🎉 P0 8 페이지 모두 100% 디자인 정합 달성)
+## 현재 위치 (2026-05-15 세션 37 — 🚨 O1 reference 정합 재검증 + 7 PR로 시각 ~95% 달성)
+
+- **L-082 함정 재현 사례** — 세션 36의 "P0 8 페이지 모두 100% 디자인 정합 달성" 자기평가가 reference PDF 첨부 후 1:1 비교에서 ~50%로 측정됨. 코드 머지 완료 ≠ reference 시각 정합.
+- **검증 방법 (A + B 병행)**:
+  - A. code-explorer subagent로 reference `dashboard-app.jsx` (618line) + `dashboard.css` (1239line) vs 현재 `page.tsx` + 18개 dashboard 컴포넌트 1:1 trace → 25 격차 항목 매트릭스 도출
+  - B. Playwright로 prod URL (`hesya-web.vercel.app/ko/store/dashboard`) fullpage 캡처 vs reference PDF 나란히 비교
+- **시정 작업 7 PR (1세션 누적 머지, 격차 24/25 해결)**:
+  - PR [#211](https://github.com/jaydenjoo/hesya/pull/211) (4a14577) — KpiGrid 3행 제거 (reference에 없는 zone) + AIInsight↔Timeline swap
+  - PR [#212](https://github.com/jaydenjoo/hesya/pull/212) (d8d486f) — Bento 3-col 2행 + InboxTile 신규 (Channel 통합)
+  - PR [#213](https://github.com/jaydenjoo/hesya/pull/213) (3f3b79f) — Celebrations 우측 패널 (OwnerShell grid 3-col)
+  - PR [#214](https://github.com/jaydenjoo/hesya/pull/214) (d3d13be) — BrightSpot rotating carousel + Greeting eyebrow 제거 + 날씨 mock
+  - PR [#215](https://github.com/jaydenjoo/hesya/pull/215) (0c4c7e8) — TopBar 재정비 (Store pill / bell pulse / 한/영 토글 / avatar gradient)
+  - PR [#216](https://github.com/jaydenjoo/hesya/pull/216) (f56d202) — Sidebar 8항목 정리 + active peach-100+amber accent + Inbox badge wire + 매장 로고 box
+  - PR [#217](https://github.com/jaydenjoo/hesya/pull/217) (52a329a) — TileBookings 56px italic + GMV gradient + useCountUp + tileReveal stagger 6 tile
+- **시각 정합 결과 (prod 캡처 vs reference PDF 1:1 비교)**:
+  - **O1 Dashboard 시각 정합 ~95%** (격차 24/25 해결, Sidebar collapse 인터랙션만 deferred)
+  - 24 해결 항목: TopBar 5개 + Sidebar 4개 + Greeting 2개 + Bento 4개 + BrightSpot + 순서 swap + KpiGrid 제거 + Celebrations 우측 + 시각 디테일 2개 + 애니메이션 2개
+- **잔여 작업**:
+  - **시연 % 100%**: NationalityTile / TodayBookings / WeeklyGmv / AiAccuracy mock → 실 DAL wire (별도 task, ~12h)
+  - **Sidebar collapse 인터랙션** (낮은 우선순위, 시각 default 상태는 reference와 동일)
+  - **P0 8 페이지 중 O1만 reference 정합 진행 완료** → 나머지 7 페이지 (C1~C5, O2, O9)도 동일 패턴 (reference 첨부 → A+B 검증 → PR 분할)으로 재진단 권장. 세션 36의 "100% 정합" 자기평가는 L-082 함정 사례이므로 다른 7 페이지도 격차 가능성 큼.
+
+## 이전 위치 (2026-05-15 세션 36 — P0 8 페이지 모두 100% 디자인 정합 달성 [자기평가 ⚠️ L-082 함정])
 
 - **Phase**: **Design Completion Epic Phase 1 완료 (P0 8 페이지 정밀 inventory) → Phase 2 시작 (fast track 1 페이지 / 1 세션)**
 - **Phase 1 완료 (2026-05-15)**:

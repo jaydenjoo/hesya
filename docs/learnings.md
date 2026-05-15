@@ -36,6 +36,52 @@
 
 ## 기록
 
+### [2026-05-15] L-102 — Fast track 1세션 10PR 패턴이 reference 정합 검증 없이 "100% 달성" 선언 → 실제 ~50% (L-082 함정의 재현)
+
+**증상**: 세션 36에서 "🎉 1 세션 10 PR 연속 머지 (단계 1~5b + O1/C5/O2 100% 마감) — P0 8 페이지 모두 100% 디자인 정합 달성" 으로 PROGRESS.md 갱신. 다음 세션 (37)에서 Jayden이 reference PDF (`docs/design/reference/dashboard.png`) 첨부 + "이게 100% 동일하지 않은데?" 의문 제기. code-explorer subagent로 reference jsx/css 원본 vs 현재 코드 1:1 trace 결과: 25개 격차 항목, 실제 시각 정합 ~50%. 격차 카테고리:
+
+- **레이아웃 순서 위반** — AIInsight ↔ Timeline 반전, Bento 3-col 2행 미통합 (분산 배치)
+- **Reference에 없는 zone 추가** — KpiGrid 3행 (rowHero/Mix/Secondary 9개 generic KPI), ChannelBreakdown 별도 section
+- **시각 디테일 격차** — TopBar 배경/pill/검색/bell/언어 토글/avatar 5개, Sidebar active 스타일 반전 + 매장 로고 박스 누락 + 잉여 항목 4개, BrightSpot 정적 (vs rotating carousel), Greeting eyebrow 추가 + 날씨 누락, TileBookings 숫자 폰트 격차, GMV bar 색 단색 (vs gradient), Celebrations 하단 (vs 우측 패널)
+- **애니메이션 누락** — useCountUp / tileReveal 스태거 전혀 없음
+
+**원인**:
+
+1. **PROGRESS 자기평가 갱신 시 reference vs 코드 직접 비교 게이트 누락** — L-082 명시 ("코드 머지 완료 ≠ e2e 시연 가능") 가 있어도 실행 시 "PR 머지 + CI green + 컴포넌트 단위 vitest 통과"만 보고 "100% 달성" 선언. 시각 비교는 한 번도 수행 안 함.
+2. **1세션 10PR 가속 패턴 자체의 함정** — fast track 속도를 유지하려면 PR마다 시각 검증 + Jayden 시연 승인 게이트가 필요한데, 빠른 머지를 위해 모두 생략. L-101 ("정밀 inventory 80h를 1 세션에 압축 가능")은 압축 조건을 명시했지만 검증 게이트는 다루지 않음.
+3. **Reference 자산이 코드와 분리** — reference jsx/css가 `docs/design/reference/`에 있으나, dashboard 컴포넌트 코드는 reference 파일을 import / 참조하지 않음. JSDoc 주석 ("Reference: dashboard-app.jsx:148-198") 만으로는 시각 매칭 보장 불가.
+
+**해결**: 세션 37에서 7 PR 누적 (#211~#217)으로 격차 24/25 해결, 시각 정합 ~95%까지 회복. 각 PR마다:
+
+1. CI 통과 검증 (tsc + eslint + vitest 732 passed)
+2. main 머지 → Vercel preview 자동 배포
+3. 다음 PR 시작 전 Playwright로 prod URL 캡처 + reference PDF 비교 (`grep -A reference` 같은 코드 trace 보다 시각 캡처가 훨씬 정확)
+4. PR 분할 — 1 PR = 1 응집된 변경 (Bento 그리드 / 우측 패널 / TopBar / Sidebar 등)
+
+**규칙** ⭐:
+
+1. **PROGRESS "디자인 정합 N%" 갱신 의무 게이트 (L-082 강화)**:
+   - 시각 % 갱신 시: reference PDF/JSX/CSS 첨부 → Playwright prod 캡처 → 좌우 시각 비교 1회 → 격차 매트릭스 (해결 / 미해결 / 추가 항목) 명시 첨부 의무.
+   - 코드 트레이스 / 컴포넌트 JSDoc 참조 / vitest 통과 만으로 시각 % 갱신 금지.
+   - "~95% / ~50%" 같은 추정치 사용 시 반드시 격차 매트릭스 항목 수 표기 (예: "24/25 해결").
+
+2. **Fast track PR 1세션 N개 머지는 정합 검증 N회와 분리 작업**:
+   - "1 세션 10 PR" 속도는 유지하되, 정합 검증은 PR 1개당 1회 — reference 첨부 시 즉시 매트릭스 추출 → PR별 해결 항목 명시 → 머지 후 시각 캡처 → 다음 PR.
+   - "마지막에 한 번에 검증"은 함정 (L-082 + L-094 + L-102 모두 같은 패턴).
+
+3. **격차 매트릭스 = 7 PR 분할 단위**:
+   - 25 격차 항목 → 카테고리별 6~7 PR (TopBar / Sidebar / Bento / 우측 패널 / BrightSpot / 시각 디테일 / 애니메이션).
+   - 카테고리 안 항목은 같은 PR (e.g., TopBar 5 항목 = PR 1개), 서로 다른 카테고리는 별도 PR.
+   - 각 PR 머지 후 prod URL 재캡처 → reference 와 다시 비교 → 격차 매트릭스 update.
+
+4. **Reference 자산을 코드와 가까이**:
+   - JSDoc 주석 참조만으로는 부족. dashboard 컴포넌트 폴더에 reference 캡처 image 1장 (e.g., `reference-tile-bookings.png`) 두고 PR 머지 후 prod 캡처와 좌우 비교 가능하게.
+   - 향후 storybook 도입 시 reference 이미지가 컴포넌트 옆에 표시되도록.
+
+**확인 방법**: PROGRESS.md "% 갱신" 시 자동 hook 또는 PR 템플릿에 "reference 시각 비교 캡처 첨부" 체크박스 의무화. Vercel preview 자동 댓글 + reference 이미지 옆에 표시되는 워크플로우 (PR description에 prod URL + reference 동시 표기) 가능.
+
+---
+
 ### [2026-05-13] L-094 — Auth 변경 시 happy path 끝 단계(클릭/세션) 직접 검증 안 하고 "완료" 선언
 
 **증상**: PR #144 (owner magic link) 머지 후 종합 보고로 "✅ Prod 머지 + 검증 완료" 선언. Jayden이 prod에서 직접 메일 받아 클릭하니 `/api/auth/magic-link/verify?callbackURL=%2F` → `/ko` redirect → 로그인 페이지로 다시 → "왜 계속 오류와 실수가 발생하는건지" Jayden 명시 항의. 세션 내 누적 4건 fix 모두 같은 패턴.
