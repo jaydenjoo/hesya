@@ -30,6 +30,18 @@
     "channelBreakdown": {
       "title": "按渠道未读"
     },
+    "timeline": {
+      "title": "今日日程",
+      "now": "现在 {time}",
+      "chair1": "1号座位",
+      "chair2": "2号座位",
+      "legendForeign": "外国人",
+      "legendDomestic": "本地",
+      "popoverDetail": "详情",
+      "popoverMessage": "消息",
+      "popoverReschedule": "改期",
+      "popoverComingSoon": "即将推出"
+    },
     "comingSoonNote": "在结算和预订数据记录后自动启用",
     "kpis": {
       "inboxUnread": "未读消息",

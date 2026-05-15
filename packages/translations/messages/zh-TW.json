@@ -30,6 +30,18 @@
     "channelBreakdown": {
       "title": "依管道未讀"
     },
+    "timeline": {
+      "title": "今日行程",
+      "now": "現在 {time}",
+      "chair1": "1號座位",
+      "chair2": "2號座位",
+      "legendForeign": "外國人",
+      "legendDomestic": "本地",
+      "popoverDetail": "詳情",
+      "popoverMessage": "訊息",
+      "popoverReschedule": "改期",
+      "popoverComingSoon": "即將推出"
+    },
     "comingSoonNote": "在結帳和預約資料記錄後自動啟用",
     "kpis": {
       "inboxUnread": "未讀訊息",

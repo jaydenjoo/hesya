@@ -30,6 +30,18 @@
     "channelBreakdown": {
       "title": "チャネル別 未読"
     },
+    "timeline": {
+      "title": "本日のスケジュール",
+      "now": "現在 {time}",
+      "chair1": "1番席",
+      "chair2": "2番席",
+      "legendForeign": "外国人",
+      "legendDomestic": "韓国人",
+      "popoverDetail": "詳細",
+      "popoverMessage": "メッセージ",
+      "popoverReschedule": "変更",
+      "popoverComingSoon": "近日公開"
+    },
     "comingSoonNote": "決済・予約データ蓄積後に自動有効化",
     "kpis": {
       "inboxUnread": "未読メッセージ",
