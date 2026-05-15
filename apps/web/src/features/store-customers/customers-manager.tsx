@@ -80,6 +80,8 @@ export function CustomersManager({ rows, labels }: Props) {
     );
   }
 
+  const hasSelection = selected != null;
+
   return (
     <div>
       <FilterRow
@@ -95,24 +97,49 @@ export function CustomersManager({ rows, labels }: Props) {
         labels={labels.filter}
       />
 
-      {filtered.length === 0 ? (
-        <p className="rounded-2xl border border-hesya-peach-200 bg-white px-6 py-10 text-center text-[13px] text-hesya-navy-900/55">
-          {labels.emptyText}
-        </p>
-      ) : (
-        <CustomersTable
-          rows={filtered}
-          labels={labels.table}
-          onSelect={(r) => setSelectedId(r.id)}
-          selectedId={selectedId}
-        />
-      )}
+      <div
+        className={
+          hasSelection ? "grid items-start gap-4 lg:grid-cols-[1fr_440px]" : ""
+        }
+      >
+        <div className="min-w-0">
+          {filtered.length === 0 ? (
+            <p className="rounded-2xl border border-hesya-peach-200 bg-white px-6 py-10 text-center text-[13px] text-hesya-navy-900/55">
+              {labels.emptyText}
+            </p>
+          ) : (
+            <CustomersTable
+              rows={filtered}
+              labels={labels.table}
+              onSelect={(r) => setSelectedId(r.id)}
+              selectedId={selectedId}
+            />
+          )}
+        </div>
 
-      <DetailSheet
-        row={selected}
-        onClose={() => setSelectedId(null)}
-        labels={labels.detail}
-      />
+        {hasSelection && (
+          <>
+            {/* Mobile/tablet (<lg): modal mode */}
+            <div className="lg:hidden">
+              <DetailSheet
+                row={selected}
+                onClose={() => setSelectedId(null)}
+                labels={labels.detail}
+                mode="modal"
+              />
+            </div>
+            {/* Desktop (lg+): inline split-view column */}
+            <div className="hidden lg:block">
+              <DetailSheet
+                row={selected}
+                onClose={() => setSelectedId(null)}
+                labels={labels.detail}
+                mode="inline"
+              />
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
