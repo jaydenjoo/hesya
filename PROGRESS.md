@@ -3,7 +3,10 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 42 — 🎯 P1 구조적 quick wins 10 PR 추가, 누적 33 PR)
+## 현재 위치 (2026-05-15 세션 42 — 🎯 P1 quick wins 10 PR + 큰 구조 1 PR, 누적 34 PR)
+
+- **세션 42 추가 작업 (Jayden 승인 후 큰 구조 작업)**:
+  - PR [#250](https://github.com/jaydenjoo/hesya/pull/250) — **Owner Bookings SidePanel 4-tab + cancel inline refund preview**. 10 파일, 679+/57-. Info/History/Notes/Risk 4 탭 + cancel 인라인 refund 카드. mock fixture 3종 추가 (History/Notes/Risk). 23 detail.\* 라벨 × 6 locale. **진단 ~62% → ~80%**.
 
 - **세션 42 (2026-05-15, /loop dynamic mode)**: 세션 41 P1 16 페이지 quick wins에 이어 구조적 격차가 큰 페이지·탭에 집중. 페이지당 1 PR (~30-90분), 4.5분 wakeup 사이클로 10 PR 추가 머지.
 - **시정 작업 10 PR (세션 42 누적 머지)**:
