@@ -44,6 +44,34 @@ function fmtKRW(v: number | null): string {
   return `₩${v.toLocaleString("ko-KR")}`;
 }
 
+/** Avatar 3색 palette (reference cu-avatar id%3 color). */
+const AVATAR_BGS = [
+  "linear-gradient(135deg, #F5DDC8, #D88B5B)",
+  "linear-gradient(135deg, #C9D6E8, #D88B5B)",
+  "linear-gradient(135deg, #D6E8C9, #D88B5B)",
+] as const;
+function avatarBg(seed: string): string {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = (h * 31 + seed.charCodeAt(i)) | 0;
+  }
+  return AVATAR_BGS[Math.abs(h) % AVATAR_BGS.length] ?? AVATAR_BGS[0]!;
+}
+
+const FLAGS: Record<string, string> = {
+  jp: "🇯🇵",
+  cn: "🇨🇳",
+  tw: "🇹🇼",
+  us: "🇺🇸",
+  vn: "🇻🇳",
+  kr: "🇰🇷",
+  th: "🇹🇭",
+  hk: "🇭🇰",
+};
+function flagForNationality(code: string): string {
+  return FLAGS[code.toLowerCase()] ?? "🌍";
+}
+
 export function CustomersTable({ rows, labels, onSelect, selectedId }: Props) {
   return (
     <div className="overflow-hidden rounded-2xl border border-hesya-peach-200 bg-white">
@@ -75,9 +103,15 @@ export function CustomersTable({ rows, labels, onSelect, selectedId }: Props) {
             >
               <span
                 aria-hidden="true"
-                className="grid h-8 w-8 place-items-center rounded-full bg-hesya-peach-100 text-[12px] font-semibold text-hesya-navy-900"
+                style={{ background: avatarBg(row.id) }}
+                className="relative grid h-9 w-9 place-items-center rounded-full text-[12px] font-semibold text-white"
               >
                 {initialOf(row.name)}
+                {row.nationality && row.nationality.toLowerCase() !== "kr" && (
+                  <span className="absolute -bottom-0.5 -right-0.5 grid h-4 w-4 place-items-center rounded-full border-2 border-white bg-white text-[9px]">
+                    {flagForNationality(row.nationality)}
+                  </span>
+                )}
               </span>
 
               <div className="min-w-0">
