@@ -118,6 +118,26 @@ function GreetingStack() {
   );
 }
 
+/**
+ * Store 카드 배경 4색 cycling (reference landing.css alt-1~4).
+ * peach-amber / navy-cream radial / slate-amber / sage-amber.
+ */
+const STORE_CARD_BGS = [
+  "linear-gradient(135deg, #F5DDC8, #D88B5B)",
+  "radial-gradient(circle at 30% 30%, #FAF4ED, #1A2238 80%)",
+  "linear-gradient(135deg, #C9D6E8, #D88B5B)",
+  "linear-gradient(135deg, #D6E8C9, #D88B5B)",
+] as const;
+function pickStoreCardBg(seed: string): string {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = (h * 31 + seed.charCodeAt(i)) | 0;
+  }
+  return (
+    STORE_CARD_BGS[Math.abs(h) % STORE_CARD_BGS.length] ?? STORE_CARD_BGS[0]!
+  );
+}
+
 /** CamIllust SVG — AI photo card 우측 사이드 일러스트 (reference landing-app.jsx CamIllust 정합). */
 function CamIllust() {
   return (
@@ -891,7 +911,8 @@ function StoreCard({
     >
       <div
         aria-hidden="true"
-        className="aspect-[5/4] bg-gradient-to-br from-hesya-amber-200 via-hesya-amber-600 to-hesya-amber-800"
+        style={{ background: pickStoreCardBg(store.id) }}
+        className="aspect-[5/4]"
       />
       <div className="p-4">
         <h3 className="truncate font-heading text-[17px] font-semibold italic text-hesya-navy-900">
