@@ -3,7 +3,7 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 35 — Design Completion Epic Phase 1 inventory + Phase 2 fast track 진입)
+## 현재 위치 (2026-05-15 세션 36 — O1 단계 1 + 단계 2 머지 완료, 단계 3 시작점)
 
 - **Phase**: **Design Completion Epic Phase 1 완료 (P0 8 페이지 정밀 inventory) → Phase 2 시작 (fast track 1 페이지 / 1 세션)**
 - **Phase 1 완료 (2026-05-15)**:
@@ -35,15 +35,35 @@
   - **#6 C5 Customer Store Detail** 52% → ~90% — PR [#200](https://github.com/jaydenjoo/hesya/pull/200) (c-detail.css 357 line + info block + rich service cards + 2-col stylists + filter chips). 9 누락 항목 (item 6, 8-15) 별도 task.
   - **#7 O2 Owner Inbox** 73% → ~92% — PR [#201](https://github.com/jaydenjoo/hesya/pull/201) (inbox.css 243 line + ShortcutFab 컴포넌트 + thread 태그 3종 + bubble audit toggle + thread-header actions + J/K/? 키바인딩). item 4 (국적 flag — nationality DAL prerequisite) + item 8 (Risk 탭 — Epic 1C) + item 9-15 (minor) 별도 task.
 - **fast track #8 — O1 Owner Store Dashboard** (정밀 22% → 100%, ~80h ≈ 10~12d, **가장 큰 차단선**):
-  - 위젯 9종 미구현. 1세션 fast track 단번 처리 비현실적 → **단계 분할** 시작.
-  - **단계 1 (PR [#202](https://github.com/jaydenjoo/hesya/pull/202), CI 대기 중, 22% → ~45%)**:
+  - 위젯 9종 미구현. 1세션 fast track 단번 처리 비현실적 → **단계 분할** 진행 중.
+  - **단계 1 머지 완료 (PR [#202](https://github.com/jaydenjoo/hesya/pull/202), commit `e936d40`, 22% → ~45%)**:
     - W10 환불 Alert 배너 — `critical-alert.tsx` 신규 (dispute.active>0 시 red border-left + ghost action)
     - W13 Greeting subtitle 동적 — `dashboard-header.tsx` subtitle을 ReactNode로 확장, `t.rich` + strong tag
     - W3 채널별 미답 분해 — `channel-breakdown.tsx` 신규 (Instagram/WhatsApp/Kakao/LINE 4 카드, fixed ratio mock 40/30/20/10)
     - 6 locale i18n 추가 (greetingSubtitle / criticalAlert / channelBreakdown)
-    - mock-first 정책: todayBookings/newReviews 0, 채널 분배 fixed ratio (실 DAL 확장 별도 task)
-  - **단계 2 (다음 세션)**: W7 오늘 일정 Timeline (3d, 가장 시각적 차이 큰 위젯 — 09~21시 가로 timeline + 2 row track + hover popover + 외국인/내국인 토글)
-  - 단계 3~5 (이후 세션들): W2/W9 → W6/W4 → W1/W11/W8/W5 (데이터 prerequisite 충족 후)
+  - **단계 2 머지 완료 (PR [#203](https://github.com/jaydenjoo/hesya/pull/203), commit `a172a02`, ~45% → ~55%)**:
+    - W7 오늘의 일정 Timeline — `today-timeline.tsx` 신규 (~258 line)
+    - 09~21시 가로 timeline (13 hour ticks) + 2 row track (1번/2번 자리)
+    - 9 mock bookings (multi-locale flag 🇰🇷🇯🇵🇨🇳🇺🇸🇻🇳, foreign/domestic mix, 1개 `current: true`)
+    - "지금 14:24" red current-time vertical line
+    - per-block hover/focus popover (상세/메시지/변경 disabled + "곧 출시" tooltip)
+    - 외국인=peach / 내국인=gray + amber ring on current
+    - keyboard a11y: button focus-visible + onFocus/onBlur popover
+    - i18n 6 locale (Dashboard.timeline namespace 10 keys × 6 locale = 60 entries)
+    - 위치: `BrightSpot` 다음, `KpiGrid` 앞 (reference 시각 위계 따름)
+  - **단계 3 (다음 세션 시작점)**: W2 주간 GMV 타일 (2d) + W6 K-Verified Gold Tier 타일 (1.5d)
+    - W2: 전주 비교 % + 7-bar chart (mock 7일 데이터, recharts BarChart 또는 SVG bar)
+    - W6: ribbon + tier + 재검증 날짜 (mock — kyc schema 확장 별도)
+    - prerequisite: 둘 다 mock-first 가능 (실 데이터 wire 별도 task). 1 PR로 묶기 가능 (각 ~150 line, 합 ~300 line)
+    - i18n: Dashboard 신규 namespace 2개 (weeklyGmv / kVerified), 6 locale × 5~6 keys
+  - 단계 4~5 (이후 세션들): W4 국적 대형 타일 + W9 후기 cards → W1/W11/W8/W5 (데이터 prerequisite 충족 후)
+
+## 세션 36 요약 (2026-05-15)
+
+- **PR [#202](https://github.com/jaydenjoo/hesya/pull/202) 머지** O1 단계 1 (commit `e936d40`, 22% → ~45%) — Stage 1 W10 alert + W13 greeting + W3 channel breakdown.
+- **PR [#203](https://github.com/jaydenjoo/hesya/pull/203) 생성·머지** O1 단계 2 W7 Timeline (commit `a172a02`, ~45% → ~55%) — 09~21시 가로 timeline + 2 row + 9 mock bookings + popover + 6 locale i18n. type-check + lint PASS, CI 4m30s success.
+- O1 진행도: 22% → ~55%. P0 8 페이지 중 O1만 단계 진행 중 (나머지 7개 100% / O2 ~92%).
+- 다음 세션 단계 3: W2 주간 GMV (2d) + W6 K-Verified Gold (1.5d). 1 PR 묶기 가능.
 
 ## 세션 35 요약 (2026-05-15)
 
