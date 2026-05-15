@@ -42,6 +42,27 @@
       "popoverReschedule": "Đổi lịch",
       "popoverComingSoon": "Sắp ra mắt"
     },
+    "weeklyGmv": {
+      "title": "Doanh thu khách nước ngoài tuần này",
+      "currency": "₩",
+      "deltaPositive": "+{pct}% so với tuần trước",
+      "deltaNegative": "-{pct}% so với tuần trước",
+      "chartAria": "Biểu đồ cột doanh thu {count} ngày gần nhất",
+      "dayMon": "T2",
+      "dayTue": "T3",
+      "dayWed": "T4",
+      "dayThu": "T5",
+      "dayFri": "T6",
+      "daySat": "T7",
+      "daySun": "CN"
+    },
+    "kVerified": {
+      "title": "Trạng thái K-Verified",
+      "statusVerified": "Đã xác minh",
+      "levelLabel": "Hạng",
+      "renewalLabel": "Gia hạn tiếp theo",
+      "historyLink": "Xem lịch sử xác minh"
+    },
     "comingSoonNote": "Kích hoạt sau khi có dữ liệu thanh toán & đặt lịch",
     "kpis": {
       "inboxUnread": "Tin nhắn chưa đọc",

@@ -42,6 +42,27 @@
       "popoverReschedule": "変更",
       "popoverComingSoon": "近日公開"
     },
+    "weeklyGmv": {
+      "title": "今週の外国人売上",
+      "currency": "₩",
+      "deltaPositive": "前週比 +{pct}%",
+      "deltaNegative": "前週比 -{pct}%",
+      "chartAria": "直近{count}日間の売上棒グラフ",
+      "dayMon": "月",
+      "dayTue": "火",
+      "dayWed": "水",
+      "dayThu": "木",
+      "dayFri": "金",
+      "daySat": "土",
+      "daySun": "日"
+    },
+    "kVerified": {
+      "title": "K-Verified ステータス",
+      "statusVerified": "認証済み",
+      "levelLabel": "レベル",
+      "renewalLabel": "次回更新",
+      "historyLink": "認証履歴を見る"
+    },
     "comingSoonNote": "決済・予約データ蓄積後に自動有効化",
     "kpis": {
       "inboxUnread": "未読メッセージ",

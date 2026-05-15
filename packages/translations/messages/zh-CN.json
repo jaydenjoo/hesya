@@ -42,6 +42,27 @@
       "popoverReschedule": "改期",
       "popoverComingSoon": "即将推出"
     },
+    "weeklyGmv": {
+      "title": "本周外国客营收",
+      "currency": "₩",
+      "deltaPositive": "较上周 +{pct}%",
+      "deltaNegative": "较上周 -{pct}%",
+      "chartAria": "最近{count}天营收柱状图",
+      "dayMon": "周一",
+      "dayTue": "周二",
+      "dayWed": "周三",
+      "dayThu": "周四",
+      "dayFri": "周五",
+      "daySat": "周六",
+      "daySun": "周日"
+    },
+    "kVerified": {
+      "title": "K-Verified 状态",
+      "statusVerified": "已认证",
+      "levelLabel": "等级",
+      "renewalLabel": "下次复审",
+      "historyLink": "查看认证记录"
+    },
     "comingSoonNote": "在结算和预订数据记录后自动启用",
     "kpis": {
       "inboxUnread": "未读消息",
