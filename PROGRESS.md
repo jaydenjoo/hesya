@@ -3,7 +3,34 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 37 — 🚨 O1 reference 정합 재검증 + 7 PR로 시각 ~95% 달성)
+## 현재 위치 (2026-05-15 세션 38 — 🎯 P0 8 페이지 reference 정합 일괄 시정 14 PR 머지)
+
+- **세션 38 (2026-05-15 후반)**: O1 시각 ~95% 달성 후 사용자 지시 "나머지 작업 모두 순차적으로 진행" → 1 세션 내 6 PR 추가 머지로 나머지 7 페이지 quick wins 일괄 적용.
+- **시정 작업 6 PR (1세션 누적 머지)**:
+  - PR [#218](https://github.com/jaydenjoo/hesya/pull/218) — C5 Store Detail (Bottom Action Bar 색·라벨 + back/locale chip + safety profile header)
+  - PR [#219](https://github.com/jaydenjoo/hesya/pull/219) — C2 Customer Chat 색상 토큰 (translate toggle / salon bubble / composer bg / audit btn)
+  - PR [#220](https://github.com/jaydenjoo/hesya/pull/220) — C3 Booking Confirmation (Timeline emoji + Map placeholder + Calligraphy + Defensive links + i18n 6 locale)
+  - PR [#221](https://github.com/jaydenjoo/hesya/pull/221) — C4 MyPage Upcoming (mini-timeline 컨테이너 + 카드 shadow + Show QR amber)
+  - PR [#222](https://github.com/jaydenjoo/hesya/pull/222) — C1 Customer Landing (AI photo card grid+CamIllust + UGC dashed amber + Safety border trust-rose)
+  - PR [#223](https://github.com/jaydenjoo/hesya/pull/223) — O2 Inbox (Thread preview italic + urgent red dot + Header flag/lang chip)
+  - PR [#224](https://github.com/jaydenjoo/hesya/pull/224) — O9 Store Login CSS cleanup (Google btn 52px/14px + animation-delay 10단계 + sl-magic dead 85줄 제거)
+- **세션 38 정합 결과 (subagent 진단 + 1:1 reference 매핑 기준)**:
+  | 페이지 | 진단 % | 시정 후 % | PR |
+  | --- | --- | --- | --- |
+  | C2 Customer Chat | 50-55% | ~70% | #219 |
+  | C3 Booking Confirmation | ~42% | ~60% | #220 |
+  | C4 MyPage | ~72% | ~85% | #221 |
+  | C1 Customer Landing | ~72% | ~85% | #222 |
+  | O2 Owner Inbox | ~88% | ~93% | #223 |
+  | O9 Store Login | ~93% | ~97% | #224 |
+- **세션 38 검증**: type-check / lint / vitest 732 매 PR 통과. 모든 PR Vercel preview 빌드 SUCCESS + 수동 머지 (auto-merge.yml은 workflow_dispatch 미트리거).
+- **잔여 작업 (다음 세션)**:
+  - 각 페이지 prod 캡처 vs reference PDF 1:1 시각 회귀 검증 (subagent 진단 기준 정확도 확인)
+  - P1/P2 항목 다음 세션 — C2 Audit sheet 구조, C3 Story Share + Safety tips 신규 섹션, O2 Composer 단축키 + AI Assist tone pill, C4 Past 카드 photo gradient 등
+  - **시연 % 100% (별도)**: O1 NationalityTile / TodayBookings / WeeklyGmv / AiAccuracy 실 DAL wire (~12h)
+  - **Sidebar collapse 인터랙션** (낮은 우선순위)
+
+## 이전 위치 (2026-05-15 세션 37 — 🚨 O1 reference 정합 재검증 + 7 PR로 시각 ~95% 달성)
 
 - **L-082 함정 재현 사례** — 세션 36의 "P0 8 페이지 모두 100% 디자인 정합 달성" 자기평가가 reference PDF 첨부 후 1:1 비교에서 ~50%로 측정됨. 코드 머지 완료 ≠ reference 시각 정합.
 - **검증 방법 (A + B 병행)**:
