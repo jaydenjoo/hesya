@@ -47,38 +47,87 @@ export function KycQueueStats({
   labels: KycQueueLabels;
 }) {
   return (
-    <section
-      data-testid="kyc-queue-stats"
-      className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-4"
-    >
-      <StatTile
-        label={labels.statsPending}
-        value={`${stats.pending}`}
-        tone="default"
-      />
-      <StatTile
-        label={labels.statsSlaBreached}
-        value={`${stats.slaBreached}`}
-        tone={stats.slaBreached > 0 ? "danger" : "default"}
-      />
-      <StatTile
-        label={labels.statsAvgRisk}
-        value={`${stats.avgRiskScore}`}
-        tone={
-          stats.avgRiskScore >= 60
-            ? "danger"
-            : stats.avgRiskScore >= 30
-              ? "warn"
-              : "default"
-        }
-      />
-      <StatTile
-        label={labels.statsAutoApproved}
-        value={`${stats.weekAutoApprovedPct}%`}
-        hint={`${labels.statsApproved} ${stats.todayApproved} · ${labels.statsRejected} ${stats.todayRejected}`}
-        tone="default"
-      />
+    <section data-testid="kyc-queue-stats" className="mb-6 space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusPill
+          icon="📋"
+          label={labels.statsPending}
+          value={stats.pending}
+          tone={stats.pending > 0 ? "urgent" : "default"}
+          active
+        />
+        <StatusPill
+          icon="✅"
+          label={labels.statsApproved}
+          value={stats.todayApproved}
+        />
+        <StatusPill
+          icon="❌"
+          label={labels.statsRejected}
+          value={stats.todayRejected}
+        />
+        <StatusPill
+          icon="⚠"
+          label={labels.statsSlaBreached}
+          value={stats.slaBreached}
+          tone={stats.slaBreached > 0 ? "warn" : "default"}
+        />
+      </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <StatTile
+          label={labels.statsAvgRisk}
+          value={`${stats.avgRiskScore}`}
+          tone={
+            stats.avgRiskScore >= 60
+              ? "danger"
+              : stats.avgRiskScore >= 30
+                ? "warn"
+                : "default"
+          }
+        />
+        <StatTile
+          label={labels.statsAutoApproved}
+          value={`${stats.weekAutoApprovedPct}%`}
+          hint={`${labels.statsApproved} ${stats.todayApproved} · ${labels.statsRejected} ${stats.todayRejected}`}
+          tone="default"
+        />
+      </div>
     </section>
+  );
+}
+
+function StatusPill({
+  icon,
+  label,
+  value,
+  tone = "default",
+  active = false,
+}: {
+  icon: string;
+  label: string;
+  value: number;
+  tone?: "default" | "urgent" | "warn";
+  active?: boolean;
+}) {
+  const toneClass =
+    tone === "urgent"
+      ? "border-hesya-amber-500/40 bg-hesya-amber-500/10 text-hesya-amber-700"
+      : tone === "warn"
+        ? "border-rose-200 bg-rose-50 text-rose-700"
+        : "border-hesya-peach-200 bg-white text-hesya-navy-900/75";
+  const activeRing = active
+    ? "ring-1 ring-hesya-amber-500/30 shadow-[0_1px_3px_rgba(232,169,122,0.18)]"
+    : "";
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11.5px] ${toneClass} ${activeRing}`}
+    >
+      <span aria-hidden="true" className="text-[11px]">
+        {icon}
+      </span>
+      <span className="kr font-medium">{label}</span>
+      <span className="mono font-semibold tabular-nums">{value}</span>
+    </span>
   );
 }
 
@@ -132,6 +181,31 @@ export function KycQueueList({
   );
 }
 
+type PipelineState = "pass" | "warn" | "fail" | "skip";
+
+function derivePipelineSteps(item: KycQueueItem): ReadonlyArray<PipelineState> {
+  const docState = (
+    status: "ok" | "blurry" | "expired" | "missing",
+  ): PipelineState =>
+    status === "ok" ? "pass" : status === "blurry" ? "warn" : "fail";
+  const find = (t: "business" | "license" | "id" | "address") =>
+    item.documents.find((d) => d.type === t)?.status ?? "missing";
+  const riskStep: PipelineState =
+    item.riskTier === "low"
+      ? "pass"
+      : item.riskTier === "medium"
+        ? "warn"
+        : "fail";
+  return [
+    docState(find("business")),
+    docState(find("license")),
+    docState(find("id")),
+    docState(find("address")),
+    riskStep,
+    "skip",
+  ];
+}
+
 function KycQueueCard({
   item,
   labels,
@@ -140,6 +214,7 @@ function KycQueueCard({
   labels: KycQueueLabels;
 }) {
   const slaBreached = item.slaHoursRemaining < 0;
+  const pipelineSteps = derivePipelineSteps(item);
   const riskColor = {
     low: "bg-emerald-50 text-emerald-700",
     medium: "bg-amber-50 text-amber-700",
@@ -155,6 +230,12 @@ function KycQueueCard({
     blurry: "bg-amber-50 text-amber-700 border-amber-200",
     expired: "bg-rose-50 text-rose-700 border-rose-200",
     missing: "bg-rose-50 text-rose-700 border-rose-300",
+  };
+  const stepClass: Record<PipelineState, string> = {
+    pass: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    warn: "border-amber-200 bg-amber-50 text-amber-700",
+    fail: "border-rose-200 bg-rose-50 text-rose-700",
+    skip: "border-gray-200 bg-white text-hesya-navy-900/35",
   };
 
   return (
@@ -197,6 +278,24 @@ function KycQueueCard({
           </span>
         </div>
       </header>
+
+      <div
+        aria-label="검증 파이프라인"
+        className="mb-3 flex items-center gap-1"
+      >
+        {pipelineSteps.map((s, i) => (
+          <span
+            key={i}
+            className={`grid h-5 w-5 place-items-center rounded-sm border font-mono text-[9.5px] font-semibold ${stepClass[s]}`}
+            title={`STEP ${i + 1} · ${s}`}
+          >
+            {i + 1}
+          </span>
+        ))}
+        <span className="ml-2 font-mono text-[9.5px] uppercase tracking-[0.12em] text-hesya-navy-900/45">
+          5단계 자동 + 1단계 선택
+        </span>
+      </div>
 
       <div className="mb-3 flex flex-wrap gap-2">
         {item.documents.map((d, i) => (
