@@ -344,6 +344,8 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
 
       <RecommendedStylists confidence={result.confidence} />
 
+      <SaveLookCard styleName={result.styleName} />
+
       <button
         type="button"
         onClick={reset}
@@ -352,6 +354,69 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
         {labels.result.retryButton}
       </button>
     </div>
+  );
+}
+
+function SaveLookCard({ styleName }: { styleName: string }) {
+  const now = new Date();
+  const month = now.toLocaleString("en-US", { month: "short" });
+  const day = now.getDate();
+  return (
+    <section className="mt-7">
+      <h3 className="font-heading text-[15px] font-semibold italic text-hesya-navy-900">
+        Save the look · 룩 저장하기
+      </h3>
+      <p className="mb-3 mt-0.5 text-[11px] text-hesya-navy-900/55">
+        Share-ready 9:16 card for Instagram Story or Xiaohongshu.
+      </p>
+      <div className="flex gap-3">
+        <article
+          aria-label="Share preview"
+          className="relative aspect-[9/16] w-[120px] flex-shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br from-hesya-peach-200 to-hesya-amber-600 p-3 text-white shadow-[0_4px_16px_rgba(26,34,56,0.18)]"
+        >
+          <span className="font-mono text-[8px] font-bold uppercase tracking-[0.18em] text-white/80">
+            Hesya
+          </span>
+          <p className="mt-2 font-heading text-[13px] font-semibold italic leading-tight">
+            K-beauty pick
+            <br />
+            <span className="text-white/85">K-뷰티 픽</span>
+          </p>
+          <div className="absolute inset-x-3 bottom-2.5 space-y-0.5 text-[8.5px] leading-snug">
+            <p className="truncate font-medium">{styleName}</p>
+            <p className="text-white/85">
+              Discovered {month} {day}
+            </p>
+            <p className="mt-1 border-t border-white/20 pt-1 text-[8px] text-white/75">
+              5 languages welcome
+            </p>
+          </div>
+        </article>
+        <div className="flex flex-1 flex-col gap-1.5">
+          <button
+            type="button"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-hesya-navy-900 px-3 py-2 text-[11px] font-semibold text-white transition hover:bg-hesya-navy-800"
+          >
+            <span aria-hidden="true">📷</span>
+            Save to Story
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-[11px] font-semibold text-hesya-navy-900 ring-1 ring-hesya-peach-200 transition hover:border-hesya-amber-500"
+          >
+            <span aria-hidden="true">📤</span>
+            Save to Photos
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-[11px] font-semibold text-hesya-navy-900 ring-1 ring-hesya-peach-200 transition hover:border-hesya-amber-500"
+          >
+            <span aria-hidden="true">🔗</span>
+            Copy share link
+          </button>
+        </div>
+      </div>
+    </section>
   );
 }
 
