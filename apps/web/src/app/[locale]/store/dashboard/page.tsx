@@ -11,99 +11,36 @@ import {
   ChannelBreakdown,
   CriticalAlert,
   DashboardHeader,
-  DistributionPie,
   KVerified,
-  KpiGrid,
   NationalityTile,
   RecentReviews,
   TodayBookingsTile,
   TodayTimeline,
   WeeklyGmv,
-  type DistributionSlice,
-  type KpiEntry,
 } from "@/features/dashboard";
 import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
 import { env } from "@/shared/config/env";
-import {
-  countBookingsByService,
-  countBookingsByStaff,
-} from "@/shared/lib/dal/bookings";
-import {
-  getCurrentMonthRange,
-  getDisputeLoad,
-  getInboxLoad,
-  getKycStatus,
-  getMonthlyBookingStats,
-  getNationalityMix,
-} from "@/shared/lib/dal/dashboard";
-import { listServicesByStore } from "@/shared/lib/dal/services";
-import { listStaffByStore } from "@/shared/lib/dal/staff";
+import { getDisputeLoad, getInboxLoad } from "@/shared/lib/dal/dashboard";
 import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 
-/**
- * Epic 4 (ε phase) / Phase D4-D1 — 매장 운영 대시보드.
- *
- * 가드 실패 → /sign-in. 실측 KPI 5개 (미응답 / 분쟁 / KYC / 시술 분포 /
- * 디자이너 분포) + coming-soon placeholder 5개. Epic 2 결제 도입 후 매출·객단가·
- * 재방문률·노쇼율, ζ 베타 매칭 후 국적 분포가 활성화.
- *
- * D4-D1: 디자인 정합 header / KPI card 재구성.
- */
-
-/**
- * 매장 dashboard 10 DAL 묶음 30초 캐시 — storeId + month key.
- *
- * 매장 사장이 dashboard 새로고침 / 다른 페이지 갔다가 돌아오는 패턴에서 cache hit.
- * 베타 5곳 × 1~2 month = 10 cache entry max. 메모리 부담 미미.
- *
- * 30s 짧게: 미응답 메시지 / 분쟁 등 즉시성 중요한 데이터 — stale 영향 최소화.
- */
+// Reference 정합 PR 1 — KpiGrid 3행 제거 (rowHero/Mix/Secondary). 실 KPI는
+// /store/analytics 페이지로 이관 (별도 task). dashboard는 reference 6 Bento tile
+// + Timeline + AIInsight + Reviews 구조로 단순화.
+// AIInsight ↔ Timeline 순서 swap — reference 순서 (Timeline 먼저).
 const getStoreDashboardCached = unstable_cache(
-  async (storeId: string, monthKey: string) => {
-    const [from, to] = monthKey.split("|");
-    const monthRange = {
-      fromDate: new Date(from!),
-      toDate: new Date(to!),
-    };
+  async (storeId: string) => {
     const db = createDbClient(env.DATABASE_URL);
-    const [
-      inbox,
-      dispute,
-      kyc,
-      serviceCounts,
-      staffCounts,
-      servicesList,
-      staffList,
-      bookingStats,
-      nationalityMix,
-    ] = await Promise.all([
+    const [inbox, dispute] = await Promise.all([
       getInboxLoad(db, storeId),
       getDisputeLoad(db, storeId),
-      getKycStatus(db, storeId),
-      countBookingsByService(db, storeId, monthRange),
-      countBookingsByStaff(db, storeId, monthRange),
-      listServicesByStore(db, storeId),
-      listStaffByStore(db, storeId),
-      getMonthlyBookingStats(db, storeId, monthRange),
-      getNationalityMix(db, storeId, monthRange),
     ]);
-    return {
-      inbox,
-      dispute,
-      kyc,
-      serviceCounts,
-      staffCounts,
-      servicesList,
-      staffList,
-      bookingStats,
-      nationalityMix,
-    };
+    return { inbox, dispute };
   },
-  ["store-dashboard-v1"],
+  ["store-dashboard-v2"],
   {
     revalidate: 30,
-    tags: ["bookings", "conversations", "disputes", "services", "staff"],
+    tags: ["conversations", "disputes"],
   },
 );
 
@@ -124,181 +61,16 @@ export default async function StoreDashboardPage({
     throw err;
   }
 
-  const monthRange = getCurrentMonthRange();
-  const monthKey = `${monthRange.fromDate.toISOString()}|${monthRange.toDate.toISOString()}`;
-
-  // shell은 세션 의존 (사용자별) — 캐시 X. 나머지 9 DAL은 storeId+month 캐시.
+  // shell은 세션 의존 (사용자별) — 캐시 X. inbox/dispute는 storeId 캐시 (30s).
   const [cached, shell] = await Promise.all([
-    getStoreDashboardCached(session.storeId, monthKey),
+    getStoreDashboardCached(session.storeId),
     getOwnerShellData(),
   ]);
-  const {
-    inbox,
-    dispute,
-    kyc,
-    serviceCounts,
-    staffCounts,
-    servicesList,
-    staffList,
-    bookingStats,
-    nationalityMix,
-  } = cached;
+  const { inbox, dispute } = cached;
 
   if (!shell) redirect(`/${locale}/sign-in`);
 
   const t = await getTranslations({ locale, namespace: "Dashboard" });
-
-  const kycLabel = t(`kycStates.${kyc}` as const);
-
-  const serviceNameMap = new Map(
-    servicesList.map((s) => [s.id, s.nameKo] as const),
-  );
-  const staffNameMap = new Map(staffList.map((s) => [s.id, s.name] as const));
-
-  const treatmentSlices: ReadonlyArray<DistributionSlice> = serviceCounts.map(
-    (c) => ({ label: serviceNameMap.get(c.key) ?? "—", value: c.count }),
-  );
-  const designerSlices: ReadonlyArray<DistributionSlice> = staffCounts.map(
-    (c) => ({ label: staffNameMap.get(c.key) ?? "—", value: c.count }),
-  );
-
-  const treatmentTotal = treatmentSlices.reduce((sum, s) => sum + s.value, 0);
-  const designerTotal = designerSlices.reduce((sum, s) => sum + s.value, 0);
-
-  // M3.4/Epic 4 — 국적 분포 donut slices (top 6 + "기타")
-  const TOP_N = 6;
-  const nationalitySlices: ReadonlyArray<DistributionSlice> = (() => {
-    if (nationalityMix.length <= TOP_N) {
-      return nationalityMix.map((r) => ({
-        label: r.nationality.toUpperCase(),
-        value: r.count,
-      }));
-    }
-    const head = nationalityMix.slice(0, TOP_N - 1);
-    const tail = nationalityMix.slice(TOP_N - 1);
-    const tailSum = tail.reduce((s, r) => s + r.count, 0);
-    return [
-      ...head.map((r) => ({
-        label: r.nationality.toUpperCase(),
-        value: r.count,
-      })),
-      { label: t("kpis.otherNationality"), value: tailSum },
-    ];
-  })();
-  const nationalityTotal = nationalitySlices.reduce(
-    (sum, s) => sum + s.value,
-    0,
-  );
-
-  const monthlyRevenue: KpiEntry = {
-    key: "monthlyRevenue",
-    label: t("kpis.monthlyRevenue"),
-    value: bookingStats.revenueKrw.toLocaleString("ko"),
-    unit: t("units.won"),
-    state: "active",
-    subtext: `${bookingStats.bookingCount} ${t("units.count")}`,
-  };
-  const inboxUnread: KpiEntry = {
-    key: "inboxUnread",
-    label: t("kpis.inboxUnread"),
-    value: String(inbox.unreadMessages),
-    unit: t("units.count"),
-    state: "active",
-    subtext: `${inbox.openThreads} ${t("kpis.inboxThreads")}`,
-  };
-  const disputesActive: KpiEntry = {
-    key: "disputesActive",
-    label: t("kpis.disputesActive"),
-    value: String(dispute.active),
-    unit: t("units.count"),
-    state: "active",
-    subtext:
-      dispute.slaExceeded > 0
-        ? `${t("kpis.disputesSla")}: ${dispute.slaExceeded}`
-        : undefined,
-  };
-  const nationalityMixEntry: KpiEntry = {
-    key: "nationalityMix",
-    label: t("kpis.nationalityMix"),
-    value: String(nationalityTotal),
-    unit: t("units.count"),
-    state: nationalityTotal > 0 ? "active" : "coming-soon",
-    chart:
-      nationalityTotal > 0 ? (
-        <DistributionPie data={nationalitySlices} />
-      ) : undefined,
-  };
-  const treatmentMix: KpiEntry = {
-    key: "treatmentMix",
-    label: t("kpis.treatmentMix"),
-    value: String(treatmentTotal),
-    unit: t("units.count"),
-    state: "active",
-    chart: <DistributionPie data={treatmentSlices} />,
-  };
-  const designerMix: KpiEntry = {
-    key: "designerMix",
-    label: t("kpis.designerMix"),
-    value: String(designerTotal),
-    unit: t("units.count"),
-    state: "active",
-    chart: <DistributionPie data={designerSlices} />,
-  };
-  const noShowRate: KpiEntry = {
-    key: "noShowRate",
-    label: t("kpis.noShowRate"),
-    value: String(bookingStats.noShowRatePct),
-    unit: t("units.percent"),
-    state: bookingStats.bookingCount > 0 ? "active" : "coming-soon",
-    subtext:
-      bookingStats.noShowCount > 0
-        ? `${bookingStats.noShowCount} ${t("units.count")}`
-        : undefined,
-  };
-  const averageOrder: KpiEntry = {
-    key: "averageOrder",
-    label: t("kpis.averageOrder"),
-    value:
-      bookingStats.bookingCount > 0
-        ? bookingStats.averageOrderKrw.toLocaleString("ko")
-        : "—",
-    unit: t("units.won"),
-    state: bookingStats.bookingCount > 0 ? "active" : "coming-soon",
-  };
-  const rebookRate: KpiEntry = {
-    key: "rebookRate",
-    label: t("kpis.rebookRate"),
-    value: "—",
-    unit: t("units.percent"),
-    state: "coming-soon",
-  };
-  const kycStatus: KpiEntry = {
-    key: "kycStatus",
-    label: t("kpis.kycStatus"),
-    value: kycLabel,
-    state: "active",
-  };
-
-  // M6.2c — reference bento layout (3 rows):
-  // Row 1 (.sd-row-2 1.6fr:1fr:1fr): featured revenue + ops (inbox / disputes)
-  // Row 2 (.sd-bento-3 1.15fr:1fr:1fr): customer mix donuts
-  // Row 3 (uniform 4-col): secondary KPIs
-  const rowHero: ReadonlyArray<KpiEntry> = [
-    monthlyRevenue,
-    inboxUnread,
-    disputesActive,
-  ];
-  const rowMix: ReadonlyArray<KpiEntry> = [
-    nationalityMixEntry,
-    treatmentMix,
-    designerMix,
-  ];
-  const rowSecondary: ReadonlyArray<KpiEntry> = [
-    noShowRate,
-    averageOrder,
-    rebookRate,
-    kycStatus,
-  ];
 
   const brightSpot = (() => {
     if (dispute.slaExceeded > 0) {
@@ -402,11 +174,8 @@ export default async function StoreDashboardPage({
           eyebrowEn="Bright spot"
           body={brightSpot.body}
         />
-        {/* O1 fast track 단계 5b — W8 AI 인사이트 panel.
-            mock-first: insight 텍스트 + 신뢰도 라벨 i18n. 실 LLM 호출 없이
-            interactive 4-state (open/modify/approved/dismissed) 시연 가능. */}
-        <AiInsightPanel />
         <TodayTimeline />
+        <AiInsightPanel />
         {/* O1 fast track 단계 3 — W2 GMV + W6 K-Verified.
             mock-first: 실 weekly GMV DAL + kyc tier/renewal schema 확장 별도 task. */}
         <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-[1.4fr_1fr]">
@@ -452,25 +221,6 @@ export default async function StoreDashboardPage({
               { flag: "🇺🇸", label: "미국", pct: 14, color: "#1A2238" },
               { flag: "🇻🇳", label: "베트남", pct: 8, color: "#E8C4D6" },
             ]}
-          />
-        </div>
-        <div className="space-y-4">
-          <KpiGrid
-            entries={rowHero}
-            comingSoonNote={t("comingSoonNote")}
-            testId="kpi-grid-hero"
-            className="grid grid-cols-1 gap-4 md:grid-cols-[1.6fr_1fr_1fr]"
-          />
-          <KpiGrid
-            entries={rowMix}
-            comingSoonNote={t("comingSoonNote")}
-            testId="kpi-grid-mix"
-            className="grid grid-cols-1 gap-4 md:grid-cols-[1.15fr_1fr_1fr]"
-          />
-          <KpiGrid
-            entries={rowSecondary}
-            comingSoonNote={t("comingSoonNote")}
-            testId="kpi-grid-secondary"
           />
         </div>
         {/* O1 fast track 단계 4 — W9 최근 후기 cards.
