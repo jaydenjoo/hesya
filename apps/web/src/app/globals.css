@@ -179,6 +179,24 @@
   }
 }
 
+/* Reference 정합 PR 7 — tile entry stagger animation.
+   reference dashboard.css `.sd-tile` opacity 0 → 1 + translateY(6px → 0).
+   각 tile은 inline style `animation-delay` 로 stagger (0ms / 40ms / 80ms …). */
+@keyframes tileReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tile-reveal {
+  animation: tileReveal 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

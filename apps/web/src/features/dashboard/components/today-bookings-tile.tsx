@@ -1,14 +1,17 @@
 import { useTranslations } from "next-intl";
 
+import { CountUpNumber } from "./count-up-number";
+
 /**
- * O1 Dashboard fast track 단계 5a — W1 오늘의 외국인 예약 타일.
+ * Reference 정합 — W1 오늘의 외국인 예약 타일.
  *
- * Reference: `docs/design/reference/dashboard-app.jsx:148-198` `TileBookings`.
- * 큰 숫자 + mini avatar flag stack + 다음 시술 라벨 + 12-bar sparkline + 시간 axis.
+ * Reference: `docs/design/reference/dashboard-app.jsx:148-198` `TileBookings` +
+ * dashboard.css `.sd-bignum` (56px font-heading italic).
  *
- * **mock-first**: page에서 mock count + flag stack + sparkline 주입.
- * 실 DAL: `getTodayBookingsByForeigners(storeId)` 신규 (오늘 0~21시 시간대별
- * 집계 + nationality flag 매핑) — 별도 task.
+ * **PR 7 변경** (시각 + 애니메이션):
+ * - 숫자: mono 40px → font-heading italic 56px (reference .sd-bignum)
+ * - CountUpNumber로 0 → target 350ms 카운트업 (sessionStorage 1회)
+ * - tile-reveal stagger entry (animationDelay 0ms — 첫 tile)
  */
 
 interface FlagAvatar {
@@ -47,7 +50,8 @@ export function TodayBookingsTile({
     <section
       data-testid="dashboard-today-bookings"
       aria-label={t("title")}
-      className="rounded-lg border border-hesya-peach-200 bg-white p-5"
+      className="tile-reveal rounded-lg border border-hesya-peach-200 bg-white p-5"
+      style={{ animationDelay: "0ms" }}
     >
       <header className="mb-4 flex items-center justify-between">
         <h3 className="kr text-[14px] font-semibold text-hesya-navy-900">
@@ -63,9 +67,11 @@ export function TodayBookingsTile({
       </header>
 
       <div className="mb-4 flex items-center gap-4">
-        <div className="mono text-[40px] font-bold leading-none tabular-nums text-hesya-navy-900">
-          {count}
-        </div>
+        <CountUpNumber
+          value={count}
+          storageKey={`bookings-count-${count}`}
+          className="font-heading italic text-[56px] font-extrabold leading-none tabular-nums text-hesya-navy-900"
+        />
         <div className="flex flex-1 flex-col gap-2">
           <div className="flex items-center -space-x-2">
             {avatars.map((a, i) => (

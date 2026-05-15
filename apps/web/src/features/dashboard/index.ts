@@ -13,6 +13,7 @@ export { AiAccuracyTile } from "./components/ai-accuracy-tile";
 export { CelebrationToasts } from "./components/celebration-toasts";
 export { AiInsightPanel } from "./components/ai-insight-panel";
 export { InboxTile } from "./components/inbox-tile";
+export { CountUpNumber } from "./components/count-up-number";
 export {
   DistributionPie,
   type DistributionSlice,
