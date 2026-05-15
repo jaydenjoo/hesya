@@ -795,11 +795,13 @@
     "done": "Done"
   },
   "OwnerShell": {
-    "brandPill": "OPERATOR",
-    "searchPlaceholder": "Search...",
+    "brandPill": "Store",
+    "searchPlaceholder": "Search — guests, bookings, services…",
     "searchKbd": "⌘K",
     "signOut": "Sign out",
     "avatarAlt": "Account",
+    "notificationsAlt": "Notifications",
+    "localeToggleAlt": "Toggle language",
     "sectionMain": "MENU",
     "rightPanelLabel": "Recent alerts",
     "storeStatus": "Status:",

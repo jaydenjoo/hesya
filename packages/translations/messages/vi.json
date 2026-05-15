@@ -795,11 +795,13 @@
     "done": "Hoàn tất"
   },
   "OwnerShell": {
-    "brandPill": "OPERATOR",
-    "searchPlaceholder": "Tìm kiếm...",
+    "brandPill": "Store",
+    "searchPlaceholder": "Tìm kiếm — khách, lịch hẹn, dịch vụ…",
     "searchKbd": "⌘K",
     "signOut": "Đăng xuất",
     "avatarAlt": "Tài khoản",
+    "notificationsAlt": "Thông báo",
+    "localeToggleAlt": "Đổi ngôn ngữ",
     "sectionMain": "MENU",
     "rightPanelLabel": "Thông báo gần đây",
     "storeStatus": "Trạng thái:",
