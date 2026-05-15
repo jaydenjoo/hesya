@@ -130,9 +130,11 @@ export function CustomerChat({
           />
         ) : (
           <>
-            <p className="my-3 text-center text-[11px] font-medium text-hesya-navy-900/40">
-              {day}
-            </p>
+            <div className="my-3 flex justify-center">
+              <span className="inline-flex rounded-full bg-hesya-peach-100 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-hesya-amber-600">
+                {day}
+              </span>
+            </div>
             {messages.map((m, i) => (
               <div key={m.id}>
                 <Bubble

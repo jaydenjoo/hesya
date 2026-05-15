@@ -100,8 +100,10 @@ export function FormPanel({
           </p>
         )}
 
-        <div className="sl-divider-or" aria-hidden="true">
-          <span>또는</span>
+        <div className="sl-divider" aria-hidden="true">
+          <span className="sl-divider-line" />
+          <span className="sl-divider-or">또는</span>
+          <span className="sl-divider-line" />
         </div>
 
         <button
