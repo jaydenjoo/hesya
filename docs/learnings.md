@@ -3651,3 +3651,38 @@ fileParallelism: false,   // ← 추가
 **확인**: 향후 3개월 e2e-integration random fail 0건 유지하면 패턴 정착. vitest 5 mig 시 재검증.
 
 **연관**: L-096 (vitest 4 `poolOptions` 마이그 누락). L-097 (CI workflow_dispatch only 누적 메커니즘 — 본 L-100 회귀가 lockfile bump 동봉 PR에서 silent 누적된 패턴). L-098 (random fail multi dispatch 의무 — 본 L-100 진단의 prerequisite). L-099 (resetDb 4 테이블 추가 — race 완화는 했으나 본질 해결은 아니었음). PR [#192](https://github.com/jaydenjoo/hesya/pull/192) 8825484. vitest 4 공식 docs (context7 `/vitest-dev/vitest/v4.0.7`).
+
+### [2026-05-15] L-101 — 정밀 inventory 추정 80h 작업이 1 세션에 압축 가능한 조건: mock-first + 단계 분할 + auto-merge
+
+**증상 (긍정 사례)**: O1 Owner Store Dashboard는 정밀 inventory 추정 ~80h ≈ 10~12d. 1 세션 fast track 단번 처리는 "비현실적"이라고 PROGRESS에 명시. 그런데 세션 36에서 1 세션 6 PR (단계 1~5b) + 100% 마감 정밀 1 PR로 22% → 100% 압축 달성. 추가로 같은 세션에 C5 + O2도 100% 마감 (총 10 PR). 추정 대비 ~10~12배 압축.
+
+**조건 분석** (압축 가능했던 이유):
+
+1. **모든 위젯이 mock-first 가능** — Dashboard 위젯 9종 + C5 잔여 + O2 잔여 모두 시각 fidelity는 reference HTML 1:1 매핑이 본질. DB 컬럼 추가, DAL 신규, schema migration 0건. mock data가 reference와 시각적으로 동일하면 100% 디자인 정합 달성.
+2. **단계 분할 패턴 정착 (1 PR = 1~2 위젯)** — 각 PR ~80~250 line (i18n 제외). 1 PR이 너무 크면 review/CI 부담, 너무 작으면 세션 시간 낭비. 1~2 위젯이 sweet spot.
+3. **auto-merge 라벨 + workflow_dispatch CI** — PR 생성 시 라벨 자동 부여 → CI dispatch 1회 (~4~5min) → 머지 자동화. 머지 후 main pull → 다음 단계 즉시 시작. 인간 review wait 0초.
+4. **Tailwind utility + design tokens 일관 패턴** — 신규 .css 파일 0건. `hesya-amber-{500,600}` / `hesya-peach-{50,100,200}` / `hesya-navy-900` + Tailwind utility 조합으로 reference 시각 1:1 포팅 가능. 새 CSS 클래스 학습 비용 0.
+5. **Owner UI 한국어 + Customer UI 6 locale 분리 정책** — Inbox 같은 사장 전용 페이지는 한국어 단독 (i18n 6 locale 비용 0). 6 locale 작업이 namespace × 6 = ~120 entries 작성하는 데 ~15~20분/PR 소요인데, 사장 페이지는 이 비용 없음.
+6. **컴포넌트 분리 + props 인터페이스 안정** — features/dashboard/components/ 12개 신규 파일이 모두 비슷한 패턴 (props with mock data + i18n hook + Tailwind class). 1개 패턴 학습 후 나머지는 거의 복사·변형.
+
+**압축 불가능 작업 (이 세션이 가르치는 한계선)**:
+
+- 실 DAL wire — `getTodayBookingsByForeigners(storeId)` 같은 신규 DAL 함수 추가는 schema 검토 + 쿼리 작성 + 테스트 + 페이지 wire 합 ~3~5h/함수. 5종이면 ~25h, 1 세션 압축 불가.
+- 새 schema migration — manual SQL + drizzle journal 갱신 + RLS 정책 + 테스트 fixture 갱신 합 ~2~4h/테이블. 1 세션 1~2개 한계.
+- 외부 API 연동 — Resend / OAuth / payment gateway 등은 환경 변수 + API key + 도메인 검증 + webhook 등록 등 외부 액션 의존이라 1 세션 완료 불가.
+
+**규칙** ⭐:
+
+1. **fast track 작업 scoping 시 첫 질문**: "이 작업은 mock-first로 100% 디자인 정합 가능한가, 아니면 DAL/schema 의존인가?" — 답에 따라 압축률이 10x 차이남.
+   - mock-first 가능 → 1 세션 6~10 PR 가능 (위젯/페이지당 1~2h)
+   - DAL 의존 → 1 PR/3~5h, 1 세션 2~3 PR 한계
+   - schema migration 동반 → 1 PR/0.5~1d, 별도 fast track 트랙
+2. **작업 분할 룰**: 1 PR = 1~2 신규 컴포넌트 + 같은 namespace i18n + 같은 페이지 통합. 한 페이지 100% 마감을 위해 5~7 PR 분할 (Stage 1/2/3/4/5a/5b/100%) 패턴이 효과적.
+3. **auto-merge + workflow_dispatch는 압축 패턴의 인프라 prerequisite**. 인간 review queue가 끼면 압축 불가.
+4. **"~10~12d 추정"이 mock-first 작업이면 1 세션 검토 의무**. 추정의 source가 "데이터 wire 포함" 또는 "디자인 fidelity만"인지 분리하면 fast track 가능 여부 판단됨.
+
+**비유**: "벽지 도배 12일 작업"이라고 들었지만, 실제로는 (a) 벽지 디자인 결정 (~10일) + (b) 시공 (~2일)이 합쳐진 추정이었다. 디자인이 이미 결정됐다면 (b)만 1~2일에 끝낼 수 있다. fast track은 "결정 먼저 다 끝내고 시공만 남은 상태"에서 압축이 가능. mock-first는 "디자인 결정 = 시공"이라 더 빠름.
+
+**확인**: 다음 P1 9 페이지 작업 시 같은 압축률(10x) 달성 가능한지 검증. 단, P1 페이지 중 데이터 의존 비율이 P0보다 높으면 (e.g., 분석 dashboard) 압축률 떨어질 가능성.
+
+**연관**: 본 세션 36 PR #202~210 (10 PR 연속 머지). PROGRESS.md "fast track 가속화 패턴". L-082 (시연 % e2e 기준 — 디자인 정합과 직교 차원). L-093 (CI workflow_dispatch only 정책). L-097 (auto-merge yml).
