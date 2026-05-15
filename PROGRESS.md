@@ -3,7 +3,36 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 34 연장 — Task 1 backfill + Task 3 decision doc + 옵션 B Customer OAuth fallback 머지)
+## 현재 위치 (2026-05-15 세션 35 — Design Completion Epic Phase 1 inventory + Phase 2 fast track 진입)
+
+- **Phase**: **Design Completion Epic Phase 1 완료 (P0 8 페이지 정밀 inventory) → Phase 2 시작 (fast track 1 페이지 / 1 세션)**
+- **Phase 1 완료 (2026-05-15)**:
+  - `docs/p0-precise-inventory.md` 머지 (commit `6203f27`) — 4 subagent (code-explorer) 병렬 위임으로 P0 8 페이지 reference 디자인 vs 현재 코드 1:1 비교
+  - **모든 페이지 rough 대비 평균 -12% 하향** (UI element 수 단위로 측정 시 격차 큼):
+    | 페이지 | Rough → 정밀 | 작업 시간 |
+    | --- | --- | --- |
+    | C2 Customer Chat | 60% → **68%** | ~4.25h |
+    | O9 Owner Store Login | 75% → **62%** | 5~6h |
+    | C3 Customer MyPage | 80% → **68%** | ~9.5h |
+    | C4 Customer Sign-in | 75% → **45%** | 9~12h |
+    | C1 Customer Landing | 85% → **72%** | ~14h |
+    | C5 Customer Store Detail | 65% → **52%** | ~15.25h |
+    | O2 Owner Inbox | 75% → **73%** | 3~4d |
+    | O1 Owner Store Dashboard | 30% → **22%** | 10~12d (위젯 9종 중 6개 미구현) |
+  - **P0 8 페이지 총 ~165h ≈ 4~5주** (단일 인력)
+- **Phase 2 진행 정책** (Jayden 결정 4항목 반영):
+  - Epic P0 먼저 (P1/P2는 베타 후) ✓
+  - 8 페이지 정밀 inventory 선완료 후 batch ✓ (Phase 1 완료)
+  - A2/A3/A4 mock data를 reference와 동일하게 (실 데이터 wire는 별도)
+  - **fast track (1 페이지 / 1 세션)**
+  - **권장 진행 순서**: O9 → C4 → C1 → C3 → C2 → C5 → O2 → O1
+- **다음 세션 시작점 — O9 Owner Store Login (정밀 62% → 100%)**:
+  - 위치: `apps/web/src/app/[locale]/store/sign-in/page.tsx` (또는 `apps/web/src/app/[locale]/sign-in/page.tsx`)
+  - Reference: `docs/design/reference/` (HTML + JSX + CSS 4종 파일 세트)
+  - 핵심 누락 5개: floating-label 이메일·비번 입력 (2h) / 비밀번호 reveal 버튼 (30분) / 자동 로그인 체크박스 + 비번 찾기 row (45분) / CTA amber 교체 (30분) / i18n 연결 (1h)
+  - 예상 PR 1개, 5~6h, single session 완료
+
+## 이전 위치 (2026-05-15 세션 34 연장 — Task 1 backfill + Task 3 decision doc + 옵션 B Customer OAuth fallback 머지)
 
 - **Phase**: **Plan v3 M1~M5 100% + Sprint 2 12 PR + 세션 33 회귀 복구 + 세션 34 random tail 구조적 해결 + Task 1 backfill 머지 + Customer OAuth fallback 머지**
 - **세션 34 머지 (4 PR + 2 docs commit)**:
