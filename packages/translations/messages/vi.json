@@ -81,6 +81,19 @@
         "yesterday": "Hôm qua"
       }
     },
+    "todayBookings": {
+      "title": "Đặt lịch khách nước ngoài hôm nay",
+      "viewBookingsLink": "Xem đặt lịch",
+      "comingSoon": "Sắp ra mắt",
+      "nextLabel": "Lịch hẹn tiếp — {value}",
+      "sparkAria": "Biểu đồ đặt lịch theo giờ, {count} giờ gần nhất",
+      "nowAxis": "Bây giờ"
+    },
+    "aiAccuracy": {
+      "title": "Độ chính xác AI",
+      "svgAria": "Độ chính xác AI {pct}%",
+      "caption": "Tin nhắn AI xử lý tuần này <strong>{count}</strong>"
+    },
     "comingSoonNote": "Kích hoạt sau khi có dữ liệu thanh toán & đặt lịch",
     "kpis": {
       "inboxUnread": "Tin nhắn chưa đọc",
