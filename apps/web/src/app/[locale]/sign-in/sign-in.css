@@ -471,7 +471,164 @@
   margin-bottom: 32px;
 }
 
-/* Magic Link 폼 — 이메일 입력 + 발송 버튼 (Google OAuth 위 primary 위치) */
+/* Reference floating-label fields (이메일·비밀번호) */
+.sl-field {
+  position: relative;
+  margin-bottom: 14px;
+}
+.sl-field-label {
+  position: absolute;
+  top: 18px;
+  left: 14px;
+  font-size: 14px;
+  color: var(--gray-500);
+  pointer-events: none;
+  transition: all var(--duration-fast) var(--easing-standard);
+  background: var(--hesya-cream);
+  padding: 0 4px;
+}
+.sl-field-input {
+  width: 100%;
+  height: 56px;
+  padding: 0 14px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--hesya-peach-200);
+  border-radius: var(--r-md);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--hesya-navy-900);
+  outline: none;
+  transition: border var(--duration-fast);
+}
+.sl-field-input:focus {
+  border-color: var(--hesya-amber-500);
+  background: #ffffff;
+}
+.sl-field-input:focus + .sl-field-label,
+.sl-field-input:not(:placeholder-shown) + .sl-field-label {
+  top: -8px;
+  left: 12px;
+  font-size: 11px;
+  color: var(--hesya-amber-600);
+  font-weight: 600;
+}
+.sl-field-input::placeholder {
+  color: transparent;
+}
+.sl-field-reveal {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--gray-500);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.sl-field-reveal:hover {
+  color: var(--hesya-amber-600);
+  background: var(--hesya-peach-100);
+}
+
+/* 자동 로그인 + 비밀번호 찾기 row */
+.sl-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 0 24px;
+}
+.sl-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--gray-700);
+  cursor: pointer;
+  user-select: none;
+}
+.sl-checkbox input {
+  display: none;
+}
+.sl-checkbox-box {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--hesya-peach-200);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-fast);
+}
+.sl-checkbox input:checked + .sl-checkbox-box {
+  background: var(--hesya-amber-500);
+  border-color: var(--hesya-amber-500);
+}
+.sl-checkbox input:checked + .sl-checkbox-box::after {
+  content: "✓";
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.sl-link {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--hesya-amber-600);
+  cursor: pointer;
+  font-weight: 500;
+}
+.sl-link:hover {
+  text-decoration: underline;
+}
+.sl-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Amber primary CTA (이전 sl-btn-magic navy 대체) */
+.sl-btn-primary {
+  width: 100%;
+  height: 56px;
+  background: var(--hesya-amber-500);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--r-md);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--duration-fast);
+  box-shadow: 0 1px 0 rgba(166, 113, 11, 0.2);
+}
+.sl-btn-primary:hover {
+  background: var(--hesya-amber-600);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-2);
+}
+.sl-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+.sl-btn-primary-arrow {
+  display: inline-block;
+  transition: transform var(--duration-fast);
+}
+.sl-btn-primary:hover .sl-btn-primary-arrow {
+  transform: translateX(3px);
+}
+
+/* Magic Link 폼 (legacy — 더 이상 form 메인 아님, sent 페이지 등에서 잔여) */
 .sl-magic {
   display: flex;
   flex-direction: column;
