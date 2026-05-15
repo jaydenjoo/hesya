@@ -43,7 +43,7 @@ export function HeroGallery({
   if (photos.length === 0) {
     if (fallbackImageUrl && !fallbackFailed) {
       return (
-        <div className="relative h-[280px] w-full overflow-hidden lg:h-[320px]">
+        <div className="relative h-[375px] w-full overflow-hidden lg:h-[400px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={fallbackImageUrl}
@@ -57,7 +57,7 @@ export function HeroGallery({
       );
     }
     return (
-      <div className="relative h-[280px] w-full overflow-hidden lg:h-[320px]">
+      <div className="relative h-[375px] w-full overflow-hidden lg:h-[400px]">
         <div className="absolute inset-0 bg-gradient-to-br from-hesya-amber-500/30 via-hesya-peach-200 to-hesya-peach-50" />
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="font-heading text-[60px] italic text-hesya-navy-900/15">
@@ -73,7 +73,7 @@ export function HeroGallery({
     <div className="relative">
       <div
         ref={trackRef}
-        className="flex h-[280px] w-full snap-x snap-mandatory overflow-x-auto scroll-smooth lg:h-[320px]"
+        className="flex h-[375px] w-full snap-x snap-mandatory overflow-x-auto scroll-smooth lg:h-[400px]"
         style={{ scrollbarWidth: "none" }}
       >
         {photos.map((src, i) => (
@@ -103,6 +103,27 @@ export function HeroGallery({
           ))}
         </div>
       ) : null}
+      {/* C5 fast track item 3: overlay + glass action buttons (♡ ↗ 🌐) */}
+      <div className="c-detail-hero-overlay" aria-hidden="true" />
+      <div className="c-detail-hero-actions">
+        <button
+          type="button"
+          className="c-detail-glass-btn"
+          aria-label="favorite"
+        >
+          ♡
+        </button>
+        <button type="button" className="c-detail-glass-btn" aria-label="share">
+          ↗
+        </button>
+        <button
+          type="button"
+          className="c-detail-glass-btn"
+          aria-label="language"
+        >
+          🌐
+        </button>
+      </div>
     </div>
   );
 }

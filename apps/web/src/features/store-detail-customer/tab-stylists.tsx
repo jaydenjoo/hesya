@@ -1,7 +1,8 @@
 /**
  * Plan v3 Phase D2-B2-b — Tab: 디자이너 panel.
  *
- * 디자이너 카드. 이름 + 응대 언어 + (있으면) 첫 포트폴리오 사진 1장.
+ * C5 fast track (2026-05-15): reference 2-column grid 정합 (item 5).
+ * 카드 = 원형 포트레이트 + 이름 + spec + 언어 flag + 별점.
  */
 
 export interface StylistItem {
@@ -9,6 +10,10 @@ export interface StylistItem {
   readonly name: string;
   readonly languages: readonly string[];
   readonly thumbnailUrl: string | null;
+  /** C5 fast track 추가: spec 텍스트 (예: "K-drama short cut"). */
+  readonly spec?: string;
+  /** C5 fast track 추가: 평점 (예: 4.95). DAL 미존재 시 page에서 mock. */
+  readonly score?: string;
 }
 
 interface Props {
@@ -25,46 +30,42 @@ export function TabStylists({ items, emptyLabel }: Props) {
     );
   }
   return (
-    <ul className="space-y-2 px-5 py-4">
+    <div className="c-detail-stylist-grid">
       {items.map((p) => (
-        <li
-          key={p.id}
-          className="flex items-center gap-3 rounded-2xl border border-hesya-peach-200 bg-white px-3 py-3"
-        >
-          {p.thumbnailUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={p.thumbnailUrl}
-              alt=""
-              loading="lazy"
-              className="h-12 w-12 flex-shrink-0 rounded-full object-cover"
-              width="48"
-              height="48"
-            />
-          ) : (
-            <span className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-full bg-hesya-peach-100 font-heading text-[16px] font-semibold italic text-hesya-navy-900">
-              {p.name[0]?.toUpperCase() ?? "·"}
-            </span>
-          )}
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-[14px] font-medium text-hesya-navy-900">
-              {p.name}
-            </p>
-            {p.languages.length > 0 && (
-              <div className="mt-1 flex flex-wrap gap-1">
-                {p.languages.slice(0, 4).map((lang) => (
-                  <span
-                    key={lang}
-                    className="rounded-full bg-hesya-peach-50 px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-hesya-navy-900/65"
-                  >
-                    {lang}
-                  </span>
-                ))}
-              </div>
-            )}
+        <div key={p.id} className="c-detail-stylist-card">
+          <div
+            className="c-detail-stylist-portrait"
+            style={
+              p.thumbnailUrl
+                ? { backgroundImage: `url(${p.thumbnailUrl})` }
+                : undefined
+            }
+          />
+          <div className="c-s-name">{p.name}</div>
+          {p.spec && <div className="c-s-spec">{p.spec}</div>}
+          <div className="c-s-flags">
+            {p.languages.slice(0, 4).map((lang) => (
+              <span key={lang}>{langToFlag(lang)} </span>
+            ))}
           </div>
-        </li>
+          {p.score && (
+            <div className="c-s-score">
+              <span className="c-star">★</span> {p.score}
+            </div>
+          )}
+        </div>
       ))}
-    </ul>
+    </div>
   );
+}
+
+function langToFlag(lang: string): string {
+  const l = lang.toLowerCase();
+  if (l === "en") return "🇺🇸";
+  if (l === "ja") return "🇯🇵";
+  if (l === "zh-cn" || l === "zh") return "🇨🇳";
+  if (l === "zh-tw") return "🇹🇼";
+  if (l === "vi") return "🇻🇳";
+  if (l === "ko") return "🇰🇷";
+  return "🌐";
 }

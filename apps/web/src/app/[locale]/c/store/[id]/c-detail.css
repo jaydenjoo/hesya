@@ -1,0 +1,357 @@
+/*
+ * Customer Store Detail — reference 정합 styles
+ * 출처: docs/design/reference/detail.css (claude.ai/design)
+ * scope: `.c-detail-*` (다른 c/ 페이지 영향 차단)
+ */
+
+/* Info block — Hero slide-up overlap (item 4) + 평점 row + lang pills + 3-line desc (item 1) */
+.c-detail-info {
+  background: var(--hesya-peach-50);
+  padding: 24px 20px 18px;
+  position: relative;
+  z-index: 2;
+  margin-top: -10px;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+}
+.c-detail-name-kr {
+  font-family: var(--font-kr);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.2;
+  color: var(--hesya-navy-900);
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+.c-detail-name-en {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 17px;
+  color: rgba(26, 34, 56, 0.65);
+  margin-top: 2px;
+}
+.c-detail-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: 13px;
+  color: rgba(26, 34, 56, 0.65);
+}
+.c-detail-meta-row .c-stars-l {
+  color: var(--hesya-amber-500);
+}
+.c-detail-meta-row b {
+  color: var(--hesya-navy-900);
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+.c-detail-dot-sep {
+  color: rgba(26, 34, 56, 0.3);
+}
+.c-detail-gold-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--hesya-amber-500), #c97a45);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.c-detail-lang-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.c-detail-lang-pill-s {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--hesya-peach-100);
+  font-size: 12px;
+  color: var(--hesya-navy-900);
+  font-weight: 500;
+}
+.c-detail-desc {
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(26, 34, 56, 0.7);
+  word-break: keep-all;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.c-detail-read-more {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--hesya-amber-600);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  padding: 0;
+}
+.c-detail-read-more:hover {
+  text-decoration: underline;
+}
+
+/* HeroGallery overlay (item 3) */
+.c-detail-hero-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(26, 34, 56, 0.15) 0%,
+    transparent 30%,
+    transparent 60%,
+    rgba(26, 34, 56, 0.2) 100%
+  );
+}
+.c-detail-hero-actions {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  gap: 8px;
+  z-index: 5;
+}
+.c-detail-glass-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--hesya-navy-900);
+  font-size: 16px;
+}
+.c-detail-glass-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Service rich card (item 2) */
+.c-detail-cat-head {
+  padding: 14px 20px 6px;
+  font-family: var(--font-kr);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(26, 34, 56, 0.55);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.c-detail-svc-card {
+  display: grid;
+  grid-template-columns: 64px 1fr 16px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(26, 34, 56, 0.06);
+  cursor: pointer;
+  background: transparent;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  transition: background var(--duration-fast, 180ms);
+}
+.c-detail-svc-card:last-child {
+  border-bottom: none;
+}
+.c-detail-svc-card.selected {
+  background: var(--hesya-peach-100);
+  border-radius: 12px;
+  margin: 4px 12px;
+  padding: 12px 12px;
+}
+.c-detail-svc-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    var(--hesya-peach-100),
+    var(--hesya-peach-200)
+  );
+}
+.c-detail-svc-thumb.t1 {
+  background: linear-gradient(135deg, #f5ddc8, #d88b5b);
+}
+.c-detail-svc-thumb.t2 {
+  background: linear-gradient(135deg, #fdf8f1, #1a2238);
+}
+.c-detail-svc-thumb.t3 {
+  background: linear-gradient(135deg, #f8e9d9, #e8a97a);
+}
+.c-detail-svc-thumb.t4 {
+  background: linear-gradient(135deg, #f5ddc8, #3d4551);
+}
+.c-detail-svc-thumb.t5 {
+  background: linear-gradient(135deg, #f8e9d9, #c97550);
+}
+.c-detail-svc-info {
+  min-width: 0;
+}
+.c-detail-svc-name {
+  font-family: var(--font-kr);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--hesya-navy-900);
+  word-break: keep-all;
+  letter-spacing: -0.01em;
+}
+.c-detail-svc-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgba(26, 34, 56, 0.55);
+}
+.c-detail-svc-price {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--hesya-navy-900);
+}
+.c-detail-svc-conv {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(26, 34, 56, 0.5);
+}
+.c-detail-svc-tags {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+.c-detail-lang-tag {
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--hesya-peach-100);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--hesya-amber-600);
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: 0.04em;
+}
+.c-detail-svc-card.selected .c-detail-lang-tag {
+  background: white;
+}
+.c-detail-chev {
+  color: rgba(26, 34, 56, 0.3);
+}
+
+/* Stylists 2-col grid (item 5) */
+.c-detail-stylist-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px 20px;
+}
+.c-detail-stylist-card {
+  background: white;
+  border-radius: 14px;
+  padding: 14px 12px;
+  text-align: center;
+  border: 1px solid rgba(26, 34, 56, 0.06);
+  text-decoration: none;
+  color: inherit;
+}
+.c-detail-stylist-portrait {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin: 0 auto 10px;
+  background: linear-gradient(
+    135deg,
+    var(--hesya-peach-200),
+    var(--hesya-amber-500)
+  );
+  background-size: cover;
+  background-position: center;
+}
+.c-detail-stylist-card .c-s-name {
+  font-family: var(--font-kr);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--hesya-navy-900);
+}
+.c-detail-stylist-card .c-s-spec {
+  font-size: 11px;
+  color: rgba(26, 34, 56, 0.5);
+  margin-top: 2px;
+  word-break: keep-all;
+}
+.c-detail-stylist-card .c-s-flags {
+  font-size: 12px;
+  margin-top: 8px;
+  letter-spacing: 2px;
+}
+.c-detail-stylist-card .c-s-score {
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--hesya-navy-900);
+  font-weight: 600;
+}
+.c-detail-stylist-card .c-s-score .c-star {
+  color: var(--hesya-amber-500);
+}
+
+/* Review filter chip (item 7) */
+.c-detail-review-filter {
+  display: flex;
+  gap: 6px;
+  padding: 6px 20px 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.c-detail-review-filter::-webkit-scrollbar {
+  display: none;
+}
+.c-detail-chip-r {
+  flex-shrink: 0;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: white;
+  border: 1px solid rgba(26, 34, 56, 0.08);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--hesya-navy-900);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.c-detail-chip-r.active {
+  background: var(--hesya-peach-100);
+  border-color: var(--hesya-amber-500);
+  color: var(--hesya-amber-600);
+}

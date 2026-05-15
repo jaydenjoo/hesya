@@ -26,6 +26,7 @@ import { env } from "@/shared/config/env";
 import { listServicesByStore } from "@/shared/lib/dal/services";
 import { listStaffByStore } from "@/shared/lib/dal/staff";
 import { getStorePublicById } from "@/shared/lib/dal/stores";
+import "./c-detail.css";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -101,6 +102,30 @@ function formatAddress(address: unknown, region: string | null): string | null {
   return region?.trim() || null;
 }
 
+function pickStylistSpec(i: number): string {
+  const specs = [
+    "K-drama short cut",
+    "Glass-skin makeup",
+    "Personal color",
+    "Aegyo sal eyes",
+    "Pink-blonde balayage",
+    "Korean perm",
+  ];
+  return specs[i % specs.length]!;
+}
+
+function langFlag(lang: string): string {
+  const map: Record<string, string> = {
+    en: "🇺🇸",
+    ja: "🇯🇵",
+    "zh-CN": "🇨🇳",
+    "zh-TW": "🇹🇼",
+    vi: "🇻🇳",
+    ko: "🇰🇷",
+  };
+  return map[lang] ?? "🌐";
+}
+
 function summarizeHours(hours: BusinessHours | null, fallback: string): string {
   if (!hours) return fallback;
   const days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
@@ -160,21 +185,40 @@ export default async function StoreDetailPage({
 
   const hoursValue = summarizeHours(store.businessHours, "10:00–20:00");
 
-  const serviceItems: ServiceItem[] = services.map((s) => ({
-    id: s.id,
-    name: pickServiceName(s, locale),
-    priceFormatted: formatPriceForLocale(s.priceKrw, locale),
-    durationLabel: s.durationMinutes
-      ? t("durationMinutes", { minutes: s.durationMinutes })
-      : null,
-  }));
+  const serviceItems: ServiceItem[] = services.map((s, i) => {
+    const jpyConv = Math.round(s.priceKrw * 0.108); // mock 환율
+    const langs = staffList[0]?.languages ?? [];
+    return {
+      id: s.id,
+      name: pickServiceName(s, locale),
+      priceFormatted: formatPriceForLocale(s.priceKrw, locale),
+      durationLabel: s.durationMinutes
+        ? t("durationMinutes", { minutes: s.durationMinutes })
+        : null,
+      // C5 fast track 추가 — DAL 확장 전 mock (Jayden A2: mock = reference parity)
+      priceConverted:
+        locale === "ko" ? undefined : `¥${jpyConv.toLocaleString()}`,
+      languageTags: langs
+        .filter((l) => l !== "ko")
+        .slice(0, 3)
+        .map((l) => l.toUpperCase()),
+      category: s.category ?? "Services",
+      thumbVariant: ((i % 5) + 1) as 1 | 2 | 3 | 4 | 5,
+    };
+  });
 
-  const stylistItems: StylistItem[] = staffList.map((p) => ({
-    id: p.id,
-    name: p.name,
-    languages: p.languages ?? [],
-    thumbnailUrl: p.portfolioUrls?.[0] ?? null,
-  }));
+  const stylistItems: StylistItem[] = staffList.map((p, i) => {
+    const seed = p.id.charCodeAt(0);
+    return {
+      id: p.id,
+      name: p.name,
+      languages: p.languages ?? [],
+      thumbnailUrl: p.portfolioUrls?.[0] ?? null,
+      // C5 fast track 추가 — DAL 확장 전 mock
+      spec: pickStylistSpec(i),
+      score: (4.7 + (seed % 30) / 100).toFixed(2),
+    };
+  });
 
   return (
     <CustomerFrame>
@@ -191,8 +235,9 @@ export default async function StoreDetailPage({
       />
 
       <div className="flex flex-col">
-        <div className="px-5 pt-4">
-          <div className="mb-1.5 flex items-center gap-2">
+        {/* Info block — reference 정합: Hero slide-up overlap + name + meta + lang pills + desc */}
+        <div className="c-detail-info">
+          <div className="mb-2 flex items-center gap-2">
             <KVerifiedBadge label={t("kVerifiedShort")} />
             {store.category && (
               <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/55">
@@ -200,17 +245,48 @@ export default async function StoreDetailPage({
               </span>
             )}
           </div>
-          <h1 className="font-heading text-[28px] font-semibold italic leading-tight tracking-[-0.02em] text-hesya-navy-900">
-            {store.name}
-          </h1>
-          {address && (
-            <p className="mt-1 text-[12px] text-hesya-navy-900/65">
-              <span className="mr-1.5 text-hesya-navy-900/45">
-                {t("address")}
-              </span>
-              {address}
-            </p>
+          <h1 className="c-detail-name-kr">{store.name}</h1>
+          {address && <p className="c-detail-name-en">{address}</p>}
+          {/* Meta row: 평점 + 리뷰수 + 거리 (DAL rating 확장 전 mock — 정밀 inventory item 1) */}
+          {(() => {
+            const seed = store.id.charCodeAt(0);
+            const rating = (4.7 + (seed % 30) / 100).toFixed(2);
+            const reviewCount = 87 + (seed % 400);
+            const walkMin = 2 + (seed % 8);
+            return (
+              <div className="c-detail-meta-row">
+                <span className="c-stars-l">★</span>
+                <b>{rating}</b>
+                <span>({reviewCount})</span>
+                <span className="c-detail-dot-sep">·</span>
+                <span>
+                  🚇 {walkMin}
+                  {t("walkMinSuffix")}
+                </span>
+                <span className="c-detail-dot-sep">·</span>
+                <span className="c-detail-gold-badge">⭐ K-Verified</span>
+              </div>
+            );
+          })()}
+          {/* Lang pills — staff 언어 mock */}
+          {languageSet.size > 0 && (
+            <div className="c-detail-lang-row">
+              <span className="c-detail-lang-pill-s">🇰🇷 {t("staffAllKr")}</span>
+              {Array.from(languageSet)
+                .filter((l) => l !== "ko")
+                .slice(0, 3)
+                .map((l) => (
+                  <span key={l} className="c-detail-lang-pill-s">
+                    {langFlag(l)} {l.toUpperCase()}
+                  </span>
+                ))}
+            </div>
           )}
+          {/* 3-line description — DAL 없음, mock */}
+          <p className="c-detail-desc">{t("descMock", { name: store.name })}</p>
+          <button type="button" className="c-detail-read-more">
+            {t("readMore")} →
+          </button>
         </div>
 
         <SafetyProfileStrip
@@ -234,7 +310,11 @@ export default async function StoreDetailPage({
             t("tabLiveUgc"),
           ]}
         >
-          <TabServices items={serviceItems} emptyLabel={t("emptyServices")} />
+          <TabServices
+            items={serviceItems}
+            emptyLabel={t("emptyServices")}
+            langOkSuffix={t("langOkSuffix")}
+          />
           <TabStylists items={stylistItems} emptyLabel={t("emptyStylists")} />
           <TabReviews
             comingSoonLabel={t("reviewsComingSoon")}
@@ -244,6 +324,7 @@ export default async function StoreDetailPage({
             sampleQuote1={t("reviewSampleQuote1")}
             sampleQuote2={t("reviewSampleQuote2")}
             sampleQuote3={t("reviewSampleQuote3")}
+            filterAllLabel={t("filterAllLabel")}
           />
           <TabInfo
             hours={store.businessHours}
