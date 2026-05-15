@@ -30,6 +30,18 @@
     "channelBreakdown": {
       "title": "채널별 미답"
     },
+    "timeline": {
+      "title": "오늘의 일정",
+      "now": "지금 {time}",
+      "chair1": "1번 자리",
+      "chair2": "2번 자리",
+      "legendForeign": "외국인",
+      "legendDomestic": "내국인",
+      "popoverDetail": "상세",
+      "popoverMessage": "메시지",
+      "popoverReschedule": "변경",
+      "popoverComingSoon": "곧 출시"
+    },
     "comingSoonNote": "결제·예약 데이터 적재 후 자동 활성화",
     "kpis": {
       "inboxUnread": "미응답 메시지",

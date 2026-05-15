@@ -30,6 +30,18 @@
     "channelBreakdown": {
       "title": "Unread by channel"
     },
+    "timeline": {
+      "title": "Today's schedule",
+      "now": "Now {time}",
+      "chair1": "Chair 1",
+      "chair2": "Chair 2",
+      "legendForeign": "Foreign",
+      "legendDomestic": "Domestic",
+      "popoverDetail": "Details",
+      "popoverMessage": "Message",
+      "popoverReschedule": "Reschedule",
+      "popoverComingSoon": "Coming soon"
+    },
     "comingSoonNote": "Activates after payment & booking data is recorded",
     "kpis": {
       "inboxUnread": "Unread messages",

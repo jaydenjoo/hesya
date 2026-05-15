@@ -10,6 +10,7 @@ import {
   DashboardHeader,
   DistributionPie,
   KpiGrid,
+  TodayTimeline,
   type DistributionSlice,
   type KpiEntry,
 } from "@/features/dashboard";
@@ -392,6 +393,7 @@ export default async function StoreDashboardPage({
           eyebrowEn="Bright spot"
           body={brightSpot.body}
         />
+        <TodayTimeline />
         <div className="space-y-4">
           <KpiGrid
             entries={rowHero}

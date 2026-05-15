@@ -30,6 +30,18 @@
     "channelBreakdown": {
       "title": "Tin chưa đọc theo kênh"
     },
+    "timeline": {
+      "title": "Lịch trình hôm nay",
+      "now": "Bây giờ {time}",
+      "chair1": "Ghế 1",
+      "chair2": "Ghế 2",
+      "legendForeign": "Khách nước ngoài",
+      "legendDomestic": "Khách Hàn",
+      "popoverDetail": "Chi tiết",
+      "popoverMessage": "Nhắn tin",
+      "popoverReschedule": "Đổi lịch",
+      "popoverComingSoon": "Sắp ra mắt"
+    },
     "comingSoonNote": "Kích hoạt sau khi có dữ liệu thanh toán & đặt lịch",
     "kpis": {
       "inboxUnread": "Tin nhắn chưa đọc",
