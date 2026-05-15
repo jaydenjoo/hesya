@@ -170,7 +170,24 @@
     "columnPrice": "Giá",
     "columnStatus": "Trạng thái",
     "empty": "Chưa có lịch đặt",
-    "detail": "Chi tiết →",
+    "detail": {
+      "close": "Đóng",
+      "vipBadge": "VIP",
+      "confirm": "Xác nhận",
+      "notify": "Gửi nhắc nhở",
+      "reschedule": "Đổi lịch",
+      "cancel": "Hủy",
+      "markNoshow": "Vắng",
+      "tag": "Nhãn",
+      "exportIcs": ".ics",
+      "statusLabel": "Trạng thái",
+      "customerLabel": "Khách",
+      "serviceLabel": "Dịch vụ",
+      "stylistLabel": "Stylist",
+      "paidLabel": "Đã thanh toán",
+      "refundLabel": "Xem trước hoàn tiền",
+      "refundHint": "Trước 24h: hoàn 100% · trước 12h: 50% · dưới 12h: 0%"
+    },
     "statuses": {
       "scheduled": "Đã đặt",
       "completed": "Hoàn thành",
@@ -212,30 +229,12 @@
       "statusPending": "Chờ",
       "filterForeign": "Chỉ khách ngoại",
       "filterPending": "Chờ"
-    },
-    "detail": {
-      "close": "Đóng",
-      "vipBadge": "VIP",
-      "confirm": "Xác nhận",
-      "notify": "Gửi nhắc nhở",
-      "reschedule": "Đổi lịch",
-      "cancel": "Hủy",
-      "markNoshow": "Vắng",
-      "tag": "Nhãn",
-      "exportIcs": ".ics",
-      "statusLabel": "Trạng thái",
-      "customerLabel": "Khách",
-      "serviceLabel": "Dịch vụ",
-      "stylistLabel": "Stylist",
-      "paidLabel": "Đã thanh toán",
-      "refundLabel": "Xem trước hoàn tiền",
-      "refundHint": "Trước 24h: hoàn 100% · trước 12h: 50% · dưới 12h: 0%"
     }
   },
   "Inbox": {
     "title": "Hộp thư hợp nhất",
     "empty": "Chưa có tin nhắn nào",
-    "threadListTitle": "Cuộc trò chuyện",
+    "threadListTitle": "Hộp thư hợp nhất",
     "threadListUnread": "chưa đọc",
     "searchPlaceholder": "Tìm theo tên hoặc tin nhắn",
     "searchAriaLabel": "Tìm cuộc trò chuyện",
@@ -301,7 +300,8 @@
       "toolAttach": "Attach file",
       "toolTemplates": "Templates",
       "toolComingSoon": "Coming soon",
-      "sendShortcut": "Send"
+      "sendShortcut": "Send",
+      "shortcutsLabel": "Phím tắt"
     },
     "window": {
       "openWithTime": "Reply window — {time} remaining",

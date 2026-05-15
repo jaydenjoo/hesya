@@ -46,6 +46,15 @@ function mockFlag(seed: string): string {
   return FLAG_CYCLE[Math.abs(h) % FLAG_CYCLE.length] ?? FLAG_CYCLE[0];
 }
 
+/** VIP star mock — 10% rate by customerId hash. DAL customers.is_vip 도입 전 임시. */
+function isVipMock(customerId: string): boolean {
+  let h = 0;
+  for (let i = 0; i < customerId.length; i++) {
+    h = (h * 31 + customerId.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h) % 10 === 0;
+}
+
 const TIME_FMT = new Intl.DateTimeFormat(undefined, {
   hour: "2-digit",
   minute: "2-digit",
@@ -113,6 +122,8 @@ export function ThreadItem({
     : "";
   const tag = pickTag(conversation);
   const isUrgent = tag === "urgent";
+  // VIP star — deterministic by customerId hash (10% rate). DAL customers.is_vip 도입 전 mock.
+  const isVip = isVipMock(conversation.customerId);
   // urgent 시 우상단 6px 빨간 dot (reference `.ix-thread-row.urgent::after`).
   const urgentDot = isUrgent
     ? "after:absolute after:right-3 after:top-3 after:h-1.5 after:w-1.5 after:rounded-full after:bg-red-500 after:content-['']"
@@ -155,6 +166,15 @@ export function ThreadItem({
             >
               {mockFlag(avatarSeed)}
             </span>
+            {isVip && (
+              <span
+                data-testid="thread-vip"
+                aria-label="VIP"
+                className="flex-shrink-0 text-[11px] text-hesya-amber-600"
+              >
+                ⭐
+              </span>
+            )}
           </span>
           {time ? (
             <span

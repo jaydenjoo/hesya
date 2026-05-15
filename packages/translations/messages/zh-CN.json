@@ -170,7 +170,24 @@
     "columnPrice": "金额",
     "columnStatus": "状态",
     "empty": "暂无预约",
-    "detail": "详情 →",
+    "detail": {
+      "close": "关闭",
+      "vipBadge": "VIP",
+      "confirm": "确认",
+      "notify": "发送提醒",
+      "reschedule": "改期",
+      "cancel": "取消",
+      "markNoshow": "爽约",
+      "tag": "标签",
+      "exportIcs": ".ics",
+      "statusLabel": "状态",
+      "customerLabel": "客户",
+      "serviceLabel": "服务",
+      "stylistLabel": "造型师",
+      "paidLabel": "已付款",
+      "refundLabel": "退款预览",
+      "refundHint": "24小时前: 100%退款 · 12小时前: 50% · 不足12小时: 0%"
+    },
     "statuses": {
       "scheduled": "已预约",
       "completed": "已完成",
@@ -212,30 +229,12 @@
       "statusPending": "待定",
       "filterForeign": "仅外国客",
       "filterPending": "待定"
-    },
-    "detail": {
-      "close": "关闭",
-      "vipBadge": "VIP",
-      "confirm": "确认",
-      "notify": "发送提醒",
-      "reschedule": "改期",
-      "cancel": "取消",
-      "markNoshow": "爽约",
-      "tag": "标签",
-      "exportIcs": ".ics",
-      "statusLabel": "状态",
-      "customerLabel": "客户",
-      "serviceLabel": "服务",
-      "stylistLabel": "造型师",
-      "paidLabel": "已付款",
-      "refundLabel": "退款预览",
-      "refundHint": "24小时前: 100%退款 · 12小时前: 50% · 不足12小时: 0%"
     }
   },
   "Inbox": {
     "title": "统一收件箱",
     "empty": "暂无消息",
-    "threadListTitle": "对话",
+    "threadListTitle": "统一收件箱",
     "threadListUnread": "未读",
     "searchPlaceholder": "按姓名或消息搜索",
     "searchAriaLabel": "搜索对话",
@@ -301,7 +300,8 @@
       "toolAttach": "Attach file",
       "toolTemplates": "Templates",
       "toolComingSoon": "Coming soon",
-      "sendShortcut": "Send"
+      "sendShortcut": "Send",
+      "shortcutsLabel": "快捷键"
     },
     "window": {
       "openWithTime": "Reply window — {time} remaining",
