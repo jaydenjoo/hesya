@@ -422,23 +422,32 @@ function Bubble({
   const corner = isSalon ? "rounded-bl-md" : "rounded-br-md";
 
   if (msg.type === "image") {
+    // Reference: 200×140 gradient thumbnail (peach→amber) + italic translation
+    const imgTrColor = isSalon ? "text-hesya-navy-900/65" : "text-white/85";
     return (
       <div className={`flex c-chat-bubble-row ${align}`}>
         <div
-          className={`flex max-w-[78%] flex-col overflow-hidden rounded-2xl ${corner} ${bg}`}
+          className={`flex max-w-[78%] flex-col gap-1.5 overflow-hidden rounded-2xl ${corner} ${bg} p-1.5`}
         >
-          <div className="flex items-center gap-2 bg-hesya-peach-100/60 px-3 py-6 text-hesya-navy-900/55">
-            <span aria-hidden="true" className="text-[28px]">
+          <div className="flex h-[140px] w-[200px] flex-col items-center justify-center gap-1.5 rounded-xl bg-gradient-to-br from-hesya-peach-100 to-hesya-amber-500">
+            <span aria-hidden="true" className="text-[32px]">
               📸
             </span>
-            <span className="text-[12px] font-medium">{msg.caption}</span>
+            <span className="font-heading text-[11px] font-semibold italic text-hesya-navy-900">
+              {msg.caption}
+            </span>
           </div>
           {translateOn && (
-            <div className="bg-black/5 px-3 py-2 text-[11px] text-hesya-navy-900/65">
-              <span aria-hidden="true" className="mr-1">
+            <div
+              className={`flex items-start gap-1.5 px-1.5 pb-1 text-[11px] italic ${imgTrColor}`}
+            >
+              <span
+                aria-hidden="true"
+                className="mt-0.5 flex-shrink-0 not-italic"
+              >
                 🌐
               </span>
-              {msg.tr}
+              <span>{msg.tr}</span>
             </div>
           )}
         </div>
@@ -447,15 +456,25 @@ function Bubble({
   }
 
   if (msg.type === "voice") {
+    // Reference chat.css: .play-btn salon=`rgba(26,34,56,0.12)/navy` user=`rgba(255,255,255,0.25)/white`
+    // .waveform span: salon=navy 0.4 / user=white 0.7
+    // .bubble-tr (voice): inside same bubble, border-top dashed, italic + globe-tag prefix
+    const playBtnBg = isSalon
+      ? "bg-hesya-navy-900/10 text-hesya-navy-900"
+      : "bg-white/25 text-white";
+    const waveColor = isSalon ? "bg-hesya-navy-900/40" : "bg-white/70";
+    const durationColor = isSalon ? "text-hesya-navy-900/55" : "text-white/85";
+    const trBorder = isSalon ? "border-hesya-navy-900/12" : "border-white/25";
+    const trColor = isSalon ? "text-hesya-navy-900/65" : "text-white/85";
     return (
       <div className={`flex c-chat-bubble-row ${align}`}>
         <div
-          className={`flex max-w-[78%] flex-col rounded-2xl ${corner} ${bg}`}
+          className={`flex min-w-[220px] max-w-[78%] flex-col rounded-2xl ${corner} ${bg}`}
         >
-          <div className="flex items-center gap-2 px-3 py-3">
+          <div className="flex items-center gap-2.5 px-3 py-3">
             <span
               aria-hidden="true"
-              className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/85 text-hesya-amber-600"
+              className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-[12px] ${playBtnBg}`}
             >
               ▶
             </span>
@@ -468,31 +487,41 @@ function Bubble({
                 return (
                   <span
                     key={i}
-                    className="inline-block w-[2px] rounded-full bg-white/70"
+                    className={`inline-block w-[2px] rounded-full ${waveColor}`}
                     style={{ height: `${h}px` }}
                   />
                 );
               })}
             </span>
-            <span className="font-mono text-[11px] opacity-90">
+            <span className={`mono text-[10px] ${durationColor}`}>
               {msg.duration}
             </span>
           </div>
           {translateOn && (
-            <div className="space-y-1 border-t border-white/15 px-3 py-2 text-[11px] text-white/95">
-              <p>
-                <span aria-hidden="true" className="mr-1">
+            <div
+              className={`mx-3 mb-2 flex flex-col gap-1 border-t border-dashed ${trBorder} pt-1.5 text-[11px] italic ${trColor}`}
+            >
+              <p className="flex items-start gap-1.5 not-italic">
+                <span aria-hidden="true" className="mt-0.5 flex-shrink-0">
                   🌐
                 </span>
-                <b>{voiceTranscriptLabel}:</b> {msg.transcript}
+                <span className="italic">
+                  <b className="not-italic opacity-70">
+                    {voiceTranscriptLabel}:
+                  </b>{" "}
+                  {msg.transcript}
+                </span>
               </p>
-              <p className="text-white/85">→ {msg.tr}</p>
+              <p className="pl-[18px] italic">{msg.tr}</p>
             </div>
           )}
         </div>
       </div>
     );
   }
+
+  const trBorder = isSalon ? "border-hesya-navy-900/12" : "border-white/25";
+  const trColor = isSalon ? "text-hesya-navy-900/65" : "text-white/85";
 
   return (
     <div className={`flex c-chat-bubble-row ${align}`}>
@@ -504,11 +533,12 @@ function Bubble({
           <button
             type="button"
             onClick={() => onAudit(msg)}
-            className={`mt-1.5 flex items-start gap-1.5 text-left text-[11px] leading-relaxed ${
-              isSalon ? "text-hesya-navy-900/55" : "text-white/80"
-            } transition hover:underline`}
+            className={`mt-1.5 flex w-full items-start gap-1.5 border-t border-dashed ${trBorder} pt-1.5 text-left text-[11px] italic leading-relaxed ${trColor} transition hover:underline`}
           >
-            <span aria-hidden="true" className="mt-0.5 flex-shrink-0">
+            <span
+              aria-hidden="true"
+              className="mt-0.5 flex-shrink-0 not-italic"
+            >
               🌐
             </span>
             <span className="[word-break:keep-all]">{msg.tr}</span>
