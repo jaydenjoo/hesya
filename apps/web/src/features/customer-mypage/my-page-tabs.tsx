@@ -246,17 +246,17 @@ function UpcomingPane({
       {miniTimeline && miniTimeline.length > 0 && (
         <div
           data-testid="mypage-mini-timeline"
-          className="-mx-1 flex gap-1.5 px-1"
+          className="flex gap-1.5 rounded-[10px] bg-hesya-peach-50 p-2"
         >
           {miniTimeline.map((c, i) => (
             <div
               key={i}
-              className={`flex flex-1 flex-col items-center justify-center rounded-xl py-2 text-center ring-1 transition ${
+              className={`flex flex-1 flex-col items-center justify-center rounded-xl py-2 text-center transition ${
                 c.booked
-                  ? "bg-hesya-amber-500 ring-hesya-amber-500"
+                  ? "bg-hesya-amber-500 shadow-sm"
                   : c.today
-                    ? "bg-white ring-hesya-amber-600 shadow-sm"
-                    : "bg-white/50 ring-hesya-navy-900/5"
+                    ? "bg-white ring-1 ring-hesya-amber-600 shadow-sm"
+                    : "bg-white/60"
               }`}
             >
               <span
@@ -271,7 +271,7 @@ function UpcomingPane({
                 {c.day}
               </span>
               <span
-                className={`text-[9px] uppercase tracking-[0.12em] ${
+                className={`text-[9px] uppercase tracking-[0.05em] ${
                   c.booked ? "text-white/80" : "text-hesya-navy-900/45"
                 }`}
               >
@@ -284,7 +284,7 @@ function UpcomingPane({
       {rows.map((b) => (
         <article
           key={b.id}
-          className="rounded-2xl bg-white p-4 ring-1 ring-hesya-navy-900/10"
+          className="rounded-2xl bg-white p-4 shadow-[0_8px_24px_rgba(26,34,56,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(26,34,56,0.10)]"
         >
           <div className="cm-up-when">
             {(() => {
@@ -328,7 +328,7 @@ function UpcomingPane({
               <div className="mt-3 flex flex-wrap gap-1.5">
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-hesya-navy-900 px-3 py-1.5 text-[11px] font-semibold text-hesya-peach-50 transition hover:bg-hesya-navy-900/90"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-hesya-amber-500 px-3 py-1.5 text-[11px] font-semibold text-white shadow-[0_4px_12px_rgba(232,169,122,0.35)] transition hover:bg-hesya-amber-600"
                 >
                   <span aria-hidden="true">📱</span>
                   {labels.upcomingExtras.showQr}
