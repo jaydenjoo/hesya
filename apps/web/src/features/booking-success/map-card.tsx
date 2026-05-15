@@ -1,7 +1,12 @@
+"use client";
+
 /**
- * Plan v3 Phase D2-B1 — 지도 카드. 매장 주소를 외국인이 자주 쓰는 3 지도 앱에
- * 딥링크. 모든 link는 새 탭에서 (`target="_blank"`).
+ * Plan v3 Phase D2-B1 — 지도 카드. PR 21 (2026-05-15) — interactive tab state.
+ * Reference: booking-app.jsx `.map-pill` — selected `bg: amber-600/white`,
+ * non-selected `bg: peach-100`. Naver Map은 "추천" 표기.
  */
+
+import { useState } from "react";
 
 interface Props {
   readonly title: string;
@@ -10,8 +15,11 @@ interface Props {
     readonly apple: string;
     readonly google: string;
     readonly naver: string;
+    readonly naverRecommended?: string;
   };
 }
+
+type MapKey = "apple" | "google" | "naver";
 
 function buildLinks(query: string) {
   const q = encodeURIComponent(query);
@@ -24,6 +32,24 @@ function buildLinks(query: string) {
 
 export function MapCard({ title, addressText, labels }: Props) {
   const links = buildLinks(addressText);
+  const [selected, setSelected] = useState<MapKey>("naver");
+  const pills: Array<{
+    key: MapKey;
+    label: string;
+    suffix?: string;
+    icon: string;
+    href: string;
+  }> = [
+    { key: "apple", label: labels.apple, icon: "", href: links.apple },
+    { key: "google", label: labels.google, icon: "◯", href: links.google },
+    {
+      key: "naver",
+      label: labels.naver,
+      suffix: labels.naverRecommended,
+      icon: "N",
+      href: links.naver,
+    },
+  ];
   return (
     <section className="overflow-hidden rounded-2xl bg-white shadow-[0_4px_16px_rgba(26,34,56,0.06)]">
       <div
@@ -41,36 +67,45 @@ export function MapCard({ title, addressText, labels }: Props) {
         <p className="mb-4 text-sm leading-relaxed text-hesya-navy-900">
           {addressText}
         </p>
-        <div className="flex flex-wrap gap-2">
-          <MapLink href={links.apple} label={labels.apple} icon="" />
-          <MapLink href={links.google} label={labels.google} icon="◯" />
-          <MapLink href={links.naver} label={labels.naver} icon="N" />
+        <div role="tablist" className="flex flex-wrap gap-2">
+          {pills.map((p) => {
+            const active = selected === p.key;
+            return (
+              <a
+                key={p.key}
+                role="tab"
+                aria-selected={active}
+                href={p.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onMouseEnter={() => setSelected(p.key)}
+                onFocus={() => setSelected(p.key)}
+                className={
+                  "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition " +
+                  (active
+                    ? "bg-hesya-amber-600 text-white shadow-[0_4px_10px_rgba(216,139,91,0.35)]"
+                    : "bg-hesya-peach-100 text-hesya-navy-900 hover:bg-hesya-peach-200")
+                }
+              >
+                <span aria-hidden="true" className="text-sm">
+                  {p.icon}
+                </span>
+                {p.label}
+                {p.suffix && (
+                  <span
+                    className={
+                      "ml-0.5 text-[10px] font-medium " +
+                      (active ? "text-white/85" : "text-hesya-amber-600")
+                    }
+                  >
+                    · {p.suffix}
+                  </span>
+                )}
+              </a>
+            );
+          })}
         </div>
       </div>
     </section>
-  );
-}
-
-function MapLink({
-  href,
-  label,
-  icon,
-}: {
-  href: string;
-  label: string;
-  icon: string;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 rounded-full border border-hesya-navy-900/15 bg-white px-3 py-1.5 text-xs font-semibold text-hesya-navy-900 transition hover:border-hesya-navy-900 hover:bg-hesya-peach-50"
-    >
-      <span aria-hidden="true" className="text-sm">
-        {icon}
-      </span>
-      {label}
-    </a>
   );
 }

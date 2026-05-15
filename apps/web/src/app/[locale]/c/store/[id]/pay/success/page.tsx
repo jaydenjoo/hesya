@@ -229,6 +229,7 @@ export default async function StorePaySuccessPage({
             apple: t("mapApple"),
             google: t("mapGoogle"),
             naver: t("mapNaver"),
+            naverRecommended: t("naverRecommended"),
           }}
         />
 

@@ -593,7 +593,8 @@
     "safetyTip1": "매장 도착하면 인박스 채팅으로 알려주세요. 저희가 확인해 드립니다.",
     "safetyTip2": "시술 중 통역 필요하면 태블릿 QR 스캔 하나로 시작.",
     "safetyTip3": "비상시 · 한국 112 또는 매장 직통 070-XXXX",
-    "safetyFirstOnly": "이 안내는 첫 방문 손님에게만 표시돼요."
+    "safetyFirstOnly": "이 안내는 첫 방문 손님에게만 표시돼요.",
+    "naverRecommended": "추천"
   },
   "StoreAnalytics": {
     "title": "매장 분석",

@@ -593,7 +593,8 @@
     "safetyTip1": "店舗到着時はインボックスチャットでお知らせください。確認します。",
     "safetyTip2": "施術中の通訳はタブレットQRをスキャンするだけ。",
     "safetyTip3": "緊急時 · 韓国 112 または店舗直通 070-XXXX",
-    "safetyFirstOnly": "初回ご来店のお客様にのみ表示されます。"
+    "safetyFirstOnly": "初回ご来店のお客様にのみ表示されます。",
+    "naverRecommended": "おすすめ"
   },
   "StoreAnalytics": {
     "title": "店舗分析",

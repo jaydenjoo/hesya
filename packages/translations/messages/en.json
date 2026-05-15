@@ -593,7 +593,8 @@
     "safetyTip1": "Let us know in inbox when you arrive. We'll check on you.",
     "safetyTip2": "Need an interpreter? Scan the tablet QR to start.",
     "safetyTip3": "Emergency · Korea 112 or salon direct 070-XXXX",
-    "safetyFirstOnly": "Shown only on your first booking."
+    "safetyFirstOnly": "Shown only on your first booking.",
+    "naverRecommended": "Recommended"
   },
   "StoreAnalytics": {
     "title": "Store Analytics",

@@ -593,7 +593,8 @@
     "safetyTip1": "Khi đến tiệm hãy báo cho chúng tôi qua inbox. Chúng tôi sẽ kiểm tra.",
     "safetyTip2": "Cần phiên dịch? Quét QR trên tablet để bắt đầu.",
     "safetyTip3": "Khẩn cấp · Hàn Quốc 112 hoặc tiệm 070-XXXX",
-    "safetyFirstOnly": "Chỉ hiển thị cho lần đặt đầu tiên."
+    "safetyFirstOnly": "Chỉ hiển thị cho lần đặt đầu tiên.",
+    "naverRecommended": "Đề xuất"
   },
   "StoreAnalytics": {
     "title": "Phân tích tiệm",
