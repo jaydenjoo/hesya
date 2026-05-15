@@ -25,6 +25,14 @@ export function CustomerFrame({ children, framed = true }: Props) {
             "radial-gradient(ellipse 1000px 600px at 50% -100px, var(--hesya-peach-200), transparent 55%)",
         }}
       />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[40vh] -z-10"
+        style={{
+          background:
+            "radial-gradient(ellipse 900px 500px at 50% 100%, var(--hesya-peach-100), transparent 60%)",
+        }}
+      />
       {framed ? (
         <div className="mx-auto w-full max-w-[440px] min-h-screen bg-hesya-peach-50/40 lg:my-8 lg:min-h-[820px] lg:max-h-[calc(100vh-64px)] lg:rounded-[44px] lg:border-[10px] lg:border-hesya-navy-900 lg:shadow-[0_30px_80px_-20px_rgba(26,34,56,0.35)] lg:overflow-hidden">
           <div className="h-full overflow-y-auto pb-12">{children}</div>

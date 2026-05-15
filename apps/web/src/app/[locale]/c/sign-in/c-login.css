@@ -1,0 +1,529 @@
+/*
+ * Customer Sign-in — design-token bound styles
+ * 출처: docs/design/reference/login.css (claude.ai/design)
+ * scope: `.c-login` 하위로 한정 (다른 customer 페이지 영향 차단).
+ */
+
+.c-login {
+  --duration-fast: 180ms;
+  position: relative;
+  min-height: 100%;
+  padding: 56px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-kr);
+}
+
+/* iPhone notch — lg+ 데스크톱 frame 안에서만 (모바일은 실제 status bar) */
+.c-login-notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 28px;
+  background: var(--hesya-navy-900);
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  z-index: 5;
+  display: none;
+}
+@media (min-width: 1024px) {
+  .c-login-notch {
+    display: block;
+  }
+}
+
+/* Lang switcher (top-right) */
+.c-lang-switcher {
+  position: absolute;
+  top: 50px;
+  right: 20px;
+  z-index: 10;
+}
+.c-lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--hesya-navy-900);
+  cursor: pointer;
+  border: 1px solid var(--hesya-peach-100);
+  font-family: inherit;
+}
+.c-lang-btn:hover {
+  border-color: var(--hesya-amber-500);
+}
+.c-lang-btn:focus-visible {
+  outline: 2px solid var(--hesya-amber-500);
+  outline-offset: 2px;
+}
+.c-lang-code {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.c-lang-chev {
+  font-size: 9px;
+  opacity: 0.6;
+}
+.c-lang-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(26, 34, 56, 0.12);
+  border: 1px solid var(--hesya-peach-100);
+  padding: 4px;
+  min-width: 160px;
+  animation: c-drop-down 0.18s ease;
+}
+@keyframes c-drop-down {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.c-lang-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--hesya-navy-900);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+.c-lang-item:hover {
+  background: var(--hesya-peach-50);
+}
+.c-lang-item.active {
+  background: var(--hesya-peach-100);
+  color: var(--hesya-amber-600);
+}
+.c-lang-item .c-lc {
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: rgba(26, 34, 56, 0.55);
+  width: 28px;
+}
+.c-lang-item.active .c-lc {
+  color: var(--hesya-amber-600);
+}
+
+/* Wordmark + ink motif */
+.c-login-top {
+  margin-top: 20px;
+  margin-bottom: 28px;
+  text-align: center;
+  position: relative;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.c-ink-motif {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--hesya-amber-600);
+  opacity: 0.08;
+  z-index: 0;
+}
+.c-login-wordmark {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 56px;
+  font-weight: 500;
+  color: var(--hesya-navy-900);
+  margin: 0;
+  letter-spacing: -0.03em;
+  position: relative;
+  z-index: 1;
+  animation: c-wordmark-pulse 6s ease-in-out infinite;
+}
+@keyframes c-wordmark-pulse {
+  0%,
+  86%,
+  100% {
+    transform: scale(1);
+  }
+  90% {
+    transform: scale(1.02);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .c-login-wordmark {
+    animation: none;
+  }
+}
+.c-login-sub {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  color: rgba(26, 34, 56, 0.65);
+  margin: 6px 0 0;
+  position: relative;
+  z-index: 1;
+  font-weight: 400;
+}
+.c-login-sub em {
+  font-style: italic;
+  color: var(--hesya-amber-600);
+}
+
+/* Auth stack — social + email */
+.c-auth-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.c-oauth-btn {
+  width: 100%;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all var(--duration-fast);
+}
+.c-oauth-btn.google {
+  background: #ffffff;
+  color: var(--hesya-navy-900);
+  border: 1px solid var(--hesya-peach-200);
+  box-shadow: 0 2px 6px rgba(26, 34, 56, 0.04);
+}
+.c-oauth-btn.google:hover {
+  border-color: var(--hesya-amber-500);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(26, 34, 56, 0.08);
+}
+.c-oauth-btn.apple {
+  background: var(--hesya-navy-900);
+  color: #ffffff;
+}
+.c-oauth-btn.apple:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(26, 34, 56, 0.25);
+}
+.c-oauth-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.c-email-link {
+  background: transparent;
+  border: none;
+  color: var(--hesya-amber-600);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px;
+  cursor: pointer;
+  margin-top: 2px;
+  text-align: center;
+}
+.c-email-link:hover {
+  text-decoration: underline;
+}
+
+.c-login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 6px 0;
+}
+.c-login-divider .c-line {
+  flex: 1;
+  height: 1px;
+  background: var(--hesya-peach-200);
+}
+.c-login-divider .c-or {
+  font-size: 11px;
+  color: rgba(26, 34, 56, 0.55);
+  font-family: var(--font-heading);
+  font-style: italic;
+}
+
+.c-passkey-link {
+  background: var(--hesya-peach-100);
+  color: var(--hesya-navy-900);
+  border: 1px dashed var(--hesya-peach-200);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all var(--duration-fast);
+}
+.c-passkey-link:hover {
+  border-color: var(--hesya-amber-500);
+  background: rgba(248, 233, 217, 0.6);
+}
+.c-passkey-link .c-key-emo {
+  font-size: 14px;
+}
+.c-passkey-link .c-returning {
+  font-size: 11px;
+  color: rgba(26, 34, 56, 0.55);
+  font-weight: 400;
+  font-family: var(--font-heading);
+  font-style: italic;
+  margin-left: auto;
+}
+
+/* Email form (step 2) */
+.c-auth-stack.c-email-form {
+  animation: c-form-slide 0.22s ease;
+}
+@keyframes c-form-slide {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .c-auth-stack.c-email-form {
+    animation: none;
+  }
+}
+.c-email-field {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid var(--hesya-peach-200);
+  border-radius: 14px;
+  height: 56px;
+  margin-bottom: 4px;
+  transition: border-color var(--duration-fast);
+}
+.c-email-field:focus-within {
+  border-color: var(--hesya-amber-500);
+}
+.c-email-field input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 22px 16px 8px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--hesya-navy-900);
+}
+.c-email-field label {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: rgba(26, 34, 56, 0.55);
+  pointer-events: none;
+  transition: all var(--duration-fast);
+}
+.c-email-field input:focus + label,
+.c-email-field input:not(:placeholder-shown) + label {
+  top: 14px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--hesya-amber-600);
+}
+.c-primary-cta {
+  width: 100%;
+  height: 56px;
+  background: var(--hesya-amber-500);
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(216, 139, 91, 0.3);
+  transition: all var(--duration-fast);
+}
+.c-primary-cta:hover:not(:disabled) {
+  background: var(--hesya-amber-600);
+}
+.c-primary-cta:disabled {
+  background: rgba(26, 34, 56, 0.2);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.c-email-hint {
+  font-size: 11px;
+  color: rgba(26, 34, 56, 0.55);
+  text-align: center;
+  margin: 4px 0 0;
+  font-family: var(--font-heading);
+  font-style: italic;
+}
+.c-back-link {
+  background: transparent;
+  border: none;
+  color: rgba(26, 34, 56, 0.65);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 8px;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 4px;
+}
+.c-back-link:hover {
+  color: var(--hesya-amber-600);
+}
+.c-email-error {
+  font-size: 12px;
+  font-weight: 600;
+  color: #c9483a;
+  margin: 0;
+}
+
+/* Password field (Better Auth signIn.email가 password 요구 — reference에는 magic code지만 prod에서는 password 사용) */
+.c-pw-field {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid var(--hesya-peach-200);
+  border-radius: 14px;
+  height: 56px;
+  margin-bottom: 8px;
+  transition: border-color var(--duration-fast);
+}
+.c-pw-field:focus-within {
+  border-color: var(--hesya-amber-500);
+}
+.c-pw-field input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 22px 16px 8px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--hesya-navy-900);
+}
+.c-pw-field label {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: rgba(26, 34, 56, 0.55);
+  pointer-events: none;
+  transition: all var(--duration-fast);
+}
+.c-pw-field input:focus + label,
+.c-pw-field input:not(:placeholder-shown) + label {
+  top: 14px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--hesya-amber-600);
+}
+
+/* Compliance + footer */
+.c-compliance {
+  margin-top: auto;
+  padding-top: 24px;
+  text-align: center;
+  font-size: 11px;
+  color: rgba(26, 34, 56, 0.55);
+  line-height: 1.5;
+}
+.c-compliance a {
+  color: rgba(26, 34, 56, 0.7);
+  text-decoration: underline;
+  text-decoration-color: var(--hesya-peach-200);
+  text-underline-offset: 2px;
+}
+.c-comply-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.c-comply-line .c-badge {
+  background: var(--hesya-peach-100);
+  color: var(--hesya-navy-900);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 3px 7px;
+  border-radius: 4px;
+}
+.c-comply-text {
+  font-family: var(--font-heading);
+  font-style: italic;
+}
+
+.c-login-footer {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 10px;
+  color: rgba(26, 34, 56, 0.55);
+  padding-bottom: 4px;
+}
+.c-login-footer a {
+  color: rgba(26, 34, 56, 0.7);
+  cursor: pointer;
+  text-decoration: none;
+}
+.c-login-footer a:hover {
+  text-decoration: underline;
+}
+.c-login-footer .c-dot {
+  margin: 0 8px;
+  opacity: 0.4;
+}
+
+/* Demo hint */
+.c-demo-hint {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--hesya-peach-100);
+  border: 1px dashed var(--hesya-amber-500);
+  border-radius: 12px;
+  font-size: 11px;
+  color: rgba(26, 34, 56, 0.65);
+  line-height: 1.5;
+}
+.c-demo-hint strong {
+  color: var(--hesya-navy-900);
+  font-family: var(--font-mono);
+}
