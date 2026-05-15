@@ -3,15 +3,16 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 34 연장 — Task 1 backfill + Task 3 decision doc + outdated batch 2 후보 폐기)
+## 현재 위치 (2026-05-15 세션 34 연장 — Task 1 backfill + Task 3 decision doc + 옵션 B Customer OAuth fallback 머지)
 
-- **Phase**: **Plan v3 M1~M5 100% + Sprint 2 12 PR + 세션 33 회귀 복구 + 세션 34 random tail 구조적 해결 + Task 1 backfill 머지**
-- **세션 34 머지 (3 PR + 2 docs commit)**:
+- **Phase**: **Plan v3 M1~M5 100% + Sprint 2 12 PR + 세션 33 회귀 복구 + 세션 34 random tail 구조적 해결 + Task 1 backfill 머지 + Customer OAuth fallback 머지**
+- **세션 34 머지 (4 PR + 2 docs commit)**:
   - PR [#192](https://github.com/jaydenjoo/hesya/pull/192) fix(vitest) — `fileParallelism: false` 1줄 추가 (commit `8825484`). vitest 4의 `forks.singleFork: true`만으로는 file 사이 sequential 실행 보장 안 됨. baseline 3 dispatch 11~14 fail → patch 후 **0 fail × 3 dispatch** (patch branch 2회 + main sanity 1회).
   - PR [#193](https://github.com/jaydenjoo/hesya/pull/193) test(admin-dashboard) — audit trail + aiCost spark DAL backfill 6 it + **resetDb TRUNCATE 격리** (commit `11567cf`). 두 핵심 변경:
     1. `getAdminAuditTrail` (3 it) + `getDailyAiCostSpark` (3 it) test 추가 — L-100 진단 부산물 (TRUNCATE는 BEFORE DELETE row-level trigger 우회) 활용해 IMMUTABLE 테이블 격리.
     2. 1차 CI fail 진단 후 `resetDb` 첫 줄에 `TRUNCATE kyc_verification_logs CASCADE` 추가 — 이전 nested beforeEach는 같은 describe만 보호 → 다른 file 도착 시 store_verifications DELETE 23503 FK violation cascade. resetDb 자체로 격리해야 file leakage 완전 차단. `db.test.ts` fakeDb에 execute mock 추가.
     3. 검증: 1차 fail (~15 cascade) → 2차 success → 머지.
+  - PR [#194](https://github.com/jaydenjoo/hesya/pull/194) feat(customer) — OAuth fallback (commit `7481ed0`). Customer sign-in magic link single → 3 경로 (Email+Password / Google OAuth / Magic Link). 신규 컴포넌트 2개 (`EmailPasswordForm` + `GoogleOAuthButton`) + i18n 6 locale 신규 11 key + `NEXT_PUBLIC_DEMO_AUTOFILL` demo-customer prefill. DB 변경 0건 (customer-guard `upsertCustomerByEmail` 기존 흐름 재사용). 옵션 B 채택 (`docs/customer-mypage-prod-e2e-decision.md`).
 - **세션 34 docs**:
   - `docs/learnings.md` L-100 추가 (commit `89a9d76`) — vitest 4의 `singleFork` (process isolation) vs `fileParallelism` (file scheduling) 직교 차원 명문화.
   - `docs/customer-mypage-prod-e2e-decision.md` 추가 — Customer MyPage prod e2e 시연 옵션 3개 (A: manual / B: OAuth fallback 권장 / C: 베타까지 보류). **Jayden 결정 대기**.
@@ -24,11 +25,16 @@
     - Customer store detail: 풀 구현 (HeroGallery / DetailTabs / 5 tab + book/pay/photos 하위)
   - 즉 PROGRESS의 명시가 stale될 수 있음 → 세션 시작 시 inventory가 자동 검증 의무 (글로벌 `inventory-protocol.md` 정신).
 - **L-082 시연 % 변경 없음**: M3 owner 100% / M4 admin 100% / Sprint 2 mock-first 12 페이지 유지. CI 회귀 해소 + backfill은 시연 prerequisite 안정성 보강.
-- **다음 세션 시작점** (실제 남은 task):
-  - **Customer MyPage prod e2e — Jayden 결정 대기** (`docs/customer-mypage-prod-e2e-decision.md` 옵션 A/B/C 중 선택). B (OAuth fallback) 권장. B 채택 시 3~4h 작업 (sign-in page + customer-guard + demo 계정 seed + 6 locale i18n).
+- **다음 세션 시작점** (Jayden 액션 또는 의사결정 대기):
+  - **Customer OAuth prod prerequisite (Jayden manual, PR #194 머지 후속)**:
+    1. prod demo customer 계정 생성 — `curl POST /api/auth/sign-up/email`로 `demo-customer@hesya.com` / `Hesya!DemoCustomer2026`
+    2. Vercel env `NEXT_PUBLIC_DEMO_AUTOFILL=true` 확인 (이미 owner 데모로 활성 가능성)
+    3. Google OAuth callback URL 확장 — 기존 Owner callback과 동일 (`/api/auth/callback/google`) 자동 작동 확인
+    4. 외부 URL `/ko/c/sign-in` 시연 검증 — Email/Password 즉시 로그인 + Google OAuth + Magic Link 3 경로 모두 작동 확인
   - **Resend 도메인 검증** (Jayden 외부 액션, 보류 중) — `docs/resend-domain-setup.md` 참조. 베타 출시 차단선.
   - **베타 5곳 매장 매칭** (Jayden 비즈니스, 보류 중) — Plan v3 baseline 충족 후 진행.
-  - **(코드 작업 후보 0건)** — Plan v3 M1~M5 100% + Sprint 2 12 PR 정합성 100% + 세션 34 backfill 완료로 매크로 task 마무리. 추가 작업은 Jayden 새 요구사항 또는 위 3개 task 결정 후.
+  - **Owner Dashboard 풀 디자인 Epic 결정** (참고: 본 세션 PDF 검토) — 위젯 9종 + shell sidebar + AI 인사이트 + 알림 panel 추가 (5~7일, 38~50h). 베타 매장 매칭이 데이터 prerequisite. 우선순위 재합의 필요 시 Epic 분리 plan doc 작성.
+  - **(코드 작업 자동 진행 후보 0건)** — 본 세션에서 모든 자동 진행 가능 task 완료. 추가 작업은 위 4개 Jayden 결정 후.
 
 ## 이전 세션 33 종료 시점 (참고: 2026-05-14 — Sprint 2 12 PR + N=10 bench + main 회귀 진단·복구 (25+ → 9 fail))
 
