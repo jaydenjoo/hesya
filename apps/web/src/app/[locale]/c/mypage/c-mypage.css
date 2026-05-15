@@ -1,0 +1,344 @@
+/*
+ * Customer MyPage — reference 정합 styles
+ * 출처: docs/design/reference/mypage.css (claude.ai/design)
+ * scope: `.cm-*` (다른 c/ 페이지 영향 차단)
+ */
+
+/* Header peach-100 bg card + bottom rounded */
+.cm-header {
+  flex-shrink: 0;
+  padding: 28px 18px 16px;
+  background: var(--hesya-peach-100);
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+  margin-bottom: 14px;
+}
+.cm-top-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.cm-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--hesya-amber-500),
+    var(--hesya-amber-600)
+  );
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.cm-greet {
+  flex: 1;
+  min-width: 0;
+}
+.cm-greet h1 {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--hesya-navy-900);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.cm-greet h1 em {
+  color: var(--hesya-amber-600);
+  font-style: italic;
+}
+.cm-traveler {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 10px;
+  color: rgba(26, 34, 56, 0.65);
+  margin-top: 4px;
+}
+.cm-traveler .cm-dvd {
+  opacity: 0.4;
+}
+.cm-cog-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--hesya-navy-900);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.cm-cog-btn:hover {
+  background: rgba(255, 255, 255, 0.85);
+}
+.cm-cog-btn:focus-visible {
+  outline: 2px solid var(--hesya-amber-500);
+  outline-offset: 2px;
+}
+
+/* Tabs — underline style + tcount badge */
+.cm-tabs-bar {
+  flex-shrink: 0;
+  display: flex;
+  padding: 8px 14px 0;
+  gap: 4px;
+  background: var(--hesya-peach-50);
+  border-bottom: 1px solid var(--hesya-peach-100);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.cm-tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+.cm-tab {
+  padding: 12px 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(26, 34, 56, 0.55);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition:
+    color 0.18s,
+    border-color 0.18s;
+  background: transparent;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: inherit;
+}
+.cm-tab.active {
+  color: var(--hesya-navy-900);
+  border-bottom-color: var(--hesya-amber-500);
+}
+.cm-tcount {
+  font-size: 9px;
+  background: var(--hesya-peach-100);
+  color: rgba(26, 34, 56, 0.7);
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.cm-tab.active .cm-tcount {
+  background: var(--hesya-amber-500);
+  color: #ffffff;
+}
+.cm-tcount.alert {
+  background: var(--hesya-amber-600);
+  color: #ffffff;
+}
+
+/* Tab scroll independent */
+.cm-tab-scroll {
+  padding: 14px 14px 24px;
+  animation: cm-tab-fade 0.22s ease;
+}
+@keyframes cm-tab-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cm-tab-scroll {
+    animation: none;
+  }
+}
+.cm-tab-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* "Tomorrow at _14:00_" italic heading */
+.cm-up-when {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--hesya-navy-900);
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+.cm-up-when em {
+  color: var(--hesya-amber-600);
+  font-style: italic;
+}
+
+/* Ghost button (Past tab "Book again") */
+.cm-ghost-btn {
+  background: transparent;
+  border: 1px solid var(--hesya-amber-500);
+  color: var(--hesya-amber-600);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.cm-ghost-btn:hover {
+  background: var(--hesya-peach-100);
+}
+
+/* Past card 별점 */
+.cm-past-stars {
+  margin-top: 4px;
+  display: inline-flex;
+  gap: 1px;
+}
+.cm-past-stars .cm-ps {
+  color: rgba(26, 34, 56, 0.2);
+  font-size: 11px;
+}
+.cm-past-stars .cm-ps.on {
+  color: var(--hesya-amber-500);
+}
+
+/* Saved card heart + area + rating + price */
+.cm-saved-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.cm-saved-card {
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--hesya-peach-100);
+  transition: all 0.2s;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.cm-saved-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(26, 34, 56, 0.1);
+}
+.cm-saved-img {
+  height: 100px;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 8px;
+  background: linear-gradient(
+    135deg,
+    var(--hesya-amber-200, #f5ddc8),
+    var(--hesya-amber-600)
+  );
+}
+.cm-heart {
+  background: rgba(255, 255, 255, 0.92);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--hesya-amber-600);
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+}
+.cm-saved-body {
+  padding: 10px 12px 12px;
+}
+.cm-saved-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--hesya-navy-900);
+  line-height: 1.3;
+  word-break: keep-all;
+}
+.cm-saved-area {
+  font-size: 10px;
+  color: rgba(26, 34, 56, 0.55);
+  margin-top: 2px;
+}
+.cm-saved-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 11px;
+}
+.cm-saved-rating {
+  color: var(--hesya-amber-600);
+  font-weight: 600;
+}
+.cm-saved-price {
+  color: rgba(26, 34, 56, 0.7);
+  font-family: var(--font-mono);
+}
+
+/* Review textarea bg */
+.cm-rv-textarea {
+  background: var(--hesya-peach-50);
+  border: 1px solid var(--hesya-peach-100);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--hesya-navy-900);
+  resize: none;
+  min-height: 60px;
+  outline: none;
+  width: 100%;
+}
+.cm-rv-textarea::placeholder {
+  color: rgba(26, 34, 56, 0.55);
+}
+.cm-rv-textarea:focus {
+  border-color: var(--hesya-amber-500);
+}
+
+/* Review note italic */
+.cm-rv-note {
+  flex: 1;
+  font-size: 10px;
+  color: rgba(26, 34, 56, 0.55);
+  font-family: var(--font-heading);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* Skip all reviews */
+.cm-rv-skip {
+  text-align: center;
+  font-size: 11px;
+  color: rgba(26, 34, 56, 0.55);
+  margin-top: 6px;
+}
+.cm-rv-skip button {
+  color: rgba(26, 34, 56, 0.7);
+  cursor: pointer;
+  text-decoration: underline;
+  background: transparent;
+  border: none;
+  font: inherit;
+  padding: 0;
+}
+.cm-rv-skip button:hover {
+  color: var(--hesya-amber-600);
+}

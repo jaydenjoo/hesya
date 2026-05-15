@@ -986,7 +986,7 @@
     "backToHome": "Quay lại"
   },
   "CustomerMyPage": {
-    "greeting": "Xin chào, {name}",
+    "greeting": "Xin chào, <em>{name}</em>",
     "defaultName": "du khách",
     "tabs": {
       "upcoming": "Sắp tới",
