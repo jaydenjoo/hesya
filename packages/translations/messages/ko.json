@@ -568,7 +568,11 @@
     "mapCardTitle": "길찾기",
     "mapApple": "Apple 지도",
     "mapGoogle": "Google 지도",
-    "mapNaver": "네이버 지도"
+    "mapNaver": "네이버 지도",
+    "calligraphy": "환대 · hospitality",
+    "defensiveAriaLabel": "예약 관리",
+    "modifyLink": "예약 변경",
+    "cancelLink": "예약 취소"
   },
   "StoreAnalytics": {
     "title": "매장 분석",
