@@ -3,7 +3,7 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 36 — O1 단계 1~3 머지 완료, 단계 4 진행 중)
+## 현재 위치 (2026-05-15 세션 36 — O1 단계 1~4 머지 완료, 단계 5 진행 중)
 
 - **Phase**: **Design Completion Epic Phase 1 완료 (P0 8 페이지 정밀 inventory) → Phase 2 시작 (fast track 1 페이지 / 1 세션)**
 - **Phase 1 완료 (2026-05-15)**:
@@ -57,20 +57,28 @@
     - mock 주입: ₩4,280,000 / +24% / [40,55,48,70,62,85,92] / Gold / 2026-07-15
     - 위치: Timeline 다음, KpiGrid 앞에 2-col grid (1.4fr/1fr)
     - i18n 6 locale (Dashboard.weeklyGmv 13 keys + kVerified 5 keys = 108 entries)
-  - **단계 4 (진행 중)**: W4 국적 대형 타일 (1d) + W9 최근 후기 3 cards (2d)
-    - W4: DistributionPie 재활용 + flag emoji + 한국어 라벨 (현재 KPI grid 안 nationalityMix를 별도 대형 타일로 격상)
-    - W9: flag + 별점 + 다국어 후기 + AI 답변 초안 mock 3개
-    - prerequisite: 둘 다 mock-first (W9 reviews 테이블 ζ phase, W4 nationality 부분 데이터 있음)
-  - 단계 5 (이후): W1/W11/W8/W5 (데이터 prerequisite 충족 후)
+  - **단계 4 머지 완료 (PR [#205](https://github.com/jaydenjoo/hesya/pull/205), commit `d02bd6e`, ~65% → ~75%)**:
+    - W4 NationalityTile — 220×220 SVG donut (5 mock 국적, hex color) + 중앙 숫자 47 + flag/swatch/label/pct legend
+    - W9 RecentReviews — 3 mock cards (jp/en/zh-CN, ★ 별점, photo pip, AI draft 링크 disabled)
+    - immutability rule 준수: `segmentArcs` precompute (let cum 재할당 회피)
+    - 위치: W4 = KpiGrid 앞 단독 row, W9 = KpiGrid 뒤 단독 3-col row
+    - i18n 6 locale (Dashboard.nationalityTile 4 + recentReviews 8 = 72 entries)
+  - **단계 5 (진행 중)**: W1 / W11 / W8 / W5 (모두 mock-first 가능 평가 완료)
+    - W1 오늘의 예약 타일 (3d) — mini avatar flag + sparkline 12바 + 다음 시술
+    - W11 알림 Toast stack (2d) — 4종 toast (별점/포토/예약/시스템) + sketch SVG + dismiss
+    - W8 AI 인사이트 패널 (2d) — mock insight + 승인/수정/거절 액션 (LLM 호출 없이)
+    - W5 AI 응답 정확도 타일 (2d) — 원형 progress 94% + "처리 메시지 142건"
+    - 모두 시각 fidelity 우선 mock-first. 실 파이프라인 wire 별도 task.
 
 ## 세션 36 요약 (2026-05-15)
 
 - **PR [#202](https://github.com/jaydenjoo/hesya/pull/202) 머지** O1 단계 1 (commit `e936d40`, 22% → ~45%) — Stage 1 W10 alert + W13 greeting + W3 channel breakdown.
 - **PR [#203](https://github.com/jaydenjoo/hesya/pull/203) 생성·머지** O1 단계 2 W7 Timeline (commit `a172a02`, ~45% → ~55%) — 09~21시 가로 timeline + 2 row + 9 mock bookings + popover + 6 locale i18n.
 - **PR [#204](https://github.com/jaydenjoo/hesya/pull/204) 생성·머지** O1 단계 3 W2 GMV + W6 K-Verified (commit `897d16d`, ~55% → ~65%) — 큰 mono 매출 + 7-bar + amber ribbon. 1 PR로 묶기 패턴 정착.
-- 1 세션 3 PR 연속 머지 (단계 1~3) — fast track 가속화 패턴 검증.
-- O1 진행도: 22% → ~65%. P0 8 페이지 중 O1만 단계 진행 중 (나머지 7개 100% / O2 ~92%).
-- 다음 단계 4: W4 국적 대형 타일 (1d) + W9 후기 cards (2d).
+- **PR [#205](https://github.com/jaydenjoo/hesya/pull/205) 생성·머지** O1 단계 4 W4 국적 + W9 후기 (commit `d02bd6e`, ~65% → ~75%) — 220×220 SVG donut + flag legend + 3 mock review cards. 1 세션 4 PR 누적.
+- 1 세션 4 PR 연속 머지 (단계 1~4) — fast track 가속화 패턴 검증 + 자동 진행 모드 안정화.
+- O1 진행도: 22% → ~75%. P0 8 페이지 중 O1만 단계 진행 중 (나머지 7개 100% / O2 ~92%).
+- 단계 5 진행 중: W1 / W11 / W8 / W5 (모두 mock-first 가능 평가).
 
 ## 세션 35 요약 (2026-05-15)
 
