@@ -130,6 +130,9 @@ export default async function StorePaySuccessPage({
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-hesya-amber-600">
             {t("eyebrow")}
           </p>
+          <p className="mt-1 font-heading text-[14px] italic tracking-[0.05em] text-hesya-amber-600">
+            {t("calligraphy")}
+          </p>
           <h1 className="mt-1 font-heading text-[24px] font-semibold italic leading-tight tracking-[-0.02em] text-hesya-navy-900">
             {t("heading")}
           </h1>
@@ -211,6 +214,27 @@ export default async function StorePaySuccessPage({
             {t("backToStore")}
           </Link>
         </div>
+
+        <nav
+          aria-label={t("defensiveAriaLabel")}
+          className="flex items-center justify-center gap-5 pt-1 text-[12px] text-hesya-navy-900/55"
+        >
+          <Link
+            href={`/c/store/${id}`}
+            className="transition hover:text-hesya-amber-600"
+          >
+            {t("modifyLink")} →
+          </Link>
+          <span aria-hidden="true" className="text-hesya-navy-900/20">
+            ·
+          </span>
+          <Link
+            href={`/c/store/${id}`}
+            className="transition hover:text-hesya-amber-600"
+          >
+            {t("cancelLink")} →
+          </Link>
+        </nav>
       </div>
     </CustomerFrame>
   );

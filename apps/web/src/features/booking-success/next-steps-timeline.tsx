@@ -1,8 +1,9 @@
 /**
  * Plan v3 Phase D2-B1 — "What happens next" 5단계 타임라인.
- * 손님이 예약 후 흐름을 한눈에 파악 (이메일 확인 → 도착 → QR 제시 → 시술 →
- * 잔액 결제).
+ * Reference: booking-app.jsx `.timeline` — emoji icons + Fraunces title + dashed dividers.
  */
+
+const STEP_EMOJI = ["📩", "🚇", "🌐", "💌", "🎁"] as const;
 
 interface Props {
   readonly title: string;
@@ -11,15 +12,22 @@ interface Props {
 
 export function NextStepsTimeline({ title, steps }: Props) {
   return (
-    <section className="rounded-2xl border border-hesya-peach-200 bg-white px-5 py-5">
-      <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+    <section className="rounded-2xl bg-white px-5 py-5 shadow-[0_4px_16px_rgba(26,34,56,0.06)]">
+      <h3 className="mb-4 font-heading text-[18px] font-medium italic text-hesya-navy-900">
         {title}
-      </p>
-      <ol className="space-y-3">
+      </h3>
+      <ol>
         {steps.map((s, i) => (
-          <li key={i} className="flex items-start gap-3">
-            <span className="mt-0.5 grid h-5 w-5 flex-shrink-0 place-items-center rounded-full bg-hesya-navy-900 font-mono text-[10px] font-bold text-hesya-peach-50">
-              {i + 1}
+          <li
+            key={i}
+            className={`flex items-start gap-3 py-2.5 ${
+              i < steps.length - 1
+                ? "border-b border-dashed border-hesya-peach-100"
+                : ""
+            }`}
+          >
+            <span aria-hidden="true" className="text-[22px] leading-none">
+              {STEP_EMOJI[i] ?? "•"}
             </span>
             <span className="text-sm leading-relaxed text-hesya-navy-900">
               {s}

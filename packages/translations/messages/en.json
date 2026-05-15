@@ -568,7 +568,11 @@
     "mapCardTitle": "Get directions",
     "mapApple": "Apple Maps",
     "mapGoogle": "Google Maps",
-    "mapNaver": "Naver Map"
+    "mapNaver": "Naver Map",
+    "calligraphy": "환대 · hospitality",
+    "defensiveAriaLabel": "Manage booking",
+    "modifyLink": "Modify booking",
+    "cancelLink": "Cancel booking"
   },
   "StoreAnalytics": {
     "title": "Store Analytics",

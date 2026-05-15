@@ -568,7 +568,11 @@
     "mapCardTitle": "経路案内",
     "mapApple": "Apple マップ",
     "mapGoogle": "Google マップ",
-    "mapNaver": "Naver マップ"
+    "mapNaver": "Naver マップ",
+    "calligraphy": "환대 · おもてなし",
+    "defensiveAriaLabel": "予約管理",
+    "modifyLink": "予約変更",
+    "cancelLink": "予約キャンセル"
   },
   "StoreAnalytics": {
     "title": "店舗分析",

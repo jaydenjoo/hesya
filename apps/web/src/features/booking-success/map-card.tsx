@@ -25,17 +25,27 @@ function buildLinks(query: string) {
 export function MapCard({ title, addressText, labels }: Props) {
   const links = buildLinks(addressText);
   return (
-    <section className="rounded-2xl border border-hesya-peach-200 bg-white px-5 py-5">
-      <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
-        {title}
-      </p>
-      <p className="mb-4 text-sm leading-relaxed text-hesya-navy-900">
-        {addressText}
-      </p>
-      <div className="flex flex-wrap gap-2">
-        <MapLink href={links.apple} label={labels.apple} icon="" />
-        <MapLink href={links.google} label={labels.google} icon="◯" />
-        <MapLink href={links.naver} label={labels.naver} icon="N" />
+    <section className="overflow-hidden rounded-2xl bg-white shadow-[0_4px_16px_rgba(26,34,56,0.06)]">
+      <div
+        aria-hidden="true"
+        className="relative h-[140px] bg-gradient-to-br from-hesya-peach-100 via-hesya-peach-50 to-white"
+      >
+        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[40px] drop-shadow-[0_2px_4px_rgba(232,169,122,0.35)]">
+          📍
+        </span>
+      </div>
+      <div className="px-5 py-5">
+        <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+          {title}
+        </p>
+        <p className="mb-4 text-sm leading-relaxed text-hesya-navy-900">
+          {addressText}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <MapLink href={links.apple} label={labels.apple} icon="" />
+          <MapLink href={links.google} label={labels.google} icon="◯" />
+          <MapLink href={links.naver} label={labels.naver} icon="N" />
+        </div>
       </div>
     </section>
   );

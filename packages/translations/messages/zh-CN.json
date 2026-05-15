@@ -568,7 +568,11 @@
     "mapCardTitle": "路线导航",
     "mapApple": "Apple 地图",
     "mapGoogle": "Google 地图",
-    "mapNaver": "Naver 地图"
+    "mapNaver": "Naver 地图",
+    "calligraphy": "환대 · 款待",
+    "defensiveAriaLabel": "预约管理",
+    "modifyLink": "修改预约",
+    "cancelLink": "取消预约"
   },
   "StoreAnalytics": {
     "title": "店铺分析",

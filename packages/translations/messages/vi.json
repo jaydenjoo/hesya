@@ -568,7 +568,11 @@
     "mapCardTitle": "Chỉ đường",
     "mapApple": "Apple Maps",
     "mapGoogle": "Google Maps",
-    "mapNaver": "Naver Map"
+    "mapNaver": "Naver Map",
+    "calligraphy": "환대 · hiếu khách",
+    "defensiveAriaLabel": "Quản lý đặt lịch",
+    "modifyLink": "Thay đổi lịch",
+    "cancelLink": "Hủy đặt lịch"
   },
   "StoreAnalytics": {
     "title": "Phân tích tiệm",
