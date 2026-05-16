@@ -191,7 +191,43 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
           </button>
         </div>
 
-        <p className="mt-6 text-center text-[11px] leading-relaxed text-hesya-navy-900/55">
+        <ul className="mt-6 grid grid-cols-3 gap-2">
+          <li className="flex flex-col items-center gap-1 rounded-xl border border-hesya-peach-100 bg-white/40 px-2 py-2.5 text-center">
+            <span aria-hidden="true" className="text-[18px]">
+              ⚡
+            </span>
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.06em] text-hesya-amber-600">
+              ~3s
+            </span>
+            <span className="text-[10.5px] leading-tight text-hesya-navy-900/65 [word-break:keep-all]">
+              Claude Vision
+            </span>
+          </li>
+          <li className="flex flex-col items-center gap-1 rounded-xl border border-hesya-peach-100 bg-white/40 px-2 py-2.5 text-center">
+            <span aria-hidden="true" className="text-[18px]">
+              🎯
+            </span>
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.06em] text-hesya-amber-600">
+              5+ 라벨
+            </span>
+            <span className="text-[10.5px] leading-tight text-hesya-navy-900/65 [word-break:keep-all]">
+              스타일·시간·난이도
+            </span>
+          </li>
+          <li className="flex flex-col items-center gap-1 rounded-xl border border-hesya-peach-100 bg-white/40 px-2 py-2.5 text-center">
+            <span aria-hidden="true" className="text-[18px]">
+              🔒
+            </span>
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.06em] text-hesya-amber-600">
+              비저장
+            </span>
+            <span className="text-[10.5px] leading-tight text-hesya-navy-900/65 [word-break:keep-all]">
+              분석 후 즉시 삭제
+            </span>
+          </li>
+        </ul>
+
+        <p className="mt-4 text-center text-[11px] leading-relaxed text-hesya-navy-900/55">
           {labels.privacy}
         </p>
 
