@@ -1087,6 +1087,8 @@
     "auditTrail": "최근 운영 활동",
     "auditRailTitle": "운영 감사 로그",
     "auditEmpty": "최근 활동이 없습니다.",
+    "auditFootCount": "최근 {n}건의 활동",
+    "auditFootRefresh": "30초 자동 갱신",
     "alerts": {
       "pendingKyc": "KYC 매뉴얼 검토",
       "openDisputes": "진행 중 분쟁",

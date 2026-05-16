@@ -1087,6 +1087,8 @@
     "subPages": "Quick links",
     "auditTrail": "Recent activity",
     "auditEmpty": "No recent admin activity.",
+    "auditFootCount": "{n} recent activities",
+    "auditFootRefresh": "Auto-refresh 30s",
     "alerts": {
       "pendingKyc": "Manual KYC review",
       "openDisputes": "Open disputes",
