@@ -32,9 +32,9 @@ interface Props {
 }
 
 const TONE_BG: Record<NonNullable<IngredientRow["tone"]>, string> = {
-  low: "bg-emerald-50 text-emerald-700",
-  mid: "bg-yellow-50 text-yellow-700",
-  high: "bg-red-50 text-red-700",
+  low: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+  mid: "bg-hesya-peach-100 text-hesya-amber-600 ring-1 ring-hesya-peach-200",
+  high: "bg-[#fbeae5] text-[#c9483a] ring-1 ring-[#e5c0ba]",
 };
 
 export function AllergyDisclosure({
