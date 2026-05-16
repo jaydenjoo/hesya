@@ -90,11 +90,42 @@ export function BookingsList({
   labels,
 }: Props) {
   const total = rows.length;
+  const scheduledN = rows.filter((r) => r.status === "scheduled").length;
+  const completedN = rows.filter((r) => r.status === "completed").length;
+  const noShowN = rows.filter((r) => r.status === "no_show").length;
+  const cancelledN = rows.filter((r) => r.status === "cancelled").length;
   const countSummary = labels.countLabel
     ? labels.countLabel.replace("{n}", String(total))
     : `${total}`;
   return (
     <div className="space-y-4">
+      {total > 0 && (
+        <section
+          aria-label="Bookings KPI"
+          className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-hesya-peach-100 bg-hesya-peach-100 sm:grid-cols-4"
+        >
+          <BookingsKpiCell
+            label={labels.filtersByStatus["scheduled"]}
+            count={scheduledN}
+            tone={scheduledN > 0 ? "ok" : "muted"}
+          />
+          <BookingsKpiCell
+            label={labels.filtersByStatus["completed"]}
+            count={completedN}
+            tone="muted"
+          />
+          <BookingsKpiCell
+            label={labels.filtersByStatus["no_show"]}
+            count={noShowN}
+            tone={noShowN > 0 ? "warn" : "muted"}
+          />
+          <BookingsKpiCell
+            label={labels.filtersByStatus["cancelled"]}
+            count={cancelledN}
+            tone={cancelledN > 0 ? "neutral" : "muted"}
+          />
+        </section>
+      )}
       <nav className="flex flex-wrap gap-2">
         {STATUS_FILTERS_ORDER.map((f) => {
           const active = filter === f;
@@ -217,6 +248,59 @@ export function BookingsList({
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+const BOOKINGS_KPI_TONE: Record<
+  "ok" | "warn" | "neutral" | "muted",
+  { num: string; chip: string }
+> = {
+  ok: {
+    num: "text-emerald-700",
+    chip: "bg-emerald-50 text-emerald-700",
+  },
+  warn: {
+    num: "text-[#c9483a]",
+    chip: "bg-[#fbeae5] text-[#c9483a]",
+  },
+  neutral: {
+    num: "text-hesya-navy-900/75",
+    chip: "bg-hesya-peach-100 text-hesya-navy-900/65",
+  },
+  muted: {
+    num: "text-hesya-navy-900/45",
+    chip: "bg-hesya-peach-50 text-hesya-navy-900/55",
+  },
+};
+
+function BookingsKpiCell({
+  label,
+  count,
+  tone,
+}: {
+  label: string;
+  count: number;
+  tone: "ok" | "warn" | "neutral" | "muted";
+}) {
+  const t = BOOKINGS_KPI_TONE[tone];
+  return (
+    <div className="flex items-center justify-between gap-3 bg-white px-4 py-3">
+      <span className="kr font-mono text-[10.5px] font-semibold uppercase tracking-[0.06em] text-gray-500">
+        {label}
+      </span>
+      <span className="flex items-baseline gap-1.5">
+        <span
+          className={`font-heading text-[24px] font-medium italic leading-none tabular-nums ${t.num}`}
+        >
+          {count}
+        </span>
+        <span
+          className={`rounded-full px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.06em] ${t.chip}`}
+        >
+          {count > 0 ? "건" : "—"}
+        </span>
+      </span>
     </div>
   );
 }
