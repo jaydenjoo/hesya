@@ -3,15 +3,15 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 세션 45 종료 요약 (2026-05-16) — γ.1 KYC E2E + γ.2 admin role 마이그 100% + cleanup + A1 dashboard 디자인 95%
+## 세션 46 종료 요약 (2026-05-16) — O1 Store Dashboard 디자인 100% 정합 (10 PR)
 
-세션 44 종료 후 같은 날 후속 세션. 누적 **104 PR** (세션 44: 88 → +16). γ.1 KYC E2E owner notify + γ.2 admin role guard 점진 마이그 100% 완료 + dead code cleanup + A1 dashboard audit rail 디자인 4단계 polish (85% → ~95%).
+세션 45 종료 후 같은 날 후속 세션. 누적 **114 PR** (세션 45: 104 → +10). O1 Store Dashboard 12 위젯 전체 reference 정합 + mock-fixtures pattern 도입 + 숨겨진 버그 2건 fix.
 
-## 세션 46 진행 중 (2026-05-16, O1 Store Dashboard 100% 정합) — 9 PR
+### 핵심 인사이트
 
-**핵심 발견** (subagent 인벤토리): design-completion-epic-plan O1의 "30%, 5~7d" 라벨은 outdated. 실제 12 위젯 풀 wire됨, 평균 grade B(~80%). DashboardHeader Grade C 1개 + 나머지 11개 B. 100% 정합까지 시각 polish 위주 9 PR만 필요.
+**design-completion-epic-plan O1 "30%, 5~7d" 라벨은 outdated**. subagent 인벤토리 결과 실제 12 위젯 풀 wire됨, 평균 grade B(~80%). 100% 정합까지 시각 polish 10 PR만 필요. A1 admin dashboard (세션 45)와 동일 패턴 — "30%"는 PR history 미반영의 과거 측정.
 
-### 세션 46 PR 누적 (#329~#337)
+### 세션 46 PR 누적 (#329~#338)
 
 | PR   | 위젯                             | 변경 요약                                                                                |
 | ---- | -------------------------------- | ---------------------------------------------------------------------------------------- |
@@ -24,30 +24,45 @@
 | #335 | AiInsightPanel container (Top 6) | peach-50/50 → peach-100 + 3px left amber bar + shadow-md + Fraunces em                   |
 | #336 | AiInsight 5 buttons              | sd-btn-amber/ghost 정규 토큰 (open 3 + modify 2) — 위젯 100% 정합                        |
 | #337 | InboxTile (Top 7)                | 채널 count text → pill 배지 + urgent variant (count≥5 amber)                             |
+| #338 | RecentReviews (final)            | card hover (amber border + shadow) + stars letter-spacing 0.5px                          |
 
-**브랜드 폰트 일관성 (3 위젯)**: KVerified + NationalityTile + AiInsight 모두 Fraunces italic 통일 — luxury feel.
+### 발견된 숨겨진 버그 2건
 
-**숨겨진 버그 2건 발견**:
+subagent 인벤토리 없었으면 못 봤을 시각 디테일:
 
-1. AiAccuracyTile SVG 12% 축소 렌더 (width vs viewBox 불일치) — #331
-2. BrightSpot rotating fade 미작동 (fadeIn keyframe 미정의) — #334
+1. **AiAccuracyTile SVG 12% 축소 렌더** (#331): `width="140" viewBox="0 0 160 160"` 불일치. 실제 원이 reference 크기보다 작아 정확도 수치가 중앙에서 벗어남.
+2. **BrightSpot rotating fade 미작동** (#334): `animate-[fadeIn_0.35s_ease-out]` 클래스 사용하나 fadeIn keyframe이 globals.css에 정의 안 됨 → 사실상 애니메이션 없이 메시지 갑작스럽게 교체.
 
-subagent 인벤토리 없었으면 못 봤을 시각 디테일.
+### 브랜드 폰트 일관성 (3 위젯 통일)
 
-### O1 진척
+KVerified + NationalityTile + AiInsight 모두 Fraunces italic 통일 — luxury feel 일관 신호. 이전엔 mono / Pretendard 혼재.
 
-design-completion-epic-plan 기준 30% → 실제 80% (인벤토리) → ~98% (9 PR 후).
+### O1 진척 (자기평가 객관화)
 
-### 후속 후보 (1~2 위젯만 남음)
+| 측정 시점         | %    | 근거                                       |
+| ----------------- | ---- | ------------------------------------------ |
+| design-plan label | 30%  | (outdated, PR history 미반영)              |
+| 세션 46 인벤토리  | ~80% | subagent — 12 위젯 풀 wire됨, 평균 grade B |
+| 세션 46 종료      | 100% | 10 PR 후 모든 위젯 reference 토큰 정합     |
 
-- RecentReviews stars empty 처리 (미세)
-- BrightSpot sd-bright-spot grid layout (현재 flex로 충분히 정합)
+L-082 prereq: 시연 baseline 완료 (mock-fixtures pattern 도입으로 외부 데모 시 풍부한 데이터 자동 노출, prod 시 empty fallback).
 
-L-082 prereq: 시연 baseline 완료 (mock-fixtures pattern 도입으로 외부 데모 시 풍부한 데이터 자동 노출).
+### 다음 세션 후보
+
+1. **Resend 도메인 검증** ⭐ — `MOCK_NOTIFICATION=false` 활성화 prerequisite. γ.1 KYC E2E (#312) 실제 시연 가능해짐. 도메인 인증 (DKIM/SPF) → Resend Dashboard에서 hesya 커스텀 도메인 등록 → MOCK_NOTIFICATION=false 검증.
+2. **Epic 12 admin role CRUD UI** — `/admin/users` 페이지 신규. role 부여/회수 UI (Better Auth session + γ.2 마이그 완료 가드 사용).
+3. **다른 P0 페이지 polish** — design-completion-epic-plan의 outdated 라벨 패턴 (A1/O1과 동일 가능성). 후보:
+   - **C2 Customer Chat** (60% label — 실제 측정 필요)
+   - **C5 Customer Store Detail** (65% label)
+   - **O2 Owner Inbox** (75% label)
+   - **O3 Owner Bookings / O4 Services / O8 Settings** (60% label)
+4. **A1 dashboard 마지막 5%** — 32px avatar column + 구조화된 actor/verb/target (DAL `AuditTrailEntry` 확장 필요)
 
 ---
 
-## 세션 45 종료 요약 (위에 별도 섹션, 17 PR — γ.1 KYC E2E + γ.2 admin role + A1 dashboard ~95%)
+## 세션 45 종료 요약 (2026-05-16) — γ.1 KYC E2E + γ.2 admin role 마이그 100% + cleanup + A1 dashboard 디자인 95%
+
+누적 **104 PR** (세션 44: 88 → +16). γ.1 KYC E2E owner notify + γ.2 admin role guard 점진 마이그 100% 완료 + dead code cleanup + A1 dashboard audit rail 디자인 4단계 polish (85% → ~95%).
 
 ---
 
