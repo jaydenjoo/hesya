@@ -690,6 +690,10 @@
   "StoreServices": {
     "title": "服務管理",
     "subtitle": "管理門市提供的服務",
+    "svMetaCount": "共 {count} 項服務",
+    "svLangSummary": "多語種覆蓋",
+    "svPendingButton": "AI 翻譯待辦",
+    "svPrimaryButton": "新增服務",
     "addButton": "+ 新增服務",
     "cancelButton": "取消",
     "saveButton": "儲存",

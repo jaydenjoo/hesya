@@ -690,6 +690,10 @@
   "StoreServices": {
     "title": "メニュー管理",
     "subtitle": "お店で提供するメニューを登録・管理します",
+    "svMetaCount": "全{count}件のメニュー",
+    "svLangSummary": "多言語カバー率",
+    "svPendingButton": "AI 翻訳待ち",
+    "svPrimaryButton": "新規メニュー",
     "addButton": "+ メニュー追加",
     "cancelButton": "キャンセル",
     "saveButton": "保存",

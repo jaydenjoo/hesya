@@ -690,6 +690,10 @@
   "StoreServices": {
     "title": "Quản lý dịch vụ",
     "subtitle": "Quản lý các dịch vụ của cửa hàng",
+    "svMetaCount": "{count} dịch vụ",
+    "svLangSummary": "Độ phủ đa ngôn ngữ",
+    "svPendingButton": "Chờ dịch AI",
+    "svPrimaryButton": "Dịch vụ mới",
     "addButton": "+ Thêm dịch vụ",
     "cancelButton": "Hủy",
     "saveButton": "Lưu",

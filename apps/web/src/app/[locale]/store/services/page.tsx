@@ -59,6 +59,16 @@ export default async function StoreServicesPage({
     category: r.category,
   }));
 
+  const totalCount = initialRows.length;
+  const fullyTranslatedCount = initialRows.filter(
+    (r) => r.nameEn && r.nameJa && r.nameZhCn && r.nameZhTw && r.nameVi,
+  ).length;
+  const langCoveragePct =
+    totalCount === 0
+      ? 0
+      : Math.round((fullyTranslatedCount / totalCount) * 100);
+  const pendingTranslateCount = totalCount - fullyTranslatedCount;
+
   return (
     <div className="bg-hesya-peach-50">
       <PageHeader
@@ -66,6 +76,57 @@ export default async function StoreServicesPage({
         title={t("title")}
         subtitle={t("subtitle")}
       />
+      <div className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-3 border-b border-hesya-peach-100 bg-hesya-peach-50/70 px-6 py-3 backdrop-blur-md sm:px-8">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1.5">
+          <h2 className="font-heading text-[18px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900">
+            {t("title")}
+          </h2>
+          <span className="text-[12px] text-hesya-navy-900/55">
+            {t("svMetaCount", { count: totalCount })}
+          </span>
+          <span
+            aria-hidden="true"
+            className="hidden h-3 w-px bg-hesya-peach-200 sm:inline-block"
+          />
+          <div className="flex items-center gap-2 text-[11px] text-hesya-navy-900/55">
+            <span>{t("svLangSummary")}</span>
+            <div
+              className="h-1 w-20 overflow-hidden rounded-full bg-hesya-peach-100"
+              role="progressbar"
+              aria-valuenow={langCoveragePct}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <span
+                className="block h-full rounded-full bg-emerald-500"
+                style={{ width: `${langCoveragePct}%` }}
+              />
+            </div>
+            <span className="font-mono font-semibold text-hesya-navy-900">
+              {langCoveragePct}%
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {pendingTranslateCount > 0 ? (
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-hesya-amber-500 bg-hesya-amber-500/5 px-3 py-1.5 text-[12px] font-medium text-hesya-amber-600 transition hover:bg-hesya-amber-500/10"
+            >
+              {t("svPendingButton")}
+              <span className="rounded-full bg-hesya-amber-500 px-1.5 py-px font-mono text-[10px] font-bold leading-none text-white">
+                {pendingTranslateCount}
+              </span>
+            </button>
+          ) : null}
+          <a
+            href="#service-add"
+            className="inline-flex items-center gap-1 rounded-md bg-hesya-navy-900 px-3 py-1.5 text-[12px] font-semibold text-hesya-peach-50 transition hover:bg-hesya-navy-900/90"
+          >
+            + {t("svPrimaryButton")}
+          </a>
+        </div>
+      </div>
       <div className="px-8 pb-10">
         {env.MOCK_FIXTURES && (
           <ServiceAiProposalBand
