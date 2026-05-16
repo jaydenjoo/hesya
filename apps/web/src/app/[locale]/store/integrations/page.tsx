@@ -95,7 +95,7 @@ export default async function StoreIntegrationsPage({
           {PROVIDERS.map((p) => (
             <article
               key={p.key}
-              className={`flex flex-col rounded-lg border border-gray-200 bg-white/70 px-5 py-4 shadow-sm ring-1 ring-inset ${p.accent}`}
+              className={`flex flex-col rounded-lg border border-gray-200 bg-white/70 px-5 py-4 shadow-sm ring-1 ring-inset transition-all hover:bg-white hover:shadow-md hover:ring-2 ${p.accent}`}
             >
               <div className="mb-3 flex items-start justify-between">
                 <div className="flex items-center gap-2.5">
@@ -111,7 +111,18 @@ export default async function StoreIntegrationsPage({
                     </p>
                   </div>
                 </div>
-                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
+                <span
+                  className={[
+                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                    mockMode
+                      ? "bg-hesya-peach-100 text-hesya-amber-700"
+                      : "bg-gray-100 text-gray-600",
+                  ].join(" ")}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`inline-block h-1.5 w-1.5 rounded-full ${mockMode ? "bg-hesya-amber-500" : "bg-gray-400"}`}
+                  />
                   {mockMode ? t("badgeMock") : t("badgePending")}
                 </span>
               </div>
@@ -122,6 +133,13 @@ export default async function StoreIntegrationsPage({
               <div className="mb-3 flex items-center gap-2 rounded-md bg-hesya-peach-50/80 px-3 py-2 text-[11px] text-hesya-navy-900/80">
                 <span aria-hidden="true">⇄</span>
                 <span className="kr">{t("bidirectional")}</span>
+              </div>
+
+              <div className="mb-3 flex items-center justify-between rounded-md border border-hesya-peach-100 bg-white px-3 py-1.5 font-mono text-[10.5px]">
+                <span className="uppercase tracking-[0.14em] text-hesya-navy-900/55">
+                  last sync
+                </span>
+                <span className="tabular-nums text-hesya-navy-900/45">—</span>
               </div>
 
               <button
@@ -172,7 +190,7 @@ export default async function StoreIntegrationsPage({
           {MESSAGING_CHANNELS.map((c) => (
             <article
               key={c.key}
-              className={`flex flex-col rounded-lg border border-gray-200 bg-white/70 px-4 py-3.5 shadow-sm ring-1 ring-inset ${c.accent}`}
+              className={`flex flex-col rounded-lg border border-gray-200 bg-white/70 px-4 py-3.5 shadow-sm ring-1 ring-inset transition-all hover:bg-white hover:shadow-md hover:ring-2 ${c.accent}`}
             >
               <div className="mb-2 flex items-start justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2">
