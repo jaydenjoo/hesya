@@ -3,6 +3,50 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
+## 세션 45 종료 요약 (2026-05-16) — 구조적 PR 2건 + 정리 1건
+
+세션 44 종료 후 같은 날 후속 세션. 시각 polish 대신 **세션 44가 다음 세션 후보로 남긴 구조적 큰 작업 2건**을 foundational scope로 압축해 진행. 누적 **90 PR** (세션 44: 88 → +2).
+
+- **C — `web/` stray 정리** (commit `d2f366d`, main 직접):
+  - claude.ai/design raw export dump 253M (web/public/landingpage/ + assets/). 80 HTML이 기존 `docs/design/reference/`와 중복. 2건만 신규 (`Hesya Landing.html`, `Hesya Store Dashboard-print.html`) → docs/design/reference/로 이관.
+  - `.gitignore`에 `/web/` 추가 → 253M 우발적 commit 차단.
+
+- **A — Phase 1-γ.1 KYC E2E owner-side wires** ([PR #312](https://github.com/jaydenjoo/hesya/pull/312)):
+  - admin이 manual_review 매장 승인/거절 시 owner email 알림 발송 (이전엔 admin email로 가던 오설계 + manual kind 미정의로 admin 매뉴얼 결정 후 owner 무알림).
+  - `kyc-result.ts` 3 kind → 5 kind (`manual_approved`, `manual_rejected` 추가, 12 신규 template × 6 locale).
+  - `findOwnerNotifyTargetByStoreId` DAL 신규 (store_owners ⨝ users ⨝ stores join).
+  - `approveStoreKyc`/`rejectStoreKyc` server actions가 트랜잭션 성공 후 owner notify 발송 (실패 silent, KYC 결과 우선).
+  - locale="ko" hardcoded (Phase 1 owner는 한국 사업자). `users.preferredLocale` 도입 시 자연 교체.
+  - 11 신규 test case (approve 5 + reject 6). KYC notify test loop 18 → 30 cases (5 kind × 6 locale).
+  - 보안 🟡 (알림 추가, 권한 변경 없음).
+
+- **B — Epic 12-α admin role foundational** ([PR #313](https://github.com/jaydenjoo/hesya/pull/313)) — 🔴 보안:
+  - `users.role text NOT NULL DEFAULT 'user'` 컬럼 + CHECK constraint (enum: 'user' | 'admin'). super_admin 등은 YAGNI.
+  - manual SQL `0030_users_role.sql` (hybrid 패턴, ROLLBACK 주석).
+  - `requireAdminRole()` 새 guard — Better Auth session → `users.role` lookup. `requireAdminEmail`과 동일 envelope (점진 교체용). E2E bypass parity. `React.cache()` wrap. DB throw → unauthorized fail-safe (0030 미적용 환경 보호).
+  - `findRoleByUserId` DAL 헬퍼.
+  - 9 신규 test case (guard) + 2 DAL integration.
+  - **의도적 비-스코프**: 22개 `requireAdminEmail` 호출처 마이그 (Phase 1-γ.2+), admin role CRUD UI (별도 Task). 두 guard 병행 작동.
+  - **⚠️ Jayden manual apply 필요** (PR #313 description에 SQL 2줄 명시):
+    ```sql
+    ALTER TABLE users ADD COLUMN role text NOT NULL DEFAULT 'user';
+    ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('user','admin'));
+    UPDATE users SET role = 'admin' WHERE email IN ('<ADMIN_EMAILS 항목들>');
+    ```
+
+- **D — 시각 polish mop-up**: 발견 영역 없음 (세션 44가 큰 push로 디자인 정합 95%+ 도달).
+
+- **검증**: 양 PR type-check + lint clean. test 741~750 pass (PR별 +9~+11). 양 PR CI green 후 squash merge + branch 삭제 + main rebase.
+
+- **차단 요소**:
+  - 🔴 PR #313의 manual SQL apply 대기 (Jayden 수동). apply 전엔 `requireAdminRole`이 모두에게 forbidden 반환 (fail-safe). 기존 `requireAdminEmail` 22 호출처는 영향 없음.
+  - Phase 1-γ.2+ 점진 마이그 시 admin call sites를 `requireAdminEmail` → `requireAdminRole`로 교체. 각 callsite 별도 PR 권장.
+
+- **다음 세션 후보**:
+  - **Phase 1-γ.2 admin call sites 점진 마이그** — 22개 중 우선순위 결정 (작은 단위, KYC actions 먼저 권장).
+  - **Phase 1-γ.1 KYC E2E 실제 시연** — preview 환경에서 외부 사용자 흐름 walkthrough (`MOCK_NOTIFICATION=false` Resend 도메인 검증 후).
+  - **Epic 12 admin role CRUD UI** — admin/users 페이지에서 role 부여/회수.
+
 ## 세션 44 종료 요약 (2026-05-16)
 
 - **결과**: **29 PR 머지** (이전 라운드 13건 + Phase 10/11 Group A/B 16건). 누적 **88 PR** (세션 43 종료 시점 59 → +29).
