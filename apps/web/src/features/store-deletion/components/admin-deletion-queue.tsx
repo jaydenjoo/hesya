@@ -50,8 +50,8 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 const SOURCE_BADGE_COLORS: Record<string, string> = {
-  owner: "bg-blue-100 text-blue-900 border-blue-300",
-  admin: "bg-red-100 text-red-900 border-red-300",
+  owner: "bg-hesya-peach-100 text-hesya-navy-900 border-hesya-peach-200",
+  admin: "bg-[#fbeae5] text-[#c9483a] border-[#e5c0ba]",
 };
 
 function daysUntil(target: Date, from = new Date()): number {
@@ -103,11 +103,14 @@ export function AdminDeletionQueue({
 
   return (
     <div className="space-y-8">
-      <section className="rounded-md border border-red-300 bg-red-50 p-6">
-        <h2 className="mb-3 text-lg font-bold tracking-[-0.01em] text-red-900">
+      <section className="rounded-2xl border border-[#e5c0ba] bg-white p-6 shadow-[0_1px_2px_rgba(26,34,56,0.04)] ring-1 ring-inset ring-[#e5c0ba]">
+        <p className="mb-2 font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#c9483a]">
+          §01 · Force Deletion
+        </p>
+        <h2 className="mb-2 font-display text-[20px] italic tracking-tight text-hesya-navy-900">
           강제 해지
         </h2>
-        <p className="mb-4 text-sm text-red-800">
+        <p className="mb-4 text-[12.5px] text-hesya-navy-900/75 [word-break:keep-all]">
           약관 위반 등 사유로 매장을 강제 해지합니다. 30일 grace 후 cron이 자동
           cascade hard-delete.
         </p>
@@ -144,12 +147,14 @@ export function AdminDeletionQueue({
             <button
               type="submit"
               disabled={pending || !forceStoreId.trim() || !forceReason.trim()}
-              className="rounded-md bg-red-700 px-5 py-2 font-medium text-white transition-colors hover:bg-red-800 disabled:opacity-40"
+              className="rounded-md bg-[#c9483a] px-5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#b03d31] disabled:opacity-40"
             >
               {pending && !actingRowId ? "신청 중..." : "강제 해지 신청"}
             </button>
             {result && !result.ok && !actingRowId && (
-              <span className="text-sm text-red-700">{result.message}</span>
+              <span className="text-[12px] text-[#c9483a]">
+                {result.message}
+              </span>
             )}
             {result && result.ok && !actingRowId && (
               <span className="text-sm text-emerald-700">완료</span>
@@ -209,7 +214,15 @@ export function AdminDeletionQueue({
                       {sourceLabel}
                     </span>
                     {remaining !== null && (
-                      <span className="text-xs text-hesya-navy-900/60">
+                      <span
+                        className={`rounded-full px-2 py-0.5 font-mono text-[10.5px] font-semibold tabular-nums ${
+                          remaining <= 7
+                            ? "bg-[#fbeae5] text-[#c9483a]"
+                            : remaining <= 14
+                              ? "bg-hesya-peach-100 text-hesya-amber-600"
+                              : "bg-hesya-peach-50 text-hesya-navy-900/70"
+                        }`}
+                      >
                         D-{Math.max(0, remaining)}일
                       </span>
                     )}
@@ -255,7 +268,7 @@ export function AdminDeletionQueue({
                           : "해지 취소"}
                       </button>
                       {result && actingRowId === row.id && !result.ok && (
-                        <span className="text-sm text-red-700">
+                        <span className="text-[12px] text-[#c9483a]">
                           {result.message}
                         </span>
                       )}
