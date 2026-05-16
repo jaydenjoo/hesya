@@ -3,7 +3,17 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-16 세션 43 — 🎯 세션 42 잔여 #253 mop-up + P0 잔여 큰 구조 9 PR, 누적 47 PR)
+## 현재 위치 (2026-05-16 세션 43 — 🎯 세션 42 잔여 #253 mop-up + P0 잔여 큰 구조 15 PR, 누적 53 PR — round 5 in flight)
+
+- **세션 43 라운드 5 (3 PR 추가, 디자인 100% 정합 push)**:
+  - PR [#266](https://github.com/jaydenjoo/hesya/pull/266) — **Owner Bookings list 8-col reference parity**. Date/Time split (mono) + Designer color dot (deterministic hash) + Status pill (rounded-full + dot + tone bg) + "보기" 텍스트 → ⋯ icon + count toolbar + bordered card wrapper. 3 라벨 × 6 locale. **진단 ~60% → ~78%**.
+  - PR [#267](https://github.com/jaydenjoo/hesya/pull/267) — **Owner Disputes 4-tile KPI strip with SLA alert**. 전체/접수(open)/검토 중/SLA 초과. open > 0 → danger + ⚠ "24h 내 응답 필요". sla 0 + resolved > 0 → ok "해결 N건". Real data (countByStatus). admin-payments MetricCard tone 패턴 재사용. KR 라벨 hardcoded (Disputes 네임스페이스 부재). **진단 ~40% → ~58%**.
+  - PR [#268](https://github.com/jaydenjoo/hesya/pull/268) — **Owner Knowledge 4-tile stats strip + capacity progress**. 등록 FAQ (capacity bar 70/90% tone) / AI 임베딩 % / 잔여 슬롯 / 최근 수정 (relative KR: 방금/N분 전/N시간 전/N일 전). Real data (initialFAQs.length, hasEmbedding, updatedAt) — mock 없음. formatRelativeKr 헬퍼. **진단 ~50% → ~68%**.
+
+- **세션 43 라운드 4 (3 PR 추가, 디자인 정합 push)**:
+  - PR [#263](https://github.com/jaydenjoo/hesya/pull/263) — **Owner Customers 표 reference 1:1 정합**. 10-col flex → grid `[40px_minmax(180px,1.6fr)_0.7fr×7_28px]`. 첫 컬럼 avatar+이름+sub (채널·알러지 흡수) + 우측 ▸ chevron icon button + 전체 row clickable + 선택 행 amber→peach bg. 2 라벨 × 6 locale. **진단 ~58% → ~70%**.
+  - PR [#264](https://github.com/jaydenjoo/hesya/pull/264) — **Owner Analytics KPI 4-tile + 12-col bento grid**. 3-tile sm:grid-cols-3 → 4-tile lg:grid-cols-12 bento (revenue/repeat/avg-ticket col-span-3 × 3 + 신규 외국인 col-span-3 ring %). Charts row 1: monthly revenue lg:col-span-8 + nationality lg:col-span-4. 2 라벨 × 6 locale. **진단 ~70% → ~80%**.
+  - PR [#265](https://github.com/jaydenjoo/hesya/pull/265) — **Admin Payments SettlementReconciliation + PaymentFunnel cards**. 4채널 provider 보고 vs capture 합계 비교 (mismatch 0 emerald / 비-0 amber 행). 우상단 Σ chip (총 mismatch). 4-step funnel (captured/refunded/disputed/failed) 누적 bar + KRW. `lg:grid-cols-5` 2-card 레이아웃 (정산 col-span-3 + 퍼널 col-span-2). 2 fixture + 13 라벨 × 6 locale. **진단 ~30% → ~45%**.
 
 - **세션 43 라운드 3 (3 PR 추가)**:
   - PR [#260](https://github.com/jaydenjoo/hesya/pull/260) — **Owner Analytics FeaturedInsight hero**. 💡 emoji + eyebrow + body + 3 data chip + amber primary CTA. peach→white→amber gradient bg. 7 라벨 × 6 locale. **진단 ~58% → ~70%**.
