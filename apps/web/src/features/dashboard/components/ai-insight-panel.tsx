@@ -79,18 +79,20 @@ export function AiInsightPanel() {
               rows={2}
               aria-label={t("modifyAria")}
             />
+            {/* Reference sd-btn-amber-sm + sd-btn-ghost-sm: padding 7/12 & 6/10,
+                font-size 12, weight 600/500. ghost hover는 border+text 둘 다 amber. */}
             <div className="mt-2 flex gap-2">
               <button
                 type="button"
                 onClick={() => setState("approved")}
-                className="kr rounded-md bg-hesya-amber-500 px-3 py-1.5 text-[12px] font-medium text-white hover:bg-hesya-amber-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
+                className="kr rounded-md bg-hesya-amber-500 px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm transition-all hover:bg-hesya-amber-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
               >
                 {t("modifyConfirm")}
               </button>
               <button
                 type="button"
                 onClick={() => setState("open")}
-                className="kr rounded-md border border-hesya-peach-200 px-3 py-1.5 text-[12px] text-gray-700 hover:border-hesya-amber-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
+                className="kr rounded-md border border-hesya-peach-200 px-2.5 py-1.5 text-[12px] font-medium text-gray-700 transition-colors hover:border-hesya-amber-500 hover:text-hesya-amber-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
               >
                 {t("modifyCancel")}
               </button>
@@ -110,25 +112,28 @@ export function AiInsightPanel() {
       </div>
 
       {state === "open" ? (
-        <div className="flex shrink-0 flex-col gap-1.5">
+        // Reference sd-insight-actions: flex-col gap-2 align-self-center +
+        // sd-btn-amber (정규) + sd-btn-ghost x2. open 상태는 큰 버튼 (h-10,
+        // text-13 weight-600/500, shadow + hover translate).
+        <div className="flex shrink-0 flex-col gap-2 self-center">
           <button
             type="button"
             onClick={() => setState("approved")}
-            className="kr rounded-md bg-hesya-amber-500 px-3 py-1.5 text-[12px] font-medium text-white hover:bg-hesya-amber-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
+            className="kr inline-flex items-center justify-center whitespace-nowrap rounded-md bg-hesya-amber-500 px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-hesya-amber-600 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
           >
             {t("actionEdit")} →
           </button>
           <button
             type="button"
             onClick={() => setState("modify")}
-            className="kr rounded-md border border-hesya-peach-200 px-3 py-1.5 text-[12px] text-gray-700 hover:border-hesya-amber-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
+            className="kr inline-flex items-center justify-center whitespace-nowrap rounded-md border border-hesya-peach-200 bg-transparent px-4 py-2.5 text-[13px] font-medium text-gray-700 transition-colors hover:border-hesya-amber-500 hover:text-hesya-amber-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
           >
             {t("actionModify")}
           </button>
           <button
             type="button"
             onClick={() => setState("dismissed")}
-            className="kr rounded-md px-3 py-1.5 text-[12px] text-gray-500 hover:bg-hesya-peach-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
+            className="kr inline-flex items-center justify-center whitespace-nowrap rounded-md border border-hesya-peach-200 bg-transparent px-4 py-2.5 text-[13px] font-medium text-gray-700 transition-colors hover:border-hesya-amber-500 hover:text-hesya-amber-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
           >
             {t("actionDismiss")}
           </button>
