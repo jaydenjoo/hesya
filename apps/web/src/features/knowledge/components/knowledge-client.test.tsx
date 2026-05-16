@@ -26,9 +26,12 @@ describe("KnowledgeClient (B-4c)", () => {
     expect(screen.getByText(/아직 등록된 FAQ가 없습니다/)).toBeInTheDocument();
   });
 
-  it("count 표시: '0/200'", () => {
+  it("stats strip: 등록 FAQ + 잔여 슬롯 표시 (0건 / max 200)", () => {
     render(<KnowledgeClient initialFAQs={[]} maxFAQs={200} />);
-    expect(screen.getByText(/0\/200/)).toBeInTheDocument();
+    expect(screen.getByText("등록 FAQ")).toBeInTheDocument();
+    expect(screen.getByText("/ 200")).toBeInTheDocument();
+    expect(screen.getByText("잔여 슬롯")).toBeInTheDocument();
+    expect(screen.getByText("200")).toBeInTheDocument();
   });
 
   it("FAQ 있음 → 질문/답변 + 수정/삭제 버튼 표시", () => {
