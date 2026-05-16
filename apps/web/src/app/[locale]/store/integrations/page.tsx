@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
@@ -26,6 +27,37 @@ const PROVIDERS: readonly SyncProvider[] = [
   { key: "naver", icon: "🟢", accent: "ring-emerald-400/40" },
   { key: "kakao", icon: "💛", accent: "ring-yellow-400/50" },
 ];
+
+type MessagingChannel = {
+  readonly key: "instagram" | "whatsapp" | "kakao" | "line" | "messenger";
+  readonly icon: string;
+  readonly accent: string;
+  readonly ready: boolean;
+};
+
+const MESSAGING_CHANNELS: readonly MessagingChannel[] = [
+  { key: "instagram", icon: "📱", accent: "ring-pink-400/40", ready: true },
+  { key: "whatsapp", icon: "📲", accent: "ring-green-400/40", ready: false },
+  { key: "kakao", icon: "💬", accent: "ring-yellow-400/50", ready: false },
+  { key: "line", icon: "💚", accent: "ring-emerald-400/40", ready: false },
+  { key: "messenger", icon: "📘", accent: "ring-blue-400/40", ready: false },
+];
+
+const MESSAGING_NAMES: Record<MessagingChannel["key"], string> = {
+  instagram: "Instagram DM",
+  whatsapp: "WhatsApp Business",
+  kakao: "Kakao 비즈니스",
+  line: "LINE Official",
+  messenger: "Facebook Messenger",
+};
+
+const MESSAGING_DESCS: Record<MessagingChannel["key"], string> = {
+  instagram: "K-Beauty 외국인 손님 메시지 핵심 채널",
+  whatsapp: "동남아·인도·중동 손님",
+  kakao: "국내 손님 + 알림톡",
+  line: "일본·대만 손님 + 친구 추가",
+  messenger: "Meta Business 페이지 메시지",
+};
 
 export default async function StoreIntegrationsPage({
   params,
@@ -111,6 +143,75 @@ export default async function StoreIntegrationsPage({
             {t("businessNote")}
           </p>
         </footer>
+
+        <div className="mt-10 mb-4 flex items-baseline gap-2">
+          <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+            Messaging channels
+          </span>
+          <span className="h-px flex-1 bg-hesya-navy-900/8" />
+        </div>
+
+        <header className="mb-4 space-y-1">
+          <h2 className="font-display text-[20px] italic text-hesya-navy-900">
+            메시지 채널 (5)
+          </h2>
+          <p className="kr text-[12.5px] text-gray-600">
+            손님 메시지를 받는 5개 채널 — Instagram만 즉시 연결, 나머지 4개는
+            사업자 등록 후. 상세 연결은{" "}
+            <Link
+              href={`/${locale}/store/inbox/connect`}
+              className="font-semibold text-hesya-amber-600 hover:underline"
+            >
+              Inbox · Connect →
+            </Link>{" "}
+            에서.
+          </p>
+        </header>
+
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {MESSAGING_CHANNELS.map((c) => (
+            <article
+              key={c.key}
+              className={`flex flex-col rounded-lg border border-gray-200 bg-white/70 px-4 py-3.5 shadow-sm ring-1 ring-inset ${c.accent}`}
+            >
+              <div className="mb-2 flex items-start justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="shrink-0 text-lg" aria-hidden="true">
+                    {c.icon}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-[13px] text-hesya-navy-900">
+                      {MESSAGING_NAMES[c.key]}
+                    </p>
+                    <p className="text-[10.5px] text-gray-500">
+                      {c.ready ? "즉시 연결 가능" : "사업자 등록 후"}
+                    </p>
+                  </div>
+                </div>
+                <span
+                  className={[
+                    "shrink-0 rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold",
+                    c.ready
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-gray-100 text-gray-600",
+                  ].join(" ")}
+                >
+                  {c.ready ? "READY" : "준비 중"}
+                </span>
+              </div>
+              <p className="kr mb-3 flex-1 text-[11.5px] leading-relaxed text-gray-600 [word-break:keep-all]">
+                {MESSAGING_DESCS[c.key]}
+              </p>
+              <Link
+                href={`/${locale}/store/inbox/connect`}
+                className="kr inline-flex items-center justify-center gap-1.5 rounded-md border border-hesya-peach-200 bg-white px-3 py-1.5 text-[11.5px] font-semibold text-hesya-navy-900 transition hover:border-hesya-amber-500 hover:text-hesya-amber-600"
+              >
+                Inbox에서 관리
+                <span aria-hidden="true">→</span>
+              </Link>
+            </article>
+          ))}
+        </section>
       </div>
     </div>
   );
