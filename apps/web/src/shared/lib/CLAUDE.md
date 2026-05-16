@@ -2,25 +2,29 @@
 
 이 폴더는 모든 feature가 의존하는 공유 라이브러리입니다. **변경 전 영향 범위 확인 필수**.
 
-## Auth Guards (2종)
+## Auth Guards (3종)
 
 ⚠️ 신규 가드/인증 함수 만들기 전 이 표 + `grep -rn "require\|guard" .` 필수.
 
-| 함수                         | 파일                   | 용도                                                                | 사용처             |
-| ---------------------------- | ---------------------- | ------------------------------------------------------------------- | ------------------ |
-| ✅ `requireAdminEmail()`     | `admin-guard.ts`       | `ADMIN_EMAILS` env 화이트리스트 (Better Auth `auth.api.getSession`) | KYC actions 8군데+ |
-| ✅ `requireStoreOwnerAuth()` | `store-owner-guard.ts` | 매장 owner (`store_owners` 테이블 join)                             | 매장 actions       |
+| 함수                         | 파일                   | 용도                                                                                                 | 사용처                                                 |
+| ---------------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| ⚠️ `requireAdminEmail()`     | `admin-guard.ts`       | `ADMIN_EMAILS` env 화이트리스트 (Better Auth `auth.api.getSession`). **임시 솔루션**, 점진 deprecate | KYC actions 8군데+ (전체 22 callsite, γ.2부터 migrate) |
+| ✅ `requireAdminRole()`      | `admin-role-guard.ts`  | DB `users.role='admin'` 기반 (마이그 0030). `requireAdminEmail`의 정식 후속. PR #313 도입            | 호출처 0건 (γ.2+ 점진 migrate 예정)                    |
+| ✅ `requireStoreOwnerAuth()` | `store-owner-guard.ts` | 매장 owner (`store_owners` 테이블 join)                                                              | 매장 actions                                           |
 
-> 과거 `auth-guard.ts` (`requireAuth` / `requireAdmin` stub)는 항상 throw하는 미구현 상태였고 사용처 0건이라 **2026-05-08 Phase 1-γ.0 fix #2로 삭제됨**. 향후 정식 Better Auth 가드 도입 시 `admin-guard.ts` / `store-owner-guard.ts`와 같은 명명 패턴으로 새 파일에 작성. `auth-guard.ts` 이름은 stub 트라우마로 사용 금지(혼란 방지).
+> 과거 `auth-guard.ts` (`requireAuth` / `requireAdmin` stub)는 항상 throw하는 미구현 상태였고 사용처 0건이라 **2026-05-08 Phase 1-γ.0 fix #2로 삭제됨**. 향후 정식 Better Auth 가드 도입 시 `admin-guard.ts` / `admin-role-guard.ts` / `store-owner-guard.ts`와 같은 명명 패턴으로 새 파일에 작성. `auth-guard.ts` 이름은 stub 트라우마로 사용 금지(혼란 방지).
 
-### 임시 → 정식 교체 예정
+### 임시 → 정식 교체 진행 중 (γ.1~γ.2)
 
-`requireAdminEmail` 주석에 _"Epic 12 admin panel 도입 시 정식 owner guard로 교체"_. 즉 `ADMIN_EMAILS` env는 **첫 운영자 1~2명용 임시 솔루션**. Epic 12 작업 시 점진적으로 더 fine-grained 가드로 분화.
+`requireAdminEmail` → `requireAdminRole` 점진 마이그:
+
+- **γ.1 (PR #313, merged)**: `requireAdminRole` 함수 + `users.role` 컬럼 + 마이그 0030 도입. 두 가드 병행 작동. **0030 SQL apply 후** admin 이메일 → role='admin' UPDATE도 수동 1회 필요 (Jayden 🔴).
+- **γ.2+ (예정)**: 22개 callsite를 작은 단위 PR로 `requireAdminEmail` → `requireAdminRole` 교체. 우선순위 후보: KYC actions (`approveStoreKyc`, `rejectStoreKyc`, `verifyBusinessNumber`, ...) → 11개 admin page → cron alert recipient.
 
 ### 가드 return 패턴
 
 - `requireStoreOwnerAuth` → Session 객체 직접 반환 (실패 시 throw/redirect)
-- `requireAdminEmail` → `{ ok: true | false }` 객체 반환 (호출자가 분기)
+- `requireAdminEmail` / `requireAdminRole` → `{ ok: true | false }` 객체 반환 (호출자가 분기). 두 함수의 envelope 동일 (`error: "unauthorized" | "forbidden"` + `message`) → callsite migrate 시 import만 교체하면 동작 호환.
 
 → 새 가드 만들 때 위 두 패턴 중 하나 선택. **혼합 금지**.
 
