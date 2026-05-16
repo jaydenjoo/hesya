@@ -84,77 +84,112 @@ function ReportSection() {
 
   return (
     <section className="space-y-4">
-      <form onSubmit={onSubmit} className="space-y-4">
-        <Field label="매장 ID (UUID)">
-          <input
-            type="text"
-            value={storeId}
-            onChange={(e) => setStoreId(e.target.value)}
-            placeholder="예: 0c1d2e3f-..."
-            required
-            className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 font-mono text-sm focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
-          />
-        </Field>
-        <Field label="신고자 유형">
-          <select
-            value={reporterType}
-            onChange={(e) => setReporterType(e.target.value as ReporterType)}
-            className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
-          >
-            {REPORTER_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {REPORTER_LABELS[t]}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="신고 사유">
-          <select
-            value={reportReason}
-            onChange={(e) => setReportReason(e.target.value as ReportReason)}
-            className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
-          >
-            {REPORT_REASONS.map((r) => (
-              <option key={r} value={r}>
-                {REASON_LABELS[r]}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="신고 내용 (10자 이상, 2000자 이내)">
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="구체적 일시·시술명·근거를 명확히 기재"
-            required
-            minLength={10}
-            maxLength={2000}
-            rows={5}
-            className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
-          />
-          <span className="text-xs text-hesya-navy-900/60">
-            {description.length} / 2000자
-          </span>
-        </Field>
-        <Field label="증거 URL (선택, 줄바꿈으로 구분, 최대 5개)">
-          <textarea
-            value={evidenceText}
-            onChange={(e) => setEvidenceText(e.target.value)}
-            placeholder="https://example.com/photo1.jpg
-https://example.com/screenshot.png"
-            rows={3}
-            className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 font-mono text-xs focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
-          />
-        </Field>
-        <button
-          type="submit"
-          disabled={isPending}
-          className="kr inline-flex items-center gap-1.5 rounded-md bg-hesya-amber-500 px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-hesya-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+      <div className="rounded-2xl border border-hesya-peach-200 bg-white p-6 shadow-[0_1px_2px_rgba(26,34,56,0.04)]">
+        <p className="mb-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+          §01 · New Report
+        </p>
+        <h2 className="mb-4 font-display text-[20px] italic tracking-tight text-hesya-navy-900">
+          신규 신고 접수
+        </h2>
+        <ol
+          aria-label="신고 처리 절차"
+          className="mb-5 grid grid-cols-1 gap-2 rounded-2xl bg-hesya-peach-50/60 px-4 py-3 sm:grid-cols-3"
         >
-          {isPending ? "접수 중..." : "신고 접수"}
-          {isPending ? null : <span aria-hidden="true">→</span>}
-        </button>
-      </form>
+          {["1. 접수 (현재)", "2. admin 검토 (Epic 12)", "3. 매장 통보"].map(
+            (step, i) => (
+              <li
+                key={step}
+                className="flex items-center gap-1.5 font-mono text-[10.5px]"
+              >
+                <span
+                  aria-hidden="true"
+                  className={`inline-block h-2 w-2 shrink-0 rounded-full ${i === 0 ? "bg-hesya-amber-500 ring-4 ring-hesya-amber-500/20" : "bg-hesya-navy-900/15"}`}
+                />
+                <span
+                  className={
+                    i === 0
+                      ? "font-semibold text-hesya-amber-600"
+                      : "text-hesya-navy-900/55"
+                  }
+                >
+                  {step}
+                </span>
+              </li>
+            ),
+          )}
+        </ol>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <Field label="매장 ID (UUID)">
+            <input
+              type="text"
+              value={storeId}
+              onChange={(e) => setStoreId(e.target.value)}
+              placeholder="예: 0c1d2e3f-..."
+              required
+              className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 font-mono text-sm focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
+            />
+          </Field>
+          <Field label="신고자 유형">
+            <select
+              value={reporterType}
+              onChange={(e) => setReporterType(e.target.value as ReporterType)}
+              className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
+            >
+              {REPORTER_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {REPORTER_LABELS[t]}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="신고 사유">
+            <select
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value as ReportReason)}
+              className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
+            >
+              {REPORT_REASONS.map((r) => (
+                <option key={r} value={r}>
+                  {REASON_LABELS[r]}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="신고 내용 (10자 이상, 2000자 이내)">
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="구체적 일시·시술명·근거를 명확히 기재"
+              required
+              minLength={10}
+              maxLength={2000}
+              rows={5}
+              className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
+            />
+            <span className="text-xs text-hesya-navy-900/60">
+              {description.length} / 2000자
+            </span>
+          </Field>
+          <Field label="증거 URL (선택, 줄바꿈으로 구분, 최대 5개)">
+            <textarea
+              value={evidenceText}
+              onChange={(e) => setEvidenceText(e.target.value)}
+              placeholder="https://example.com/photo1.jpg
+https://example.com/screenshot.png"
+              rows={3}
+              className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 font-mono text-xs focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
+            />
+          </Field>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="kr inline-flex items-center gap-1.5 rounded-md bg-hesya-amber-500 px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-hesya-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isPending ? "접수 중..." : "신고 접수"}
+            {isPending ? null : <span aria-hidden="true">→</span>}
+          </button>
+        </form>
+      </div>
       {result && <ResultBlock result={result} />}
     </section>
   );
