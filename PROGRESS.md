@@ -3,9 +3,26 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 세션 45 종료 요약 (2026-05-16) — γ.1 KYC E2E + γ.2 admin role 마이그 100% + cleanup + 디자인 polish
+## 세션 45 종료 요약 (2026-05-16) — γ.1 KYC E2E + γ.2 admin role 마이그 100% + cleanup + A1 dashboard 디자인 95%
 
-세션 44 종료 후 같은 날 후속 세션. 누적 **101 PR** (세션 44: 88 → +13). γ.1 KYC E2E owner notify + γ.2 admin role guard 점진 마이그 100% 완료 + dead code cleanup + A1 dashboard audit rail 디자인 polish.
+세션 44 종료 후 같은 날 후속 세션. 누적 **104 PR** (세션 44: 88 → +16). γ.1 KYC E2E owner notify + γ.2 admin role guard 점진 마이그 100% 완료 + dead code cleanup + A1 dashboard audit rail 디자인 4단계 polish (85% → ~95%).
+
+## 🎯 다음 세션 작업 (Jayden 지시)
+
+**O1 Store Dashboard 디자인 100% 정합 개발** — design-completion-epic-plan P0 가장 큰 차단선 (5~7d, 🔴 30%).
+
+- **Reference**: `docs/design/reference/dashboard-app.jsx` (998 line) + `dashboard.css` (1573 line) + `Hesya Store Dashboard.html`
+- **현재 코드**: `apps/web/src/app/[locale]/store/dashboard/page.tsx` (374 line)
+- **gap**: 위젯 9종 + AI 인사이트 panel + 알림 panel + shell. 현재 기본 KPI grid만 (~30%).
+- **세션 시작 시 의무**:
+  1. 인벤토리 5분 — `apps/web/src/app/[locale]/store/dashboard/` ls + `features/store-dashboard/` 존재 여부 + 관련 DAL (`shared/lib/dal/dashboard*`)
+  2. `dashboard-app.jsx` + `dashboard.css` 위젯 9종 매핑 → 우선순위 결정 (큰 페이지라 1 세션 단일 PR 불가능 — 위젯별 batch)
+  3. 첫 batch 권장: shell (sticky top + sidebar 정합) → 그 다음 KPI tile 정합 → 위젯 wire
+- **L-082 prereq 검증**: 위젯 실 데이터 wire 시 베타 매장 매칭 prerequisite 확인 (없으면 MOCK_FIXTURES fallback 명시)
+
+---
+
+### 세션 45 본문 (요약)
 
 ### Phase γ.2 마이그레이션 100% 완료 (PR #316~#321 + #323) ⭐
 
@@ -29,9 +46,16 @@
 - 프로젝트 + nested CLAUDE.md 3건 stale ref 갱신 (`requireAdminEmail` → `requireAdminRole`)
 - ⚠️ Vercel project env에서 `ADMIN_EMAILS` 안전하게 삭제 가능 (영향 없음). admin promotion은 SQL `UPDATE users SET role='admin' WHERE email=...`.
 
-### A1 Admin Dashboard 디자인 polish (PR #324)
+### A1 Admin Dashboard 디자인 polish 4 PR (85% → ~95%)
 
-design-completion-epic-plan A1 (85% → ~90%): audit rail의 "AUDIT REFRESH" 버튼 → "LIVE" + emerald pulse dot (30s `unstable_cache` 자체 polling으로 수동 새로고침 의미 없음). fresh row 배경 tint → 2px left amber bar (`admin-dashboard.css` 정합). 6 locale에서 orphan `auditRefresh` key 제거. label "AUDIT LOG" → "AUDIT TRAIL" (CSS naming).
+design-completion-epic-plan A1 audit rail 정합 점진 polish — 단일 페이지 4 PR 연속:
+
+- **#324 (Polish #1)**: "AUDIT REFRESH" 버튼 → "LIVE" + emerald pulse dot (30s `unstable_cache` 자체 polling). fresh row 배경 tint → 2px left amber bar. orphan `auditRefresh` 6 locale key 제거. label "AUDIT LOG" → "AUDIT TRAIL".
+- **#326 (Polish #2)**: audit row 구조 단일 flex → grid `[1fr_auto]` (body 좌 / ts 우 column). badge bg-color (amber/rose) → text-color only (kyc=emerald-700, dispute=#c9483a) + tracking-[0.18em] uppercase. FRESH chip 제거 (amber bar로 fresh 신호 일원화). orphan `auditFresh` 6 locale key 제거. badge text "KYC"/"DIS" (reference 3-letter).
+- **#327 (Polish #3)**: audit foot 추가 (border-top + flex justify-between). 좌: "최근 N건의 활동" (ICU). 우: "30초 자동 갱신" 정적 hint. 6 locale 신규 키 추가 (auditFootCount, auditFootRefresh).
+- **#328 (Polish #4)**: audit fresh row slide-in 애니메이션 (globals.css `@keyframes adminAuditSlideIn`, 0.2s ease-out, opacity+translateY). prefers-reduced-motion 자동 우회.
+
+**C4 Customer Sign-in / O9 Owner Store Login pivot 시도 결과**: 두 페이지 모두 이미 high parity. C4 클래스 수 66 vs reference 55, O9 116 vs 104. `design-completion-epic-plan.md`의 75% 라벨은 outdated — 실제 ~95%. 다음 세션은 더 큰 임팩트의 O1 Store Dashboard로 (Jayden 지시).
 
 ### 세션 초반 PR (이미 머지)
 
@@ -51,15 +75,16 @@ design-completion-epic-plan A1 (85% → ~90%): audit rail의 "AUDIT REFRESH" 버
 
 - ⚠️ Cleanup PR #325 머지 후 Jayden 운영 환경에서 `ADMIN_EMAILS` Vercel env 삭제 (영향 없음 — 코드가 더 이상 참조 안 함)
 
-### 다음 세션 후보
+### 후속 세션 후보 (Jayden 결정 — O1 Store Dashboard 우선)
 
-- **Phase 1-γ.1 KYC E2E 실제 시연** — preview 환경 walkthrough (`MOCK_NOTIFICATION=false` + Resend 도메인 검증)
-- **디자인 정합 P0 페이지 polish** — design-completion-epic-plan 기준: C1 Customer Landing 🟢 (1~2d) / C4 Customer Sign-in 🟢 (1d) / O9 Owner Store Login 🟢 (1~2d) / O2 Owner Inbox 🟢 (2~3d)
-- **Epic 12 admin role CRUD UI** — admin/users 페이지에서 role 부여/회수
+1. ⭐ **O1 Store Dashboard 디자인 100% 정합** — Jayden 지시. 위 "다음 세션 작업" 섹션 참조.
+2. **Phase 1-γ.1 KYC E2E 실제 시연** — preview 환경 walkthrough (`MOCK_NOTIFICATION=false` + Resend 도메인 검증)
+3. **Epic 12 admin role CRUD UI** — admin/users 페이지에서 role 부여/회수
+4. **A1 dashboard 마지막 5%** — 32px avatar column + 구조화된 actor/verb/target (DAL `AuditTrailEntry` 확장 필요)
 
-### 세션 45 PR 누적 목록 (13 PR)
+### 세션 45 PR 누적 목록 (17 PR)
 
-#312 / #313 / #314 / #315 / #316 / #317 / #318 / #319 / #320 / #321 / #322 / #323 / #324 / #325 (cleanup 머지 대기)
+#312 / #313 / #314 / #315 / #316 / #317 / #318 / #319 / #320 / #321 / #322 / #323 / #324 / #325 / #326 / #327 / #328
 
 ## 세션 44 종료 요약 (2026-05-16)
 
