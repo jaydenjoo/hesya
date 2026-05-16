@@ -233,22 +233,49 @@ export default async function AdminAiCostPage({ params }: Props) {
             </p>
           ) : (
             <ul className="divide-y divide-hesya-peach-100 rounded-md border border-gray-200 bg-white shadow-[0_1px_2px_rgba(26,34,56,0.04)]">
-              {summary.byModel.map((row) => (
-                <li
-                  key={row.model}
-                  className="flex items-center gap-4 px-5 py-3"
-                >
-                  <span className="flex-1 truncate font-mono text-[12px] text-hesya-navy-900">
-                    {row.model}
-                  </span>
-                  <span className="shrink-0 text-[12px] text-hesya-navy-900/55">
-                    {t("messageCount", { n: row.messageCount })}
-                  </span>
-                  <span className="shrink-0 font-mono text-[13px] font-semibold text-hesya-navy-900">
-                    ₩{row.estimatedKrw.toLocaleString("ko")}
-                  </span>
-                </li>
-              ))}
+              {(() => {
+                const maxKrw = summary.byModel.reduce(
+                  (a, b) => Math.max(a, b.estimatedKrw),
+                  1,
+                );
+                return summary.byModel.map((row, idx) => {
+                  const pct = (row.estimatedKrw / maxKrw) * 100;
+                  const lead = idx === 0;
+                  return (
+                    <li key={row.model} className="space-y-1.5 px-5 py-3">
+                      <div className="flex items-center gap-4">
+                        <span
+                          className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-semibold tabular-nums ${
+                            lead
+                              ? "bg-hesya-amber-500 text-white"
+                              : "bg-hesya-peach-100 text-hesya-amber-600"
+                          }`}
+                        >
+                          {idx + 1}
+                        </span>
+                        <span className="flex-1 truncate font-mono text-[12px] text-hesya-navy-900">
+                          {row.model}
+                        </span>
+                        <span className="shrink-0 text-[12px] text-hesya-navy-900/55 tabular-nums">
+                          {t("messageCount", { n: row.messageCount })}
+                        </span>
+                        <span className="shrink-0 font-mono text-[13px] font-semibold text-hesya-navy-900 tabular-nums">
+                          ₩{row.estimatedKrw.toLocaleString("ko")}
+                        </span>
+                      </div>
+                      <div
+                        aria-hidden="true"
+                        className="ml-9 h-1 overflow-hidden rounded-full bg-hesya-peach-50"
+                      >
+                        <div
+                          className={`h-full ${lead ? "bg-hesya-amber-500" : "bg-hesya-amber-500/55"}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </li>
+                  );
+                });
+              })()}
             </ul>
           )}
         </section>
