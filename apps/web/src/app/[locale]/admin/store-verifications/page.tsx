@@ -11,7 +11,7 @@ import {
 } from "@/features/admin/components/kyc-queue-mock";
 import { mockKycQueue, mockKycQueueStats } from "@/lib/mock-fixtures/admin-kyc";
 import { env } from "@/shared/config/env";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 import { listStoresPendingReview } from "@/shared/lib/dal/stores";
 
 /**
@@ -28,7 +28,7 @@ export default async function StoreVerificationsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     redirect(`/${locale}/sign-in`);
   }

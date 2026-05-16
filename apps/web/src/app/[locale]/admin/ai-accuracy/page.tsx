@@ -8,7 +8,7 @@ import {
   MIN_SAMPLE_SIZE,
 } from "@/lib/ai-accuracy/thresholds";
 import { getAccuracyMetrics } from "@/shared/lib/dal/ai-accuracy";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 
 /**
  * E12-7 AI 응답 정확도 모니터링 — admin 대시보드 (Phase 1-γ.1.3 인프라 단계).
@@ -25,7 +25,7 @@ export default async function AdminAiAccuracyPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     redirect(`/${locale}/sign-in`);
   }

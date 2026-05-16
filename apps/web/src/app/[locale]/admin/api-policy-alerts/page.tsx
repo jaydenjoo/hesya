@@ -8,7 +8,7 @@ import {
 import { PageHeader } from "@/components/ui/page-header";
 import { env } from "@/shared/config/env";
 import { listAlertsForAdmin } from "@/shared/lib/dal/api-policy-alerts";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 
 /**
  * E12-8 API 정책 변경 알림 — admin 큐 (목록만, status 변경 UI는 후속 PR).
@@ -63,7 +63,7 @@ export default async function AdminApiPolicyAlertsPage({
 }) {
   const { locale } = await params;
   const { status: statusParam } = await searchParams;
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     redirect(`/${locale}/sign-in`);
   }

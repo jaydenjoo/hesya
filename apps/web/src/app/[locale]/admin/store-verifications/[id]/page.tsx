@@ -3,7 +3,7 @@ import { createDbClient } from "@hesya/database";
 import { PageHeader } from "@/components/ui/page-header";
 import { env } from "@/shared/config/env";
 import { StoreVerificationDetail } from "@/features/admin";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 import { getStoreVerificationDetail } from "@/shared/lib/dal/stores";
 
 /**
@@ -19,7 +19,7 @@ export default async function StoreVerificationDetailPage({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { locale, id } = await params;
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     redirect(`/${locale}/sign-in`);
   }
