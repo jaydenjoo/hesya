@@ -66,6 +66,8 @@ export default async function StoreBookingDetailPage({
           booking={booking}
           serviceLabel={serviceLabel}
           staffLabel={staffLabel}
+          /* eslint-disable-next-line react-hooks/purity */
+          nowMs={Date.now()}
           labels={{
             headers: {
               info: t("detailPage.headers.info"),

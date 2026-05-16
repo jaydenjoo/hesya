@@ -12,6 +12,8 @@ type Props = {
   booking: Booking;
   serviceLabel: string;
   staffLabel: string;
+  /** Server-injected — purity 회피 (admin/disputes/[id]/page.tsx 동일 패턴). */
+  nowMs: number;
   labels: {
     headers: {
       info: string;
@@ -43,11 +45,38 @@ const TERMINAL_STATUSES: ReadonlyArray<BookingStatus> = [
   "no_show",
 ];
 
+const STATUS_PILL_TONE: Record<
+  string,
+  { chip: string; dot: string; ring: string }
+> = {
+  scheduled: {
+    chip: "bg-emerald-50 text-emerald-700",
+    dot: "bg-emerald-500",
+    ring: "ring-emerald-200",
+  },
+  completed: {
+    chip: "bg-gray-100 text-gray-700",
+    dot: "bg-gray-400",
+    ring: "ring-gray-200",
+  },
+  cancelled: {
+    chip: "bg-amber-50 text-amber-700",
+    dot: "bg-amber-500",
+    ring: "ring-amber-200",
+  },
+  no_show: {
+    chip: "bg-rose-50 text-rose-700",
+    dot: "bg-rose-500",
+    ring: "ring-rose-200",
+  },
+};
+
 export function BookingDetail({
   locale,
   booking,
   serviceLabel,
   staffLabel,
+  nowMs,
   labels,
 }: Props) {
   const router = useRouter();
@@ -72,8 +101,86 @@ export function BookingDetail({
     });
   };
 
+  const tone = STATUS_PILL_TONE[currentStatus] ?? STATUS_PILL_TONE.scheduled!;
+  const hoursUntil = (booking.scheduledAt.getTime() - nowMs) / (1000 * 60 * 60);
+  const isFuture = hoursUntil > 0 && currentStatus === "scheduled";
+  const cancellationBand = !isFuture
+    ? null
+    : hoursUntil >= 24
+      ? {
+          tone: "ok" as const,
+          text: `취소 시 전액 환불 (24h+ 남음 · ${Math.floor(hoursUntil)}h)`,
+        }
+      : hoursUntil >= 12
+        ? {
+            tone: "warn" as const,
+            text: `취소 시 50% 환불 (12-24h · ${Math.floor(hoursUntil)}h 남음)`,
+          }
+        : {
+            tone: "danger" as const,
+            text: `취소 시 환불 불가 (12h 미만 · ${Math.max(0, Math.floor(hoursUntil))}h 남음)`,
+          };
+  const bandStyle = cancellationBand
+    ? {
+        ok: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        warn: "border-amber-200 bg-amber-50 text-amber-700",
+        danger: "border-rose-200 bg-rose-50 text-rose-700",
+      }[cancellationBand.tone]
+    : "";
+
   return (
     <div className="max-w-3xl space-y-8">
+      <section
+        className={`rounded-lg border bg-white p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)] ring-1 ring-inset ${tone.ring}`}
+      >
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12.5px] font-semibold ${tone.chip}`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`inline-block h-2 w-2 rounded-full ${tone.dot}`}
+                />
+                {labels.statuses[currentStatus] ?? currentStatus}
+              </span>
+              <span className="kr rounded-full bg-hesya-peach-100 px-2.5 py-0.5 text-[11px] font-semibold text-hesya-navy-900/80">
+                {serviceLabel}
+              </span>
+            </div>
+            <p className="font-mono text-[11.5px] text-hesya-navy-900/65">
+              {formatDate(booking.scheduledAt)} · 디자이너{" "}
+              <span className="kr text-hesya-navy-900/85">{staffLabel}</span>
+            </p>
+          </div>
+          {booking.totalPriceKrw ? (
+            <div className="text-right">
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-hesya-navy-900/55">
+                {labels.fields.price}
+              </p>
+              <p className="mt-1 font-mono text-[20px] font-bold tabular-nums text-hesya-navy-900">
+                ₩{booking.totalPriceKrw.toLocaleString()}
+              </p>
+            </div>
+          ) : null}
+        </div>
+        {cancellationBand && (
+          <div
+            className={`mt-4 rounded-md border px-3 py-2 text-[11.5px] font-medium ${bandStyle}`}
+          >
+            <span aria-hidden="true">
+              {cancellationBand.tone === "danger"
+                ? "⚠ "
+                : cancellationBand.tone === "warn"
+                  ? "⏱ "
+                  : "✓ "}
+            </span>
+            {cancellationBand.text}
+          </div>
+        )}
+      </section>
+
       <section className="space-y-4">
         <div>
           <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
