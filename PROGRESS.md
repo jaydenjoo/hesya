@@ -7,18 +7,47 @@
 
 세션 44 종료 후 같은 날 후속 세션. 누적 **104 PR** (세션 44: 88 → +16). γ.1 KYC E2E owner notify + γ.2 admin role guard 점진 마이그 100% 완료 + dead code cleanup + A1 dashboard audit rail 디자인 4단계 polish (85% → ~95%).
 
-## 🎯 다음 세션 작업 (Jayden 지시)
+## 세션 46 진행 중 (2026-05-16, O1 Store Dashboard 100% 정합) — 9 PR
 
-**O1 Store Dashboard 디자인 100% 정합 개발** — design-completion-epic-plan P0 가장 큰 차단선 (5~7d, 🔴 30%).
+**핵심 발견** (subagent 인벤토리): design-completion-epic-plan O1의 "30%, 5~7d" 라벨은 outdated. 실제 12 위젯 풀 wire됨, 평균 grade B(~80%). DashboardHeader Grade C 1개 + 나머지 11개 B. 100% 정합까지 시각 polish 위주 9 PR만 필요.
 
-- **Reference**: `docs/design/reference/dashboard-app.jsx` (998 line) + `dashboard.css` (1573 line) + `Hesya Store Dashboard.html`
-- **현재 코드**: `apps/web/src/app/[locale]/store/dashboard/page.tsx` (374 line)
-- **gap**: 위젯 9종 + AI 인사이트 panel + 알림 panel + shell. 현재 기본 KPI grid만 (~30%).
-- **세션 시작 시 의무**:
-  1. 인벤토리 5분 — `apps/web/src/app/[locale]/store/dashboard/` ls + `features/store-dashboard/` 존재 여부 + 관련 DAL (`shared/lib/dal/dashboard*`)
-  2. `dashboard-app.jsx` + `dashboard.css` 위젯 9종 매핑 → 우선순위 결정 (큰 페이지라 1 세션 단일 PR 불가능 — 위젯별 batch)
-  3. 첫 batch 권장: shell (sticky top + sidebar 정합) → 그 다음 KPI tile 정합 → 위젯 wire
-- **L-082 prereq 검증**: 위젯 실 데이터 wire 시 베타 매장 매칭 prerequisite 확인 (없으면 MOCK_FIXTURES fallback 명시)
+### 세션 46 PR 누적 (#329~#337)
+
+| PR   | 위젯                             | 변경 요약                                                                                |
+| ---- | -------------------------------- | ---------------------------------------------------------------------------------------- |
+| #329 | (인프라)                         | mock-fixtures/dashboard.ts — 5 위젯 + greeting inline mock 분리 + env.MOCK_FIXTURES 분기 |
+| #330 | DashboardHeader (Top 1)          | 우측 vertical → horizontal flex + sd-btn-amber 전체 토큰                                 |
+| #331 | AiAccuracyTile (Top 2)           | **SVG width 140 → 160 버그** (viewBox 불일치로 12% 축소 렌더)                            |
+| #332 | KVerified (Top 3)                | amber 단색 → 골드 그라디언트 + Fraunces italic + ribbon navy-transparent                 |
+| #333 | NationalityTile (Top 4)          | SVG center mono bold 42px → Fraunces italic 36px                                         |
+| #334 | BrightSpot (Top 5)               | **rotating fade 버그** — fadeIn keyframe 미정의 → @keyframes brightFade 추가             |
+| #335 | AiInsightPanel container (Top 6) | peach-50/50 → peach-100 + 3px left amber bar + shadow-md + Fraunces em                   |
+| #336 | AiInsight 5 buttons              | sd-btn-amber/ghost 정규 토큰 (open 3 + modify 2) — 위젯 100% 정합                        |
+| #337 | InboxTile (Top 7)                | 채널 count text → pill 배지 + urgent variant (count≥5 amber)                             |
+
+**브랜드 폰트 일관성 (3 위젯)**: KVerified + NationalityTile + AiInsight 모두 Fraunces italic 통일 — luxury feel.
+
+**숨겨진 버그 2건 발견**:
+
+1. AiAccuracyTile SVG 12% 축소 렌더 (width vs viewBox 불일치) — #331
+2. BrightSpot rotating fade 미작동 (fadeIn keyframe 미정의) — #334
+
+subagent 인벤토리 없었으면 못 봤을 시각 디테일.
+
+### O1 진척
+
+design-completion-epic-plan 기준 30% → 실제 80% (인벤토리) → ~98% (9 PR 후).
+
+### 후속 후보 (1~2 위젯만 남음)
+
+- RecentReviews stars empty 처리 (미세)
+- BrightSpot sd-bright-spot grid layout (현재 flex로 충분히 정합)
+
+L-082 prereq: 시연 baseline 완료 (mock-fixtures pattern 도입으로 외부 데모 시 풍부한 데이터 자동 노출).
+
+---
+
+## 세션 45 종료 요약 (위에 별도 섹션, 17 PR — γ.1 KYC E2E + γ.2 admin role + A1 dashboard ~95%)
 
 ---
 
