@@ -269,15 +269,11 @@ function DetailSheetInner({
         ) : null}
 
         {tab === "history" ? (
-          <p className="rounded-2xl border border-hesya-peach-200 bg-hesya-peach-50/40 px-4 py-8 text-center text-[12px] text-hesya-navy-900/55">
-            {labels.historyPlaceholder}
-          </p>
+          <EmptyState icon="🕓" text={labels.historyPlaceholder} />
         ) : null}
 
         {tab === "tags" ? (
-          <p className="rounded-2xl border border-hesya-peach-200 bg-hesya-peach-50/40 px-4 py-8 text-center text-[12px] text-hesya-navy-900/55">
-            {labels.tagsPlaceholder}
-          </p>
+          <EmptyState icon="🏷" text={labels.tagsPlaceholder} />
         ) : null}
       </div>
 
@@ -430,6 +426,25 @@ function ProfileField({
       >
         {value}
       </dd>
+    </div>
+  );
+}
+
+function EmptyState({ icon, text }: { icon: string; text: string }) {
+  return (
+    <div className="flex flex-col items-center gap-2.5 rounded-2xl border border-dashed border-hesya-peach-200 bg-hesya-peach-50/40 px-4 py-10 text-center">
+      <span
+        aria-hidden="true"
+        className="flex h-10 w-10 items-center justify-center rounded-full bg-hesya-peach-100 text-[18px]"
+      >
+        {icon}
+      </span>
+      <p className="text-[12px] text-hesya-navy-900/55 [word-break:keep-all]">
+        {text}
+      </p>
+      <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-hesya-navy-900/35">
+        coming · M4.x
+      </span>
     </div>
   );
 }
