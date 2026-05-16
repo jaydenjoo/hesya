@@ -767,7 +767,16 @@
     "tabTags": "タグ",
     "profileExternalId": "外部ID",
     "historyPlaceholder": "予約履歴は近日提供 (M4.x)",
-    "tagsPlaceholder": "タグ・セグメントは近日提供 (M5.x)"
+    "tagsPlaceholder": "タグ・セグメントは近日提供 (M5.x)",
+    "kpiVisitsLabel": "総来店数",
+    "kpiVisitsUnit": "回",
+    "kpiLtvLabel": "累計売上",
+    "kpiLtvUnit": "万",
+    "kpiLtvFootAvg": "1回あたり平均 ₩{avg}万",
+    "kpiLastLabel": "最終来店",
+    "kpiLastFootPlaceholder": "予約連携時に表示",
+    "kpiNextLabel": "次回予約",
+    "kpiNextFootEmpty": "予約なし"
   },
   "StoreSettings": {
     "title": "店舗設定",

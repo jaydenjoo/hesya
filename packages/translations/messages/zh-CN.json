@@ -767,7 +767,16 @@
     "tabTags": "标签",
     "profileExternalId": "外部 ID",
     "historyPlaceholder": "预约记录即将推出 (M4.x)",
-    "tagsPlaceholder": "标签 / 分组即将推出 (M5.x)"
+    "tagsPlaceholder": "标签 / 分组即将推出 (M5.x)",
+    "kpiVisitsLabel": "总到访",
+    "kpiVisitsUnit": "次",
+    "kpiLtvLabel": "总消费",
+    "kpiLtvUnit": "万",
+    "kpiLtvFootAvg": "平均每次 ₩{avg}万",
+    "kpiLastLabel": "最近到访",
+    "kpiLastFootPlaceholder": "预约接入时显示",
+    "kpiNextLabel": "下次预约",
+    "kpiNextFootEmpty": "暂无预约"
   },
   "StoreSettings": {
     "title": "店铺设置",

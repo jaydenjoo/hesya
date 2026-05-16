@@ -767,7 +767,16 @@
     "tabTags": "Tags",
     "profileExternalId": "External ID",
     "historyPlaceholder": "Booking history coming in M4.x",
-    "tagsPlaceholder": "Tags / segments coming in M5.x"
+    "tagsPlaceholder": "Tags / segments coming in M5.x",
+    "kpiVisitsLabel": "Total visits",
+    "kpiVisitsUnit": "",
+    "kpiLtvLabel": "Total spend",
+    "kpiLtvUnit": "·10K",
+    "kpiLtvFootAvg": "Avg ₩{avg}·10K per visit",
+    "kpiLastLabel": "Last visit",
+    "kpiLastFootPlaceholder": "Shown when bookings linked",
+    "kpiNextLabel": "Next booking",
+    "kpiNextFootEmpty": "No upcoming"
   },
   "StoreSettings": {
     "title": "Store settings",
