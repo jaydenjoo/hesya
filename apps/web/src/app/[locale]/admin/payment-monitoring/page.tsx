@@ -59,6 +59,15 @@ export default async function AdminPaymentMonitoringPage({
     metrics.totalCount >= REFUND_RATE_MIN_SAMPLE_SIZE &&
     metrics.refundRate > REFUND_RATE_THRESHOLD;
   const hasData = metrics.totalCount > 0;
+  const samplePct = Math.min(
+    100,
+    (metrics.totalCount / REFUND_RATE_MIN_SAMPLE_SIZE) * 100,
+  );
+  const refundRatePct = metrics.refundRate * 100;
+  const totalDecisions =
+    metrics.totalCount > 0 ? metrics.totalCount : metrics.refundCount;
+  const refundSharePct =
+    totalDecisions > 0 ? (metrics.refundCount / totalDecisions) * 100 : 0;
 
   const t = await getTranslations({ locale, namespace: "AdminPayments" });
   const extraLabels: PaymentExtraLabels = {
@@ -138,11 +147,21 @@ export default async function AdminPaymentMonitoringPage({
             label="총 결제 건수 (24h)"
             value={metrics.totalCount.toString()}
             unit="건"
+            subtext={`최소 표본 ${REFUND_RATE_MIN_SAMPLE_SIZE}건 필요`}
+            progressPct={samplePct}
+            tone={hasData ? "ok" : "muted"}
           />
           <MetricCard
             label="환불 건수 (24h)"
             value={metrics.refundCount.toString()}
             unit="건"
+            subtext={
+              totalDecisions > 0
+                ? `share ${refundSharePct.toFixed(0)}%`
+                : "결제 0건"
+            }
+            progressPct={totalDecisions > 0 ? refundSharePct : undefined}
+            tone={metrics.refundCount > 0 ? "warn" : "muted"}
           />
           <MetricCard
             label="환불 비율 (24h)"
@@ -150,11 +169,15 @@ export default async function AdminPaymentMonitoringPage({
             unit="%"
             alert={refundRateExceeded}
             alertReason={`임계치 ${(REFUND_RATE_THRESHOLD * 100).toFixed(0)}% 초과`}
+            progressPct={hasData ? refundRatePct : undefined}
+            thresholdPct={REFUND_RATE_THRESHOLD * 100}
+            tone={refundRateExceeded ? "danger" : hasData ? "ok" : "muted"}
           />
           <MetricCard
             label="총 결제액 (24h)"
             value={`₩${metrics.totalAmountKrw.toLocaleString()}`}
             subtext={`환불액 ₩${metrics.refundedAmountKrw.toLocaleString()}`}
+            tone={hasData ? "ok" : "muted"}
           />
         </section>
 
@@ -232,6 +255,9 @@ function MetricCard({
   subtext,
   alert,
   alertReason,
+  progressPct,
+  thresholdPct,
+  tone = "muted",
 }: {
   label: string;
   value: string;
@@ -239,7 +265,22 @@ function MetricCard({
   subtext?: string;
   alert?: boolean;
   alertReason?: string;
+  /** 0~100. 미전달 시 progress bar 미렌더. */
+  progressPct?: number;
+  /** 0~100. progress 위에 vertical marker 표시 (임계치). */
+  thresholdPct?: number;
+  /** progress bar 색조. */
+  tone?: "ok" | "warn" | "danger" | "muted";
 }) {
+  const barTone = alert
+    ? "bg-[#c9483a]"
+    : tone === "ok"
+      ? "bg-emerald-500"
+      : tone === "warn"
+        ? "bg-hesya-amber-500"
+        : tone === "danger"
+          ? "bg-[#c9483a]"
+          : "bg-hesya-navy-900/30";
   return (
     <div
       className={`rounded-md border p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)] transition ${
@@ -265,6 +306,21 @@ function MetricCard({
       </div>
       {subtext && (
         <div className="mt-1.5 text-[11px] text-gray-500">{subtext}</div>
+      )}
+      {progressPct !== undefined && (
+        <div className="relative mt-2.5 h-1.5 overflow-hidden rounded-full bg-hesya-peach-50">
+          <div
+            className={`h-full ${barTone}`}
+            style={{ width: `${Math.min(100, Math.max(0, progressPct))}%` }}
+          />
+          {thresholdPct !== undefined && (
+            <span
+              aria-hidden="true"
+              className="absolute top-[-2px] h-[10px] w-px bg-hesya-navy-900/55"
+              style={{ left: `${Math.min(100, Math.max(0, thresholdPct))}%` }}
+            />
+          )}
+        </div>
       )}
       {alert && alertReason && (
         <div className="mt-2 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[#c9483a]">
