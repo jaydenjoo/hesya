@@ -294,16 +294,45 @@ export function BudgetForecast({
 }) {
   const overForecast = forecastEomKrw > monthBudgetKrw;
   const pacingExceeded = pacingPct > 90;
+  const mtdPct =
+    monthBudgetKrw > 0 ? (monthToDateKrw / monthBudgetKrw) * 100 : 0;
+  const overBy = Math.max(0, forecastEomKrw - monthBudgetKrw);
+  const statusChip = overForecast
+    ? {
+        bg: "bg-rose-50 text-rose-700 ring-rose-200",
+        dot: "bg-rose-500",
+        label: "예산 초과 예상",
+      }
+    : pacingExceeded
+      ? {
+          bg: "bg-amber-50 text-amber-700 ring-amber-200",
+          dot: "bg-amber-500",
+          label: "페이싱 경고",
+        }
+      : {
+          bg: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+          dot: "bg-emerald-500",
+          label: "정상 페이싱",
+        };
 
   return (
     <section
       data-testid="admin-ai-cost-forecast"
-      className="rounded-md border border-gray-200 bg-white p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)]"
+      className={`rounded-md border bg-white p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)] ${overForecast ? "border-rose-200 ring-1 ring-rose-100" : "border-gray-200"}`}
     >
-      <header className="mb-3">
+      <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-gray-700">
           {labels.forecastTitle}
         </h3>
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10.5px] font-semibold ring-1 ${statusChip.bg}`}
+        >
+          <span
+            aria-hidden="true"
+            className={`inline-block h-1.5 w-1.5 rounded-full ${statusChip.dot}`}
+          />
+          {statusChip.label}
+        </span>
       </header>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div>
@@ -316,6 +345,12 @@ export function BudgetForecast({
           <p className="mt-1 text-[10.5px] text-hesya-navy-900/55">
             / ₩{monthBudgetKrw.toLocaleString("ko")} {labels.forecastBudget}
           </p>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-hesya-peach-50">
+            <div
+              className="h-full bg-hesya-amber-500"
+              style={{ width: `${Math.min(100, mtdPct)}%` }}
+            />
+          </div>
         </div>
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-hesya-navy-900/45">
@@ -329,6 +364,11 @@ export function BudgetForecast({
           <p className="mt-1 text-[10.5px] text-hesya-navy-900/55">
             {labels.forecastDaysRemaining}: {daysRemaining}
           </p>
+          {overForecast && (
+            <p className="mt-2 inline-flex items-center gap-1 rounded-md bg-rose-50 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-rose-700">
+              <span aria-hidden="true">⚠</span>+₩{overBy.toLocaleString("ko")}
+            </p>
+          )}
         </div>
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-hesya-navy-900/45">
