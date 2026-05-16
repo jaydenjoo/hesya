@@ -5,14 +5,15 @@ import { createDbClient } from "@hesya/database";
 import { env } from "@/shared/config/env";
 import { captureServerActionError } from "@/instrumentation";
 import { sendKycNotification } from "@/lib/notifications/kyc-result";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 import { findOwnerNotifyTargetByStoreId } from "@/shared/lib/dal/store-owners";
 import { rejectStore } from "@/shared/lib/dal/stores";
 
 /**
- * Phase 1-β Task C + Phase 1-γ.1 — 운영자 KYC 거절 server action.
+ * Phase 1-β Task C + Phase 1-γ.1 + Phase 1-γ.2 — 운영자 KYC 거절 server action.
  *
- * `requireAdminEmail` 통과한 운영자가 manual_review 매장을 거절.
+ * `requireAdminRole` (DB `users.role='admin'`) 통과한 운영자가 manual_review
+ * 매장을 거절. γ.2 첫 callsite 마이그 — `guard.userId`만 사용해서 envelope 호환.
  * `rejectStore` DAL이 stores.verification_status='rejected' +
  * store_verifications.reviewedBy/reviewedAt/rejectionReason을 단일
  * 트랜잭션으로 갱신.
@@ -49,7 +50,7 @@ export async function rejectStoreKyc(input: {
   verificationId: string;
   reason: string;
 }): Promise<RejectStoreKycResult> {
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     return { ok: false, error: guard.error };
   }

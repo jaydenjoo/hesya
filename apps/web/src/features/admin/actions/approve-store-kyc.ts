@@ -5,14 +5,18 @@ import { createDbClient } from "@hesya/database";
 import { env } from "@/shared/config/env";
 import { captureServerActionError } from "@/instrumentation";
 import { sendKycNotification } from "@/lib/notifications/kyc-result";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 import { findOwnerNotifyTargetByStoreId } from "@/shared/lib/dal/store-owners";
 import { approveStore } from "@/shared/lib/dal/stores";
 
 /**
- * Phase 1-β Task C + Phase 1-γ.1 — 운영자 KYC 승인 server action.
+ * Phase 1-β Task C + Phase 1-γ.1 + Phase 1-γ.2 — 운영자 KYC 승인 server action.
  *
- * `requireAdminEmail` 가드 통과한 운영자가 manual_review 매장을 승인.
+ * `requireAdminRole` (DB `users.role='admin'`) 가드 통과한 운영자가 manual_review
+ * 매장을 승인. 마이그 0030 + role UPDATE 완료된 환경에서만 통과. γ.2 첫 callsite
+ * 마이그 — `guard.userId`만 사용해서 `requireAdminEmail` → `requireAdminRole`
+ * envelope 호환 교체 (`email` 필드 미사용).
+ *
  * Task A의 `approveStore` DAL 헬퍼가 stores + store_verifications 두
  * 테이블을 단일 트랜잭션으로 갱신 (한쪽만 갱신되면 admin 큐 mismatch).
  *
@@ -35,7 +39,7 @@ export async function approveStoreKyc(input: {
   storeId: string;
   verificationId: string;
 }): Promise<ApproveStoreKycResult> {
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     return { ok: false, error: guard.error };
   }

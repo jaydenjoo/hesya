@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
-vi.mock("@/shared/lib/admin-guard", () => ({
-  requireAdminEmail: vi.fn(),
+vi.mock("@/shared/lib/admin-role-guard", () => ({
+  requireAdminRole: vi.fn(),
 }));
 
 vi.mock("@/shared/lib/dal/stores", () => ({
@@ -23,7 +23,7 @@ vi.mock("@hesya/database", () => ({
 }));
 
 import { approveStoreKyc } from "./approve-store-kyc";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 import { approveStore } from "@/shared/lib/dal/stores";
 import { findOwnerNotifyTargetByStoreId } from "@/shared/lib/dal/store-owners";
 import { sendKycNotification } from "@/lib/notifications/kyc-result";
@@ -35,7 +35,7 @@ describe("approveStoreKyc", () => {
   });
 
   it("admin guard 실패 → ok=false, DAL 호출 0회", async () => {
-    vi.mocked(requireAdminEmail).mockResolvedValue({
+    vi.mocked(requireAdminRole).mockResolvedValue({
       ok: false,
       error: "forbidden",
       message: "관리자 권한이 필요합니다",
@@ -55,10 +55,10 @@ describe("approveStoreKyc", () => {
   });
 
   it("happy path → approveStore 호출 + revalidatePath 호출 + ok=true", async () => {
-    vi.mocked(requireAdminEmail).mockResolvedValue({
+    vi.mocked(requireAdminRole).mockResolvedValue({
       ok: true,
       userId: "admin-1",
-      email: "admin@example.com",
+      role: "admin",
     });
     vi.mocked(findOwnerNotifyTargetByStoreId).mockResolvedValue({
       userId: "owner-1",
@@ -82,10 +82,10 @@ describe("approveStoreKyc", () => {
   });
 
   it("happy path → owner email 조회 후 manual_approved 알림 발송 (Phase 1-γ.1)", async () => {
-    vi.mocked(requireAdminEmail).mockResolvedValue({
+    vi.mocked(requireAdminRole).mockResolvedValue({
       ok: true,
       userId: "admin-1",
-      email: "admin@example.com",
+      role: "admin",
     });
     vi.mocked(findOwnerNotifyTargetByStoreId).mockResolvedValue({
       userId: "owner-1",
@@ -112,10 +112,10 @@ describe("approveStoreKyc", () => {
   });
 
   it("owner 없는 매장 → 알림 skip + 승인은 ok=true (graceful)", async () => {
-    vi.mocked(requireAdminEmail).mockResolvedValue({
+    vi.mocked(requireAdminRole).mockResolvedValue({
       ok: true,
       userId: "admin-1",
-      email: "admin@example.com",
+      role: "admin",
     });
     vi.mocked(findOwnerNotifyTargetByStoreId).mockResolvedValue(null);
 
@@ -129,10 +129,10 @@ describe("approveStoreKyc", () => {
   });
 
   it("알림 발송 실패 → 승인은 ok=true (silent error, KYC 결과 우선)", async () => {
-    vi.mocked(requireAdminEmail).mockResolvedValue({
+    vi.mocked(requireAdminRole).mockResolvedValue({
       ok: true,
       userId: "admin-1",
-      email: "admin@example.com",
+      role: "admin",
     });
     vi.mocked(findOwnerNotifyTargetByStoreId).mockResolvedValue({
       userId: "owner-1",
