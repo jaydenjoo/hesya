@@ -344,6 +344,8 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
 
       <RecommendedStylists confidence={result.confidence} />
 
+      <BeforeAfterSlider previewUrl={previewUrl} />
+
       <AuditAccordion confidence={result.confidence} />
 
       <SaveLookCard styleName={result.styleName} />
@@ -356,6 +358,76 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
         {labels.result.retryButton}
       </button>
     </div>
+  );
+}
+
+function BeforeAfterSlider({ previewUrl }: { previewUrl: string | null }) {
+  const [pos, setPos] = useState(50);
+  return (
+    <section
+      className="mt-5 overflow-hidden rounded-2xl border border-hesya-peach-200 bg-white"
+      aria-label="Before / After preview slider"
+    >
+      <header className="px-4 py-2.5">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+          어떤 모습이 될까요? · What it could look like
+        </p>
+      </header>
+      <div className="relative aspect-[16/11] w-full overflow-hidden bg-hesya-peach-50">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: previewUrl
+              ? `url(${previewUrl})`
+              : "linear-gradient(135deg, var(--color-hesya-peach-200, #f7d2b6) 0%, var(--color-hesya-peach-100, #fce5d2) 100%)",
+            filter: "saturate(0.85) contrast(0.95)",
+          }}
+        />
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: previewUrl
+              ? `url(${previewUrl})`
+              : "linear-gradient(135deg, #d99458 0%, #f5c994 50%, #f7d2b6 100%)",
+            filter: "saturate(1.25) contrast(1.05) brightness(1.05)",
+            clipPath: `inset(0 0 0 ${pos}%)`,
+          }}
+        />
+        <span className="absolute left-3 top-3 rounded-full bg-hesya-navy-900/70 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-hesya-peach-50 backdrop-blur-sm">
+          Before
+        </span>
+        <span className="absolute right-3 top-3 rounded-full bg-hesya-amber-600/90 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+          After · AI
+        </span>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 w-px bg-white/80 shadow-[0_0_8px_rgba(255,255,255,0.6)]"
+          style={{ left: `${pos}%` }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 grid h-9 w-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white shadow-lg ring-1 ring-hesya-amber-500/30"
+          style={{ left: `${pos}%` }}
+        >
+          <span className="font-mono text-[12px] font-bold text-hesya-amber-700">
+            ↔
+          </span>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          step={1}
+          value={pos}
+          onChange={(e) => setPos(Number(e.target.value))}
+          aria-label="Before/After comparison position"
+          className="absolute inset-0 cursor-ew-resize opacity-0"
+        />
+      </div>
+      <p className="px-4 py-2 text-center text-[10.5px] text-hesya-navy-900/55">
+        ← 드래그하여 비교 · Drag to compare →
+      </p>
+    </section>
   );
 }
 
