@@ -23,7 +23,7 @@ import Link from "next/link";
 import { createDbClient } from "@hesya/database";
 
 import { env } from "@/shared/config/env";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 import {
   getAdminAlertCounts,
   getAdminAuditTrail,
@@ -102,7 +102,7 @@ export default async function AdminDashboardPage({ params }: Props) {
   setRequestLocale(locale);
 
   // layout에서도 가드하지만 defense-in-depth — 직접 page 호출 시 차단.
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     redirect(`/${locale}/sign-in`);
   }

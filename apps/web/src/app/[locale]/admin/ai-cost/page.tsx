@@ -24,7 +24,7 @@ import {
   mockHourlyHeatmap,
 } from "@/lib/mock-fixtures/admin-ai-cost";
 import { env } from "@/shared/config/env";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 import { getAiCostSummary } from "@/shared/lib/dal/ai-cost";
 
 interface Props {
@@ -35,7 +35,7 @@ export default async function AdminAiCostPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     redirect(`/${locale}/sign-in`);
   }

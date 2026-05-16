@@ -26,7 +26,7 @@ import {
   SETTLEMENT_MISMATCH_THRESHOLD_KRW,
 } from "@/lib/payment-monitoring/thresholds";
 import { getPaymentMetrics } from "@/shared/lib/dal/payments";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 
 /**
  * E12-6 결제이상 모니터링 — admin 대시보드 (Phase 1-γ.1.2 인프라 단계).
@@ -42,7 +42,7 @@ export default async function AdminPaymentMonitoringPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     redirect(`/${locale}/sign-in`);
   }
