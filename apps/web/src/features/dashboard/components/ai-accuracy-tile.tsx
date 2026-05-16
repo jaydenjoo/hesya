@@ -38,9 +38,12 @@ export function AiAccuracyTile({ pct, processedCount }: Props) {
       </header>
 
       <div className="flex flex-1 flex-col items-center justify-center">
+        {/* Reference dashboard-app.jsx TileAI — viewBox 160×160과 동일한
+            width/height. 이전 width="140" 버그로 실제 렌더가 reference보다
+            12% 작아 수치가 원 중앙에서 벗어나 보였음 (subagent Top 2 폴리시). */}
         <svg
-          width="140"
-          height="140"
+          width="160"
+          height="160"
           viewBox="0 0 160 160"
           role="img"
           aria-label={t("svgAria", { pct })}
