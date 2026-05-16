@@ -521,7 +521,9 @@
     "viewPortfolio": "포트폴리오 보기 →",
     "showAlternatives": "다른 가능한 디자이너 보기 ↓",
     "hideAlternatives": "대체 숨기기 ↑",
-    "pickButton": "선택 →"
+    "pickButton": "선택 →",
+    "altTimesTitle": "비슷한 시간",
+    "altTimesHint": "이 시간이 안 맞으면 같은 날 다른 시간도 가능해요"
   },
   "BookConfirm": {
     "eyebrow": "예약 확정",

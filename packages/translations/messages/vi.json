@@ -521,7 +521,9 @@
     "viewPortfolio": "Xem portfolio →",
     "showAlternatives": "Xem stylist khác đang trống ↓",
     "hideAlternatives": "Ẩn lựa chọn khác ↑",
-    "pickButton": "Chọn →"
+    "pickButton": "Chọn →",
+    "altTimesTitle": "Giờ tương tự",
+    "altTimesHint": "Nếu khung giờ này không tiện, vẫn còn các giờ khác trong cùng ngày"
   },
   "BookConfirm": {
     "eyebrow": "Xác nhận đặt lịch",

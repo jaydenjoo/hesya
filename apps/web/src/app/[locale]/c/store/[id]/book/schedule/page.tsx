@@ -183,6 +183,8 @@ export default async function StoreBookSchedulePage({
             showAlternatives: t("showAlternatives"),
             hideAlternatives: t("hideAlternatives"),
             pickButton: t("pickButton"),
+            altTimesTitle: t("altTimesTitle"),
+            altTimesHint: t("altTimesHint"),
           }}
         />
       </div>
