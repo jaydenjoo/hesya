@@ -982,7 +982,11 @@
       "failed": "失敗"
     },
     "mixTitle": "チャネル比率",
-    "mixGmv": "総 GMV"
+    "mixGmv": "総 GMV",
+    "channelStatsTitle": "チャネル別 (24h)",
+    "channelStatsSubtitle": "過去7日間の推移含む",
+    "channelStatTxLabel": "件",
+    "channelStatNetLabel": "純売上"
   },
   "AdminAiCost": {
     "title": "AI コスト(推定)",

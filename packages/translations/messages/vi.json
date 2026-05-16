@@ -982,7 +982,11 @@
       "failed": "Thất bại"
     },
     "mixTitle": "Phân bổ kênh",
-    "mixGmv": "Tổng GMV"
+    "mixGmv": "Tổng GMV",
+    "channelStatsTitle": "Hiệu suất kênh (24h)",
+    "channelStatsSubtitle": "Xu hướng 7 ngày gần nhất",
+    "channelStatTxLabel": "GD",
+    "channelStatNetLabel": "Net"
   },
   "AdminAiCost": {
     "title": "Chi phí AI (ước tính)",

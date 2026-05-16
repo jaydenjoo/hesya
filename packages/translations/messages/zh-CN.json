@@ -982,7 +982,11 @@
       "failed": "失败"
     },
     "mixTitle": "渠道分布",
-    "mixGmv": "总 GMV"
+    "mixGmv": "总 GMV",
+    "channelStatsTitle": "渠道表现 (24h)",
+    "channelStatsSubtitle": "含近 7 日趋势",
+    "channelStatTxLabel": "笔",
+    "channelStatNetLabel": "净额"
   },
   "AdminAiCost": {
     "title": "AI 成本 (估算)",
