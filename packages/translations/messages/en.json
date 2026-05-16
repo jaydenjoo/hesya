@@ -1007,7 +1007,25 @@
     "channelStatsTitle": "Channel performance (24h)",
     "channelStatsSubtitle": "incl. last-7-day trend",
     "channelStatTxLabel": "tx",
-    "channelStatNetLabel": "Net"
+    "channelStatNetLabel": "Net",
+    "settlementTitle": "Settlement reconciliation (24h)",
+    "settlementSubtitle": "provider reports vs capture totals",
+    "settlementCols": {
+      "channel": "Channel",
+      "providerReported": "Provider reported",
+      "capturedTotal": "Capture total",
+      "mismatch": "Δ",
+      "note": "Note"
+    },
+    "settlementMatch": "match",
+    "funnelTitle": "Payment funnel (24h)",
+    "funnelSubtitle": "capture → refund → dispute → fail",
+    "funnelSteps": {
+      "captured": "Captured",
+      "refunded": "Refunded",
+      "disputed": "Disputed",
+      "failed": "Failed"
+    }
   },
   "AdminAiCost": {
     "title": "AI cost (estimated)",

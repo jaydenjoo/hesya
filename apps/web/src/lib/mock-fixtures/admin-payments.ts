@@ -229,6 +229,58 @@ export interface PaymentAnomaly {
   readonly amountKrw?: number;
 }
 
+export interface SettlementRow {
+  readonly channel: PaymentChannel;
+  readonly providerReportedKrw: number;
+  readonly capturedTotalKrw: number;
+  readonly mismatchKrw: number;
+  readonly note: string;
+}
+
+export const mockSettlementReconciliation: ReadonlyArray<SettlementRow> = [
+  {
+    channel: "stripe",
+    providerReportedKrw: 982_000,
+    capturedTotalKrw: 982_000,
+    mismatchKrw: 0,
+    note: "match",
+  },
+  {
+    channel: "alipay",
+    providerReportedKrw: 480_500,
+    capturedTotalKrw: 499_000,
+    mismatchKrw: -18_500,
+    note: "fee 차감 누락 추정",
+  },
+  {
+    channel: "wechat",
+    providerReportedKrw: 175_000,
+    capturedTotalKrw: 175_000,
+    mismatchKrw: 0,
+    note: "match",
+  },
+  {
+    channel: "linepay",
+    providerReportedKrw: 208_000,
+    capturedTotalKrw: 208_000,
+    mismatchKrw: 0,
+    note: "match",
+  },
+];
+
+export interface FunnelStep {
+  readonly key: "captured" | "refunded" | "disputed" | "failed";
+  readonly count: number;
+  readonly amountKrw: number;
+}
+
+export const mockPaymentFunnel: ReadonlyArray<FunnelStep> = [
+  { key: "captured", count: 12, amountKrw: 2_064_000 },
+  { key: "refunded", count: 1, amountKrw: 220_000 },
+  { key: "disputed", count: 1, amountKrw: 350_000 },
+  { key: "failed", count: 1, amountKrw: 110_000 },
+];
+
 export const mockPaymentAnomalies: ReadonlyArray<PaymentAnomaly> = [
   {
     icon: "🚨",

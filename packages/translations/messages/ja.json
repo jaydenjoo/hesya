@@ -1007,7 +1007,25 @@
     "channelStatsTitle": "チャネル別 (24h)",
     "channelStatsSubtitle": "過去7日間の推移含む",
     "channelStatTxLabel": "件",
-    "channelStatNetLabel": "純売上"
+    "channelStatNetLabel": "純売上",
+    "settlementTitle": "精算照合 (24h)",
+    "settlementSubtitle": "プロバイダ報告 ↔ キャプチャ合計",
+    "settlementCols": {
+      "channel": "チャネル",
+      "providerReported": "プロバイダ報告",
+      "capturedTotal": "キャプチャ合計",
+      "mismatch": "差額",
+      "note": "備考"
+    },
+    "settlementMatch": "一致",
+    "funnelTitle": "決済ファネル (24h)",
+    "funnelSubtitle": "capture → refund → dispute → fail",
+    "funnelSteps": {
+      "captured": "Captured",
+      "refunded": "Refunded",
+      "disputed": "Disputed",
+      "failed": "Failed"
+    }
   },
   "AdminAiCost": {
     "title": "AI コスト(推定)",

@@ -1007,7 +1007,25 @@
     "channelStatsTitle": "渠道表現 (24h)",
     "channelStatsSubtitle": "含近 7 日趨勢",
     "channelStatTxLabel": "筆",
-    "channelStatNetLabel": "淨額"
+    "channelStatNetLabel": "淨額",
+    "settlementTitle": "結算對賬 (24h)",
+    "settlementSubtitle": "Provider 報告 ↔ Capture 合計",
+    "settlementCols": {
+      "channel": "渠道",
+      "providerReported": "Provider 報告",
+      "capturedTotal": "Capture 合計",
+      "mismatch": "差額",
+      "note": "備註"
+    },
+    "settlementMatch": "一致",
+    "funnelTitle": "支付漏斗 (24h)",
+    "funnelSubtitle": "capture → refund → dispute → fail",
+    "funnelSteps": {
+      "captured": "Captured",
+      "refunded": "Refunded",
+      "disputed": "Disputed",
+      "failed": "Failed"
+    }
   },
   "AdminAiCost": {
     "title": "AI 成本 (估算)",

@@ -1007,7 +1007,25 @@
     "channelStatsTitle": "Hiệu suất kênh (24h)",
     "channelStatsSubtitle": "Xu hướng 7 ngày gần nhất",
     "channelStatTxLabel": "GD",
-    "channelStatNetLabel": "Net"
+    "channelStatNetLabel": "Net",
+    "settlementTitle": "Đối soát quyết toán (24h)",
+    "settlementSubtitle": "Provider báo cáo ↔ tổng capture",
+    "settlementCols": {
+      "channel": "Kênh",
+      "providerReported": "Provider báo cáo",
+      "capturedTotal": "Tổng capture",
+      "mismatch": "Δ",
+      "note": "Ghi chú"
+    },
+    "settlementMatch": "khớp",
+    "funnelTitle": "Phễu thanh toán (24h)",
+    "funnelSubtitle": "capture → refund → dispute → fail",
+    "funnelSteps": {
+      "captured": "Captured",
+      "refunded": "Refunded",
+      "disputed": "Disputed",
+      "failed": "Failed"
+    }
   },
   "AdminAiCost": {
     "title": "Chi phí AI (ước tính)",
