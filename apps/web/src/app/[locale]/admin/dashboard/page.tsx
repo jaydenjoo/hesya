@@ -492,28 +492,37 @@ function AlertChip({
   href: string;
   meta?: string;
 }) {
-  const palette = {
-    crit: {
-      border: "border-[#e5c0ba]",
-      bg: "bg-[#faefec]",
-      count: "text-[#c9483a]",
-    },
-    warn: {
-      border: "border-hesya-peach-200",
-      bg: "bg-[#fbf1e6]",
-      count: "text-hesya-amber-700",
-    },
-    budg: {
-      border: "border-hesya-peach-200",
-      bg: "bg-[#fbf1e6]",
-      count: "text-hesya-amber-700",
-    },
-    flag: {
-      border: "border-[#e5c0ba]",
-      bg: "bg-[#faefec]",
-      count: "text-[#c9483a]",
-    },
-  }[level];
+  const clear = count === 0;
+  const urgent = !clear && level === "crit" && count >= 5;
+
+  const palette = clear
+    ? {
+        border: "border-emerald-200",
+        bg: "bg-emerald-50/60",
+        count: "text-emerald-700",
+      }
+    : {
+        crit: {
+          border: "border-[#e5c0ba]",
+          bg: "bg-[#faefec]",
+          count: "text-[#c9483a]",
+        },
+        warn: {
+          border: "border-hesya-peach-200",
+          bg: "bg-[#fbf1e6]",
+          count: "text-hesya-amber-700",
+        },
+        budg: {
+          border: "border-hesya-peach-200",
+          bg: "bg-[#fbf1e6]",
+          count: "text-hesya-amber-700",
+        },
+        flag: {
+          border: "border-[#e5c0ba]",
+          bg: "bg-[#faefec]",
+          count: "text-[#c9483a]",
+        },
+      }[level];
 
   return (
     <Link
@@ -525,20 +534,26 @@ function AlertChip({
       ].join(" ")}
     >
       <span aria-hidden="true" className="text-xs">
-        {icon}
+        {clear ? "🟢" : icon}
       </span>
       <span className="text-[12.5px] font-semibold text-hesya-navy-900">
         {label}
       </span>
       <span
         className={[
-          "ml-1 font-heading text-[16px] font-medium italic leading-none",
+          "ml-1 inline-flex items-center gap-1 font-heading text-[16px] font-medium italic leading-none",
           palette.count,
         ].join(" ")}
       >
-        {count}
+        {urgent && (
+          <span
+            aria-hidden="true"
+            className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#c9483a]"
+          />
+        )}
+        {clear ? "—" : count}
       </span>
-      {meta && (
+      {!clear && meta && (
         <span className="ml-1 font-mono text-[10.5px] text-hesya-navy-900/55">
           · {meta}
         </span>
