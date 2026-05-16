@@ -34,6 +34,8 @@ export interface AdminDeletionQueueProps {
   rows: AdminDeletionRow[];
   filter: "pending" | "expired" | "cancelled" | "purged" | "all";
   locale: string;
+  /** Server-injected `Date.now()` at render time — pure render. */
+  nowMs: number;
 }
 
 const FILTER_LABELS: Record<AdminDeletionQueueProps["filter"], string> = {
@@ -63,6 +65,7 @@ export function AdminDeletionQueue({
   rows,
   filter,
   locale,
+  nowMs,
 }: AdminDeletionQueueProps) {
   const router = useRouter();
   const [forceStoreId, setForceStoreId] = useState("");
@@ -237,22 +240,33 @@ export function AdminDeletionQueue({
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-hesya-navy-900/70">
-                    <span>요청자: {row.requestedByEmail}</span>
-                    <span className="mx-2">·</span>
-                    <span>
-                      예정 삭제일: {purgeAt.toLocaleDateString("ko-KR")}
-                    </span>
-                    {row.storeId && (
-                      <>
-                        <span className="mx-2">·</span>
-                        <span className="font-mono">{row.storeId}</span>
-                      </>
-                    )}
-                  </div>
+                  <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-md border border-hesya-peach-100 bg-hesya-peach-100 text-[12px] sm:grid-cols-3">
+                    <MetaCell k="requested by" v={row.requestedByEmail} />
+                    <MetaCell
+                      k="scheduled purge"
+                      v={purgeAt.toLocaleDateString("ko-KR")}
+                      mono
+                    />
+                    <MetaCell
+                      k="store id"
+                      v={row.storeId ?? "(purged)"}
+                      mono={Boolean(row.storeId)}
+                      muted={!row.storeId}
+                    />
+                  </dl>
+                  {!row.cancelledAt && !row.purgedAt && (
+                    <GraceBar
+                      createdAt={new Date(row.createdAt)}
+                      purgeAt={purgeAt}
+                      nowMs={nowMs}
+                    />
+                  )}
                   {row.reason && (
-                    <p className="text-sm text-hesya-navy-900/80">
-                      사유: {row.reason}
+                    <p className="rounded-md border border-hesya-peach-100 bg-hesya-peach-50/60 px-3 py-2 text-[12.5px] text-hesya-navy-900/85 [word-break:keep-all]">
+                      <span className="mr-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-hesya-amber-600">
+                        reason
+                      </span>
+                      {row.reason}
                     </p>
                   )}
                   {!row.cancelledAt && !row.purgedAt && row.storeId && (
@@ -280,6 +294,63 @@ export function AdminDeletionQueue({
           </ul>
         )}
       </section>
+    </div>
+  );
+}
+
+function MetaCell({
+  k,
+  v,
+  mono = false,
+  muted = false,
+}: {
+  k: string;
+  v: string;
+  mono?: boolean;
+  muted?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-0.5 bg-white px-3 py-2">
+      <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/55">
+        {k}
+      </dt>
+      <dd
+        className={`${mono ? "font-mono text-[11.5px]" : "text-[12.5px]"} break-all ${muted ? "text-hesya-navy-900/55" : "text-hesya-navy-900"}`}
+      >
+        {v}
+      </dd>
+    </div>
+  );
+}
+
+function GraceBar({
+  createdAt,
+  purgeAt,
+  nowMs,
+}: {
+  createdAt: Date;
+  purgeAt: Date;
+  nowMs: number;
+}) {
+  const total = purgeAt.getTime() - createdAt.getTime();
+  const elapsed = nowMs - createdAt.getTime();
+  const pct =
+    total <= 0 ? 100 : Math.min(100, Math.max(0, (elapsed / total) * 100));
+  const danger = pct >= 75;
+  return (
+    <div className="flex items-center gap-2">
+      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/55">
+        grace
+      </span>
+      <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-hesya-peach-50">
+        <div
+          className={`h-full ${danger ? "bg-[#c9483a]" : "bg-hesya-amber-500"}`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <span className="font-mono text-[10.5px] tabular-nums text-hesya-navy-900/60">
+        {pct.toFixed(0)}%
+      </span>
     </div>
   );
 }

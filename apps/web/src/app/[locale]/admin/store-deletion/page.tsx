@@ -77,6 +77,8 @@ export default async function AdminStoreDeletionPage({
             createdAt: r.createdAt.toISOString(),
           }))}
           filter={filter}
+          /* eslint-disable-next-line react-hooks/purity */
+          nowMs={Date.now()}
           locale={locale}
         />
       </div>

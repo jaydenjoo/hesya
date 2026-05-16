@@ -21,7 +21,12 @@ vi.mock("@/lib/store-deletion/actions", () => ({
 describe("AdminDeletionQueue — γ.2.3.4 디자인 정합성", () => {
   it("active filter — hesya-navy bg + peach-50 text", () => {
     const { container } = render(
-      <AdminDeletionQueue rows={[]} filter="pending" locale="ko" />,
+      <AdminDeletionQueue
+        rows={[]}
+        filter="pending"
+        locale="ko"
+        nowMs={Date.now()}
+      />,
     );
     const active = container.querySelector(
       "a.bg-hesya-navy-900.text-hesya-peach-50",
@@ -32,7 +37,12 @@ describe("AdminDeletionQueue — γ.2.3.4 디자인 정합성", () => {
 
   it("inactive filter — gray-200 border + navy text + hover navy", () => {
     const { container } = render(
-      <AdminDeletionQueue rows={[]} filter="pending" locale="ko" />,
+      <AdminDeletionQueue
+        rows={[]}
+        filter="pending"
+        locale="ko"
+        nowMs={Date.now()}
+      />,
     );
     const inactive = container.querySelector(
       "a.border-gray-200.text-hesya-navy-900.hover\\:border-hesya-navy-900",
@@ -42,7 +52,12 @@ describe("AdminDeletionQueue — γ.2.3.4 디자인 정합성", () => {
 
   it("empty state — hesya-navy/60 text", () => {
     const { container } = render(
-      <AdminDeletionQueue rows={[]} filter="pending" locale="ko" />,
+      <AdminDeletionQueue
+        rows={[]}
+        filter="pending"
+        locale="ko"
+        nowMs={Date.now()}
+      />,
     );
     expect(container.querySelector("p.text-hesya-navy-900\\/60")).toBeTruthy();
   });
@@ -67,6 +82,7 @@ describe("AdminDeletionQueue — γ.2.3.4 디자인 정합성", () => {
         ]}
         filter="pending"
         locale="ko"
+        nowMs={Date.now()}
       />,
     );
     expect(
@@ -81,7 +97,12 @@ describe("AdminDeletionQueue — γ.2.3.4 디자인 정합성", () => {
 
   it("input/textarea — peach-200 border + amber-500 focus ring", () => {
     const { container } = render(
-      <AdminDeletionQueue rows={[]} filter="pending" locale="ko" />,
+      <AdminDeletionQueue
+        rows={[]}
+        filter="pending"
+        locale="ko"
+        nowMs={Date.now()}
+      />,
     );
     const input = container.querySelector(
       "input.border-hesya-peach-200.focus\\:border-hesya-amber-500",
@@ -113,6 +134,7 @@ describe("AdminDeletionQueue — γ.2.3.4 디자인 정합성", () => {
         ]}
         filter="pending"
         locale="ko"
+        nowMs={Date.now()}
       />,
     );
     const cancelBtn = container.querySelector(
