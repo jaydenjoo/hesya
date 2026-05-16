@@ -639,6 +639,8 @@
     "kpiRepeatRate": "回頭率",
     "kpiAvgTicket": "客單價",
     "avgTicketHint": "營收 ÷ 預約數",
+    "kpiNewCustomers": "新增外國",
+    "kpiNewCustomersHint": "本期",
     "bookingsUnit": "次",
     "customersUnit": "位",
     "monthlyRevenueTitle": "月度營收",

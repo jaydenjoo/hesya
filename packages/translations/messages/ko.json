@@ -639,6 +639,8 @@
     "kpiRepeatRate": "재방문률",
     "kpiAvgTicket": "평균 객단가",
     "avgTicketHint": "매출 / 예약 수",
+    "kpiNewCustomers": "신규 외국인",
+    "kpiNewCustomersHint": "이번 기간",
     "bookingsUnit": "건",
     "customersUnit": "명",
     "monthlyRevenueTitle": "월별 매출",

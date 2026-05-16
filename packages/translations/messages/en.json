@@ -639,6 +639,8 @@
     "kpiRepeatRate": "Repeat rate",
     "kpiAvgTicket": "Avg ticket",
     "avgTicketHint": "Revenue ÷ bookings",
+    "kpiNewCustomers": "New foreign",
+    "kpiNewCustomersHint": "This period",
     "bookingsUnit": " bookings",
     "customersUnit": "customers",
     "monthlyRevenueTitle": "Monthly revenue",

@@ -639,6 +639,8 @@
     "kpiRepeatRate": "Tỉ lệ quay lại",
     "kpiAvgTicket": "Giá trị trung bình",
     "avgTicketHint": "Doanh thu ÷ lượt đặt",
+    "kpiNewCustomers": "Khách mới",
+    "kpiNewCustomersHint": "Kỳ này",
     "bookingsUnit": " lượt",
     "customersUnit": "khách",
     "monthlyRevenueTitle": "Doanh thu theo tháng",

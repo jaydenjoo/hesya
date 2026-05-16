@@ -639,6 +639,8 @@
     "kpiRepeatRate": "回头率",
     "kpiAvgTicket": "客单价",
     "avgTicketHint": "营收 ÷ 预约数",
+    "kpiNewCustomers": "新增外国",
+    "kpiNewCustomersHint": "本期",
     "bookingsUnit": "次",
     "customersUnit": "位",
     "monthlyRevenueTitle": "月度营收",
