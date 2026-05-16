@@ -27,14 +27,63 @@ export function KnowledgeClient({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
 
-  // Page-level PageHeader가 title/eyebrow 렌더링. 내부에서는 count chip + action.
+  // Page-level PageHeader가 title/eyebrow 렌더링.
+  const embedReadyCount = initialFAQs.filter((f) => f.hasEmbedding).length;
+  const embedReadyPct =
+    initialFAQs.length === 0
+      ? 0
+      : Math.round((embedReadyCount / initialFAQs.length) * 100);
+  const latestUpdate =
+    initialFAQs.length === 0
+      ? null
+      : initialFAQs.reduce(
+          (latest, f) => (f.updatedAt > latest ? f.updatedAt : latest),
+          initialFAQs[0]!.updatedAt,
+        );
+  const capacityPct = Math.round((initialFAQs.length / maxFAQs) * 100);
+  const capacityTone: "default" | "warn" | "danger" =
+    capacityPct >= 90 ? "danger" : capacityPct >= 70 ? "warn" : "default";
+
   return (
     <div>
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <span className="kr inline-flex items-center gap-2 rounded-full bg-hesya-peach-100 px-3 py-1 font-mono text-[11px] font-semibold text-hesya-amber-600">
-          <span aria-hidden="true">📚</span>
-          {initialFAQs.length}/{maxFAQs}
-        </span>
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <FAQStatTile
+          label="등록 FAQ"
+          value={initialFAQs.length}
+          suffix={`/ ${maxFAQs}`}
+          progress={capacityPct}
+          tone={capacityTone}
+        />
+        <FAQStatTile
+          label="AI 임베딩 완료"
+          value={embedReadyCount}
+          suffix={initialFAQs.length === 0 ? "" : `· ${embedReadyPct}%`}
+          tone={embedReadyPct === 100 ? "ok" : "default"}
+          alertNote={
+            initialFAQs.length === 0
+              ? "FAQ 추가 시 자동 임베딩"
+              : embedReadyPct === 100
+                ? "검색·답변 100% 준비"
+                : `${initialFAQs.length - embedReadyCount}건 임베딩 대기`
+          }
+        />
+        <FAQStatTile
+          label="잔여 슬롯"
+          value={Math.max(0, maxFAQs - initialFAQs.length)}
+          suffix="건"
+          tone={capacityTone === "danger" ? "danger" : "default"}
+        />
+        <FAQStatTile
+          label="최근 수정"
+          value={latestUpdate ? formatRelativeKr(latestUpdate) : "—"}
+          tone="default"
+          alertNote={
+            latestUpdate ? latestUpdate.toISOString().slice(0, 10) : ""
+          }
+        />
+      </div>
+
+      <div className="mb-5 flex flex-wrap items-center justify-end gap-3">
         {!showAdd && initialFAQs.length < maxFAQs ? (
           <button
             type="button"
@@ -248,5 +297,99 @@ function FAQForm(props: FAQFormProps) {
         </button>
       </div>
     </form>
+  );
+}
+
+function formatRelativeKr(d: Date): string {
+  const now = Date.now();
+  const diffMs = now - d.getTime();
+  const minutes = Math.floor(diffMs / 60_000);
+  if (minutes < 1) return "방금";
+  if (minutes < 60) return `${minutes}분 전`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}시간 전`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}일 전`;
+  return d.toISOString().slice(0, 10);
+}
+
+function FAQStatTile({
+  label,
+  value,
+  suffix,
+  progress,
+  alertNote,
+  tone,
+}: {
+  label: string;
+  value: string | number;
+  suffix?: string;
+  progress?: number;
+  alertNote?: string;
+  tone: "default" | "warn" | "danger" | "ok";
+}) {
+  const styles = {
+    default: {
+      border: "border-gray-200",
+      bg: "bg-white",
+      text: "text-hesya-navy-900",
+      bar: "bg-hesya-amber-500",
+      note: "text-hesya-navy-900/55",
+    },
+    warn: {
+      border: "border-hesya-peach-200",
+      bg: "bg-hesya-peach-50",
+      text: "text-hesya-amber-600",
+      bar: "bg-hesya-amber-500",
+      note: "text-hesya-amber-600",
+    },
+    danger: {
+      border: "border-[#e5c0ba]",
+      bg: "bg-[#faefec]",
+      text: "text-[#c9483a]",
+      bar: "bg-[#c9483a]",
+      note: "text-[#c9483a]",
+    },
+    ok: {
+      border: "border-emerald-200",
+      bg: "bg-emerald-50/60",
+      text: "text-emerald-700",
+      bar: "bg-emerald-500",
+      note: "text-emerald-700/85",
+    },
+  }[tone];
+  return (
+    <div className={`rounded-md border p-4 ${styles.border} ${styles.bg}`}>
+      <div className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-gray-700">
+        {label}
+      </div>
+      <div className="mt-2 flex items-baseline gap-1.5">
+        <span
+          className={`font-heading text-[24px] font-medium italic leading-none tracking-[-0.02em] ${styles.text}`}
+        >
+          {value}
+        </span>
+        {suffix && (
+          <span className="text-[11px] font-medium text-gray-500">
+            {suffix}
+          </span>
+        )}
+      </div>
+      {progress != null && (
+        <div className="mt-2 h-1 overflow-hidden rounded-full bg-hesya-navy-900/8">
+          <div
+            className={`h-full rounded-full ${styles.bar}`}
+            style={{ width: `${Math.min(100, progress)}%` }}
+          />
+        </div>
+      )}
+      {alertNote && (
+        <div
+          className={`mt-1.5 text-[10.5px] font-medium ${styles.note} [word-break:keep-all]`}
+        >
+          {alertNote}
+        </div>
+      )}
+    </div>
   );
 }
