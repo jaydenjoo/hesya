@@ -3766,3 +3766,30 @@ fileParallelism: false,   // ← 추가
 **확인**: 세션 42에서 10 PR × 평균 12분 = 약 2시간 만에 머지. 세션 41 fast track (mock-first, L-101)과 직교 패턴 — fast track은 작업 시간 압축, /loop dynamic은 PR e2e 사이클 압축.
 
 **연관**: 본 세션 42 PR [#240-#249](https://github.com/jaydenjoo/hesya/pulls?q=is%3Apr+%23240..%23249). L-093 (CI workflow_dispatch only 정책 — 본 패턴의 trigger 동의어). L-097 (auto-merge yml만으로는 부족, 수동 `gh pr merge` 의무). L-101 (fast track 압축 — 작업 시간 단축, 본 L-102는 사이클 단축).
+
+### [2026-05-16] L-103 — UI 텍스트 재설계 시 기존 test assertion 미리 검색하지 않으면 CI 1 cycle 낭비
+
+**증상**: PR #268 (Knowledge 4-tile stats strip)의 CI vitest 단계 실패. `KnowledgeClient.test.tsx`가 `expect(screen.getByText(/0\/200/)).toBeInTheDocument()`로 옛 "0/200" count chip을 assertion. 본 PR에서 chip을 4-tile stats strip로 교체 → 텍스트 사라짐 → 테스트 fail. 즉시 fix push + CI redispatch 필요 → ~5분 CI 사이클 1회 낭비.
+
+**원인**: UI 컴포넌트 시각 redesign 시 component 본체만 수정. test 파일에 assertion된 텍스트(예: "0/200", "Q.", "임베딩 미생성")가 그대로 유지된다는 가정 무비판 채택. 같은 패턴이 L-093 환경(/loop dynamic + 4.5분 wakeup)에서는 비싸 — 1 cycle = 1 PR 머지 기회 손실.
+
+**해결**: PR commit 전 의무 절차:
+
+1. 컴포넌트 본체 수정 후 같은 디렉토리 `*.test.tsx` 파일 grep
+2. 변경되거나 삭제된 텍스트(`/리터럴/`, `"문자열"`, `getByText`, `findByText` 등) 검색
+3. test에서 사라진 텍스트 발견 시 즉시 test 함께 수정
+4. local에서 `pnpm --filter @hesya/web test -- <test-file>` 1회 실행 후 commit
+
+**규칙**: **UI 텍스트 redesign = test redesign 묶음**. 두 가지를 동시 1 commit으로 처리. test 미리 보지 않고 commit + push 금지.
+
+**구체 트리거 매트릭스**:
+
+- count chip / badge 텍스트 변경 → test grep 의무 (예: "N개", "N/MAX")
+- 상태 라벨 변경 → test grep 의무 (예: "예약 완료", "처리 중")
+- 아이콘 + 텍스트 분리 시 → 텍스트 텍스트가 같은 element에 있다는 assertion `toHaveTextContent` 깨질 수 있음
+
+**비유**: 빨래 정리 후 옷장 위치 바꿨는데 가족 메모지 ("양말은 둘째 서랍")는 그대로면 다음 사람이 헷갈림. test = 가족 메모지. UI 옮기면 메모지도 같이 갱신.
+
+**확인**: 본 세션 43 PR #268 — fix commit `test(knowledge): align stats strip test with 4-tile structure` (1 file, 5+/2-). 본 fix 없이 CI redispatch 후 2번째 success → 1 cycle 낭비.
+
+**연관**: L-102 (/loop dynamic 4.5분 wakeup 환경 — cycle 낭비 비용 ↑). L-093 (CI workflow_dispatch only — 자동 재시도 없음, 수동 dispatch 의무라 fail 비용 가시).
