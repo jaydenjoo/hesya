@@ -67,6 +67,14 @@ export interface SettingsFormLabels {
   readonly hoursClose: string;
   readonly hoursClosed: string;
   readonly hoursFallback: string;
+  readonly hoursTableHeaderDay: string;
+  readonly hoursTableHeaderOpen: string;
+  readonly hoursTableHeaderClose: string;
+  readonly hoursTableHeaderNote: string;
+  readonly hoursNoteRegular: string;
+  readonly hoursNoteEvening: string;
+  readonly hoursNoteWeekend: string;
+  readonly hoursNoteHoliday: string;
   readonly saveButton: string;
   readonly savedMessage: string;
   readonly placeholderText: string;
@@ -371,50 +379,92 @@ export function SettingsForm({
           en={labels.sectionEn.hours}
           hint={labels.hoursFallback}
         >
-          <div className="space-y-2">
+          <div className="overflow-hidden rounded-lg border border-hesya-peach-100 bg-white">
+            <div className="hidden grid-cols-[88px_1fr_1fr_120px] gap-3 border-b border-hesya-peach-100 bg-hesya-peach-50/40 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-hesya-navy-900/60 sm:grid">
+              <span>{labels.hoursTableHeaderDay}</span>
+              <span>{labels.hoursTableHeaderOpen}</span>
+              <span>{labels.hoursTableHeaderClose}</span>
+              <span className="text-right">{labels.hoursTableHeaderNote}</span>
+            </div>
             {DAYS.map((d) => {
               const s = days[d];
+              const isWeekend = d === "sat" || d === "sun";
+              const note = s.closed
+                ? labels.hoursNoteHoliday
+                : d === "thu" || d === "fri"
+                  ? labels.hoursNoteEvening
+                  : isWeekend
+                    ? labels.hoursNoteWeekend
+                    : labels.hoursNoteRegular;
               return (
                 <div
                   key={d}
-                  className="flex flex-wrap items-center gap-3 rounded-md border border-hesya-peach-100 bg-white px-3 py-2"
+                  className={[
+                    "grid grid-cols-1 gap-3 border-b border-hesya-peach-100 px-3 py-2 last:border-b-0 sm:grid-cols-[88px_1fr_1fr_120px] sm:items-center",
+                    s.closed ? "bg-hesya-peach-50/30" : "bg-white",
+                  ].join(" ")}
                 >
-                  <span className="w-16 text-[13px] font-medium text-hesya-navy-900">
-                    {labels.days[d]}
-                  </span>
-                  <label className="flex items-center gap-1.5 text-[12px] text-hesya-navy-900/75">
-                    <input
-                      type="checkbox"
-                      checked={s.closed}
-                      onChange={(e) =>
-                        updateDay(d, { closed: e.target.checked })
-                      }
-                      className="accent-hesya-amber-500"
-                    />
-                    {labels.hoursClosed}
-                  </label>
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-hesya-navy-900/55">
-                      {labels.hoursOpen}
+                    <span
+                      className={[
+                        "text-[13px] font-medium",
+                        isWeekend
+                          ? "text-hesya-amber-700"
+                          : "text-hesya-navy-900",
+                      ].join(" ")}
+                    >
+                      {labels.days[d]}
                     </span>
-                    <input
-                      type="time"
-                      value={s.open}
-                      disabled={s.closed}
-                      onChange={(e) => updateDay(d, { open: e.target.value })}
-                      className="rounded-md border border-hesya-peach-200 bg-white px-2 py-1 text-[12px] transition focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20 disabled:bg-hesya-peach-50"
-                    />
-                    <span className="text-[11px] text-hesya-navy-900/55">
-                      {labels.hoursClose}
-                    </span>
-                    <input
-                      type="time"
-                      value={s.close}
-                      disabled={s.closed}
-                      onChange={(e) => updateDay(d, { close: e.target.value })}
-                      className="rounded-md border border-hesya-peach-200 bg-white px-2 py-1 text-[12px] transition focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20 disabled:bg-hesya-peach-50"
-                    />
+                    <label className="flex items-center gap-1 text-[10.5px] text-hesya-navy-900/55">
+                      <input
+                        type="checkbox"
+                        checked={s.closed}
+                        onChange={(e) =>
+                          updateDay(d, { closed: e.target.checked })
+                        }
+                        className="accent-hesya-amber-500"
+                      />
+                      {labels.hoursClosed}
+                    </label>
                   </div>
+                  <input
+                    type="time"
+                    value={s.open}
+                    disabled={s.closed}
+                    onChange={(e) => updateDay(d, { open: e.target.value })}
+                    aria-label={labels.hoursOpen}
+                    className={[
+                      "w-full rounded-md border bg-white px-2 py-1.5 font-mono text-[12px] transition focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20 disabled:bg-hesya-peach-50/60 disabled:text-hesya-navy-900/30 disabled:line-through",
+                      s.closed
+                        ? "border-hesya-peach-100"
+                        : "border-hesya-peach-200 focus:border-hesya-amber-500",
+                    ].join(" ")}
+                  />
+                  <input
+                    type="time"
+                    value={s.close}
+                    disabled={s.closed}
+                    onChange={(e) => updateDay(d, { close: e.target.value })}
+                    aria-label={labels.hoursClose}
+                    className={[
+                      "w-full rounded-md border bg-white px-2 py-1.5 font-mono text-[12px] transition focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20 disabled:bg-hesya-peach-50/60 disabled:text-hesya-navy-900/30 disabled:line-through",
+                      s.closed
+                        ? "border-hesya-peach-100"
+                        : "border-hesya-peach-200 focus:border-hesya-amber-500",
+                    ].join(" ")}
+                  />
+                  <span
+                    className={[
+                      "text-right text-[10.5px]",
+                      s.closed
+                        ? "text-hesya-amber-700"
+                        : isWeekend
+                          ? "text-hesya-amber-600"
+                          : "text-hesya-navy-900/55",
+                    ].join(" ")}
+                  >
+                    {note}
+                  </span>
                 </div>
               );
             })}
