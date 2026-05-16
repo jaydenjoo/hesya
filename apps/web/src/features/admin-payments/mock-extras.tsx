@@ -5,9 +5,11 @@
  */
 
 import type {
+  FunnelStep,
   MockTransaction,
   PaymentAnomaly,
   PaymentChannel,
+  SettlementRow,
 } from "@/lib/mock-fixtures/admin-payments";
 
 const CHANNEL_COLORS: Record<PaymentChannel, string> = {
@@ -50,6 +52,24 @@ export interface PaymentExtraLabels {
   readonly channelStatsSubtitle: string;
   readonly channelStatTxLabel: string;
   readonly channelStatNetLabel: string;
+  readonly settlementTitle: string;
+  readonly settlementSubtitle: string;
+  readonly settlementCols: {
+    readonly channel: string;
+    readonly providerReported: string;
+    readonly capturedTotal: string;
+    readonly mismatch: string;
+    readonly note: string;
+  };
+  readonly settlementMatch: string;
+  readonly funnelTitle: string;
+  readonly funnelSubtitle: string;
+  readonly funnelSteps: {
+    readonly captured: string;
+    readonly refunded: string;
+    readonly disputed: string;
+    readonly failed: string;
+  };
 }
 
 export function PaymentAnomalyBand({
@@ -381,6 +401,177 @@ export function ChannelStatTiles({
                   );
                 })}
               </svg>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+export function SettlementReconciliation({
+  rows,
+  labels,
+}: {
+  rows: ReadonlyArray<SettlementRow>;
+  labels: PaymentExtraLabels;
+}) {
+  const c = labels.settlementCols;
+  const totalMismatch = rows.reduce((s, r) => s + Math.abs(r.mismatchKrw), 0);
+  return (
+    <section
+      data-testid="admin-payment-settlement"
+      className="mb-6 rounded-md border border-gray-200 bg-white shadow-[0_1px_2px_rgba(26,34,56,0.04)]"
+    >
+      <header className="flex flex-wrap items-baseline justify-between gap-2 border-b border-hesya-peach-100 px-5 py-3">
+        <div>
+          <h3 className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-gray-700">
+            {labels.settlementTitle}
+          </h3>
+          <p className="mt-0.5 text-[11.5px] text-hesya-navy-900/55">
+            {labels.settlementSubtitle}
+          </p>
+        </div>
+        <span
+          className={[
+            "rounded-full px-2.5 py-0.5 font-mono text-[11px] font-semibold",
+            totalMismatch === 0
+              ? "bg-emerald-50 text-emerald-700"
+              : "bg-amber-50 text-amber-700",
+          ].join(" ")}
+        >
+          Σ ₩{totalMismatch.toLocaleString("ko")}
+        </span>
+      </header>
+      <div className="overflow-x-auto">
+        <table className="w-full text-[11.5px]">
+          <thead>
+            <tr className="border-b border-hesya-peach-100 text-left">
+              <th className="px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.1em] text-hesya-navy-900/50">
+                {c.channel}
+              </th>
+              <th className="py-2.5 text-right font-mono text-[10px] uppercase tracking-[0.1em] text-hesya-navy-900/50">
+                {c.providerReported}
+              </th>
+              <th className="py-2.5 text-right font-mono text-[10px] uppercase tracking-[0.1em] text-hesya-navy-900/50">
+                {c.capturedTotal}
+              </th>
+              <th className="py-2.5 text-right font-mono text-[10px] uppercase tracking-[0.1em] text-hesya-navy-900/50">
+                {c.mismatch}
+              </th>
+              <th className="px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.1em] text-hesya-navy-900/50">
+                {c.note}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => {
+              const ok = r.mismatchKrw === 0;
+              return (
+                <tr
+                  key={r.channel}
+                  className={[
+                    "border-b border-hesya-peach-50 last:border-b-0",
+                    ok ? "" : "bg-amber-50/40",
+                  ].join(" ")}
+                >
+                  <td className="px-5 py-2.5">
+                    <span className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-hesya-navy-900">
+                      <span
+                        aria-hidden="true"
+                        className="inline-block h-2 w-2 rounded-sm"
+                        style={{ background: CHANNEL_COLORS[r.channel] }}
+                      />
+                      {CHANNEL_LABEL[r.channel]}
+                    </span>
+                  </td>
+                  <td className="py-2.5 text-right font-mono text-[11px] text-hesya-navy-900/85">
+                    ₩{r.providerReportedKrw.toLocaleString("ko")}
+                  </td>
+                  <td className="py-2.5 text-right font-mono text-[11px] text-hesya-navy-900/85">
+                    ₩{r.capturedTotalKrw.toLocaleString("ko")}
+                  </td>
+                  <td
+                    className={[
+                      "py-2.5 text-right font-mono text-[11.5px] font-semibold",
+                      ok ? "text-emerald-700" : "text-amber-700",
+                    ].join(" ")}
+                  >
+                    {ok
+                      ? "—"
+                      : (r.mismatchKrw > 0 ? "+" : "") +
+                        `₩${r.mismatchKrw.toLocaleString("ko")}`}
+                  </td>
+                  <td className="px-5 py-2.5 text-[11px] text-hesya-navy-900/65">
+                    {ok ? labels.settlementMatch : r.note}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+const FUNNEL_TONE: Record<FunnelStep["key"], { bar: string; chip: string }> = {
+  captured: { bar: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-700" },
+  refunded: { bar: "bg-rose-500", chip: "bg-rose-50 text-rose-700" },
+  disputed: { bar: "bg-rose-700", chip: "bg-rose-100 text-rose-800" },
+  failed: { bar: "bg-gray-500", chip: "bg-gray-100 text-gray-700" },
+};
+
+export function PaymentFunnel({
+  steps,
+  labels,
+}: {
+  steps: ReadonlyArray<FunnelStep>;
+  labels: PaymentExtraLabels;
+}) {
+  const max = Math.max(...steps.map((s) => s.count));
+  return (
+    <section
+      data-testid="admin-payment-funnel"
+      className="mb-6 rounded-md border border-gray-200 bg-white p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)]"
+    >
+      <header className="mb-4 flex items-baseline justify-between">
+        <h3 className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-gray-700">
+          {labels.funnelTitle}
+        </h3>
+        <span className="font-mono text-[10.5px] text-hesya-navy-900/55">
+          {labels.funnelSubtitle}
+        </span>
+      </header>
+      <div className="space-y-2.5">
+        {steps.map((s) => {
+          const w = max === 0 ? 0 : (s.count / max) * 100;
+          const tone = FUNNEL_TONE[s.key];
+          const stepLabel = labels.funnelSteps[s.key];
+          return (
+            <div key={s.key}>
+              <div className="mb-1 flex items-baseline justify-between text-[11.5px]">
+                <span
+                  className={[
+                    "rounded-full px-2 py-0.5 text-[10.5px] font-semibold",
+                    tone.chip,
+                  ].join(" ")}
+                >
+                  {stepLabel}
+                </span>
+                <span className="font-mono text-hesya-navy-900/70">
+                  {s.count} · ₩{s.amountKrw.toLocaleString("ko")}
+                </span>
+              </div>
+              <div className="relative h-2 overflow-hidden rounded-full bg-hesya-peach-50">
+                <div
+                  className={[
+                    "absolute inset-y-0 left-0 rounded-full",
+                    tone.bar,
+                  ].join(" ")}
+                  style={{ width: `${w}%` }}
+                />
+              </div>
             </div>
           );
         })}

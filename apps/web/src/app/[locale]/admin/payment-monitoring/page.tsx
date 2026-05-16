@@ -7,12 +7,16 @@ import {
   ChannelMix,
   ChannelStatTiles,
   PaymentAnomalyBand,
+  PaymentFunnel,
+  SettlementReconciliation,
   TransactionTable,
   type PaymentExtraLabels,
 } from "@/features/admin-payments/mock-extras";
 import {
   mockPaymentAnomalies,
+  mockPaymentFunnel,
   mockPaymentStats,
+  mockSettlementReconciliation,
   mockTransactions,
 } from "@/lib/mock-fixtures/admin-payments";
 import { env } from "@/shared/config/env";
@@ -83,6 +87,24 @@ export default async function AdminPaymentMonitoringPage({
     channelStatsSubtitle: t("channelStatsSubtitle"),
     channelStatTxLabel: t("channelStatTxLabel"),
     channelStatNetLabel: t("channelStatNetLabel"),
+    settlementTitle: t("settlementTitle"),
+    settlementSubtitle: t("settlementSubtitle"),
+    settlementCols: {
+      channel: t("settlementCols.channel"),
+      providerReported: t("settlementCols.providerReported"),
+      capturedTotal: t("settlementCols.capturedTotal"),
+      mismatch: t("settlementCols.mismatch"),
+      note: t("settlementCols.note"),
+    },
+    settlementMatch: t("settlementMatch"),
+    funnelTitle: t("funnelTitle"),
+    funnelSubtitle: t("funnelSubtitle"),
+    funnelSteps: {
+      captured: t("funnelSteps.captured"),
+      refunded: t("funnelSteps.refunded"),
+      disputed: t("funnelSteps.disputed"),
+      failed: t("funnelSteps.failed"),
+    },
   };
 
   return (
@@ -176,6 +198,18 @@ export default async function AdminPaymentMonitoringPage({
             />
 
             <ChannelStatTiles rows={mockTransactions} labels={extraLabels} />
+
+            <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-5">
+              <div className="lg:col-span-3">
+                <SettlementReconciliation
+                  rows={mockSettlementReconciliation}
+                  labels={extraLabels}
+                />
+              </div>
+              <div className="lg:col-span-2">
+                <PaymentFunnel steps={mockPaymentFunnel} labels={extraLabels} />
+              </div>
+            </div>
 
             <ChannelMix
               data={mockPaymentStats.channelMix}
