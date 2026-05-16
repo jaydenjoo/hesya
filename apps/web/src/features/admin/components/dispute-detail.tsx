@@ -238,21 +238,41 @@ export function DisputeDetail({ dispute, nowMs }: Props) {
         </ol>
       </section>
 
-      <dl className="space-y-2">
-        <Row k="상태" v={STATUS_LABELS[dispute.status] ?? dispute.status} />
-        <Row
-          k="유형"
-          v={CATEGORY_LABELS[dispute.category] ?? dispute.category}
-        />
-        <Row k="매장 ID" v={dispute.storeId} />
-        <Row k="신고자 user_id" v={dispute.filedByUserId ?? "-"} />
-        <Row k="대화 ID" v={dispute.conversationId ?? "(연결 없음)"} />
-        <Row k="접수일" v={dispute.createdAt.toISOString().slice(0, 19)} />
-        <Row k="SLA 마감" v={dispute.slaDueAt.toISOString().slice(0, 19)} />
-        {dispute.resolvedAt && (
-          <Row k="처리일" v={dispute.resolvedAt.toISOString().slice(0, 19)} />
-        )}
-      </dl>
+      <section className="space-y-3">
+        <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+          §02 · Metadata
+        </p>
+        <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-md border border-hesya-peach-100 bg-hesya-peach-100 text-[12.5px] sm:grid-cols-2">
+          <MetaCell k="매장 ID" v={dispute.storeId} mono />
+          <MetaCell k="신고자 user_id" v={dispute.filedByUserId ?? "—"} mono />
+          <MetaCell
+            k="대화 ID"
+            v={dispute.conversationId ?? "(연결 없음)"}
+            mono={Boolean(dispute.conversationId)}
+            muted={!dispute.conversationId}
+          />
+          <MetaCell
+            k="접수일"
+            v={dispute.createdAt.toISOString().slice(0, 19).replace("T", " ")}
+            mono
+          />
+          <MetaCell
+            k="SLA 마감"
+            v={dispute.slaDueAt.toISOString().slice(0, 19).replace("T", " ")}
+            mono
+          />
+          {dispute.resolvedAt && (
+            <MetaCell
+              k="처리일"
+              v={dispute.resolvedAt
+                .toISOString()
+                .slice(0, 19)
+                .replace("T", " ")}
+              mono
+            />
+          )}
+        </dl>
+      </section>
 
       <section className="space-y-2">
         <h2 className="text-sm font-medium text-hesya-navy-900">신고 내용</h2>
@@ -315,11 +335,31 @@ export function DisputeDetail({ dispute, nowMs }: Props) {
   );
 }
 
-function Row({ k, v }: { k: string; v: string }) {
+function MetaCell({
+  k,
+  v,
+  mono = false,
+  muted = false,
+}: {
+  k: string;
+  v: string;
+  mono?: boolean;
+  muted?: boolean;
+}) {
   return (
-    <div className="flex gap-2">
-      <dt className="w-32 font-medium">{k}</dt>
-      <dd className="break-all">{v}</dd>
+    <div className="flex flex-col gap-1 bg-white px-3 py-2.5">
+      <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/55">
+        {k}
+      </dt>
+      <dd
+        className={[
+          "break-all text-[12.5px]",
+          mono ? "font-mono" : "kr",
+          muted ? "text-hesya-navy-900/45" : "text-hesya-navy-900",
+        ].join(" ")}
+      >
+        {v}
+      </dd>
     </div>
   );
 }
