@@ -160,19 +160,60 @@ function FAQRow({ faq, onEdit }: { faq: FAQItem; onEdit: () => void }) {
   }
 
   return (
-    <li className="kr rounded-lg border border-hesya-peach-200 bg-white p-4">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <p className="break-keep font-semibold text-hesya-navy-900">
-            Q. {faq.question}
-          </p>
-          <p className="mt-1 break-keep text-sm leading-[1.65] text-gray-700">
-            A. {faq.answer}
-          </p>
+    <li
+      className={[
+        "kr rounded-lg border bg-white p-4 transition-colors",
+        faq.hasEmbedding
+          ? "border-hesya-peach-200"
+          : "border-amber-200 bg-amber-50/30",
+      ].join(" ")}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="flex items-baseline gap-2">
+            <span
+              aria-hidden="true"
+              className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-hesya-amber-500/10 font-mono text-[10.5px] font-bold text-hesya-amber-600"
+            >
+              Q
+            </span>
+            <p className="break-keep text-[14px] font-semibold leading-[1.5] text-hesya-navy-900">
+              {faq.question}
+            </p>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span
+              aria-hidden="true"
+              className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 font-mono text-[10.5px] font-bold text-emerald-700"
+            >
+              A
+            </span>
+            <p className="break-keep text-[13px] leading-[1.65] text-gray-700">
+              {faq.answer}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <span
+              className={[
+                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold",
+                faq.hasEmbedding
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-amber-100 text-amber-700",
+              ].join(" ")}
+            >
+              <span
+                aria-hidden="true"
+                className={`inline-block h-1.5 w-1.5 rounded-full ${faq.hasEmbedding ? "bg-emerald-500" : "bg-amber-500"}`}
+              />
+              {faq.hasEmbedding ? "AI 검색 준비" : "임베딩 미생성"}
+            </span>
+            <span className="font-mono text-[10px] text-hesya-navy-900/45">
+              {faq.updatedAt.toISOString().slice(0, 10)}
+            </span>
+          </div>
           {!faq.hasEmbedding ? (
-            <p className="mt-2 text-xs text-hesya-amber-600">
-              <span aria-hidden="true">⚠️ </span>
-              임베딩 미생성 — 검색에 노출되지 않습니다. 수정 시 재생성 시도.
+            <p className="text-[11px] text-amber-700 [word-break:keep-all]">
+              검색에 노출되지 않습니다. 수정 시 재생성 시도.
             </p>
           ) : null}
         </div>
