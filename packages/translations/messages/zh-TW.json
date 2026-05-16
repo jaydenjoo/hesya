@@ -767,7 +767,16 @@
     "tabTags": "標籤",
     "profileExternalId": "外部 ID",
     "historyPlaceholder": "預約紀錄即將推出 (M4.x)",
-    "tagsPlaceholder": "標籤 / 分組即將推出 (M5.x)"
+    "tagsPlaceholder": "標籤 / 分組即將推出 (M5.x)",
+    "kpiVisitsLabel": "總來訪",
+    "kpiVisitsUnit": "次",
+    "kpiLtvLabel": "總消費",
+    "kpiLtvUnit": "萬",
+    "kpiLtvFootAvg": "平均每次 ₩{avg}萬",
+    "kpiLastLabel": "最近來訪",
+    "kpiLastFootPlaceholder": "預約串接時顯示",
+    "kpiNextLabel": "下次預約",
+    "kpiNextFootEmpty": "暫無預約"
   },
   "StoreSettings": {
     "title": "店家設定",

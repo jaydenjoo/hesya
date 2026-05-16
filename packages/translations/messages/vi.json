@@ -767,7 +767,16 @@
     "tabTags": "Thẻ",
     "profileExternalId": "ID bên ngoài",
     "historyPlaceholder": "Lịch sử đặt lịch sắp có (M4.x)",
-    "tagsPlaceholder": "Thẻ / phân khúc sắp có (M5.x)"
+    "tagsPlaceholder": "Thẻ / phân khúc sắp có (M5.x)",
+    "kpiVisitsLabel": "Tổng lượt",
+    "kpiVisitsUnit": "",
+    "kpiLtvLabel": "Tổng chi tiêu",
+    "kpiLtvUnit": "·10K",
+    "kpiLtvFootAvg": "TB ₩{avg}·10K mỗi lần",
+    "kpiLastLabel": "Lần cuối",
+    "kpiLastFootPlaceholder": "Hiển thị khi liên kết lịch hẹn",
+    "kpiNextLabel": "Lịch tiếp theo",
+    "kpiNextFootEmpty": "Chưa có lịch"
   },
   "StoreSettings": {
     "title": "Cài đặt cửa hàng",

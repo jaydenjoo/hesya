@@ -767,7 +767,16 @@
     "tabTags": "태그",
     "profileExternalId": "외부 ID",
     "historyPlaceholder": "예약 기록은 곧 제공됩니다 (M4.x)",
-    "tagsPlaceholder": "태그 / 세그먼트는 곧 제공됩니다 (M5.x)"
+    "tagsPlaceholder": "태그 / 세그먼트는 곧 제공됩니다 (M5.x)",
+    "kpiVisitsLabel": "총 방문",
+    "kpiVisitsUnit": "회",
+    "kpiLtvLabel": "총 결제",
+    "kpiLtvUnit": "만",
+    "kpiLtvFootAvg": "건당 평균 ₩{avg}만",
+    "kpiLastLabel": "최근 방문",
+    "kpiLastFootPlaceholder": "예약 통합 시 표시",
+    "kpiNextLabel": "다음 예약",
+    "kpiNextFootEmpty": "예약 없음"
   },
   "StoreSettings": {
     "title": "매장 설정",

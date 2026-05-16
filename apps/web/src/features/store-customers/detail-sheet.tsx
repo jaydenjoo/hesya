@@ -39,6 +39,15 @@ export interface DetailSheetLabels {
   readonly tagsPlaceholder: string;
   readonly unknownName: string;
   readonly emptyDash: string;
+  readonly kpiVisitsLabel: string;
+  readonly kpiVisitsUnit: string;
+  readonly kpiLtvLabel: string;
+  readonly kpiLtvUnit: string;
+  readonly kpiLtvFootAvg: string;
+  readonly kpiLastLabel: string;
+  readonly kpiLastFootPlaceholder: string;
+  readonly kpiNextLabel: string;
+  readonly kpiNextFootEmpty: string;
 }
 
 interface Props {
@@ -155,6 +164,8 @@ function DetailSheetInner({
           ✕
         </button>
       </header>
+
+      <KpiStrip row={row} labels={labels} />
 
       <nav className="flex gap-1 border-b border-hesya-peach-200 px-3 pt-1.5">
         {TABS.map((t) => {
@@ -309,6 +320,93 @@ function DetailSheetInner({
         className="absolute inset-0 bg-hesya-navy-900/40 backdrop-blur-sm"
       />
       {inner}
+    </div>
+  );
+}
+
+function KpiStrip({
+  row,
+  labels,
+}: {
+  row: CustomerRow;
+  labels: DetailSheetLabels;
+}) {
+  const visits = row.totalVisits ?? 0;
+  const ltvKrw = row.ltvKrw ?? 0;
+  const avgPerVisit =
+    visits > 0 && ltvKrw > 0 ? (ltvKrw / visits / 10000).toFixed(1) : null;
+  const ltvMan = ltvKrw > 0 ? Math.round(ltvKrw / 10000).toLocaleString() : "0";
+
+  return (
+    <div
+      className="grid grid-cols-4 gap-px border-b border-hesya-peach-200 bg-hesya-peach-200"
+      role="group"
+      aria-label={`${labels.kpiVisitsLabel} · ${labels.kpiLtvLabel} · ${labels.kpiLastLabel} · ${labels.kpiNextLabel}`}
+    >
+      <KpiCell
+        label={labels.kpiVisitsLabel}
+        value={String(visits)}
+        unit={labels.kpiVisitsUnit}
+        foot={labels.emptyDash}
+      />
+      <KpiCell
+        label={labels.kpiLtvLabel}
+        value={`₩${ltvMan}`}
+        unit={labels.kpiLtvUnit}
+        foot={
+          avgPerVisit
+            ? labels.kpiLtvFootAvg.replace("{avg}", avgPerVisit)
+            : labels.emptyDash
+        }
+      />
+      <KpiCell
+        label={labels.kpiLastLabel}
+        value={labels.emptyDash}
+        small
+        foot={labels.kpiLastFootPlaceholder}
+      />
+      <KpiCell
+        label={labels.kpiNextLabel}
+        value={labels.emptyDash}
+        small
+        foot={labels.kpiNextFootEmpty}
+      />
+    </div>
+  );
+}
+
+function KpiCell({
+  label,
+  value,
+  unit,
+  foot,
+  small,
+}: {
+  label: string;
+  value: string;
+  unit?: string;
+  foot: string;
+  small?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-1 bg-white px-3.5 py-3">
+      <div className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-hesya-navy-900/55">
+        {label}
+      </div>
+      <div
+        className={[
+          "font-heading font-medium leading-[1.1] tracking-tight text-hesya-navy-900",
+          small ? "text-[18px]" : "text-[22px]",
+        ].join(" ")}
+      >
+        {value}
+        {unit ? (
+          <span className="ml-0.5 font-body text-[12px] text-hesya-navy-900/55">
+            {unit}
+          </span>
+        ) : null}
+      </div>
+      <div className="text-[10.5px] text-hesya-navy-900/55">{foot}</div>
     </div>
   );
 }

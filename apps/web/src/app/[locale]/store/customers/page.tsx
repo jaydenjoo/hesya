@@ -105,6 +105,15 @@ export default async function StoreCustomersPage({
               tagsPlaceholder: t("tagsPlaceholder"),
               unknownName: t("unknownName"),
               emptyDash: t("emptyDash"),
+              kpiVisitsLabel: t("kpiVisitsLabel"),
+              kpiVisitsUnit: t("kpiVisitsUnit"),
+              kpiLtvLabel: t("kpiLtvLabel"),
+              kpiLtvUnit: t("kpiLtvUnit"),
+              kpiLtvFootAvg: t("kpiLtvFootAvg"),
+              kpiLastLabel: t("kpiLastLabel"),
+              kpiLastFootPlaceholder: t("kpiLastFootPlaceholder"),
+              kpiNextLabel: t("kpiNextLabel"),
+              kpiNextFootEmpty: t("kpiNextFootEmpty"),
             },
           }}
         />
