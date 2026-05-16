@@ -30,7 +30,6 @@ const stubs: Record<string, string> = {
   NEXT_PUBLIC_POSTHOG_HOST: "https://us.posthog.com",
   KOREA_NTS_API_KEY: "stub-nts-key-aaaaaaaaaaaaaaaaaa",
   KOREA_LOCALDATA_API_KEY: "stub-localdata-key-aaaaaaaaaaaaaaaaaa",
-  ADMIN_EMAILS: "test@example.com",
   CRON_SECRET: "stub-cron-secret-aaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   RESEND_API_KEY: "re_stub",
   RESEND_FROM_EMAIL: "test@example.com",

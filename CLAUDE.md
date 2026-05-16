@@ -35,7 +35,7 @@ pnpm --filter @hesya/web build        # 경고 0건 목표
 ## App Routes & Middleware
 
 - **`app/[locale]/`** — 다국어 routing (next-intl)
-  - `admin/{kyc-test, store-reports}` — 운영자 (`requireAdminEmail` 가드)
+  - `admin/{kyc-test, store-reports}` — 운영자 (`requireAdminRole` 가드, `users.role='admin'`)
   - `sign-in/` — 로그인
   - `store/` — 매장 owner UI
   - `design-system/` — 디자인 토큰 데모
@@ -47,12 +47,12 @@ pnpm --filter @hesya/web build        # 경고 0건 목표
 
 ### Auth Guards (2종 — 신규 만들기 전 표 확인)
 
-| 함수                         | 파일                                           | 상태 / 용도                                                                    |
-| ---------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------ |
-| ✅ `requireAdminEmail()`     | `apps/web/src/shared/lib/admin-guard.ts`       | `ADMIN_EMAILS` env 화이트리스트 (Better Auth session). KYC actions 8군데+ 사용 |
-| ✅ `requireStoreOwnerAuth()` | `apps/web/src/shared/lib/store-owner-guard.ts` | 매장 owner (`store_owners` 테이블 join)                                        |
+| 함수                         | 파일                                           | 상태 / 용도                                                           |
+| ---------------------------- | ---------------------------------------------- | --------------------------------------------------------------------- |
+| ✅ `requireAdminRole()`      | `apps/web/src/shared/lib/admin-role-guard.ts`  | DB `users.role='admin'` (마이그 0030). γ.2 마이그 완료 — 18 callsites |
+| ✅ `requireStoreOwnerAuth()` | `apps/web/src/shared/lib/store-owner-guard.ts` | 매장 owner (`store_owners` 테이블 join)                               |
 
-> 과거 `auth-guard.ts` (`requireAuth` / `requireAdmin` stub)는 사용처 0건의 미구현 코드라 2026-05-08 Phase 1-γ.0 fix #2로 삭제됨. 정식 Better Auth 가드는 Epic 12 admin panel 도입 시 `admin-guard.ts` 진화 또는 신규 파일로 추가.
+> 과거 두 stub은 모두 삭제됨: `auth-guard.ts` (`requireAuth` / `requireAdmin`) 2026-05-08 Phase 1-γ.0 fix #2, `admin-guard.ts` (`requireAdminEmail` + `ADMIN_EMAILS` env) 세션 45 γ.2 마이그 완료 후 cleanup PR. 신규 admin 가드 도입은 `admin-role-guard.ts`처럼 명시적 명명으로 새 파일에 작성 (`auth-guard.ts` / `admin-guard.ts` 이름은 stub 트라우마로 재사용 금지).
 >
 > **신규 가드/인증 함수 만들기 전 의무**: `grep -rn "guard\|require" apps/web/src/shared/lib/`
 
@@ -112,10 +112,10 @@ pnpm --filter @hesya/web build        # 경고 0건 목표
 - ❌ `pnpm --filter @hesya/database db:generate` 실행 = **위험**. conversations/store_integrations 등 manual 마이그 테이블을 다시 만들려 시도. → `packages/database/CLAUDE.md` 절차 따르기.
 - ❌ `app/(admin)/` route group을 `[locale]` **밖**에 만들면 i18n과 충돌. admin은 `app/[locale]/admin/<sub>/` 안에.
 - ❌ DAL을 `apps/web/src/lib/dal/`에 새로 만들면 중복. 기존 `apps/web/src/shared/lib/dal/` 사용.
-- ⚠️ `requireAdminEmail`은 임시 솔루션 (kyc/actions.ts 주석: _"Epic 12 admin panel 도입 시 정식 owner guard로 교체"_). ADMIN_EMAILS env는 첫 운영자 1~2명용.
+- ✅ `requireAdminRole` (마이그 0030 `users.role` 컬럼) — 세션 45 γ.2 마이그 완료 후 `requireAdminEmail` + `ADMIN_EMAILS` env 삭제됨. admin promotion = SQL `UPDATE users SET role='admin' WHERE email=...`.
 - ⚠️ Next.js 16에서 `middleware.ts` 만들면 무시됨. `proxy.ts`가 middleware 자리.
 - ✅ **rate-limit.ts** — `@upstash/ratelimit` sliding window (Upstash Redis `hesya-rate-limit-prod`, Tokyo, Free tier 500K/월). prefix `hesya:rl`. env: `UPSTASH_REDIS_KV_REST_API_URL/TOKEN`. 2026-05-08 Phase 1-γ.0 fix #1로 in-memory Map → 분산 Redis 교체 완료.
-- ✅ **`sign-in/page.tsx`는 정식 페이지** — Hesya Store Login 디자인 적용 (brand panel + form panel + Google OAuth + trust badges + locale selector 6 locale). Plan v3 M1.4 (2026-05-11)에서 locale selector 활성화 + "임시 검증" 표기 정정 완료. admin/store 별도 분리는 보류 (현재 동일 페이지 + ADMIN_EMAILS 분기로 충분).
+- ✅ **`sign-in/page.tsx`는 정식 페이지** — Hesya Store Login 디자인 적용 (brand panel + form panel + Google OAuth + trust badges + locale selector 6 locale). Plan v3 M1.4 (2026-05-11)에서 locale selector 활성화 + "임시 검증" 표기 정정 완료. admin/store 별도 분리는 보류 (현재 동일 페이지 + `requireAdminRole` 분기로 충분).
 - ⚠️ **PROGRESS 자기평가는 e2e 시연 기준** (L-082) — 코드 머지 완료 ≠ 시연 가능. 새 기능 plan 시 시연 prerequisite 검증 의무.
 
 ## Documents
