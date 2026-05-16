@@ -10,6 +10,14 @@ vi.mock("@/shared/lib/dal/stores", () => ({
   approveStore: vi.fn(async () => undefined),
 }));
 
+vi.mock("@/shared/lib/dal/store-owners", () => ({
+  findOwnerNotifyTargetByStoreId: vi.fn(),
+}));
+
+vi.mock("@/lib/notifications/kyc-result", () => ({
+  sendKycNotification: vi.fn(async () => undefined),
+}));
+
 vi.mock("@hesya/database", () => ({
   createDbClient: vi.fn(() => ({})),
 }));
@@ -17,6 +25,8 @@ vi.mock("@hesya/database", () => ({
 import { approveStoreKyc } from "./approve-store-kyc";
 import { requireAdminEmail } from "@/shared/lib/admin-guard";
 import { approveStore } from "@/shared/lib/dal/stores";
+import { findOwnerNotifyTargetByStoreId } from "@/shared/lib/dal/store-owners";
+import { sendKycNotification } from "@/lib/notifications/kyc-result";
 import { revalidatePath } from "next/cache";
 
 describe("approveStoreKyc", () => {
@@ -41,6 +51,7 @@ describe("approveStoreKyc", () => {
     expect(result.error).toBe("forbidden");
     expect(approveStore).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(sendKycNotification).not.toHaveBeenCalled();
   });
 
   it("happy path → approveStore 호출 + revalidatePath 호출 + ok=true", async () => {
@@ -48,6 +59,11 @@ describe("approveStoreKyc", () => {
       ok: true,
       userId: "admin-1",
       email: "admin@example.com",
+    });
+    vi.mocked(findOwnerNotifyTargetByStoreId).mockResolvedValue({
+      userId: "owner-1",
+      email: "owner@example.com",
+      storeName: "청담미용실",
     });
 
     const result = await approveStoreKyc({
@@ -63,5 +79,81 @@ describe("approveStoreKyc", () => {
       reviewerId: "admin-1",
     });
     expect(revalidatePath).toHaveBeenCalledWith("/admin/store-verifications");
+  });
+
+  it("happy path → owner email 조회 후 manual_approved 알림 발송 (Phase 1-γ.1)", async () => {
+    vi.mocked(requireAdminEmail).mockResolvedValue({
+      ok: true,
+      userId: "admin-1",
+      email: "admin@example.com",
+    });
+    vi.mocked(findOwnerNotifyTargetByStoreId).mockResolvedValue({
+      userId: "owner-1",
+      email: "owner@example.com",
+      storeName: "청담미용실",
+    });
+
+    await approveStoreKyc({
+      storeId: "store-uuid",
+      verificationId: "verif-uuid",
+    });
+
+    expect(findOwnerNotifyTargetByStoreId).toHaveBeenCalledWith(
+      expect.anything(),
+      "store-uuid",
+    );
+    expect(sendKycNotification).toHaveBeenCalledTimes(1);
+    expect(sendKycNotification).toHaveBeenCalledWith({
+      kind: "manual_approved",
+      to: "owner@example.com",
+      storeName: "청담미용실",
+      locale: "ko",
+    });
+  });
+
+  it("owner 없는 매장 → 알림 skip + 승인은 ok=true (graceful)", async () => {
+    vi.mocked(requireAdminEmail).mockResolvedValue({
+      ok: true,
+      userId: "admin-1",
+      email: "admin@example.com",
+    });
+    vi.mocked(findOwnerNotifyTargetByStoreId).mockResolvedValue(null);
+
+    const result = await approveStoreKyc({
+      storeId: "no-owner-store",
+      verificationId: "verif-uuid",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(sendKycNotification).not.toHaveBeenCalled();
+  });
+
+  it("알림 발송 실패 → 승인은 ok=true (silent error, KYC 결과 우선)", async () => {
+    vi.mocked(requireAdminEmail).mockResolvedValue({
+      ok: true,
+      userId: "admin-1",
+      email: "admin@example.com",
+    });
+    vi.mocked(findOwnerNotifyTargetByStoreId).mockResolvedValue({
+      userId: "owner-1",
+      email: "owner@example.com",
+      storeName: "청담미용실",
+    });
+    vi.mocked(sendKycNotification).mockRejectedValueOnce(
+      new Error("Resend down"),
+    );
+    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await approveStoreKyc({
+      storeId: "store-uuid",
+      verificationId: "verif-uuid",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(errSpy).toHaveBeenCalledWith(
+      expect.stringContaining("owner notify failed"),
+      expect.any(Error),
+    );
+    errSpy.mockRestore();
   });
 });

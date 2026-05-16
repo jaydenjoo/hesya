@@ -1,26 +1,25 @@
 /**
- * E9-9 + E9-13 KYC 결과 알림 (다국어 + actionable rejection).
+ * E9-9 + E9-13 + Phase 1-γ.1 KYC 결과 알림 (다국어 + actionable rejection).
  *
- * PRD § 5.4 KYC 5단계 흐름의 결정 시점 3종에 매장 사장에게 이메일 발송:
+ * PRD § 5.4 KYC 5단계 흐름의 결정 시점 5종에 매장 사장에게 이메일 발송:
  *   - auto_rejected_nts: Step 1 NTS 진위확인 실패 (사업자번호/대표자명 mismatch)
  *   - auto_approved: 5단계 모두 통과 → K-Verified 골드 뱃지 부여
- *   - manual_review_queued: 일부 단계 fail / 매칭 점수 < 임계값 (Epic 12 admin 큐)
+ *   - manual_review_queued: 일부 단계 fail / 매칭 점수 < 임계값 (admin 매뉴얼 큐)
+ *   - manual_approved: admin 매뉴얼 검토 통과 → K-Verified 골드 뱃지 부여
+ *   - manual_rejected: admin 매뉴얼 검토 최종 거절 (사유·재신청 URL 포함)
  *
- * `manual_rejected` (admin 큐 최종 거절)는 Epic 12 admin panel 시점에 추가 —
- * 지금 호출처 없어 미정의 (4원칙 2번 dead code 회피).
- *
- * E9-13: rejection kind에 한해 재신청 URL + FAQ URL을 본문에 직접 포함해 외국인
- * 사장님이 즉시 다음 행동을 취할 수 있게 함. DECISIONS § 1.11 (TTS는 모듈 4
- * Phase 1.5 통합) 정합 — 이번엔 텍스트 + URL만.
+ * E9-13 + Phase 1-γ.1: rejection kind(`auto_rejected_nts`, `manual_rejected`)에
+ * 한해 재신청 URL + FAQ URL을 본문에 직접 포함해 외국인 사장님이 즉시 다음
+ * 행동을 취할 수 있게 함. DECISIONS § 1.11 (TTS는 모듈 4 Phase 1.5 통합) 정합.
  *
  * 발송: Resend Free 3K/월 (DECISIONS § 1.5). 실패 시 console.error만 — Server
  * Action 응답에 영향 없음 (KYC 결과는 정상 반환되어야 함).
  *
- * 수신자: 현재 admin 가드라 admin 본인 email로 임시 발송. Epic 12 매장 owner
- * 가드 도입 시 매장 사장 email로 자연 교체 (signature 변경 없음).
+ * 수신자: Phase 1-γ.1부터 매장 owner email (store_owners DAL → users 조회).
+ * Epic 12 admin role guard 도입 후에도 signature 동일.
  *
  * Locale 메시지는 in-line map (next-intl `getTranslations`는 RSC context 의존
- * → server action·cron route 양쪽에서 일관 사용 어려움. 3 kind × 6 locale = 18
+ * → server action·cron route 양쪽에서 일관 사용 어려움. 5 kind × 6 locale = 30
  * 짧은 string은 in-line이 충분).
  */
 import "server-only";
@@ -31,6 +30,8 @@ export const KYC_RESULT_KINDS = [
   "auto_rejected_nts",
   "auto_approved",
   "manual_review_queued",
+  "manual_approved",
+  "manual_rejected",
 ] as const;
 export type KycResultKind = (typeof KYC_RESULT_KINDS)[number];
 
@@ -157,6 +158,16 @@ const MESSAGES: Record<Locale, Templates> = {
       body: (s, r, labels) =>
         `안녕하세요. ${s} 매장의 KYC 자동 검증에서 일부 단계가 자동 통과 임계값에 도달하지 못해 운영팀 매뉴얼 검토 큐로 이동되었습니다.\n\n${formatSummaryLine(r, labels)}1~2영업일 내 검토 결과를 알려드립니다.\n\n- ${labels.ops}`,
     },
+    manual_approved: {
+      subject: (s) => `[Hesya] ${s} 운영팀 검토 승인 — K-Verified 매장`,
+      body: (s, _r, labels) =>
+        `안녕하세요. ${s} 매장의 KYC 매뉴얼 검토 결과, 운영팀이 승인 처리했습니다.\n\n축하합니다 — 한국 정부 검증 완료 매장(K-Verified)으로 등록되어 외국인 손님이 보는 모든 진입점에 골드 뱃지가 노출됩니다.\n\n다음 단계: 디자이너 등록 → 채널 연동 → 결제 수단 등록 → 베타 출시.\n\n- ${labels.ops}`,
+    },
+    manual_rejected: {
+      subject: (s) => `[Hesya] ${s} 가입 거절 — 운영팀 매뉴얼 검토 결과`,
+      body: (s, r, labels) =>
+        `안녕하세요. ${s} 매장의 KYC 매뉴얼 검토 결과, 운영팀이 가입을 거절했습니다.\n\n${formatRejectionLines(r, labels)}정보를 확인하신 후 다시 신청해주세요.\n\n- ${labels.ops}`,
+    },
   },
   en: {
     auto_rejected_nts: {
@@ -176,6 +187,17 @@ const MESSAGES: Record<Locale, Templates> = {
       body: (s, r, labels) =>
         `Hello. Some steps of ${s}'s KYC automated verification did not reach the auto-approval threshold and have been moved to the operations team's manual review queue.\n\n${formatSummaryLine(r, labels)}You will be notified of the result within 1-2 business days.\n\n- ${labels.ops}`,
     },
+    manual_approved: {
+      subject: (s) => `[Hesya] ${s} approved by operations — K-Verified store`,
+      body: (s, _r, labels) =>
+        `Hello. ${s}'s KYC was reviewed by the Hesya operations team and approved.\n\nCongratulations — your store is now registered as a Korea Government-Verified (K-Verified) store and the gold badge will be displayed on all foreign-customer touchpoints.\n\nNext steps: register designers, connect channels, set up payment methods, launch beta.\n\n- ${labels.ops}`,
+    },
+    manual_rejected: {
+      subject: (s) =>
+        `[Hesya] ${s} registration rejected — operations team review`,
+      body: (s, r, labels) =>
+        `Hello. ${s}'s KYC was reviewed by the Hesya operations team and the application was rejected.\n\n${formatRejectionLines(r, labels)}Please check the information and re-apply.\n\n- ${labels.ops}`,
+    },
   },
   ja: {
     auto_rejected_nts: {
@@ -192,6 +214,16 @@ const MESSAGES: Record<Locale, Templates> = {
       subject: (s) => `[Hesya] ${s} KYC 手動レビュー中 (1〜2営業日)`,
       body: (s, r, labels) =>
         `${s} 店舗のKYC自動検証の一部段階が自動承認基準に達しなかったため、運営チームの手動レビューキューに移動されました。\n\n${formatSummaryLine(r, labels)}1〜2営業日以内にレビュー結果をお知らせします。\n\n- ${labels.ops}`,
+    },
+    manual_approved: {
+      subject: (s) => `[Hesya] ${s} 運営チーム承認完了 — K-Verified 店舗`,
+      body: (s, _r, labels) =>
+        `${s} 店舗のKYCを Hesya 運営チームが手動でレビューし、承認しました。\n\nおめでとうございます — 韓国政府検証完了店舗(K-Verified)として登録され、外国人のお客様が見るすべてのタッチポイントにゴールドバッジが表示されます。\n\n次のステップ: デザイナー登録 → チャンネル連携 → 決済手段登録 → ベータ公開。\n\n- ${labels.ops}`,
+    },
+    manual_rejected: {
+      subject: (s) => `[Hesya] ${s} 登録却下 — 運営チーム手動レビュー結果`,
+      body: (s, r, labels) =>
+        `${s} 店舗のKYCを Hesya 運営チームが手動でレビューし、申請を却下しました。\n\n${formatRejectionLines(r, labels)}情報を確認の上、再度申請してください。\n\n- ${labels.ops}`,
     },
   },
   "zh-CN": {
@@ -210,6 +242,16 @@ const MESSAGES: Record<Locale, Templates> = {
       body: (s, r, labels) =>
         `您好。${s} 店铺的 KYC 自动验证部分阶段未达到自动审核标准,已转入运营团队人工审核队列。\n\n${formatSummaryLine(r, labels)}1-2 个工作日内将告知审核结果。\n\n- ${labels.ops}`,
     },
+    manual_approved: {
+      subject: (s) => `[Hesya] ${s} 运营团队审核通过 — K-Verified 认证店铺`,
+      body: (s, _r, labels) =>
+        `您好。${s} 店铺的 KYC 经 Hesya 运营团队人工审核后已通过。\n\n恭喜 — 您的店铺已注册为韩国政府认证店铺(K-Verified),金色徽章将在所有外国顾客可见的入口显示。\n\n下一步: 注册设计师 → 连接渠道 → 设置支付方式 → 测试上线。\n\n- ${labels.ops}`,
+    },
+    manual_rejected: {
+      subject: (s) => `[Hesya] ${s} 注册被拒绝 — 运营团队人工审核结果`,
+      body: (s, r, labels) =>
+        `您好。${s} 店铺的 KYC 经 Hesya 运营团队人工审核后被拒绝。\n\n${formatRejectionLines(r, labels)}请确认信息后重新申请。\n\n- ${labels.ops}`,
+    },
   },
   "zh-TW": {
     auto_rejected_nts: {
@@ -226,6 +268,16 @@ const MESSAGES: Record<Locale, Templates> = {
       subject: (s) => `[Hesya] ${s} KYC 人工審核中 (1-2 個工作天)`,
       body: (s, r, labels) =>
         `您好。${s} 店鋪的 KYC 自動驗證部分階段未達到自動審核標準,已轉入營運團隊人工審核佇列。\n\n${formatSummaryLine(r, labels)}1-2 個工作天內將告知審核結果。\n\n- ${labels.ops}`,
+    },
+    manual_approved: {
+      subject: (s) => `[Hesya] ${s} 營運團隊審核通過 — K-Verified 認證店鋪`,
+      body: (s, _r, labels) =>
+        `您好。${s} 店鋪的 KYC 經 Hesya 營運團隊人工審核後已通過。\n\n恭喜 — 您的店鋪已註冊為韓國政府認證店鋪(K-Verified),金色徽章將在所有外國顧客可見的入口顯示。\n\n下一步: 註冊設計師 → 連接管道 → 設定支付方式 → 測試上線。\n\n- ${labels.ops}`,
+    },
+    manual_rejected: {
+      subject: (s) => `[Hesya] ${s} 註冊被拒絕 — 營運團隊人工審核結果`,
+      body: (s, r, labels) =>
+        `您好。${s} 店鋪的 KYC 經 Hesya 營運團隊人工審核後被拒絕。\n\n${formatRejectionLines(r, labels)}請確認資訊後重新申請。\n\n- ${labels.ops}`,
     },
   },
   vi: {
@@ -245,6 +297,18 @@ const MESSAGES: Record<Locale, Templates> = {
         `[Hesya] ${s} KYC đang trong quá trình xét duyệt thủ công (1-2 ngày làm việc)`,
       body: (s, r, labels) =>
         `Xin chào. Một số bước trong xác minh KYC tự động của ${s} không đạt ngưỡng phê duyệt tự động và đã được chuyển vào hàng đợi xét duyệt thủ công của đội ngũ vận hành.\n\n${formatSummaryLine(r, labels)}Bạn sẽ được thông báo kết quả trong vòng 1-2 ngày làm việc.\n\n- ${labels.ops}`,
+    },
+    manual_approved: {
+      subject: (s) =>
+        `[Hesya] ${s} được đội ngũ vận hành phê duyệt — Cửa hàng K-Verified`,
+      body: (s, _r, labels) =>
+        `Xin chào. KYC của ${s} đã được đội ngũ vận hành Hesya xét duyệt thủ công và phê duyệt.\n\nXin chúc mừng — cửa hàng của bạn đã được đăng ký là cửa hàng được chính phủ Hàn Quốc xác minh (K-Verified) và huy hiệu vàng sẽ được hiển thị trên tất cả các điểm tiếp xúc với khách hàng nước ngoài.\n\nBước tiếp theo: đăng ký nhà tạo mẫu → kết nối kênh → thiết lập phương thức thanh toán → ra mắt thử nghiệm.\n\n- ${labels.ops}`,
+    },
+    manual_rejected: {
+      subject: (s) =>
+        `[Hesya] ${s} đăng ký bị từ chối — Đội ngũ vận hành xét duyệt thủ công`,
+      body: (s, r, labels) =>
+        `Xin chào. KYC của ${s} đã được đội ngũ vận hành Hesya xét duyệt thủ công và đơn đăng ký đã bị từ chối.\n\n${formatRejectionLines(r, labels)}Vui lòng kiểm tra thông tin và đăng ký lại.\n\n- ${labels.ops}`,
     },
   },
 };
