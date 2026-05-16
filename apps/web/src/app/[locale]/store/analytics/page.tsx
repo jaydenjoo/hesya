@@ -479,29 +479,48 @@ function RankList({
   countLabel: string;
   emptyLabel: string;
 }) {
+  const maxRevenue = items.reduce((a, b) => Math.max(a, b.revenueKrw), 1);
   return (
     <article className="rounded-2xl border border-hesya-peach-100 bg-white p-5 shadow-[0_2px_8px_rgba(26,34,56,0.04),0_4px_16px_rgba(26,34,56,0.06)]">
       <h2 className="mb-3 font-semibold text-[14px] text-hesya-navy-900">
         {title}
       </h2>
-      <ol className="space-y-2">
-        {items.map((item, idx) => (
-          <li
-            key={`${item.name}-${idx}`}
-            className="flex items-center justify-between text-[12px]"
-          >
-            <span className="flex items-center gap-2 text-hesya-navy-900">
-              <span className="font-mono text-[10px] text-hesya-amber-600">
-                #{idx + 1}
-              </span>
-              {item.name}
-            </span>
-            <span className="font-mono text-[11px] text-hesya-navy-900/70">
-              {item.count}
-              {countLabel} · ₩{item.revenueKrw.toLocaleString("ko-KR")}
-            </span>
-          </li>
-        ))}
+      <ol className="space-y-2.5">
+        {items.map((item, idx) => {
+          const pct = (item.revenueKrw / maxRevenue) * 100;
+          const lead = idx === 0;
+          return (
+            <li key={`${item.name}-${idx}`} className="space-y-1">
+              <div className="flex items-center justify-between text-[12px]">
+                <span className="flex items-center gap-2 text-hesya-navy-900">
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full font-mono text-[10px] font-semibold tabular-nums ${
+                      lead
+                        ? "bg-hesya-amber-500 text-white"
+                        : "bg-hesya-peach-100 text-hesya-amber-600"
+                    }`}
+                  >
+                    {idx + 1}
+                  </span>
+                  {item.name}
+                </span>
+                <span className="font-mono text-[11px] text-hesya-navy-900/70 tabular-nums">
+                  {item.count}
+                  {countLabel} · ₩{item.revenueKrw.toLocaleString("ko-KR")}
+                </span>
+              </div>
+              <div
+                aria-hidden="true"
+                className="h-1 overflow-hidden rounded-full bg-hesya-peach-50"
+              >
+                <div
+                  className={`h-full ${lead ? "bg-hesya-amber-500" : "bg-hesya-amber-500/55"}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </li>
+          );
+        })}
         {items.length === 0 && (
           <li className="text-[12px] text-hesya-navy-900/40">{emptyLabel}</li>
         )}
