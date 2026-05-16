@@ -3,7 +3,12 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-16 세션 43 — 🎯 세션 42 잔여 #253 mop-up + P0 잔여 큰 구조 15 PR, 누적 53 PR — round 5 in flight)
+## 현재 위치 (2026-05-16 세션 43 — 🎯 세션 42 잔여 #253 mop-up + P0 잔여 큰 구조 18 PR, 누적 56 PR — round 6 in flight)
+
+- **세션 43 라운드 6 (3 PR 추가 — admin/owner detail header 정합)**:
+  - PR [#269](https://github.com/jaydenjoo/hesya/pull/269) — **Owner Integrations 메시지 채널 5-card overview**. 기존 booking provider 2개 (Naver/Kakao) 아래에 5 messaging 채널 (Instagram READY 녹색 + WhatsApp/Kakao/LINE/Messenger 준비 중) section 추가. divider + display heading + 각 카드 → /store/inbox/connect 링크. KR 라벨 hardcoded (Inbox.multiChannel 라벨과 중복 회피). **진단 ~50% → ~70%**.
+  - PR [#270](https://github.com/jaydenjoo/hesya/pull/270) — **Admin Dispute Detail status header + 3-step timeline**. status pill (rounded-full + dot + tone) + category pill + SLA 마감 large mono D-N + 3-step timeline (접수→검토→처리, done emerald / current amber w/ ring / todo gray). 기존 dl + form additive. nowMs server-injected. **진단 ~35% → ~58%**.
+  - PR [#271](https://github.com/jaydenjoo/hesya/pull/271) — **Admin KYC Verification Detail header + 3 declaration pills**. KYC eyebrow + store name display + 사업자번호·대표 + 종합 chip (emerald 3 OK / gray 미완료 / red 위반 의심) + 3-pill grid (마사지/의료기기/한방 X: ✓ emerald / ✗ red / — gray) + 영업신고증 footer (peach + 원본 열기 OR red ⚠ 미첨부). **진단 ~35% → ~55%**.
 
 - **세션 43 라운드 5 (3 PR 추가, 디자인 100% 정합 push)**:
   - PR [#266](https://github.com/jaydenjoo/hesya/pull/266) — **Owner Bookings list 8-col reference parity**. Date/Time split (mono) + Designer color dot (deterministic hash) + Status pill (rounded-full + dot + tone bg) + "보기" 텍스트 → ⋯ icon + count toolbar + bordered card wrapper. 3 라벨 × 6 locale. **진단 ~60% → ~78%**.
