@@ -3,7 +3,18 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-15 세션 42 — 🎯 P1 quick wins 10 PR + 큰 구조 2 PR + Photo Analyze 정밀화 2 PR, 누적 37 PR)
+## 현재 위치 (2026-05-16 세션 43 — 🎯 세션 42 잔여 #253 mop-up + P0 잔여 큰 구조 3 PR, 누적 41 PR)
+
+- **세션 43 (2026-05-16, /start 권장 A→E)**: 세션 42 마무리 (#253 머지) + Owner Customers KPI strip / Customer Schedule stylist 매칭 / Admin KYC 6단계 펼침 카드 3 PR 연속.
+- **머지 결과 4 PR**:
+  - PR [#253](https://github.com/jaydenjoo/hesya/pull/253) — 세션 42 잔여 Photo Analyze Audit accordion (CI dispatch 후 머지)
+  - PR [#254](https://github.com/jaydenjoo/hesya/pull/254) — **Owner Customers DetailSheet KPI strip 4 KPIs** (총 방문 / 총 결제 / 최근 방문 / 다음 예약). 9 라벨 × 6 locale. mock-honest (visits/LTV real, last/next "—" + 안내). **진단 ~50% → ~58%**.
+  - PR [#255](https://github.com/jaydenjoo/hesya/pull/255) — **Customer Schedule stylist 매칭 + 대체 카드**. (time && staffId) 시 노출. gradient avatar + ★ rating·reviews (deterministic mock from id hash) + 토글 "다른 가능한 디자이너 ↓". 5 라벨 × 6 locale. **진단 ~88% → ~92%**.
+  - PR [#256](https://github.com/jaydenjoo/hesya/pull/256) — **Admin KYC 6단계 파이프라인 펼침 카드** (queue card 안). `<details>/<summary>` 토글 (server component 유지) + 3-col grid step 카드. 8 라벨 × 6 locale. **진단 ~45% → ~62%**.
+- **세션 43 패턴**: B(KPI strip) + C(stylist 매칭) + D(KYC 펼침)가 순차 의존 없는 독립 PR이라 인벤토리 → 작업 → CI dispatch → 다음 인벤토리 이중 사이클 (CI 5분 동안 다음 PR 작성). #254 CI 대기 중 C 완성, #255 대기 중 D 완성. L-102 /loop 대비 sync 사이클.
+- **세션 43 검증**: pnpm type-check (3.0~3.3s) + pnpm lint (6.3~6.6s) 매 PR 통과. CI workflow_dispatch 모두 success.
+
+## 이전 위치 (2026-05-15 세션 42 — 🎯 P1 quick wins 10 PR + 큰 구조 2 PR + Photo Analyze 정밀화 2 PR, 누적 37 PR)
 
 - **세션 42 추가 작업 (Jayden 승인 후 큰 구조 + 정밀화)**:
   - PR [#250](https://github.com/jaydenjoo/hesya/pull/250) — **Owner Bookings SidePanel 4-tab + cancel inline refund preview**. 10 파일, 679+/57-. Info/History/Notes/Risk 4 탭 + cancel 인라인 refund 카드. mock fixture 3종 추가 (History/Notes/Risk). 23 detail.\* 라벨 × 6 locale. **진단 ~62% → ~80%**.
