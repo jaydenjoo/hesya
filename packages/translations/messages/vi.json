@@ -516,7 +516,12 @@
     "slotLeft": "còn",
     "legendOpen": "Còn nhiều",
     "legendFew": "Sắp hết",
-    "legendFull": "Đã đặt"
+    "legendFull": "Đã đặt",
+    "recommendedFor": "Đề xuất cho {time}",
+    "viewPortfolio": "Xem portfolio →",
+    "showAlternatives": "Xem stylist khác đang trống ↓",
+    "hideAlternatives": "Ẩn lựa chọn khác ↑",
+    "pickButton": "Chọn →"
   },
   "BookConfirm": {
     "eyebrow": "Xác nhận đặt lịch",

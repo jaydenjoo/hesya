@@ -516,7 +516,12 @@
     "slotLeft": "남음",
     "legendOpen": "여유",
     "legendFew": "임박",
-    "legendFull": "마감"
+    "legendFull": "마감",
+    "recommendedFor": "{time} 추천 디자이너",
+    "viewPortfolio": "포트폴리오 보기 →",
+    "showAlternatives": "다른 가능한 디자이너 보기 ↓",
+    "hideAlternatives": "대체 숨기기 ↑",
+    "pickButton": "선택 →"
   },
   "BookConfirm": {
     "eyebrow": "예약 확정",

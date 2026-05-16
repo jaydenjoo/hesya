@@ -516,7 +516,12 @@
     "slotLeft": "残り",
     "legendOpen": "余裕あり",
     "legendFew": "残りわずか",
-    "legendFull": "満員"
+    "legendFull": "満員",
+    "recommendedFor": "{time} のおすすめスタイリスト",
+    "viewPortfolio": "ポートフォリオを見る →",
+    "showAlternatives": "他の対応可能なスタイリスト ↓",
+    "hideAlternatives": "他を隠す ↑",
+    "pickButton": "選択 →"
   },
   "BookConfirm": {
     "eyebrow": "ご予約確認",

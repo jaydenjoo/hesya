@@ -516,7 +516,12 @@
     "slotLeft": "剩余",
     "legendOpen": "充足",
     "legendFew": "紧张",
-    "legendFull": "已满"
+    "legendFull": "已满",
+    "recommendedFor": "{time} 推荐设计师",
+    "viewPortfolio": "查看作品集 →",
+    "showAlternatives": "查看其他可约设计师 ↓",
+    "hideAlternatives": "隐藏其他 ↑",
+    "pickButton": "选择 →"
   },
   "BookConfirm": {
     "eyebrow": "预约确认",

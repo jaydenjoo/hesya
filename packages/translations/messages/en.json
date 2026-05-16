@@ -516,7 +516,12 @@
     "slotLeft": "left",
     "legendOpen": "Open",
     "legendFew": "Few left",
-    "legendFull": "Booked"
+    "legendFull": "Booked",
+    "recommendedFor": "Recommended for {time}",
+    "viewPortfolio": "View portfolio →",
+    "showAlternatives": "See other available stylists ↓",
+    "hideAlternatives": "Hide alternatives ↑",
+    "pickButton": "Pick →"
   },
   "BookConfirm": {
     "eyebrow": "Booking Confirmation",

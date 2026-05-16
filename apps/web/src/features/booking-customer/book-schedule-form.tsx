@@ -55,6 +55,11 @@ export interface ScheduleFormLabels {
   readonly legendFull?: string;
   readonly closedLabel: string;
   readonly closedDayNote: string;
+  readonly recommendedFor: string;
+  readonly viewPortfolio: string;
+  readonly showAlternatives: string;
+  readonly hideAlternatives: string;
+  readonly pickButton: string;
 }
 
 interface Props {
@@ -90,6 +95,31 @@ function fewLeftFor(date: string, time: string): number {
   return (Math.abs(h) % 2) + 1;
 }
 
+function hashId(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = ((h << 5) - h + id.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function ratingFor(id: string): string {
+  return (4.5 + (hashId(id) % 5) / 10).toFixed(1);
+}
+
+function reviewsFor(id: string): number {
+  return 30 + (hashId(id) % 170);
+}
+
+const STYLIST_GRADIENTS = [
+  "from-hesya-peach-300 to-hesya-amber-600",
+  "from-hesya-navy-900 to-hesya-amber-500",
+  "from-hesya-amber-500 to-hesya-peach-200",
+  "from-emerald-400 to-hesya-amber-600",
+] as const;
+
+function gradientFor(id: string): string {
+  return STYLIST_GRADIENTS[hashId(id) % STYLIST_GRADIENTS.length];
+}
+
 export function BookScheduleForm({
   storeId,
   locale,
@@ -103,6 +133,7 @@ export function BookScheduleForm({
   const [staffId, setStaffId] = useState<string | null>(null);
   const [date, setDate] = useState<string | null>(null);
   const [time, setTime] = useState<string | null>(null);
+  const [showAlt, setShowAlt] = useState(false);
 
   const dateOptions = useMemo<DateOption[]>(
     () => buildDateOptions(RANGE_DAYS, locale, undefined, businessHours),
@@ -356,6 +387,110 @@ export function BookScheduleForm({
             })}
           </div>
         </section>
+
+        {time && staffId
+          ? (() => {
+              const recStaff = staffList.find((p) => p.id === staffId) ?? null;
+              if (!recStaff) return null;
+              const altStaff = staffList.filter((p) => p.id !== recStaff.id);
+              return (
+                <section
+                  key={`${staffId}-${time}`}
+                  className="animate-in fade-in slide-in-from-bottom-1 rounded-2xl border border-hesya-peach-200 bg-white px-4 py-3 duration-300"
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+                    {labels.recommendedFor.replace("{time}", time)}
+                  </p>
+                  <div className="mt-2 flex items-center gap-3">
+                    <div
+                      aria-hidden="true"
+                      className={[
+                        "grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br text-[14px] font-semibold text-white",
+                        gradientFor(recStaff.id),
+                      ].join(" ")}
+                    >
+                      {recStaff.name.trim().charAt(0).toUpperCase() || "·"}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[14px] font-medium text-hesya-navy-900">
+                        {recStaff.name}
+                      </p>
+                      <p className="mt-0.5 flex items-center gap-2 text-[11px] text-hesya-navy-900/55">
+                        <span className="font-mono tracking-tight">
+                          ★ {ratingFor(recStaff.id)}{" "}
+                          <span className="text-hesya-navy-900/40">
+                            ({reviewsFor(recStaff.id)})
+                          </span>
+                        </span>
+                        {recStaff.languages.length > 0 ? (
+                          <span className="font-semibold uppercase tracking-wide">
+                            {recStaff.languages
+                              .map((l) => l.toUpperCase())
+                              .join("·")}
+                          </span>
+                        ) : null}
+                      </p>
+                      <span className="mt-1 inline-block text-[11px] text-hesya-amber-600">
+                        {labels.viewPortfolio}
+                      </span>
+                    </div>
+                  </div>
+                  {altStaff.length > 0 ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setShowAlt((v) => !v)}
+                        className="mt-3 block text-[11px] text-hesya-amber-600 hover:underline"
+                      >
+                        {showAlt
+                          ? labels.hideAlternatives
+                          : labels.showAlternatives}
+                      </button>
+                      {showAlt ? (
+                        <div className="mt-2 space-y-1.5 border-t border-hesya-peach-100 pt-2">
+                          {altStaff.map((p) => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => {
+                                setStaffId(p.id);
+                                setShowAlt(false);
+                              }}
+                              className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition hover:bg-hesya-peach-50"
+                            >
+                              <div
+                                aria-hidden="true"
+                                className={[
+                                  "grid h-8 w-8 flex-shrink-0 place-items-center rounded-full bg-gradient-to-br text-[11px] font-semibold text-white",
+                                  gradientFor(p.id),
+                                ].join(" ")}
+                              >
+                                {p.name.trim().charAt(0).toUpperCase() || "·"}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-[12px] font-medium text-hesya-navy-900">
+                                  {p.name}
+                                </p>
+                                <p className="text-[10.5px] text-hesya-navy-900/55">
+                                  ★ {ratingFor(p.id)} ({reviewsFor(p.id)})
+                                  {p.languages.length > 0
+                                    ? ` · ${p.languages.map((l) => l.toUpperCase()).join("·")}`
+                                    : ""}
+                                </p>
+                              </div>
+                              <span className="flex-shrink-0 text-[11px] text-hesya-amber-600">
+                                {labels.pickButton}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      ) : null}
+                    </>
+                  ) : null}
+                </section>
+              );
+            })()
+          : null}
 
         <section className="rounded-2xl border border-hesya-peach-200 bg-white px-4 py-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
