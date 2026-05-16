@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { AdminDeletionQueue } from "@/features/store-deletion";
 import { env } from "@/shared/config/env";
 import { listDeletionRequestsForAdmin } from "@/shared/lib/dal/store-deletion";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 
 /**
  * E12-9 — admin 매장 해지 큐 (PRD §1068, SLA 30일).
@@ -45,7 +45,7 @@ export default async function AdminStoreDeletionPage({
 }) {
   const { locale } = await params;
   const { status: statusParam } = await searchParams;
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     redirect(`/${locale}/sign-in`);
   }
