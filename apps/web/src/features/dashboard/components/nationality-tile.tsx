@@ -94,22 +94,25 @@ export function NationalityTile({ segments, totalCount }: Props) {
               />
             );
           })}
+          {/* Reference dashboard.css sd-donut-num / sd-donut-cap — Fraunces
+              italic 36px weight 500 (브랜드 시그너처) + 손님 11px. 이전 mono
+              bold 42px는 KVerified와 동일한 폰트 미스매치 패턴. */}
           <text
             x="110"
             y="106"
             textAnchor="middle"
-            className="font-mono fill-hesya-navy-900"
-            fontSize="42"
-            fontWeight="700"
+            className="fill-hesya-navy-900 font-heading italic"
+            fontSize="36"
+            fontWeight="500"
           >
             {totalCount}
           </text>
           <text
             x="110"
-            y="132"
+            y="128"
             textAnchor="middle"
             className="kr fill-gray-500"
-            fontSize="13"
+            fontSize="11"
           >
             {t("centerCaption")}
           </text>
