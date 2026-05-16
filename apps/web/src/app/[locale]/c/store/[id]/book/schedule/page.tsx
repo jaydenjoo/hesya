@@ -178,6 +178,11 @@ export default async function StoreBookSchedulePage({
             legendFull: t("legendFull"),
             closedLabel: t("closedLabel"),
             closedDayNote: t("closedDayNote"),
+            recommendedFor: t("recommendedFor"),
+            viewPortfolio: t("viewPortfolio"),
+            showAlternatives: t("showAlternatives"),
+            hideAlternatives: t("hideAlternatives"),
+            pickButton: t("pickButton"),
           }}
         />
       </div>
