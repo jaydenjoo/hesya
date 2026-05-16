@@ -1,7 +1,7 @@
 /**
  * Epic 9 § 11 — 외부 신고 접수 Server Action.
  *
- * 인가 체인: requireAdminEmail (Phase 1 admin 검증용) → checkRateLimit (60s/20회)
+ * 인가 체인: requireAdminRole (γ.2 마이그 후) → checkRateLimit (60s/20회)
  *           → submitStoreReport (Zod + storeId 존재 + INSERT) → 결과 union 반환.
  *
  * 공개 폼 (외부인 신고)은 Phase 1.5 reCAPTCHA 도입 후 별도 endpoint로 분리.
@@ -10,7 +10,7 @@
 "use server";
 
 import { createDbClient } from "@hesya/database";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 import { checkRateLimit, RateLimitError } from "@/shared/lib/rate-limit";
 import { env } from "@/shared/config/env";
 import {
@@ -35,7 +35,7 @@ export type SubmitStoreReportActionResult =
 export async function submitStoreReportAction(
   rawInput: unknown,
 ): Promise<SubmitStoreReportActionResult> {
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     return { ok: false, error: guard.error, message: guard.message };
   }

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { AdminShell } from "./admin-shell";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 import { env } from "@/shared/config/env";
 
 /**
@@ -23,7 +23,7 @@ export async function AdminShellLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     redirect(`/${locale}/sign-in`);
   }
