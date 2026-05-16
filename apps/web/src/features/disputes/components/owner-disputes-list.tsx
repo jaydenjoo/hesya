@@ -35,13 +35,13 @@ const CATEGORY_LABELS: Record<string, string> = {
   complaint: "컴플레인",
 };
 
-type Props = { rows: Dispute[] };
+type Props = { rows: Dispute[]; nowMs: number };
 
 function countByStatus(rows: Dispute[], status: string): number {
   return rows.reduce((s, r) => s + (r.status === status ? 1 : 0), 0);
 }
 
-export function OwnerDisputesList({ rows }: Props) {
+export function OwnerDisputesList({ rows, nowMs }: Props) {
   const openCount = countByStatus(rows, "open");
   const inReviewCount = countByStatus(rows, "in_review");
   const slaCount = countByStatus(rows, "sla_exceeded");
@@ -115,7 +115,7 @@ export function OwnerDisputesList({ rows }: Props) {
                   접수일
                 </th>
                 <th className="kr px-4 py-3 font-mono text-[10.5px] font-semibold uppercase tracking-[0.06em] text-gray-500">
-                  SLA 마감
+                  SLA
                 </th>
               </tr>
             </thead>
@@ -141,8 +141,12 @@ export function OwnerDisputesList({ rows }: Props) {
                   <td className="mono px-4 py-3 text-gray-700">
                     {d.createdAt.toISOString().slice(0, 10)}
                   </td>
-                  <td className="mono px-4 py-3 text-gray-700">
-                    {d.slaDueAt.toISOString().slice(0, 10)}
+                  <td className="px-4 py-3">
+                    <SlaCell
+                      slaDueAt={d.slaDueAt}
+                      status={d.status}
+                      nowMs={nowMs}
+                    />
                   </td>
                 </tr>
               ))}
@@ -151,6 +155,45 @@ export function OwnerDisputesList({ rows }: Props) {
         </div>
       )}
     </div>
+  );
+}
+
+function SlaCell({
+  slaDueAt,
+  status,
+  nowMs,
+}: {
+  slaDueAt: Date;
+  status: string;
+  nowMs: number;
+}) {
+  const isTerminal =
+    status === "resolved" || status === "rejected" || status === "sla_exceeded";
+  const ms = slaDueAt.getTime() - nowMs;
+  const days = Math.ceil(ms / (1000 * 60 * 60 * 24));
+  const urgent = !isTerminal && ms < 0;
+  const warn = !isTerminal && !urgent && days <= 1;
+  if (isTerminal) {
+    return <span className="font-mono text-[11px] text-gray-400">—</span>;
+  }
+  if (urgent) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-[#fbeae5] px-2 py-0.5 font-mono text-[10.5px] font-bold text-[#c9483a]">
+        <span aria-hidden="true">⚠</span>초과 {Math.abs(days)}일
+      </span>
+    );
+  }
+  if (warn) {
+    return (
+      <span className="inline-flex items-center rounded-full bg-hesya-peach-100 px-2 py-0.5 font-mono text-[10.5px] font-bold text-hesya-amber-600">
+        D-{days}
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center rounded-full bg-hesya-peach-50 px-2 py-0.5 font-mono text-[10.5px] text-hesya-navy-900/70">
+      D-{days}
+    </span>
   );
 }
 

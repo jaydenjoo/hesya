@@ -38,7 +38,8 @@ export default async function StoreDisputesPage({
         subtitle="손님과의 분쟁을 추적하고 응답합니다."
       />
       <div className="mx-auto max-w-5xl px-8 pb-10">
-        <OwnerDisputesList rows={rows} />
+        {/* eslint-disable-next-line react-hooks/purity */}
+        <OwnerDisputesList rows={rows} nowMs={Date.now()} />
       </div>
     </div>
   );
