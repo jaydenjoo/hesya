@@ -143,6 +143,21 @@ function ProposalCard({
           >
             {proposal.demandScore}
           </p>
+          <div
+            className="mt-1 h-1 overflow-hidden rounded-full bg-hesya-peach-50"
+            aria-hidden="true"
+          >
+            <div
+              className={`h-full ${
+                proposal.demandScore >= 80
+                  ? "bg-emerald-500"
+                  : proposal.demandScore >= 60
+                    ? "bg-hesya-amber-500"
+                    : "bg-hesya-navy-900/30"
+              }`}
+              style={{ width: `${Math.min(100, proposal.demandScore)}%` }}
+            />
+          </div>
         </div>
         <div>
           <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-hesya-navy-900/50">
@@ -174,16 +189,23 @@ function ProposalCard({
       </div>
 
       <div>
-        <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.12em] text-hesya-amber-600">
+        <p className="mb-1.5 flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.12em] text-hesya-amber-600">
+          <span aria-hidden="true">▸</span>
           {labels.evidenceTitle}
         </p>
-        <ul className="space-y-0.5">
+        <ul className="space-y-1">
           {proposal.evidence.map((e, i) => (
             <li
               key={i}
-              className="text-[11px] text-hesya-navy-900/70 [word-break:keep-all]"
+              className="flex items-start gap-1.5 text-[11px] text-hesya-navy-900/75 [word-break:keep-all]"
             >
-              · {e}
+              <span
+                aria-hidden="true"
+                className="mt-0.5 inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-hesya-amber-500/15 font-mono text-[8.5px] font-bold text-hesya-amber-700"
+              >
+                {i + 1}
+              </span>
+              <span>{e}</span>
             </li>
           ))}
         </ul>
