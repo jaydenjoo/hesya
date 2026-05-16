@@ -1,0 +1,11 @@
+export { MarketingHero } from "./MarketingHero";
+export { MarketingHowItWorks } from "./MarketingHowItWorks";
+export { MarketingBeforeAfter } from "./MarketingBeforeAfter";
+export { MarketingSalonsGrid } from "./MarketingSalonsGrid";
+export { MarketingUgcWall } from "./MarketingUgcWall";
+export { MarketingSafety } from "./MarketingSafety";
+export { MarketingB2bOwners } from "./MarketingB2bOwners";
+export { MarketingTrending } from "./MarketingTrending";
+export { MarketingFaq } from "./MarketingFaq";
+export { MarketingFinalCta } from "./MarketingFinalCta";
+export { MarketingFooter } from "./MarketingFooter";
