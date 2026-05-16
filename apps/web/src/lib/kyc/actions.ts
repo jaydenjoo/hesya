@@ -1,11 +1,11 @@
 /**
- * Epic 9 § Step 1·2 — KYC Server Actions (NTS 진위확인 + LOCALDATA 검색).
+ * Epic 9 § Step 1·2 + Phase 1-γ.2 — KYC Server Actions (NTS 진위확인 + LOCALDATA 검색).
  *
- * 인가 체인: requireAdminEmail (admin 화이트리스트) → checkRateLimit (60s/20회)
+ * 인가 체인: requireAdminRole (DB `users.role='admin'`) → checkRateLimit (60s/20회)
  *           → Zod 입력 검증 → 외부 API 호출 → 결과 union 반환.
  *
- * - admin 가드: ADMIN_EMAILS env 화이트리스트 (Epic 12 admin panel 도입 시
- *   role-based로 admin-guard.ts만 교체).
+ * - admin 가드: Phase 1-γ.2부터 `requireAdminEmail`(env 화이트리스트) →
+ *   `requireAdminRole`(DB role) 교체. envelope 동일 (userId + email + role).
  * - rate limit: data.go.kr 일일 10,000회 한도 보호. in-memory store
  *   (Vercel serverless에서 인스턴스 분리 한계 있음, 부분 방어).
  * - 결과 union: 호출자가 ok 분기로 처리, throw 안 함.
@@ -22,7 +22,7 @@ import {
   type MatchScoreResult,
 } from "@hesya/shared-types";
 import { z } from "zod";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 import { checkRateLimit, RateLimitError } from "@/shared/lib/rate-limit";
 import { env } from "@/shared/config/env";
 import { LocaldataApiError, searchBeautyShops } from "./localdata-client";
@@ -83,7 +83,7 @@ export type VerifyBusinessNumberResult =
 export async function verifyBusinessNumber(
   rawInput: unknown,
 ): Promise<VerifyBusinessNumberResult> {
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     return { ok: false, error: guard.error, message: guard.message };
   }
@@ -227,7 +227,7 @@ export type SearchLocaldataResult =
 export async function searchLocaldataBeautyShops(
   rawInput: unknown,
 ): Promise<SearchLocaldataResult> {
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     return { ok: false, error: guard.error, message: guard.message };
   }
@@ -322,7 +322,7 @@ export type MatchStoreToLocaldataResult =
 export async function matchStoreToLocaldata(
   rawInput: unknown,
 ): Promise<MatchStoreToLocaldataResult> {
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     return { ok: false, error: guard.error, message: guard.message };
   }
@@ -542,7 +542,7 @@ export async function matchStoreToLocaldata(
  * 자기신고 자체는 status 변경 X (단순 동의 기록 + audit log).
  * 5단계 종합 결과는 admin panel(Epic 12)에서 운영자가 확인.
  *
- * 인가: requireAdminEmail (E9-3·E9-12 동일 정책 — Epic 12에서 owner guard 교체).
+ * 인가: requireAdminRole (γ.2 마이그 후 — E9-3·E9-12 동일 정책).
  *
  * 결과 union:
  *   - ok=true: 신규 서명 성공
@@ -561,7 +561,7 @@ export type SignSelfDeclarationActionResult =
 export async function signSelfDeclarationAction(
   rawInput: unknown,
 ): Promise<SignSelfDeclarationActionResult> {
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     return { ok: false, error: guard.error, message: guard.message };
   }
@@ -643,7 +643,7 @@ export type ClassifyCategoryActionResult =
 export async function classifyStoreCategoryAction(
   rawInput: unknown,
 ): Promise<ClassifyCategoryActionResult> {
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     return { ok: false, error: guard.error, message: guard.message };
   }
@@ -781,7 +781,7 @@ export type ExtractOcrActionResult =
 export async function extractOcrFromLicenseAction(
   rawInput: unknown,
 ): Promise<ExtractOcrActionResult> {
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     return { ok: false, error: guard.error, message: guard.message };
   }
