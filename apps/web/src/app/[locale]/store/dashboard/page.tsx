@@ -18,6 +18,19 @@ import {
   WeeklyGmv,
 } from "@/features/dashboard";
 import { getOwnerShellData } from "@/features/shell/get-owner-shell-data";
+import {
+  emptyDashboardAiAccuracy,
+  emptyDashboardBookings,
+  emptyDashboardGreeting,
+  emptyDashboardNationality,
+  emptyDashboardWeeklyGmv,
+  mockDashboardAiAccuracy,
+  mockDashboardBookings,
+  mockDashboardGreeting,
+  mockDashboardKVerified,
+  mockDashboardNationality,
+  mockDashboardWeeklyGmv,
+} from "@/lib/mock-fixtures/dashboard";
 import { env } from "@/shared/config/env";
 import { getDisputeLoad, getInboxLoad } from "@/shared/lib/dal/dashboard";
 import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
@@ -93,11 +106,26 @@ export default async function StoreDashboardPage({
   // task (기상청 / OpenWeatherMap). 현재는 i18n 라벨로 고정 표시.
   const dateWeekday = `${weekday} · ${t("weatherMock")}`;
 
-  // O1 fast track 단계 1 (W13) — Greeting subtitle 숫자 wire.
-  // 실 데이터: 미답 메시지 (inbox.unreadMessages). 오늘 외국인 예약 / 새 후기는
-  // mock (Today bookings DAL 신규 + reviews 테이블 ζ phase 도입 prerequisite).
-  const todayBookingsMock = 0;
-  const newReviewsMock = 0;
+  // 세션 46 — inline mock → mock-fixtures/dashboard.ts 분리.
+  // MOCK_FIXTURES=true (preview / 외부 시연) 시 풍부한 mock,
+  // false (prod, 베타 매장 매칭 전) 시 empty fallback. 베타 후 실 DAL wire.
+  const useFixtures = env.MOCK_FIXTURES;
+  const greeting = useFixtures ? mockDashboardGreeting : emptyDashboardGreeting;
+  const bookingsData = useFixtures
+    ? mockDashboardBookings
+    : emptyDashboardBookings;
+  const gmvData = useFixtures
+    ? mockDashboardWeeklyGmv
+    : emptyDashboardWeeklyGmv;
+  const nationalityData = useFixtures
+    ? mockDashboardNationality
+    : emptyDashboardNationality;
+  const aiAccuracyData = useFixtures
+    ? mockDashboardAiAccuracy
+    : emptyDashboardAiAccuracy;
+  // KVerified는 실 데이터 (stores.kVerificationTier 등) prerequisite 전이라
+  // 항상 mock — 베타 매장 매칭 시 stores 테이블에서 직접 wire.
+  const kVerifiedData = mockDashboardKVerified;
 
   // O1 fast track 단계 1 (W3) — 채널별 미답 분포 (mock).
   // 실 DAL은 conversations group by channel 필요. 현재 fixed ratio:
@@ -124,9 +152,9 @@ export default async function StoreDashboardPage({
         storeName={shell.storeName}
         greetingSuffix={t("greetingSuffix")}
         subtitle={t.rich("greetingSubtitle", {
-          todayBookings: todayBookingsMock,
+          todayBookings: greeting.todayBookings,
           unread,
-          newReviews: newReviewsMock,
+          newReviews: greeting.newReviews,
           strong: (chunks) => (
             <strong className="font-semibold text-hesya-navy-900">
               {chunks}
@@ -155,21 +183,17 @@ export default async function StoreDashboardPage({
             TodayBookings | WeeklyGmv | InboxTile. */}
         <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-[1.15fr_1fr_1fr]">
           <TodayBookingsTile
-            count={7}
-            avatars={[
-              { flag: "🇯🇵", bgClass: "bg-hesya-peach-200" },
-              { flag: "🇨🇳", bgClass: "bg-hesya-peach-100" },
-              { flag: "🇺🇸", bgClass: "bg-hesya-peach-50" },
-            ]}
-            extraCount={4}
-            nextLabel="14:00 사쿠라님"
-            sparkHours={[1, 2, 0, 3, 1, 0, 2, 1, 1, 0, 2, 0]}
-            nowBarIndex={5}
+            count={bookingsData.count}
+            avatars={[...bookingsData.avatars]}
+            extraCount={bookingsData.extraCount}
+            nextLabel={bookingsData.nextLabel}
+            sparkHours={[...bookingsData.sparkHours]}
+            nowBarIndex={bookingsData.nowBarIndex}
           />
           <WeeklyGmv
-            amountKrw={4_280_000}
-            deltaPct={24}
-            weekHeights={[40, 55, 48, 70, 62, 85, 92]}
+            amountKrw={gmvData.amountKrw}
+            deltaPct={gmvData.deltaPct}
+            weekHeights={[...gmvData.weekHeights]}
             locale={locale}
           />
           <InboxTile
@@ -181,19 +205,16 @@ export default async function StoreDashboardPage({
             NationalityTile | AiAccuracy | KVerified. */}
         <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-[1.6fr_1fr_1fr]">
           <NationalityTile
-            totalCount={47}
-            segments={[
-              { flag: "🇯🇵", label: "일본", pct: 35, color: "#D88B5B" },
-              { flag: "🇨🇳", label: "중국 (간체)", pct: 25, color: "#E8A97A" },
-              { flag: "🇨🇳", label: "중국 (번체)", pct: 18, color: "#F5DDC8" },
-              { flag: "🇺🇸", label: "미국", pct: 14, color: "#1A2238" },
-              { flag: "🇻🇳", label: "베트남", pct: 8, color: "#E8C4D6" },
-            ]}
+            totalCount={nationalityData.totalCount}
+            segments={[...nationalityData.segments]}
           />
-          <AiAccuracyTile pct={94} processedCount={142} />
+          <AiAccuracyTile
+            pct={aiAccuracyData.pct}
+            processedCount={aiAccuracyData.processedCount}
+          />
           <KVerified
-            tier="Gold"
-            renewalDate="2026-07-15"
+            tier={kVerifiedData.tier}
+            renewalDate={kVerifiedData.renewalDate}
             comingSoonLabel={t("timeline.popoverComingSoon")}
           />
         </div>
