@@ -1081,7 +1081,6 @@
     "pageSub": "Today — reviews and refund requests are pending.",
     "auto": "AUTO 30s",
     "auditRailTitle": "Operations audit",
-    "auditRefresh": "Refresh",
     "auditFresh": "fresh",
     "signedInAs": "Signed in as {email}",
     "alertBand": "Alerts",

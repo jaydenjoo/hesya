@@ -330,18 +330,25 @@ export default async function AdminDashboardPage({ params }: Props) {
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <div>
               <div className="font-mono text-[9.5px] font-bold uppercase tracking-[0.22em] text-gray-500">
-                AUDIT LOG
+                AUDIT TRAIL
               </div>
               <div className="mt-1 text-[12.5px] font-semibold text-hesya-navy-900">
                 {t("auditRailTitle")}
               </div>
             </div>
-            <button
-              type="button"
-              className="rounded-md border border-gray-100 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500 transition hover:border-hesya-navy-900 hover:text-hesya-navy-900"
+            {/* Reference parity: refresh button → LIVE 표식 (pulsing dot). 30s
+                unstable_cache 자체가 admin 입장 polling 역할이라 수동 새로고침
+                버튼 의미 없음. */}
+            <span
+              aria-label="Live"
+              className="inline-flex items-center gap-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-emerald-700"
             >
-              {t("auditRefresh")}
-            </button>
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500"
+              />
+              LIVE
+            </span>
           </div>
 
           {audit.length === 0 ? (
@@ -355,7 +362,11 @@ export default async function AdminDashboardPage({ params }: Props) {
                   key={`${row.kind}:${row.id}`}
                   className={[
                     "relative rounded-md px-3 py-2.5 transition hover:bg-[#fafbfc]",
-                    idx === 0 ? "bg-hesya-peach-50/60" : "",
+                    // Reference parity: fresh row = 2px left amber bar (::before
+                    // 대신 border-l), background tint 제거.
+                    idx === 0
+                      ? "border-l-2 border-hesya-amber-500 pl-[10px]"
+                      : "",
                   ].join(" ")}
                 >
                   <div className="flex items-center gap-2">
