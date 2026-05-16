@@ -38,12 +38,23 @@ export function TabInfo({
   kVerifiedShort,
   dayLabels,
 }: Props) {
+  const openDayCount = hours
+    ? DAYS.reduce((s, d) => s + (hours[d] ? 1 : 0), 0)
+    : 0;
   return (
     <div className="space-y-4 px-5 py-4">
       <section className="rounded-2xl border border-hesya-peach-200 bg-white px-5 py-4">
-        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
-          {hoursTitle}
-        </p>
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+            <span aria-hidden="true">⏱</span>
+            {hoursTitle}
+          </p>
+          {hours && (
+            <span className="rounded-full bg-emerald-50 px-2 py-0.5 font-mono text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-200">
+              {openDayCount}/7
+            </span>
+          )}
+        </div>
         {hours ? (
           <ul className="space-y-1.5">
             {DAYS.map((d) => {
@@ -73,7 +84,8 @@ export function TabInfo({
       </section>
 
       <section className="rounded-2xl border border-hesya-peach-200 bg-white px-5 py-4">
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+        <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+          <span aria-hidden="true">📍</span>
           {addressTitle}
         </p>
         <p className="text-[13px] leading-relaxed text-hesya-navy-900">
@@ -81,7 +93,7 @@ export function TabInfo({
         </p>
       </section>
 
-      <section className="rounded-2xl border border-hesya-peach-200 bg-white px-5 py-4">
+      <section className="rounded-2xl border border-hesya-peach-200 bg-hesya-peach-50/40 px-5 py-4">
         <div className="mb-2 flex items-center gap-2">
           <KVerifiedBadge label={kVerifiedShort} size="md" />
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
