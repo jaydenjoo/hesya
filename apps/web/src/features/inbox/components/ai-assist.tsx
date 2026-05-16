@@ -127,7 +127,11 @@ export function AIAssist({
         {displayText}
       </div>
       {tones ? (
-        <div role="tablist" className="mb-2 flex gap-1">
+        <div
+          role="tablist"
+          aria-label="답변 톤 선택"
+          className="mb-2 inline-flex gap-0.5 rounded-lg bg-white/70 p-0.5 ring-1 ring-hesya-amber-500/25 shadow-[0_1px_2px_rgba(26,34,56,0.04)]"
+        >
           {TONE_TABS.map((t) => {
             const active = activeTone === t.id;
             return (
@@ -139,10 +143,10 @@ export function AIAssist({
                 onClick={() => handleToneChange(t.id)}
                 disabled={isAccepting}
                 className={
-                  "kr rounded-md border px-3 py-1.5 text-[11px] transition-colors not-disabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 " +
+                  "kr rounded-md px-3 py-1.5 text-[11px] transition-all not-disabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 " +
                   (active
-                    ? "border-hesya-amber-500 bg-white font-semibold text-hesya-navy-900"
-                    : "border-transparent bg-white/50 font-medium text-gray-700 hover:bg-white")
+                    ? "bg-hesya-amber-500 font-semibold text-white shadow-[0_1px_3px_rgba(232,169,122,0.45)]"
+                    : "font-medium text-gray-600 hover:bg-white hover:text-hesya-navy-900")
                 }
               >
                 {t.label}
