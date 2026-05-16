@@ -521,7 +521,9 @@
     "viewPortfolio": "View portfolio →",
     "showAlternatives": "See other available stylists ↓",
     "hideAlternatives": "Hide alternatives ↑",
-    "pickButton": "Pick →"
+    "pickButton": "Pick →",
+    "altTimesTitle": "Similar times",
+    "altTimesHint": "If this slot doesn't work, other times are open on the same day"
   },
   "BookConfirm": {
     "eyebrow": "Booking Confirmation",

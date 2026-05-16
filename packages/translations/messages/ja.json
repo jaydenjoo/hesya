@@ -521,7 +521,9 @@
     "viewPortfolio": "ポートフォリオを見る →",
     "showAlternatives": "他の対応可能なスタイリスト ↓",
     "hideAlternatives": "他を隠す ↑",
-    "pickButton": "選択 →"
+    "pickButton": "選択 →",
+    "altTimesTitle": "近い時間帯",
+    "altTimesHint": "この時間が合わない場合、同日の他の時間も空きあり"
   },
   "BookConfirm": {
     "eyebrow": "ご予約確認",

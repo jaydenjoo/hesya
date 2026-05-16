@@ -60,6 +60,8 @@ export interface ScheduleFormLabels {
   readonly showAlternatives: string;
   readonly hideAlternatives: string;
   readonly pickButton: string;
+  readonly altTimesTitle: string;
+  readonly altTimesHint: string;
 }
 
 interface Props {
@@ -149,6 +151,23 @@ export function BookScheduleForm({
 
   const selectedService = services.find((s) => s.id === serviceId) ?? null;
   const allSelected = Boolean(serviceId && staffId && date && time);
+
+  const altTimes = useMemo(() => {
+    if (!date || !time) return [] as { value: string }[];
+    const idx = timeSlots.findIndex((s) => s.value === time);
+    if (idx < 0) return [];
+    const out: { value: string }[] = [];
+    for (let offset = -3; offset <= 3 && out.length < 4; offset++) {
+      if (offset === 0) continue;
+      const j = idx + offset;
+      if (j < 0 || j >= timeSlots.length) continue;
+      const slot = timeSlots[j];
+      if (availabilityFor(date, slot.value) === "open") {
+        out.push({ value: slot.value });
+      }
+    }
+    return out;
+  }, [date, time, timeSlots]);
 
   const handleNext = () => {
     if (!allSelected) return;
@@ -491,6 +510,32 @@ export function BookScheduleForm({
               );
             })()
           : null}
+
+        {altTimes.length > 0 ? (
+          <section className="rounded-2xl border border-hesya-peach-200 bg-hesya-peach-50/40 px-4 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+              {labels.altTimesTitle}
+            </p>
+            <p className="mt-1 text-[11px] text-hesya-navy-900/60">
+              {labels.altTimesHint}
+            </p>
+            <div
+              className="-mx-1 mt-2 flex gap-1.5 overflow-x-auto px-1 pb-1"
+              style={{ scrollbarWidth: "none" }}
+            >
+              {altTimes.map((s) => (
+                <button
+                  key={s.value}
+                  type="button"
+                  onClick={() => setTime(s.value)}
+                  className="flex-shrink-0 rounded-full border border-hesya-peach-200 bg-white px-3 py-1.5 font-mono text-[12px] font-medium text-hesya-navy-900 transition hover:border-hesya-amber-500 hover:text-hesya-amber-700"
+                >
+                  {s.value}
+                </button>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <section className="rounded-2xl border border-hesya-peach-200 bg-white px-4 py-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">

@@ -521,7 +521,9 @@
     "viewPortfolio": "查看作品集 →",
     "showAlternatives": "查看其他可约设计师 ↓",
     "hideAlternatives": "隐藏其他 ↑",
-    "pickButton": "选择 →"
+    "pickButton": "选择 →",
+    "altTimesTitle": "相近时间",
+    "altTimesHint": "若该时段不便,同日还有其他时间可预约"
   },
   "BookConfirm": {
     "eyebrow": "预约确认",
