@@ -180,29 +180,65 @@ function Field({
 function ResultBlock({ result }: { result: SubmitStoreReportActionResult }) {
   if (result.ok) {
     return (
-      <section className="space-y-2 rounded-md border border-emerald-200 bg-emerald-50 p-4">
-        <h2 className="font-semibold text-emerald-900">신고 접수 완료</h2>
-        <dl className="space-y-1 text-sm">
-          <Row k="report ID" v={result.reportId} />
-          <Row k="store ID" v={result.storeId} />
-          <Row k="status" v="pending (Epic 12 admin queue 대기)" />
+      <section className="space-y-3 rounded-2xl border border-emerald-200 bg-white p-5 ring-1 ring-inset ring-emerald-100 shadow-[0_1px_2px_rgba(26,34,56,0.04)]">
+        <div className="flex items-center gap-2">
+          <span
+            aria-hidden="true"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 text-[14px] font-bold text-white"
+          >
+            ✓
+          </span>
+          <div className="space-y-0.5">
+            <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-emerald-700">
+              §02 · Submitted
+            </p>
+            <h2 className="font-display text-[18px] italic text-hesya-navy-900">
+              신고 접수 완료
+            </h2>
+          </div>
+        </div>
+        <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-md border border-emerald-100 bg-emerald-100 text-[12.5px] sm:grid-cols-3">
+          <ResultCell k="report ID" v={result.reportId} />
+          <ResultCell k="store ID" v={result.storeId} />
+          <ResultCell k="status" v="pending · Epic 12 queue" />
         </dl>
       </section>
     );
   }
   return (
-    <section className="space-y-2 rounded-md border border-red-200 bg-red-50 p-4">
-      <h2 className="font-semibold text-red-900">실패: {result.error}</h2>
-      <p className="text-sm whitespace-pre-wrap">{result.message}</p>
+    <section className="space-y-2 rounded-2xl border border-[#e5c0ba] bg-white p-5 ring-1 ring-inset ring-[#fbeae5] shadow-[0_1px_2px_rgba(26,34,56,0.04)]">
+      <div className="flex items-center gap-2">
+        <span
+          aria-hidden="true"
+          className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#c9483a] text-[14px] font-bold text-white"
+        >
+          ⚠
+        </span>
+        <div>
+          <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[#c9483a]">
+            §02 · Failed
+          </p>
+          <h2 className="font-display text-[17px] italic text-hesya-navy-900">
+            실패: {result.error}
+          </h2>
+        </div>
+      </div>
+      <p className="whitespace-pre-wrap rounded-md border border-[#e5c0ba] bg-[#fbeae5]/60 px-3 py-2 text-[12.5px] text-hesya-navy-900/80">
+        {result.message}
+      </p>
     </section>
   );
 }
 
-function Row({ k, v }: { k: string; v: string }) {
+function ResultCell({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex gap-2">
-      <dt className="w-24 font-medium text-hesya-navy-900">{k}</dt>
-      <dd className="break-all font-mono">{v}</dd>
+    <div className="flex flex-col gap-0.5 bg-white px-3 py-2">
+      <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/55">
+        {k}
+      </dt>
+      <dd className="break-all font-mono text-[12px] text-hesya-navy-900">
+        {v}
+      </dd>
     </div>
   );
 }
