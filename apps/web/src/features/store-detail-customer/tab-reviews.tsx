@@ -21,14 +21,18 @@ interface Props {
   readonly translateLabel?: string;
 }
 
-const STARS = "★★★★★";
-
 interface Review {
   author: string;
   quote: string;
   translation: string;
   flag: string;
   country: string;
+  rating: number;
+}
+
+function renderStars(rating: number): string {
+  const full = Math.round(rating);
+  return "★".repeat(full) + "☆".repeat(Math.max(0, 5 - full));
 }
 
 const SAMPLE_TRANSLATIONS: Record<string, string> = {
@@ -55,6 +59,7 @@ export function TabReviews({
       translation: SAMPLE_TRANSLATIONS.JP!,
       flag: "🇯🇵",
       country: "JP",
+      rating: 5,
     },
     {
       author: sampleAuthor2,
@@ -62,6 +67,7 @@ export function TabReviews({
       translation: SAMPLE_TRANSLATIONS.US!,
       flag: "🇺🇸",
       country: "US",
+      rating: 5,
     },
     {
       author: sampleAuthor3,
@@ -69,10 +75,13 @@ export function TabReviews({
       translation: SAMPLE_TRANSLATIONS.CN!,
       flag: "🇨🇳",
       country: "CN",
+      rating: 4,
     },
   ];
   const [filter, setFilter] = useState<string>("All");
 
+  const countByCountry = (c: string): number =>
+    c === "All" ? items.length : items.filter((r) => r.country === c).length;
   const filters = [
     { key: "All", label: filterAllLabel ?? "All", icon: "🌐" },
     { key: "JP", label: "JP", icon: "🇯🇵" },
@@ -83,24 +92,49 @@ export function TabReviews({
 
   const filtered =
     filter === "All" ? items : items.filter((r) => r.country === filter);
+  const avgRating =
+    items.length === 0
+      ? 0
+      : items.reduce((s, r) => s + r.rating, 0) / items.length;
 
   return (
     <div>
-      <p className="px-5 pb-2 pt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/55">
-        {comingSoonLabel}
-      </p>
+      <div className="flex flex-wrap items-baseline justify-between gap-2 px-5 pb-2 pt-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/55">
+          {comingSoonLabel}
+        </p>
+        {items.length > 0 && (
+          <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-hesya-navy-900/75 tabular-nums">
+            <span aria-hidden="true" className="text-hesya-amber-500">
+              {renderStars(avgRating)}
+            </span>
+            <span>{avgRating.toFixed(1)}</span>
+            <span className="text-hesya-navy-900/45">· {items.length}건</span>
+          </span>
+        )}
+      </div>
       <div className="c-detail-review-filter">
-        {filters.map((f) => (
-          <button
-            key={f.key}
-            type="button"
-            onClick={() => setFilter(f.key)}
-            className={"c-detail-chip-r" + (f.key === filter ? " active" : "")}
-          >
-            <span aria-hidden="true">{f.icon}</span>
-            {f.key === "All" && <span>{f.label}</span>}
-          </button>
-        ))}
+        {filters.map((f) => {
+          const n = countByCountry(f.key);
+          return (
+            <button
+              key={f.key}
+              type="button"
+              onClick={() => setFilter(f.key)}
+              className={
+                "c-detail-chip-r" + (f.key === filter ? " active" : "")
+              }
+            >
+              <span aria-hidden="true">{f.icon}</span>
+              {f.key === "All" && <span>{f.label}</span>}
+              {n > 0 && (
+                <span className="ml-1 font-mono text-[9.5px] tabular-nums opacity-65">
+                  {n}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
       <ul className="space-y-2 px-5 pb-4">
         {filtered.length === 0 ? (
@@ -138,8 +172,11 @@ function ReviewItem({
           </span>
           {review.author}
         </p>
-        <span className="font-mono text-[11px] text-hesya-amber-500">
-          {STARS}
+        <span
+          className="font-mono text-[11px] text-hesya-amber-500"
+          aria-label={`${review.rating} out of 5`}
+        >
+          {renderStars(review.rating)}
         </span>
       </div>
       <p className="text-[12px] leading-relaxed text-hesya-navy-900/75">
