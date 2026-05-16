@@ -3,9 +3,9 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 세션 45 종료 요약 (2026-05-16) — 구조적 PR 2건 + 정리 1건
+## 세션 45 종료 요약 (2026-05-16) — 구조적 PR 2건 + 정리 1건 + docs 1건
 
-세션 44 종료 후 같은 날 후속 세션. 시각 polish 대신 **세션 44가 다음 세션 후보로 남긴 구조적 큰 작업 2건**을 foundational scope로 압축해 진행. 누적 **90 PR** (세션 44: 88 → +2).
+세션 44 종료 후 같은 날 후속 세션. 시각 polish 대신 **세션 44가 다음 세션 후보로 남긴 구조적 큰 작업 2건**을 foundational scope로 압축해 진행. 누적 **91 PR** (세션 44: 88 → +3).
 
 - **C — `web/` stray 정리** (commit `d2f366d`, main 직접):
   - claude.ai/design raw export dump 253M (web/public/landingpage/ + assets/). 80 HTML이 기존 `docs/design/reference/`와 중복. 2건만 신규 (`Hesya Landing.html`, `Hesya Store Dashboard-print.html`) → docs/design/reference/로 이관.
@@ -33,6 +33,8 @@
     ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('user','admin'));
     UPDATE users SET role = 'admin' WHERE email IN ('<ADMIN_EMAILS 항목들>');
     ```
+
+- **docs (PR #314, merged)** — PR #313 후속: `apps/web/src/shared/lib/CLAUDE.md` 가드 표 동기화 (2종 → 3종). `requireAdminRole` 등록 + ⚠️ `requireAdminEmail` deprecate 표기 + γ.1→γ.2 마이그 plan 명시. 미래 인벤토리 grep 시 새 가드 노출 보장.
 
 - **D — 시각 polish mop-up**: 발견 영역 없음 (세션 44가 큰 push로 디자인 정합 95%+ 도달).
 
