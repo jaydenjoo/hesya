@@ -13,6 +13,45 @@ import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
  *
  * 의도적 skip이 대다수이므로 복구 액션 없이 누락 검토용 list view만 제공.
  */
+const CHANNEL_TONE: Record<string, { bg: string; dot: string; text: string }> =
+  {
+    instagram: {
+      bg: "bg-pink-50",
+      dot: "bg-pink-500",
+      text: "text-pink-700",
+    },
+    whatsapp: {
+      bg: "bg-emerald-50",
+      dot: "bg-emerald-500",
+      text: "text-emerald-700",
+    },
+    kakao: {
+      bg: "bg-yellow-50",
+      dot: "bg-yellow-500",
+      text: "text-yellow-700",
+    },
+    line: {
+      bg: "bg-emerald-50",
+      dot: "bg-emerald-500",
+      text: "text-emerald-700",
+    },
+    messenger: {
+      bg: "bg-blue-50",
+      dot: "bg-blue-500",
+      text: "text-blue-700",
+    },
+    sms: {
+      bg: "bg-hesya-peach-50",
+      dot: "bg-hesya-amber-500",
+      text: "text-hesya-amber-600",
+    },
+  };
+
+const FALLBACK_TONE = {
+  bg: "bg-hesya-peach-50",
+  dot: "bg-hesya-amber-500",
+  text: "text-hesya-amber-600",
+};
 export default async function InboxSkippedPage({
   params,
 }: {
@@ -75,30 +114,39 @@ export default async function InboxSkippedPage({
               </span>
             </div>
             <ul className="space-y-3">
-              {rows.map((m) => (
-                <li
-                  key={m.id}
-                  className="rounded-md border border-hesya-peach-100 bg-white px-5 py-4 shadow-[0_1px_2px_rgba(26,34,56,0.04)] transition hover:border-hesya-amber-500/30"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-hesya-peach-50 px-2.5 py-0.5">
+              {rows.map((m) => {
+                const tone =
+                  CHANNEL_TONE[(m.channel ?? "").toLowerCase()] ??
+                  FALLBACK_TONE;
+                return (
+                  <li
+                    key={m.id}
+                    className="rounded-md border border-hesya-peach-100 bg-white px-5 py-4 shadow-[0_1px_2px_rgba(26,34,56,0.04)] transition hover:border-hesya-amber-500/30"
+                  >
+                    <div className="flex items-center justify-between gap-3">
                       <span
-                        aria-hidden="true"
-                        className="inline-block h-1.5 w-1.5 rounded-full bg-hesya-amber-500"
-                      />
-                      <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-hesya-amber-600">
-                        {m.channel}
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 ${tone.bg}`}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={`inline-block h-1.5 w-1.5 rounded-full ${tone.dot}`}
+                        />
+                        <span
+                          className={`font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] ${tone.text}`}
+                        >
+                          {m.channel}
+                        </span>
                       </span>
-                    </span>
-                    <time className="font-mono text-[11px] text-gray-500">
-                      {m.createdAt ? dateFormatter.format(m.createdAt) : ""}
-                    </time>
-                  </div>
-                  <p className="mt-2 whitespace-pre-line text-[13.5px] leading-relaxed text-hesya-navy-900/85">
-                    {m.originalText}
-                  </p>
-                </li>
-              ))}
+                      <time className="font-mono text-[11px] text-gray-500">
+                        {m.createdAt ? dateFormatter.format(m.createdAt) : ""}
+                      </time>
+                    </div>
+                    <p className="mt-2 whitespace-pre-line text-[13.5px] leading-relaxed text-hesya-navy-900/85">
+                      {m.originalText}
+                    </p>
+                  </li>
+                );
+              })}
             </ul>
           </>
         )}
