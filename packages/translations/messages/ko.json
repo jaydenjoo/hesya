@@ -697,6 +697,10 @@
   "StoreServices": {
     "title": "시술 관리",
     "subtitle": "매장에서 제공하는 시술을 등록하고 관리하세요",
+    "svMetaCount": "총 {count}개 시술",
+    "svLangSummary": "다국어 커버리지",
+    "svPendingButton": "AI 번역 대기",
+    "svPrimaryButton": "새 시술",
     "addButton": "+ 시술 추가",
     "cancelButton": "취소",
     "saveButton": "저장",

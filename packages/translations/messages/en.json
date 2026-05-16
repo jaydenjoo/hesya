@@ -697,6 +697,10 @@
   "StoreServices": {
     "title": "Services",
     "subtitle": "Manage services offered by your store",
+    "svMetaCount": "{count} services",
+    "svLangSummary": "Multilingual coverage",
+    "svPendingButton": "AI translation pending",
+    "svPrimaryButton": "New service",
     "addButton": "+ Add service",
     "cancelButton": "Cancel",
     "saveButton": "Save",

@@ -697,6 +697,10 @@
   "StoreServices": {
     "title": "服务管理",
     "subtitle": "管理门店提供的服务",
+    "svMetaCount": "共 {count} 项服务",
+    "svLangSummary": "多语种覆盖",
+    "svPendingButton": "AI 翻译待办",
+    "svPrimaryButton": "新增服务",
     "addButton": "+ 添加服务",
     "cancelButton": "取消",
     "saveButton": "保存",
