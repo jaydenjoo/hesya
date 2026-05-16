@@ -406,6 +406,20 @@ export default async function AdminDashboardPage({ params }: Props) {
               ))}
             </ul>
           )}
+
+          {/* Reference parity: audit foot (admin-dashboard.css 897~912).
+              좌 카운트 + 우 정적 hint (별도 audit 페이지 미존재라 reference
+              "전체 감사 로그 →" 링크 대신 30s 폴링 hint로 절충). */}
+          {audit.length > 0 ? (
+            <div className="flex items-center justify-between border-t border-gray-100 px-1 pt-3 text-[11.5px] text-gray-500">
+              <span className="text-hesya-navy-900">
+                {t("auditFootCount", { n: audit.length })}
+              </span>
+              <span className="font-mono text-[10.5px]">
+                {t("auditFootRefresh")}
+              </span>
+            </div>
+          ) : null}
         </aside>
       </div>
     </>

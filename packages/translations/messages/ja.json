@@ -1087,6 +1087,8 @@
     "subPages": "クイックリンク",
     "auditTrail": "最近の運営活動",
     "auditEmpty": "最近の活動はありません。",
+    "auditFootCount": "最近の活動 {n} 件",
+    "auditFootRefresh": "30秒ごと自動更新",
     "alerts": {
       "pendingKyc": "KYC 手動審査",
       "openDisputes": "対応中の紛争",

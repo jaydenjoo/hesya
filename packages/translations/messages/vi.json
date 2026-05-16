@@ -1087,6 +1087,8 @@
     "subPages": "Liên kết nhanh",
     "auditTrail": "Hoạt động gần đây",
     "auditEmpty": "Chưa có hoạt động gần đây.",
+    "auditFootCount": "{n} hoạt động gần đây",
+    "auditFootRefresh": "Tự cập nhật 30s",
     "alerts": {
       "pendingKyc": "KYC chờ duyệt thủ công",
       "openDisputes": "Tranh chấp đang mở",

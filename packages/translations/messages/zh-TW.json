@@ -1087,6 +1087,8 @@
     "subPages": "快速連結",
     "auditTrail": "近期營運活動",
     "auditEmpty": "暫無近期活動。",
+    "auditFootCount": "近期 {n} 項活動",
+    "auditFootRefresh": "30 秒自動更新",
     "alerts": {
       "pendingKyc": "KYC 人工審核",
       "openDisputes": "進行中爭議",
