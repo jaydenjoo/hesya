@@ -37,7 +37,15 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 type Props = { rows: Dispute[] };
 
+function countByStatus(rows: Dispute[], status: string): number {
+  return rows.reduce((s, r) => s + (r.status === status ? 1 : 0), 0);
+}
+
 export function OwnerDisputesList({ rows }: Props) {
+  const openCount = countByStatus(rows, "open");
+  const inReviewCount = countByStatus(rows, "in_review");
+  const slaCount = countByStatus(rows, "sla_exceeded");
+  const resolvedCount = countByStatus(rows, "resolved");
   return (
     <div className="space-y-5">
       <div className="flex items-end justify-between">
@@ -56,6 +64,28 @@ export function OwnerDisputesList({ rows }: Props) {
           신규 분쟁 신고
           <span aria-hidden="true">→</span>
         </Link>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <DisputeKpiTile label="전체" value={rows.length} tone="default" />
+        <DisputeKpiTile
+          label="접수"
+          value={openCount}
+          tone={openCount > 0 ? "danger" : "default"}
+        />
+        <DisputeKpiTile
+          label="검토 중"
+          value={inReviewCount}
+          tone={inReviewCount > 0 ? "warn" : "default"}
+        />
+        <DisputeKpiTile
+          label="SLA 초과"
+          value={slaCount}
+          tone={slaCount > 0 ? "danger" : "ok"}
+          alertNote={
+            slaCount > 0 ? "24h 내 응답 필요" : `해결 ${resolvedCount}건`
+          }
+        />
       </div>
 
       {rows.length === 0 ? (
@@ -118,6 +148,68 @@ export function OwnerDisputesList({ rows }: Props) {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DisputeKpiTile({
+  label,
+  value,
+  tone,
+  alertNote,
+}: {
+  label: string;
+  value: number;
+  tone: "default" | "danger" | "warn" | "ok";
+  alertNote?: string;
+}) {
+  const styles = {
+    default: {
+      border: "border-gray-200",
+      bg: "bg-white",
+      text: "text-hesya-navy-900",
+      note: "text-hesya-navy-900/55",
+    },
+    danger: {
+      border: "border-[#e5c0ba]",
+      bg: "bg-[#faefec]",
+      text: "text-[#c9483a]",
+      note: "text-[#c9483a]",
+    },
+    warn: {
+      border: "border-hesya-peach-200",
+      bg: "bg-hesya-peach-50",
+      text: "text-hesya-amber-600",
+      note: "text-hesya-amber-600",
+    },
+    ok: {
+      border: "border-emerald-200",
+      bg: "bg-emerald-50/60",
+      text: "text-emerald-700",
+      note: "text-emerald-700/85",
+    },
+  }[tone];
+  return (
+    <div className={`rounded-md border p-4 ${styles.border} ${styles.bg}`}>
+      <div className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-gray-700">
+        {label}
+      </div>
+      <div className="mt-2 flex items-baseline gap-1.5">
+        <span
+          className={`font-heading text-[28px] font-medium italic leading-none tracking-[-0.02em] ${styles.text}`}
+        >
+          {value}
+        </span>
+        <span className="text-[11px] font-medium text-gray-500">건</span>
+      </div>
+      {alertNote && (
+        <div
+          className={`mt-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] ${styles.note}`}
+        >
+          {tone === "danger" ? "⚠ " : ""}
+          {alertNote}
         </div>
       )}
     </div>
