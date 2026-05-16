@@ -51,13 +51,19 @@ export function PendingStatus({ initialStatus, pollMs = 30000 }: Props) {
   }, [status, pollMs]);
 
   return (
-    <div data-testid="pending-status" data-status={status}>
+    <div
+      data-testid="pending-status"
+      data-status={status}
+      className="space-y-4"
+    >
+      <OnboardingRoadmap status={status} />
       {status === "manual_review" && (
         <StatusCard
           tone="warn"
           icon="⏱"
           title="검토 중"
           body="24~48시간 내 결과를 알려드립니다."
+          eta="ETA 24~48h"
         />
       )}
       {status === "auto_approved" && (
@@ -112,6 +118,56 @@ export function PendingStatus({ initialStatus, pollMs = 30000 }: Props) {
   );
 }
 
+const ROADMAP_STEPS = ["신청 접수", "검토", "승인", "활성화"] as const;
+
+function OnboardingRoadmap({ status }: { status: Status }) {
+  const currentIdx =
+    status === "manual_review" || status === "pending"
+      ? 1
+      : status === "auto_approved"
+        ? 3
+        : status === "rejected"
+          ? 2
+          : 1;
+  const failed = status === "rejected";
+  return (
+    <ol
+      aria-label="온보딩 진행 단계"
+      className="grid grid-cols-4 gap-2 rounded-2xl bg-hesya-peach-50 px-4 py-3"
+    >
+      {ROADMAP_STEPS.map((label, i) => {
+        const done = !failed && i < currentIdx;
+        const current = i === currentIdx;
+        const tone =
+          failed && i === 2
+            ? { dot: "bg-[#c9483a]", text: "text-[#c9483a] font-semibold" }
+            : done
+              ? { dot: "bg-emerald-500", text: "text-emerald-700" }
+              : current
+                ? {
+                    dot: "bg-hesya-amber-500 ring-4 ring-hesya-amber-500/20",
+                    text: "text-hesya-amber-600 font-semibold",
+                  }
+                : {
+                    dot: "bg-hesya-navy-900/15",
+                    text: "text-hesya-navy-900/45",
+                  };
+        return (
+          <li key={label} className="flex items-center gap-1.5">
+            <span
+              aria-hidden="true"
+              className={`inline-block h-2 w-2 shrink-0 rounded-full ${tone.dot}`}
+            />
+            <span className={`kr text-[11.5px] ${tone.text}`}>
+              {i + 1}. {label}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 type Tone = "warn" | "success" | "error" | "neutral";
 
 // M6 audit fix: error tone을 admin disputes status pill의 crit token과 일관성 통일.
@@ -147,12 +203,15 @@ function StatusCard({
   title,
   body,
   cta,
+  eta,
 }: {
   tone: Tone;
   icon: string;
   title: string;
   body: string;
   cta?: React.ReactNode;
+  /** 예상 처리 시간 chip (예: "ETA 24~48h"). */
+  eta?: string;
 }) {
   const styles = TONE_STYLES[tone];
   return (
@@ -169,9 +228,16 @@ function StatusCard({
           {icon}
         </div>
         <div className="min-w-0 flex-1">
-          <h2 className="kr text-base font-semibold text-hesya-navy-900">
-            {title}
-          </h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="kr text-base font-semibold text-hesya-navy-900">
+              {title}
+            </h2>
+            {eta && (
+              <span className="rounded-full bg-white/80 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-hesya-amber-700 ring-1 ring-hesya-amber-500/30">
+                {eta}
+              </span>
+            )}
+          </div>
           <p className="kr mt-1 break-keep text-sm leading-relaxed text-gray-700">
             {body}
           </p>
