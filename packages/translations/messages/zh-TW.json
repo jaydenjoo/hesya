@@ -663,7 +663,14 @@
       "wechat": "微信支付",
       "linepay": "LINE Pay"
     },
-    "insightsTitle": "AI 洞察"
+    "insightsTitle": "AI 洞察",
+    "featuredInsightEyebrow": "AI 洞察 · 本週",
+    "featuredInsightBody": "日本顧客最多在週二·週四 14:00–16:00 預約。該時段配對率 94% — 較平均 +28pp。增加一位設計師可帶來約每週 ₩680,000 營收。",
+    "featuredInsightDataLabel": "依據資料:",
+    "featuredInsightChip1": "週二 14–16 · 56",
+    "featuredInsightChip2": "週四 14–16 · 78",
+    "featuredInsightChip3": "轉換 92%",
+    "featuredInsightCta": "查看預約行事曆"
   },
   "StoreIntegrations": {
     "title": "外部預約系統串接",

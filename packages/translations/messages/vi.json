@@ -663,7 +663,14 @@
       "wechat": "WeChat Pay",
       "linepay": "LINE Pay"
     },
-    "insightsTitle": "Thông tin AI"
+    "insightsTitle": "Thông tin AI",
+    "featuredInsightEyebrow": "Thông tin AI · Tuần này",
+    "featuredInsightBody": "Khách Nhật đặt nhiều nhất Thứ 3 & Thứ 5, 14:00–16:00. Tỉ lệ ghép cặp khung giờ này 94% — cao hơn trung bình +28pt. Thêm 1 stylist có thể tăng doanh thu ~₩680,000/tuần.",
+    "featuredInsightDataLabel": "Nguồn:",
+    "featuredInsightChip1": "Thứ 3 14–16 · 56",
+    "featuredInsightChip2": "Thứ 5 14–16 · 78",
+    "featuredInsightChip3": "Chuyển đổi 92%",
+    "featuredInsightCta": "Xem lịch đặt"
   },
   "StoreIntegrations": {
     "title": "Tích hợp hệ thống đặt lịch ngoài",

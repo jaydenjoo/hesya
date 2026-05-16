@@ -663,7 +663,14 @@
       "wechat": "WeChat Pay",
       "linepay": "LINE Pay"
     },
-    "insightsTitle": "AI insights"
+    "insightsTitle": "AI insights",
+    "featuredInsightEyebrow": "AI insight · This week",
+    "featuredInsightBody": "Japanese guests book most heavily on Tue & Thu 14:00–16:00. Match rate in this slot is 94% — +28pp vs average. Adding one designer here could add ~₩680,000 weekly revenue.",
+    "featuredInsightDataLabel": "Source:",
+    "featuredInsightChip1": "Tue 14–16 · 56",
+    "featuredInsightChip2": "Thu 14–16 · 78",
+    "featuredInsightChip3": "Conversion 92%",
+    "featuredInsightCta": "View booking calendar"
   },
   "StoreIntegrations": {
     "title": "External booking integrations",

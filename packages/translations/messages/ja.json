@@ -663,7 +663,14 @@
       "wechat": "WeChat Pay",
       "linepay": "LINE Pay"
     },
-    "insightsTitle": "AI インサイト"
+    "insightsTitle": "AI インサイト",
+    "featuredInsightEyebrow": "AI インサイト · 今週",
+    "featuredInsightBody": "日本のお客様は火・木 14:00–16:00 に予約が集中。このスロットのマッチング率は 94% — 平均比 +28pt。スタイリストを 1 名追加すれば 週 ₩680,000 程度の売上増が見込まれます。",
+    "featuredInsightDataLabel": "根拠データ:",
+    "featuredInsightChip1": "火 14–16 · 56件",
+    "featuredInsightChip2": "木 14–16 · 78件",
+    "featuredInsightChip3": "コンバージョン 92%",
+    "featuredInsightCta": "予約カレンダーへ"
   },
   "StoreIntegrations": {
     "title": "外部予約システム連携",
