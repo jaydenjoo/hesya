@@ -80,18 +80,21 @@ export function RecentReviews({ comingSoonLabel }: Props) {
         </span>
       </header>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      {/* Reference dashboard.css sd-reviews-grid (1373) + sd-review-card
+          (1378~1392) — gap 16, peach-100 border, hover amber-500 border +
+          shadow-2. stars letter-spacing 0.5px. */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {MOCK_REVIEWS.map((r, i) => (
           <article
             key={`${r.name}-${i}`}
             data-testid={`review-card-${i}`}
-            className="flex flex-col rounded-lg border border-hesya-peach-200 bg-white p-4"
+            className="flex flex-col rounded-lg border border-hesya-peach-100 bg-white p-4 transition-all hover:border-hesya-amber-500 hover:shadow-md"
           >
             <header className="mb-2 flex items-center gap-2 text-[12px]">
               <span aria-hidden="true">{r.flag}</span>
               <span className="text-gray-600">{r.lang}</span>
               <span
-                className="ml-auto tabular-nums text-hesya-amber-500"
+                className="ml-auto tabular-nums tracking-[0.5px] text-hesya-amber-500"
                 aria-label={t("starsAria", { count: r.stars })}
               >
                 {"★".repeat(r.stars)}
