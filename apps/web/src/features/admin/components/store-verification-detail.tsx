@@ -64,8 +64,126 @@ export function StoreVerificationDetail(props: Props) {
     });
   };
 
+  const declarations = [
+    {
+      label: "마사지 X",
+      value: props.declarationNoMassage,
+    },
+    {
+      label: "의료기기 X",
+      value: props.declarationNoMedicalDevice,
+    },
+    {
+      label: "한방 X",
+      value: props.declarationNoOrientalMedicine,
+    },
+  ];
+  const declAllOk = declarations.every((d) => d.value === true);
+  const declMissing = declarations.some((d) => d.value === null);
+
   return (
     <div className="max-w-2xl space-y-6">
+      <section className="rounded-lg border bg-white p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)] ring-1 ring-inset ring-hesya-peach-200">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 space-y-1.5">
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-hesya-amber-600">
+              KYC · Manual review
+            </p>
+            <h2 className="font-display text-[22px] italic tracking-tight text-hesya-navy-900 [word-break:keep-all]">
+              {props.storeName}
+            </h2>
+            <p className="font-mono text-[11.5px] text-hesya-navy-900/65">
+              사업자번호{" "}
+              <strong className="text-hesya-navy-900">
+                {props.businessNumber}
+              </strong>{" "}
+              · 대표{" "}
+              <span className="kr text-hesya-navy-900/85">
+                {props.representativeName}
+              </span>
+            </p>
+          </div>
+          <span
+            className={[
+              "rounded-full px-3 py-1 text-[11.5px] font-semibold",
+              declAllOk
+                ? "bg-emerald-50 text-emerald-700"
+                : declMissing
+                  ? "bg-gray-100 text-gray-600"
+                  : "bg-[#fbeae5] text-[#c9483a]",
+            ].join(" ")}
+          >
+            {declAllOk
+              ? "자기신고 3개 모두 OK"
+              : declMissing
+                ? "자기신고 미완료"
+                : "자기신고 위반 의심"}
+          </span>
+        </div>
+
+        <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+          {declarations.map((d) => {
+            const tone =
+              d.value === true
+                ? {
+                    bg: "bg-emerald-50",
+                    border: "border-emerald-200",
+                    text: "text-emerald-700",
+                    icon: "✓",
+                  }
+                : d.value === false
+                  ? {
+                      bg: "bg-[#fbeae5]",
+                      border: "border-[#e5c0ba]",
+                      text: "text-[#c9483a]",
+                      icon: "✗",
+                    }
+                  : {
+                      bg: "bg-gray-50",
+                      border: "border-gray-200",
+                      text: "text-gray-500",
+                      icon: "—",
+                    };
+            return (
+              <li
+                key={d.label}
+                className={`flex items-center gap-2 rounded-md border px-3 py-2 ${tone.bg} ${tone.border}`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`font-mono text-[14px] font-bold ${tone.text}`}
+                >
+                  {tone.icon}
+                </span>
+                <span className={`text-[12px] font-medium ${tone.text}`}>
+                  {d.label}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+
+        {props.businessLicenseImageUrl ? (
+          <div className="mt-4 flex items-center justify-between gap-2 rounded-md border border-hesya-peach-200 bg-hesya-peach-50/60 px-3 py-2 text-[11.5px]">
+            <span className="kr text-hesya-navy-900/70">
+              <span aria-hidden="true">📄 </span>영업신고증 첨부됨
+            </span>
+            <a
+              href={props.businessLicenseImageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-hesya-amber-600 hover:underline"
+            >
+              원본 열기 →
+            </a>
+          </div>
+        ) : (
+          <div className="mt-4 rounded-md border border-[#e5c0ba] bg-[#faefec] px-3 py-2 text-[11.5px] text-[#c9483a]">
+            <span aria-hidden="true">⚠ </span>영업신고증 미첨부 — 거절 사유 후보
+          </div>
+        )}
+      </section>
+
       <dl className="space-y-2.5">
         <Row k="매장명" v={props.storeName} />
         <Row k="사업자번호" v={props.businessNumber} mono />
