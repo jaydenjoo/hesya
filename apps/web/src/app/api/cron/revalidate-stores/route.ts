@@ -35,12 +35,16 @@ import { computeMatchScore } from "@/lib/kyc/match-score";
 import { searchBeautyShops } from "@/lib/kyc/localdata-client";
 import { sendKycNotification } from "@/lib/notifications/kyc-result";
 import { logKycEvent, createDrizzleAuditRepo } from "@/lib/kyc/audit-log";
+import { findFirstAdminEmail } from "@/shared/lib/dal/users";
 
-// E9-9: cron은 admin 가드 없음 → ADMIN_EMAILS 첫 항목(운영팀)으로 알림 발송.
-// Epic 12 매장 owner 가드 도입 시 row.storeId → store_owners 조인 → 매장 사장
-// email로 자연 교체.
-function getOpsEmail(): string {
-  return env.ADMIN_EMAILS.split(",")[0]?.trim() ?? "";
+// E9-9 + γ.2 batch 6: cron은 admin 가드 없음 → users.role='admin' 첫 row(운영팀
+// 대표)로 알림 발송. 기존 `env.ADMIN_EMAILS.split(",")[0]`에서 DB role single
+// source-of-truth 패턴으로 교체. 향후 row.storeId → store_owners 조인 → 매장
+// 사장 email로 자연 교체 (별도 PR).
+// admin row 0건 → null 반환 → cron이 console.error로 보고하고 알림 skip.
+async function getOpsEmail(): Promise<string | null> {
+  const row = await findFirstAdminEmail(db);
+  return row?.email ?? null;
 }
 
 const PAGE_SIZE = 50;
@@ -96,19 +100,26 @@ async function revalidateOne(row: {
         eventType: "status_change",
         eventData: { to: "manual_review", reason },
       });
-      await sendKycNotification({
-        to: getOpsEmail(),
-        kind: "manual_review_queued",
-        locale: "ko",
-        storeName: row.localdataBplcNm,
-        reason: { summary: reason },
-      });
-      await logKycEvent({
-        repo: auditRepo,
-        verificationId: row.id,
-        eventType: "notification_sent",
-        eventData: { kind: "manual_review_queued", to: getOpsEmail() },
-      });
+      const opsEmail1 = await getOpsEmail();
+      if (opsEmail1) {
+        await sendKycNotification({
+          to: opsEmail1,
+          kind: "manual_review_queued",
+          locale: "ko",
+          storeName: row.localdataBplcNm,
+          reason: { summary: reason },
+        });
+        await logKycEvent({
+          repo: auditRepo,
+          verificationId: row.id,
+          eventType: "notification_sent",
+          eventData: { kind: "manual_review_queued", to: opsEmail1 },
+        });
+      } else {
+        console.error(
+          `[cron] findFirstAdminEmail returned null — alert skipped for verification ${row.id}`,
+        );
+      }
       return "manual_review";
     }
 
@@ -172,19 +183,26 @@ async function revalidateOne(row: {
         eventType: "status_change",
         eventData: { to: "manual_review", reason: rejectionReason },
       });
-      await sendKycNotification({
-        to: getOpsEmail(),
-        kind: "manual_review_queued",
-        locale: "ko",
-        storeName: row.localdataBplcNm,
-        reason: rejectionReason ? { summary: rejectionReason } : undefined,
-      });
-      await logKycEvent({
-        repo: auditRepo,
-        verificationId: row.id,
-        eventType: "notification_sent",
-        eventData: { kind: "manual_review_queued", to: getOpsEmail() },
-      });
+      const opsEmail2 = await getOpsEmail();
+      if (opsEmail2) {
+        await sendKycNotification({
+          to: opsEmail2,
+          kind: "manual_review_queued",
+          locale: "ko",
+          storeName: row.localdataBplcNm,
+          reason: rejectionReason ? { summary: rejectionReason } : undefined,
+        });
+        await logKycEvent({
+          repo: auditRepo,
+          verificationId: row.id,
+          eventType: "notification_sent",
+          eventData: { kind: "manual_review_queued", to: opsEmail2 },
+        });
+      } else {
+        console.error(
+          `[cron] findFirstAdminEmail returned null — alert skipped for verification ${row.id}`,
+        );
+      }
       return "manual_review";
     }
     if (statusChanged) {
