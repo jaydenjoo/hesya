@@ -49,8 +49,40 @@ const STATUS_TONE: Record<string, string> = {
 };
 
 export function DisputesList({ rows, activeFilter, nowMs }: Props) {
+  const openCount = rows.filter((r) => r.status === "open").length;
+  const reviewCount = rows.filter((r) => r.status === "in_review").length;
+  const urgentCount = rows.filter(
+    (r) => r.slaDueAt.getTime() - nowMs < 0 && r.resolvedAt === null,
+  ).length;
+  const resolvedCount = rows.filter((r) => r.status === "resolved").length;
+
   return (
     <div className="space-y-5">
+      <section
+        aria-label="분쟁 KPI"
+        className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-hesya-peach-100 bg-hesya-peach-100 sm:grid-cols-4"
+      >
+        <KpiCell
+          label="접수"
+          count={openCount}
+          tone={openCount > 0 ? "open" : "muted"}
+        />
+        <KpiCell
+          label="검토 중"
+          count={reviewCount}
+          tone={reviewCount > 0 ? "review" : "muted"}
+        />
+        <KpiCell
+          label="SLA 초과"
+          count={urgentCount}
+          tone={urgentCount > 0 ? "urgent" : "muted"}
+        />
+        <KpiCell
+          label="해결"
+          count={resolvedCount}
+          tone={resolvedCount > 0 ? "ok" : "muted"}
+        />
+      </section>
       <nav className="flex flex-wrap gap-2">
         {STATUS_FILTERS.map((f) => {
           const href =
@@ -162,6 +194,63 @@ export function DisputesList({ rows, activeFilter, nowMs }: Props) {
           </table>
         </div>
       )}
+    </div>
+  );
+}
+
+const KPI_TONE: Record<
+  "open" | "review" | "urgent" | "ok" | "muted",
+  { num: string; chip: string }
+> = {
+  open: {
+    num: "text-[#c9483a]",
+    chip: "bg-[#fbeae5] text-[#c9483a]",
+  },
+  review: {
+    num: "text-hesya-amber-600",
+    chip: "bg-hesya-peach-100 text-hesya-amber-600",
+  },
+  urgent: {
+    num: "text-[#c9483a]",
+    chip: "bg-[#fbeae5] text-[#c9483a]",
+  },
+  ok: {
+    num: "text-emerald-700",
+    chip: "bg-emerald-50 text-emerald-700",
+  },
+  muted: {
+    num: "text-hesya-navy-900/45",
+    chip: "bg-hesya-peach-50 text-hesya-navy-900/55",
+  },
+};
+
+function KpiCell({
+  label,
+  count,
+  tone,
+}: {
+  label: string;
+  count: number;
+  tone: "open" | "review" | "urgent" | "ok" | "muted";
+}) {
+  const t = KPI_TONE[tone];
+  return (
+    <div className="flex items-center justify-between gap-3 bg-white px-4 py-3">
+      <span className="kr font-mono text-[10.5px] font-semibold uppercase tracking-[0.06em] text-gray-500">
+        {label}
+      </span>
+      <span className="flex items-baseline gap-1.5">
+        <span
+          className={`font-heading text-[24px] font-medium italic leading-none tabular-nums ${t.num}`}
+        >
+          {count}
+        </span>
+        <span
+          className={`rounded-full px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.06em] ${t.chip}`}
+        >
+          {count > 0 ? "건" : "—"}
+        </span>
+      </span>
     </div>
   );
 }
