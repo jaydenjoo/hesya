@@ -3,11 +3,11 @@
  *
  * 인가 체인:
  *   - 사장 자가해지/취소: requireStoreOwnerAuth → checkRateLimit (60s/20회)
- *   - admin 강제해지/취소: requireAdminEmail → checkRateLimit (60s/20회)
+ *   - admin 강제해지/취소: requireAdminRole → checkRateLimit (60s/20회)
  *
  * 가드 패턴 차이 (shared/lib/CLAUDE.md):
  *   - requireStoreOwnerAuth → throw
- *   - requireAdminEmail → {ok} union
+ *   - requireAdminRole → {ok} union
  *
  * 30일 grace 동안 owner는 stores.deleted_at IS NOT NULL 상태로 로그인 가능,
  * inbox/AI 응답은 자연스럽게 빈 결과 → 차단 효과 자동. 취소 시 deleted_at 복원.
@@ -18,7 +18,7 @@ import { createDbClient } from "@hesya/database";
 import { z } from "zod";
 
 import { env } from "@/shared/config/env";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 import {
   cancelStoreDeletion,
   requestStoreDeletion,
@@ -185,7 +185,7 @@ async function adminGuardChain(): Promise<
   | { ok: true; userId: string; email: string }
   | (AdminDeletionResult & { ok: false })
 > {
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     return { ok: false, error: guard.error, message: guard.message };
   }

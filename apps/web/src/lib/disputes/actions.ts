@@ -3,11 +3,11 @@
  *
  * 인가 체인:
  *   - 사장 측 (submitDisputeAction): requireStoreOwnerAuth → checkRateLimit (60s/20회)
- *   - admin 측 (set/resolve/reject): requireAdminEmail → checkRateLimit (60s/20회)
+ *   - admin 측 (set/resolve/reject): requireAdminRole → checkRateLimit (60s/20회)
  *
  * 두 가드가 패턴이 다름 (shared/lib/CLAUDE.md 명시):
  *   - requireStoreOwnerAuth: throw (UnauthorizedError / ForbiddenError)
- *   - requireAdminEmail: {ok:true|false} union 반환
+ *   - requireAdminRole: {ok:true|false} union 반환
  *
  * 알림은 terminal status (resolved / rejected) 시점에 한 번만 발송 — kyc-result
  * 패턴과 동일.
@@ -18,7 +18,7 @@ import { createDbClient } from "@hesya/database";
 import { z } from "zod";
 
 import { env } from "@/shared/config/env";
-import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 import {
   createDispute,
   getDispute,
@@ -118,7 +118,7 @@ type AdminGuardChainResult =
 async function adminGuardChain(
   rawInput: unknown,
 ): Promise<AdminGuardChainResult> {
-  const guard = await requireAdminEmail();
+  const guard = await requireAdminRole();
   if (!guard.ok) {
     return { ok: false, error: guard.error, message: guard.message };
   }
