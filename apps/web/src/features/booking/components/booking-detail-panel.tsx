@@ -123,7 +123,10 @@ export function BookingDetailPanel({
       data-testid="bookings-detail-panel"
       className="fixed inset-y-0 right-0 z-40 w-full max-w-md overflow-y-auto border-l border-hesya-navy-900/10 bg-white shadow-2xl lg:relative lg:max-w-none"
     >
-      <header className="sticky top-0 z-10 flex items-start gap-2 border-b border-hesya-navy-900/10 bg-white/95 px-5 py-4 backdrop-blur-sm">
+      <header
+        className="sticky top-0 z-10 flex items-start gap-2 border-b border-hesya-navy-900/10 border-l-[3px] bg-white/95 px-5 py-4 backdrop-blur-sm"
+        style={{ borderLeftColor: stylist.color }}
+      >
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span aria-hidden="true" className="text-[20px]">
@@ -138,9 +141,18 @@ export function BookingDetailPanel({
               </span>
             )}
           </div>
-          <p className="mt-1 font-mono text-[12px] text-hesya-navy-900/55">
-            {fmtTime(booking.start)} – {fmtTime(booking.end)} · {dur}
-            {labels.minSuffix} · {day}
+          <p className="mt-1 flex items-center gap-2 font-mono text-[12px] text-hesya-navy-900/55">
+            <span>
+              {fmtTime(booking.start)} – {fmtTime(booking.end)} · {dur}
+              {labels.minSuffix} · {day}
+            </span>
+            <span aria-hidden="true" className="inline-flex items-center gap-1">
+              <span
+                className="inline-block h-1.5 w-1.5 rounded-full"
+                style={{ backgroundColor: stylist.color }}
+              />
+              <span className="text-hesya-navy-900/65">{stylist.short}</span>
+            </span>
           </p>
         </div>
         <button
