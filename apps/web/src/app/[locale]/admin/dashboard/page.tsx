@@ -362,47 +362,46 @@ export default async function AdminDashboardPage({ params }: Props) {
                   key={`${row.kind}:${row.id}`}
                   className={[
                     "relative rounded-md px-3 py-2.5 transition hover:bg-[#fafbfc]",
-                    // Reference parity: fresh row = 2px left amber bar (::before
-                    // 대신 border-l), background tint 제거.
+                    // Reference parity: fresh row = 2px left amber bar.
                     idx === 0
                       ? "border-l-2 border-hesya-amber-500 pl-[10px]"
                       : "",
                   ].join(" ")}
                 >
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={[
-                        "rounded px-1.5 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.12em]",
-                        row.kind === "kyc"
-                          ? "bg-hesya-amber-500/15 text-hesya-amber-700"
-                          : "bg-rose-100 text-rose-700",
-                      ].join(" ")}
-                    >
-                      {row.kind}
-                    </span>
-                    <time className="ml-auto font-mono text-[10px] text-gray-500">
-                      {new Intl.DateTimeFormat(locale, {
-                        month: "2-digit",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        timeZone: "Asia/Seoul",
-                      }).format(row.occurredAt)}
-                    </time>
-                    {idx === 0 ? (
-                      <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-700">
-                        {t("auditFresh")}
+                  {/* Reference parity: grid body | ts (timestamp top, kind badge below right-aligned, text-only no bg). FRESH chip 제거 — left amber bar로 fresh 신호 일원화. */}
+                  <div className="grid grid-cols-[1fr_auto] items-start gap-2">
+                    <div className="min-w-0">
+                      <p className="text-[12.5px] leading-snug text-hesya-navy-900">
+                        {row.summary}
+                      </p>
+                      {row.context ? (
+                        <p className="mt-0.5 truncate font-mono text-[10.5px] text-gray-500">
+                          {row.context}
+                        </p>
+                      ) : null}
+                    </div>
+                    <div className="flex flex-col items-end gap-1 text-right">
+                      <time className="whitespace-nowrap font-mono text-[10.5px] text-gray-500">
+                        {new Intl.DateTimeFormat(locale, {
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          timeZone: "Asia/Seoul",
+                        }).format(row.occurredAt)}
+                      </time>
+                      <span
+                        className={[
+                          "font-body-en text-[9px] font-bold uppercase tracking-[0.18em]",
+                          row.kind === "kyc"
+                            ? "text-emerald-700"
+                            : "text-[#c9483a]",
+                        ].join(" ")}
+                      >
+                        {row.kind === "kyc" ? "KYC" : "DIS"}
                       </span>
-                    ) : null}
+                    </div>
                   </div>
-                  <p className="mt-1.5 text-[12.5px] leading-snug text-hesya-navy-900">
-                    {row.summary}
-                  </p>
-                  {row.context ? (
-                    <p className="mt-0.5 truncate font-mono text-[10.5px] text-gray-500">
-                      {row.context}
-                    </p>
-                  ) : null}
                 </li>
               ))}
             </ul>
