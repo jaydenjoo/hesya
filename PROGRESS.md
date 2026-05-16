@@ -3,7 +3,7 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-16 세션 43 — 🎯 세션 42 잔여 #253 mop-up + P0 잔여 큰 구조 21 PR, 누적 59 PR — round 7 in flight)
+## 현재 위치 (2026-05-16 세션 43 — 🎯 세션 42 잔여 #253 mop-up + P0 잔여 큰 구조 21 PR 머지, 누적 59 PR — 7 라운드 완료)
 
 - **세션 43 라운드 7 (3 PR 추가 — detail header + visual polish)**:
   - PR [#272](https://github.com/jaydenjoo/hesya/pull/272) — **Owner Booking Detail status header + cancellation refund band**. ring-bordered status pill (scheduled emerald / completed gray / cancelled amber / no_show rose) + service chip + scheduledAt + 디자이너 + 우상단 large mono price. Cancellation refund band (scheduled+future): 24h+ ok / 12-24h warn / <12h danger with hours remaining. nowMs server-injected. **진단 ~50% → ~70%**.
