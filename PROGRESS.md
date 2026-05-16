@@ -3,6 +3,67 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
+## 세션 47 종료 요약 (2026-05-17) — Marketing Landing 트랙 Phase A+B 산출 (코드 0건, 문서 4건)
+
+세션 46 종료 직후 별도 트랙으로 pivot. **24 페이지 100% 정합 트랙 일시 보류** → 외부 Claude.ai 작업(5시간 세션, Hesya Landing.html 1949 lines + Higgsfield 자산 16개) 통합 준비.
+
+### 핵심 산출 (코드 변경 0건 — 문서만)
+
+| 단계           | 결과물                                                                                             | 내용                                                                        |
+| -------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Phase A (탐사) | [`docs/handoff-marketing-landing/AUDIT_REPORT.md`](docs/handoff-marketing-landing/AUDIT_REPORT.md) | 인벤토리 5단계 + 충돌 분석 A~E + 가정 검증 8개 + OPEN QUESTIONS 6개         |
+| Phase B (PRD)  | [`docs/PRD-marketing-landing.md`](docs/PRD-marketing-landing.md)                                   | 12 섹션 — 목적/시나리오/기능/Not Doing 12개/완료기준/보안/리스크/후속/승인  |
+| Phase B (Plan) | [`docs/Plan-marketing-landing-v1.md`](docs/Plan-marketing-landing-v1.md)                           | 6 섹션 + T1~T11 분해 (~12h) + 부록 3 (default 옵션/미션 가정 정정/변경이력) |
+| 핸드오프       | `docs/handoff-marketing-landing/` 6 files (01~05 + AUDIT)                                          | 외부 Claude → 본 모노레포 통합 가이드                                       |
+
+### Phase A 핵심 발견
+
+| 영역               | 결과             | 비고                                                                          |
+| ------------------ | ---------------- | ----------------------------------------------------------------------------- |
+| 토큰 충돌          | 🟢 **0건**       | 4개 tokens.css 파일 byte-identical (350 lines)                                |
+| 폰트 충돌          | 🟢 **0건**       | layout.tsx에 Fraunces + Source Sans 3 + JetBrains Mono + Pretendard wire 완료 |
+| (marketing) 경로   | 🟢 **0건**       | 신규 경로 안전                                                                |
+| 기존 page.tsx      | 🟡 **충돌 있음** | γ.2.3.5 미니 LandingHero 사용 중 — Q2 default B2 (교체)                       |
+| i18n Landing ns    | 🟡 **부분**      | 4 keys 기존 — Q3 default E1 (신규 namespace `MarketingLanding`)               |
+| 자산 위치          | 🟡 **분리**      | `web/public/assets/` → `apps/web/public/assets/` 복사 필요 (A1)               |
+| Motion deps        | ⚠️ **미설치**    | framer-motion / gsap 없음 — Q4 default M1 (CSS-only)                          |
+| Landing.html video | ⚠️ **0 element** | placeholder 주석만 (line 1232) — T5에서 직접 wire                             |
+
+### Briefing 가정 정정 2건
+
+1. ❌ Briefing 가정 "6 locales th" → 실제 **vi** (Vietnamese)
+2. ❌ Briefing 가정 "marketing tokens 198 lines" → 실제 **350 lines (master와 identical)**
+
+### Jayden 승인 (2026-05-17)
+
+- PRD-marketing-landing.md + Plan-marketing-landing-v1.md **승인 확정**
+- OPEN QUESTIONS Q1~Q6 **default 채택** (A1 복사 / B2 page 교체 / E1 신규 namespace / M1 CSS-only / 표준 영상 정책 / T11 합산 갱신)
+
+### 다음 세션 진입 명령
+
+별도 Claude Code 세션 (`/clear` 또는 새 채팅) 열고 입력:
+
+```
+docs/Plan-marketing-landing-v1.md T1부터 시작해줘 (자산 16개 복사 + 용량 확인)
+```
+
+### 세션 분산 예상 (6~7 세션)
+
+- 다음 세션 1: T1 (10m) + T2+T3 번역 (2h) — 자산 + 6 locales i18n
+- 다음 세션 2: T4 (30m) + T5 Hero (2h)
+- 다음 세션 3: T6 (2h) — HowItWorks + Salons + UGC
+- 다음 세션 4: T7 (2h) — Safety + B2B + Trending
+- 다음 세션 5: T8 (1.5h) + T9 (1h) — FAQ/Footer + a11y/perf
+- 다음 세션 6: T10 (30m) + T11 (30m) — Preview deploy + Jayden 시연
+
+### 자기평가 (e2e 기준 L-082)
+
+- **Phase A+B 문서 산출**: 100% (PRD/Plan 승인 완료, 시연 prerequisite — 코드 작업 아님)
+- **Marketing landing e2e 시연 가능**: **0%** (T1~T11 미시작)
+- design-completion-status.md "세션 47+ 별도 트랙" 진척: 본 세션은 문서만 → 코드 머지 0, e2e 변경 0
+
+---
+
 ## 세션 46 종료 요약 (2026-05-16) — O1 Store Dashboard 디자인 100% 정합 (10 PR)
 
 세션 45 종료 후 같은 날 후속 세션. 누적 **114 PR** (세션 45: 104 → +10). O1 Store Dashboard 12 위젯 전체 reference 정합 + mock-fixtures pattern 도입 + 숨겨진 버그 2건 fix.
