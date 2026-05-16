@@ -55,18 +55,22 @@ export function DashboardHeader({
       }
       subtitle={subtitle}
       right={
-        <div className="flex flex-col items-end gap-2">
-          <div className="text-right font-mono">
-            <p className="text-[13px] font-semibold tracking-wide text-hesya-navy-900">
+        // Reference dashboard.css sd-greet-right — date + priority horizontal
+        // flex gap-16px (이전 vertical flex). subagent Top 1 polish.
+        <div className="flex items-center gap-4">
+          <div className="text-right">
+            <p className="font-mono text-[13px] font-semibold tracking-[0.02em] text-hesya-navy-900">
               {dateDay}
             </p>
             <p className="mt-0.5 text-[11px] text-gray-500">{dateWeekday}</p>
           </div>
           {priorityLabel ? (
+            // Reference sd-btn-amber + sd-priority: h-10 px-4 text-[13px]
+            // font-semibold + shadow + hover translate-y-[-1px].
             <button
               type="button"
               data-testid="dashboard-priority-button"
-              className="kr inline-flex items-center gap-1.5 rounded-md bg-hesya-amber-500 px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-hesya-amber-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
+              className="inline-flex h-10 items-center gap-1.5 whitespace-nowrap rounded-md bg-hesya-amber-500 px-4 text-[13px] font-semibold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-hesya-amber-600 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
             >
               <span aria-hidden="true">📌</span>
               {priorityLabel}
