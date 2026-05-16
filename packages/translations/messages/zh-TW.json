@@ -766,6 +766,8 @@
     "columnAllergyNote": "注意事項",
     "columnPreferredDesigner": "首選設計師",
     "columnAction": "動作",
+    "columnLastSeen": "最近",
+    "columnStatus": "狀態",
     "emptyText": "尚無客戶。收到首則訊息後會自動加入。",
     "saveButton": "儲存",
     "cancelButton": "取消",

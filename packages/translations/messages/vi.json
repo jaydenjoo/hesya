@@ -766,6 +766,8 @@
     "columnAllergyNote": "Ghi chú",
     "columnPreferredDesigner": "Stylist ưa thích",
     "columnAction": "Thao tác",
+    "columnLastSeen": "Gần đây",
+    "columnStatus": "Trạng thái",
     "emptyText": "Chưa có khách hàng. Sẽ tự động thêm sau tin nhắn đầu.",
     "saveButton": "Lưu",
     "cancelButton": "Hủy",

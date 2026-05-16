@@ -82,6 +82,8 @@ export default async function StoreCustomersPage({
               viewButton: t("viewButton"),
               unknownName: t("unknownName"),
               emptyDash: t("emptyDash"),
+              columnLastSeen: t("columnLastSeen"),
+              columnStatus: t("columnStatus"),
             },
             detail: {
               closeLabel: t("detailCloseLabel"),

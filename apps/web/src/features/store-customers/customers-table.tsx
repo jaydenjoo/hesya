@@ -23,6 +23,8 @@ export interface CustomersTableLabels {
   readonly viewButton: string;
   readonly unknownName: string;
   readonly emptyDash: string;
+  readonly columnLastSeen: string;
+  readonly columnStatus: string;
 }
 
 interface Props {
@@ -109,33 +111,42 @@ const STATUS_STYLES: Record<
   },
 };
 
+const TABLE_GRID =
+  "md:grid-cols-[40px_minmax(180px,1.6fr)_0.7fr_0.7fr_0.55fr_0.85fr_0.7fr_0.95fr_0.85fr_28px]";
+
 export function CustomersTable({ rows, labels, onSelect, selectedId }: Props) {
   return (
     <div className="overflow-hidden rounded-2xl border border-hesya-peach-200 bg-white">
-      <div className="hidden grid-cols-[40px_1.5fr_0.8fr_0.7fr_0.7fr_0.6fr_0.9fr_1fr_1fr_72px] gap-3 border-b border-hesya-peach-200 bg-hesya-peach-50/50 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-hesya-navy-900/65 md:grid">
+      <div
+        className={
+          "hidden gap-3 border-b border-hesya-peach-200 bg-hesya-peach-50/60 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-hesya-navy-900/65 md:grid " +
+          TABLE_GRID
+        }
+      >
         <span />
         <span>{labels.columnName}</span>
-        <span>{labels.columnChannel}</span>
         <span>{labels.columnLanguage}</span>
         <span>{labels.columnNationality}</span>
         <span className="text-right font-mono">{labels.columnVisits}</span>
         <span className="text-right font-mono">{labels.columnLtv}</span>
-        <span>{labels.columnAllergy}</span>
+        <span>{labels.columnLastSeen}</span>
         <span>{labels.columnDesigner}</span>
-        <span className="text-right">{labels.columnAction}</span>
+        <span>{labels.columnStatus}</span>
+        <span />
       </div>
 
       <ul className="divide-y divide-hesya-peach-100">
         {rows.map((row) => {
           const isActive = selectedId === row.id;
+          const status = STATUS_STYLES[deriveStatus(row)];
           return (
             <li
               key={row.id}
+              onClick={() => onSelect(row)}
               className={[
-                "grid grid-cols-[40px_1fr_auto] gap-3 px-4 py-3 text-[13px] transition md:grid-cols-[40px_1.5fr_0.8fr_0.7fr_0.7fr_0.6fr_0.9fr_1fr_1fr_72px] md:py-2.5",
-                isActive
-                  ? "bg-hesya-amber-500/10"
-                  : "hover:bg-hesya-peach-50/60",
+                "grid cursor-pointer grid-cols-[40px_1fr_auto] items-center gap-3 px-4 py-3 text-[13px] transition md:py-2.5",
+                TABLE_GRID,
+                isActive ? "bg-hesya-peach-100" : "hover:bg-hesya-peach-50/60",
               ].join(" ")}
             >
               <span
@@ -152,35 +163,15 @@ export function CustomersTable({ rows, labels, onSelect, selectedId }: Props) {
               </span>
 
               <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <p className="truncate font-medium text-hesya-navy-900">
-                    {row.name ?? labels.unknownName}
-                  </p>
-                  {(() => {
-                    const s = STATUS_STYLES[deriveStatus(row)];
-                    return (
-                      <span
-                        className={
-                          "inline-flex flex-shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5 font-mono text-[9px] font-semibold " +
-                          s.cls
-                        }
-                        title={s.label}
-                      >
-                        <span aria-hidden="true">{s.icon}</span>
-                        <span className="kr">{s.label}</span>
-                      </span>
-                    );
-                  })()}
-                </div>
-                <p className="mt-0.5 truncate text-[11px] text-hesya-navy-900/55 md:hidden">
-                  {row.channel ?? "—"} ·{" "}
-                  {row.preferredLanguage?.toUpperCase() ?? "—"}
+                <p className="truncate font-medium text-hesya-navy-900">
+                  {row.name ?? labels.unknownName}
+                </p>
+                <p className="mt-0.5 truncate text-[10.5px] text-hesya-navy-900/55">
+                  {row.channel ?? labels.emptyDash}
+                  {row.allergyNote ? ` · ${row.allergyNote}` : ""}
                 </p>
               </div>
 
-              <span className="hidden truncate text-[11px] uppercase tracking-wide text-hesya-navy-900/65 md:block">
-                {row.channel ?? labels.emptyDash}
-              </span>
               <span className="hidden font-mono text-[12px] text-hesya-navy-900/75 md:block">
                 {row.preferredLanguage?.toUpperCase() ?? labels.emptyDash}
               </span>
@@ -193,27 +184,42 @@ export function CustomersTable({ rows, labels, onSelect, selectedId }: Props) {
               <span className="hidden text-right font-mono text-[12px] text-hesya-navy-900/85 md:block">
                 {fmtKRW(row.ltvKrw)}
               </span>
-              <span className="hidden truncate text-[12px] text-hesya-navy-900/75 md:block">
-                {row.allergyNote ?? labels.emptyDash}
+              <span className="hidden truncate text-[11.5px] text-hesya-navy-900/55 md:block">
+                {labels.emptyDash}
               </span>
               <span className="hidden truncate text-[12px] text-hesya-navy-900/75 md:block">
                 {row.preferredDesigner ?? labels.emptyDash}
               </span>
 
-              <div className="flex items-center justify-end md:justify-end">
-                <button
-                  type="button"
-                  onClick={() => onSelect(row)}
-                  className={[
-                    "rounded-full px-3 py-1 text-[11px] font-semibold transition",
-                    isActive
-                      ? "bg-hesya-navy-900 text-hesya-peach-50"
-                      : "border border-hesya-peach-200 text-hesya-navy-900 hover:border-hesya-amber-500",
-                  ].join(" ")}
+              <span className="hidden md:block">
+                <span
+                  className={
+                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold " +
+                    status.cls
+                  }
+                  title={status.label}
                 >
-                  {labels.viewButton}
-                </button>
-              </div>
+                  <span aria-hidden="true">{status.icon}</span>
+                  <span className="kr">{status.label}</span>
+                </span>
+              </span>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelect(row);
+                }}
+                aria-label={labels.viewButton}
+                className={[
+                  "grid h-7 w-7 place-items-center justify-self-end rounded-full text-[12px] transition",
+                  isActive
+                    ? "bg-hesya-navy-900 text-hesya-peach-50"
+                    : "text-hesya-navy-900/55 hover:bg-hesya-peach-100 hover:text-hesya-amber-700",
+                ].join(" ")}
+              >
+                ▸
+              </button>
             </li>
           );
         })}
