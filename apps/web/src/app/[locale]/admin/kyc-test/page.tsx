@@ -29,31 +29,58 @@ import {
   type VerifyBusinessNumberResult,
 } from "@/lib/kyc/actions";
 
+const KYC_STEPS = [
+  { num: "01", label: "NTS 진위", short: "NTS" },
+  { num: "02", label: "LOCALDATA 조회", short: "LOCAL" },
+  { num: "03", label: "통합 매칭", short: "MATCH" },
+  { num: "04", label: "자기신고", short: "SIGN" },
+  { num: "05", label: "카테고리 분류", short: "CAT" },
+  { num: "06", label: "OCR 추출", short: "OCR" },
+] as const;
+
 export default function KycTestPage() {
   return (
     <>
       <SkipLink targetId="main" label="본문으로 건너뛰기" />
       <div id="main" tabIndex={-1} className="mx-auto max-w-3xl space-y-12 p-8">
-        <header className="space-y-2">
-          <h1 className="text-2xl font-bold tracking-[-0.02em] text-hesya-navy-900">
+        <header className="space-y-3">
+          <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+            Admin · KYC Verification · 6 Steps
+          </p>
+          <h1 className="font-display text-[26px] italic tracking-[-0.02em] text-hesya-navy-900">
             KYC 검증 페이지
           </h1>
-          <p className="text-sm leading-relaxed text-gray-700">
-            Epic 9 Step 1·2 — 국세청 진위확인 + LOCALDATA 미용업 영업신고 조회.
-            로그인 필요.
+          <p className="text-sm leading-relaxed text-gray-700 [word-break:keep-all]">
+            Epic 9 — 국세청 진위확인 + LOCALDATA 미용업 영업신고 + 통합 매칭 +
+            자기신고 + 카테고리 + OCR. 로그인 필요.
           </p>
+          <ol aria-label="KYC 6 단계" className="flex flex-wrap gap-1.5 pt-2">
+            {KYC_STEPS.map((s) => (
+              <li
+                key={s.num}
+                className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 ring-1 ring-hesya-peach-200"
+              >
+                <span className="font-mono text-[9.5px] font-bold tabular-nums text-hesya-amber-600">
+                  {s.num}
+                </span>
+                <span className="text-[11.5px] font-medium text-hesya-navy-900/85">
+                  {s.label}
+                </span>
+              </li>
+            ))}
+          </ol>
         </header>
 
         <NtsSection />
-        <hr className="border-gray-200" />
+        <hr className="border-hesya-peach-100" />
         <LocaldataSection />
-        <hr className="border-gray-200" />
+        <hr className="border-hesya-peach-100" />
         <MatchSection />
-        <hr className="border-gray-200" />
+        <hr className="border-hesya-peach-100" />
         <SelfDeclarationSection />
-        <hr className="border-gray-200" />
+        <hr className="border-hesya-peach-100" />
         <CategoryClassifySection />
-        <hr className="border-gray-200" />
+        <hr className="border-hesya-peach-100" />
         <OcrExtractSection />
       </div>
     </>
