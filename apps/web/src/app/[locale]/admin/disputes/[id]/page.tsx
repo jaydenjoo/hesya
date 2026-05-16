@@ -36,7 +36,8 @@ export default async function AdminDisputeDetailPage({
         subtitle="접수된 분쟁을 검토하고 결과를 등록합니다."
       />
       <div className="mx-auto max-w-4xl px-8 pb-10">
-        <DisputeDetail dispute={dispute} />
+        {/* eslint-disable-next-line react-hooks/purity */}
+        <DisputeDetail dispute={dispute} nowMs={Date.now()} />
       </div>
     </div>
   );
