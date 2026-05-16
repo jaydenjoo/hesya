@@ -5,13 +5,14 @@
 
 ## 세션 44 종료 요약 (2026-05-16)
 
-- **결과**: 4 PR 머지 (라운드 8 — 세션 43 잔여 후보 4건 완수). 누적 63 PR.
-- **패턴**: /loop dynamic + 270s wakeup (L-102). 4건 모두 단일 파일 변경 + i18n 추가 없음 → 평균 ~10분 e2e cycle.
+- **결과**: **10 PR 머지** (라운드 8 4건 + 라운드 9 6건). 누적 **69 PR**.
+- **패턴**: /loop dynamic + 270s wakeup (L-102). 모든 PR 단일 파일 변경 + i18n 추가 없음 (기존 라벨 재사용) → 평균 ~10분 e2e cycle.
 - **다음 세션 후보**:
   - **Phase 1-γ.1 KYC E2E**: 별도 큰 작업
   - **Epic 12 admin panel**: 별도 큰 작업 (admin-guard.ts → 정식 owner guard 교체)
-  - 시각 polish는 "디자인 100% push" 1차 종료. 추가 발견 시 세션별 후속.
-- **차단 요소**: 없음. main 깨끗 + 4 PR Vercel preview deployed.
+  - **Owner Deletion Panel 정합**: minimalist → disputes 패턴 일관성 (Phase 1-ε scope, ~1h)
+  - 시각 polish는 "디자인 100% push" 2차 종료. 추가 발견 시 세션별 후속.
+- **차단 요소**: 없음. main 깨끗 + 10 PR Vercel preview deployed.
 
 ## 세션 43 종료 요약 (2026-05-16)
 
@@ -20,14 +21,22 @@
 - **신규 학습**: L-103 (UI 텍스트 redesign 시 test assertion 미리 grep 의무 — PR #268 1 CI cycle 낭비 경험).
 - **차단 요소**: 없음. main 깨끗 + CI green + Vercel preview deployed.
 
-## 현재 위치 (2026-05-16 세션 44 — 🎯 세션 43 잔여 후보 4건 완수, 누적 63 PR — 라운드 8 완료)
+## 현재 위치 (2026-05-16 세션 44 — 🎯 라운드 8+9 (10 PR), 누적 69 PR — 라운드 9 완료)
 
-- **세션 44 라운드 8 (4 PR 추가 — 세션 43 잔여 후보 mop-up)**:
+- **세션 44 라운드 9 (6 PR 추가 — 추가 polish 영역)**:
+  - PR [#279](https://github.com/jaydenjoo/hesya/pull/279) — **Admin AI Accuracy KPI 카드 progress bar + threshold marker**. MetricCard에 progressPct + thresholdPct + tone(ok/warn/danger/muted) props. 표본 부족 카드에 amber bar + N/M chip. 정확도/표본/승인/수정·무시 4 카드 모두 시각 강화.
+  - PR [#280](https://github.com/jaydenjoo/hesya/pull/280) — **Onboarding pending-status 4-step roadmap + ETA chip**. 신규 OnboardingRoadmap (신청→검토→승인→활성화 grid). manual_review → ETA 24~48h mono chip. rejected 시 3단계 rose. 9/9 test pass.
+  - PR [#281](https://github.com/jaydenjoo/hesya/pull/281) — **Owner Services AI proposals demand bar + evidence chips**. demandScore 1px progress bar (tone 동기화). evidence list bullet → 번호 chip (amber/15 bg + amber-700 mono).
+  - PR [#282](https://github.com/jaydenjoo/hesya/pull/282) — **Owner Customers DetailSheet History/Tags 탭 empty state**. 텍스트 placeholder → 시각적 empty state (dashed border + circular icon + \"coming · M4.x\" footer).
+  - PR [#283](https://github.com/jaydenjoo/hesya/pull/283) — **Owner Inbox Skipped count strip + channel pill**. 상단 amber count badge + 제목/subtitle strip. 각 row channel 라벨을 peach-50 pill로 감싸기.
+  - PR [#284](https://github.com/jaydenjoo/hesya/pull/284) — **C2 TabInfo section icons + 영업일 chip**. 영업시간 헤더 ⏱ + emerald N/7 chip. 주소 헤더 📍. K-Verified section bg peach-50/40 emphasis.
+
+- **세션 44 라운드 8 (4 PR — 세션 43 잔여 후보 mop-up)**:
   - PR [#275](https://github.com/jaydenjoo/hesya/pull/275) — **Admin Dispute Detail metadata grid card**. 기존 \<Row k v /\> dl을 2-col grid card로 교체. \`§02 · Metadata\` eyebrow + uppercase mono label + mono/KR value + ID/timestamp mono + 중복 상태/유형 row 제거(header chip에 이미 표시) + ISO timestamp T→space. **진단 ~58% → ~62%**.
   - PR [#276](https://github.com/jaydenjoo/hesya/pull/276) — **Customer MyPage Reviews 탭 polish**. ReviewsPane 상단 header strip (pending count chip + 후기 라벨 + 🌐 자동 번역 안내). ReviewCard 내 별점 옆 X/5 mono chip + textarea char count chip. i18n 추가 없이 기존 6 locale 라벨 재사용. **진단 ~75% → ~82%**.
   - PR [#277](https://github.com/jaydenjoo/hesya/pull/277) — **Owner Inbox AI assist tone tabs segmented control**. flex gap → inline-flex segmented (\`bg-white/70 ring-amber-500/25 shadow\`). active: \`bg-amber-500 text-white\` + drop shadow. inactive: hover bg-white + navy text. tablist aria-label 추가. ai-assist.test.tsx 21/21 pass. **진단 시각 정합 ↑**.
   - PR [#278](https://github.com/jaydenjoo/hesya/pull/278) — **Admin AI Cost BudgetForecast polish**. header 우측 status chip 3 상태 (예산 초과/페이싱 경고/정상) + card border overForecast 시 rose-200 + MTD progress bar 신규 + EOM overshoot 시 ⚠+₩delta chip. **진단 ~30% → ~42%**.
-- **세션 44 검증**: 매 PR type-check (2.4~2.7s) + lint (6.5~6.9s) + test (해당 시) 통과. CI workflow_dispatch + auto-merge label + 수동 merge.
+- **세션 44 검증**: 매 PR type-check (2.4~2.7s) + lint (6.3~7.1s) + test (해당 시 9~21 pass) 통과. CI workflow_dispatch + auto-merge label + 수동 merge.
 
 ## 이전 위치 (2026-05-16 세션 43 — 🎯 세션 42 잔여 #253 mop-up + P0 잔여 큰 구조 21 PR 머지, 누적 59 PR — 7 라운드 완료)
 
