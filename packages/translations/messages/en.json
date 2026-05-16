@@ -165,10 +165,13 @@
       "no_show": "No-show"
     },
     "columnScheduled": "Scheduled at",
+    "columnDate": "Date",
+    "columnTime": "Time",
     "columnService": "Service",
     "columnStaff": "Designer",
     "columnPrice": "Price",
     "columnStatus": "Status",
+    "countLabel": "{n} total",
     "empty": "No bookings yet",
     "detail": {
       "close": "Close",

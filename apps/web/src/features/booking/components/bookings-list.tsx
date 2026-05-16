@@ -22,6 +22,10 @@ type Props = {
     empty: string;
     detail: string;
     statuses: Record<string, string>;
+    countLabel?: string;
+    foreignCountLabel?: string;
+    columnDate?: string;
+    columnTime?: string;
   };
 };
 
@@ -32,6 +36,25 @@ const STATUS_FILTERS_ORDER: ReadonlyArray<BookingFilter> = [
   "no_show",
   "cancelled",
 ];
+
+const STYLIST_DOT_PALETTE = [
+  "bg-hesya-amber-500",
+  "bg-hesya-peach-200",
+  "bg-gray-300",
+  "bg-emerald-400",
+  "bg-rose-300",
+];
+
+function stylistDotClass(staffId: string | null): string {
+  if (!staffId) return "bg-gray-200";
+  let hash = 0;
+  for (let i = 0; i < staffId.length; i++)
+    hash = (hash * 31 + staffId.charCodeAt(i)) | 0;
+  return (
+    STYLIST_DOT_PALETTE[Math.abs(hash) % STYLIST_DOT_PALETTE.length] ??
+    "bg-gray-200"
+  );
+}
 
 function pickServiceName(service: Service | undefined, locale: string): string {
   if (!service) return "—";
@@ -66,6 +89,10 @@ export function BookingsList({
   staffLabels,
   labels,
 }: Props) {
+  const total = rows.length;
+  const countSummary = labels.countLabel
+    ? labels.countLabel.replace("{n}", String(total))
+    : `${total}`;
   return (
     <div className="space-y-4">
       <nav className="flex flex-wrap gap-2">
@@ -98,81 +125,119 @@ export function BookingsList({
       {rows.length === 0 ? (
         <p className="text-hesya-navy-900/60">{labels.empty}</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-hesya-peach-100 text-left">
-                <th className="py-2">{labels.columnScheduled}</th>
-                <th>{labels.columnService}</th>
-                <th>{labels.columnStaff}</th>
-                <th>{labels.columnPrice}</th>
-                <th>{labels.columnStatus}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((b) => {
-                const statusKey = b.status ?? "scheduled";
-                const statusLabel = labels.statuses[statusKey] ?? statusKey;
-                return (
-                  <tr
-                    key={b.id}
-                    className="border-b border-hesya-peach-100 transition-colors hover:bg-hesya-peach-50/40"
-                  >
-                    <td className="py-2">
-                      {b.scheduledAt
-                        .toISOString()
-                        .slice(0, 16)
-                        .replace("T", " ")}
-                    </td>
-                    <td>
-                      {b.serviceId
-                        ? (serviceLabels.get(b.serviceId) ?? "—")
-                        : "—"}
-                    </td>
-                    <td>
-                      {b.staffId ? (staffLabels.get(b.staffId) ?? "—") : "—"}
-                    </td>
-                    <td>
-                      {b.totalPriceKrw
-                        ? `₩${b.totalPriceKrw.toLocaleString()}`
-                        : "—"}
-                    </td>
-                    <td>
-                      <StatusBadge status={statusKey} label={statusLabel} />
-                    </td>
-                    <td>
-                      <Link
-                        href={`/${locale}/store/bookings/${b.id}`}
-                        className="text-hesya-amber-500 hover:underline"
-                      >
-                        {labels.detail}
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <>
+          <div className="flex items-baseline justify-between">
+            <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/55">
+              {countSummary}
+            </span>
+          </div>
+          <div className="overflow-x-auto rounded-md border border-hesya-peach-100 bg-white">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-hesya-peach-100 text-left">
+                  <th className="px-4 py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-hesya-navy-900/55">
+                    {labels.columnDate ?? labels.columnScheduled}
+                  </th>
+                  <th className="py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-hesya-navy-900/55">
+                    {labels.columnTime ?? ""}
+                  </th>
+                  <th className="py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-hesya-navy-900/55">
+                    {labels.columnService}
+                  </th>
+                  <th className="py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-hesya-navy-900/55">
+                    {labels.columnStaff}
+                  </th>
+                  <th className="py-2 text-right font-mono text-[10px] uppercase tracking-[0.1em] text-hesya-navy-900/55">
+                    {labels.columnPrice}
+                  </th>
+                  <th className="py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-hesya-navy-900/55">
+                    {labels.columnStatus}
+                  </th>
+                  <th className="w-8 px-4 py-2"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((b) => {
+                  const statusKey = b.status ?? "scheduled";
+                  const statusLabel = labels.statuses[statusKey] ?? statusKey;
+                  const iso = b.scheduledAt.toISOString();
+                  const dateStr = iso.slice(5, 10).replace("-", ".");
+                  const timeStr = iso.slice(11, 16);
+                  return (
+                    <tr
+                      key={b.id}
+                      className="border-b border-hesya-peach-50 transition-colors last:border-b-0 hover:bg-hesya-peach-50/60"
+                    >
+                      <td className="px-4 py-2.5 font-mono text-[12px] tabular-nums text-hesya-navy-900/85">
+                        {dateStr}
+                      </td>
+                      <td className="py-2.5 font-mono text-[12px] tabular-nums text-hesya-navy-900">
+                        {timeStr}
+                      </td>
+                      <td className="py-2.5 text-hesya-navy-900">
+                        {b.serviceId
+                          ? (serviceLabels.get(b.serviceId) ?? "—")
+                          : "—"}
+                      </td>
+                      <td className="py-2.5">
+                        <span className="inline-flex items-center gap-1.5">
+                          <span
+                            aria-hidden="true"
+                            className={`inline-block h-2 w-2 rounded-full ${stylistDotClass(b.staffId)}`}
+                          />
+                          <span className="text-hesya-navy-900/85">
+                            {b.staffId
+                              ? (staffLabels.get(b.staffId) ?? "—")
+                              : "—"}
+                          </span>
+                        </span>
+                      </td>
+                      <td className="py-2.5 text-right font-mono text-[12px] tabular-nums text-hesya-navy-900">
+                        {b.totalPriceKrw
+                          ? `₩${b.totalPriceKrw.toLocaleString()}`
+                          : "—"}
+                      </td>
+                      <td className="py-2.5">
+                        <StatusPill status={statusKey} label={statusLabel} />
+                      </td>
+                      <td className="px-4 py-2.5 text-right">
+                        <Link
+                          href={`/${locale}/store/bookings/${b.id}`}
+                          aria-label={labels.detail}
+                          className="inline-flex h-7 w-7 items-center justify-center rounded text-hesya-navy-900/40 transition hover:bg-hesya-peach-100 hover:text-hesya-navy-900"
+                        >
+                          <span aria-hidden="true">⋯</span>
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );
 }
 
-function StatusBadge({ status, label }: { status: string; label: string }) {
+function StatusPill({ status, label }: { status: string; label: string }) {
   const tone =
     status === "scheduled"
-      ? "bg-hesya-peach-50 text-hesya-navy-900 border-hesya-peach-200"
+      ? { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" }
       : status === "completed"
-        ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+        ? { bg: "bg-gray-100", text: "text-gray-700", dot: "bg-gray-400" }
         : status === "no_show"
-          ? "bg-hesya-peach-100 text-red-500 border-hesya-peach-200"
-          : "bg-gray-50 text-hesya-navy-900/60 border-gray-200";
+          ? { bg: "bg-rose-50", text: "text-rose-700", dot: "bg-rose-500" }
+          : { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" };
   return (
     <span
-      className={`inline-block rounded-md border px-2 py-0.5 text-xs font-medium ${tone}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${tone.bg} ${tone.text}`}
     >
+      <span
+        aria-hidden="true"
+        className={`inline-block h-1.5 w-1.5 rounded-full ${tone.dot}`}
+      />
       {label}
     </span>
   );

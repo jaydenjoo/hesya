@@ -165,10 +165,13 @@
       "no_show": "노쇼"
     },
     "columnScheduled": "예약 일시",
+    "columnDate": "날짜",
+    "columnTime": "시간",
     "columnService": "시술",
     "columnStaff": "디자이너",
     "columnPrice": "금액",
     "columnStatus": "상태",
+    "countLabel": "총 {n}건",
     "empty": "예약이 없습니다",
     "detail": {
       "close": "닫기",
