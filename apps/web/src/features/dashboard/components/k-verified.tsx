@@ -36,14 +36,23 @@ export function KVerified({ tier, renewalDate, comingSoonLabel }: Props) {
         </h3>
       </header>
 
-      <div className="mb-4 flex items-center gap-3 rounded-md bg-hesya-amber-500/10 px-3 py-2.5">
+      {/* Reference dashboard.css sd-verified-band — gold gradient
+          (135deg, kverified-gold #d4af37, #e8c66b) + ribbon: 24×24 circle
+          with rgba(navy, 0.15) bg (이전 amber-500 → navy transparent).
+          "인증 완료" font-heading italic (Fraunces) — subagent Top 3 polish. */}
+      <div
+        className="mb-3 flex items-center gap-2.5 whitespace-nowrap rounded-md px-3.5 py-3 text-[13.5px]"
+        style={{
+          background: "linear-gradient(135deg, var(--kverified-gold), #e8c66b)",
+        }}
+      >
         <span
           aria-hidden="true"
-          className="flex h-7 w-7 items-center justify-center rounded-full bg-hesya-amber-500 text-[14px] font-bold text-white"
+          className="flex h-6 w-6 items-center justify-center rounded-full bg-hesya-navy-900/15 text-[13px] font-bold text-hesya-navy-900"
         >
           ✓
         </span>
-        <span className="kr text-[14px] font-semibold text-hesya-navy-900">
+        <span className="font-heading italic text-hesya-navy-900">
           {t("statusVerified")}
         </span>
       </div>
