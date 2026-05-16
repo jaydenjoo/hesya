@@ -185,6 +185,44 @@ export function WeekCalendarView({
         </div>
       </div>
 
+      {/* Stylist swimlane legend — 각 디자이너 color + week 예약 수 */}
+      <div
+        data-testid="bookings-stylist-legend"
+        className="flex flex-wrap items-center gap-1.5"
+      >
+        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/50">
+          stylists
+        </span>
+        {stylists.map((s) => {
+          const n = filtered.filter((b) => b.stylistId === s.id).length;
+          const muted = n === 0;
+          return (
+            <span
+              key={s.id}
+              className={`inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11px] font-medium ring-1 transition ${
+                muted
+                  ? "text-hesya-navy-900/40 ring-hesya-navy-900/5"
+                  : "text-hesya-navy-900 ring-hesya-navy-900/10"
+              }`}
+            >
+              <span
+                aria-hidden="true"
+                className="inline-block h-2 w-2 rounded-full"
+                style={{ backgroundColor: s.color, opacity: muted ? 0.3 : 1 }}
+              />
+              {s.short}
+              <span
+                className={`font-mono text-[10px] tabular-nums ${
+                  muted ? "text-hesya-navy-900/30" : "text-hesya-navy-900/55"
+                }`}
+              >
+                {n}
+              </span>
+            </span>
+          );
+        })}
+      </div>
+
       {/* Calendar grid */}
       <div
         data-testid="bookings-calendar-grid"
