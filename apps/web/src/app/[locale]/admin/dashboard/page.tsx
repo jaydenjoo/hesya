@@ -362,9 +362,11 @@ export default async function AdminDashboardPage({ params }: Props) {
                   key={`${row.kind}:${row.id}`}
                   className={[
                     "relative rounded-md px-3 py-2.5 transition hover:bg-[#fafbfc]",
-                    // Reference parity: fresh row = 2px left amber bar.
+                    // Reference parity: fresh row = 2px left amber bar +
+                    // slide-in animation (globals.css @keyframes
+                    // adminAuditSlideIn). prefers-reduced-motion 자동 우회.
                     idx === 0
-                      ? "border-l-2 border-hesya-amber-500 pl-[10px]"
+                      ? "admin-audit-fresh border-l-2 border-hesya-amber-500 pl-[10px]"
                       : "",
                   ].join(" ")}
                 >
