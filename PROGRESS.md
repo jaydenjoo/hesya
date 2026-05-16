@@ -3,10 +3,13 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 현재 위치 (2026-05-16 세션 43 — 🎯 세션 42 잔여 #253 mop-up + P0 잔여 큰 구조 3 PR, 누적 41 PR)
+## 현재 위치 (2026-05-16 세션 43 — 🎯 세션 42 잔여 #253 mop-up + P0 잔여 큰 구조 6 PR, 누적 44 PR)
 
-- **세션 43 (2026-05-16, /start 권장 A→E)**: 세션 42 마무리 (#253 머지) + Owner Customers KPI strip / Customer Schedule stylist 매칭 / Admin KYC 6단계 펼침 카드 3 PR 연속.
-- **머지 결과 4 PR**:
+- **세션 43 라운드 2 (3 PR 추가, 동일 sync 사이클)**:
+  - PR [#257](https://github.com/jaydenjoo/hesya/pull/257) — **Owner Settings 영업시간 4-col grid + 비고 col**. 7-row table (요일/오픈/마감/비고). 주말 amber + closed 행 line-through. 8 라벨 × 6 locale. **진단 ~70% → ~78%**.
+  - PR [#258](https://github.com/jaydenjoo/hesya/pull/258) — **Customer Schedule 비슷한 시간 carousel**. time slot 선택 시 ±3 슬롯 안 open만 chip 4개. 2 라벨 × 6 locale. **진단 ~92% → ~95%**.
+  - PR [#259](https://github.com/jaydenjoo/hesya/pull/259) — **Admin Payments 4 채널 stat tile**. Stripe/Alipay/WeChat/LINE 별 24h count + net + 7d sparkline + delta %. 4 라벨 × 6 locale. **진단 ~15% → ~30%**.
+- **머지 결과 4 PR (라운드 1)**:
   - PR [#253](https://github.com/jaydenjoo/hesya/pull/253) — 세션 42 잔여 Photo Analyze Audit accordion (CI dispatch 후 머지)
   - PR [#254](https://github.com/jaydenjoo/hesya/pull/254) — **Owner Customers DetailSheet KPI strip 4 KPIs** (총 방문 / 총 결제 / 최근 방문 / 다음 예약). 9 라벨 × 6 locale. mock-honest (visits/LTV real, last/next "—" + 안내). **진단 ~50% → ~58%**.
   - PR [#255](https://github.com/jaydenjoo/hesya/pull/255) — **Customer Schedule stylist 매칭 + 대체 카드**. (time && staffId) 시 노출. gradient avatar + ★ rating·reviews (deterministic mock from id hash) + 토글 "다른 가능한 디자이너 ↓". 5 라벨 × 6 locale. **진단 ~88% → ~92%**.
