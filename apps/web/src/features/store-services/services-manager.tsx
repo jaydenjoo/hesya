@@ -104,6 +104,32 @@ function translationCompleteness(rows: ReadonlyArray<ServiceRow>): number {
   return Math.round((total / rows.length) * 100);
 }
 
+interface LocaleBreakdown {
+  readonly id: string;
+  readonly flag: string;
+  readonly pct: number;
+  readonly n: number;
+}
+
+function localeBreakdown(
+  rows: ReadonlyArray<ServiceRow>,
+): ReadonlyArray<LocaleBreakdown> {
+  if (rows.length === 0) return [];
+  const t = rows.length;
+  const en = rows.filter((r) => r.nameEn).length;
+  const ja = rows.filter((r) => r.nameJa).length;
+  const zhCn = rows.filter((r) => r.nameZhCn).length;
+  const zhTw = rows.filter((r) => r.nameZhTw).length;
+  const vi = rows.filter((r) => r.nameVi).length;
+  return [
+    { id: "EN", flag: "🇺🇸", pct: Math.round((en / t) * 100), n: en },
+    { id: "JA", flag: "🇯🇵", pct: Math.round((ja / t) * 100), n: ja },
+    { id: "ZH", flag: "🇨🇳", pct: Math.round((zhCn / t) * 100), n: zhCn },
+    { id: "TW", flag: "🇹🇼", pct: Math.round((zhTw / t) * 100), n: zhTw },
+    { id: "VI", flag: "🇻🇳", pct: Math.round((vi / t) * 100), n: vi },
+  ];
+}
+
 export function ServicesManager({ initialRows, labels }: Props) {
   const [pending, startTransition] = useTransition();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -131,6 +157,7 @@ export function ServicesManager({ initialRows, labels }: Props) {
   }, [initialRows, activeCategory]);
 
   const completeness = translationCompleteness(initialRows);
+  const breakdown = localeBreakdown(initialRows);
   const open = creating || editingId !== null;
 
   const handleStartCreate = () => {
@@ -185,21 +212,58 @@ export function ServicesManager({ initialRows, labels }: Props) {
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <p className="font-mono text-[13px] font-medium text-hesya-navy-900">
-            {labels.servicesCount.replace("{n}", String(initialRows.length))}
-          </p>
-          <div className="flex items-center gap-2">
-            <div className="h-1.5 w-20 overflow-hidden rounded-full bg-hesya-peach-100">
-              <div
-                className="h-full bg-hesya-amber-500"
-                style={{ width: `${completeness}%` }}
-              />
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="font-mono text-[13px] font-medium text-hesya-navy-900">
+              {labels.servicesCount.replace("{n}", String(initialRows.length))}
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-20 overflow-hidden rounded-full bg-hesya-peach-100">
+                <div
+                  className="h-full bg-hesya-amber-500"
+                  style={{ width: `${completeness}%` }}
+                />
+              </div>
+              <span className="font-mono text-[11px] text-hesya-navy-900/65">
+                {completeness}% {labels.translatedLabel}
+              </span>
             </div>
-            <span className="font-mono text-[11px] text-hesya-navy-900/65">
-              {completeness}% {labels.translatedLabel}
-            </span>
           </div>
+          {breakdown.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {breakdown.map((b) => (
+                <span
+                  key={b.id}
+                  title={`${b.id}: ${b.n}/${initialRows.length} (${b.pct}%)`}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] ring-1 ring-hesya-peach-200"
+                >
+                  <span aria-hidden="true">{b.flag}</span>
+                  <span className="text-hesya-navy-900/65">{b.id}</span>
+                  <span className="relative inline-block h-1 w-10 overflow-hidden rounded-full bg-hesya-peach-100">
+                    <span
+                      className={`absolute inset-y-0 left-0 ${
+                        b.pct === 100
+                          ? "bg-emerald-500"
+                          : b.pct >= 50
+                            ? "bg-hesya-amber-500"
+                            : "bg-hesya-amber-500/40"
+                      }`}
+                      style={{ width: `${b.pct}%` }}
+                    />
+                  </span>
+                  <span
+                    className={`tabular-nums ${
+                      b.pct === 100
+                        ? "text-emerald-700"
+                        : "text-hesya-navy-900/75"
+                    }`}
+                  >
+                    {b.pct}%
+                  </span>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <button
           type="button"
