@@ -34,9 +34,70 @@ const CATEGORY_LABELS: Record<string, string> = {
   complaint: "일반 컴플레인",
 };
 
-type Props = { dispute: Dispute };
+type Props = {
+  dispute: Dispute;
+  /** Server-injected — purity 위반 회피 (admin/disputes/[id]/page.tsx). */
+  nowMs: number;
+};
 
-export function DisputeDetail({ dispute }: Props) {
+const STATUS_TONE: Record<string, { chip: string; dot: string; ring: string }> =
+  {
+    open: {
+      chip: "bg-[#fbeae5] text-[#c9483a]",
+      dot: "bg-[#c9483a]",
+      ring: "ring-[#e5c0ba]",
+    },
+    sla_exceeded: {
+      chip: "bg-[#fbeae5] text-[#c9483a]",
+      dot: "bg-[#c9483a]",
+      ring: "ring-[#e5c0ba]",
+    },
+    in_review: {
+      chip: "bg-hesya-peach-100 text-hesya-amber-600",
+      dot: "bg-hesya-amber-500",
+      ring: "ring-hesya-peach-200",
+    },
+    resolved: {
+      chip: "bg-emerald-50 text-emerald-700",
+      dot: "bg-emerald-500",
+      ring: "ring-emerald-200",
+    },
+    rejected: {
+      chip: "bg-gray-100 text-gray-700",
+      dot: "bg-gray-400",
+      ring: "ring-gray-200",
+    },
+  };
+
+const TIMELINE_STEPS = ["open", "in_review", "resolved"] as const;
+const TIMELINE_LABELS: Record<(typeof TIMELINE_STEPS)[number], string> = {
+  open: "접수",
+  in_review: "검토",
+  resolved: "처리",
+};
+
+function timelineState(
+  step: (typeof TIMELINE_STEPS)[number],
+  currentStatus: string,
+): "done" | "current" | "todo" {
+  if (currentStatus === "rejected") {
+    if (step === "open" || step === "in_review") return "done";
+    return "todo";
+  }
+  if (currentStatus === "sla_exceeded") {
+    if (step === "open" || step === "in_review") return "done";
+    return "todo";
+  }
+  const order = ["open", "in_review", "resolved"];
+  const cur = order.indexOf(currentStatus);
+  const idx = order.indexOf(step);
+  if (cur === -1) return "todo";
+  if (idx < cur) return "done";
+  if (idx === cur) return "current";
+  return "todo";
+}
+
+export function DisputeDetail({ dispute, nowMs }: Props) {
   const router = useRouter();
   const [resolution, setResolution] = useState(dispute.resolution ?? "");
   const [pending, startTransition] = useTransition();
@@ -88,8 +149,95 @@ export function DisputeDetail({ dispute }: Props) {
     });
   };
 
+  const slaMs = dispute.slaDueAt.getTime() - nowMs;
+  const slaDays = Math.ceil(slaMs / (1000 * 60 * 60 * 24));
+  const slaUrgent = slaMs < 0;
+  const slaWarn = !slaUrgent && slaDays <= 1;
+  const slaText = isTerminal
+    ? "—"
+    : slaUrgent
+      ? `초과 ${Math.abs(slaDays)}일`
+      : `D-${slaDays}`;
+  const statusTone = STATUS_TONE[dispute.status] ?? STATUS_TONE.rejected!;
+
   return (
     <div className="max-w-2xl space-y-6">
+      <section
+        className={`rounded-lg border bg-white p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)] ring-1 ring-inset ${statusTone.ring}`}
+      >
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0 space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12.5px] font-semibold ${statusTone.chip}`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`inline-block h-2 w-2 rounded-full ${statusTone.dot}`}
+                />
+                {STATUS_LABELS[dispute.status] ?? dispute.status}
+              </span>
+              <span className="rounded-full bg-hesya-peach-100 px-2.5 py-0.5 text-[11px] font-semibold text-hesya-navy-900/80">
+                {CATEGORY_LABELS[dispute.category] ?? dispute.category}
+              </span>
+            </div>
+            <p className="font-mono text-[11px] text-hesya-navy-900/55">
+              접수 {dispute.createdAt.toISOString().slice(0, 10)} · 매장{" "}
+              <code className="text-hesya-navy-900/75">
+                {dispute.storeId.slice(0, 8)}
+              </code>
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-hesya-navy-900/55">
+              SLA 마감
+            </p>
+            <p
+              className={[
+                "mt-1 font-mono text-[20px] font-bold tabular-nums",
+                isTerminal
+                  ? "text-hesya-navy-900/40"
+                  : slaUrgent
+                    ? "text-[#c9483a]"
+                    : slaWarn
+                      ? "text-hesya-amber-600"
+                      : "text-hesya-navy-900",
+              ].join(" ")}
+            >
+              {slaText}
+            </p>
+            <p className="font-mono text-[10px] text-hesya-navy-900/45">
+              {dispute.slaDueAt.toISOString().slice(0, 10)}
+            </p>
+          </div>
+        </div>
+
+        <ol className="mt-5 grid grid-cols-3 gap-2">
+          {TIMELINE_STEPS.map((step, i) => {
+            const state = timelineState(step, dispute.status);
+            const stepStyles = {
+              done: { dot: "bg-emerald-500", text: "text-emerald-700" },
+              current: {
+                dot: "bg-hesya-amber-500 ring-4 ring-hesya-amber-500/20",
+                text: "text-hesya-amber-600 font-semibold",
+              },
+              todo: { dot: "bg-gray-300", text: "text-gray-500" },
+            }[state];
+            return (
+              <li key={step} className="flex items-center gap-2">
+                <span
+                  aria-hidden="true"
+                  className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${stepStyles.dot}`}
+                />
+                <span className={`text-[11.5px] ${stepStyles.text}`}>
+                  {i + 1}. {TIMELINE_LABELS[step]}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+
       <dl className="space-y-2">
         <Row k="상태" v={STATUS_LABELS[dispute.status] ?? dispute.status} />
         <Row
