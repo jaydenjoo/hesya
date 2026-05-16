@@ -934,7 +934,22 @@
     "actionApprove": "通過",
     "actionReject": "拒絕",
     "actionRequestMore": "請求補件",
-    "realDataSection": "真實 DB 審核佇列 (manual_review)"
+    "realDataSection": "真實 DB 審核佇列 (manual_review)",
+    "pipelineExpand": "展開 6 步驗證流程",
+    "stepTitles": {
+      "business": "營業執照真偽",
+      "license": "營業許可證",
+      "id": "身分證件",
+      "address": "地址一致",
+      "risk": "風險評估",
+      "optional": "選擇性附加檢查"
+    },
+    "stepStates": {
+      "pass": "通過",
+      "warn": "注意",
+      "fail": "失敗",
+      "skip": "選擇"
+    }
   },
   "AdminPayments": {
     "richSection": "異常告警 & 交易 (mock)",

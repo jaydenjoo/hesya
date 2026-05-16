@@ -30,6 +30,21 @@ export interface KycQueueLabels {
   readonly actionApprove: string;
   readonly actionReject: string;
   readonly actionRequestMore: string;
+  readonly pipelineExpand: string;
+  readonly stepTitles: {
+    readonly business: string;
+    readonly license: string;
+    readonly id: string;
+    readonly address: string;
+    readonly risk: string;
+    readonly optional: string;
+  };
+  readonly stepStates: {
+    readonly pass: string;
+    readonly warn: string;
+    readonly fail: string;
+    readonly skip: string;
+  };
 }
 
 export function KycQueueStats({
@@ -296,6 +311,76 @@ function KycQueueCard({
           5단계 자동 + 1단계 선택
         </span>
       </div>
+
+      <details className="group mb-3 [&_summary::-webkit-details-marker]:hidden">
+        <summary className="flex cursor-pointer list-none items-center gap-1.5 text-[11px] font-medium text-hesya-amber-600 hover:text-hesya-amber-700">
+          <span className="inline-block transition-transform duration-200 group-open:rotate-90">
+            ▸
+          </span>
+          {labels.pipelineExpand}
+        </summary>
+        <div className="mt-2.5 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+          {pipelineSteps.map((s, i) => {
+            const titleKey = (
+              [
+                "business",
+                "license",
+                "id",
+                "address",
+                "risk",
+                "optional",
+              ] as const
+            )[i];
+            const borderTone =
+              s === "pass"
+                ? "border-t-emerald-500"
+                : s === "warn"
+                  ? "border-t-amber-500"
+                  : s === "fail"
+                    ? "border-t-rose-500"
+                    : "border-t-gray-300";
+            const numTone =
+              s === "warn"
+                ? "text-amber-500"
+                : s === "fail"
+                  ? "text-rose-500"
+                  : s === "pass"
+                    ? "text-emerald-500"
+                    : "text-gray-300";
+            const stateTone =
+              s === "pass"
+                ? "text-emerald-700"
+                : s === "warn"
+                  ? "text-amber-700"
+                  : s === "fail"
+                    ? "text-rose-700"
+                    : "text-gray-500";
+            return (
+              <div
+                key={i}
+                className={`relative rounded-md border border-gray-200 bg-white px-3.5 pb-3 pt-3 shadow-[0_1px_2px_rgba(26,34,56,0.04)] border-t-[3px] ${borderTone}`}
+              >
+                <span
+                  className={`absolute right-3 top-2.5 font-display text-[20px] font-semibold italic leading-none tracking-tight ${numTone}`}
+                >
+                  {i + 1}
+                </span>
+                <p className="font-mono text-[8.5px] uppercase tracking-[0.22em] text-gray-500">
+                  STEP {i + 1}
+                </p>
+                <p className="mt-1.5 text-[12.5px] font-medium text-hesya-navy-900 [word-break:keep-all]">
+                  {labels.stepTitles[titleKey]}
+                </p>
+                <p
+                  className={`mt-1 font-mono text-[10px] uppercase tracking-[0.16em] ${stateTone}`}
+                >
+                  {labels.stepStates[s]}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </details>
 
       <div className="mb-3 flex flex-wrap gap-2">
         {item.documents.map((d, i) => (

@@ -934,7 +934,22 @@
     "actionApprove": "承認",
     "actionReject": "却下",
     "actionRequestMore": "追加書類要求",
-    "realDataSection": "実 DB 審査キュー (manual_review)"
+    "realDataSection": "実 DB 審査キュー (manual_review)",
+    "pipelineExpand": "6ステップパイプラインを展開",
+    "stepTitles": {
+      "business": "事業者番号 真贋",
+      "license": "営業届出証",
+      "id": "本人確認書類",
+      "address": "住所一致",
+      "risk": "リスク評価",
+      "optional": "任意 追加検証"
+    },
+    "stepStates": {
+      "pass": "合格",
+      "warn": "注意",
+      "fail": "不可",
+      "skip": "任意"
+    }
   },
   "AdminPayments": {
     "richSection": "異常アラート & 取引 (mock)",
