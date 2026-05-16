@@ -32,6 +32,13 @@ export interface AnalyticsMockChartLabels {
     readonly linepay: string;
   };
   readonly insightsTitle: string;
+  readonly featuredInsightEyebrow: string;
+  readonly featuredInsightBody: string;
+  readonly featuredInsightDataLabel: string;
+  readonly featuredInsightChip1: string;
+  readonly featuredInsightChip2: string;
+  readonly featuredInsightChip3: string;
+  readonly featuredInsightCta: string;
 }
 
 export function HeatmapChart({
@@ -350,6 +357,68 @@ export function StackedBarChart({
             </div>
           );
         })}
+      </div>
+    </section>
+  );
+}
+
+export function FeaturedInsight({
+  labels,
+}: {
+  labels: Pick<
+    AnalyticsMockChartLabels,
+    | "featuredInsightEyebrow"
+    | "featuredInsightBody"
+    | "featuredInsightDataLabel"
+    | "featuredInsightChip1"
+    | "featuredInsightChip2"
+    | "featuredInsightChip3"
+    | "featuredInsightCta"
+  >;
+}) {
+  return (
+    <section
+      data-testid="analytics-featured-insight"
+      className="mb-6 overflow-hidden rounded-2xl border border-hesya-amber-500/30 bg-gradient-to-br from-hesya-peach-50 via-white to-hesya-amber-500/5 px-5 py-4 shadow-[0_2px_8px_rgba(232,169,122,0.10)]"
+    >
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-1 items-start gap-3">
+          <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-full bg-hesya-amber-500/15 text-[20px]">
+            💡
+          </div>
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <p className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-700">
+              {labels.featuredInsightEyebrow}
+            </p>
+            <p className="text-[13.5px] leading-relaxed text-hesya-navy-900 [word-break:keep-all]">
+              {labels.featuredInsightBody}
+            </p>
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              <span className="text-[10.5px] text-hesya-navy-900/55">
+                {labels.featuredInsightDataLabel}
+              </span>
+              {[
+                labels.featuredInsightChip1,
+                labels.featuredInsightChip2,
+                labels.featuredInsightChip3,
+              ].map((chip, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center rounded-full border border-hesya-amber-500/30 bg-white px-2.5 py-0.5 text-[10.5px] font-medium text-hesya-navy-900/75"
+                >
+                  {chip}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="inline-flex flex-shrink-0 items-center gap-1.5 self-start rounded-full bg-hesya-navy-900 px-4 py-2 text-[12px] font-semibold text-hesya-peach-50 transition hover:bg-hesya-navy-900/90 md:self-auto"
+        >
+          {labels.featuredInsightCta}
+          <span aria-hidden="true">→</span>
+        </button>
       </div>
     </section>
   );

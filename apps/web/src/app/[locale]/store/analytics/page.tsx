@@ -7,6 +7,7 @@ import { DistributionPie } from "@/features/dashboard";
 import { MonthlyRevenueChart } from "@/features/analytics/monthly-revenue-chart";
 import {
   CohortTable,
+  FeaturedInsight,
   FunnelChart,
   HeatmapChart,
   InsightBand,
@@ -102,6 +103,13 @@ export default async function StoreAnalyticsPage({
       linepay: t("stackedBarLegend.linepay"),
     },
     insightsTitle: t("insightsTitle"),
+    featuredInsightEyebrow: t("featuredInsightEyebrow"),
+    featuredInsightBody: t("featuredInsightBody"),
+    featuredInsightDataLabel: t("featuredInsightDataLabel"),
+    featuredInsightChip1: t("featuredInsightChip1"),
+    featuredInsightChip2: t("featuredInsightChip2"),
+    featuredInsightChip3: t("featuredInsightChip3"),
+    featuredInsightCta: t("featuredInsightCta"),
   };
 
   const repeatPct = Math.round(data.repeat.repeatRate * 100);
@@ -297,6 +305,8 @@ export default async function StoreAnalyticsPage({
                 labels={mockChartLabels}
               />
             </section>
+
+            <FeaturedInsight labels={mockChartLabels} />
 
             <InsightBand
               insights={mockInsights}
