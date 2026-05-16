@@ -6,7 +6,7 @@
  */
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { createFAQ, updateFAQ, deleteFAQ } from "../actions/manage-faq";
 
 export type FAQItem = {
@@ -26,6 +26,17 @@ export function KnowledgeClient({
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const filteredFAQs = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return initialFAQs;
+    return initialFAQs.filter(
+      (f) =>
+        f.question.toLowerCase().includes(q) ||
+        f.answer.toLowerCase().includes(q),
+    );
+  }, [initialFAQs, search]);
 
   // Page-level PageHeader가 title/eyebrow 렌더링.
   const embedReadyCount = initialFAQs.filter((f) => f.hasEmbedding).length;
@@ -83,7 +94,27 @@ export function KnowledgeClient({
         />
       </div>
 
-      <div className="mb-5 flex flex-wrap items-center justify-end gap-3">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="relative flex-1 sm:max-w-sm">
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-hesya-navy-900/45"
+          >
+            ⌕
+          </span>
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="질문 또는 답변 검색..."
+            className="kr w-full rounded-md border border-hesya-peach-200 bg-white py-2 pl-9 pr-3 text-[13px] focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
+          />
+          {search.trim() && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-[10.5px] tabular-nums text-hesya-navy-900/55">
+              {filteredFAQs.length}/{initialFAQs.length}
+            </span>
+          )}
+        </div>
         {!showAdd && initialFAQs.length < maxFAQs ? (
           <button
             type="button"
@@ -117,9 +148,28 @@ export function KnowledgeClient({
             &quot;+ FAQ 추가&quot;로 첫 질문/답변을 등록해 보세요.
           </p>
         </div>
+      ) : filteredFAQs.length === 0 ? (
+        <div className="mt-2 flex flex-col items-center gap-2.5 rounded-md border border-dashed border-hesya-peach-200 bg-hesya-peach-50/40 px-8 py-10 text-center">
+          <div
+            aria-hidden="true"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-hesya-peach-100 text-base"
+          >
+            ⌕
+          </div>
+          <p className="kr break-keep text-[13px] text-gray-500">
+            &quot;{search.trim()}&quot;에 해당하는 FAQ가 없습니다.
+          </p>
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            className="kr text-[12px] font-semibold text-hesya-amber-600 underline-offset-2 hover:underline"
+          >
+            검색 초기화
+          </button>
+        </div>
       ) : (
         <ul className="mt-4 space-y-3">
-          {initialFAQs.map((faq) =>
+          {filteredFAQs.map((faq) =>
             editingId === faq.id ? (
               <li key={faq.id}>
                 <FAQForm
