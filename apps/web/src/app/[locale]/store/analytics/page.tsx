@@ -189,41 +189,69 @@ export default async function StoreAnalyticsPage({
           </div>
         </header>
 
-        {/* KPI 3개 row */}
-        <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <KpiTile
-            label={t("kpiRevenue6m")}
-            value={`₩${totalRevenue.toLocaleString("ko-KR")}`}
-            hint={`${totalBookings}${t("bookingsUnit")}`}
-            trend={revenueTrend}
-            spark={revenueSeries}
-            sparkColor="#1A2238"
-          />
-          <KpiTile
-            label={t("kpiRepeatRate")}
-            value={`${repeatPct}%`}
-            hint={`${data.repeat.repeatCustomers}/${data.repeat.totalCustomers} ${t("customersUnit")}`}
-            ring={repeatPct}
-          />
-          <KpiTile
-            label={t("kpiAvgTicket")}
-            value={`₩${avgTicket.toLocaleString("ko-KR")}`}
-            hint={t("avgTicketHint")}
-            trend={bookingTrend}
-            spark={bookingSeries}
-            sparkColor="#D88B5B"
-          />
+        {/* KPI 4개 bento row (12-col grid) */}
+        <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12">
+          <div className="lg:col-span-3">
+            <KpiTile
+              label={t("kpiRevenue6m")}
+              value={`₩${totalRevenue.toLocaleString("ko-KR")}`}
+              hint={`${totalBookings}${t("bookingsUnit")}`}
+              trend={revenueTrend}
+              spark={revenueSeries}
+              sparkColor="#1A2238"
+            />
+          </div>
+          <div className="lg:col-span-3">
+            <KpiTile
+              label={t("kpiRepeatRate")}
+              value={`${repeatPct}%`}
+              hint={`${data.repeat.repeatCustomers}/${data.repeat.totalCustomers} ${t("customersUnit")}`}
+              ring={repeatPct}
+            />
+          </div>
+          <div className="lg:col-span-3">
+            <KpiTile
+              label={t("kpiAvgTicket")}
+              value={`₩${avgTicket.toLocaleString("ko-KR")}`}
+              hint={t("avgTicketHint")}
+              trend={bookingTrend}
+              spark={bookingSeries}
+              sparkColor="#D88B5B"
+            />
+          </div>
+          <div className="lg:col-span-3">
+            <KpiTile
+              label={t("kpiNewCustomers")}
+              value={String(
+                Math.max(
+                  0,
+                  data.repeat.totalCustomers - data.repeat.repeatCustomers,
+                ),
+              )}
+              hint={`${t("kpiNewCustomersHint")} · ${data.repeat.totalCustomers}${t("customersUnit")}`}
+              ring={
+                data.repeat.totalCustomers === 0
+                  ? 0
+                  : Math.round(
+                      ((data.repeat.totalCustomers -
+                        data.repeat.repeatCustomers) /
+                        data.repeat.totalCustomers) *
+                        100,
+                    )
+              }
+            />
+          </div>
         </section>
 
-        {/* 차트 row 1 — 매출 + 국적 */}
-        <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <article className="rounded-2xl border border-hesya-peach-100 bg-white p-5 shadow-[0_2px_8px_rgba(26,34,56,0.04),0_4px_16px_rgba(26,34,56,0.06)] lg:col-span-2">
+        {/* 차트 row 1 — 매출 (span-8) + 국적 (span-4) — 12-col bento */}
+        <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-12">
+          <article className="rounded-2xl border border-hesya-peach-100 bg-white p-5 shadow-[0_2px_8px_rgba(26,34,56,0.04),0_4px_16px_rgba(26,34,56,0.06)] lg:col-span-8">
             <h2 className="mb-3 font-semibold text-[14px] text-hesya-navy-900">
               {t("monthlyRevenueTitle")}
             </h2>
             <MonthlyRevenueChart data={data.monthly} />
           </article>
-          <article className="rounded-2xl border border-hesya-peach-100 bg-white p-5 shadow-[0_2px_8px_rgba(26,34,56,0.04),0_4px_16px_rgba(26,34,56,0.06)]">
+          <article className="rounded-2xl border border-hesya-peach-100 bg-white p-5 shadow-[0_2px_8px_rgba(26,34,56,0.04),0_4px_16px_rgba(26,34,56,0.06)] lg:col-span-4">
             <h2 className="mb-3 font-semibold text-[14px] text-hesya-navy-900">
               {t("nationalityTitle")}
             </h2>

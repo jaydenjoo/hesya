@@ -639,6 +639,8 @@
     "kpiRepeatRate": "再来店率",
     "kpiAvgTicket": "客単価",
     "avgTicketHint": "売上 ÷ 予約数",
+    "kpiNewCustomers": "新規外国人",
+    "kpiNewCustomersHint": "今期",
     "bookingsUnit": "件",
     "customersUnit": "名",
     "monthlyRevenueTitle": "月別売上",
