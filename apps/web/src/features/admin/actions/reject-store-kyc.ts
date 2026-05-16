@@ -4,11 +4,13 @@ import { revalidatePath } from "next/cache";
 import { createDbClient } from "@hesya/database";
 import { env } from "@/shared/config/env";
 import { captureServerActionError } from "@/instrumentation";
+import { sendKycNotification } from "@/lib/notifications/kyc-result";
 import { requireAdminEmail } from "@/shared/lib/admin-guard";
+import { findOwnerNotifyTargetByStoreId } from "@/shared/lib/dal/store-owners";
 import { rejectStore } from "@/shared/lib/dal/stores";
 
 /**
- * Phase 1-β Task C — 운영자 KYC 거절 server action.
+ * Phase 1-β Task C + Phase 1-γ.1 — 운영자 KYC 거절 server action.
  *
  * `requireAdminEmail` 통과한 운영자가 manual_review 매장을 거절.
  * `rejectStore` DAL이 stores.verification_status='rejected' +
@@ -17,8 +19,12 @@ import { rejectStore } from "@/shared/lib/dal/stores";
  *
  * 거절 사유 3자 미만 → "reason_too_short" 사전 차단 (UI도 disable).
  *
+ * Phase 1-γ.1: 트랜잭션 성공 후 owner email lookup + `manual_rejected` 알림
+ * 발송. 본문에 admin이 적은 사유 + 재신청 URL 포함 (E9-13 actionable). 알림
+ * 실패는 silent — 거절 자체는 성공으로 응답.
+ *
  * 결과 envelope:
- *   - { ok: true } — 거절 + revalidatePath 완료
+ *   - { ok: true } — 거절 + revalidatePath 완료 (알림은 silent)
  *   - { ok: false, error: "unauthorized" | "forbidden" } — 가드 실패
  *   - { ok: false, error: "reason_too_short" } — 사유 너무 짧음
  *   - { ok: false, error: "internal" } — 트랜잭션 실패
@@ -29,6 +35,14 @@ export type RejectStoreKycResult =
       ok: false;
       error: "unauthorized" | "forbidden" | "reason_too_short" | "internal";
     };
+
+/**
+ * 재신청 URL — owner가 거절 알림 받으면 즉시 다음 행동을 취할 수 있게 함.
+ * E9-13 패턴과 동일. NEXT_PUBLIC_APP_URL 기반 (prod/preview/dev 자동 분기).
+ */
+function buildRetryUrl(): string {
+  return `${env.NEXT_PUBLIC_APP_URL}/onboarding/kyc`;
+}
 
 export async function rejectStoreKyc(input: {
   storeId: string;
@@ -52,6 +66,30 @@ export async function rejectStoreKyc(input: {
       reason,
     });
     revalidatePath("/admin/store-verifications");
+
+    // Phase 1-γ.1: owner에게 거절 알림 (사유 + 재신청 URL 포함). 실패는 silent.
+    // Locale "ko" hardcoded — approve-store-kyc.ts와 동일 사유.
+    try {
+      const target = await findOwnerNotifyTargetByStoreId(db, input.storeId);
+      if (target) {
+        await sendKycNotification({
+          kind: "manual_rejected",
+          to: target.email,
+          storeName: target.storeName,
+          locale: "ko",
+          reason: {
+            summary: reason,
+            retryUrl: buildRetryUrl(),
+          },
+        });
+      }
+    } catch (notifyErr) {
+      console.error(
+        `[rejectStoreKyc] owner notify failed (storeId=${input.storeId}):`,
+        notifyErr,
+      );
+    }
+
     return { ok: true };
   } catch (err) {
     captureServerActionError(err, {

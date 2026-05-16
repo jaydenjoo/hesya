@@ -1,0 +1,1949 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Hesya — The Korean welcome, in 5 languages</title>
+<meta name="description" content="Book K-beauty salons in your language. K-Verified salons, AI style match, 24/7 support. No Korean app required."/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Source+Sans+3:wght@400..700&family=JetBrains+Mono:wght@400..700&display=swap"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"/>
+<link rel="stylesheet" href="tokens.css"/>
+
+<style>
+/* ─────────────────────────────────────────────
+   Hesya Marketing Landing — single self-contained
+   Cinematic luxury hospitality tone.
+   ───────────────────────────────────────────── */
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--hesya-peach-50);
+  color: var(--hesya-navy-900);
+  font-family: var(--font-body-en);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img, video, svg { max-width: 100%; display: block; }
+.kr {
+  font-family: var(--font-body-kr);
+  word-break: keep-all;
+  line-height: 1.7;
+  letter-spacing: 0;
+}
+.kr-display { font-family: var(--font-body-kr); word-break: keep-all; font-size: 80%; }
+
+/* ─── Shared section frame ─── */
+.mk-section {
+  position: relative;
+  padding: 120px 0;
+}
+.mk-wrap { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+.mk-eyebrow {
+  font-family: var(--font-body-en);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.mk-eyebrow .kr { letter-spacing: 0; text-transform: none; font-size: 12px; color: var(--gray-500); }
+.mk-eyebrow::before {
+  content: "";
+  width: 22px; height: 1px;
+  background: var(--hesya-amber-600);
+}
+.mk-num {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 160px;
+  line-height: 0.9;
+  -webkit-text-stroke: 1.5px var(--hesya-amber-600);
+  color: transparent;
+  letter-spacing: -0.04em;
+  position: absolute;
+  top: 40px;
+  left: 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+@media (max-width: 900px) {
+  .mk-num { font-size: 96px; top: 32px; }
+}
+h1, h2, h3, h4 { margin: 0; font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; }
+
+/* Reduced motion guard for ALL decorative animations */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeUp linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 70%;
+  }
+}
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ─── 00 · Navigation ─── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 80px; z-index: 100;
+  background: rgba(253, 248, 241, 0.82);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  display: flex; align-items: center;
+  transition: height 220ms var(--easing-standard),
+              box-shadow 220ms var(--easing-standard);
+}
+.nav.is-scrolled { height: 64px; box-shadow: 0 1px 12px rgba(26, 34, 56, 0.06); }
+.nav-inner {
+  max-width: 1280px; margin: 0 auto;
+  padding: 0 32px;
+  display: flex; align-items: center; gap: 32px;
+  width: 100%;
+}
+.nav-brand {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 26px;
+  color: var(--hesya-navy-900);
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+.nav-links {
+  display: flex; gap: 32px; align-items: center;
+  margin: 0 auto;
+}
+.nav-links a {
+  font-family: var(--font-body-en);
+  font-size: 14px;
+  color: var(--gray-700);
+  text-decoration: none;
+  transition: color 120ms;
+}
+.nav-links a:hover { color: var(--hesya-navy-900); }
+.nav-right { display: flex; align-items: center; gap: 14px; }
+.lang-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 36px; padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(26, 34, 56, 0.08);
+  font-family: var(--font-body-en); font-size: 13px;
+  font-weight: 600;
+  color: var(--hesya-navy-900);
+  cursor: pointer;
+}
+.signin-link {
+  font-family: var(--font-body-en);
+  font-size: 13px; color: var(--gray-700);
+  text-decoration: none;
+}
+.signin-link:hover { color: var(--hesya-navy-900); }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 40px; padding: 0 20px;
+  background: var(--hesya-amber-500);
+  color: var(--hesya-navy-900);
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--font-body-en);
+  font-size: 14px; font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 120ms, box-shadow 120ms, background 120ms;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-2); background: var(--hesya-amber-600); color: #fff; }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 40px; padding: 0 20px;
+  background: transparent;
+  color: var(--hesya-amber-600);
+  border: 1px solid var(--hesya-amber-600);
+  border-radius: 999px;
+  font-family: var(--font-body-en);
+  font-size: 14px; font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn-ghost:hover { background: var(--hesya-peach-100); }
+:focus-visible { outline: 2px solid var(--hesya-amber-500); outline-offset: 2px; }
+
+/* ─── 01 · Hero ─── */
+.hero {
+  position: relative;
+  padding: 160px 0 80px;
+  overflow: hidden;
+}
+.hero::before {
+  /* soft amber wash */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 800px 400px at 10% 0%, rgba(232, 169, 122, 0.10), transparent 60%);
+  pointer-events: none;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 60% 40%;
+  gap: 64px;
+  align-items: center;
+}
+@media (max-width: 980px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+  .hero { padding: 120px 0 60px; }
+}
+.greeting-stack {
+  position: relative;
+  height: 92px;
+  margin: 16px 0 8px;
+}
+.greeting {
+  position: absolute; inset: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 72px;
+  line-height: 1.05;
+  color: var(--hesya-navy-900);
+  letter-spacing: -0.03em;
+  opacity: 0;
+  transition: opacity 280ms var(--easing-standard);
+  font-variation-settings: "opsz" 144, "wght" 600;
+}
+.greeting.kr {
+  font-family: var(--font-body-kr);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 58px;
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+.greeting.is-active { opacity: 1; }
+.greeting-bar {
+  width: 36px; height: 3px;
+  background: var(--hesya-amber-500);
+  border-radius: 2px;
+  transition: width 280ms var(--easing-standard);
+  margin-top: 8px;
+}
+.hero-sub {
+  font-family: var(--font-body-en);
+  font-size: 20px;
+  line-height: 1.55;
+  color: var(--gray-700);
+  max-width: 540px;
+  margin: 24px 0 28px;
+}
+.hero-trust {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  font-family: var(--font-body-en);
+  font-size: 13px;
+  color: var(--gray-700);
+  margin-bottom: 32px;
+}
+.hero-trust span { display: inline-flex; align-items: center; gap: 6px; }
+.hero-trust span::before { content: "✓"; color: var(--hesya-amber-600); font-weight: 700; }
+.hero-cta { display: flex; gap: 14px; flex-wrap: wrap; }
+.hero-cta .btn-primary { height: 52px; padding: 0 28px; font-size: 15px; }
+.hero-cta .btn-ghost { height: 52px; padding: 0 24px; font-size: 14px; }
+
+/* Right visual */
+.hero-visual {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--hesya-peach-200) 0%, var(--hesya-amber-600) 100%);
+  box-shadow: var(--shadow-3);
+}
+.hero-visual::after {
+  /* layered silhouette to suggest a salon scene */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 35%, rgba(253, 248, 241, 0.4), transparent 35%),
+    radial-gradient(ellipse at 70% 80%, rgba(26, 34, 56, 0.35), transparent 55%);
+}
+.hero-visual video, .hero-visual img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  position: absolute; inset: 0;
+}
+.activity-card {
+  position: absolute;
+  left: 20px; bottom: 20px;
+  padding: 14px 16px;
+  background: rgba(253, 248, 241, 0.78);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 14px;
+  min-width: 240px;
+  box-shadow: var(--shadow-2);
+}
+.activity-card .head {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-body-en); font-size: 13px;
+  color: var(--hesya-navy-900); font-weight: 600;
+  margin-bottom: 4px;
+}
+.activity-card .quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--hesya-navy-900);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.activity-card .meta { font-size: 11px; color: var(--gray-700); display: flex; align-items: center; gap: 4px; }
+.activity-card .meta .kr { letter-spacing: 0; }
+
+/* Hero ink motif */
+.hero-ink {
+  position: absolute;
+  top: 100px; right: -40px;
+  width: 320px; height: 320px;
+  opacity: 0.32;
+  pointer-events: none;
+  color: var(--hesya-amber-600);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-ink path { stroke-dasharray: 600; stroke-dashoffset: 600; animation: drawIn 1.2s ease-out 0.4s forwards; }
+  .hero-ink path:nth-child(2) { animation-delay: 0.6s; }
+  .hero-ink path:nth-child(3) { animation-delay: 0.8s; }
+}
+@keyframes drawIn { to { stroke-dashoffset: 0; } }
+
+/* ─── 02 · Trust bar ─── */
+.trust-bar {
+  background: var(--hesya-peach-100);
+  padding: 28px 0;
+}
+.trust-bar-inner {
+  max-width: 1280px; margin: 0 auto; padding: 0 32px;
+  display: flex; flex-wrap: wrap;
+  align-items: center; justify-content: center;
+  gap: 14px 24px;
+  font-family: var(--font-body-en);
+  font-size: 13.5px;
+  color: var(--hesya-navy-900);
+}
+.trust-stat { display: inline-flex; align-items: center; gap: 8px; }
+.trust-stat .num {
+  font-family: var(--font-display); font-style: italic;
+  font-weight: 600; font-size: 18px;
+  color: var(--hesya-amber-600);
+  letter-spacing: -0.01em;
+}
+.trust-sep { color: var(--gray-300); font-size: 11px; }
+
+/* ─── 03 · How it works (sticky scroll) ─── */
+.how-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+@media (max-width: 980px) { .how-grid { grid-template-columns: 1fr; gap: 32px; } }
+.how-steps { position: relative; }
+.how-step {
+  min-height: 80vh;
+  padding: 64px 0;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.how-step .num-large {
+  font-family: var(--font-display);
+  font-style: italic; font-weight: 500;
+  font-size: 200px; line-height: 0.9;
+  -webkit-text-stroke: 1.5px var(--hesya-amber-600);
+  color: transparent;
+  letter-spacing: -0.04em;
+  margin-bottom: 16px;
+  transition: -webkit-text-stroke-color 220ms;
+}
+.how-step.is-active .num-large { -webkit-text-stroke-color: var(--hesya-amber-500); color: var(--hesya-peach-100); }
+.how-step h3 {
+  font-size: 40px; line-height: 1.15;
+  margin: 0 0 16px;
+  color: var(--hesya-navy-900);
+}
+.how-step p {
+  font-family: var(--font-body-en);
+  font-size: 18px; line-height: 1.55;
+  color: var(--gray-700);
+  max-width: 480px;
+  margin: 0;
+}
+.how-step-bar {
+  width: 0; height: 2px;
+  background: var(--hesya-amber-500);
+  margin-top: 24px;
+  transition: width 320ms var(--easing-standard);
+}
+.how-step.is-active .how-step-bar { width: 64px; }
+
+/* Sticky phone */
+.how-phone-wrap {
+  position: sticky;
+  top: 120px;
+  align-self: start;
+}
+.phone {
+  position: relative;
+  margin: 0 auto;
+  width: 320px; height: 640px;
+  background: var(--hesya-navy-900);
+  border-radius: 44px;
+  padding: 14px;
+  box-shadow: var(--shadow-4);
+}
+.phone-screen {
+  width: 100%; height: 100%;
+  background: var(--hesya-peach-50);
+  border-radius: 32px;
+  overflow: hidden;
+  position: relative;
+}
+.phone-step {
+  position: absolute; inset: 0;
+  padding: 32px 20px;
+  opacity: 0;
+  transition: opacity 280ms var(--easing-standard);
+}
+.phone-step.is-shown { opacity: 1; }
+.phone-step h4 {
+  font-family: var(--font-body-kr);
+  font-size: 18px; font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--hesya-navy-900);
+  margin-bottom: 12px;
+}
+.phone-mock-card {
+  background: #fff;
+  border: 1px solid var(--hesya-peach-100);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  font-family: var(--font-body-en);
+  font-size: 12.5px;
+  color: var(--hesya-navy-900);
+}
+.phone-mock-card .salon-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+.phone-mock-card .meta { color: var(--gray-500); font-size: 11px; }
+.phone-mock-card .score {
+  display: inline-block; margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px; font-weight: 700;
+  background: rgba(34, 130, 80, 0.12);
+  color: #226E50;
+  padding: 2px 8px; border-radius: 12px;
+}
+.phone-camera {
+  width: 100%; aspect-ratio: 1;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--hesya-peach-100), var(--hesya-amber-500));
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+  position: relative;
+}
+.phone-camera::after {
+  content: "";
+  width: 56px; height: 56px;
+  border: 3px solid #fff; border-radius: 50%;
+  position: relative;
+}
+.phone-qr {
+  width: 160px; height: 160px;
+  margin: 16px auto 12px;
+  background:
+    repeating-linear-gradient(0deg, var(--hesya-navy-900) 0 6px, transparent 6px 12px),
+    repeating-linear-gradient(90deg, var(--hesya-navy-900) 0 6px, transparent 6px 12px),
+    #fff;
+  border: 2px solid var(--hesya-navy-900);
+  border-radius: 10px;
+}
+.phone-bookline {
+  font-family: var(--font-display); font-style: italic;
+  font-size: 22px; text-align: center;
+  color: var(--hesya-navy-900);
+  margin: 12px 0 4px;
+}
+.phone-input {
+  background: var(--hesya-peach-100);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  font-size: 12.5px;
+  color: var(--gray-700);
+}
+.phone-input.kr { font-family: var(--font-body-kr); }
+
+/* ─── 04 · Before / After ─── */
+.dark-section {
+  background: var(--hesya-navy-900);
+  color: var(--hesya-peach-50);
+}
+.dark-section h2 { color: var(--hesya-peach-50); }
+.dark-section .mk-eyebrow { color: var(--hesya-peach-200); }
+.dark-section .mk-eyebrow::before { background: var(--hesya-amber-500); }
+.dark-section .mk-num { -webkit-text-stroke-color: var(--hesya-amber-500); }
+.ba-headline {
+  font-size: 56px; line-height: 1.05;
+  max-width: 720px;
+  margin: 0 0 16px;
+}
+.ba-headline em { font-style: italic; color: var(--hesya-amber-500); font-weight: 500; }
+.ba-sub {
+  font-family: var(--font-body-en);
+  font-size: 18px;
+  color: var(--hesya-peach-200);
+  max-width: 640px;
+  margin: 0 0 56px;
+}
+.ba-frame {
+  position: relative;
+  max-width: 880px;
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--gray-800);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+  --ba-pos: 50%;
+  user-select: none;
+}
+.ba-side {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-style: italic;
+  font-size: 32px; color: rgba(255,255,255,0.45);
+}
+.ba-before {
+  background:
+    linear-gradient(135deg, #2A3148 0%, #4A4E5C 100%);
+}
+.ba-after {
+  background:
+    linear-gradient(135deg, #FDF8F1 0%, #E8A97A 60%, #D88B5B 100%);
+  color: rgba(26,34,56,0.45);
+  clip-path: inset(0 0 0 var(--ba-pos));
+}
+.ba-handle {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: var(--ba-pos);
+  width: 3px;
+  background: var(--share-glow);
+  transform: translateX(-50%);
+  cursor: ew-resize;
+  z-index: 5;
+  box-shadow: 0 0 24px var(--share-glow);
+}
+.ba-handle::after {
+  content: "⇆";
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--share-glow);
+  color: var(--hesya-navy-900);
+  font-family: var(--font-mono); font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.ba-label {
+  position: absolute;
+  top: 16px;
+  font-family: var(--font-body-en); font-size: 10.5px;
+  font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 999px;
+  z-index: 4;
+}
+.ba-label.before { left: 16px; background: rgba(0,0,0,0.5); color: #fff; }
+.ba-label.after { right: 16px; background: var(--hesya-amber-500); color: var(--hesya-navy-900); }
+.ba-caption {
+  text-align: center; margin-top: 18px;
+  font-family: var(--font-body-en); font-size: 13px;
+  color: var(--hesya-peach-200);
+}
+.ba-caption .kr { letter-spacing: 0; }
+.ba-thumbs {
+  display: flex; justify-content: center; gap: 12px;
+  margin-top: 28px;
+}
+.ba-thumb {
+  width: 100px; height: 60px;
+  border-radius: 8px; cursor: pointer;
+  border: 2px solid transparent;
+  opacity: 0.65; transition: opacity 120ms, border-color 120ms;
+}
+.ba-thumb:hover, .ba-thumb.is-active { opacity: 1; border-color: var(--hesya-amber-500); }
+.ba-thumb:nth-child(1) { background: linear-gradient(135deg, #2A3148, #FDF8F1); }
+.ba-thumb:nth-child(2) { background: linear-gradient(135deg, #4A2820, #E8A97A); }
+.ba-thumb:nth-child(3) { background: linear-gradient(135deg, #3D3850, #F8E9D9); }
+
+/* ─── 05 · Featured Salons ─── */
+.salons-head {
+  display: flex; justify-content: space-between;
+  align-items: flex-end; margin-bottom: 40px;
+  gap: 32px; flex-wrap: wrap;
+}
+.salons-head h2 { font-size: 48px; line-height: 1.1; max-width: 680px; }
+.salons-head h2 em { font-style: italic; color: var(--hesya-amber-600); font-weight: 500; }
+.salons-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 296px;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 8px 32px 24px;
+  margin: 0 -32px;
+  scrollbar-width: thin;
+}
+@media (min-width: 1280px) { .salons-track { grid-auto-columns: 1fr; grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); padding: 8px 0 24px; margin: 0; } }
+.salon-card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+  scroll-snap-align: start;
+  text-decoration: none;
+  color: var(--hesya-navy-900);
+  transition: transform 220ms var(--easing-standard), box-shadow 220ms var(--easing-standard);
+  position: relative;
+  cursor: pointer;
+}
+.salon-card:hover { transform: translateY(-8px) scale(1.01); box-shadow: var(--shadow-3); }
+.salon-card .image {
+  width: 100%; aspect-ratio: 4 / 5;
+  background-size: cover; background-position: center;
+  position: relative;
+  transition: transform 320ms var(--easing-standard);
+}
+.salon-card:hover .image { transform: scale(1.04); }
+.salon-card .body { padding: 16px 18px 20px; }
+.salon-card .name {
+  font-family: var(--font-body-kr); font-weight: 700;
+  font-size: 16px; letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.salon-card .name .latin { font-family: var(--font-display); font-style: italic; font-weight: 600; }
+.salon-card .meta {
+  font-family: var(--font-body-en); font-size: 12px;
+  color: var(--gray-700);
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 6px;
+}
+.salon-card .rating {
+  font-family: var(--font-mono); font-size: 13px;
+  color: var(--hesya-navy-900); font-weight: 700;
+}
+.salon-card .rating .count { color: var(--gray-500); font-weight: 400; margin-left: 4px; }
+.kverified {
+  position: absolute; top: 14px; right: 14px;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 5px 10px; border-radius: 999px;
+  background: rgba(212, 175, 55, 0.18);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(212, 175, 55, 0.6);
+  color: var(--kverified-gold);
+  font-family: var(--font-body-en);
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* ─── 06 · UGC Wall ─── */
+.ugc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 720px) { .ugc-grid { grid-template-columns: 1fr; } }
+.ugc-col { display: flex; flex-direction: column; gap: 20px; }
+.ugc-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: var(--shadow-1);
+  position: relative;
+}
+.ugc-card .who {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px;
+}
+.ugc-card .flag { font-size: 22px; }
+.ugc-card .nick { font-family: var(--font-body-en); font-weight: 700; font-size: 14px; }
+.ugc-card .stars { color: var(--hesya-amber-500); margin-left: auto; font-size: 13px; letter-spacing: 1px; }
+.ugc-card .quote {
+  font-family: var(--font-body-kr);
+  font-size: 15px; line-height: 1.65;
+  color: var(--hesya-navy-900);
+  margin-bottom: 10px;
+}
+.ugc-card .trans {
+  font-family: var(--font-display); font-style: italic;
+  font-size: 13px; color: var(--gray-500);
+  line-height: 1.55;
+}
+.ugc-card .src {
+  position: absolute; top: 18px; right: 18px;
+  font-family: var(--font-body-en); font-size: 10.5px;
+  font-weight: 700; letter-spacing: 0.04em;
+}
+.ugc-card .src.ig { color: #C13584; }
+.ugc-card .src.xhs { color: #FE2C55; }
+.ugc-photo {
+  width: 100%; aspect-ratio: 1;
+  border-radius: 14px;
+  margin-bottom: 12px;
+}
+.ugc-more {
+  display: inline-block; margin-top: 32px;
+  font-family: var(--font-body-en); font-weight: 600;
+  font-size: 14px; color: var(--hesya-amber-600);
+  text-decoration: none;
+}
+.ugc-more:hover { color: var(--hesya-amber-600); text-decoration: underline; }
+
+/* ─── 07 · Safety ─── */
+.safety-section {
+  background: var(--hesya-peach-200);
+  padding: 120px 0;
+  position: relative;
+}
+.safety-grid {
+  display: grid;
+  grid-template-columns: 40% 60%;
+  gap: 64px;
+  align-items: center;
+}
+@media (max-width: 980px) { .safety-grid { grid-template-columns: 1fr; gap: 32px; } }
+.safety-left h2 {
+  font-size: 48px; line-height: 1.1;
+}
+.safety-left h2 em { font-style: italic; color: var(--hesya-amber-600); font-weight: 500; }
+.safety-left p {
+  font-family: var(--font-body-en); font-size: 17px;
+  color: var(--gray-700); line-height: 1.6;
+  margin: 20px 0 12px;
+}
+.safety-cite {
+  font-family: var(--font-body-en);
+  font-size: 11px; color: var(--gray-500);
+  letter-spacing: 0.04em;
+}
+.safety-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.safety-card {
+  background: var(--hesya-peach-50);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-1);
+}
+.safety-card .icon { font-size: 26px; margin-bottom: 12px; display: block; }
+.safety-card h3 {
+  font-family: var(--font-body-kr);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+  color: var(--hesya-navy-900);
+}
+.safety-card p {
+  font-family: var(--font-body-en);
+  font-size: 13.5px; color: var(--gray-700);
+  line-height: 1.55; margin: 0;
+}
+.trust-rose-rule {
+  height: 1px;
+  background: var(--trust-rose);
+  margin-top: 64px;
+}
+
+/* ─── 08 · For Salons (B2B) ─── */
+.b2b-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+@media (max-width: 980px) { .b2b-grid { grid-template-columns: 1fr; gap: 40px; } }
+.b2b-left h2 { font-size: 44px; line-height: 1.15; max-width: 520px; }
+.b2b-left p {
+  font-family: var(--font-body-en);
+  font-size: 17px; color: var(--gray-700);
+  line-height: 1.6; max-width: 500px;
+  margin: 20px 0 24px;
+}
+.b2b-bullets { list-style: none; padding: 0; margin: 0 0 32px; }
+.b2b-bullets li {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 0;
+  font-family: var(--font-body-en); font-size: 15px;
+  color: var(--hesya-navy-900);
+}
+.b2b-bullets li::before {
+  content: "✓"; color: var(--hesya-amber-600);
+  font-weight: 700; flex-shrink: 0;
+}
+.b2b-cta { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.b2b-cta .btn-primary { height: 52px; padding: 0 28px; font-size: 15px; }
+.b2b-cta .dash-link {
+  font-family: var(--font-body-en);
+  font-size: 14px; font-weight: 600;
+  color: var(--hesya-navy-900);
+  text-decoration: none;
+}
+.b2b-cta .dash-link:hover { color: var(--hesya-amber-600); }
+
+.b2b-mock {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow-3);
+  overflow: hidden;
+  border: 1px solid var(--hesya-peach-100);
+}
+.b2b-mock-head {
+  display: flex; align-items: center; gap: 12px;
+  padding-bottom: 14px; margin-bottom: 14px;
+  border-bottom: 1px solid var(--hesya-peach-100);
+}
+.b2b-mock-head .logo {
+  width: 32px; height: 32px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--hesya-amber-500), var(--hesya-amber-600));
+  color: #fff;
+  font-family: var(--font-display); font-style: italic; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.b2b-mock-head .who {
+  font-family: var(--font-body-kr); font-weight: 700; font-size: 13.5px;
+}
+.b2b-mock-head .who small { display: block; font-family: var(--font-body-en); font-size: 11px; color: var(--gray-500); font-weight: 400; }
+.b2b-mock-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.b2b-mock-tile {
+  padding: 14px;
+  background: var(--hesya-peach-50);
+  border-radius: 10px;
+}
+.b2b-mock-tile .lab {
+  font-family: var(--font-body-en);
+  font-size: 11px; color: var(--gray-500);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.b2b-mock-tile .val {
+  font-family: var(--font-display); font-style: italic;
+  font-weight: 600;
+  font-size: 24px; color: var(--hesya-navy-900);
+  margin-top: 4px;
+}
+.b2b-stat-overlay {
+  position: absolute;
+  bottom: -16px; right: 20px;
+  background: var(--hesya-navy-900);
+  color: var(--hesya-peach-50);
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-family: var(--font-mono); font-size: 12px;
+  font-weight: 700;
+  box-shadow: var(--shadow-3);
+}
+
+/* ─── 09 · Trending ─── */
+.trending-head { text-align: center; margin-bottom: 40px; }
+.trending-head h2 { font-size: 40px; line-height: 1.15; margin-bottom: 12px; }
+.trending-head h2 em { font-style: italic; color: var(--hesya-amber-600); font-weight: 500; }
+.trending-head p { font-family: var(--font-body-en); color: var(--gray-700); font-size: 16px; }
+.trending-chips {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 10px;
+  max-width: 1000px; margin: 0 auto;
+}
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 16px;
+  background: #fff;
+  border: 1px solid var(--hesya-peach-200);
+  border-radius: 999px;
+  font-family: var(--font-body-en);
+  font-size: 13.5px;
+  color: var(--hesya-navy-900);
+  text-decoration: none;
+  cursor: pointer;
+}
+.chip .rank {
+  font-family: var(--font-display); font-style: italic;
+  font-weight: 600;
+  color: var(--hesya-amber-600);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .chip {
+    animation: chipPulse linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 80%;
+  }
+}
+@keyframes chipPulse {
+  from { box-shadow: 0 0 0 0 transparent; transform: translateY(8px); opacity: 0; }
+  to { box-shadow: 0 6px 20px var(--share-glow); transform: translateY(0); opacity: 1; }
+}
+
+/* ─── 10 · FAQ ─── */
+.faq-wrap { max-width: 720px; margin: 0 auto; padding: 0 32px; }
+.faq-wrap h2 {
+  font-size: 40px; line-height: 1.15;
+  text-align: center; margin-bottom: 40px;
+}
+.faq-wrap h2 em { font-style: italic; color: var(--hesya-amber-600); font-weight: 500; }
+.faq details {
+  border-bottom: 1px solid var(--hesya-peach-200);
+  padding: 20px 0;
+}
+.faq details summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex; align-items: flex-start; gap: 16px;
+  font-family: var(--font-body-en);
+  font-size: 17px; font-weight: 600;
+  color: var(--hesya-navy-900);
+  padding-right: 24px;
+  position: relative;
+}
+.faq details summary::-webkit-details-marker { display: none; }
+.faq details summary::after {
+  content: "+";
+  position: absolute; right: 0; top: 0;
+  font-family: var(--font-display); font-style: italic;
+  font-size: 24px;
+  color: var(--hesya-amber-600);
+  transition: transform 220ms var(--easing-standard);
+}
+.faq details[open] summary::after { content: "−"; }
+.faq details .answer {
+  font-family: var(--font-body-en);
+  font-size: 15px; color: var(--gray-700);
+  line-height: 1.65;
+  margin: 14px 0 0;
+  padding-right: 24px;
+}
+
+/* ─── 11 · Final CTA ─── */
+.final-cta {
+  background: var(--hesya-navy-900);
+  color: var(--hesya-peach-50);
+  padding: 120px 0;
+  position: relative;
+}
+.final-cta h2 {
+  font-family: var(--font-display); font-style: italic;
+  font-weight: 600; font-size: 56px;
+  text-align: center;
+  margin-bottom: 64px;
+  color: var(--hesya-peach-50);
+  letter-spacing: -0.025em;
+  font-variation-settings: "opsz" 144, "wght" 600;
+}
+.final-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.7fr;
+  gap: 32px;
+  align-items: start;
+}
+@media (max-width: 980px) {
+  .final-grid { grid-template-columns: 1fr; gap: 40px; }
+  .final-cta h2 { font-size: 36px; }
+}
+.final-col {
+  padding: 32px;
+  border-radius: 18px;
+  background: rgba(253, 248, 241, 0.04);
+  border: 1px solid rgba(253, 248, 241, 0.08);
+}
+.final-col .ic { font-size: 28px; margin-bottom: 16px; }
+.final-col h3 {
+  font-family: var(--font-display); font-style: italic;
+  font-weight: 600; font-size: 24px;
+  color: var(--hesya-peach-50);
+  margin-bottom: 8px;
+}
+.final-col p {
+  font-family: var(--font-body-en);
+  font-size: 14.5px;
+  color: var(--hesya-peach-200);
+  line-height: 1.55;
+  margin-bottom: 24px;
+}
+.final-col .btn-primary { height: 48px; padding: 0 24px; }
+.final-col .btn-ghost { background: transparent; color: var(--hesya-amber-500); border-color: var(--hesya-amber-500); height: 48px; padding: 0 24px; }
+.final-col .btn-ghost:hover { background: rgba(232,169,122,0.1); }
+.app-badges {
+  display: flex; gap: 8px; margin-top: 12px;
+  font-family: var(--font-body-en); font-size: 11px;
+  color: var(--hesya-peach-200);
+}
+.app-badge {
+  padding: 4px 10px;
+  border: 1px solid rgba(253,248,241,0.16);
+  border-radius: 6px;
+}
+.final-col .dash-link {
+  display: block; margin-top: 10px;
+  font-family: var(--font-body-en); font-size: 13px;
+  color: var(--hesya-amber-500);
+  text-decoration: none;
+}
+.final-col.muted {
+  background: transparent;
+  border: 1px dashed rgba(253, 248, 241, 0.16);
+}
+.final-col.muted h3 {
+  font-family: var(--font-body-en); font-size: 13px;
+  font-style: normal;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--hesya-peach-200);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.final-col.muted a {
+  display: block; padding: 10px 0;
+  font-family: var(--font-body-en); font-size: 14px;
+  color: var(--hesya-peach-50);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(253,248,241,0.08);
+}
+.final-col.muted a:last-child { border: 0; }
+.final-col.muted a:hover { color: var(--hesya-amber-500); }
+.final-trust {
+  margin-top: 64px; padding-top: 32px;
+  border-top: 1px solid rgba(253, 248, 241, 0.12);
+  text-align: center;
+  font-family: var(--font-body-en); font-size: 11.5px;
+  color: var(--hesya-peach-200);
+  letter-spacing: 0.04em;
+}
+
+/* ─── 12 · Footer ─── */
+.footer {
+  background: var(--hesya-peach-100);
+  padding: 64px 32px 32px;
+}
+.footer-grid {
+  max-width: 1280px; margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 48px;
+}
+@media (max-width: 720px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+.footer-brand h3 {
+  font-family: var(--font-display); font-style: italic;
+  font-weight: 600; font-size: 32px;
+  color: var(--hesya-navy-900);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+.footer-brand .tagline {
+  font-family: var(--font-body-en);
+  font-size: 14px; color: var(--gray-700);
+  margin-bottom: 20px;
+}
+.footer-socials { display: flex; gap: 12px; margin-bottom: 20px; }
+.footer-socials a {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--hesya-navy-900);
+  text-decoration: none;
+  font-size: 14px;
+}
+.footer-socials a:hover { background: #fff; }
+.footer-lang {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 999px;
+  font-family: var(--font-body-en); font-size: 12px;
+  color: var(--gray-700);
+}
+.footer-col h4 {
+  font-family: var(--font-body-en);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hesya-navy-900);
+  margin-bottom: 14px;
+}
+.footer-col ul { list-style: none; padding: 0; margin: 0; }
+.footer-col li { padding: 4px 0; }
+.footer-col a {
+  font-family: var(--font-body-en);
+  font-size: 14px; color: var(--gray-700);
+  text-decoration: none;
+}
+.footer-col a:hover { color: var(--hesya-navy-900); }
+.footer-bottom {
+  max-width: 1280px; margin: 48px auto 0;
+  border-top: 1px solid var(--hesya-peach-200);
+  padding-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 24px;
+  align-items: center;
+}
+.footer-copy {
+  font-family: var(--font-body-en);
+  font-size: 11.5px; color: var(--gray-500);
+}
+.footer-trust-rose {
+  width: 80px; height: 1px;
+  background: var(--trust-rose);
+}
+.footer-admin {
+  text-align: right;
+  font-family: var(--font-body-en);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  text-decoration: none;
+  transition: color 120ms;
+}
+.footer-admin:hover { color: var(--hesya-amber-600); }
+@media (max-width: 720px) {
+  .footer-bottom { grid-template-columns: 1fr; text-align: left; }
+  .footer-admin { text-align: left; }
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--hesya-navy-900); color: var(--hesya-peach-50);
+  padding: 12px 18px; border-radius: 0 0 8px 0;
+  font-family: var(--font-body-en); font-size: 13px;
+  z-index: 200;
+}
+.skip-link:focus { left: 0; }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- ═══════════════════════════════════════════════════════
+     00 · NAVIGATION (sticky)
+     Hospitality-tier nav — wordmark, links, language, dual CTA.
+     ═══════════════════════════════════════════════════════ -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#">Hesya</a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#travelers">For travelers</a>
+      <a href="#salons">For salons</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#safety">Safety</a>
+      <a href="#about">About</a>
+    </nav>
+    <div class="nav-right">
+      <button class="lang-pill" type="button" aria-label="Choose language">
+        <span aria-hidden="true">🌐</span> EN
+      </button>
+      <a class="signin-link" href="#">Sign in</a>
+      <a class="btn-primary" href="#cta-traveler">Get the app →</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ═══════════════════════════════════════════════════════
+     01 · HERO  — 5-language greeting cycle + live activity card
+     ═══════════════════════════════════════════════════════ -->
+<section class="hero" id="travelers" aria-labelledby="hero-h1">
+  <div class="mk-wrap">
+    <div class="hero-grid">
+      <div class="hero-left">
+        <span class="mk-eyebrow">
+          The Korean welcome <span aria-hidden="true">·</span>
+          <span class="kr">5개 언어로</span>
+        </span>
+
+        <h1 id="hero-h1" class="greeting-stack" aria-live="polite">
+          <span class="greeting is-active" data-bar="36">Welcome to Korea.</span>
+          <span class="greeting kr" data-bar="28" aria-hidden="true">한국에 오신 것을 환영합니다.</span>
+          <span class="greeting kr" data-bar="28" aria-hidden="true" lang="ja">韓国へようこそ。</span>
+          <span class="greeting kr" data-bar="28" aria-hidden="true" lang="zh">欢迎来到韩国。</span>
+          <span class="greeting" data-bar="36" aria-hidden="true" lang="vi">Chào mừng đến Hàn Quốc.</span>
+        </h1>
+        <div class="greeting-bar" id="greetingBar" style="width: 36px;"></div>
+
+        <p class="hero-sub">
+          Book K-beauty salons in your language. No Korean app, no awkward DMs,
+          no language anxiety.
+        </p>
+
+        <div class="hero-trust">
+          <span>K-Verified salons</span>
+          <span>24/7 chat support</span>
+          <span>Pay in your currency</span>
+        </div>
+
+        <div class="hero-cta">
+          <a class="btn-primary" href="#cta-traveler">Find your salon →</a>
+          <a class="btn-ghost" href="#salons">I own a salon</a>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-visual" aria-label="K-beauty salon vibe — natural light, warm tones">
+          <!-- Background gradient is the LCP-friendly poster; video would lazy-load here -->
+          <div class="activity-card" id="activityCard" aria-live="polite" aria-atomic="true">
+            <div class="head"><span aria-hidden="true">🇯🇵</span> Sakura just booked</div>
+            <div class="quote">"Glass-skin makeup"</div>
+            <div class="meta">→ <span class="kr">Stylista 홍대점</span> · 4 min ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decorative ink motif: scissors + mirror + bottle -->
+  <svg class="hero-ink" viewBox="0 0 320 320" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+    <path d="M40,80 Q80,40 140,80 T260,80"/>
+    <path d="M180,140 a40,40 0 1,0 80,0 a40,40 0 1,0 -80,0 M220,180 L220,260"/>
+    <path d="M60,200 L100,240 M100,200 L60,240 M120,180 Q160,220 200,260"/>
+  </svg>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     02 · TRUST BAR
+     ═══════════════════════════════════════════════════════ -->
+<section class="trust-bar" aria-label="Trust stats">
+  <div class="trust-bar-inner">
+    <span class="trust-stat"><span aria-hidden="true">⭐</span> <span class="num" data-count="4.92" data-decimals="2">4.92</span> avg rating · <span class="num" data-count="12847">12,847</span>+ bookings</span>
+    <span class="trust-sep">·</span>
+    <span class="trust-stat"><span aria-hidden="true">🇰🇷</span> <span class="num" data-count="1284">1,284</span> K-Verified salons</span>
+    <span class="trust-sep">·</span>
+    <span class="trust-stat"><span aria-hidden="true">🗣️</span> 5 languages — KR · EN · 日本語 · 中文 · Tiếng Việt</span>
+    <span class="trust-sep">·</span>
+    <span class="trust-stat"><span aria-hidden="true">🛡️</span> Tier 2 Safe Country (CEOWORLD 2026)</span>
+    <span class="trust-sep">·</span>
+    <span class="trust-stat"><span aria-hidden="true">💬</span> 24/7 chat support in your language</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     03 · HOW IT WORKS (sticky scroll, phone morphs)
+     ═══════════════════════════════════════════════════════ -->
+<section class="mk-section reveal" aria-labelledby="how-h2">
+  <span class="mk-num" aria-hidden="true">03</span>
+  <div class="mk-wrap" style="position: relative;">
+    <span class="mk-eyebrow">How it works <span aria-hidden="true">·</span> <span class="kr">예약 흐름</span></span>
+    <h2 id="how-h2" style="font-size: 48px; line-height: 1.1; max-width: 760px; margin-bottom: 64px;">
+      Four quiet steps from <em style="font-style: italic; color: var(--hesya-amber-600);">curiosity</em> to confirmation.
+    </h2>
+
+    <div class="how-grid">
+      <div class="how-steps">
+        <div class="how-step is-active" data-step="0">
+          <div class="num-large">01</div>
+          <h3>Tell us your dream look.</h3>
+          <p>Upload a photo, browse vibes, or just describe it in your language. <span class="kr">한국어를 몰라도 괜찮아요.</span></p>
+          <div class="how-step-bar"></div>
+        </div>
+        <div class="how-step" data-step="1">
+          <div class="num-large">02</div>
+          <h3>AI matches you with the right salon.</h3>
+          <p>We check if your style is doable here, in seconds. No more "we can't do that" surprises after you arrive.</p>
+          <div class="how-step-bar"></div>
+        </div>
+        <div class="how-step" data-step="2">
+          <div class="num-large">03</div>
+          <h3>Book in your language.</h3>
+          <p>Translated menus, transparent prices, no Korean required. Pay in your currency.</p>
+          <div class="how-step-bar"></div>
+        </div>
+        <div class="how-step" data-step="3">
+          <div class="num-large">04</div>
+          <h3>Walk in with confidence.</h3>
+          <p>Show the salon your booking QR. Leave with the look you came for. Share it back — <span class="kr">진짜 추억 한 장.</span></p>
+          <div class="how-step-bar"></div>
+        </div>
+      </div>
+
+      <div class="how-phone-wrap">
+        <div class="phone" role="img" aria-label="Mobile app preview">
+          <div class="phone-screen">
+            <div class="phone-step is-shown" data-step="0">
+              <h4>Show us a look</h4>
+              <div class="phone-camera"></div>
+              <div class="phone-input kr">"송혜교 단발이요"</div>
+              <div class="phone-input">"Glass-skin makeup, please"</div>
+            </div>
+            <div class="phone-step" data-step="1">
+              <h4>3 salons matched</h4>
+              <div class="phone-mock-card">
+                <div class="salon-name">Stylista — <span style="font-family: var(--font-body-kr);">홍대점</span></div>
+                <div class="meta">Hongdae · 4 min walk</div>
+                <span class="score">★ 4.92 match</span>
+              </div>
+              <div class="phone-mock-card">
+                <div class="salon-name">Color Lab Hongdae</div>
+                <div class="meta">Hongdae · 7 min walk</div>
+                <span class="score">★ 4.79 match</span>
+              </div>
+              <div class="phone-mock-card">
+                <div class="salon-name">Soohair — <span style="font-family: var(--font-body-kr);">명동</span></div>
+                <div class="meta">Myeongdong · 12 min walk</div>
+                <span class="score">★ 4.86 match</span>
+              </div>
+            </div>
+            <div class="phone-step" data-step="2">
+              <h4>Confirm your booking</h4>
+              <div class="phone-mock-card">
+                <div class="salon-name">Tue · May 14 · 2:30 PM</div>
+                <div class="meta">Glass-skin makeup · 60 min</div>
+              </div>
+              <div class="phone-mock-card">
+                <div class="salon-name">JPY 5,800</div>
+                <div class="meta">Pay in JPY · settled in KRW</div>
+              </div>
+              <div class="phone-mock-card kr">
+                <div class="salon-name">메모</div>
+                <div class="meta">"Auto-translated to Korean for the salon."</div>
+              </div>
+            </div>
+            <div class="phone-step" data-step="3">
+              <div class="phone-bookline">You're booked.</div>
+              <div class="phone-qr" aria-hidden="true"></div>
+              <div class="phone-mock-card" style="text-align: center;">
+                <div class="salon-name">HSY-A4F8</div>
+                <div class="meta">Show at front desk</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     04 · BEFORE / AFTER  — dark cinematic break
+     ═══════════════════════════════════════════════════════ -->
+<section class="mk-section dark-section reveal" id="reviews" aria-labelledby="ba-h2">
+  <span class="mk-num" aria-hidden="true">04</span>
+  <div class="mk-wrap">
+    <span class="mk-eyebrow">AI Style Match <span aria-hidden="true">·</span> <span class="kr">사진 한 장이면 충분합니다</span></span>
+    <h2 id="ba-h2" class="ba-headline">See if your <em>dream look</em> is actually doable here.</h2>
+    <p class="ba-sub">Upload a reference photo. Our AI tells you: <strong style="color: var(--hesya-peach-50);">✓ doable</strong> · <strong style="color: var(--hesya-amber-500);">⚠ partial</strong> · <strong style="color: #C9483A;">✕ not advised</strong> — and matches you with salons that actually nailed it.</p>
+
+    <div class="ba-frame" id="baFrame" role="region" aria-label="Before and after slider, drag to compare">
+      <div class="ba-side ba-before">before</div>
+      <div class="ba-side ba-after" id="baAfter">after</div>
+      <span class="ba-label before">Before · reference</span>
+      <span class="ba-label after">After · real result</span>
+      <div class="ba-handle" id="baHandle" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0"></div>
+    </div>
+
+    <p class="ba-caption">
+      Real customer · Sakura from Tokyo · <span class="kr">Stylista 홍대점</span> · 4 weeks ago
+    </p>
+
+    <div class="ba-thumbs" role="tablist" aria-label="Choose another transformation">
+      <button class="ba-thumb is-active" aria-label="Glass-skin makeup"></button>
+      <button class="ba-thumb" aria-label="K-drama short cut"></button>
+      <button class="ba-thumb" aria-label="Pink-blonde balayage"></button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     05 · FEATURED SALONS — snap carousel
+     ═══════════════════════════════════════════════════════ -->
+<section class="mk-section reveal" aria-labelledby="salons-h2">
+  <span class="mk-num" aria-hidden="true">05</span>
+  <div class="mk-wrap">
+    <div class="salons-head">
+      <div>
+        <span class="mk-eyebrow">Featured salons <span aria-hidden="true">·</span> <span class="kr">엄선된 매장</span></span>
+        <h2 id="salons-h2">Salons that <em>foreign clients</em> already love.</h2>
+      </div>
+      <a class="ugc-more" href="#">Browse all 1,284 K-Verified salons →</a>
+    </div>
+
+    <div class="salons-track" role="list">
+      <a class="salon-card" href="#" role="listitem">
+        <div class="image" style="background: linear-gradient(160deg, #F5DDC8, #D88B5B);">
+          <span class="kverified">★ K-Verified</span>
+        </div>
+        <div class="body">
+          <div class="name"><span class="latin">Stylista</span> — <span style="font-family: var(--font-body-kr); font-weight: 700;">홍대점</span></div>
+          <div class="meta">📍 Hongdae</div>
+          <div class="rating">★ 4.92 <span class="count">· 412 reviews</span></div>
+        </div>
+      </a>
+      <a class="salon-card" href="#" role="listitem">
+        <div class="image" style="background: linear-gradient(160deg, #F8E9D9, #1A2238);">
+          <span class="kverified">★ K-Verified</span>
+        </div>
+        <div class="body">
+          <div class="name"><span style="font-family: var(--font-body-kr); font-weight: 700;">유리 살롱</span></div>
+          <div class="meta">📍 Apgujeong</div>
+          <div class="rating">★ 4.88 <span class="count">· 287 reviews</span></div>
+        </div>
+      </a>
+      <a class="salon-card" href="#" role="listitem">
+        <div class="image" style="background: linear-gradient(160deg, #FDF8F1, #C97550);"></div>
+        <div class="body">
+          <div class="name"><span class="latin">Mirror Glass Studio</span></div>
+          <div class="meta">📍 Seongsu</div>
+          <div class="rating">★ 4.81 <span class="count">· 193 reviews</span></div>
+        </div>
+      </a>
+      <a class="salon-card" href="#" role="listitem">
+        <div class="image" style="background: linear-gradient(160deg, #E8C4D6, #D88B5B);">
+          <span class="kverified">★ K-Verified</span>
+        </div>
+        <div class="body">
+          <div class="name"><span class="latin">Nail Atelier</span> <span style="font-family: var(--font-body-kr); font-weight: 700;">청담</span></div>
+          <div class="meta">📍 Cheongdam</div>
+          <div class="rating">★ 4.95 <span class="count">· 521 reviews</span></div>
+        </div>
+      </a>
+      <a class="salon-card" href="#" role="listitem">
+        <div class="image" style="background: linear-gradient(160deg, #F8E9D9, #E8A97A);">
+          <span class="kverified">★ K-Verified</span>
+        </div>
+        <div class="body">
+          <div class="name"><span class="latin">Color Lab Hongdae</span></div>
+          <div class="meta">📍 Hongdae</div>
+          <div class="rating">★ 4.79 <span class="count">· 156 reviews</span></div>
+        </div>
+      </a>
+      <a class="salon-card" href="#" role="listitem">
+        <div class="image" style="background: linear-gradient(160deg, #F5DDC8, #3D4551);"></div>
+        <div class="body">
+          <div class="name"><span class="latin">Soohair</span> <span style="font-family: var(--font-body-kr); font-weight: 700;">명동</span></div>
+          <div class="meta">📍 Myeongdong</div>
+          <div class="rating">★ 4.86 <span class="count">· 308 reviews</span></div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     06 · UGC WALL  — Real travelers, real results
+     ═══════════════════════════════════════════════════════ -->
+<section class="mk-section reveal" style="background: var(--hesya-peach-100);" aria-labelledby="ugc-h2">
+  <span class="mk-num" aria-hidden="true">06</span>
+  <div class="mk-wrap">
+    <div style="text-align: center; max-width: 720px; margin: 0 auto 56px;">
+      <span class="mk-eyebrow" style="justify-content: center;">UGC <span aria-hidden="true">·</span> <span class="kr">실제 손님 후기</span></span>
+      <h2 id="ugc-h2" style="font-size: 44px; line-height: 1.15;">Real travelers, <em style="font-style: italic; color: var(--hesya-amber-600);">real results.</em></h2>
+    </div>
+
+    <div class="ugc-grid">
+      <div class="ugc-col">
+        <article class="ugc-card">
+          <div class="who"><span class="flag" aria-hidden="true">🇯🇵</span><span class="nick">Sakura</span><span class="stars">★★★★★</span></div>
+          <div class="ugc-photo" style="background: linear-gradient(135deg, #F5DDC8, #E8A97A);"></div>
+          <p class="quote">"송혜교 같은 단발 가능했어요!"</p>
+          <p class="trans">"Got the same short cut as Song Hye-kyo!"</p>
+          <span class="src ig">◉ Instagram</span>
+        </article>
+        <article class="ugc-card">
+          <div class="who"><span class="flag" aria-hidden="true">🇹🇼</span><span class="nick">Yi-Ling</span><span class="stars">★★★★☆</span></div>
+          <p class="quote">"디자이너 영어 가능해서 안심"</p>
+          <p class="trans">"Stylist spoke English, felt safe and at ease."</p>
+          <span class="src ig">◉ Instagram</span>
+        </article>
+      </div>
+      <div class="ugc-col">
+        <article class="ugc-card">
+          <div class="who"><span class="flag" aria-hidden="true">🇨🇳</span><span class="nick">Mei</span><span class="stars">★★★★★</span></div>
+          <p class="quote">"膚色对比超惊艳，我变好看了。"</p>
+          <p class="trans">"The color contrast was stunning. I look great."</p>
+          <span class="src xhs">红 Xiaohongshu</span>
+        </article>
+        <article class="ugc-card">
+          <div class="ugc-photo" style="background: linear-gradient(135deg, #F8E9D9, #D88B5B);"></div>
+          <div class="who"><span class="flag" aria-hidden="true">🇺🇸</span><span class="nick">Emma</span><span class="stars">★★★★★</span></div>
+          <p class="quote">"Best layered cut of my life."</p>
+          <p class="trans">"Worth flying to Seoul for. I'll be back."</p>
+          <span class="src ig">◉ Instagram</span>
+        </article>
+        <article class="ugc-card">
+          <div class="who"><span class="flag" aria-hidden="true">🇻🇳</span><span class="nick">Linh</span><span class="stars">★★★★★</span></div>
+          <p class="quote">"Glass skin lần đầu, mê quá!"</p>
+          <p class="trans">"First time with glass skin makeup — obsessed."</p>
+          <span class="src xhs">红 Xiaohongshu</span>
+        </article>
+      </div>
+      <div class="ugc-col">
+        <article class="ugc-card">
+          <div class="ugc-photo" style="background: linear-gradient(135deg, #E8C4D6, #C97550);"></div>
+          <div class="who"><span class="flag" aria-hidden="true">🇯🇵</span><span class="nick">Aoi</span><span class="stars">★★★★★</span></div>
+          <p class="quote">"パーソナルカラー診断◎"</p>
+          <p class="trans">"Personal color reading was perfect — and they explained in Japanese."</p>
+          <span class="src ig">◉ Instagram</span>
+        </article>
+        <article class="ugc-card">
+          <div class="who"><span class="flag" aria-hidden="true">🇸🇬</span><span class="nick">Hui Min</span><span class="stars">★★★★★</span></div>
+          <p class="quote">"두피 케어 받고 머리가 살아났어요."</p>
+          <p class="trans">"My scalp care session — hair literally feels alive again."</p>
+          <span class="src ig">◉ Instagram</span>
+        </article>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px;">
+      <a class="ugc-more" href="#">Show 1,247 more reviews →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     07 · SAFETY — for solo female travelers (female-lens)
+     ═══════════════════════════════════════════════════════ -->
+<section class="safety-section reveal" id="safety" aria-labelledby="safety-h2">
+  <span class="mk-num" aria-hidden="true" style="-webkit-text-stroke-color: var(--hesya-amber-600); color: transparent;">07</span>
+  <div class="mk-wrap">
+    <div class="safety-grid">
+      <div class="safety-left">
+        <span class="mk-eyebrow">For solo travelers <span aria-hidden="true">·</span> <span class="kr">솔로 여행자 안내</span></span>
+        <h2 id="safety-h2">Designed by <em>women</em>, for <em>women</em> traveling alone.</h2>
+        <p>Every salon partner is verified for safety, accessibility, and English-speaking staff. Booking quietly, walking in confidently — that's the whole point.</p>
+        <p class="safety-cite">Source · CEOWORLD 2026 Solo Female Travel Index</p>
+      </div>
+      <div class="safety-cards">
+        <article class="safety-card">
+          <span class="icon" aria-hidden="true">🇰🇷</span>
+          <h3>Tier 2 Safe Country</h3>
+          <p>South Korea ranks among the safest globally for solo female travelers.</p>
+        </article>
+        <article class="safety-card">
+          <span class="icon" aria-hidden="true">👥</span>
+          <h3>92% female stylists</h3>
+          <p>On staff at Hesya partner salons — verified at onboarding.</p>
+        </article>
+        <article class="safety-card">
+          <span class="icon" aria-hidden="true">📍</span>
+          <h3>5 min from subway</h3>
+          <p>All partner salons within walking distance of major stations.</p>
+        </article>
+        <article class="safety-card">
+          <span class="icon" aria-hidden="true">💬</span>
+          <h3>24/7 chat support</h3>
+          <p>In your language, by human moderators — not bots.</p>
+        </article>
+      </div>
+    </div>
+    <div class="trust-rose-rule" aria-hidden="true"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     08 · FOR SALON OWNERS (B2B)
+     ═══════════════════════════════════════════════════════ -->
+<section class="mk-section reveal" id="salons" aria-labelledby="b2b-h2">
+  <span class="mk-num" aria-hidden="true">08</span>
+  <div class="mk-wrap">
+    <div class="b2b-grid">
+      <div class="b2b-left">
+        <span class="mk-eyebrow">For salon owners <span aria-hidden="true">·</span> <span class="kr">사업자 분들께</span></span>
+        <h2 id="b2b-h2">Get foreign clients <em style="font-style: italic; color: var(--hesya-amber-600);">without</em> speaking their language.</h2>
+        <p>Hesya translates messages, manages bookings, and handles cross-border payments. You focus on the cut. We handle the chat.</p>
+        <ul class="b2b-bullets">
+          <li>Auto-translated client requests across 5 languages</li>
+          <li>Built-in K-Verified badge after onboarding</li>
+          <li>Foreign-currency payments + automated KRW settlement</li>
+        </ul>
+        <div class="b2b-cta">
+          <a class="btn-primary" href="#">Run your salon on Hesya →</a>
+          <a class="dash-link" href="Hesya Store Login.html">Sign in to store dashboard →</a>
+        </div>
+      </div>
+      <div class="b2b-mock">
+        <div class="b2b-mock-head">
+          <div class="logo">S</div>
+          <div class="who">Stylista — <span style="font-family: var(--font-body-kr);">홍대점</span><small>Dashboard · 박지민 (owner)</small></div>
+        </div>
+        <div class="b2b-mock-grid">
+          <div class="b2b-mock-tile">
+            <div class="lab">Today's bookings</div>
+            <div class="val">17</div>
+          </div>
+          <div class="b2b-mock-tile">
+            <div class="lab">Foreign clients this week</div>
+            <div class="val">42</div>
+          </div>
+          <div class="b2b-mock-tile">
+            <div class="lab">Pending translations</div>
+            <div class="val">0</div>
+          </div>
+          <div class="b2b-mock-tile">
+            <div class="lab">K-Verified status</div>
+            <div class="val" style="color: var(--kverified-gold);">✓ Active</div>
+          </div>
+        </div>
+        <div class="b2b-stat-overlay">+ ₩142M settled this week</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     09 · TRENDING THIS WEEK
+     ═══════════════════════════════════════════════════════ -->
+<section class="mk-section reveal" style="background: var(--hesya-peach-50);" aria-labelledby="trending-h2">
+  <span class="mk-num" aria-hidden="true">09</span>
+  <div class="mk-wrap">
+    <div class="trending-head">
+      <span class="mk-eyebrow" style="justify-content: center;">Trending <span aria-hidden="true">·</span> <span class="kr">이번 주 인기</span></span>
+      <h2 id="trending-h2">What foreign travelers are <em>actually</em> booking this week.</h2>
+      <p>Tap a chip to filter the salons that nail it.</p>
+    </div>
+    <div class="trending-chips">
+      <a class="chip" href="#"><span class="rank">#1</span> K-drama short layered cut</a>
+      <a class="chip" href="#"><span class="rank">#2</span> Glass-skin makeup trial</a>
+      <a class="chip" href="#"><span class="rank">#3</span> Pink-blonde balayage</a>
+      <a class="chip" href="#"><span class="rank">#4</span> Personal color consultation</a>
+      <a class="chip" href="#"><span class="rank">#5</span> Aegyo sal makeup</a>
+      <a class="chip" href="#"><span class="rank">#6</span> Korean perm</a>
+      <a class="chip" href="#"><span class="rank">#7</span> <span class="kr">신상 컬러 트렌드</span></a>
+      <a class="chip" href="#"><span class="rank">#8</span> Aging-back facial</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     10 · FAQ
+     ═══════════════════════════════════════════════════════ -->
+<section class="mk-section reveal" id="about" aria-labelledby="faq-h2">
+  <span class="mk-num" aria-hidden="true">10</span>
+  <div class="faq-wrap">
+    <span class="mk-eyebrow" style="justify-content: center;">FAQ <span aria-hidden="true">·</span> <span class="kr">자주 묻는 질문</span></span>
+    <h2 id="faq-h2">Questions a <em>smart</em> traveler asks.</h2>
+
+    <div class="faq">
+      <details>
+        <summary>Do salon staff actually speak English / Japanese / Chinese?</summary>
+        <p class="answer">92% of K-Verified salons have at least one staff member fluent in English. Japanese, Chinese (simplified + traditional), and Vietnamese support is available via the in-app translator — auto-detects your language and routes messages live, both ways.</p>
+      </details>
+      <details>
+        <summary>What if my AI style match says "not advised"?</summary>
+        <p class="answer">We tell you why — hair texture, scalp condition, or technique mismatch — and suggest 3 alternative looks that work for your features. No surprises after you arrive.</p>
+      </details>
+      <details>
+        <summary>How do payments work?</summary>
+        <p class="answer">Pay in your local currency (JPY, CNY, USD, VND, etc.). We handle currency conversion and settle to the salon in KRW. No hidden fees — the price you see is the price you pay.</p>
+      </details>
+      <details>
+        <summary>Can I cancel my booking?</summary>
+        <p class="answer">Free cancellation up to 24 hours before. We auto-translate the cancellation message so the salon never gets confused about why you canceled.</p>
+      </details>
+      <details>
+        <summary>Is it really safe for solo women?</summary>
+        <p class="answer">All partner salons are verified for location (≤ 5 min from subway), staff composition (92% have female stylists on staff), and 24/7 human-moderated chat support is available in your language — not bots.</p>
+      </details>
+      <details>
+        <summary>Do you have a salon I can recommend?</summary>
+        <p class="answer">Yes — refer them at hesya.com/refer. We give you ₩50,000 credit when they're onboarded as a K-Verified partner.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     11 · FINAL CTA — 3-way split (Customer / Salon / Admin de-emphasized)
+     ═══════════════════════════════════════════════════════ -->
+<section class="final-cta reveal" id="cta-traveler" aria-labelledby="final-h2">
+  <span class="mk-num" aria-hidden="true" style="-webkit-text-stroke-color: var(--hesya-amber-500);">11</span>
+  <div class="mk-wrap">
+    <h2 id="final-h2">Wherever you're starting from.</h2>
+    <div class="final-grid">
+
+      <div class="final-col">
+        <div class="ic" aria-hidden="true">🌸</div>
+        <h3>For travelers</h3>
+        <p>Find K-Verified salons in your language. Free to use, free to cancel up to 24 hours before.</p>
+        <a class="btn-primary" href="#">Get the app →</a>
+        <div class="app-badges">
+          <span class="app-badge">Available on App Store</span>
+          <span class="app-badge">Google Play</span>
+        </div>
+      </div>
+
+      <div class="final-col">
+        <div class="ic" aria-hidden="true">✂️</div>
+        <h3>For salon owners</h3>
+        <p>Get foreign clients without language anxiety. Free until your first booking.</p>
+        <a class="btn-ghost" href="#">Become a partner →</a>
+        <a class="dash-link" href="Hesya Store Login.html">Sign in to dashboard →</a>
+      </div>
+
+      <div class="final-col muted">
+        <h3>Already a partner?</h3>
+        <a href="Hesya Store Login.html">Store login →</a>
+        <a href="Hesya Store Dashboard.html">View your dashboard →</a>
+      </div>
+    </div>
+
+    <div class="final-trust">
+      ISO 27001 certified · GDPR compliant · <span class="kr">한국 개인정보보호법 준수</span> · PCI DSS Level 1
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════
+     12 · FOOTER  (hidden Admin entry bottom-right)
+     ═══════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <h3>Hesya</h3>
+      <p class="tagline">The Korean welcome, in 5 languages.</p>
+      <div class="footer-socials">
+        <a href="#" aria-label="Instagram">◉</a>
+        <a href="#" aria-label="Xiaohongshu" style="color: #FE2C55;">红</a>
+        <a href="#" aria-label="TikTok">♪</a>
+        <a href="#" aria-label="LINE" style="color: #06C755;">L</a>
+      </div>
+      <button class="footer-lang">🌐 English ▾</button>
+    </div>
+    <div class="footer-col">
+      <h4>For travelers</h4>
+      <ul>
+        <li><a href="#about">About Hesya</a></li>
+        <li><a href="#travelers">How it works</a></li>
+        <li><a href="#salons">Featured salons</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#safety">Safety guide</a></li>
+        <li><a href="#cta-traveler">Get the app</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>For salons</h4>
+      <ul>
+        <li><a href="#salons">Become a partner</a></li>
+        <li><a href="#">Pricing</a></li>
+        <li><a href="Hesya Store Login.html">Store dashboard sign-in</a></li>
+        <li><a href="#">Onboarding guide</a></li>
+        <li><a href="#">Help center</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About us</a></li>
+        <li><a href="#">Press kit</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Privacy policy</a></li>
+        <li><a href="#">Terms of service</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Hesya, Inc. · ISO 27001 · GDPR</div>
+    <div class="footer-trust-rose" aria-hidden="true"></div>
+    <a class="footer-admin" href="Hesya Admin Login.html">Internal · Operations →</a>
+  </div>
+</footer>
+
+<script>
+/* ─────────────────────────────────────────────
+   Marketing Landing — interactions
+   - Nav scroll shrink
+   - 5-language greeting cycle (3s) — respects reduced motion
+   - Live activity card rotation (4s)
+   - Trust bar count-up via IntersectionObserver
+   - How-it-works: sticky scroll → active step + phone screen morph (View Transitions API w/ crossfade fallback)
+   - Before/After draggable slider
+   ───────────────────────────────────────────── */
+(function() {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── Nav shrink on scroll ── */
+  const nav = document.getElementById('nav');
+  let lastY = window.scrollY;
+  function onScroll() {
+    if (window.scrollY > 100) nav.classList.add('is-scrolled');
+    else nav.classList.remove('is-scrolled');
+    lastY = window.scrollY;
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  /* ── 5-language greeting cycle ── */
+  const greetings = document.querySelectorAll('.greeting');
+  const bar = document.getElementById('greetingBar');
+  let gi = 0;
+  function nextGreeting() {
+    greetings[gi].classList.remove('is-active');
+    greetings[gi].setAttribute('aria-hidden', 'true');
+    gi = (gi + 1) % greetings.length;
+    greetings[gi].classList.add('is-active');
+    greetings[gi].setAttribute('aria-hidden', 'false');
+    const w = greetings[gi].getAttribute('data-bar');
+    bar.style.width = w + 'px';
+  }
+  if (!reduceMotion && greetings.length > 1) {
+    setInterval(nextGreeting, 3000);
+  } else {
+    // Show only the English greeting and hide the rest from AT
+    greetings.forEach((g, i) => {
+      if (i !== 0) { g.style.display = 'none'; }
+    });
+  }
+
+  /* ── Activity card rotation ── */
+  const activity = document.getElementById('activityCard');
+  const bookings = [
+    { flag: '🇯🇵', name: 'Sakura',  quote: 'Glass-skin makeup',           salon: 'Stylista 홍대점',    when: '4 min ago' },
+    { flag: '🇨🇳', name: 'Mei',     quote: 'Personal color consultation', salon: '유리 살롱 청담',     when: '7 min ago' },
+    { flag: '🇺🇸', name: 'Emma',    quote: 'K-drama layered cut',         salon: 'Color Lab Hongdae', when: '11 min ago' },
+    { flag: '🇻🇳', name: 'Linh',    quote: 'Pink-blonde balayage',        salon: 'Nail Atelier 청담', when: '18 min ago' },
+    { flag: '🇹🇼', name: 'Yi-Ling', quote: 'Korean perm + treatment',     salon: 'Soohair 명동',      when: '24 min ago' },
+  ];
+  let bi = 0;
+  function rotateActivity() {
+    bi = (bi + 1) % bookings.length;
+    const b = bookings[bi];
+    activity.innerHTML = `
+      <div class="head"><span aria-hidden="true">${b.flag}</span> ${b.name} just booked</div>
+      <div class="quote">"${b.quote}"</div>
+      <div class="meta">→ <span class="kr">${b.salon}</span> · ${b.when}</div>`;
+  }
+  if (!reduceMotion) setInterval(rotateActivity, 4000);
+
+  /* ── Trust bar count-up ── */
+  function animateCount(el) {
+    const target = parseFloat(el.dataset.count.replace(/,/g, ''));
+    const decimals = parseInt(el.dataset.decimals || '0', 10);
+    if (reduceMotion) { el.textContent = formatNum(target, decimals); return; }
+    const dur = 1400;
+    const start = performance.now();
+    function tick(t) {
+      const p = Math.min(1, (t - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = formatNum(target * eased, decimals);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  function formatNum(n, d) {
+    return n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+  const trustIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('[data-count]').forEach(animateCount);
+        trustIO.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+  const trustBar = document.querySelector('.trust-bar');
+  if (trustBar) trustIO.observe(trustBar);
+
+  /* ── How-it-works sticky scroll active step + phone morph ── */
+  const steps = Array.from(document.querySelectorAll('.how-step'));
+  const phoneSteps = Array.from(document.querySelectorAll('.phone-step'));
+  let currentStep = 0;
+  function setStep(i) {
+    if (i === currentStep) return;
+    steps.forEach((s, idx) => s.classList.toggle('is-active', idx === i));
+    const apply = () => {
+      phoneSteps.forEach((p, idx) => p.classList.toggle('is-shown', idx === i));
+    };
+    if (document.startViewTransition && !reduceMotion) {
+      document.startViewTransition(apply);
+    } else {
+      apply();
+    }
+    currentStep = i;
+  }
+  const stepIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > 0.45) {
+        const i = parseInt(e.target.dataset.step, 10);
+        setStep(i);
+      }
+    });
+  }, { threshold: [0.45, 0.6, 0.75] });
+  steps.forEach(s => stepIO.observe(s));
+
+  /* ── Before/After draggable slider ── */
+  const baFrame = document.getElementById('baFrame');
+  const baHandle = document.getElementById('baHandle');
+  if (baFrame && baHandle) {
+    let dragging = false;
+    function setPos(clientX) {
+      const r = baFrame.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(100, ((clientX - r.left) / r.width) * 100));
+      baFrame.style.setProperty('--ba-pos', pct + '%');
+      baHandle.setAttribute('aria-valuenow', Math.round(pct));
+    }
+    baHandle.addEventListener('mousedown', () => { dragging = true; });
+    baHandle.addEventListener('touchstart', () => { dragging = true; }, { passive: true });
+    window.addEventListener('mousemove', (e) => { if (dragging) setPos(e.clientX); });
+    window.addEventListener('touchmove', (e) => { if (dragging && e.touches[0]) setPos(e.touches[0].clientX); }, { passive: true });
+    window.addEventListener('mouseup', () => { dragging = false; });
+    window.addEventListener('touchend', () => { dragging = false; });
+    baFrame.addEventListener('click', (e) => setPos(e.clientX));
+    // Keyboard: ←/→
+    baHandle.addEventListener('keydown', (e) => {
+      const cur = parseFloat(baFrame.style.getPropertyValue('--ba-pos') || '50');
+      if (e.key === 'ArrowLeft') { baFrame.style.setProperty('--ba-pos', Math.max(0, cur - 4) + '%'); e.preventDefault(); }
+      if (e.key === 'ArrowRight') { baFrame.style.setProperty('--ba-pos', Math.min(100, cur + 4) + '%'); e.preventDefault(); }
+    });
+  }
+
+  /* ── B/A thumbnail switching ── */
+  document.querySelectorAll('.ba-thumb').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.ba-thumb').forEach(x => x.classList.remove('is-active'));
+      t.classList.add('is-active');
+    });
+  });
+})();
+</script>
+</body>
+</html>

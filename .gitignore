@@ -28,6 +28,9 @@
 .DS_Store
 *.pem
 
+# claude.ai/design raw export dumps (canonical copies live in docs/design/reference/)
+/web/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
