@@ -593,6 +593,20 @@ function ReviewsPane({
   }
   return (
     <div className="space-y-4">
+      <div className="flex items-center gap-2 rounded-2xl bg-hesya-peach-50 px-4 py-2.5 ring-1 ring-hesya-peach-100">
+        <span className="rounded-full bg-hesya-amber-500 px-2 py-0.5 font-mono text-[11px] font-bold tabular-nums text-white">
+          {rows.length}
+        </span>
+        <span className="kr text-[12.5px] font-semibold text-hesya-navy-900">
+          {labels.tabs.reviews}
+        </span>
+        <span aria-hidden="true" className="text-hesya-navy-900/25">
+          ·
+        </span>
+        <span className="kr text-[11.5px] text-hesya-navy-900/65 [word-break:keep-all]">
+          🌐 {labels.review.languageNote}
+        </span>
+      </div>
       {rows.map((r) => (
         <ReviewCard key={r.bookingId} row={r} labels={labels} locale={locale} />
       ))}
@@ -699,6 +713,11 @@ function ReviewCard({
             />
           </button>
         ))}
+        {stars > 0 && (
+          <span className="ml-2 font-mono text-[11px] font-semibold text-hesya-amber-600 tabular-nums">
+            {stars}/5
+          </span>
+        )}
       </div>
       <textarea
         value={content}
@@ -709,18 +728,32 @@ function ReviewCard({
       />
       <div className="mt-2 flex items-center justify-between gap-3">
         <p className="cm-rv-note">🌐 {labels.review.languageNote}</p>
-        <button
-          type="button"
-          disabled={submitting || stars < 1 || content.trim().length < 2}
-          onClick={handleSubmit}
-          className={
-            stars < 1 || content.trim().length < 2
-              ? "rounded-full bg-hesya-navy-900/15 px-4 py-1.5 text-[12px] font-semibold text-hesya-navy-900/40 cursor-not-allowed"
-              : "rounded-full bg-hesya-amber-500 px-4 py-1.5 text-[12px] font-semibold text-white shadow-[0_4px_10px_rgba(232,169,122,0.35)] transition hover:bg-hesya-amber-600 disabled:opacity-50"
-          }
-        >
-          {submitting ? "…" : labels.review.submit}
-        </button>
+        <div className="flex items-center gap-2">
+          {content.trim().length > 0 && (
+            <span
+              className={[
+                "font-mono text-[10.5px] tabular-nums transition-colors",
+                content.trim().length >= 2
+                  ? "text-hesya-navy-900/55"
+                  : "text-hesya-navy-900/35",
+              ].join(" ")}
+            >
+              {content.trim().length}
+            </span>
+          )}
+          <button
+            type="button"
+            disabled={submitting || stars < 1 || content.trim().length < 2}
+            onClick={handleSubmit}
+            className={
+              stars < 1 || content.trim().length < 2
+                ? "rounded-full bg-hesya-navy-900/15 px-4 py-1.5 text-[12px] font-semibold text-hesya-navy-900/40 cursor-not-allowed"
+                : "rounded-full bg-hesya-amber-500 px-4 py-1.5 text-[12px] font-semibold text-white shadow-[0_4px_10px_rgba(232,169,122,0.35)] transition hover:bg-hesya-amber-600 disabled:opacity-50"
+            }
+          >
+            {submitting ? "…" : labels.review.submit}
+          </button>
+        </div>
       </div>
       {error && (
         <p className="mt-2 text-[11px] text-rose-700" role="alert">
