@@ -130,6 +130,9 @@ export default async function StoreDashboardPage({
   // O1 fast track 단계 1 (W3) — 채널별 미답 분포 (mock).
   // 실 DAL은 conversations group by channel 필요. 현재 fixed ratio:
   // 40% IG / 30% WA / 20% Kakao / 10% LINE → unreadMessages 총합 보존.
+  // urgent threshold = 5건 (reference sd-ch-count.urgent — 베타 매장 50건/일
+  // 기준 채널 1개에 5+ 미답이면 SLA 임박 신호).
+  const URGENT_THRESHOLD = 5;
   const unread = inbox.unreadMessages;
   const channelEntries = (() => {
     const ratios = [0.4, 0.3, 0.2, 0.1] as const;
@@ -142,7 +145,10 @@ export default async function StoreDashboardPage({
     const raw = ratios.map((r) => Math.floor(unread * r));
     const drift = unread - raw.reduce((s, n) => s + n, 0);
     if (drift > 0 && raw.length > 0) raw[0] = (raw[0] ?? 0) + drift;
-    return channels.map((c, i) => ({ ...c, count: raw[i] ?? 0 }));
+    return channels.map((c, i) => {
+      const count = raw[i] ?? 0;
+      return { ...c, count, urgent: count >= URGENT_THRESHOLD };
+    });
   })();
 
   return (

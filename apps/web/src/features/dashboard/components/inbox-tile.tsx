@@ -17,6 +17,11 @@ interface ChannelEntry {
   readonly label: string;
   readonly icon: string;
   readonly count: number;
+  /**
+   * Urgent 채널 (sd-ch-count.urgent — amber pill 배지). count 임의 threshold
+   * 또는 SLA 기반으로 page에서 결정. 미지정 시 일반 pill.
+   */
+  readonly urgent?: boolean;
 }
 
 interface Props {
@@ -69,10 +74,15 @@ export function InboxTile({ unreadTotal, channels }: Props) {
               </span>
               <span className="kr text-[12px] text-gray-700">{c.label}</span>
             </span>
+            {/* Reference dashboard.css sd-ch-count (855~870) — pill 배지
+                (border peach-200 + bg white + mono 10.5/700) + urgent 변형
+                (amber-500 bg + white text). 이전 text-only 색상 변경만 사용. */}
             <span
               className={
-                "mono text-[14px] font-semibold tabular-nums " +
-                (c.count > 0 ? "text-hesya-amber-600" : "text-gray-400")
+                "inline-flex shrink-0 items-center rounded-full border font-mono text-[10.5px] font-bold tabular-nums px-1.5 py-0.5 " +
+                (c.urgent
+                  ? "border-hesya-amber-500 bg-hesya-amber-500 text-white"
+                  : "border-hesya-peach-200 bg-white text-gray-700")
               }
             >
               {c.count}
