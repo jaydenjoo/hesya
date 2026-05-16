@@ -130,29 +130,35 @@ export default async function AdminAiAccuracyPage({
           />
         </section>
 
-        <section className="mt-10 space-y-4">
-          <h2 className="text-xl font-semibold text-hesya-navy-900">
+        <section className="mt-10 rounded-2xl border border-hesya-peach-200 bg-white p-6 shadow-[0_1px_2px_rgba(26,34,56,0.04)]">
+          <p className="mb-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
+            §02 · Accuracy Definition (v1)
+          </p>
+          <h2 className="mb-4 font-display text-[20px] italic text-hesya-navy-900">
             정확도 정의 (1차)
           </h2>
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-2.5 text-[13px]">
             <DefItem
+              n={1}
               label="분모"
               value="outbound + draftStatus IN (sent, skipped)"
             />
             <DefItem
+              n={2}
               label="분자"
               value="draftStatus = sent AND editedFromAi != true"
             />
             <DefItem
+              n={3}
               label="제외"
               value="pending_review (미정), approved (일시), direct (AI 미사용)"
             />
           </ul>
-          <p className="text-xs text-hesya-navy-900/60">
+          <p className="mt-4 text-[11.5px] leading-relaxed text-hesya-navy-900/60 [word-break:keep-all]">
             1차 정의. 작은 수정(1글자) vs 전면 수정 구분 X — 둘 다 부정확으로
             카운트. Spec §4.1 H1 분포 분석 후 Epic 1 안정화 시 정교화 예정.
             임계치 코드 상수:{" "}
-            <code className="font-mono">
+            <code className="rounded bg-hesya-peach-100 px-1.5 py-0.5 font-mono text-[10.5px]">
               apps/web/src/lib/ai-accuracy/thresholds.ts
             </code>
           </p>
@@ -245,11 +251,31 @@ function MetricCard({
   );
 }
 
-function DefItem({ label, value }: { label: string; value: string }) {
+function DefItem({
+  n,
+  label,
+  value,
+}: {
+  n?: number;
+  label: string;
+  value: string;
+}) {
   return (
-    <li className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-      <span className="font-medium text-hesya-navy-900">{label}:</span>
-      <code className="font-mono text-xs">{value}</code>
+    <li className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+      {n !== undefined && (
+        <span
+          aria-hidden="true"
+          className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-hesya-amber-500/15 font-mono text-[9.5px] font-bold text-hesya-amber-700"
+        >
+          {n}
+        </span>
+      )}
+      <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.14em] text-hesya-navy-900/65">
+        {label}
+      </span>
+      <code className="break-all rounded bg-hesya-peach-50 px-2 py-0.5 font-mono text-[11.5px] text-hesya-navy-900/85">
+        {value}
+      </code>
     </li>
   );
 }
