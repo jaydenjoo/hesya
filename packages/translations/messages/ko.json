@@ -766,6 +766,8 @@
     "columnAllergyNote": "주의사항",
     "columnPreferredDesigner": "선호 디자이너",
     "columnAction": "동작",
+    "columnLastSeen": "최근",
+    "columnStatus": "상태",
     "emptyText": "아직 손님이 없습니다. 메시지를 받으면 자동 추가됩니다.",
     "saveButton": "저장",
     "cancelButton": "취소",

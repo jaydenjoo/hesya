@@ -766,6 +766,8 @@
     "columnAllergyNote": "Notes",
     "columnPreferredDesigner": "Preferred stylist",
     "columnAction": "Action",
+    "columnLastSeen": "Last",
+    "columnStatus": "Status",
     "emptyText": "No customers yet. They appear automatically after first message.",
     "saveButton": "Save",
     "cancelButton": "Cancel",

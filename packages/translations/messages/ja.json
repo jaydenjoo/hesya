@@ -766,6 +766,8 @@
     "columnAllergyNote": "注意事項",
     "columnPreferredDesigner": "希望スタイリスト",
     "columnAction": "操作",
+    "columnLastSeen": "直近",
+    "columnStatus": "状態",
     "emptyText": "まだお客様がいません。メッセージ受信後に自動追加されます。",
     "saveButton": "保存",
     "cancelButton": "キャンセル",
