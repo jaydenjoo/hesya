@@ -231,6 +231,25 @@
   animation: adminAuditSlideIn 0.2s ease-out;
 }
 
+/* Reference dashboard.css 583~595 — BrightSpot body fade-in 시 부드러운
+   진입 (opacity 0 → 1 + translateY 4px → 0). 15s 마다 rotating 메시지가
+   바뀔 때 부드러운 fade. 이전 `fadeIn`이 globals.css에 정의 안 돼있어
+   사실상 작동 안 하던 버그 수정. */
+@keyframes brightFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bright-fade {
+  animation: brightFade 0.4s ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

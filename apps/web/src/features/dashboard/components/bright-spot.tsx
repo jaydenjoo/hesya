@@ -65,9 +65,12 @@ export function BrightSpot({
           {eyebrowEn}
         </span>
       </div>
+      {/* 15s 마다 rotating 시 reference brightFade 애니메이션 (opacity 0→1,
+          translateY 4px→0). 이전 animate-[fadeIn_...]는 globals.css에 정의
+          안 된 keyframe 참조라 사실상 작동 안 함 — bright-fade class로 교체. */}
       <p
         key={idx}
-        className="kr relative min-w-0 text-[15px] font-medium leading-[1.45] text-hesya-navy-900 animate-[fadeIn_0.35s_ease-out]"
+        className="kr bright-fade relative min-w-0 text-[15px] font-medium leading-[1.45] text-hesya-navy-900"
         aria-live="polite"
       >
         {currentBody}
