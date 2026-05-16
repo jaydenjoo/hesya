@@ -40,6 +40,12 @@ export default async function AdminAiAccuracyPage({
 
   const evaluated = metrics.sampleSize >= MIN_SAMPLE_SIZE;
   const accuracyExceeded = evaluated && metrics.accuracy < ACCURACY_THRESHOLD;
+  const samplePct = Math.min(100, (metrics.sampleSize / MIN_SAMPLE_SIZE) * 100);
+  const accuracyPct = evaluated ? metrics.accuracy * 100 : 0;
+  const totalDecisions =
+    metrics.acceptedCount + metrics.editedCount + metrics.skippedCount;
+  const acceptedSharePct =
+    totalDecisions > 0 ? (metrics.acceptedCount / totalDecisions) * 100 : 0;
 
   return (
     <div className="min-h-full bg-hesya-peach-50/30">
@@ -56,15 +62,28 @@ export default async function AdminAiAccuracyPage({
       <div className="container py-8">
         {!evaluated && (
           <section className="mb-8 rounded-md border border-hesya-peach-200 bg-hesya-peach-50/60 p-4">
-            <h2 className="font-semibold text-hesya-navy-900">
-              표본 부족 — 평가 보류
-            </h2>
-            <p className="mt-1 text-sm text-hesya-navy-900/80">
-              현재 표본 {metrics.sampleSize}건 (최소 {MIN_SAMPLE_SIZE}건 필요).
-              베타 운영 데이터 누적 시 자동 활성화됩니다. AI 초안 결과(sent /
-              skipped)가 누적되어야 정확도 평가 가능 — pending_review 단계
-              메시지는 표본에 포함되지 않습니다.
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="font-semibold text-hesya-navy-900">
+                  표본 부족 — 평가 보류
+                </h2>
+                <p className="mt-1 text-sm text-hesya-navy-900/80">
+                  현재 표본 {metrics.sampleSize}건 (최소 {MIN_SAMPLE_SIZE}건
+                  필요). 베타 운영 데이터 누적 시 자동 활성화됩니다. AI 초안
+                  결과(sent / skipped)가 누적되어야 정확도 평가 가능 —
+                  pending_review 단계 메시지는 표본에 포함되지 않습니다.
+                </p>
+              </div>
+              <span className="font-mono text-[11px] font-semibold tabular-nums text-hesya-amber-600">
+                {metrics.sampleSize}/{MIN_SAMPLE_SIZE}
+              </span>
+            </div>
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white">
+              <div
+                className="h-full bg-hesya-amber-500"
+                style={{ width: `${samplePct}%` }}
+              />
+            </div>
           </section>
         )}
 
@@ -76,24 +95,38 @@ export default async function AdminAiAccuracyPage({
             alert={accuracyExceeded}
             alertReason={`임계치 ${(ACCURACY_THRESHOLD * 100).toFixed(0)}% 미달`}
             subtext={evaluated ? undefined : "표본 부족"}
+            progressPct={evaluated ? accuracyPct : undefined}
+            thresholdPct={ACCURACY_THRESHOLD * 100}
+            tone={accuracyExceeded ? "danger" : evaluated ? "ok" : "muted"}
           />
           <MetricCard
             label="표본 크기 (24h)"
             value={metrics.sampleSize.toString()}
             unit="건"
             subtext={`최소 ${MIN_SAMPLE_SIZE}건 필요`}
+            progressPct={samplePct}
+            tone={evaluated ? "ok" : "warn"}
           />
           <MetricCard
             label="그대로 승인"
             value={metrics.acceptedCount.toString()}
             unit="건"
-            subtext="editedFromAi=false"
+            subtext={
+              totalDecisions > 0
+                ? `share ${acceptedSharePct.toFixed(0)}%`
+                : "editedFromAi=false"
+            }
+            progressPct={totalDecisions > 0 ? acceptedSharePct : undefined}
+            tone="ok"
           />
           <MetricCard
             label="수정 / 무시"
             value={`${metrics.editedCount + metrics.skippedCount}`}
             unit="건"
             subtext={`수정 ${metrics.editedCount} / 무시 ${metrics.skippedCount}`}
+            tone={
+              metrics.editedCount + metrics.skippedCount > 0 ? "warn" : "muted"
+            }
           />
         </section>
 
@@ -136,6 +169,9 @@ function MetricCard({
   subtext,
   alert,
   alertReason,
+  progressPct,
+  thresholdPct,
+  tone = "muted",
 }: {
   label: string;
   value: string;
@@ -143,7 +179,22 @@ function MetricCard({
   subtext?: string;
   alert?: boolean;
   alertReason?: string;
+  /** 0~100. 미전달 시 progress bar 미렌더. */
+  progressPct?: number;
+  /** 0~100. progress 위에 vertical marker 표시 (정확도 임계치). */
+  thresholdPct?: number;
+  /** progress bar 색조. */
+  tone?: "ok" | "warn" | "danger" | "muted";
 }) {
+  const barTone = alert
+    ? "bg-[#c9483a]"
+    : tone === "ok"
+      ? "bg-emerald-500"
+      : tone === "warn"
+        ? "bg-hesya-amber-500"
+        : tone === "danger"
+          ? "bg-[#c9483a]"
+          : "bg-hesya-navy-900/30";
   return (
     <div
       className={`rounded-md border p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)] transition ${
@@ -169,6 +220,21 @@ function MetricCard({
       </div>
       {subtext && (
         <div className="mt-1.5 text-[11px] text-gray-500">{subtext}</div>
+      )}
+      {progressPct !== undefined && (
+        <div className="relative mt-2.5 h-1.5 overflow-hidden rounded-full bg-hesya-peach-50">
+          <div
+            className={`h-full ${barTone}`}
+            style={{ width: `${Math.min(100, Math.max(0, progressPct))}%` }}
+          />
+          {thresholdPct !== undefined && (
+            <span
+              aria-hidden="true"
+              className="absolute top-[-2px] h-[10px] w-px bg-hesya-navy-900/55"
+              style={{ left: `${Math.min(100, Math.max(0, thresholdPct))}%` }}
+            />
+          )}
+        </div>
       )}
       {alert && alertReason && (
         <div className="mt-2 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[#c9483a]">
