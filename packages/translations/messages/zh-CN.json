@@ -943,7 +943,22 @@
     "actionApprove": "通过",
     "actionReject": "拒绝",
     "actionRequestMore": "请求补件",
-    "realDataSection": "真实 DB 审核队列 (manual_review)"
+    "realDataSection": "真实 DB 审核队列 (manual_review)",
+    "pipelineExpand": "展开 6 步流水线",
+    "stepTitles": {
+      "business": "营业执照真伪",
+      "license": "营业许可证",
+      "id": "身份证件",
+      "address": "地址一致",
+      "risk": "风险评估",
+      "optional": "可选附加检查"
+    },
+    "stepStates": {
+      "pass": "通过",
+      "warn": "注意",
+      "fail": "失败",
+      "skip": "可选"
+    }
   },
   "AdminPayments": {
     "richSection": "异常告警 & 交易 (mock)",

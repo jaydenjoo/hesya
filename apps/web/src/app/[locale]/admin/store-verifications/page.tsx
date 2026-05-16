@@ -63,6 +63,21 @@ export default async function StoreVerificationsPage({
     actionApprove: t("actionApprove"),
     actionReject: t("actionReject"),
     actionRequestMore: t("actionRequestMore"),
+    pipelineExpand: t("pipelineExpand"),
+    stepTitles: {
+      business: t("stepTitles.business"),
+      license: t("stepTitles.license"),
+      id: t("stepTitles.id"),
+      address: t("stepTitles.address"),
+      risk: t("stepTitles.risk"),
+      optional: t("stepTitles.optional"),
+    },
+    stepStates: {
+      pass: t("stepStates.pass"),
+      warn: t("stepStates.warn"),
+      fail: t("stepStates.fail"),
+      skip: t("stepStates.skip"),
+    },
   };
 
   return (

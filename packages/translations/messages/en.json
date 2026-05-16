@@ -943,7 +943,22 @@
     "actionApprove": "Approve",
     "actionReject": "Reject",
     "actionRequestMore": "Request more docs",
-    "realDataSection": "Real DB review queue (manual_review)"
+    "realDataSection": "Real DB review queue (manual_review)",
+    "pipelineExpand": "Expand 6-step pipeline",
+    "stepTitles": {
+      "business": "Business no. authenticity",
+      "license": "Operating license",
+      "id": "ID document",
+      "address": "Address match",
+      "risk": "Risk assessment",
+      "optional": "Optional extra checks"
+    },
+    "stepStates": {
+      "pass": "Pass",
+      "warn": "Warn",
+      "fail": "Fail",
+      "skip": "Skip"
+    }
   },
   "AdminPayments": {
     "richSection": "Anomaly & transactions (mock)",

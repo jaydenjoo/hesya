@@ -943,7 +943,22 @@
     "actionApprove": "Duyệt",
     "actionReject": "Từ chối",
     "actionRequestMore": "Yêu cầu thêm",
-    "realDataSection": "Hàng chờ DB thực (manual_review)"
+    "realDataSection": "Hàng chờ DB thực (manual_review)",
+    "pipelineExpand": "Mở rộng pipeline 6 bước",
+    "stepTitles": {
+      "business": "Xác thực số ĐKKD",
+      "license": "Giấy phép kinh doanh",
+      "id": "Giấy tờ tùy thân",
+      "address": "Khớp địa chỉ",
+      "risk": "Đánh giá rủi ro",
+      "optional": "Kiểm tra bổ sung tùy chọn"
+    },
+    "stepStates": {
+      "pass": "Đạt",
+      "warn": "Cảnh báo",
+      "fail": "Không đạt",
+      "skip": "Tùy chọn"
+    }
   },
   "AdminPayments": {
     "richSection": "Cảnh báo & giao dịch (mock)",
