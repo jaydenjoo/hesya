@@ -165,10 +165,13 @@
       "no_show": "ノーショー"
     },
     "columnScheduled": "予約日時",
+    "columnDate": "日付",
+    "columnTime": "時間",
     "columnService": "施術",
     "columnStaff": "デザイナー",
     "columnPrice": "金額",
     "columnStatus": "状態",
+    "countLabel": "合計 {n}件",
     "empty": "予約はまだありません",
     "detail": {
       "close": "閉じる",

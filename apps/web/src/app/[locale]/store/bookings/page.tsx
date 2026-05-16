@@ -92,6 +92,9 @@ export default async function StoreBookingsPage({
       cancelled: t("statuses.cancelled"),
       no_show: t("statuses.no_show"),
     },
+    countLabel: t("countLabel"),
+    columnDate: t("columnDate"),
+    columnTime: t("columnTime"),
   };
 
   const useFixtures = env.MOCK_FIXTURES;

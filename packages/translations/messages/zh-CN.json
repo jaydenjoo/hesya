@@ -165,10 +165,13 @@
       "no_show": "爽约"
     },
     "columnScheduled": "预约时间",
+    "columnDate": "日期",
+    "columnTime": "时间",
     "columnService": "项目",
     "columnStaff": "设计师",
     "columnPrice": "金额",
     "columnStatus": "状态",
+    "countLabel": "共 {n} 条",
     "empty": "暂无预约",
     "detail": {
       "close": "关闭",

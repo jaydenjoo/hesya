@@ -165,10 +165,13 @@
       "no_show": "Không đến"
     },
     "columnScheduled": "Thời gian",
+    "columnDate": "Ngày",
+    "columnTime": "Giờ",
     "columnService": "Dịch vụ",
     "columnStaff": "Thợ",
     "columnPrice": "Giá",
     "columnStatus": "Trạng thái",
+    "countLabel": "Tổng {n}",
     "empty": "Chưa có lịch đặt",
     "detail": {
       "close": "Đóng",
