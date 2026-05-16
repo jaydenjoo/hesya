@@ -232,29 +232,46 @@ export function WeekCalendarView({
           {/* Day headers */}
           <div className="grid grid-cols-[64px_repeat(7,1fr)] border-b border-hesya-navy-900/10">
             <div aria-hidden="true" />
-            {days.map((d) => (
-              <div
-                key={d.en}
-                className={`flex flex-col items-center justify-center border-l border-hesya-navy-900/5 py-3 ${
-                  d.today ? "bg-hesya-peach-100/50" : ""
-                }`}
-              >
-                <span
-                  className={`text-[10.5px] font-semibold uppercase tracking-[0.12em] ${
-                    d.today ? "text-hesya-amber-600" : "text-hesya-navy-900/45"
+            {days.map((d, dayIdx) => {
+              const dayCount = filtered.filter((b) => b.day === dayIdx).length;
+              return (
+                <div
+                  key={d.en}
+                  className={`flex flex-col items-center justify-center gap-0.5 border-l border-hesya-navy-900/5 py-3 ${
+                    d.today ? "bg-hesya-peach-100/50" : ""
                   }`}
                 >
-                  {d.kr} · {d.en}
-                </span>
-                <span
-                  className={`font-mono text-[16px] font-semibold ${
-                    d.today ? "text-hesya-amber-600" : "text-hesya-navy-900"
-                  }`}
-                >
-                  {d.num.toString().padStart(2, "0")}
-                </span>
-              </div>
-            ))}
+                  <span
+                    className={`text-[10.5px] font-semibold uppercase tracking-[0.12em] ${
+                      d.today
+                        ? "text-hesya-amber-600"
+                        : "text-hesya-navy-900/45"
+                    }`}
+                  >
+                    {d.kr} · {d.en}
+                  </span>
+                  <span
+                    className={`font-mono text-[16px] font-semibold ${
+                      d.today ? "text-hesya-amber-600" : "text-hesya-navy-900"
+                    }`}
+                  >
+                    {d.num.toString().padStart(2, "0")}
+                  </span>
+                  <span
+                    aria-label={`${d.kr} 예약 ${dayCount}건`}
+                    className={`mt-0.5 inline-flex min-w-[18px] items-center justify-center rounded-full px-1.5 py-px font-mono text-[9.5px] font-semibold tabular-nums ${
+                      dayCount === 0
+                        ? "bg-hesya-peach-50 text-hesya-navy-900/35"
+                        : d.today
+                          ? "bg-hesya-amber-500 text-white"
+                          : "bg-hesya-navy-900/10 text-hesya-navy-900/75"
+                    }`}
+                  >
+                    {dayCount}
+                  </span>
+                </div>
+              );
+            })}
           </div>
 
           {/* Time grid */}
