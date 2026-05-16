@@ -30,6 +30,7 @@ export function DraftReviewPanel({
   const aiTrimmed = aiText.trim();
   const unchanged = trimmed === aiTrimmed;
   const empty = trimmed.length === 0;
+  const diffChars = Math.abs(trimmed.length - aiTrimmed.length);
 
   const onApprove = () => {
     startTransition(async () => {
@@ -58,8 +59,28 @@ export function DraftReviewPanel({
       data-testid="draft-review-panel"
       className="border-t border-hesya-amber-500 bg-hesya-peach-100 px-[18px] py-3 motion-safe:animate-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-200"
     >
-      <div className="kr mb-2 text-[11px] font-semibold text-hesya-amber-600">
-        <span aria-hidden="true">🤖 </span>AI 초안 검수 — 승인하시면 전송됩니다
+      <div className="kr mb-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-hesya-amber-600">
+        <span>
+          <span aria-hidden="true">🤖 </span>AI 초안 검수 — 승인하시면
+          전송됩니다
+        </span>
+        <span
+          data-testid="draft-edit-state"
+          className={`ml-auto inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] ${
+            empty
+              ? "bg-[#fbeae5] text-[#c9483a]"
+              : unchanged
+                ? "bg-emerald-50 text-emerald-700"
+                : "bg-hesya-amber-500/15 text-hesya-amber-700"
+          }`}
+        >
+          <span aria-hidden="true">{empty ? "∅" : unchanged ? "✓" : "✎"}</span>
+          {empty
+            ? "빈 본문"
+            : unchanged
+              ? "그대로"
+              : `수정 ${diffChars > 0 ? `±${diffChars}` : "0"}자`}
+        </span>
       </div>
       <textarea
         value={text}
