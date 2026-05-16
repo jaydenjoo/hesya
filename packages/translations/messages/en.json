@@ -992,7 +992,11 @@
       "failed": "Failed"
     },
     "mixTitle": "Channel mix",
-    "mixGmv": "Total GMV"
+    "mixGmv": "Total GMV",
+    "channelStatsTitle": "Channel performance (24h)",
+    "channelStatsSubtitle": "incl. last-7-day trend",
+    "channelStatTxLabel": "tx",
+    "channelStatNetLabel": "Net"
   },
   "AdminAiCost": {
     "title": "AI cost (estimated)",

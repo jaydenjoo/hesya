@@ -46,6 +46,10 @@ export interface PaymentExtraLabels {
   };
   readonly mixTitle: string;
   readonly mixGmv: string;
+  readonly channelStatsTitle: string;
+  readonly channelStatsSubtitle: string;
+  readonly channelStatTxLabel: string;
+  readonly channelStatNetLabel: string;
 }
 
 export function PaymentAnomalyBand({
@@ -270,6 +274,116 @@ export function TransactionTable({
             })}
           </tbody>
         </table>
+      </div>
+    </section>
+  );
+}
+
+const CHANNEL_DELTA: Record<PaymentChannel, number> = {
+  stripe: 12,
+  alipay: 5,
+  wechat: -3,
+  linepay: 18,
+};
+
+const CHANNEL_SPARK: Record<PaymentChannel, ReadonlyArray<number>> = {
+  stripe: [0.4, 0.55, 0.5, 0.7, 0.85, 0.78, 0.92],
+  alipay: [0.5, 0.45, 0.6, 0.55, 0.68, 0.62, 0.7],
+  wechat: [0.6, 0.55, 0.45, 0.5, 0.4, 0.42, 0.38],
+  linepay: [0.3, 0.4, 0.5, 0.6, 0.72, 0.85, 0.95],
+};
+
+export function ChannelStatTiles({
+  rows,
+  labels,
+}: {
+  rows: ReadonlyArray<MockTransaction>;
+  labels: PaymentExtraLabels;
+}) {
+  const channels: PaymentChannel[] = ["stripe", "alipay", "wechat", "linepay"];
+  const stats = channels.map((c) => {
+    const channelRows = rows.filter((r) => r.channel === c);
+    const count = channelRows.length;
+    const net = channelRows.reduce((sum, r) => sum + r.netKrw, 0);
+    return { channel: c, count, net };
+  });
+
+  return (
+    <section
+      data-testid="admin-payment-channel-stats"
+      className="mb-6 rounded-md border border-gray-200 bg-white p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)]"
+    >
+      <header className="mb-3 flex items-baseline justify-between">
+        <h3 className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-gray-700">
+          {labels.channelStatsTitle}
+        </h3>
+        <span className="font-mono text-[10.5px] text-hesya-navy-900/55">
+          {labels.channelStatsSubtitle}
+        </span>
+      </header>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {stats.map((s) => {
+          const delta = CHANNEL_DELTA[s.channel];
+          const up = delta >= 0;
+          const spark = CHANNEL_SPARK[s.channel];
+          const max = Math.max(...spark);
+          return (
+            <div
+              key={s.channel}
+              className="relative overflow-hidden rounded-md border border-gray-100 bg-white px-4 py-3"
+              style={{
+                borderLeft: `3px solid ${CHANNEL_COLORS[s.channel]}`,
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] font-semibold text-hesya-navy-900">
+                  {CHANNEL_LABEL[s.channel]}
+                </span>
+                <span
+                  className={[
+                    "font-mono text-[10.5px] font-semibold",
+                    up ? "text-emerald-600" : "text-rose-600",
+                  ].join(" ")}
+                >
+                  {up ? "↑" : "↓"} {Math.abs(delta)}%
+                </span>
+              </div>
+              <div className="mt-2 flex items-baseline gap-1.5">
+                <span className="font-mono text-[20px] font-semibold tabular-nums leading-none text-hesya-navy-900">
+                  {s.count}
+                </span>
+                <span className="text-[10.5px] text-hesya-navy-900/55">
+                  {labels.channelStatTxLabel}
+                </span>
+              </div>
+              <p className="mt-1 font-mono text-[11px] text-hesya-navy-900/70">
+                {labels.channelStatNetLabel} ₩{s.net.toLocaleString("ko-KR")}
+              </p>
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 70 22"
+                className="mt-2 block h-[22px] w-full"
+              >
+                {spark.map((v, i) => {
+                  const x = (i / (spark.length - 1)) * 70;
+                  const h = (v / max) * 18 + 2;
+                  return (
+                    <rect
+                      key={i}
+                      x={x - 3}
+                      y={22 - h}
+                      width="5"
+                      height={h}
+                      rx="1"
+                      fill={CHANNEL_COLORS[s.channel]}
+                      opacity={0.85}
+                    />
+                  );
+                })}
+              </svg>
+            </div>
+          );
+        })}
       </div>
     </section>
   );

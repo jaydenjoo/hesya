@@ -992,7 +992,11 @@
       "failed": "실패"
     },
     "mixTitle": "결제 채널 분포",
-    "mixGmv": "총 GMV"
+    "mixGmv": "총 GMV",
+    "channelStatsTitle": "결제 채널 현황 (24h)",
+    "channelStatsSubtitle": "최근 7일 추세 포함",
+    "channelStatTxLabel": "거래",
+    "channelStatNetLabel": "순매출"
   },
   "AdminAiCost": {
     "title": "AI 비용 (추정)",

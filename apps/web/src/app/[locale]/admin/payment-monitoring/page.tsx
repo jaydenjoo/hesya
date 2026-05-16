@@ -5,6 +5,7 @@ import { createDbClient } from "@hesya/database";
 import { PageHeader } from "@/components/ui/page-header";
 import {
   ChannelMix,
+  ChannelStatTiles,
   PaymentAnomalyBand,
   TransactionTable,
   type PaymentExtraLabels,
@@ -78,6 +79,10 @@ export default async function AdminPaymentMonitoringPage({
     },
     mixTitle: t("mixTitle"),
     mixGmv: t("mixGmv"),
+    channelStatsTitle: t("channelStatsTitle"),
+    channelStatsSubtitle: t("channelStatsSubtitle"),
+    channelStatTxLabel: t("channelStatTxLabel"),
+    channelStatNetLabel: t("channelStatNetLabel"),
   };
 
   return (
@@ -169,6 +174,8 @@ export default async function AdminPaymentMonitoringPage({
               anomalies={mockPaymentAnomalies}
               title={extraLabels.anomalyTitle}
             />
+
+            <ChannelStatTiles rows={mockTransactions} labels={extraLabels} />
 
             <ChannelMix
               data={mockPaymentStats.channelMix}
