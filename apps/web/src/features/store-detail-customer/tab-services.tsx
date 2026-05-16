@@ -54,7 +54,15 @@ export function TabServices({ items, emptyLabel, langOkSuffix }: Props) {
     <div>
       {Array.from(groups.entries()).map(([cat, list]) => (
         <div key={cat}>
-          <div className="c-detail-cat-head">{cat}</div>
+          <div className="c-detail-cat-head">
+            <span>{cat}</span>
+            <span
+              aria-hidden="true"
+              className="ml-2 inline-flex items-center rounded-full bg-hesya-peach-100 px-1.5 py-0.5 font-mono text-[9.5px] font-semibold tabular-nums text-hesya-amber-600"
+            >
+              {list.length}
+            </span>
+          </div>
           {list.map((s, i) => (
             <button
               key={s.id}
