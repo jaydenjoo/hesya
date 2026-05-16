@@ -7,7 +7,7 @@ import { env } from "@/shared/config/env";
 import { findRoleByUserId } from "./dal/users";
 
 export type AdminRoleGuardResult =
-  | { ok: true; userId: string; role: "admin" }
+  | { ok: true; userId: string; email: string; role: "admin" }
   | { ok: false; error: "unauthorized" | "forbidden"; message: string };
 
 /**
@@ -41,7 +41,12 @@ export const requireAdminRole = cache(
           message: "E2E_ADMIN_EMAIL set but E2E_AUTH_USER_ID missing",
         };
       }
-      return { ok: true, userId, role: "admin" };
+      return {
+        ok: true,
+        userId,
+        email: process.env.E2E_ADMIN_EMAIL.toLowerCase(),
+        role: "admin",
+      };
     }
 
     const session = await auth.api.getSession({ headers: await headers() });
@@ -50,6 +55,14 @@ export const requireAdminRole = cache(
         ok: false,
         error: "unauthorized",
         message: "로그인이 필요합니다",
+      };
+    }
+    const email = session.user.email?.toLowerCase();
+    if (!email) {
+      return {
+        ok: false,
+        error: "unauthorized",
+        message: "로그인 정보가 불완전합니다",
       };
     }
 
@@ -78,6 +91,11 @@ export const requireAdminRole = cache(
       };
     }
 
-    return { ok: true, userId: session.user.id, role: "admin" };
+    return {
+      ok: true,
+      userId: session.user.id,
+      email,
+      role: "admin",
+    };
   },
 );

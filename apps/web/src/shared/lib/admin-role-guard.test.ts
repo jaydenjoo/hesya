@@ -64,7 +64,7 @@ describe("requireAdminRole", () => {
 
   it("session 있지만 users row 없음 (DAL null) → forbidden", async () => {
     getSessionMock.mockResolvedValueOnce({
-      user: { id: "u-1", email: "x@example.com" },
+      user: { id: "u-1", email: "x@Example.com" },
     } as Awaited<ReturnType<typeof auth.api.getSession>>);
     findRoleMock.mockResolvedValueOnce(null);
 
@@ -89,9 +89,9 @@ describe("requireAdminRole", () => {
     expect(result.message).toMatch(/관리자/);
   });
 
-  it("session 있고 role='admin' → ok", async () => {
+  it("session 있고 role='admin' → ok (userId + email + role 반환)", async () => {
     getSessionMock.mockResolvedValueOnce({
-      user: { id: "u-admin", email: "admin@example.com" },
+      user: { id: "u-admin", email: "Admin@Example.COM" },
     } as Awaited<ReturnType<typeof auth.api.getSession>>);
     findRoleMock.mockResolvedValueOnce({ role: "admin" });
 
@@ -100,12 +100,26 @@ describe("requireAdminRole", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.userId).toBe("u-admin");
+    expect(result.email).toBe("admin@example.com");
     expect(result.role).toBe("admin");
+  });
+
+  it("session.user.email 누락 → unauthorized (Better Auth row 결함 방어)", async () => {
+    getSessionMock.mockResolvedValueOnce({
+      user: { id: "u-1" },
+    } as Awaited<ReturnType<typeof auth.api.getSession>>);
+
+    const result = await requireAdminRole();
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toBe("unauthorized");
+    expect(findRoleMock).not.toHaveBeenCalled();
   });
 
   it("DB 조회 throws → unauthorized (fail-safe, 0030 미적용 환경 보호)", async () => {
     getSessionMock.mockResolvedValueOnce({
-      user: { id: "u-1", email: "x@example.com" },
+      user: { id: "u-1", email: "x@Example.com" },
     } as Awaited<ReturnType<typeof auth.api.getSession>>);
     findRoleMock.mockRejectedValueOnce(
       new Error('column "role" does not exist'),
@@ -125,7 +139,7 @@ describe("requireAdminRole", () => {
 describe("requireAdminRole — E2E/데모 bypass", () => {
   it("NODE_ENV=development + E2E_ADMIN_EMAIL + E2E_AUTH_USER_ID → ok (Better Auth+DB 우회)", async () => {
     env.NODE_ENV = "development";
-    process.env.E2E_ADMIN_EMAIL = "demo-admin@hesya.local";
+    process.env.E2E_ADMIN_EMAIL = "Demo-Admin@Hesya.local";
     process.env.E2E_AUTH_USER_ID = "00000000-0000-0000-0000-000000000001";
 
     const result = await requireAdminRole();
@@ -133,6 +147,7 @@ describe("requireAdminRole — E2E/데모 bypass", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.userId).toBe("00000000-0000-0000-0000-000000000001");
+    expect(result.email).toBe("demo-admin@hesya.local");
     expect(result.role).toBe("admin");
     expect(getSessionMock).not.toHaveBeenCalled();
     expect(findRoleMock).not.toHaveBeenCalled();

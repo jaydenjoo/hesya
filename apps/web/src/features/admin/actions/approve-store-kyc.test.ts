@@ -58,6 +58,7 @@ describe("approveStoreKyc", () => {
     vi.mocked(requireAdminRole).mockResolvedValue({
       ok: true,
       userId: "admin-1",
+      email: "admin@example.com",
       role: "admin",
     });
     vi.mocked(findOwnerNotifyTargetByStoreId).mockResolvedValue({
@@ -85,6 +86,7 @@ describe("approveStoreKyc", () => {
     vi.mocked(requireAdminRole).mockResolvedValue({
       ok: true,
       userId: "admin-1",
+      email: "admin@example.com",
       role: "admin",
     });
     vi.mocked(findOwnerNotifyTargetByStoreId).mockResolvedValue({
@@ -115,6 +117,7 @@ describe("approveStoreKyc", () => {
     vi.mocked(requireAdminRole).mockResolvedValue({
       ok: true,
       userId: "admin-1",
+      email: "admin@example.com",
       role: "admin",
     });
     vi.mocked(findOwnerNotifyTargetByStoreId).mockResolvedValue(null);
@@ -132,6 +135,7 @@ describe("approveStoreKyc", () => {
     vi.mocked(requireAdminRole).mockResolvedValue({
       ok: true,
       userId: "admin-1",
+      email: "admin@example.com",
       role: "admin",
     });
     vi.mocked(findOwnerNotifyTargetByStoreId).mockResolvedValue({
