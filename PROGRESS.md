@@ -3,20 +3,33 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
+## 세션 44 종료 요약 (2026-05-16)
+
+- **결과**: 4 PR 머지 (라운드 8 — 세션 43 잔여 후보 4건 완수). 누적 63 PR.
+- **패턴**: /loop dynamic + 270s wakeup (L-102). 4건 모두 단일 파일 변경 + i18n 추가 없음 → 평균 ~10분 e2e cycle.
+- **다음 세션 후보**:
+  - **Phase 1-γ.1 KYC E2E**: 별도 큰 작업
+  - **Epic 12 admin panel**: 별도 큰 작업 (admin-guard.ts → 정식 owner guard 교체)
+  - 시각 polish는 "디자인 100% push" 1차 종료. 추가 발견 시 세션별 후속.
+- **차단 요소**: 없음. main 깨끗 + 4 PR Vercel preview deployed.
+
 ## 세션 43 종료 요약 (2026-05-16)
 
 - **결과**: 22 PR 머지 × 7 라운드 = 누적 59 PR. 세션 42(37 PR) → 세션 43(59 PR) → +22 (Δ+59%).
 - **패턴**: /loop dynamic + 270s wakeup + sync 2-cycle (CI 5min 동안 다음 PR 작성) = 1 cycle ≈ 1 PR 머지 (L-102 확인 + L-103 추가).
 - **신규 학습**: L-103 (UI 텍스트 redesign 시 test assertion 미리 grep 의무 — PR #268 1 CI cycle 낭비 경험).
-- **다음 세션 후보 (잔여 작업)**:
-  - Admin Disputes 사장 측 detail page header card (현 단순 dl) — 동일 패턴 적용
-  - Customer MyPage Reviews 탭 시각 polish
-  - Owner Inbox AI assist panel tone selector 정합
-  - Admin AI Cost BudgetForecast 카드 polish
-  - **Phase 1-γ.0 잔여 인프라**: 위 4개는 "디자인 100% push" 후속. Phase 1-γ.1 KYC E2E + Epic 12 admin panel은 별도 큰 작업.
 - **차단 요소**: 없음. main 깨끗 + CI green + Vercel preview deployed.
 
-## 현재 위치 (2026-05-16 세션 43 — 🎯 세션 42 잔여 #253 mop-up + P0 잔여 큰 구조 21 PR 머지, 누적 59 PR — 7 라운드 완료)
+## 현재 위치 (2026-05-16 세션 44 — 🎯 세션 43 잔여 후보 4건 완수, 누적 63 PR — 라운드 8 완료)
+
+- **세션 44 라운드 8 (4 PR 추가 — 세션 43 잔여 후보 mop-up)**:
+  - PR [#275](https://github.com/jaydenjoo/hesya/pull/275) — **Admin Dispute Detail metadata grid card**. 기존 \<Row k v /\> dl을 2-col grid card로 교체. \`§02 · Metadata\` eyebrow + uppercase mono label + mono/KR value + ID/timestamp mono + 중복 상태/유형 row 제거(header chip에 이미 표시) + ISO timestamp T→space. **진단 ~58% → ~62%**.
+  - PR [#276](https://github.com/jaydenjoo/hesya/pull/276) — **Customer MyPage Reviews 탭 polish**. ReviewsPane 상단 header strip (pending count chip + 후기 라벨 + 🌐 자동 번역 안내). ReviewCard 내 별점 옆 X/5 mono chip + textarea char count chip. i18n 추가 없이 기존 6 locale 라벨 재사용. **진단 ~75% → ~82%**.
+  - PR [#277](https://github.com/jaydenjoo/hesya/pull/277) — **Owner Inbox AI assist tone tabs segmented control**. flex gap → inline-flex segmented (\`bg-white/70 ring-amber-500/25 shadow\`). active: \`bg-amber-500 text-white\` + drop shadow. inactive: hover bg-white + navy text. tablist aria-label 추가. ai-assist.test.tsx 21/21 pass. **진단 시각 정합 ↑**.
+  - PR [#278](https://github.com/jaydenjoo/hesya/pull/278) — **Admin AI Cost BudgetForecast polish**. header 우측 status chip 3 상태 (예산 초과/페이싱 경고/정상) + card border overForecast 시 rose-200 + MTD progress bar 신규 + EOM overshoot 시 ⚠+₩delta chip. **진단 ~30% → ~42%**.
+- **세션 44 검증**: 매 PR type-check (2.4~2.7s) + lint (6.5~6.9s) + test (해당 시) 통과. CI workflow_dispatch + auto-merge label + 수동 merge.
+
+## 이전 위치 (2026-05-16 세션 43 — 🎯 세션 42 잔여 #253 mop-up + P0 잔여 큰 구조 21 PR 머지, 누적 59 PR — 7 라운드 완료)
 
 - **세션 43 라운드 7 (3 PR 추가 — detail header + visual polish)**:
   - PR [#272](https://github.com/jaydenjoo/hesya/pull/272) — **Owner Booking Detail status header + cancellation refund band**. ring-bordered status pill (scheduled emerald / completed gray / cancelled amber / no_show rose) + service chip + scheduledAt + 디자이너 + 우상단 large mono price. Cancellation refund band (scheduled+future): 24h+ ok / 12-24h warn / <12h danger with hours remaining. nowMs server-injected. **진단 ~50% → ~70%**.
