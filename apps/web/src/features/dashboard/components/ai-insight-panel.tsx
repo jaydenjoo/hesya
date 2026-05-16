@@ -31,12 +31,20 @@ export function AiInsightPanel() {
   if (state === "dismissed") return null;
 
   return (
+    // Reference dashboard.css sd-insight (1275~1296) — peach-100 bg + 3px
+    // left amber bar (::before) + shadow-md + 18px/22px padding. 이전 peach-50/50
+    // (반투명) + border-only + no shadow는 "강조 카드" 신호 약함.
     <section
       data-testid="dashboard-ai-insight"
       aria-label={t("eyebrow")}
-      className="mb-4 flex items-start gap-3 rounded-lg border border-hesya-peach-200 bg-hesya-peach-50/50 p-4"
+      className="relative mb-6 flex items-start gap-4 overflow-hidden rounded-lg bg-hesya-peach-100 px-[22px] py-[18px] shadow-md"
     >
-      <span aria-hidden="true" className="text-[24px]">
+      {/* ::before equivalent — 3px left amber bar (sd-insight::before). */}
+      <span
+        aria-hidden="true"
+        className="absolute inset-y-0 left-0 w-[3px] bg-hesya-amber-500"
+      />
+      <span aria-hidden="true" className="mt-0.5 text-[22px]">
         💡
       </span>
       <div className="flex-1">
@@ -49,10 +57,12 @@ export function AiInsightPanel() {
           </span>
         </header>
 
-        <p className="kr text-[14px] leading-relaxed text-hesya-navy-900">
+        {/* Reference sd-insight-text 16px font-medium leading-1.65 +
+            em font-display italic (이전 14px + em font-semibold non-italic). */}
+        <p className="kr text-[16px] font-medium leading-[1.65] text-hesya-navy-900">
           {t.rich("text", {
             em: (chunks) => (
-              <em className="not-italic font-semibold text-hesya-amber-600">
+              <em className="font-heading italic font-medium text-hesya-amber-600">
                 {chunks}
               </em>
             ),
