@@ -1,4 +1,5 @@
 export { MarketingHero } from "./MarketingHero";
+export { MarketingTrustBar } from "./MarketingTrustBar";
 export { MarketingHowItWorks } from "./MarketingHowItWorks";
 export { MarketingBeforeAfter } from "./MarketingBeforeAfter";
 export { MarketingSalonsGrid } from "./MarketingSalonsGrid";
