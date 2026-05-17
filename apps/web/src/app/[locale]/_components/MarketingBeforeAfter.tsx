@@ -10,6 +10,9 @@ import {
   type TouchEvent,
 } from "react";
 
+import { MarketingEyebrow } from "./MarketingEyebrow";
+import { MarketingSectionNum } from "./MarketingSectionNum";
+
 const KEYBOARD_STEP_PCT = 5;
 
 const BEFORE_BG = "linear-gradient(135deg, #2A3148 0%, #4A4E5C 100%)";
@@ -64,12 +67,11 @@ export function MarketingBeforeAfter() {
     <section
       id="reviews"
       aria-labelledby="ba-h2"
-      className="bg-hesya-navy-900 px-6 py-20 text-hesya-peach-50 md:py-32"
+      className="relative bg-hesya-navy-900 px-6 py-20 text-hesya-peach-50 md:py-32"
     >
-      <div className="mx-auto max-w-6xl">
-        <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-500">
-          {t("baEyebrow")}
-        </p>
+      <MarketingSectionNum value="04" tone="dark" />
+      <div className="relative mx-auto max-w-6xl">
+        <MarketingEyebrow tone="dark">{t("baEyebrow")}</MarketingEyebrow>
         <h2
           id="ba-h2"
           className="font-heading text-4xl leading-[1.1] tracking-tight md:text-5xl lg:text-6xl"

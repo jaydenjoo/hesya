@@ -1,5 +1,8 @@
 import { useTranslations } from "next-intl";
 
+import { MarketingEyebrow } from "./MarketingEyebrow";
+import { MarketingSectionNum } from "./MarketingSectionNum";
+
 export function MarketingHowItWorks() {
   const t = useTranslations("MarketingLanding");
   const steps = [
@@ -14,16 +17,9 @@ export function MarketingHowItWorks() {
       aria-labelledby="how-h2"
       className="relative bg-hesya-peach-50 px-6 py-20 md:py-32"
     >
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute left-8 top-10 z-0 hidden font-heading text-[96px] italic leading-[0.9] tracking-[-0.04em] text-transparent [-webkit-text-stroke:1.5px_var(--color-hesya-amber-700)] md:text-[160px] lg:block"
-      >
-        03
-      </span>
+      <MarketingSectionNum value="03" />
       <div className="relative mx-auto max-w-7xl">
-        <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
-          {t("howEyebrow")}
-        </p>
+        <MarketingEyebrow>{t("howEyebrow")}</MarketingEyebrow>
         <h2
           id="how-h2"
           className="max-w-3xl font-heading text-4xl leading-[1.05] tracking-tight text-hesya-navy-900 md:text-5xl lg:text-6xl"

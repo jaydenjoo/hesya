@@ -1,5 +1,8 @@
 import { useTranslations } from "next-intl";
 
+import { MarketingEyebrow } from "./MarketingEyebrow";
+import { MarketingSectionNum } from "./MarketingSectionNum";
+
 type FaqItem = { q: string; a: string };
 
 export function MarketingFaq() {
@@ -10,13 +13,12 @@ export function MarketingFaq() {
     <section
       id="about"
       aria-labelledby="faq-h2"
-      className="bg-white px-6 py-20 md:py-32"
+      className="relative bg-hesya-peach-50 px-6 py-20 md:py-32"
     >
-      <div className="mx-auto max-w-3xl">
+      <MarketingSectionNum value="10" />
+      <div className="relative mx-auto max-w-[720px]">
         <div className="text-center">
-          <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
-            {t("faqEyebrow")}
-          </p>
+          <MarketingEyebrow centered>{t("faqEyebrow")}</MarketingEyebrow>
           <h2
             id="faq-h2"
             className="font-heading text-4xl leading-[1.05] tracking-tight text-hesya-navy-900 md:text-5xl"

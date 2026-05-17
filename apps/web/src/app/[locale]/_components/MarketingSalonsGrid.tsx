@@ -1,6 +1,9 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
+import { MarketingEyebrow } from "./MarketingEyebrow";
+import { MarketingSectionNum } from "./MarketingSectionNum";
+
 type SalonCard = {
   name: string;
   location: string;
@@ -27,14 +30,13 @@ export function MarketingSalonsGrid() {
   return (
     <section
       aria-labelledby="salons-h2"
-      className="bg-white px-6 py-20 md:py-32"
+      className="relative bg-white px-6 py-20 md:py-32"
     >
-      <div className="mx-auto max-w-7xl">
+      <MarketingSectionNum value="05" />
+      <div className="relative mx-auto max-w-7xl">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
-              {t("salonsEyebrow")}
-            </p>
+            <MarketingEyebrow>{t("salonsEyebrow")}</MarketingEyebrow>
             <h2
               id="salons-h2"
               className="max-w-2xl font-heading text-4xl leading-[1.05] tracking-tight text-hesya-navy-900 md:text-5xl lg:text-6xl"
