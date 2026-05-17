@@ -3793,3 +3793,53 @@ fileParallelism: false,   // ← 추가
 **확인**: 본 세션 43 PR #268 — fix commit `test(knowledge): align stats strip test with 4-tile structure` (1 file, 5+/2-). 본 fix 없이 CI redispatch 후 2번째 success → 1 cycle 낭비.
 
 **연관**: L-102 (/loop dynamic 4.5분 wakeup 환경 — cycle 낭비 비용 ↑). L-093 (CI workflow_dispatch only — 자동 재시도 없음, 수동 dispatch 의무라 fail 비용 가시).
+
+### [2026-05-17] L-104 — "Reference 100% 정합" 거짓 보고 사고 + design-tokens single source 영구 차단
+
+**증상**: 세션 48 후반 Jayden이 "Marketing Landing 숫자 폰트가 디자인 파일과 다르다" 발견. 코드 추적:
+
+- Reference `tokens.css` L65 `.mk-num { font-weight: 500 }` (Fraunces italic 500)
+- 현재 `layout.tsx` `Fraunces({ weight: ["600"] })` — **weight 500 누락**
+- 결과: 섹션 데코 숫자 03~11이 폴백 폰트로 렌더 (serif italic 대신 sans-serif)
+
+세션 47~48 Wave 1~3 작업에서 "Reference 100% TRUE 정합 (audit 36% → 96%+)" 보고 — **실제로는 토큰 단위 검증 부실, 외부 의존 (tokens.css) 미검증**.
+
+**원인 (5가지)**:
+
+1. AI가 reference HTML 인라인 CSS만 검증, `<link href="tokens.css">` 외부 의존 미검증 → 폰트 weight 500 정의 발견 못함
+2. "font-heading 적용=일치" 추론 함정 — Tailwind 클래스만 보고 토큰 단위 검증 없음
+3. "Reference 100% TRUE 정합" 거짓 보고 (정직성 결함)
+4. 시각 회귀 자동화 부재 (Playwright screenshot diff 미도입)
+5. Reference HTML이 명세서가 아닌 디자인 스케치 — 외부 의존 함께 봐야 명세 완성
+
+**해결 (영구 차단 2층)**:
+
+A. **시스템 차단** — `@hesya/design-tokens` 패키지 신규 ([#364](https://github.com/jaydenjoo/hesya/pull/364))
+
+- `packages/design-tokens/src/tokens.css` = single source (reference + Hesya 확장 통합)
+- `apps/web/globals.css` 가 `@import "@hesya/design-tokens/tokens.css"` 참조
+- 분기 차단: globals.css의 `:root` Hesya brand + type stacks 삭제
+- 단, next/font/google 명세는 layout.tsx 인라인 의무 (Next.js 빌드 타임 정적 분석 제약)
+
+B. **사람 protocol 차단** — `docs/ai-collaboration-protocol.html` 신규
+
+- Jayden이 다음 세션 AI 검증 요청 시 5가지 protocol prompt template 복사용
+- 01 "100% 정합" 검증 시 토큰 단위 표 강제
+- 02 AI 보고 시 "어디까지 검증했는가" 질문 강제
+- 03 Reference 외부 의존 함께 보도록 강제 (본 사고 직접 원인)
+- 04 같은 영역 PR 3개+ 시 회고 강제
+- 05 법규·정직성 영역 별도 protocol
+
+**규칙**:
+
+- **Reference HTML 외부 의존 모두 읽기 의무**: `<link href="*.css">`, `@import`, `<script src="*.jsx">` 함께 grep. 인라인 `<style>`만 보지 말 것
+- **"100% 정합" 표현 금지**: 검증 항목 수 + 미검증 영역 명시
+- **Tailwind 인라인 정합 검증 부실 위험**: className 적용만 보고 정합 OK 처리 금지. weight·size·line-height 토큰 단위 비교
+- **next/font/google weight spec 검토**: `[600]` 같은 단일 weight 명시 시 reference 사용 weight 모두 포함 여부 확인 (.mk-num 등 데코 element 포함)
+- **design-tokens 패키지 single source 유지**: 토큰 추가 시 `packages/design-tokens/src/tokens.css` 만 수정. globals.css 분기 금지
+
+**비유**: 화가에게 "그림 그려줘" 했더니 "그렸어요" 답변. 실제 보니 색·구도는 맞는데 디테일이 다름. 다음부터 "색 N개, 구도 M개, 디테일 K개" 항목별 평가서 + 검증 protocol 첨부 의무 → 화가는 항목 빠뜨릴 수 없음.
+
+**확인**: 본 세션 48 PR [#363](https://github.com/jaydenjoo/hesya/pull/363) (Fraunces fix) + [#364](https://github.com/jaydenjoo/hesya/pull/364) (design-tokens 패키지) + [#365](https://github.com/jaydenjoo/hesya/pull/365) (Customer Landing 3섹션 14개 토큰 차이 fix). Lighthouse Mobile Perf 81 → **88**, A11y 97 → **100**.
+
+**연관**: L-082 (e2e 시연 기준 자기평가 — "코드 머지 완료" ≠ "기능/디자인 정합 완료"). 본 L-104는 디자인 정합 영역에서 같은 정직성 결함 사례. 다음 페이지 작업 (Phase Z-1 P0 Customer Landing 잔여 + Store Dashboard + Phase Z-2/Z-3 24 페이지)부터 design-tokens single source + AI 검증 protocol 의무 적용.
