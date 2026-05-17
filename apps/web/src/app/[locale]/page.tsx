@@ -25,6 +25,12 @@ export default async function LandingPage({
 
   return (
     <>
+      <link
+        rel="preload"
+        as="image"
+        href="/assets/images/hero-poster.webp"
+        fetchPriority="high"
+      />
       <main id="main">
         <MarketingHero />
         <MarketingHowItWorks />
