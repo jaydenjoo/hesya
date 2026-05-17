@@ -52,13 +52,16 @@ export function MarketingSalonsGrid() {
 
         <ul
           role="list"
-          className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="-mx-6 mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-6 xl:mx-0 xl:grid xl:grid-cols-4 xl:overflow-visible xl:p-0"
         >
           {salons.map((s, i) => (
-            <li key={s.name}>
+            <li
+              key={s.name}
+              className="w-[296px] shrink-0 snap-start xl:w-auto"
+            >
               <a
                 href="#"
-                className="group block overflow-hidden rounded-3xl bg-hesya-peach-50 transition hover:-translate-y-1 hover:shadow-xl"
+                className="group block overflow-hidden rounded-3xl bg-hesya-peach-50 transition hover:-translate-y-2 hover:shadow-xl"
               >
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <Image
@@ -67,11 +70,11 @@ export function MarketingSalonsGrid() {
                     width={800}
                     height={1000}
                     loading="lazy"
-                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    sizes="(min-width: 1280px) 25vw, 296px"
                     className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
                   />
                   {s.verified ? (
-                    <span className="absolute left-4 top-4 rounded-full bg-hesya-navy-900/90 px-3 py-1 text-xs uppercase tracking-[0.12em] text-kverified-gold">
+                    <span className="absolute right-4 top-4 rounded-full bg-hesya-navy-900/90 px-3 py-1 text-xs uppercase tracking-[0.12em] text-kverified-gold">
                       ★ K-Verified
                     </span>
                   ) : null}

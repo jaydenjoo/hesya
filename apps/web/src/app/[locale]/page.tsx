@@ -12,6 +12,7 @@ import {
   MarketingSafety,
   MarketingSalonsGrid,
   MarketingTrending,
+  MarketingTrustBar,
   MarketingUgcWall,
 } from "./_components";
 
@@ -33,6 +34,7 @@ export default async function LandingPage({
       />
       <main id="main">
         <MarketingHero />
+        <MarketingTrustBar />
         <MarketingHowItWorks />
         <MarketingBeforeAfter />
         <MarketingSalonsGrid />

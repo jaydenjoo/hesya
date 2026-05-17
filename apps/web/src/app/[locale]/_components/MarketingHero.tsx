@@ -60,20 +60,25 @@ export function MarketingHero() {
 
           <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-hesya-navy-900/70">
             {trust.map((item) => (
-              <li key={item}>{item}</li>
+              <li
+                key={item}
+                className="inline-flex items-center gap-2 before:font-bold before:text-hesya-amber-600 before:content-['✓']"
+              >
+                {item}
+              </li>
             ))}
           </ul>
 
           <div className="mt-10 flex flex-wrap gap-4">
             <a
               href="#cta-traveler"
-              className="rounded-full bg-hesya-navy-900 px-6 py-3 text-base text-hesya-peach-50 transition hover:bg-hesya-navy-900/90"
+              className="inline-flex h-[52px] items-center rounded-full bg-hesya-amber-500 px-7 text-base font-bold text-hesya-navy-900 transition hover:bg-hesya-amber-600"
             >
               {t("heroCtaPrimary")}
             </a>
             <a
               href="#salons"
-              className="rounded-full border border-hesya-navy-900/20 px-6 py-3 text-base text-hesya-navy-900 transition hover:bg-white"
+              className="inline-flex h-[52px] items-center rounded-full border border-hesya-amber-600 px-6 text-sm text-hesya-amber-600 transition hover:bg-hesya-peach-100"
             >
               {t("heroCtaSecondary")}
             </a>
@@ -97,7 +102,7 @@ export function MarketingHero() {
           </video>
 
           <div
-            className="absolute bottom-4 left-4 right-4 rounded-2xl bg-white/95 p-4 shadow-lg backdrop-blur"
+            className="absolute bottom-5 left-5 w-[240px] rounded-2xl bg-hesya-peach-50/85 p-4 shadow-lg [backdrop-filter:blur(14px)_saturate(140%)]"
             aria-live="polite"
             aria-atomic="true"
           >
