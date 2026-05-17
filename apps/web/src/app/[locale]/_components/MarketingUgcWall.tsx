@@ -57,7 +57,7 @@ export function MarketingUgcWall() {
                       <article className="relative rounded-2xl bg-white p-6 shadow-sm">
                         <span
                           className={`absolute right-5 top-5 text-[10.5px] font-bold uppercase tracking-[0.04em] ${
-                            isXhs ? "text-[#FE2C55]" : "text-[#C13584]"
+                            isXhs ? "text-[#C71838]" : "text-[#C13584]"
                           }`}
                         >
                           {isXhs ? "红 " : "◉ "}
