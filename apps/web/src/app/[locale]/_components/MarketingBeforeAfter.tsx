@@ -3,8 +3,10 @@
 import { useTranslations } from "next-intl";
 import {
   useCallback,
+  useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type KeyboardEvent,
   type MouseEvent,
   type TouchEvent,
@@ -15,9 +17,10 @@ import { MarketingSectionNum } from "./MarketingSectionNum";
 
 const KEYBOARD_STEP_PCT = 5;
 
-const BEFORE_BG = "linear-gradient(135deg, #2A3148 0%, #4A4E5C 100%)";
-const AFTER_BG =
-  "linear-gradient(135deg, #FDF8F1 0%, #E8A97A 60%, #D88B5B 100%)";
+const BEFORE_VIDEO = "/assets/videos/transformation-before.mp4";
+const AFTER_VIDEO = "/assets/videos/transformation-after.mp4";
+const BEFORE_POSTER = "/assets/images/transformation-before-poster.webp";
+const AFTER_POSTER = "/assets/images/transformation-after-poster.webp";
 
 const THUMB_GRADIENTS = [
   "linear-gradient(135deg, #2A3148, #FDF8F1)",
@@ -25,12 +28,46 @@ const THUMB_GRADIENTS = [
   "linear-gradient(135deg, #3D3850, #F8E9D9)",
 ] as const;
 
+function subscribeReducedMotion(callback: () => void) {
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
+}
+
+function getReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 export function MarketingBeforeAfter() {
   const t = useTranslations("MarketingLanding");
   const thumbs = t.raw("baThumbAlts") as string[];
   const [pct, setPct] = useState(50);
   const [activeIdx, setActiveIdx] = useState(0);
+  const [load, setLoad] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
+  const reduced = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotion,
+    () => false,
+  );
+
+  useEffect(() => {
+    const node = frameRef.current;
+    if (!node || load) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setLoad(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { rootMargin: "200px 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [load]);
 
   const updateFromX = useCallback((clientX: number) => {
     const frame = frameRef.current;
@@ -90,24 +127,36 @@ export function MarketingBeforeAfter() {
           onMouseMove={onMouseMove}
           onTouchMove={onTouchMove}
         >
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 grid place-items-center font-heading text-3xl italic text-white/45"
-            style={{ background: BEFORE_BG }}
+          <video
+            aria-label={t("baLabelBefore")}
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            poster={BEFORE_POSTER}
+            width={800}
+            height={450}
+            muted
+            playsInline
+            loop
+            autoPlay={!reduced && load}
+            preload="none"
           >
-            before
-          </div>
+            {load ? <source src={BEFORE_VIDEO} type="video/mp4" /> : null}
+          </video>
 
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 grid place-items-center font-heading text-3xl italic text-hesya-navy-900/45"
-            style={{
-              background: AFTER_BG,
-              clipPath: `inset(0 0 0 ${pct}%)`,
-            }}
+          <video
+            aria-label={t("baLabelAfter")}
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            style={{ clipPath: `inset(0 0 0 ${pct}%)` }}
+            poster={AFTER_POSTER}
+            width={800}
+            height={450}
+            muted
+            playsInline
+            loop
+            autoPlay={!reduced && load}
+            preload="none"
           >
-            after
-          </div>
+            {load ? <source src={AFTER_VIDEO} type="video/mp4" /> : null}
+          </video>
 
           <span className="absolute left-4 top-4 rounded-full bg-black/50 px-3 py-1 text-xs uppercase tracking-[0.16em] text-white">
             {t("baLabelBefore")}
