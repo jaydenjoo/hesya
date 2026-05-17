@@ -19,7 +19,9 @@ export function MarketingTrending() {
           id="trending-h2"
           className="font-heading text-4xl leading-[1.05] tracking-tight text-hesya-navy-900 md:text-5xl"
         >
-          {t("trendingTitle")}
+          {t.rich("trendingTitle", {
+            em: (chunks) => <em className="text-hesya-amber-700">{chunks}</em>,
+          })}
         </h2>
         <p className="mt-4 text-base text-hesya-navy-900/70">
           {t("trendingSub")}

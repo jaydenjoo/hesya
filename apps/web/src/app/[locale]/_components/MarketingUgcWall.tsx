@@ -41,7 +41,11 @@ export function MarketingUgcWall() {
             id="ugc-h2"
             className="font-heading text-4xl leading-[1.05] tracking-tight text-hesya-navy-900 md:text-5xl"
           >
-            {t("ugcTitle")}
+            {t.rich("ugcTitle", {
+              em: (chunks) => (
+                <em className="text-hesya-amber-700">{chunks}</em>
+              ),
+            })}
           </h2>
         </div>
 

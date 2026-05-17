@@ -24,7 +24,11 @@ export function MarketingSafety() {
               id="safety-h2"
               className="font-heading text-4xl leading-[1.1] tracking-tight text-hesya-navy-900 md:text-5xl"
             >
-              {t("safetyTitle")}
+              {t.rich("safetyTitle", {
+                em: (chunks) => (
+                  <em className="text-hesya-amber-700">{chunks}</em>
+                ),
+              })}
             </h2>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-hesya-navy-900/80 md:text-[17px]">
               {t("safetyBody")}

@@ -23,7 +23,11 @@ export function MarketingFaq() {
             id="faq-h2"
             className="font-heading text-4xl leading-[1.05] tracking-tight text-hesya-navy-900 md:text-5xl"
           >
-            {t("faqTitle")}
+            {t.rich("faqTitle", {
+              em: (chunks) => (
+                <em className="text-hesya-amber-700">{chunks}</em>
+              ),
+            })}
           </h2>
         </div>
 

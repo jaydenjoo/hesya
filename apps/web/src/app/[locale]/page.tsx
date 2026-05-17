@@ -9,6 +9,7 @@ import {
   MarketingFooter,
   MarketingHero,
   MarketingHowItWorks,
+  MarketingNav,
   MarketingSafety,
   MarketingSalonsGrid,
   MarketingTrending,
@@ -26,6 +27,7 @@ export default async function LandingPage({
 
   return (
     <>
+      <MarketingNav />
       <main id="main">
         <MarketingHero />
         <MarketingTrustBar />

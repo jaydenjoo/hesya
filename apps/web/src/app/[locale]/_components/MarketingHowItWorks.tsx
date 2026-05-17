@@ -125,7 +125,9 @@ export function MarketingHowItWorks() {
           id="how-h2"
           className="max-w-3xl font-heading text-4xl leading-[1.05] tracking-tight text-hesya-navy-900 md:text-5xl lg:text-6xl"
         >
-          {t("howTitle")}
+          {t.rich("howTitle", {
+            em: (chunks) => <em className="text-hesya-amber-700">{chunks}</em>,
+          })}
         </h2>
 
         <div className="mt-16 grid gap-12 md:grid-cols-[1.05fr_1fr]">

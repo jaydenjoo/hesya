@@ -37,7 +37,7 @@
     "trustStatSafety": "🛡️ Tier 2 Safe Country (CEOWORLD 2026)",
     "trustStatChat": "💬 24/7 chat support in your language",
     "howEyebrow": "How it works · The booking flow",
-    "howTitle": "Four quiet steps from curiosity to confirmation.",
+    "howTitle": "Four quiet steps from <em>curiosity</em> to confirmation.",
     "howStep1Title": "Tell us your dream look.",
     "howStep1Body": "Upload a photo, browse vibes, or just describe it in your language. No Korean required.",
     "howStep2Title": "AI matches you with the right salon.",
@@ -58,7 +58,7 @@
       "Pink-blonde balayage"
     ],
     "salonsEyebrow": "Featured salons · Curated picks",
-    "salonsTitle": "Salons that foreign clients already love.",
+    "salonsTitle": "Salons that <em>foreign clients</em> already love.",
     "salonsMore": "Browse all 1,284 K-Verified salons →",
     "salonList": [
       {
@@ -105,7 +105,7 @@
       }
     ],
     "ugcEyebrow": "UGC · Customer reviews",
-    "ugcTitle": "Real travelers, real results.",
+    "ugcTitle": "Real travelers, <em>real results</em>.",
     "ugcMore": "Show 1,247 more reviews →",
     "ugcReviews": [
       {
@@ -166,7 +166,7 @@
       }
     ],
     "safetyEyebrow": "For solo travelers · Solo traveler safety",
-    "safetyTitle": "Designed by women, for women traveling alone.",
+    "safetyTitle": "Designed by <em>women</em>, for <em>women</em> traveling alone.",
     "safetyBody": "Every salon partner is verified for safety, accessibility, and English-speaking staff. Booking quietly, walking in confidently — that's the whole point.",
     "safetyCite": "Source · CEOWORLD 2026 Solo Female Travel Index",
     "safetyCards": [
@@ -192,7 +192,7 @@
       }
     ],
     "b2bEyebrow": "For salon owners · For business owners",
-    "b2bTitle": "Get foreign clients without speaking their language.",
+    "b2bTitle": "Get foreign clients <em>without</em> speaking their language.",
     "b2bBody": "Hesya translates messages, manages bookings, and handles cross-border payments. You focus on the cut. We handle the chat.",
     "b2bBullets": [
       "Auto-translated client requests across 5 languages",
@@ -204,14 +204,26 @@
     "b2bMockHead": "Stylista — Hongdae",
     "b2bMockSubhead": "Dashboard · Jimin Park (owner)",
     "b2bMockTiles": [
-      { "label": "Today's bookings", "value": "17" },
-      { "label": "Foreign clients this week", "value": "42" },
-      { "label": "Pending translations", "value": "0" },
-      { "label": "K-Verified status", "value": "✓ Active" }
+      {
+        "label": "Today's bookings",
+        "value": "17"
+      },
+      {
+        "label": "Foreign clients this week",
+        "value": "42"
+      },
+      {
+        "label": "Pending translations",
+        "value": "0"
+      },
+      {
+        "label": "K-Verified status",
+        "value": "✓ Active"
+      }
     ],
     "b2bMockOverlay": "+ ₩142M settled this week",
     "trendingEyebrow": "Trending · Popular this week",
-    "trendingTitle": "What foreign travelers are actually booking this week.",
+    "trendingTitle": "What foreign travelers are <em>actually</em> booking this week.",
     "trendingSub": "Tap a chip to filter the salons that nail it.",
     "trendingChips": [
       "K-drama short layered cut",
@@ -224,7 +236,7 @@
       "Aging-back facial"
     ],
     "faqEyebrow": "FAQ · Frequently asked questions",
-    "faqTitle": "Questions a smart traveler asks.",
+    "faqTitle": "Questions a <em>smart</em> traveler asks.",
     "faqItems": [
       {
         "q": "Do salon staff actually speak English / Japanese / Chinese?",

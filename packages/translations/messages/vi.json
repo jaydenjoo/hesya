@@ -37,7 +37,7 @@
     "trustStatSafety": "🛡️ Tier 2 Quốc gia An toàn (CEOWORLD 2026)",
     "trustStatChat": "💬 Hỗ trợ chat 24/7 bằng ngôn ngữ của bạn",
     "howEyebrow": "How it works · Quy trình đặt lịch",
-    "howTitle": "Bốn bước nhẹ nhàng từ tò mò đến xác nhận.",
+    "howTitle": "Bốn bước nhẹ nhàng từ <em>tò mò</em> đến xác nhận.",
     "howStep1Title": "Cho chúng tôi biết phong cách bạn muốn.",
     "howStep1Body": "Tải ảnh lên, lướt phong cách, hoặc mô tả bằng ngôn ngữ của bạn. Không cần tiếng Hàn.",
     "howStep2Title": "AI ghép bạn với salon phù hợp.",
@@ -58,7 +58,7 @@
       "Balayage hồng vàng"
     ],
     "salonsEyebrow": "Featured salons · Salon tuyển chọn",
-    "salonsTitle": "Các salon mà khách nước ngoài đã yêu thích.",
+    "salonsTitle": "Các salon mà <em>khách nước ngoài</em> đã yêu thích.",
     "salonsMore": "Xem tất cả 1,284 salon K-Verified →",
     "salonList": [
       {
@@ -105,7 +105,7 @@
       }
     ],
     "ugcEyebrow": "UGC · Đánh giá khách hàng",
-    "ugcTitle": "Du khách thật, kết quả thật.",
+    "ugcTitle": "Du khách thật, <em>kết quả thật</em>.",
     "ugcMore": "Xem thêm 1,247 đánh giá →",
     "ugcReviews": [
       {
@@ -166,7 +166,7 @@
       }
     ],
     "safetyEyebrow": "For solo travelers · Hướng dẫn du khách một mình",
-    "safetyTitle": "Được thiết kế bởi phụ nữ, cho phụ nữ du lịch một mình.",
+    "safetyTitle": "Được thiết kế bởi <em>phụ nữ</em>, cho <em>phụ nữ</em> du lịch một mình.",
     "safetyBody": "Mọi salon đối tác đều được xác minh về an toàn, khả năng tiếp cận và nhân viên nói tiếng Anh. Đặt lịch yên tĩnh, bước vào tự tin — đó là điểm cốt lõi.",
     "safetyCite": "Nguồn · Chỉ số Du lịch Phụ nữ Một mình CEOWORLD 2026",
     "safetyCards": [
@@ -192,7 +192,7 @@
       }
     ],
     "b2bEyebrow": "For salon owners · Dành cho chủ salon",
-    "b2bTitle": "Đón khách nước ngoài mà không cần nói ngôn ngữ của họ.",
+    "b2bTitle": "Đón khách nước ngoài <em>mà không cần</em> nói ngôn ngữ của họ.",
     "b2bBody": "Hesya dịch tin nhắn, quản lý đặt lịch và xử lý thanh toán xuyên biên giới. Bạn tập trung vào cắt tóc. Chúng tôi xử lý chat.",
     "b2bBullets": [
       "Yêu cầu khách hàng tự dịch sang 5 ngôn ngữ",
@@ -204,14 +204,26 @@
     "b2bMockHead": "Stylista — Hongdae",
     "b2bMockSubhead": "Dashboard · Jimin Park (chủ)",
     "b2bMockTiles": [
-      { "label": "Đặt lịch hôm nay", "value": "17" },
-      { "label": "Khách nước ngoài tuần này", "value": "42" },
-      { "label": "Đang chờ dịch", "value": "0" },
-      { "label": "Trạng thái K-Verified", "value": "✓ Active" }
+      {
+        "label": "Đặt lịch hôm nay",
+        "value": "17"
+      },
+      {
+        "label": "Khách nước ngoài tuần này",
+        "value": "42"
+      },
+      {
+        "label": "Đang chờ dịch",
+        "value": "0"
+      },
+      {
+        "label": "Trạng thái K-Verified",
+        "value": "✓ Active"
+      }
     ],
     "b2bMockOverlay": "+ ₩142M quyết toán tuần này",
     "trendingEyebrow": "Trending · Phổ biến tuần này",
-    "trendingTitle": "Điều du khách nước ngoài thực sự đặt trong tuần này.",
+    "trendingTitle": "Điều du khách nước ngoài <em>thực sự</em> đặt trong tuần này.",
     "trendingSub": "Chạm vào một chip để lọc các salon giỏi.",
     "trendingChips": [
       "Cắt tóc lớp ngắn K-drama",
@@ -224,7 +236,7 @@
       "Chăm sóc mặt chống lão hóa"
     ],
     "faqEyebrow": "FAQ · Câu hỏi thường gặp",
-    "faqTitle": "Câu hỏi mà một du khách thông minh sẽ hỏi.",
+    "faqTitle": "Câu hỏi mà một du khách <em>thông minh</em> sẽ hỏi.",
     "faqItems": [
       {
         "q": "Nhân viên salon có thực sự nói được tiếng Anh / Nhật / Trung không?",

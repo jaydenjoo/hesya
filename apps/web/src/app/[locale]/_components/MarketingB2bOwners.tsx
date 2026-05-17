@@ -26,7 +26,11 @@ export function MarketingB2bOwners() {
             id="b2b-h2"
             className="font-heading text-4xl leading-[1.05] tracking-tight text-hesya-navy-900 md:text-5xl lg:text-6xl"
           >
-            {t("b2bTitle")}
+            {t.rich("b2bTitle", {
+              em: (chunks) => (
+                <em className="text-hesya-amber-700">{chunks}</em>
+              ),
+            })}
           </h2>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-hesya-navy-900/80">
             {t("b2bBody")}
