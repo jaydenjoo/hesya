@@ -52,7 +52,7 @@ export function MarketingHero() {
     <section
       id="travelers"
       aria-labelledby="hero-h1"
-      className="relative overflow-hidden bg-hesya-peach-50 px-6 py-20 md:py-32"
+      className="relative overflow-hidden bg-hesya-peach-50 px-6 pb-20 pt-32 md:pb-20 md:pt-40"
     >
       <div className="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-[3fr_2fr] md:gap-16">
         <div>
@@ -113,7 +113,7 @@ export function MarketingHero() {
           </div>
         </div>
 
-        <div className="relative aspect-[3/4] overflow-hidden rounded-[2rem] bg-hesya-peach-100 md:aspect-[4/5]">
+        <div className="relative aspect-[3/4] overflow-hidden rounded-3xl bg-gradient-to-br from-hesya-peach-200 to-hesya-amber-600 shadow-2xl">
           <Image
             src="/assets/images/hero-poster.webp"
             alt=""
@@ -142,28 +142,48 @@ export function MarketingHero() {
               />
             </video>
           ) : null}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(circle at 30% 35%, rgba(253,248,241,0.4), transparent 35%), radial-gradient(ellipse at 70% 80%, rgba(26,34,56,0.35), transparent 55%)",
+            }}
+          />
 
           <div
-            className="absolute bottom-5 left-5 w-[240px] rounded-2xl bg-hesya-peach-50/85 p-4 shadow-lg [backdrop-filter:blur(14px)_saturate(140%)]"
+            className="absolute bottom-5 left-5 min-w-[240px] rounded-2xl border border-white/50 bg-hesya-peach-50/[0.78] p-4 shadow-lg [backdrop-filter:blur(14px)_saturate(140%)]"
             aria-live="polite"
             aria-atomic="true"
           >
-            <p className="text-xs uppercase tracking-[0.12em] text-hesya-navy-700">
-              <span aria-hidden="true">{t("heroActivityFlag")}</span>{" "}
-              <strong className="text-hesya-navy-900">
-                {t("heroActivityName")}
-              </strong>{" "}
-              {t("heroActivityVerb")}
+            <p className="flex items-center gap-2 text-[13px] font-semibold text-hesya-navy-900">
+              <span aria-hidden="true">{t("heroActivityFlag")}</span>
+              <strong className="font-semibold">{t("heroActivityName")}</strong>
+              <span className="font-normal">{t("heroActivityVerb")}</span>
             </p>
-            <p className="mt-1 font-heading text-lg italic text-hesya-navy-900">
+            <p className="mt-1 font-heading text-sm italic text-hesya-navy-900">
               &ldquo;{t("heroActivityQuote")}&rdquo;
             </p>
-            <p className="mt-1 text-xs text-hesya-navy-700">
+            <p className="mt-1 text-[11px] text-hesya-navy-700">
               {t("heroActivityMeta")}
             </p>
           </div>
         </div>
       </div>
+
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 320 320"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2.4}
+        strokeLinecap="round"
+        className="pointer-events-none absolute right-[-40px] top-[100px] hidden h-[320px] w-[320px] text-hesya-amber-700 opacity-30 lg:block"
+      >
+        <path d="M40,80 Q80,40 140,80 T260,80" />
+        <path d="M180,140 a40,40 0 1,0 80,0 a40,40 0 1,0 -80,0 M220,180 L220,260" />
+        <path d="M60,200 L100,240 M100,200 L60,240 M120,180 Q160,220 200,260" />
+      </svg>
     </section>
   );
 }

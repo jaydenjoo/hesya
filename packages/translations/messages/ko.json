@@ -37,7 +37,7 @@
     "trustStatSafety": "🛡️ Tier 2 Safe Country (CEOWORLD 2026)",
     "trustStatChat": "💬 모국어 24/7 채팅 지원 / 24/7 chat support in your language",
     "howEyebrow": "How it works · 예약 흐름",
-    "howTitle": "호기심에서 확정까지, 조용한 4단계 / Four quiet steps from curiosity to confirmation.",
+    "howTitle": "<em>호기심</em>에서 확정까지, 조용한 4단계 / Four quiet steps from curiosity to confirmation.",
     "howStep1Title": "원하는 룩을 보여주세요 / Tell us your dream look.",
     "howStep1Body": "사진을 올리거나, 분위기로 둘러보거나, 모국어로 설명하세요. 한국어를 몰라도 괜찮아요. / Upload a photo, browse vibes, or just describe it in your language.",
     "howStep2Title": "AI가 딱 맞는 살롱을 매칭 / AI matches you with the right salon.",
@@ -58,7 +58,7 @@
       "Pink-blonde balayage"
     ],
     "salonsEyebrow": "Featured salons · 엄선된 매장",
-    "salonsTitle": "외국 손님들이 이미 사랑하는 살롱. / Salons that foreign clients already love.",
+    "salonsTitle": "<em>외국 손님들</em>이 이미 사랑하는 살롱. / Salons that foreign clients already love.",
     "salonsMore": "1,284개 K-Verified 매장 모두 보기 → / Browse all 1,284 K-Verified salons →",
     "salonList": [
       {
@@ -105,7 +105,7 @@
       }
     ],
     "ugcEyebrow": "UGC · 손님 후기",
-    "ugcTitle": "실제 여행자, 실제 결과. / Real travelers, real results.",
+    "ugcTitle": "실제 여행자, <em>실제 결과</em>. / Real travelers, real results.",
     "ugcMore": "1,247개 후기 더 보기 → / Show 1,247 more reviews →",
     "ugcReviews": [
       {
@@ -166,7 +166,7 @@
       }
     ],
     "safetyEyebrow": "For solo travelers · 솔로 여행자 안내",
-    "safetyTitle": "여성이 설계한, 혼자 여행하는 여성을 위한 서비스. / Designed by women, for women traveling alone.",
+    "safetyTitle": "<em>여성</em>이 설계한, 혼자 여행하는 <em>여성</em>을 위한 서비스. / Designed by women, for women traveling alone.",
     "safetyBody": "모든 파트너 살롱은 안전성·접근성·영어 가능 직원 여부를 검증받습니다. 조용히 예약하고 자신감 있게 입장하기 — 그게 본질입니다. / Every salon partner is verified for safety, accessibility, and English-speaking staff. Booking quietly, walking in confidently — that's the whole point.",
     "safetyCite": "출처 · CEOWORLD 2026 Solo Female Travel Index",
     "safetyCards": [
@@ -192,7 +192,7 @@
       }
     ],
     "b2bEyebrow": "For salon owners · 사업자 분들께",
-    "b2bTitle": "외국 손님을 받되, 그들의 언어를 몰라도 됩니다. / Get foreign clients without speaking their language.",
+    "b2bTitle": "외국 손님을 받되, 그들의 언어를 <em>몰라도</em> 됩니다. / Get foreign clients without speaking their language.",
     "b2bBody": "Hesya가 메시지를 번역하고, 예약을 관리하고, 국경 간 결제를 처리합니다. 사장님은 시술에 집중하세요. 채팅은 저희가 맡습니다. / Hesya translates messages, manages bookings, and handles cross-border payments. You focus on the cut. We handle the chat.",
     "b2bBullets": [
       "5개 언어 자동 번역된 손님 요청 / Auto-translated client requests across 5 languages",
@@ -204,17 +204,26 @@
     "b2bMockHead": "Stylista — 홍대점",
     "b2bMockSubhead": "Dashboard · 박지민 (owner)",
     "b2bMockTiles": [
-      { "label": "오늘 예약 / Today's bookings", "value": "17" },
+      {
+        "label": "오늘 예약 / Today's bookings",
+        "value": "17"
+      },
       {
         "label": "이번 주 외국 손님 / Foreign clients this week",
         "value": "42"
       },
-      { "label": "번역 대기 / Pending translations", "value": "0" },
-      { "label": "K-Verified 상태 / K-Verified status", "value": "✓ Active" }
+      {
+        "label": "번역 대기 / Pending translations",
+        "value": "0"
+      },
+      {
+        "label": "K-Verified 상태 / K-Verified status",
+        "value": "✓ Active"
+      }
     ],
     "b2bMockOverlay": "+ ₩142M settled this week",
     "trendingEyebrow": "Trending · 이번 주 인기",
-    "trendingTitle": "외국 여행자가 이번 주에 실제로 예약하는 것. / What foreign travelers are actually booking this week.",
+    "trendingTitle": "외국 여행자가 이번 주에 <em>실제로</em> 예약하는 것. / What foreign travelers are actually booking this week.",
     "trendingSub": "칩을 탭하면 해당 스타일에 강한 살롱이 필터됩니다. / Tap a chip to filter the salons that nail it.",
     "trendingChips": [
       "K-drama short layered cut",
@@ -227,7 +236,7 @@
       "Aging-back facial"
     ],
     "faqEyebrow": "FAQ · 자주 묻는 질문",
-    "faqTitle": "현명한 여행자가 던지는 질문. / Questions a smart traveler asks.",
+    "faqTitle": "<em>현명한</em> 여행자가 던지는 질문. / Questions a smart traveler asks.",
     "faqItems": [
       {
         "q": "살롱 직원이 영어/일본어/중국어를 실제로 할 수 있나요? / Do salon staff actually speak English / Japanese / Chinese?",

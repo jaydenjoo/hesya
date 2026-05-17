@@ -33,7 +33,7 @@
     "trustStatSafety": "🛡️ Tier 2 安全國家 (CEOWORLD 2026)",
     "trustStatChat": "💬 母語 24/7 線上聊天支援",
     "howEyebrow": "How it works · 預約流程",
-    "howTitle": "從好奇到確認,安靜的四個步驟。",
+    "howTitle": "從<em>好奇</em>到確認,安靜的四個步驟。",
     "howStep1Title": "告訴我們您想要的造型。",
     "howStep1Body": "上傳一張照片、瀏覽風格,或用您的母語描述。不需要韓語。",
     "howStep2Title": "AI 為您匹配合適的沙龍。",
@@ -50,7 +50,7 @@
     "baCaption": "來自東京的 Sakura · Stylista 弘大店 · 4週前",
     "baThumbAlts": ["Glass-skin makeup", "K-drama 短髮", "粉金色挑染"],
     "salonsEyebrow": "Featured salons · 精選沙龍",
-    "salonsTitle": "外國顧客已經喜愛的沙龍。",
+    "salonsTitle": "<em>外國顧客</em>已經喜愛的沙龍。",
     "salonsMore": "瀏覽全部 1,284 家 K-Verified 沙龍 →",
     "salonList": [
       {
@@ -97,7 +97,7 @@
       }
     ],
     "ugcEyebrow": "UGC · 顧客評價",
-    "ugcTitle": "真實旅人,真實結果。",
+    "ugcTitle": "真實旅人,<em>真實結果</em>。",
     "ugcMore": "查看 1,247 則更多評論 →",
     "ugcReviews": [
       {
@@ -158,7 +158,7 @@
       }
     ],
     "safetyEyebrow": "For solo travelers · 單人旅行者指南",
-    "safetyTitle": "由女性設計,為獨自旅行的女性服務。",
+    "safetyTitle": "由<em>女性</em>設計,為獨自旅行的<em>女性</em>服務。",
     "safetyBody": "每家合作沙龍都經過安全性、可達性和英語服務能力的驗證。安靜地預約,自信地入店 — 這就是核心。",
     "safetyCite": "來源 · CEOWORLD 2026 單身女性旅行指數",
     "safetyCards": [
@@ -184,7 +184,7 @@
       }
     ],
     "b2bEyebrow": "For salon owners · 店主專區",
-    "b2bTitle": "接待外國顧客,無需會他們的語言。",
+    "b2bTitle": "接待外國顧客,<em>無需</em>會他們的語言。",
     "b2bBody": "Hesya 翻譯訊息、管理預約、處理跨境支付。店主專注於剪髮,我們處理聊天。",
     "b2bBullets": [
       "5 種語言自動翻譯的顧客請求",
@@ -196,14 +196,26 @@
     "b2bMockHead": "Stylista — 弘大店",
     "b2bMockSubhead": "Dashboard · 朴智敏 (店主)",
     "b2bMockTiles": [
-      { "label": "今日預約", "value": "17" },
-      { "label": "本週外國顧客", "value": "42" },
-      { "label": "翻譯待處理", "value": "0" },
-      { "label": "K-Verified 狀態", "value": "✓ Active" }
+      {
+        "label": "今日預約",
+        "value": "17"
+      },
+      {
+        "label": "本週外國顧客",
+        "value": "42"
+      },
+      {
+        "label": "翻譯待處理",
+        "value": "0"
+      },
+      {
+        "label": "K-Verified 狀態",
+        "value": "✓ Active"
+      }
     ],
     "b2bMockOverlay": "+ ₩142M 本週結算",
     "trendingEyebrow": "Trending · 本週熱門",
-    "trendingTitle": "外國旅行者本週實際在預約什麼。",
+    "trendingTitle": "外國旅行者本週<em>實際</em>在預約什麼。",
     "trendingSub": "點擊標籤,篩選擅長該風格的沙龍。",
     "trendingChips": [
       "K-drama 短髮分層剪",
@@ -216,7 +228,7 @@
       "抗衰面部護理"
     ],
     "faqEyebrow": "FAQ · 常見問題",
-    "faqTitle": "聰明的旅行者會問的問題。",
+    "faqTitle": "<em>聰明的</em>旅行者會問的問題。",
     "faqItems": [
       {
         "q": "沙龍員工真的會說英語/日語/中文嗎?",

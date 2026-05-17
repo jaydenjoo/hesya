@@ -41,7 +41,11 @@ export function MarketingSalonsGrid() {
               id="salons-h2"
               className="max-w-2xl font-heading text-4xl leading-[1.05] tracking-tight text-hesya-navy-900 md:text-5xl lg:text-6xl"
             >
-              {t("salonsTitle")}
+              {t.rich("salonsTitle", {
+                em: (chunks) => (
+                  <em className="text-hesya-amber-700">{chunks}</em>
+                ),
+              })}
             </h2>
           </div>
           <a

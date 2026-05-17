@@ -37,7 +37,7 @@
     "trustStatSafety": "🛡️ Tier 2 安全国家 (CEOWORLD 2026)",
     "trustStatChat": "💬 母国語で24時間チャットサポート",
     "howEyebrow": "How it works · 予約の流れ",
-    "howTitle": "好奇心から確定まで、静かな4ステップ。",
+    "howTitle": "<em>好奇心</em>から確定まで、静かな4ステップ。",
     "howStep1Title": "理想のルックを教えて。",
     "howStep1Body": "写真をアップロード、雰囲気で探す、または母国語で説明。韓国語は不要です。",
     "howStep2Title": "AIがぴったりのサロンとマッチング。",
@@ -58,7 +58,7 @@
       "ピンクブロンド バレイヤージュ"
     ],
     "salonsEyebrow": "Featured salons · 厳選されたサロン",
-    "salonsTitle": "外国人のお客様に愛されているサロン。",
+    "salonsTitle": "<em>外国人のお客様</em>に愛されているサロン。",
     "salonsMore": "K-Verifiedサロン1,284店をすべて見る →",
     "salonList": [
       {
@@ -105,7 +105,7 @@
       }
     ],
     "ugcEyebrow": "UGC · お客様のレビュー",
-    "ugcTitle": "本物の旅人、本物の結果。",
+    "ugcTitle": "本物の旅人、<em>本物の結果</em>。",
     "ugcMore": "1,247件のレビューをもっと見る →",
     "ugcReviews": [
       {
@@ -166,7 +166,7 @@
       }
     ],
     "safetyEyebrow": "For solo travelers · ソロトラベラー向け案内",
-    "safetyTitle": "女性が設計した、ひとり旅の女性のためのサービス。",
+    "safetyTitle": "<em>女性</em>が設計した、ひとり旅の<em>女性</em>のためのサービス。",
     "safetyBody": "すべてのパートナーサロンは安全性・アクセシビリティ・英語対応スタッフを検証されています。静かに予約し、自信を持って入店する — それが本質です。",
     "safetyCite": "出典 · CEOWORLD 2026 ソロ女性旅行指数",
     "safetyCards": [
@@ -192,7 +192,7 @@
       }
     ],
     "b2bEyebrow": "For salon owners · オーナー様へ",
-    "b2bTitle": "外国人客を受け入れる、彼らの言語を話さなくても。",
+    "b2bTitle": "外国人客を受け入れる、<em>彼らの言語を話さなくても</em>。",
     "b2bBody": "Hesyaがメッセージを翻訳し、予約を管理し、国境を越えた決済を処理します。オーナー様は施術に集中してください。チャットは私たちが担当します。",
     "b2bBullets": [
       "5言語で自動翻訳された顧客リクエスト",
@@ -204,14 +204,26 @@
     "b2bMockHead": "Stylista — 弘大店",
     "b2bMockSubhead": "Dashboard · パク・ジミン (オーナー)",
     "b2bMockTiles": [
-      { "label": "今日の予約", "value": "17" },
-      { "label": "今週の外国人客", "value": "42" },
-      { "label": "翻訳待ち", "value": "0" },
-      { "label": "K-Verifiedステータス", "value": "✓ Active" }
+      {
+        "label": "今日の予約",
+        "value": "17"
+      },
+      {
+        "label": "今週の外国人客",
+        "value": "42"
+      },
+      {
+        "label": "翻訳待ち",
+        "value": "0"
+      },
+      {
+        "label": "K-Verifiedステータス",
+        "value": "✓ Active"
+      }
     ],
     "b2bMockOverlay": "+ ₩142M 今週の精算",
     "trendingEyebrow": "Trending · 今週の人気",
-    "trendingTitle": "外国人旅行者が今週実際に予約しているもの。",
+    "trendingTitle": "外国人旅行者が今週<em>実際に</em>予約しているもの。",
     "trendingSub": "チップをタップすると、得意なサロンが絞り込まれます。",
     "trendingChips": [
       "K-drama レイヤードショートカット",
@@ -224,7 +236,7 @@
       "エイジングバック フェイシャル"
     ],
     "faqEyebrow": "FAQ · よくある質問",
-    "faqTitle": "賢い旅行者が尋ねる質問。",
+    "faqTitle": "<em>賢い</em>旅行者が尋ねる質問。",
     "faqItems": [
       {
         "q": "サロンスタッフは本当に英語/日本語/中国語が話せますか?",
