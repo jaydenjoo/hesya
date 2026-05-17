@@ -16,7 +16,7 @@ export function MarketingHowItWorks() {
     >
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute left-8 top-10 z-0 hidden font-heading text-[96px] italic leading-[0.9] tracking-[-0.04em] text-transparent [-webkit-text-stroke:1.5px_var(--color-hesya-amber-600)] md:text-[160px] lg:block"
+        className="pointer-events-none absolute left-8 top-10 z-0 hidden font-heading text-[96px] italic leading-[0.9] tracking-[-0.04em] text-transparent [-webkit-text-stroke:1.5px_var(--color-hesya-amber-700)] md:text-[160px] lg:block"
       >
         03
       </span>
@@ -43,7 +43,7 @@ export function MarketingHowItWorks() {
                   className={`font-heading text-[120px] italic leading-[0.9] tracking-[-0.04em] md:text-[200px] ${
                     i === 0
                       ? "text-hesya-peach-100 [-webkit-text-stroke:1.5px_var(--color-hesya-amber-500)]"
-                      : "text-transparent [-webkit-text-stroke:1.5px_var(--color-hesya-amber-600)]"
+                      : "text-transparent [-webkit-text-stroke:1.5px_var(--color-hesya-amber-700)]"
                   }`}
                 >
                   {String(i + 1).padStart(2, "0")}
