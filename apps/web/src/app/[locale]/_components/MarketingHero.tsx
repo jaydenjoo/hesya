@@ -144,7 +144,7 @@ export function MarketingHero() {
             aria-live="polite"
             aria-atomic="true"
           >
-            <p className="text-xs uppercase tracking-[0.12em] text-hesya-navy-900/60">
+            <p className="text-xs uppercase tracking-[0.12em] text-hesya-navy-700">
               <span aria-hidden="true">{t("heroActivityFlag")}</span>{" "}
               <strong className="text-hesya-navy-900">
                 {t("heroActivityName")}
@@ -154,7 +154,7 @@ export function MarketingHero() {
             <p className="mt-1 font-heading text-lg italic text-hesya-navy-900">
               &ldquo;{t("heroActivityQuote")}&rdquo;
             </p>
-            <p className="mt-1 text-xs text-hesya-navy-900/60">
+            <p className="mt-1 text-xs text-hesya-navy-700">
               {t("heroActivityMeta")}
             </p>
           </div>

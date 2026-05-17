@@ -27,7 +27,7 @@ export function MarketingSafety() {
             <p className="mt-6 max-w-xl text-base leading-relaxed text-hesya-navy-900/80 md:text-[17px]">
               {t("safetyBody")}
             </p>
-            <p className="mt-3 text-[11px] uppercase tracking-[0.04em] text-hesya-navy-900/50">
+            <p className="mt-3 text-[11px] uppercase tracking-[0.04em] text-hesya-navy-700">
               {t("safetyCite")}
             </p>
           </div>

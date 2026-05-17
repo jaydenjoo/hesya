@@ -90,7 +90,7 @@ export function MarketingUgcWall() {
                         >
                           &ldquo;{r.quote}&rdquo;
                         </p>
-                        <p className="mt-2 font-heading text-[13px] italic leading-[1.55] text-hesya-navy-900/60">
+                        <p className="mt-2 font-heading text-[13px] italic leading-[1.55] text-hesya-navy-700">
                           {r.trans}
                         </p>
                       </article>
