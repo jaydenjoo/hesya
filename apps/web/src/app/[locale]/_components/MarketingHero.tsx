@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
+import { Link } from "@/i18n/navigation";
+
 const GREETING_CYCLE_MS = 2800;
 
 function subscribeMediaQuery(callback: () => void) {
@@ -94,12 +96,12 @@ export function MarketingHero() {
           </ul>
 
           <div className="mt-10 flex flex-wrap gap-4">
-            <a
-              href="#cta-traveler"
+            <Link
+              href="/c"
               className="inline-flex h-[52px] items-center rounded-full bg-hesya-amber-500 px-7 text-base font-bold text-hesya-navy-900 transition hover:bg-hesya-amber-600"
             >
               {t("heroCtaPrimary")}
-            </a>
+            </Link>
             <a
               href="#salons"
               className="inline-flex h-[52px] items-center rounded-full border border-hesya-amber-700 px-6 text-sm text-hesya-amber-700 transition hover:bg-hesya-peach-100"

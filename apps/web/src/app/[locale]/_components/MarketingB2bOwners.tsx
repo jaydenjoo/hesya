@@ -1,5 +1,7 @@
 import { useTranslations } from "next-intl";
 
+import { Link } from "@/i18n/navigation";
+
 type MockTile = { label: string; value: string };
 
 export function MarketingB2bOwners() {
@@ -44,18 +46,18 @@ export function MarketingB2bOwners() {
             ))}
           </ul>
           <div className="mt-10 flex flex-wrap gap-4">
-            <a
-              href="#"
+            <Link
+              href="/onboarding/kyc"
               className="rounded-full bg-hesya-navy-900 px-6 py-3 text-base text-hesya-peach-50 transition hover:bg-hesya-navy-900/90"
             >
               {t("b2bCtaPrimary")}
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              href="/sign-in"
               className="text-sm text-hesya-amber-700 underline-offset-4 hover:underline"
             >
               {t("b2bCtaSecondary")}
-            </a>
+            </Link>
           </div>
         </div>
 
