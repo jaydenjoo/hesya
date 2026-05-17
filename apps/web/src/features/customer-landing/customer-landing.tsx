@@ -419,24 +419,17 @@ export function CustomerLanding({
           </>
         )}
 
-        {/* AI photo entry */}
+        {/* AI photo entry — reference landing.css .ai-card 정합 */}
         {labels.aiPhotoCta && labels.aiPhotoSubtitle && (
           <Link
             href={`/${locale}/c/photo-analyze`}
             data-testid="landing-photo-cta"
-            className="mx-5 mb-2 mt-4 grid grid-cols-[1fr_80px] items-center gap-3 rounded-3xl bg-hesya-peach-200 px-5 py-5 transition hover:shadow-[0_8px_24px_-8px_rgba(216,139,91,0.35)]"
+            className="c-ai-card"
           >
-            <div className="flex flex-col gap-1.5">
-              <h4 className="font-heading text-[22px] font-semibold italic leading-[1.2] text-hesya-navy-900">
-                {labels.aiPhotoCta}
-              </h4>
-              <p className="text-[11.5px] text-hesya-navy-900/65">
-                {labels.aiPhotoSubtitle}
-              </p>
-              <span
-                aria-hidden="true"
-                className="mt-1 inline-flex w-fit items-center gap-1 rounded-full bg-hesya-amber-500 px-3 py-1 text-[11px] font-semibold text-white shadow-[0_4px_10px_rgba(232,169,122,0.35)]"
-              >
+            <div>
+              <h4 className="c-ai-card-title">{labels.aiPhotoCta}</h4>
+              <p className="c-ai-card-sl">{labels.aiPhotoSubtitle}</p>
+              <span aria-hidden="true" className="c-ai-card-cta">
                 ✨ →
               </span>
             </div>
@@ -644,10 +637,10 @@ export function CustomerLanding({
           </section>
         )}
 
-        {/* Reviews */}
+        {/* Reviews — reference landing.css .reviews-l / .review-card 정합 */}
         {mockReviews && mockReviews.length > 0 && labels.reviewsTitle && (
-          <section data-testid="landing-reviews" className="mt-12 px-5">
-            <header className="mb-4">
+          <section data-testid="landing-reviews" className="mt-12">
+            <header className="mb-2 px-5">
               <h3 className="font-heading text-[18px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900 sm:text-[20px]">
                 {labels.reviewsTitle}
               </h3>
@@ -657,30 +650,25 @@ export function CustomerLanding({
                 </p>
               )}
             </header>
-            <div className="flex flex-col gap-3">
+            <div className="c-reviews">
               {mockReviews.map((r) => (
-                <article
-                  key={r.id}
-                  className="flex gap-3 rounded-2xl bg-white p-4 ring-1 ring-hesya-peach-200"
-                >
-                  <div className="flex flex-shrink-0 flex-col items-center gap-1">
-                    <span aria-hidden="true" className="text-[22px]">
+                <article key={r.id} className="c-review-card">
+                  <div className="c-review-card-left">
+                    <span aria-hidden="true" className="c-review-card-flag">
                       {r.flag}
                     </span>
                     <span
                       aria-label={`${r.stars} stars`}
-                      className="text-[11px] text-hesya-amber-500"
+                      className="c-review-card-stars"
                     >
                       {"★".repeat(r.stars)}
                     </span>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[14px] font-medium leading-relaxed text-hesya-navy-900 [word-break:keep-all]">
+                  <div className="c-review-card-body">
+                    <p className="c-review-card-quote">
                       &ldquo;{r.quote}&rdquo;
                     </p>
-                    <p className="mt-1.5 text-[12px] italic text-hesya-navy-900/55">
-                      → {r.translation}
-                    </p>
+                    <p className="c-review-card-trans">→ {r.translation}</p>
                   </div>
                 </article>
               ))}
@@ -688,44 +676,32 @@ export function CustomerLanding({
           </section>
         )}
 
-        {/* Safety */}
+        {/* Safety strip — reference landing.css .safety-strip 정합 */}
         {labels.safetyTitle &&
           labels.safetyStat1 &&
           labels.safetyStat2 &&
           labels.safetyStat3 &&
           labels.safetyStat4 && (
-            <section
-              data-testid="landing-safety"
-              className="mt-12 border-t border-[var(--trust-rose,#e8c4d6)] px-5 pt-6"
-            >
-              <div className="rounded-2xl bg-hesya-peach-100 px-5 py-5">
-                <h3 className="mb-3 text-[13px] font-semibold uppercase tracking-[0.12em] text-hesya-navy-900">
-                  {labels.safetyTitle}
-                </h3>
-                <ul className="flex flex-col gap-2.5">
-                  {[
-                    ["🇰🇷", labels.safetyStat1],
-                    ["👥", labels.safetyStat2],
-                    ["📍", labels.safetyStat3],
-                    ["💬", labels.safetyStat4],
-                  ].map(([icon, text], i) => (
-                    <li
-                      key={i}
-                      className="grid grid-cols-[24px_1fr] items-start gap-2.5 text-[12px] leading-relaxed text-hesya-navy-900/75 [word-break:keep-all]"
-                    >
-                      <span aria-hidden="true" className="text-[14px]">
-                        {icon}
-                      </span>
-                      <span>{text}</span>
-                    </li>
-                  ))}
-                </ul>
-                {labels.safetySource && (
-                  <p className="mt-3 border-t border-dashed border-hesya-navy-900/10 pt-2.5 text-[10px] tracking-[0.02em] text-hesya-navy-900/45">
-                    {labels.safetySource}
-                  </p>
-                )}
-              </div>
+            <section data-testid="landing-safety" className="c-safety-strip">
+              <h3 className="c-safety-heading">{labels.safetyTitle}</h3>
+              <ul className="c-safety-stats">
+                {[
+                  ["🇰🇷", labels.safetyStat1],
+                  ["👥", labels.safetyStat2],
+                  ["📍", labels.safetyStat3],
+                  ["💬", labels.safetyStat4],
+                ].map(([icon, text], i) => (
+                  <li key={i} className="c-safety-stat">
+                    <span aria-hidden="true" className="c-safety-stat-ico">
+                      {icon}
+                    </span>
+                    <span>{text}</span>
+                  </li>
+                ))}
+              </ul>
+              {labels.safetySource && (
+                <p className="c-safety-source">{labels.safetySource}</p>
+              )}
             </section>
           )}
       </div>

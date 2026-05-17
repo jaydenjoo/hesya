@@ -527,3 +527,151 @@
 .c-landing-body {
   padding-bottom: 96px;
 }
+
+/* ─────────────────────────────────────────────
+   Phase Z-1 정합 — reference landing.css 1:1 복제
+   AI photo card · Reviews · Safety strip
+   ───────────────────────────────────────────── */
+
+/* AI photo entry card (reference landing.css L319-403) */
+.c-ai-card {
+  margin: 24px 20px 8px;
+  background: var(--hesya-peach-200);
+  border-radius: var(--r-xl);
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 80px;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+  transition: box-shadow 280ms var(--easing-standard);
+}
+.c-ai-card:hover {
+  box-shadow: var(--shadow-2);
+}
+.c-ai-card-title {
+  margin: 0 0 6px;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 22px;
+  color: var(--hesya-navy-900);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.c-ai-card-sl {
+  font-size: 14px;
+  color: var(--gray-700);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.c-ai-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--r-full);
+  background: var(--hesya-amber-500);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  border: 0;
+  font-family: var(--font-sans);
+  width: fit-content;
+}
+
+/* Reviews (reference landing.css L550-597) */
+.c-reviews {
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.c-review-card {
+  background: #fff;
+  border-radius: var(--r-md);
+  border: 1px solid var(--hesya-peach-100);
+  padding: 14px;
+  display: flex;
+  gap: 12px;
+}
+.c-review-card-left {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.c-review-card-flag {
+  font-size: 22px;
+}
+.c-review-card-stars {
+  color: var(--hesya-amber-500);
+  font-size: 11px;
+}
+.c-review-card-body {
+  flex: 1;
+  min-width: 0;
+}
+.c-review-card-quote {
+  font-family: var(--font-kr);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--hesya-navy-900);
+  line-height: 1.5;
+  word-break: keep-all;
+}
+.c-review-card-trans {
+  font-size: 12px;
+  color: var(--gray-500);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Safety strip (reference landing.css L598-644) */
+.c-safety-strip {
+  margin: 24px 20px 16px;
+  background: var(--hesya-peach-100);
+  border-radius: var(--r-lg);
+  border-top: 1px solid var(--trust-rose);
+  padding: 16px 16px 14px;
+}
+.c-safety-heading {
+  font-family: var(--font-kr);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--hesya-navy-900);
+  margin-bottom: 12px;
+  letter-spacing: 0.02em;
+}
+.c-safety-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.c-safety-stat {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--gray-700);
+  word-break: keep-all;
+}
+.c-safety-stat-ico {
+  font-size: 14px;
+}
+.c-safety-source {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(26, 34, 56, 0.1);
+  font-size: 10px;
+  color: var(--gray-500);
+  letter-spacing: 0.02em;
+}
