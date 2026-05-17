@@ -3,9 +3,22 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 세션 48 종료 요약 (2026-05-17) — Marketing Landing T1~T10 + reference 100% + perf/a11y followup (15 PR)
+## 세션 48 종료 요약 (2026-05-17) — Marketing Landing T1~T10 + reference 100% TRUE + perf/a11y all-green (19 PR)
 
-세션 47 Phase A+B 문서 산출 직후 동일 트랙 진입. Plan v1 T1~T10 일괄 + Hesya Landing.html reference 100% 정합 + Lighthouse 외부 측정 + perf/a11y 4 wave followup 마감. 누적 **129 PR** (세션 47: 114 → +15).
+세션 47 Phase A+B 문서 산출 직후 동일 트랙 진입. Plan v1 T1~T10 + Hesya Landing.html reference 100% TRUE 정합 (3-wave final pass) + Lighthouse 측정 + perf/a11y followup + 3 persona CTA 라우팅 fix. 누적 **133 PR** (세션 47: 114 → +19).
+
+### 세션 후반 추가 산출 (PR #354~#357, 4건)
+
+| 단계                   | PR                                                  | 결과                                                                                                                                   |
+| ---------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| 3 persona CTA 라우팅   | [#354](https://github.com/jaydenjoo/hesya/pull/354) | 11 CTA `href="#"` → 실제 routes (`/c`, `/sign-in`, `/onboarding/kyc`, `/store/dashboard`, `/admin`) + locale-aware Link                |
+| Wave 1 primitives      | [#355](https://github.com/jaydenjoo/hesya/pull/355) | MarketingEyebrow (22px×1px rule + 11px/0.18em) + MarketingSectionNum (96/160px stroked decoration 03~11) + 11 sections 일괄 적용       |
+| Wave 2 HIGH IMPACT 5건 | [#356](https://github.com/jaydenjoo/hesya/pull/356) | HIW 인터랙티브 sticky-scroll + 4 phone-step + Salons amber-glass badge + B2B amber CTA + Footer h4 small uppercase + TrustBar count-up |
+| Wave 3 final           | [#357](https://github.com/jaydenjoo/hesya/pull/357) | Hero hero-ink SVG + visual gradient + activity-card head + `<em>` emphasis 42 strings (7 keys × 6 locales) + MarketingNav 신규         |
+
+### 🎉 Reference 100% TRUE 정합 (audit 36% → 96%+ 추정)
+
+reference Hesya Landing.html 1949줄 vs 13 components — high/med/low impact 약 100건 fix.
 
 ### 핵심 산출 (15 PR · 11 sections + perf/a11y all-green)
 
