@@ -1,4 +1,7 @@
+"use client";
+
 import { useTranslations } from "next-intl";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { MarketingEyebrow } from "./MarketingEyebrow";
 import { MarketingSectionNum } from "./MarketingSectionNum";
@@ -12,8 +15,24 @@ type UgcReview = {
   src: string;
 };
 
+type VideoAsset = { src: string; poster: string };
+
+const VIDEO_BY_INDEX: Record<number, VideoAsset> = {
+  0: {
+    src: "/assets/videos/ugc-sakura.mp4",
+    poster: "/assets/images/ugc-sakura-poster.webp",
+  },
+  2: {
+    src: "/assets/videos/ugc-mei.mp4",
+    poster: "/assets/images/ugc-mei-poster.webp",
+  },
+  4: {
+    src: "/assets/videos/ugc-linh.mp4",
+    poster: "/assets/images/ugc-linh-poster.webp",
+  },
+};
+
 const PHOTO_GRADIENTS: Record<number, string> = {
-  0: "linear-gradient(135deg, #F5DDC8, #E8A97A)",
   3: "linear-gradient(135deg, #F8E9D9, #D88B5B)",
   5: "linear-gradient(135deg, #E8C4D6, #C97550)",
 };
@@ -23,6 +42,62 @@ const COLUMN_INDICES: number[][] = [
   [2, 3, 4],
   [5, 6],
 ];
+
+function subscribeReducedMotion(callback: () => void) {
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
+}
+
+function getReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function VideoCard({ asset, label }: { asset: VideoAsset; label: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [load, setLoad] = useState(false);
+  const reduced = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotion,
+    () => false,
+  );
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || load) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setLoad(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { rootMargin: "200px 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [load]);
+
+  return (
+    <video
+      ref={ref}
+      className="mb-3 aspect-square w-full rounded-xl object-cover object-center"
+      poster={asset.poster}
+      width={400}
+      height={400}
+      muted
+      playsInline
+      loop
+      autoPlay={!reduced && load}
+      preload="none"
+      aria-label={label}
+    >
+      {load ? <source src={asset.src} type="video/mp4" /> : null}
+    </video>
+  );
+}
 
 export function MarketingUgcWall() {
   const t = useTranslations("MarketingLanding");
@@ -56,6 +131,7 @@ export function MarketingUgcWall() {
                 .filter((idx) => idx < reviews.length)
                 .map((idx) => {
                   const r = reviews[idx]!;
+                  const video = VIDEO_BY_INDEX[idx];
                   const photo = PHOTO_GRADIENTS[idx];
                   const isXhs = r.src.toLowerCase().includes("xiaohongshu");
                   return (
@@ -69,7 +145,12 @@ export function MarketingUgcWall() {
                           {isXhs ? "红 " : "◉ "}
                           {r.src}
                         </span>
-                        {photo ? (
+                        {video ? (
+                          <VideoCard
+                            asset={video}
+                            label={`${r.nick} ${r.trans}`}
+                          />
+                        ) : photo ? (
                           <div
                             aria-hidden="true"
                             className="mb-3 aspect-square w-full rounded-xl"
