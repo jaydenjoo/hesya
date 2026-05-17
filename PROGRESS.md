@@ -3,6 +3,76 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
+## 세션 48 종료 요약 (2026-05-17) — Marketing Landing T1~T8 (7 PR, 11 sections wire 100%)
+
+세션 47 Phase A+B 문서 산출 직후 동일 트랙 진입. Plan v1 T1~T8 8 Tasks 일괄 처리. 누적 **121 PR** (세션 47: 114 → +7).
+
+### 핵심 산출 (7 PR · 8 Tasks)
+
+| Task                       | PR                                                  | 결과                                                                           |
+| -------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------ |
+| T1 자산 16개               | [#339](https://github.com/jaydenjoo/hesya/pull/339) | videos 8mp4(60MB) + images 8webp(2.4MB), PNG→WebP 98.7% 감소                   |
+| T2+T3 i18n                 | [#340](https://github.com/jaydenjoo/hesya/pull/340) | MarketingLanding 81 keys × 6 locales (ko/en/ja/zh-CN/zh-TW/vi), +1,553 lines   |
+| T4 컴포넌트 골격           | [#341](https://github.com/jaydenjoo/hesya/pull/341) | 11 Marketing\*.tsx + barrel + page.tsx 교체 (γ.2.3.5 미니 → 신규)              |
+| T5 Hero + BA               | [#342](https://github.com/jaydenjoo/hesya/pull/342) | hero-silk-petal.mp4 + greeting cycle 5 lang + BA slider (mouse/touch/keyboard) |
+| T6 HIW + Salons + UGC      | [#343](https://github.com/jaydenjoo/hesya/pull/343) | 4 steps + sticky phone mock + 6 next/image cards + 7 reviews mosaic            |
+| T7 Safety + B2B + Trending | [#344](https://github.com/jaydenjoo/hesya/pull/344) | 4 cards + mock dashboard + 8 chips with rank                                   |
+| T8 FAQ + FinalCta + Footer | [#345](https://github.com/jaydenjoo/hesya/pull/345) | 6 details accordion + 3-way split + brand/socials                              |
+
+### 🎉 Milestone: 11 sections wire 100% 완료
+
+Hero · HowItWorks · BeforeAfter · SalonsGrid · UgcWall · Safety · B2bOwners · Trending · FAQ · FinalCta · Footer — 모두 본격 visual + interaction wire.
+
+### 본 세션 핵심 의사결정
+
+1. **PNG → WebP 변환 (sharp@0.34.5 q=80)** — Plan v1 R1 위험 처리 (251MB → 62MB, 98.7% 감소). 디자인 글로벌 A4.1 부합. 원본 PNG는 `web/public/assets/` SSoT 보존.
+2. **flat keys + arrays 패턴** (`CustomerLanding` 일치) — `salonList`/`ugcReviews`/`safetyCards`/`b2bMockTiles`/`faqItems` 10 arrays.
+3. **Korean Conversion 옵션 A 일관 적용** — ko는 slash 영문 보조, 5 locale은 단일 메인. polyglot heroGreetings는 5 lang cycle 동일.
+4. **server components default + 'use client' 최소화** — 11 컴포넌트 중 2개만 client (Hero greeting cycle + BA slider). 9개는 server (SSG).
+5. **CSS-only motion (Q4 default M1)** — framer-motion/gsap 미도입. CSS transition + `prefers-reduced-motion` 글로벌 (globals.css line 253-260) 자동 차단.
+6. **next/image + lazy** — Salons 6 cards `loading="lazy"` + `sizes="33vw/50vw/100vw"`, hero-poster.webp만 LCP candidate.
+
+### 가드 (a11y / perf)
+
+- 모든 `<video>`: `autoplay+muted+loop+playsinline+preload=metadata+poster+width/height` (PRD §3.5)
+- `aria-live polite` (greeting cycle + activity card)
+- `role=slider` + `aria-valuemin/max/now` + keyboard ←→ (BA)
+- `aspect-ratio` 명시 (CLS 0)
+- `:focus-visible` 2px amber ring
+- `aria-labelledby` 모든 h1/h2
+- Korean Typography 자동 (`.kr`/`:lang(ko)` globals.css)
+
+### 자기평가 (L-082 e2e 기준)
+
+- **코드 머지**: 8/11 Tasks (T1~T8) = ~73%
+- **사용자 e2e 시연**: **0%** (T11 미진입)
+- **빌드 prerender**: 6 locales × marketing landing prerender 성공
+- 시연 prerequisite: Vercel preview deploy (T10) — 자동 트리거됨 (T8 머지 시), preview URL 확인 가능
+
+⚠️ "11 sections wire 100%" = **코드 머지 완료** 수준. 실제 사용자 시연(영상 자동재생 / a11y 검증 / 6 locales 라우팅 / iOS Safari) 확인은 T9+T11에서.
+
+### 남은 Tasks (T9~T11, ~2h)
+
+| Task | 분량 | 내용                                                                                                           |
+| ---- | ---- | -------------------------------------------------------------------------------------------------------------- |
+| T9   | 1h   | a11y / perf 검증 — Lighthouse Mobile Perf 80+ / Accessibility 95+ / CLS 0 / INP < 200ms / axe / reduced-motion |
+| T10  | 30m  | Vercel preview deploy 확인 — 6 locales 라우팅 OK / 영상 재생                                                   |
+| T11  | 30m  | Jayden 데스크톱 + iOS Safari + Android Chrome 직접 시연 + PROGRESS / design-completion 합산 갱신               |
+
+### 다음 세션 진입 명령
+
+```
+docs/Plan-marketing-landing-v1.md T9 (a11y / perf 검증)부터 시작해줘
+```
+
+또는 T10 preview URL 직접 확인 → T11 시연.
+
+### 세션 48 PR 누적 목록 (7 PR)
+
+#339 / #340 / #341 / #342 / #343 / #344 / #345
+
+---
+
 ## 세션 47 종료 요약 (2026-05-17) — Marketing Landing 트랙 Phase A+B 산출 (코드 0건, 문서 4건)
 
 세션 46 종료 직후 별도 트랙으로 pivot. **24 페이지 100% 정합 트랙 일시 보류** → 외부 Claude.ai 작업(5시간 세션, Hesya Landing.html 1949 lines + Higgsfield 자산 16개) 통합 준비.
