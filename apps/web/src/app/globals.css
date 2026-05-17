@@ -21,6 +21,7 @@
   --color-hesya-amber-500: var(--hesya-amber-500);
   --color-hesya-amber-600: var(--hesya-amber-600);
   --color-hesya-amber-700: var(--hesya-amber-700);
+  --color-hesya-navy-700: var(--hesya-navy-700);
   --color-hesya-navy-900: var(--hesya-navy-900);
 
   /* Trust layer — PRD § 6.5 K-Verified visual trust system */
@@ -77,6 +78,7 @@
   --hesya-amber-500: #e8a97a;
   --hesya-amber-600: #d88b5b;
   --hesya-amber-700: #8f4a1f;
+  --hesya-navy-700: #5a6178;
   --hesya-navy-900: #1a2238;
 
   /* Trust layer — PRD § 6.5 */

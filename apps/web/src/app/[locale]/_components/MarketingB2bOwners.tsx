@@ -71,7 +71,7 @@ export function MarketingB2bOwners() {
               <p className="font-heading text-[13.5px] font-bold text-hesya-navy-900">
                 {t("b2bMockHead")}
               </p>
-              <p className="text-[11px] text-hesya-navy-900/60">
+              <p className="text-[11px] text-hesya-navy-700">
                 {t("b2bMockSubhead")}
               </p>
             </div>
@@ -82,7 +82,7 @@ export function MarketingB2bOwners() {
                 key={tile.label}
                 className="rounded-xl bg-hesya-peach-50 p-3.5"
               >
-                <p className="text-[11px] uppercase tracking-[0.04em] text-hesya-navy-900/60">
+                <p className="text-[11px] uppercase tracking-[0.04em] text-hesya-navy-700">
                   {tile.label}
                 </p>
                 <p className="mt-1 font-heading text-2xl italic tabular-nums text-hesya-navy-900">

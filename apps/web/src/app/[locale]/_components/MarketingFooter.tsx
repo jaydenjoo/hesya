@@ -100,7 +100,7 @@ export function MarketingFooter() {
         </div>
 
         <div className="mt-12 grid items-center gap-4 border-t border-hesya-navy-900/10 pt-6 md:grid-cols-[1fr_auto_1fr]">
-          <p className="text-xs text-hesya-navy-900/60">
+          <p className="text-xs text-hesya-navy-700">
             © 2026 Hesya, Inc. · ISO 27001 · GDPR
           </p>
           <div
@@ -109,7 +109,7 @@ export function MarketingFooter() {
           />
           <Link
             href="/admin"
-            className="text-xs text-hesya-navy-900/40 transition hover:text-hesya-navy-900/70 md:text-right"
+            className="text-xs text-hesya-navy-700 transition hover:text-hesya-navy-900 md:text-right"
           >
             Internal · Operations →
           </Link>

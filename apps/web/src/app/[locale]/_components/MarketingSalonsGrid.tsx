@@ -83,14 +83,12 @@ export function MarketingSalonsGrid() {
                   <p className="font-heading text-lg text-hesya-navy-900">
                     {s.name}
                   </p>
-                  <p className="mt-1 text-sm text-hesya-navy-900/60">
+                  <p className="mt-1 text-sm text-hesya-navy-700">
                     {s.location}
                   </p>
                   <p className="mt-3 text-sm">
                     <span className="text-hesya-amber-700">{s.rating}</span>{" "}
-                    <span className="text-hesya-navy-900/50">
-                      · {s.reviews}
-                    </span>
+                    <span className="text-hesya-navy-700">· {s.reviews}</span>
                   </p>
                 </div>
               </a>
