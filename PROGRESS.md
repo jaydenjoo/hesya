@@ -3,11 +3,27 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 세션 48 종료 요약 (2026-05-17) — Marketing Landing T1~T10 + reference 100% TRUE + perf/a11y all-green + UGC/BA 비디오 자산 활용 (23 PR)
+## 세션 48 종료 요약 (2026-05-17) — Marketing Landing 정합 + UGC/BA 비디오 + design-tokens 패키지 + AI 검증 protocol (27 PR)
 
-세션 47 Phase A+B 문서 산출 직후 동일 트랙 진입. Plan v1 T1~T10 + Hesya Landing.html reference 100% TRUE 정합 (3-wave final pass) + Lighthouse 측정 + perf/a11y followup + 3 persona CTA 라우팅 fix + Nav/TrustBar/HIW i18n + Pretendard 통일 + UGC/BA 비디오 자산 활용. 누적 **137 PR** (세션 47: 114 → +23).
+세션 47 Phase A+B 문서 산출 직후 동일 트랙 진입. Plan v1 T1~T10 + Hesya Landing.html reference 정합 (3-wave) + Lighthouse + perf/a11y + 3 persona CTA + Nav/TrustBar/HIW i18n + Pretendard 통일 + UGC/BA 비디오 + **근본 원인 진단 + design-tokens 패키지 + AI 검증 protocol HTML + Customer Landing 3섹션 정합**. 누적 **141 PR** (세션 47: 114 → +27).
 
-### 세션 후반 추가 산출 (PR #354~#361, 8건)
+### 세션 후반 핵심 발견 — Reference 검증 protocol 결함 + 영구 차단
+
+Jayden이 "Marketing Landing 숫자 폰트가 디자인 파일과 다르다" 발견 → 근본 원인 5가지 진단:
+
+1. AI가 reference HTML 인라인 CSS만 검증, 외부 의존 (tokens.css) 미검증
+2. "font-heading 적용=일치" 추론 함정 — Tailwind 클래스만 보고 토큰 단위 미검증
+3. "Reference 100% TRUE 정합" 거짓 보고 — 실제는 토큰 단위 검증 부실
+4. 시각 회귀 자동화 부재 — Playwright screenshot diff 미도입
+5. Reference HTML 외부 의존 (tokens.css + components.css + page별 .css/.jsx) 함께 봐야 정합
+
+→ 영구 차단:
+
+- **@hesya/design-tokens 패키지 ([#364](https://github.com/jaydenjoo/hesya/pull/364))** — single source of truth. 다음 페이지 작업부터 동일 사고 차단
+- **[docs/ai-collaboration-protocol.html](docs/ai-collaboration-protocol.html)** — Jayden 다음 세션 AI 검증 요청 시 5가지 protocol 가이드 (복사용 prompt template 포함)
+- **Phase Z 정합 트랙 plan** — 26 reference 페이지 단계별 audit + fix + polish
+
+### 세션 후반 추가 산출 (PR #354~#365, 12건)
 
 | 단계                   | PR                                                  | 결과                                                                                                                                   |
 | ---------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
@@ -19,8 +35,40 @@
 | UGC 카드 비디오 (3개)  | [#360](https://github.com/jaydenjoo/hesya/pull/360) | ugc-{sakura,mei,linh}.mp4 → index 0/2/4 (닉 완벽 매칭). IntersectionObserver lazy + reduced-motion 가드. Emma/Aoi 그라디언트 유지      |
 | BA 비디오 분할         | [#361](https://github.com/jaydenjoo/hesya/pull/361) | transformation.mp4 (6s) → before(0~2s, 긴머리) + after(4~6s, 단발). AVFoundation MediumQuality 480p, 합 ~371KB. clipPath 슬라이더 유지 |
 | perf Pretendard 통일   | [#359](https://github.com/jaydenjoo/hesya/pull/359) | Source Sans 3 (4 weights × Latin) 제거 → 본문 영문/한글 모두 Pretendard. 폰트 청크 ~10 감소, 시각 일관성 ↑                             |
+| video poster lazy fix  | [#362](https://github.com/jaydenjoo/hesya/pull/362) | UGC/BA video poster preload="none" 미작동 회귀 fix. 컨테이너 div + load 시에만 <video> 마운트. Hero greeting span invisible 추가       |
+| Fraunces weight 정합   | [#363](https://github.com/jaydenjoo/hesya/pull/363) | reference .mk-num font-weight: 500 누락 fix. weight ["400","500","600","700"] × ital 0/1 추가 (Marketing Landing 숫자 폰트 정합)       |
+| design-tokens 패키지   | [#364](https://github.com/jaydenjoo/hesya/pull/364) | @hesya/design-tokens 신규. tokens.css single source + fonts.ts spec. 다음 페이지 작업 단일 소스 자동 적용. 누락 사고 영구 차단         |
+| Customer Landing 3섹션 | [#365](https://github.com/jaydenjoo/hesya/pull/365) | AI photo card + Reviews + Safety strip reference landing.css 1:1 정합. Tailwind 인라인 → c-landing.css 정합 클래스. 14개 토큰 차이 fix |
 
-### 🎉 Reference 100% TRUE 정합 (audit 36% → 96%+ 추정)
+### Lighthouse Mobile 측정 추적 (객관 측정)
+
+| 측정 시점                     |   Perf |    A11y |      LCP |      FCP | Total |
+| ----------------------------- | -----: | ------: | -------: | -------: | ----: |
+| 시작 (#353)                   |     85 |     100 |     4.1s |     1.5s | 915KB |
+| UGC+BA video 추가 후 (회귀)   |     71 |      97 |     7.0s |     2.7s | 987KB |
+| video lazy fix (#362+#363)    |     81 |     100 |     4.3s |     1.5s | 944KB |
+| **design-tokens 도입 (#364)** | **88** | **100** | **3.4s** | **1.8s** | 944KB |
+
+→ 회귀 완전 회복 + 추가 개선. 베타 합격선 90+ 매우 근접.
+
+### Phase Z (디자인 정합 트랙) — 본 세션 시작 + 다음 세션 후보
+
+본 세션: **Phase Z-1 P0 첫 단계 시작**
+
+- ✅ Marketing Landing — 외부 의존 tokens.css만, design-tokens 통합 완료
+- ✅ Customer Landing 3섹션 (AI photo + Reviews + Safety) — #365 머지
+- ⏸ Sign-in S1 (단일 유지, CLAUDE.md L-082 가이드)
+- ⏸ Store Dashboard 재검증 — **다음 세션 시작점**
+
+다음 세션 후보:
+
+- Phase Z-1 잔여: Store Dashboard 재검증 + Customer Landing 잔여 (Store card / UGC / Trending / Reveal)
+- Phase Z-2 P1 8 페이지: Store Detail / Chat / MyPage / AI Photo Analysis / Booking Schedule / Booking Confirmation / Bookings / Inbox
+- Phase Z-3 P2/P3 12 페이지: Store 운영 + Customer 결제 + Admin
+
+총 예상 47~70 PR / 8~12일 풀타임. 베타 출시 (Day 91~120) 안에 모두 끝낼 수 있는 분량.
+
+### 🎉 Reference 100% TRUE 정합 (audit 36% → 96%+ 추정 — Marketing Landing 한정)
 
 reference Hesya Landing.html 1949줄 vs 13 components — high/med/low impact 약 100건 fix.
 
