@@ -51,7 +51,7 @@
     "baSub": "参考写真をアップロード。AIが教えてくれます — ✓ 可能 · ⚠ 部分的 · ✕ 推奨しない — そして実現できるサロンとマッチング。",
     "baLabelBefore": "Before · 参考",
     "baLabelAfter": "After · 実際の結果",
-    "baCaption": "実際のお客様 · 東京のSakura · Stylista 弘大店 · 4週間前",
+    "baCaption": "東京のSakura · Stylista 弘大店 · 4週間前",
     "baThumbAlts": [
       "Glass-skin makeup",
       "K-drama ショートカット",
@@ -104,7 +104,7 @@
         "verified": false
       }
     ],
-    "ugcEyebrow": "UGC · 実際のお客様のレビュー",
+    "ugcEyebrow": "UGC · お客様のレビュー",
     "ugcTitle": "本物の旅人、本物の結果。",
     "ugcMore": "1,247件のレビューをもっと見る →",
     "ugcReviews": [

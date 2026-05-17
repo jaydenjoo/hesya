@@ -51,7 +51,7 @@
     "baSub": "참고 사진을 올리면 AI가 알려드립니다 — ✓ 가능 · ⚠ 부분적 · ✕ 권장 안 함. 그리고 실제로 해낸 살롱과 매칭됩니다. / Upload a reference photo. Our AI tells you: ✓ doable · ⚠ partial · ✕ not advised — and matches you with salons that actually nailed it.",
     "baLabelBefore": "Before · reference",
     "baLabelAfter": "After · real result",
-    "baCaption": "실제 손님 · 도쿄 Sakura · Stylista 홍대점 · 4주 전 / Real customer · Sakura from Tokyo · Stylista 홍대점 · 4 weeks ago",
+    "baCaption": "도쿄 Sakura · Stylista 홍대점 · 4주 전 / Sakura from Tokyo · Stylista 홍대점 · 4 weeks ago",
     "baThumbAlts": [
       "Glass-skin makeup",
       "K-drama short cut",
@@ -104,7 +104,7 @@
         "verified": false
       }
     ],
-    "ugcEyebrow": "UGC · 실제 손님 후기",
+    "ugcEyebrow": "UGC · 손님 후기",
     "ugcTitle": "실제 여행자, 실제 결과. / Real travelers, real results.",
     "ugcMore": "1,247개 후기 더 보기 → / Show 1,247 more reviews →",
     "ugcReviews": [

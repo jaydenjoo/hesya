@@ -12,10 +12,21 @@ import {
 
 const KEYBOARD_STEP_PCT = 5;
 
+const BEFORE_BG = "linear-gradient(135deg, #2A3148 0%, #4A4E5C 100%)";
+const AFTER_BG =
+  "linear-gradient(135deg, #FDF8F1 0%, #E8A97A 60%, #D88B5B 100%)";
+
+const THUMB_GRADIENTS = [
+  "linear-gradient(135deg, #2A3148, #FDF8F1)",
+  "linear-gradient(135deg, #4A2820, #E8A97A)",
+  "linear-gradient(135deg, #3D3850, #F8E9D9)",
+] as const;
+
 export function MarketingBeforeAfter() {
   const t = useTranslations("MarketingLanding");
   const thumbs = t.raw("baThumbAlts") as string[];
   const [pct, setPct] = useState(50);
+  const [activeIdx, setActiveIdx] = useState(0);
   const frameRef = useRef<HTMLDivElement>(null);
 
   const updateFromX = useCallback((clientX: number) => {
@@ -73,34 +84,33 @@ export function MarketingBeforeAfter() {
           ref={frameRef}
           role="region"
           aria-label={t("baTitle")}
-          className="relative mt-12 aspect-[16/9] touch-none select-none overflow-hidden rounded-3xl bg-hesya-peach-100/10"
+          className="relative mx-auto mt-12 aspect-[16/9] max-w-3xl touch-none select-none overflow-hidden rounded-2xl shadow-[0_30px_80px_rgba(0,0,0,0.4)]"
           onMouseMove={onMouseMove}
           onTouchMove={onTouchMove}
         >
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            width={1920}
-            height={1080}
-            className="absolute inset-0 h-full w-full object-cover"
+          <div
             aria-hidden="true"
+            className="absolute inset-0 grid place-items-center font-heading text-3xl italic text-white/45"
+            style={{ background: BEFORE_BG }}
           >
-            <source src="/assets/videos/transformation.mp4" type="video/mp4" />
-          </video>
+            before
+          </div>
 
           <div
-            className="absolute inset-0 bg-hesya-navy-900/55 mix-blend-multiply"
-            style={{ clipPath: `inset(0 0 0 ${pct}%)` }}
             aria-hidden="true"
-          />
+            className="absolute inset-0 grid place-items-center font-heading text-3xl italic text-hesya-navy-900/45"
+            style={{
+              background: AFTER_BG,
+              clipPath: `inset(0 0 0 ${pct}%)`,
+            }}
+          >
+            after
+          </div>
 
-          <span className="absolute left-4 top-4 rounded-full bg-hesya-navy-900/60 px-3 py-1 text-xs uppercase tracking-[0.16em] text-hesya-peach-50/80">
+          <span className="absolute left-4 top-4 rounded-full bg-black/50 px-3 py-1 text-xs uppercase tracking-[0.16em] text-white">
             {t("baLabelBefore")}
           </span>
-          <span className="absolute right-4 top-4 rounded-full bg-hesya-amber-600/80 px-3 py-1 text-xs uppercase tracking-[0.16em] text-hesya-peach-50">
+          <span className="absolute right-4 top-4 rounded-full bg-hesya-amber-500 px-3 py-1 text-xs uppercase tracking-[0.16em] text-hesya-navy-900">
             {t("baLabelAfter")}
           </span>
 
@@ -113,21 +123,23 @@ export function MarketingBeforeAfter() {
             aria-valuenow={Math.round(pct)}
             tabIndex={0}
             onKeyDown={onKeyDown}
-            className="absolute top-0 h-full w-1 -translate-x-1/2 cursor-ew-resize bg-hesya-peach-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
+            className="absolute top-0 h-full w-[3px] -translate-x-1/2 cursor-ew-resize bg-share-glow shadow-[0_0_24px_var(--share-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
             style={{ left: `${pct}%` }}
           >
-            <span className="absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-hesya-peach-50 text-sm text-hesya-navy-900 shadow-lg">
-              ⇄
+            <span className="absolute left-1/2 top-1/2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-share-glow font-mono text-base text-hesya-navy-900 shadow-[0_4px_16px_rgba(0,0,0,0.25)]">
+              ⇆
             </span>
           </button>
         </div>
 
-        <p className="mt-6 text-sm text-hesya-peach-50/60">{t("baCaption")}</p>
+        <p className="mt-6 text-center text-sm text-hesya-peach-50/60">
+          {t("baCaption")}
+        </p>
 
         <div
           role="tablist"
           aria-label={t("baEyebrow")}
-          className="mt-8 flex flex-wrap gap-3"
+          className="mt-8 flex flex-wrap justify-center gap-3"
         >
           {thumbs.map((label, i) => (
             <button
@@ -135,8 +147,10 @@ export function MarketingBeforeAfter() {
               role="tab"
               type="button"
               aria-label={label}
-              aria-selected={i === 0}
-              className="h-16 w-24 rounded-lg border border-hesya-peach-50/20 bg-hesya-peach-50/10 transition hover:bg-hesya-peach-50/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500 aria-selected:border-hesya-amber-500 aria-selected:bg-hesya-amber-600/40"
+              aria-selected={i === activeIdx}
+              onClick={() => setActiveIdx(i)}
+              style={{ background: THUMB_GRADIENTS[i] ?? THUMB_GRADIENTS[0] }}
+              className="h-[60px] w-[100px] rounded-lg border-2 border-transparent opacity-65 transition hover:border-hesya-amber-500 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500 aria-selected:border-hesya-amber-500 aria-selected:opacity-100"
             >
               <span className="sr-only">{label}</span>
             </button>

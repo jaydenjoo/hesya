@@ -51,7 +51,7 @@
     "baSub": "Upload a reference photo. Our AI tells you: ✓ doable · ⚠ partial · ✕ not advised — and matches you with salons that actually nailed it.",
     "baLabelBefore": "Before · reference",
     "baLabelAfter": "After · real result",
-    "baCaption": "Real customer · Sakura from Tokyo · Stylista Hongdae · 4 weeks ago",
+    "baCaption": "Sakura from Tokyo · Stylista Hongdae · 4 weeks ago",
     "baThumbAlts": [
       "Glass-skin makeup",
       "K-drama short cut",
@@ -104,7 +104,7 @@
         "verified": false
       }
     ],
-    "ugcEyebrow": "UGC · Real customer reviews",
+    "ugcEyebrow": "UGC · Customer reviews",
     "ugcTitle": "Real travelers, real results.",
     "ugcMore": "Show 1,247 more reviews →",
     "ugcReviews": [
