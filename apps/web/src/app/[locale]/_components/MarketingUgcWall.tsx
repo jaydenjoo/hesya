@@ -9,6 +9,18 @@ type UgcReview = {
   src: string;
 };
 
+const PHOTO_GRADIENTS: Record<number, string> = {
+  0: "linear-gradient(135deg, #F5DDC8, #E8A97A)",
+  3: "linear-gradient(135deg, #F8E9D9, #D88B5B)",
+  5: "linear-gradient(135deg, #E8C4D6, #C97550)",
+};
+
+const COLUMN_INDICES: number[][] = [
+  [0, 1],
+  [2, 3, 4],
+  [5, 6],
+];
+
 export function MarketingUgcWall() {
   const t = useTranslations("MarketingLanding");
   const reviews = t.raw("ugcReviews") as UgcReview[];
@@ -31,47 +43,68 @@ export function MarketingUgcWall() {
           </h2>
         </div>
 
-        <ul
-          role="list"
-          className="mt-12 columns-1 gap-6 sm:columns-2 lg:columns-3"
-        >
-          {reviews.map((r) => (
-            <li key={`${r.nick}-${r.src}`} className="mb-6 break-inside-avoid">
-              <article className="rounded-3xl bg-white p-6 shadow-sm">
-                <header className="flex items-center justify-between">
-                  <p className="flex items-center gap-2">
-                    <span aria-hidden="true" className="text-xl">
-                      {r.flag}
-                    </span>
-                    <span className="font-heading text-base text-hesya-navy-900">
-                      {r.nick}
-                    </span>
-                  </p>
-                  <span
-                    aria-label={`${r.stars} rating`}
-                    className="text-sm text-hesya-amber-600"
-                  >
-                    {r.stars}
-                  </span>
-                </header>
-                <p className="mt-4 font-heading text-xl italic leading-snug text-hesya-navy-900">
-                  &ldquo;{r.quote}&rdquo;
-                </p>
-                <p className="mt-3 text-sm leading-relaxed text-hesya-navy-900/70">
-                  {r.trans}
-                </p>
-                <p className="mt-4 text-xs uppercase tracking-[0.12em] text-hesya-amber-600">
-                  {r.src}
-                </p>
-              </article>
-            </li>
+        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {COLUMN_INDICES.map((col, ci) => (
+            <ul key={`col-${ci}`} role="list" className="flex flex-col gap-5">
+              {col
+                .filter((idx) => idx < reviews.length)
+                .map((idx) => {
+                  const r = reviews[idx]!;
+                  const photo = PHOTO_GRADIENTS[idx];
+                  const isXhs = r.src.toLowerCase().includes("xiaohongshu");
+                  return (
+                    <li key={`${r.nick}-${r.src}`}>
+                      <article className="relative rounded-2xl bg-white p-6 shadow-sm">
+                        <span
+                          className={`absolute right-5 top-5 text-[10.5px] font-bold uppercase tracking-[0.04em] ${
+                            isXhs ? "text-[#FE2C55]" : "text-[#C13584]"
+                          }`}
+                        >
+                          {isXhs ? "红 " : "◉ "}
+                          {r.src}
+                        </span>
+                        {photo ? (
+                          <div
+                            aria-hidden="true"
+                            className="mb-3 aspect-square w-full rounded-xl"
+                            style={{ background: photo }}
+                          />
+                        ) : null}
+                        <header className="flex items-center gap-2 pr-24">
+                          <span aria-hidden="true" className="text-xl">
+                            {r.flag}
+                          </span>
+                          <span className="font-heading text-sm text-hesya-navy-900">
+                            {r.nick}
+                          </span>
+                          <span
+                            aria-label={`${r.stars} rating`}
+                            className="ml-auto text-xs tracking-[1px] text-hesya-amber-500"
+                          >
+                            {r.stars}
+                          </span>
+                        </header>
+                        <p
+                          lang="ko"
+                          className="mt-3 text-[15px] leading-[1.65] text-hesya-navy-900"
+                        >
+                          &ldquo;{r.quote}&rdquo;
+                        </p>
+                        <p className="mt-2 font-heading text-[13px] italic leading-[1.55] text-hesya-navy-900/60">
+                          {r.trans}
+                        </p>
+                      </article>
+                    </li>
+                  );
+                })}
+            </ul>
           ))}
-        </ul>
+        </div>
 
-        <div className="mt-12 text-center">
+        <div className="mt-10 text-center">
           <a
             href="#"
-            className="text-sm text-hesya-amber-600 underline-offset-4 hover:underline"
+            className="text-sm font-semibold text-hesya-amber-600 underline-offset-4 hover:underline"
           >
             {t("ugcMore")}
           </a>

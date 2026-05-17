@@ -28,11 +28,11 @@ export function MarketingTrending() {
             <li key={chip}>
               <a
                 href="#"
-                className="inline-flex items-center gap-2 rounded-full border border-hesya-navy-900/15 bg-white px-4 py-2 text-sm text-hesya-navy-900 transition hover:border-hesya-amber-500 hover:bg-hesya-amber-500/10"
+                className="inline-flex items-center gap-1.5 rounded-full border border-hesya-peach-200 bg-white px-4 py-2.5 text-[13.5px] text-hesya-navy-900 transition hover:border-hesya-amber-500 hover:shadow-[0_6px_20px_var(--color-share-glow)]"
               >
                 <span
                   aria-hidden="true"
-                  className="font-mono text-xs tabular-nums text-hesya-amber-600"
+                  className="font-heading italic font-semibold text-hesya-amber-600"
                 >
                   #{i + 1}
                 </span>

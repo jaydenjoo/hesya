@@ -25,21 +25,25 @@ export function MarketingFaq() {
           </h2>
         </div>
 
-        <div className="mt-12 divide-y divide-hesya-navy-900/10 border-y border-hesya-navy-900/10">
+        <div className="mt-10 divide-y divide-hesya-peach-200">
           {items.map((item) => (
             <details key={item.q} className="group py-5 [&>summary]:list-none">
-              <summary className="flex cursor-pointer items-start justify-between gap-6">
-                <span className="font-heading text-lg text-hesya-navy-900">
-                  {item.q}
-                </span>
+              <summary className="flex cursor-pointer items-start gap-4 pr-6 text-[17px] font-semibold text-hesya-navy-900">
+                <span className="flex-1">{item.q}</span>
                 <span
                   aria-hidden="true"
-                  className="mt-1 shrink-0 font-mono text-xl text-hesya-amber-600 transition-transform group-open:rotate-45"
+                  className="shrink-0 font-heading text-2xl italic text-hesya-amber-600 group-open:hidden"
                 >
                   +
                 </span>
+                <span
+                  aria-hidden="true"
+                  className="hidden shrink-0 font-heading text-2xl italic text-hesya-amber-600 group-open:inline"
+                >
+                  −
+                </span>
               </summary>
-              <p className="mt-3 text-sm leading-relaxed text-hesya-navy-900/70">
+              <p className="mt-3.5 pr-6 text-[15px] leading-[1.65] text-hesya-navy-900/70">
                 {item.a}
               </p>
             </details>
