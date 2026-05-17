@@ -59,39 +59,39 @@ export function MarketingB2bOwners() {
           </div>
         </div>
 
-        <div className="rounded-3xl bg-white p-6 shadow-2xl">
-          <header className="mb-6 flex items-center gap-3">
+        <div className="relative rounded-2xl border border-hesya-peach-100 bg-white p-5 shadow-xl">
+          <header className="mb-4 flex items-center gap-3 border-b border-hesya-peach-100 pb-4">
             <span
               aria-hidden="true"
-              className="grid h-10 w-10 place-items-center rounded-full bg-hesya-amber-500 font-heading text-lg text-white"
+              className="grid h-8 w-8 place-items-center rounded-md bg-gradient-to-br from-hesya-amber-500 to-hesya-amber-600 font-heading text-lg italic font-bold text-white"
             >
               S
             </span>
             <div>
-              <p className="font-heading text-sm text-hesya-navy-900">
+              <p className="font-heading text-[13.5px] font-bold text-hesya-navy-900">
                 {t("b2bMockHead")}
               </p>
-              <p className="text-xs text-hesya-navy-900/60">
+              <p className="text-[11px] text-hesya-navy-900/60">
                 {t("b2bMockSubhead")}
               </p>
             </div>
           </header>
-          <ul role="list" className="grid grid-cols-2 gap-3">
+          <ul role="list" className="grid grid-cols-2 gap-2.5">
             {tiles.map((tile) => (
               <li
                 key={tile.label}
-                className="rounded-2xl bg-hesya-peach-50 p-4"
+                className="rounded-xl bg-hesya-peach-50 p-3.5"
               >
-                <p className="text-xs uppercase tracking-[0.1em] text-hesya-navy-900/60">
+                <p className="text-[11px] uppercase tracking-[0.04em] text-hesya-navy-900/60">
                   {tile.label}
                 </p>
-                <p className="mt-2 font-heading text-2xl tabular-nums text-hesya-navy-900">
+                <p className="mt-1 font-heading text-2xl italic tabular-nums text-hesya-navy-900">
                   {tile.value}
                 </p>
               </li>
             ))}
           </ul>
-          <p className="mt-6 rounded-2xl bg-hesya-amber-500/10 px-4 py-2 text-center text-sm font-medium text-hesya-amber-600">
+          <p className="absolute -bottom-4 right-5 rounded-full bg-hesya-navy-900 px-3.5 py-2.5 font-mono text-xs font-bold text-hesya-peach-50 shadow-xl">
             {t("b2bMockOverlay")}
           </p>
         </div>

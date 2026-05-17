@@ -26,7 +26,7 @@ export function MarketingHero() {
       aria-labelledby="hero-h1"
       className="relative overflow-hidden bg-hesya-peach-50 px-6 py-20 md:py-32"
     >
-      <div className="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-[1.1fr_0.9fr]">
+      <div className="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-[3fr_2fr] md:gap-16">
         <div>
           <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-600">
             {t("heroEyebrowEn")} <span aria-hidden="true">·</span>{" "}
