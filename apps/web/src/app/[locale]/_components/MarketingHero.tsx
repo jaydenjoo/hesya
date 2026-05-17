@@ -6,6 +6,8 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { Link } from "@/i18n/navigation";
 
+import { MarketingEyebrow } from "./MarketingEyebrow";
+
 const GREETING_CYCLE_MS = 2800;
 
 function subscribeMediaQuery(callback: () => void) {
@@ -54,12 +56,12 @@ export function MarketingHero() {
     >
       <div className="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-[3fr_2fr] md:gap-16">
         <div>
-          <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
+          <MarketingEyebrow>
             {t("heroEyebrowEn")} <span aria-hidden="true">·</span>{" "}
             <span lang="ko" className="normal-case">
               {t("heroEyebrowKr")}
             </span>
-          </p>
+          </MarketingEyebrow>
 
           <h1
             id="hero-h1"

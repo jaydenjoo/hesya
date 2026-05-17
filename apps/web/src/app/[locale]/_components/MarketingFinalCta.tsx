@@ -2,6 +2,8 @@ import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 
+import { MarketingSectionNum } from "./MarketingSectionNum";
+
 export function MarketingFinalCta() {
   const t = useTranslations("MarketingLanding");
 
@@ -9,9 +11,10 @@ export function MarketingFinalCta() {
     <section
       id="cta-traveler"
       aria-labelledby="final-h2"
-      className="bg-hesya-navy-900 px-6 py-20 text-hesya-peach-50 md:py-32"
+      className="relative bg-hesya-navy-900 px-6 py-20 text-hesya-peach-50 md:py-32"
     >
-      <div className="mx-auto max-w-6xl">
+      <MarketingSectionNum value="11" tone="dark" />
+      <div className="relative mx-auto max-w-6xl">
         <h2
           id="final-h2"
           className="text-center font-heading text-4xl leading-[1.05] tracking-tight md:text-5xl lg:text-6xl"

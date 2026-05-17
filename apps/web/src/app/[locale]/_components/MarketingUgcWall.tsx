@@ -1,5 +1,8 @@
 import { useTranslations } from "next-intl";
 
+import { MarketingEyebrow } from "./MarketingEyebrow";
+import { MarketingSectionNum } from "./MarketingSectionNum";
+
 type UgcReview = {
   flag: string;
   nick: string;
@@ -28,13 +31,12 @@ export function MarketingUgcWall() {
   return (
     <section
       aria-labelledby="ugc-h2"
-      className="bg-hesya-peach-100 px-6 py-20 md:py-32"
+      className="relative bg-hesya-peach-100 px-6 py-20 md:py-32"
     >
-      <div className="mx-auto max-w-6xl">
+      <MarketingSectionNum value="06" />
+      <div className="relative mx-auto max-w-6xl">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
-            {t("ugcEyebrow")}
-          </p>
+          <MarketingEyebrow centered>{t("ugcEyebrow")}</MarketingEyebrow>
           <h2
             id="ugc-h2"
             className="font-heading text-4xl leading-[1.05] tracking-tight text-hesya-navy-900 md:text-5xl"

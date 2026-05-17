@@ -1,5 +1,8 @@
 import { useTranslations } from "next-intl";
 
+import { MarketingEyebrow } from "./MarketingEyebrow";
+import { MarketingSectionNum } from "./MarketingSectionNum";
+
 type SafetyCard = { icon: string; title: string; body: string };
 
 export function MarketingSafety() {
@@ -12,12 +15,11 @@ export function MarketingSafety() {
       aria-labelledby="safety-h2"
       className="relative bg-hesya-peach-200 px-6 py-20 md:py-32"
     >
-      <div className="mx-auto max-w-7xl">
+      <MarketingSectionNum value="07" />
+      <div className="relative mx-auto max-w-7xl">
         <div className="grid items-center gap-12 md:grid-cols-[2fr_3fr] md:gap-16">
           <div>
-            <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
-              {t("safetyEyebrow")}
-            </p>
+            <MarketingEyebrow>{t("safetyEyebrow")}</MarketingEyebrow>
             <h2
               id="safety-h2"
               className="font-heading text-4xl leading-[1.1] tracking-tight text-hesya-navy-900 md:text-5xl"

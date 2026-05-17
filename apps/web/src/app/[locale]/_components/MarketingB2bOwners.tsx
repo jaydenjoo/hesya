@@ -2,6 +2,9 @@ import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 
+import { MarketingEyebrow } from "./MarketingEyebrow";
+import { MarketingSectionNum } from "./MarketingSectionNum";
+
 type MockTile = { label: string; value: string };
 
 export function MarketingB2bOwners() {
@@ -13,13 +16,12 @@ export function MarketingB2bOwners() {
     <section
       id="salons"
       aria-labelledby="b2b-h2"
-      className="bg-hesya-peach-50 px-6 py-20 md:py-32"
+      className="relative bg-hesya-peach-50 px-6 py-20 md:py-32"
     >
-      <div className="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-[1fr_1.1fr]">
+      <MarketingSectionNum value="08" />
+      <div className="relative mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-[1fr_1fr]">
         <div>
-          <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
-            {t("b2bEyebrow")}
-          </p>
+          <MarketingEyebrow>{t("b2bEyebrow")}</MarketingEyebrow>
           <h2
             id="b2b-h2"
             className="font-heading text-4xl leading-[1.05] tracking-tight text-hesya-navy-900 md:text-5xl lg:text-6xl"
