@@ -88,9 +88,8 @@
 
   /* === Type stacks ============================================ */
   --font-heading: "Fraunces Variable", "Pretendard", ui-serif, Georgia, serif;
-  --font-sans:
-    "Source Sans 3 Variable", "Pretendard", ui-sans-serif, system-ui, sans-serif;
-  --font-kr: "Pretendard", "Source Sans 3 Variable", ui-sans-serif, sans-serif;
+  --font-sans: "Pretendard", ui-sans-serif, system-ui, sans-serif;
+  --font-kr: "Pretendard", ui-sans-serif, sans-serif;
   --font-mono:
     "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
 
