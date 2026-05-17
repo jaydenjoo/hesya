@@ -22,6 +22,7 @@
     "@anthropic-ai/sdk": "^0.92.0",
     "@hesya/auth": "workspace:*",
     "@hesya/database": "workspace:*",
+    "@hesya/design-tokens": "workspace:*",
     "@hesya/shared-types": "workspace:*",
     "@hesya/shared-ui": "workspace:*",
     "@hesya/translations": "workspace:*",

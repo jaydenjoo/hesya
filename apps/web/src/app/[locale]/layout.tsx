@@ -10,6 +10,9 @@ import "../globals.css";
 import { routing } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
+// 폰트 spec 명세는 @hesya/design-tokens/fonts.ts (single source 참조용).
+// next/font/google 은 빌드 타임 정적 분석이라 명세는 여기 인라인 리터럴로
+// 작성해야 함. 변경 시 design-tokens 의 명세와 동기화 의무.
 const fraunces = Fraunces({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],

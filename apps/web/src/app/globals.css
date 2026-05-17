@@ -3,6 +3,7 @@
 @import "shadcn/tailwind.css";
 @import "pretendard/dist/web/static/Pretendard-Regular.css";
 @import "pretendard/dist/web/static/Pretendard-Bold.css";
+@import "@hesya/design-tokens/tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -71,27 +72,8 @@
 }
 
 :root {
-  /* === Hesya brand tokens (handoff v1.0 tokens.css) ============ */
-  --hesya-peach-50: #fdf8f1;
-  --hesya-peach-100: #f8e9d9;
-  --hesya-peach-200: #f5ddc8;
-  --hesya-amber-500: #e8a97a;
-  --hesya-amber-600: #d88b5b;
-  --hesya-amber-700: #8f4a1f;
-  --hesya-navy-700: #5a6178;
-  --hesya-navy-900: #1a2238;
-
-  /* Trust layer — PRD § 6.5 */
-  --kverified-gold: #d4af37;
-  --trust-rose: #e8c4d6;
-  --share-glow: #f8d7c8;
-
-  /* === Type stacks ============================================ */
-  --font-heading: "Fraunces Variable", "Pretendard", ui-serif, Georgia, serif;
-  --font-sans: "Pretendard", ui-sans-serif, system-ui, sans-serif;
-  --font-kr: "Pretendard", ui-sans-serif, sans-serif;
-  --font-mono:
-    "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Hesya brand tokens + type stacks → @hesya/design-tokens/tokens.css
+     (import 위쪽에서 처리. 이 :root 블록은 shadcn semantic 매핑 전용) */
 
   /* === shadcn semantic mapping → Hesya palette ================ */
   /* Surfaces */

@@ -1,0 +1,80 @@
+/* ─────────────────────────────────────────────
+   Hesya Design Tokens — Single Source of Truth
+   docs/design/reference/tokens.css 와 1:1 일치를
+   기본으로 하되, Hesya 운영 중 도출된 확장 토큰
+   (amber-700, navy-700, radius-3xl/4xl 등) 포함.
+   ───────────────────────────────────────────── */
+
+:root {
+  /* === Brand =============================================== */
+  --hesya-peach-50: #fdf8f1;
+  --hesya-peach-100: #f8e9d9;
+  --hesya-peach-200: #f5ddc8;
+  --hesya-amber-500: #e8a97a;
+  --hesya-amber-600: #d88b5b;
+  --hesya-amber-700: #8f4a1f;
+  --hesya-navy-700: #5a6178;
+  --hesya-navy-900: #1a2238;
+
+  /* === Semantic ============================================ */
+  --semantic-success: #2a9d5c;
+  --semantic-warning: #e8a117;
+  --semantic-danger: #dc3545;
+  --semantic-info: #5b9bd5;
+
+  /* === Neutrals ============================================ */
+  --gray-50: #fafbfc;
+  --gray-100: #f1f3f5;
+  --gray-300: #adb5bd;
+  --gray-500: #6c757d;
+  --gray-700: #3d4551;
+  --gray-800: #2b3038;
+  --gray-900: #1a1e24;
+
+  /* === Trust layer (PRD §6.5 / 10.1) ======================== */
+  --trust-rose: #e8c4d6;
+  --share-glow: #f8d7c8;
+  --kverified-gold: #d4af37;
+
+  /* === Radius — handoff v1.0 ============================== */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-2xl: 24px;
+  --r-3xl: 32px;
+  --r-4xl: 40px;
+  --r-full: 9999px;
+
+  /* === Shadows — 2-layer composites ======================== */
+  --shadow-0: none;
+  --shadow-1:
+    0 1px 2px rgba(26, 34, 56, 0.04), 0 1px 3px rgba(26, 34, 56, 0.06);
+  --shadow-2:
+    0 2px 4px rgba(26, 34, 56, 0.06), 0 4px 12px rgba(26, 34, 56, 0.08);
+  --shadow-3:
+    0 4px 8px rgba(26, 34, 56, 0.08), 0 12px 32px rgba(26, 34, 56, 0.12);
+  --shadow-4:
+    0 8px 16px rgba(26, 34, 56, 0.1), 0 24px 64px rgba(26, 34, 56, 0.16);
+
+  /* === Motion ============================================== */
+  --duration-fast: 120ms;
+  --duration-normal: 220ms;
+  --duration-slow: 420ms;
+  --easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* === Type stacks ========================================= */
+  /* 변수 이름은 apps/web 컨벤션 (font-heading/sans/kr) 따름.
+     reference HTML 변수 (--font-display 등) 는 호환용 alias. */
+  --font-heading: "Fraunces Variable", "Pretendard", ui-serif, Georgia, serif;
+  --font-sans: "Pretendard", ui-sans-serif, system-ui, sans-serif;
+  --font-kr: "Pretendard", ui-sans-serif, sans-serif;
+  --font-mono:
+    "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* === Reference HTML alias (호환) ========================= */
+  --font-display: var(--font-heading);
+  --font-body-en: var(--font-sans);
+  --font-body-kr: var(--font-kr);
+}
