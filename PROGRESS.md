@@ -3,26 +3,74 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 세션 48 종료 요약 (2026-05-17) — Marketing Landing T1~T9 (8 PR, 11 sections wire 100% + LCP preload)
+## 세션 48 종료 요약 (2026-05-17) — Marketing Landing T1~T10 + reference 100% + perf/a11y followup (15 PR)
 
-세션 47 Phase A+B 문서 산출 직후 동일 트랙 진입. Plan v1 T1~T9 9 Tasks 일괄 처리. 누적 **122 PR** (세션 47: 114 → +8).
+세션 47 Phase A+B 문서 산출 직후 동일 트랙 진입. Plan v1 T1~T10 일괄 + Hesya Landing.html reference 100% 정합 + Lighthouse 외부 측정 + perf/a11y 4 wave followup 마감. 누적 **129 PR** (세션 47: 114 → +15).
 
-### 핵심 산출 (8 PR · 9 Tasks)
+### 핵심 산출 (15 PR · 11 sections + perf/a11y all-green)
 
-| Task                       | PR                                                  | 결과                                                                           |
-| -------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------ |
-| T1 자산 16개               | [#339](https://github.com/jaydenjoo/hesya/pull/339) | videos 8mp4(60MB) + images 8webp(2.4MB), PNG→WebP 98.7% 감소                   |
-| T2+T3 i18n                 | [#340](https://github.com/jaydenjoo/hesya/pull/340) | MarketingLanding 81 keys × 6 locales (ko/en/ja/zh-CN/zh-TW/vi), +1,553 lines   |
-| T4 컴포넌트 골격           | [#341](https://github.com/jaydenjoo/hesya/pull/341) | 11 Marketing\*.tsx + barrel + page.tsx 교체 (γ.2.3.5 미니 → 신규)              |
-| T5 Hero + BA               | [#342](https://github.com/jaydenjoo/hesya/pull/342) | hero-silk-petal.mp4 + greeting cycle 5 lang + BA slider (mouse/touch/keyboard) |
-| T6 HIW + Salons + UGC      | [#343](https://github.com/jaydenjoo/hesya/pull/343) | 4 steps + sticky phone mock + 6 next/image cards + 7 reviews mosaic            |
-| T7 Safety + B2B + Trending | [#344](https://github.com/jaydenjoo/hesya/pull/344) | 4 cards + mock dashboard + 8 chips with rank                                   |
-| T8 FAQ + FinalCta + Footer | [#345](https://github.com/jaydenjoo/hesya/pull/345) | 6 details accordion + 3-way split + brand/socials                              |
-| T9 perf polish             | [#346](https://github.com/jaydenjoo/hesya/pull/346) | hero-poster LCP preload hint (`<link rel="preload" fetchPriority="high">`)     |
+| 단계                                            | PR                                                  | 결과                                                                    |
+| ----------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------- |
+| T1 자산 16개                                    | [#339](https://github.com/jaydenjoo/hesya/pull/339) | videos 8mp4(60MB) + images 8webp(2.4MB), PNG→WebP 98.7% 감소            |
+| T2+T3 i18n                                      | [#340](https://github.com/jaydenjoo/hesya/pull/340) | MarketingLanding 81 keys × 6 locales, +1,553 lines                      |
+| T4 컴포넌트 골격                                | [#341](https://github.com/jaydenjoo/hesya/pull/341) | 11 Marketing\*.tsx + barrel + page.tsx 교체                             |
+| T5 Hero + BA                                    | [#342](https://github.com/jaydenjoo/hesya/pull/342) | hero-silk-petal.mp4 + greeting cycle 5 lang + BA slider                 |
+| T6 HIW + Salons + UGC                           | [#343](https://github.com/jaydenjoo/hesya/pull/343) | 4 steps + sticky phone mock + 6 next/image cards + 7 reviews            |
+| T7 Safety + B2B + Trending                      | [#344](https://github.com/jaydenjoo/hesya/pull/344) | 4 cards + mock dashboard + 8 chips with rank                            |
+| T8 FAQ + FinalCta + Footer                      | [#345](https://github.com/jaydenjoo/hesya/pull/345) | 6 details accordion + 3-way split + brand/socials                       |
+| T9 perf polish                                  | [#346](https://github.com/jaydenjoo/hesya/pull/346) | hero-poster LCP preload hint                                            |
+| Ref fix #1 (BA + 단어 삭제)                     | [#347](https://github.com/jaydenjoo/hesya/pull/347) | BA 동일 얼굴 반쪽 → gradient frames + "실제 손님" 6 locale 삭제         |
+| Ref fix #2 (P1-P4 bundle)                       | [#348](https://github.com/jaydenjoo/hesya/pull/348) | Footer bg-peach + TrustBar 신규 + Salons snap carousel + Hero amber CTA |
+| Ref fix #3 (P5 + IMPORTANT 12 + NICE-TO-HAVE 2) | [#349](https://github.com/jaydenjoo/hesya/pull/349) | HIW sticky scroll + 200px text-stroke + 14 일괄 정합                    |
+| T10 followup #1 (perf 대폭)                     | [#350](https://github.com/jaydenjoo/hesya/pull/350) | Hero video desktop-only + Pretendard dynamic→static + amber-700         |
+| T10 followup #2 (a11y)                          | [#351](https://github.com/jaydenjoo/hesya/pull/351) | opacity-on-text → navy-700 solid (10 sites)                             |
+| T10 followup #3 (a11y)                          | [#352](https://github.com/jaydenjoo/hesya/pull/352) | XHS red darken + HIW num stroke amber-700                               |
+| T10 followup #4 (a11y final)                    | [#353](https://github.com/jaydenjoo/hesya/pull/353) | HIW active step transparent fill + thicker stroke                       |
 
-### 🎉 Milestone: 11 sections wire 100% 완료
+### 🎉 Milestones
 
-Hero · HowItWorks · BeforeAfter · SalonsGrid · UgcWall · Safety · B2bOwners · Trending · FAQ · FinalCta · Footer — 모두 본격 visual + interaction wire.
+- **11 sections wire 100%**: Hero · TrustBar · HowItWorks · BeforeAfter · SalonsGrid · UgcWall · Safety · B2bOwners · Trending · FAQ · FinalCta · Footer (Footer 포함 12)
+- **Reference Hesya Landing.html 100% 정합**: 21 차이 fix (P1-P4 + P5 + IMPORTANT 12 + NICE-TO-HAVE 2)
+- **Lighthouse Mobile 모두 통과** (prod hesya-web.vercel.app/en):
+
+| 지표                  | Before (#346) | After (#353) | 개선      |
+| --------------------- | ------------: | -----------: | --------- |
+| Mobile Performance    |            56 |       **85** | +29 ✅    |
+| Mobile A11y           |            97 |      **100** | +3 ✅     |
+| Mobile Best Practices |           100 |      **100** | ±0 ✅     |
+| Mobile SEO            |           100 |      **100** | ±0 ✅     |
+| Mobile LCP            |          9.6s |     **4.1s** | -57%      |
+| Mobile FCP            |          5.7s |     **1.5s** | -74%      |
+| Mobile CLS            |         0.024 |    **0.024** | ±0 ✅     |
+| Mobile total transfer |         9.7MB |    **915KB** | -91%      |
+| Desktop Performance   |            98 |           96 | -2 (미미) |
+| color-contrast issues |            57 |        **0** | -100% ✅  |
+
+### 본 세션 핵심 의사결정
+
+1. **PNG → WebP 변환 (sharp@0.34.5 q=80)** — Plan v1 R1 위험 처리 (251MB → 62MB).
+2. **flat keys + arrays 패턴** (`CustomerLanding` 일치) — 10 arrays.
+3. **Korean Conversion 옵션 A 일관 적용** — ko slash 영문 보조, 5 locale 단일 메인.
+4. **server components default + 'use client' 최소화** — 11 중 2개만 client.
+5. **CSS-only motion** — framer-motion/gsap 미도입. `prefers-reduced-motion` 글로벌 가드.
+6. **Hero video desktop-only conditional** — `useSyncExternalStore` + `(min-width: 768px)` AND `!prefers-reduced-motion`. 모바일은 next/image priority poster만 (33KB LCP).
+7. **Pretendard dynamic-subset → static Regular+Bold** — 25 req / 617KB → 2 req / 540KB. HTTP/2 동시 다운로드 제거, CDN 캐시 효율 ↑.
+8. **opacity-on-text 전면 폐기** (design-system v4.1 A2.1) — `text-hesya-navy-900/{40,50,60}` (blended ❌) → `text-hesya-navy-700` 솔리드 #5A6178 (peach-200 4.70:1 ✅).
+9. **amber-700 토큰 신설** — text-on-light용 #8F4A1F (peach-50 6.27:1). amber-600 #D88B5B (2.56:1 ❌)는 bg/border 전용.
+10. **BA 디자인 재해석** — 동일 얼굴 반쪽 분할 → 어두운→밝은 gradient frames metaphor (reference 본의 일치).
+
+### Plan v1 진척 vs 잔여
+
+- ✅ T1~T10 (Plan v1 모두 완료)
+- ⏸ T11 Jayden e2e 데모 + 최종 PROGRESS 갱신 — **다음 세션에서 Jayden 수행 필요**
+
+### 다음 세션 후보
+
+1. **T11**: Jayden e2e 데모 (desktop + iOS Safari + Android Chrome) → 종합 검수 + Plan v1 종료
+2. **Phase 1D mock**: 채널 4종 + 결제 6종 (`*_MOCK_MODE=true` env 토글) — feedback memory project_phase_1d_blocked.md
+3. **Pretendard subset 추가 최적화**: Korean 자주 쓰는 chars 정밀 subset (현 540KB → ~150KB 가능)
+4. **Hero video 추가 최적화**: WebM/AV1 인코딩 (현 mp4 8.2MB → ~2MB 가능)
+5. **다국어 e2e 검증**: 6 locale 페이지별 실제 시연 + line-break / 길이 조정
 
 ### 본 세션 핵심 의사결정
 
