@@ -3,11 +3,11 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 세션 48 종료 요약 (2026-05-17) — Marketing Landing T1~T10 + reference 100% TRUE + perf/a11y all-green (21 PR)
+## 세션 48 종료 요약 (2026-05-17) — Marketing Landing T1~T10 + reference 100% TRUE + perf/a11y all-green + UGC/BA 비디오 자산 활용 (23 PR)
 
-세션 47 Phase A+B 문서 산출 직후 동일 트랙 진입. Plan v1 T1~T10 + Hesya Landing.html reference 100% TRUE 정합 (3-wave final pass) + Lighthouse 측정 + perf/a11y followup + 3 persona CTA 라우팅 fix + Nav/TrustBar/HIW i18n + Pretendard 통일. 누적 **135 PR** (세션 47: 114 → +21).
+세션 47 Phase A+B 문서 산출 직후 동일 트랙 진입. Plan v1 T1~T10 + Hesya Landing.html reference 100% TRUE 정합 (3-wave final pass) + Lighthouse 측정 + perf/a11y followup + 3 persona CTA 라우팅 fix + Nav/TrustBar/HIW i18n + Pretendard 통일 + UGC/BA 비디오 자산 활용. 누적 **137 PR** (세션 47: 114 → +23).
 
-### 세션 후반 추가 산출 (PR #354~#359, 6건)
+### 세션 후반 추가 산출 (PR #354~#361, 8건)
 
 | 단계                   | PR                                                  | 결과                                                                                                                                   |
 | ---------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
@@ -16,6 +16,8 @@
 | Wave 2 HIGH IMPACT 5건 | [#356](https://github.com/jaydenjoo/hesya/pull/356) | HIW 인터랙티브 sticky-scroll + 4 phone-step + Salons amber-glass badge + B2B amber CTA + Footer h4 small uppercase + TrustBar count-up |
 | Wave 3 final           | [#357](https://github.com/jaydenjoo/hesya/pull/357) | Hero hero-ink SVG + visual gradient + activity-card head + `<em>` emphasis 42 strings (7 keys × 6 locales) + MarketingNav 신규         |
 | Nav/TrustBar/HIW i18n  | [#358](https://github.com/jaydenjoo/hesya/pull/358) | MarketingNav 5 link + lang + signIn + CTA + TrustBar 4 label + HIW phone-step h4 — 18 신규 keys × 6 locales (108 strings)              |
+| UGC 카드 비디오 (3개)  | [#360](https://github.com/jaydenjoo/hesya/pull/360) | ugc-{sakura,mei,linh}.mp4 → index 0/2/4 (닉 완벽 매칭). IntersectionObserver lazy + reduced-motion 가드. Emma/Aoi 그라디언트 유지      |
+| BA 비디오 분할         | [#361](https://github.com/jaydenjoo/hesya/pull/361) | transformation.mp4 (6s) → before(0~2s, 긴머리) + after(4~6s, 단발). AVFoundation MediumQuality 480p, 합 ~371KB. clipPath 슬라이더 유지 |
 | perf Pretendard 통일   | [#359](https://github.com/jaydenjoo/hesya/pull/359) | Source Sans 3 (4 weights × Latin) 제거 → 본문 영문/한글 모두 Pretendard. 폰트 청크 ~10 감소, 시각 일관성 ↑                             |
 
 ### 🎉 Reference 100% TRUE 정합 (audit 36% → 96%+ 추정)
