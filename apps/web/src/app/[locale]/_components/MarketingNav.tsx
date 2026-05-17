@@ -1,18 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { Link } from "@/i18n/navigation";
 
-const NAV_LINKS = [
-  { href: "#travelers", label: "For travelers" },
-  { href: "#salons", label: "For salons" },
-  { href: "#reviews", label: "Reviews" },
-  { href: "#safety", label: "Safety" },
-  { href: "#about", label: "About" },
-];
-
 export function MarketingNav() {
+  const t = useTranslations("MarketingLanding");
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -23,6 +17,14 @@ export function MarketingNav() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const navLinks = [
+    { href: "#travelers", label: t("navLinkTravelers") },
+    { href: "#salons", label: t("navLinkSalons") },
+    { href: "#reviews", label: t("navLinkReviews") },
+    { href: "#safety", label: t("navLinkSafety") },
+    { href: "#about", label: t("navLinkAbout") },
+  ];
 
   return (
     <header
@@ -41,7 +43,7 @@ export function MarketingNav() {
           aria-label="Primary"
           className="mx-auto hidden items-center gap-8 lg:flex"
         >
-          {NAV_LINKS.map((l) => (
+          {navLinks.map((l) => (
             <a
               key={l.href}
               href={l.href}
@@ -54,22 +56,22 @@ export function MarketingNav() {
         <div className="ml-auto flex items-center gap-3">
           <button
             type="button"
-            aria-label="Choose language"
+            aria-label={t("navLangLabel")}
             className="hidden items-center gap-1 rounded-full bg-white/50 px-3 py-1.5 text-xs text-hesya-navy-700 transition hover:bg-white sm:inline-flex"
           >
-            <span aria-hidden="true">🌐</span> EN
+            <span aria-hidden="true">🌐</span> {t("navLangLabel")}
           </button>
           <Link
             href="/sign-in"
             className="hidden text-sm text-hesya-navy-700 transition hover:text-hesya-navy-900 sm:inline"
           >
-            Sign in
+            {t("navSignIn")}
           </Link>
           <Link
             href="/c"
             className="inline-flex h-10 items-center rounded-full bg-hesya-amber-500 px-5 text-sm font-bold text-hesya-navy-900 transition hover:bg-hesya-amber-600 hover:shadow"
           >
-            Get the app →
+            {t("navCta")}
           </Link>
         </div>
       </div>

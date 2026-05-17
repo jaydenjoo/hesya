@@ -32,57 +32,6 @@ type PhoneStep =
       qrMeta: string;
     };
 
-const PHONE_STEPS: PhoneStep[] = [
-  {
-    kind: "photo",
-    h4: "Show us a look",
-    inputs: [
-      { text: "“송혜교 단발이요”", lang: "ko" },
-      { text: "“Glass-skin makeup, please”" },
-    ],
-  },
-  {
-    kind: "cards",
-    h4: "3 salons matched",
-    cards: [
-      {
-        name: "Stylista — 홍대점",
-        meta: "Hongdae · 4 min walk",
-        score: "★ 4.92 match",
-      },
-      {
-        name: "Color Lab Hongdae",
-        meta: "Hongdae · 7 min walk",
-        score: "★ 4.79 match",
-      },
-      {
-        name: "Soohair — 명동",
-        meta: "Myeongdong · 12 min walk",
-        score: "★ 4.86 match",
-      },
-    ],
-  },
-  {
-    kind: "cards",
-    h4: "Confirm your booking",
-    cards: [
-      { name: "Tue · May 14 · 2:30 PM", meta: "Glass-skin makeup · 60 min" },
-      { name: "JPY 5,800", meta: "Pay in JPY · settled in KRW" },
-      {
-        name: "메모",
-        meta: "“Auto-translated to Korean for the salon.”",
-        lang: "ko",
-      },
-    ],
-  },
-  {
-    kind: "booked",
-    bookline: "You're booked.",
-    qrCode: "HSY-A4F8",
-    qrMeta: "Show at front desk",
-  },
-];
-
 export function MarketingHowItWorks() {
   const t = useTranslations("MarketingLanding");
   const steps = [
@@ -90,6 +39,57 @@ export function MarketingHowItWorks() {
     { title: t("howStep2Title"), body: t("howStep2Body") },
     { title: t("howStep3Title"), body: t("howStep3Body") },
     { title: t("howStep4Title"), body: t("howStep4Body") },
+  ];
+
+  const phoneSteps: PhoneStep[] = [
+    {
+      kind: "photo",
+      h4: t("hiwPhoneStep1Title"),
+      inputs: [
+        { text: "“송혜교 단발이요”", lang: "ko" },
+        { text: "“Glass-skin makeup, please”" },
+      ],
+    },
+    {
+      kind: "cards",
+      h4: t("hiwPhoneStep2Title"),
+      cards: [
+        {
+          name: "Stylista — 홍대점",
+          meta: "Hongdae · 4 min walk",
+          score: "★ 4.92 match",
+        },
+        {
+          name: "Color Lab Hongdae",
+          meta: "Hongdae · 7 min walk",
+          score: "★ 4.79 match",
+        },
+        {
+          name: "Soohair — 명동",
+          meta: "Myeongdong · 12 min walk",
+          score: "★ 4.86 match",
+        },
+      ],
+    },
+    {
+      kind: "cards",
+      h4: t("hiwPhoneStep3Title"),
+      cards: [
+        { name: "Tue · May 14 · 2:30 PM", meta: "Glass-skin makeup · 60 min" },
+        { name: "JPY 5,800", meta: "Pay in JPY · settled in KRW" },
+        {
+          name: "메모",
+          meta: "“Auto-translated to Korean for the salon.”",
+          lang: "ko",
+        },
+      ],
+    },
+    {
+      kind: "booked",
+      bookline: t("hiwPhoneStep4Title"),
+      qrCode: "HSY-A4F8",
+      qrMeta: "Show at front desk",
+    },
   ];
 
   const stepRefs = useRef<Array<HTMLLIElement | null>>([]);
@@ -179,7 +179,7 @@ export function MarketingHowItWorks() {
                 className="relative h-[640px] rounded-[44px] bg-hesya-navy-900 p-3.5 shadow-2xl"
               >
                 <div className="relative h-full w-full overflow-hidden rounded-[32px] bg-hesya-peach-50">
-                  {PHONE_STEPS.map((step, i) => (
+                  {phoneSteps.map((step, i) => (
                     <div
                       key={i}
                       aria-hidden={i !== activeStep}
