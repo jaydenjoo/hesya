@@ -78,18 +78,18 @@ export function MarketingFooter() {
           </div>
           {LINK_COLS.map((col) => (
             <div key={col.header}>
-              <h4 className="font-heading text-base text-hesya-navy-900">
+              <h4 className="text-[11px] font-bold uppercase tracking-[0.16em] text-hesya-navy-900">
                 {col.header}
               </h4>
               <ul
                 role="list"
-                className="mt-4 space-y-2 text-sm text-hesya-navy-900/70"
+                className="mt-4 space-y-1 text-sm text-hesya-navy-700"
               >
                 {col.links.map((link) => (
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      className="transition hover:text-hesya-amber-700"
+                      className="block py-1 transition hover:text-hesya-navy-900"
                     >
                       {link.label}
                     </a>
