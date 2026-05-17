@@ -54,7 +54,7 @@ function getReducedMotion() {
 }
 
 function VideoCard({ asset, label }: { asset: VideoAsset; label: string }) {
-  const ref = useRef<HTMLVideoElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const [load, setLoad] = useState(false);
   const reduced = useSyncExternalStore(
     subscribeReducedMotion,
@@ -81,21 +81,27 @@ function VideoCard({ asset, label }: { asset: VideoAsset; label: string }) {
   }, [load]);
 
   return (
-    <video
+    <div
       ref={ref}
-      className="mb-3 aspect-square w-full rounded-xl object-cover object-center"
-      poster={asset.poster}
-      width={400}
-      height={400}
-      muted
-      playsInline
-      loop
-      autoPlay={!reduced && load}
-      preload="none"
-      aria-label={label}
+      className="mb-3 aspect-square w-full overflow-hidden rounded-xl bg-hesya-peach-100"
     >
-      {load ? <source src={asset.src} type="video/mp4" /> : null}
-    </video>
+      {load ? (
+        <video
+          className="h-full w-full object-cover object-center"
+          poster={asset.poster}
+          width={400}
+          height={400}
+          muted
+          playsInline
+          loop
+          autoPlay={!reduced}
+          preload="metadata"
+          aria-label={label}
+        >
+          <source src={asset.src} type="video/mp4" />
+        </video>
+      ) : null}
+    </div>
   );
 }
 
