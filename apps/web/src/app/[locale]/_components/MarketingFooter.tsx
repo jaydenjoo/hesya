@@ -1,5 +1,6 @@
-import Link from "next/link";
 import { useTranslations } from "next-intl";
+
+import { Link } from "@/i18n/navigation";
 
 const SOCIALS = [
   { label: "Instagram", glyph: "◉", tint: undefined },
