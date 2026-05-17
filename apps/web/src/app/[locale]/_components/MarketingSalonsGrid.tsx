@@ -32,7 +32,7 @@ export function MarketingSalonsGrid() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-600">
+            <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
               {t("salonsEyebrow")}
             </p>
             <h2
@@ -44,7 +44,7 @@ export function MarketingSalonsGrid() {
           </div>
           <a
             href="#"
-            className="text-sm text-hesya-amber-600 underline-offset-4 hover:underline"
+            className="text-sm text-hesya-amber-700 underline-offset-4 hover:underline"
           >
             {t("salonsMore")}
           </a>
@@ -87,7 +87,7 @@ export function MarketingSalonsGrid() {
                     {s.location}
                   </p>
                   <p className="mt-3 text-sm">
-                    <span className="text-hesya-amber-600">{s.rating}</span>{" "}
+                    <span className="text-hesya-amber-700">{s.rating}</span>{" "}
                     <span className="text-hesya-navy-900/50">
                       · {s.reviews}
                     </span>

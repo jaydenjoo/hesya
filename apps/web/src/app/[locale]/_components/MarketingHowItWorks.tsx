@@ -21,7 +21,7 @@ export function MarketingHowItWorks() {
         03
       </span>
       <div className="relative mx-auto max-w-7xl">
-        <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-600">
+        <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
           {t("howEyebrow")}
         </p>
         <h2

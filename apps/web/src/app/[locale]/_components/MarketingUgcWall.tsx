@@ -32,7 +32,7 @@ export function MarketingUgcWall() {
     >
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-600">
+          <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
             {t("ugcEyebrow")}
           </p>
           <h2
@@ -104,7 +104,7 @@ export function MarketingUgcWall() {
         <div className="mt-10 text-center">
           <a
             href="#"
-            className="text-sm font-semibold text-hesya-amber-600 underline-offset-4 hover:underline"
+            className="text-sm font-semibold text-hesya-amber-700 underline-offset-4 hover:underline"
           >
             {t("ugcMore")}
           </a>

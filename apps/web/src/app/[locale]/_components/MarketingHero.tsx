@@ -1,15 +1,39 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 const GREETING_CYCLE_MS = 2800;
+
+function subscribeMediaQuery(callback: () => void) {
+  const desktop = window.matchMedia("(min-width: 768px)");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  desktop.addEventListener("change", callback);
+  reduced.addEventListener("change", callback);
+  return () => {
+    desktop.removeEventListener("change", callback);
+    reduced.removeEventListener("change", callback);
+  };
+}
+
+function getVideoSnapshot() {
+  return (
+    window.matchMedia("(min-width: 768px)").matches &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
 
 export function MarketingHero() {
   const t = useTranslations("MarketingLanding");
   const greetings = t.raw("heroGreetings") as string[];
   const trust = t.raw("heroTrust") as string[];
   const [idx, setIdx] = useState(0);
+  const showVideo = useSyncExternalStore(
+    subscribeMediaQuery,
+    getVideoSnapshot,
+    () => false,
+  );
 
   useEffect(() => {
     if (greetings.length <= 1) return;
@@ -28,7 +52,7 @@ export function MarketingHero() {
     >
       <div className="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-[3fr_2fr] md:gap-16">
         <div>
-          <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-600">
+          <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
             {t("heroEyebrowEn")} <span aria-hidden="true">·</span>{" "}
             <span lang="ko" className="normal-case">
               {t("heroEyebrowKr")}
@@ -62,7 +86,7 @@ export function MarketingHero() {
             {trust.map((item) => (
               <li
                 key={item}
-                className="inline-flex items-center gap-2 before:font-bold before:text-hesya-amber-600 before:content-['✓']"
+                className="inline-flex items-center gap-2 before:font-bold before:text-hesya-amber-700 before:content-['✓']"
               >
                 {item}
               </li>
@@ -78,7 +102,7 @@ export function MarketingHero() {
             </a>
             <a
               href="#salons"
-              className="inline-flex h-[52px] items-center rounded-full border border-hesya-amber-600 px-6 text-sm text-hesya-amber-600 transition hover:bg-hesya-peach-100"
+              className="inline-flex h-[52px] items-center rounded-full border border-hesya-amber-700 px-6 text-sm text-hesya-amber-700 transition hover:bg-hesya-peach-100"
             >
               {t("heroCtaSecondary")}
             </a>
@@ -86,20 +110,34 @@ export function MarketingHero() {
         </div>
 
         <div className="relative aspect-[3/4] overflow-hidden rounded-[2rem] bg-hesya-peach-100 md:aspect-[4/5]">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster="/assets/images/hero-poster.webp"
-            width={1280}
-            height={1600}
-            className="h-full w-full object-cover"
+          <Image
+            src="/assets/images/hero-poster.webp"
+            alt=""
+            fill
+            sizes="(min-width: 768px) 40vw, 100vw"
+            priority
+            className="object-cover"
             aria-hidden="true"
-          >
-            <source src="/assets/videos/hero-silk-petal.mp4" type="video/mp4" />
-          </video>
+          />
+          {showVideo ? (
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="none"
+              poster="/assets/images/hero-poster.webp"
+              width={1280}
+              height={1600}
+              className="absolute inset-0 h-full w-full object-cover"
+              aria-hidden="true"
+            >
+              <source
+                src="/assets/videos/hero-silk-petal.mp4"
+                type="video/mp4"
+              />
+            </video>
+          ) : null}
 
           <div
             className="absolute bottom-5 left-5 w-[240px] rounded-2xl bg-hesya-peach-50/85 p-4 shadow-lg [backdrop-filter:blur(14px)_saturate(140%)]"
