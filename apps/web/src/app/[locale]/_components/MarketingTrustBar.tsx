@@ -1,46 +1,15 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
-type StatNum = { value: number; decimals: number; suffix?: string };
-
-type Stat =
-  | { icon: string; kind: "ratingBookings"; nums: [StatNum, StatNum] }
-  | { icon: string; kind: "salons"; num: StatNum }
-  | { icon: string; kind: "text"; text: string };
-
-const STATS: Stat[] = [
-  {
-    icon: "⭐",
-    kind: "ratingBookings",
-    nums: [
-      { value: 4.92, decimals: 2 },
-      { value: 12847, decimals: 0, suffix: "+" },
-    ],
-  },
-  {
-    icon: "🇰🇷",
-    kind: "salons",
-    num: { value: 1284, decimals: 0 },
-  },
-  {
-    icon: "🗣️",
-    kind: "text",
-    text: "5 languages — KR · EN · 日本語 · 中文 · Tiếng Việt",
-  },
-  {
-    icon: "🛡️",
-    kind: "text",
-    text: "Tier 2 Safe Country (CEOWORLD 2026)",
-  },
-  {
-    icon: "💬",
-    kind: "text",
-    text: "24/7 chat support in your language",
-  },
-];
-
 const ANIM_DURATION_MS = 1400;
+
+const NUMS = {
+  rating: { value: 4.92, decimals: 2 },
+  bookings: { value: 12847, decimals: 0, suffix: "+" },
+  salons: { value: 1284, decimals: 0 },
+};
 
 function formatNum(n: number, decimals: number) {
   return n.toLocaleString("en-US", {
@@ -93,6 +62,7 @@ function AnimatedNum({
 }
 
 export function MarketingTrustBar() {
+  const t = useTranslations("MarketingLanding");
   const ref = useRef<HTMLDivElement>(null);
   const [started, setStarted] = useState(false);
 
@@ -114,6 +84,15 @@ export function MarketingTrustBar() {
     return () => observer.disconnect();
   }, [started]);
 
+  const sep = (
+    <span
+      aria-hidden="true"
+      className="hidden text-[11px] text-hesya-navy-700 sm:inline"
+    >
+      ·
+    </span>
+  );
+
   return (
     <aside
       ref={ref}
@@ -121,50 +100,47 @@ export function MarketingTrustBar() {
       className="bg-hesya-peach-100 px-6 py-7"
     >
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-6 gap-y-3.5 text-[13.5px] text-hesya-navy-900">
-        {STATS.map((s, i) => (
-          <span
-            key={i}
-            className="inline-flex items-center gap-2 whitespace-nowrap"
-          >
-            <span aria-hidden="true">{s.icon}</span>
-            {s.kind === "ratingBookings" ? (
-              <>
-                <AnimatedNum
-                  target={s.nums[0].value}
-                  decimals={s.nums[0].decimals}
-                  start={started}
-                />{" "}
-                avg rating ·{" "}
-                <AnimatedNum
-                  target={s.nums[1].value}
-                  decimals={s.nums[1].decimals}
-                  suffix={s.nums[1].suffix}
-                  start={started}
-                />{" "}
-                bookings
-              </>
-            ) : null}
-            {s.kind === "salons" ? (
-              <>
-                <AnimatedNum
-                  target={s.num.value}
-                  decimals={s.num.decimals}
-                  start={started}
-                />{" "}
-                K-Verified salons
-              </>
-            ) : null}
-            {s.kind === "text" ? <span>{s.text}</span> : null}
-            {i < STATS.length - 1 ? (
-              <span
-                aria-hidden="true"
-                className="hidden text-[11px] text-hesya-navy-700 sm:inline"
-              >
-                ·
-              </span>
-            ) : null}
-          </span>
-        ))}
+        <span className="inline-flex items-center gap-2 whitespace-nowrap">
+          <span aria-hidden="true">⭐</span>
+          <AnimatedNum
+            target={NUMS.rating.value}
+            decimals={NUMS.rating.decimals}
+            start={started}
+          />{" "}
+          {t("trustBarAvgRating")} ·{" "}
+          <AnimatedNum
+            target={NUMS.bookings.value}
+            decimals={NUMS.bookings.decimals}
+            suffix={NUMS.bookings.suffix}
+            start={started}
+          />{" "}
+          {t("trustBarBookings")}
+        </span>
+        {sep}
+        <span className="inline-flex items-center gap-2 whitespace-nowrap">
+          <span aria-hidden="true">🇰🇷</span>
+          <AnimatedNum
+            target={NUMS.salons.value}
+            decimals={NUMS.salons.decimals}
+            start={started}
+          />{" "}
+          {t("trustBarKVerifiedSalons")}
+        </span>
+        {sep}
+        <span className="inline-flex items-center gap-2 whitespace-nowrap">
+          <span aria-hidden="true">🗣️</span>
+          <span>{t("trustBarLangs")}</span>
+        </span>
+        {sep}
+        <span className="inline-flex items-center gap-2 whitespace-nowrap">
+          <span aria-hidden="true">🛡️</span>
+          <span>{t("trustBarSafeCountry")}</span>
+        </span>
+        {sep}
+        <span className="inline-flex items-center gap-2 whitespace-nowrap">
+          <span aria-hidden="true">💬</span>
+          <span>{t("trustBarChat")}</span>
+        </span>
       </div>
     </aside>
   );
