@@ -12,8 +12,8 @@ import { cn } from "@/lib/utils";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["600"],
-  style: ["italic"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
   variable: "--font-heading",
   display: "swap",
 });
