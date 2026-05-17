@@ -4,7 +4,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { Fraunces, JetBrains_Mono, Source_Sans_3 } from "next/font/google";
+import { Fraunces, JetBrains_Mono } from "next/font/google";
 import { Suspense } from "react";
 import "../globals.css";
 import { routing } from "@/i18n/routing";
@@ -15,13 +15,6 @@ const fraunces = Fraunces({
   weight: ["600"],
   style: ["italic"],
   variable: "--font-heading",
-  display: "swap",
-});
-
-const sourceSans = Source_Sans_3({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-sans",
   display: "swap",
 });
 
@@ -64,7 +57,6 @@ export default async function LocaleLayout({
         "h-full",
         "antialiased",
         fraunces.variable,
-        sourceSans.variable,
         jetbrainsMono.variable,
         "font-sans",
       )}
