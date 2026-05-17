@@ -47,7 +47,7 @@
     "baSub": "上傳一張參考照片。AI 會告訴您 — ✓ 可以 · ⚠ 部分可行 · ✕ 不建議 — 並為您匹配真正能做到的沙龍。",
     "baLabelBefore": "Before · 參考",
     "baLabelAfter": "After · 實際效果",
-    "baCaption": "真實顧客 · 來自東京的 Sakura · Stylista 弘大店 · 4週前",
+    "baCaption": "來自東京的 Sakura · Stylista 弘大店 · 4週前",
     "baThumbAlts": ["Glass-skin makeup", "K-drama 短髮", "粉金色挑染"],
     "salonsEyebrow": "Featured salons · 精選沙龍",
     "salonsTitle": "外國顧客已經喜愛的沙龍。",
@@ -96,7 +96,7 @@
         "verified": false
       }
     ],
-    "ugcEyebrow": "UGC · 真實顧客評價",
+    "ugcEyebrow": "UGC · 顧客評價",
     "ugcTitle": "真實旅人,真實結果。",
     "ugcMore": "查看 1,247 則更多評論 →",
     "ugcReviews": [

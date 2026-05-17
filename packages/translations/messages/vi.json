@@ -51,7 +51,7 @@
     "baSub": "Tải lên một bức ảnh tham chiếu. AI sẽ cho bạn biết — ✓ khả thi · ⚠ một phần · ✕ không khuyến nghị — và ghép bạn với salon đã thành công.",
     "baLabelBefore": "Before · tham chiếu",
     "baLabelAfter": "After · kết quả thực",
-    "baCaption": "Khách thật · Sakura từ Tokyo · Stylista Hongdae · 4 tuần trước",
+    "baCaption": "Sakura từ Tokyo · Stylista Hongdae · 4 tuần trước",
     "baThumbAlts": [
       "Glass-skin makeup",
       "K-drama tóc ngắn",
@@ -104,7 +104,7 @@
         "verified": false
       }
     ],
-    "ugcEyebrow": "UGC · Đánh giá khách thật",
+    "ugcEyebrow": "UGC · Đánh giá khách hàng",
     "ugcTitle": "Du khách thật, kết quả thật.",
     "ugcMore": "Xem thêm 1,247 đánh giá →",
     "ugcReviews": [
