@@ -88,7 +88,7 @@ export function MarketingFooter() {
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      className="transition hover:text-hesya-amber-600"
+                      className="transition hover:text-hesya-amber-700"
                     >
                       {link.label}
                     </a>

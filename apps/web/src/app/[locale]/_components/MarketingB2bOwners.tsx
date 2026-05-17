@@ -15,7 +15,7 @@ export function MarketingB2bOwners() {
     >
       <div className="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-[1fr_1.1fr]">
         <div>
-          <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-600">
+          <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
             {t("b2bEyebrow")}
           </p>
           <h2
@@ -35,7 +35,7 @@ export function MarketingB2bOwners() {
               >
                 <span
                   aria-hidden="true"
-                  className="mt-0.5 text-hesya-amber-600"
+                  className="mt-0.5 text-hesya-amber-700"
                 >
                   ✓
                 </span>
@@ -52,7 +52,7 @@ export function MarketingB2bOwners() {
             </a>
             <a
               href="#"
-              className="text-sm text-hesya-amber-600 underline-offset-4 hover:underline"
+              className="text-sm text-hesya-amber-700 underline-offset-4 hover:underline"
             >
               {t("b2bCtaSecondary")}
             </a>

@@ -10,7 +10,7 @@ export function MarketingTrending() {
       className="bg-hesya-peach-100/40 px-6 py-20 md:py-32"
     >
       <div className="mx-auto max-w-5xl text-center">
-        <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-600">
+        <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
           {t("trendingEyebrow")}
         </p>
         <h2
@@ -32,7 +32,7 @@ export function MarketingTrending() {
               >
                 <span
                   aria-hidden="true"
-                  className="font-heading italic font-semibold text-hesya-amber-600"
+                  className="font-heading italic font-semibold text-hesya-amber-700"
                 >
                   #{i + 1}
                 </span>

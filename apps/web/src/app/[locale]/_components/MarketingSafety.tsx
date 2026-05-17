@@ -15,7 +15,7 @@ export function MarketingSafety() {
       <div className="mx-auto max-w-7xl">
         <div className="grid items-center gap-12 md:grid-cols-[2fr_3fr] md:gap-16">
           <div>
-            <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-600">
+            <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
               {t("safetyEyebrow")}
             </p>
             <h2

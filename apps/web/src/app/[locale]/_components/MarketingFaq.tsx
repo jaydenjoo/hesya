@@ -14,7 +14,7 @@ export function MarketingFaq() {
     >
       <div className="mx-auto max-w-3xl">
         <div className="text-center">
-          <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-600">
+          <p className="mb-6 text-sm uppercase tracking-[0.16em] text-hesya-amber-700">
             {t("faqEyebrow")}
           </p>
           <h2
@@ -32,13 +32,13 @@ export function MarketingFaq() {
                 <span className="flex-1">{item.q}</span>
                 <span
                   aria-hidden="true"
-                  className="shrink-0 font-heading text-2xl italic text-hesya-amber-600 group-open:hidden"
+                  className="shrink-0 font-heading text-2xl italic text-hesya-amber-700 group-open:hidden"
                 >
                   +
                 </span>
                 <span
                   aria-hidden="true"
-                  className="hidden shrink-0 font-heading text-2xl italic text-hesya-amber-600 group-open:inline"
+                  className="hidden shrink-0 font-heading text-2xl italic text-hesya-amber-700 group-open:inline"
                 >
                   −
                 </span>

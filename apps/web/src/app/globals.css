@@ -1,7 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
+@import "pretendard/dist/web/static/Pretendard-Regular.css";
+@import "pretendard/dist/web/static/Pretendard-Bold.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -19,6 +20,7 @@
   --color-hesya-peach-200: var(--hesya-peach-200);
   --color-hesya-amber-500: var(--hesya-amber-500);
   --color-hesya-amber-600: var(--hesya-amber-600);
+  --color-hesya-amber-700: var(--hesya-amber-700);
   --color-hesya-navy-900: var(--hesya-navy-900);
 
   /* Trust layer — PRD § 6.5 K-Verified visual trust system */
@@ -74,6 +76,7 @@
   --hesya-peach-200: #f5ddc8;
   --hesya-amber-500: #e8a97a;
   --hesya-amber-600: #d88b5b;
+  --hesya-amber-700: #8f4a1f;
   --hesya-navy-900: #1a2238;
 
   /* Trust layer — PRD § 6.5 */
@@ -82,13 +85,10 @@
   --share-glow: #f8d7c8;
 
   /* === Type stacks ============================================ */
-  --font-heading:
-    "Fraunces Variable", "Pretendard Variable", ui-serif, Georgia, serif;
+  --font-heading: "Fraunces Variable", "Pretendard", ui-serif, Georgia, serif;
   --font-sans:
-    "Source Sans 3 Variable", "Pretendard Variable", ui-sans-serif, system-ui,
-    sans-serif;
-  --font-kr:
-    "Pretendard Variable", "Source Sans 3 Variable", ui-sans-serif, sans-serif;
+    "Source Sans 3 Variable", "Pretendard", ui-sans-serif, system-ui, sans-serif;
+  --font-kr: "Pretendard", "Source Sans 3 Variable", ui-sans-serif, sans-serif;
   --font-mono:
     "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
 
