@@ -127,36 +127,50 @@ export function MarketingBeforeAfter() {
           onMouseMove={onMouseMove}
           onTouchMove={onTouchMove}
         >
-          <video
-            aria-label={t("baLabelBefore")}
-            className="absolute inset-0 h-full w-full object-cover object-center"
-            poster={BEFORE_POSTER}
-            width={800}
-            height={450}
-            muted
-            playsInline
-            loop
-            autoPlay={!reduced && load}
-            preload="none"
-          >
-            {load ? <source src={BEFORE_VIDEO} type="video/mp4" /> : null}
-          </video>
-
-          <video
-            aria-label={t("baLabelAfter")}
-            className="absolute inset-0 h-full w-full object-cover object-center"
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-br from-[#2A3148] to-[#4A4E5C]"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-br from-[#FDF8F1] via-[#E8A97A] to-[#D88B5B]"
             style={{ clipPath: `inset(0 0 0 ${pct}%)` }}
-            poster={AFTER_POSTER}
-            width={800}
-            height={450}
-            muted
-            playsInline
-            loop
-            autoPlay={!reduced && load}
-            preload="none"
-          >
-            {load ? <source src={AFTER_VIDEO} type="video/mp4" /> : null}
-          </video>
+          />
+
+          {load ? (
+            <>
+              <video
+                aria-label={t("baLabelBefore")}
+                className="absolute inset-0 h-full w-full object-cover object-center"
+                poster={BEFORE_POSTER}
+                width={800}
+                height={450}
+                muted
+                playsInline
+                loop
+                autoPlay={!reduced}
+                preload="metadata"
+              >
+                <source src={BEFORE_VIDEO} type="video/mp4" />
+              </video>
+
+              <video
+                aria-label={t("baLabelAfter")}
+                className="absolute inset-0 h-full w-full object-cover object-center"
+                style={{ clipPath: `inset(0 0 0 ${pct}%)` }}
+                poster={AFTER_POSTER}
+                width={800}
+                height={450}
+                muted
+                playsInline
+                loop
+                autoPlay={!reduced}
+                preload="metadata"
+              >
+                <source src={AFTER_VIDEO} type="video/mp4" />
+              </video>
+            </>
+          ) : null}
 
           <span className="absolute left-4 top-4 rounded-full bg-black/50 px-3 py-1 text-xs uppercase tracking-[0.16em] text-white">
             {t("baLabelBefore")}

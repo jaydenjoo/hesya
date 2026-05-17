@@ -74,7 +74,9 @@ export function MarketingHero() {
                 key={g}
                 aria-hidden={i !== idx}
                 className={`left-0 top-0 block transition-opacity duration-700 ease-out ${
-                  i === idx ? "opacity-100" : "absolute inset-0 opacity-0"
+                  i === idx
+                    ? "opacity-100"
+                    : "invisible absolute inset-0 opacity-0"
                 }`}
               >
                 {g}
