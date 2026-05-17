@@ -50,7 +50,7 @@ export function MarketingB2bOwners() {
           <div className="mt-10 flex flex-wrap gap-4">
             <Link
               href="/onboarding/kyc"
-              className="rounded-full bg-hesya-navy-900 px-6 py-3 text-base text-hesya-peach-50 transition hover:bg-hesya-navy-900/90"
+              className="inline-flex h-[52px] items-center rounded-full bg-hesya-amber-500 px-7 text-[15px] font-bold text-hesya-navy-900 transition hover:bg-hesya-amber-600 hover:shadow-lg"
             >
               {t("b2bCtaPrimary")}
             </Link>

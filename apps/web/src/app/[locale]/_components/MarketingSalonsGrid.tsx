@@ -63,7 +63,7 @@ export function MarketingSalonsGrid() {
             >
               <a
                 href="#"
-                className="group block overflow-hidden rounded-3xl bg-hesya-peach-50 transition hover:-translate-y-2 hover:shadow-xl"
+                className="group block overflow-hidden rounded-[18px] bg-white shadow-sm transition hover:-translate-y-2 hover:shadow-xl"
               >
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <Image
@@ -73,23 +73,25 @@ export function MarketingSalonsGrid() {
                     height={1000}
                     loading="lazy"
                     sizes="(min-width: 1280px) 25vw, 296px"
-                    className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
                   />
                   {s.verified ? (
-                    <span className="absolute right-4 top-4 rounded-full bg-hesya-navy-900/90 px-3 py-1 text-xs uppercase tracking-[0.12em] text-kverified-gold">
+                    <span className="absolute right-4 top-4 rounded-full border border-[rgba(212,175,55,0.6)] bg-[rgba(212,175,55,0.18)] px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.12em] text-kverified-gold backdrop-blur-sm">
                       ★ K-Verified
                     </span>
                   ) : null}
                 </div>
-                <div className="p-5">
-                  <p className="font-heading text-lg text-hesya-navy-900">
+                <div className="px-[18px] pb-5 pt-4">
+                  <p className="font-heading text-base text-hesya-navy-900">
                     {s.name}
                   </p>
-                  <p className="mt-1 text-sm text-hesya-navy-700">
+                  <p className="mt-1 text-xs text-hesya-navy-700">
                     {s.location}
                   </p>
-                  <p className="mt-3 text-sm">
-                    <span className="text-hesya-amber-700">{s.rating}</span>{" "}
+                  <p className="mt-2.5 font-mono text-[13px]">
+                    <span className="font-bold text-hesya-navy-900">
+                      {s.rating}
+                    </span>{" "}
                     <span className="text-hesya-navy-700">· {s.reviews}</span>
                   </p>
                 </div>
