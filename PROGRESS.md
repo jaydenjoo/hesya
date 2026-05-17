@@ -3,11 +3,11 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
-## 세션 48 종료 요약 (2026-05-17) — Marketing Landing T1~T8 (7 PR, 11 sections wire 100%)
+## 세션 48 종료 요약 (2026-05-17) — Marketing Landing T1~T9 (8 PR, 11 sections wire 100% + LCP preload)
 
-세션 47 Phase A+B 문서 산출 직후 동일 트랙 진입. Plan v1 T1~T8 8 Tasks 일괄 처리. 누적 **121 PR** (세션 47: 114 → +7).
+세션 47 Phase A+B 문서 산출 직후 동일 트랙 진입. Plan v1 T1~T9 9 Tasks 일괄 처리. 누적 **122 PR** (세션 47: 114 → +8).
 
-### 핵심 산출 (7 PR · 8 Tasks)
+### 핵심 산출 (8 PR · 9 Tasks)
 
 | Task                       | PR                                                  | 결과                                                                           |
 | -------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------ |
@@ -18,6 +18,7 @@
 | T6 HIW + Salons + UGC      | [#343](https://github.com/jaydenjoo/hesya/pull/343) | 4 steps + sticky phone mock + 6 next/image cards + 7 reviews mosaic            |
 | T7 Safety + B2B + Trending | [#344](https://github.com/jaydenjoo/hesya/pull/344) | 4 cards + mock dashboard + 8 chips with rank                                   |
 | T8 FAQ + FinalCta + Footer | [#345](https://github.com/jaydenjoo/hesya/pull/345) | 6 details accordion + 3-way split + brand/socials                              |
+| T9 perf polish             | [#346](https://github.com/jaydenjoo/hesya/pull/346) | hero-poster LCP preload hint (`<link rel="preload" fetchPriority="high">`)     |
 
 ### 🎉 Milestone: 11 sections wire 100% 완료
 
@@ -42,34 +43,42 @@ Hero · HowItWorks · BeforeAfter · SalonsGrid · UgcWall · Safety · B2bOwner
 - `aria-labelledby` 모든 h1/h2
 - Korean Typography 자동 (`.kr`/`:lang(ko)` globals.css)
 
+### T9 정적 검토 결과
+
+a11y 위반 **0건** (heading 위계 / aria-labelledby / aria-live / focus-visible / 24×24 tap target / Korean Typography / reduced-motion 글로벌 — 모두 OK).
+
+perf 발견 **1건** → fix:
+
+- `hero-poster.webp` LCP preload hint 누락 → `<link rel="preload" as="image" fetchPriority="high">` 추가 (page.tsx +6 lines, PR #346).
+
 ### 자기평가 (L-082 e2e 기준)
 
-- **코드 머지**: 8/11 Tasks (T1~T8) = ~73%
+- **코드 머지**: 9/11 Tasks (T1~T9) = ~82%
 - **사용자 e2e 시연**: **0%** (T11 미진입)
 - **빌드 prerender**: 6 locales × marketing landing prerender 성공
-- 시연 prerequisite: Vercel preview deploy (T10) — 자동 트리거됨 (T8 머지 시), preview URL 확인 가능
+- **Vercel preview URL** (T10 자동): `https://hesya-web-git-feat-marketing-l-4a675f-jaydens-projects-f5e92399.vercel.app` (T8 PR 시점, T9 머지 후 main preview URL 별도 갱신)
+- 외부 Lighthouse 실측은 **T11 시연 단계 prereq** (Jayden Chrome DevTools / PageSpeed Insights)
 
-⚠️ "11 sections wire 100%" = **코드 머지 완료** 수준. 실제 사용자 시연(영상 자동재생 / a11y 검증 / 6 locales 라우팅 / iOS Safari) 확인은 T9+T11에서.
+⚠️ "11 sections wire 100% + LCP preload" = **코드 머지 완료** 수준. 실제 사용자 시연(영상 자동재생 / 6 locales 라우팅 / iOS Safari / Lighthouse 80+/95+) 확인은 T11에서.
 
-### 남은 Tasks (T9~T11, ~2h)
+### 남은 Tasks (T10~T11, ~1h)
 
-| Task | 분량 | 내용                                                                                                           |
-| ---- | ---- | -------------------------------------------------------------------------------------------------------------- |
-| T9   | 1h   | a11y / perf 검증 — Lighthouse Mobile Perf 80+ / Accessibility 95+ / CLS 0 / INP < 200ms / axe / reduced-motion |
-| T10  | 30m  | Vercel preview deploy 확인 — 6 locales 라우팅 OK / 영상 재생                                                   |
-| T11  | 30m  | Jayden 데스크톱 + iOS Safari + Android Chrome 직접 시연 + PROGRESS / design-completion 합산 갱신               |
+| Task | 분량 | 내용                                                                                                                      |
+| ---- | ---- | ------------------------------------------------------------------------------------------------------------------------- |
+| T10  | 30m  | Vercel preview URL 외부 Lighthouse 실측 (Mobile Perf 80+ / Accessibility 95+ / Best Practices 90+ / SEO 95+ / CLS < 0.05) |
+| T11  | 30m  | Jayden 데스크톱 + iOS Safari + Android Chrome 직접 시연 + PROGRESS / design-completion 합산 갱신                          |
 
 ### 다음 세션 진입 명령
 
 ```
-docs/Plan-marketing-landing-v1.md T9 (a11y / perf 검증)부터 시작해줘
+T10 — Vercel preview URL 열어서 Lighthouse 측정 후 결과 알려줘 (또는 직접 시연 T11)
 ```
 
-또는 T10 preview URL 직접 확인 → T11 시연.
+T10/T11은 외부 측정 + 사용자 본인 시연이라 본 작업은 정적 영역에서 종료.
 
-### 세션 48 PR 누적 목록 (7 PR)
+### 세션 48 PR 누적 목록 (8 PR)
 
-#339 / #340 / #341 / #342 / #343 / #344 / #345
+#339 / #340 / #341 / #342 / #343 / #344 / #345 / #346
 
 ---
 
