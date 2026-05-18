@@ -94,12 +94,14 @@ export function PhotoBoard({
               onClick={() => setFilter(c.id)}
               className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] transition ${
                 filter === c.id
-                  ? "border-hesya-amber-600 bg-hesya-amber-500/10 text-hesya-navy-900"
+                  ? "border-hesya-navy-900 bg-hesya-navy-900 text-white"
                   : "border-hesya-navy-900/12 bg-white text-hesya-navy-900/70 hover:border-hesya-navy-900/30"
               }`}
             >
               <span>{c.label}</span>
-              <span className="font-mono text-[10.5px] text-hesya-navy-900/55">
+              <span
+                className={`font-mono text-[10.5px] ${filter === c.id ? "text-white/60" : "text-hesya-navy-900/55"}`}
+              >
                 {c.n}
               </span>
             </button>
@@ -221,11 +223,11 @@ function PhotoTile({
           {photo.stylistInitial ?? "?"}
         </div>
         {photo.vip && (
-          <span className="absolute left-2 top-2 rounded-full bg-hesya-navy-900/85 px-2 py-0.5 font-mono text-[9.5px] font-semibold uppercase tracking-[0.12em] text-white">
+          <span className="absolute left-2 top-2 rounded-full bg-hesya-navy-900 px-2 py-0.5 font-mono text-[9.5px] font-semibold uppercase tracking-[0.12em] text-hesya-amber-500">
             ★ VIP
           </span>
         )}
-        <span className="absolute bottom-2 left-2 rounded-full bg-white/85 px-2 py-0.5 font-mono text-[9.5px] text-hesya-navy-900/75 backdrop-blur-sm">
+        <span className="absolute bottom-1.5 left-2 rounded-[3px] bg-black/45 px-1.5 py-0.5 font-mono text-[9.5px] text-white backdrop-blur-sm">
           {photo.when}
         </span>
       </div>
@@ -316,11 +318,42 @@ function PhotoDetailPanel({
           </span>
         </div>
         {!isFailed && (
-          <div className="absolute right-3 top-3 flex h-14 w-14 flex-col items-center justify-center rounded-full bg-hesya-navy-900/55 text-white backdrop-blur">
-            <span className="font-mono text-[18px] font-semibold leading-none">
-              {photo.score}
-            </span>
-            <span className="mt-0.5 text-[8.5px]">{labels.scoreLabel}</span>
+          <div className="absolute right-3 top-3 grid h-[60px] w-[60px] place-items-center">
+            <svg
+              aria-hidden="true"
+              className="absolute inset-0 -rotate-90"
+              viewBox="0 0 60 60"
+              width={60}
+              height={60}
+            >
+              <circle
+                cx={30}
+                cy={30}
+                r={26}
+                fill="none"
+                stroke="rgba(255,255,255,0.25)"
+                strokeWidth={3}
+              />
+              <circle
+                cx={30}
+                cy={30}
+                r={26}
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth={3}
+                strokeLinecap="round"
+                strokeDasharray={2 * Math.PI * 26}
+                strokeDashoffset={2 * Math.PI * 26 * (1 - photo.score / 100)}
+              />
+            </svg>
+            <div className="relative flex flex-col items-center text-white">
+              <span className="font-mono text-[18px] font-semibold leading-none">
+                {photo.score}
+              </span>
+              <span className="mt-0.5 text-[8.5px] uppercase tracking-[0.12em]">
+                {labels.scoreLabel}
+              </span>
+            </div>
           </div>
         )}
       </div>
@@ -358,7 +391,7 @@ function PhotoDetailPanel({
             <h4 className="font-display text-[14px] font-semibold italic text-hesya-navy-900">
               {labels.auditTitle}
             </h4>
-            <span className="rounded-full bg-hesya-peach-50 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-hesya-amber-600">
+            <span className="rounded-full bg-hesya-navy-900 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-hesya-amber-500">
               {labels.auditTag}
             </span>
           </div>
