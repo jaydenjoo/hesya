@@ -149,7 +149,7 @@ export function TodayTimeline() {
     <section
       data-testid="dashboard-today-timeline"
       aria-label={t("title")}
-      className="mb-4 rounded-lg border border-hesya-peach-200 bg-white p-5"
+      className="mb-4 rounded-[16px] border border-hesya-peach-100 bg-white px-[18px] py-4"
     >
       <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="kr text-[18px] font-semibold text-hesya-navy-900">
@@ -216,10 +216,10 @@ export function TodayTimeline() {
           <div className="relative">
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute z-20 h-full w-px bg-red-500"
+              className="pointer-events-none absolute z-20 h-full w-px bg-hesya-amber-600"
               style={{ left: `${nowLeftPct}%` }}
             >
-              <span className="absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded bg-red-500 px-1.5 py-0.5 mono text-[10px] tabular-nums text-white">
+              <span className="absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded border border-hesya-amber-500 bg-white px-1.5 py-0.5 mono text-[10px] font-semibold tabular-nums text-hesya-amber-600">
                 {t("now", { time: NOW_LABEL })}
               </span>
             </div>

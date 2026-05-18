@@ -40,18 +40,18 @@ export function WeeklyGmv({ amountKrw, deltaPct, weekHeights, locale }: Props) {
     <section
       data-testid="dashboard-weekly-gmv"
       aria-label={t("title")}
-      className="tile-reveal rounded-lg border border-hesya-peach-200 bg-white p-5"
+      className="tile-reveal rounded-[16px] border border-hesya-peach-100 bg-white px-[18px] py-4"
       style={{ animationDelay: "40ms" }}
     >
       <header className="mb-3 flex items-center justify-between">
-        <h3 className="kr text-[14px] font-semibold text-hesya-navy-900">
+        <h3 className="kr text-[12.5px] font-semibold text-gray-700">
           {t("title")}
         </h3>
       </header>
 
       <div className="mb-3 flex items-baseline gap-1 mono">
         <span className="text-[14px] text-gray-500">{t("currency")}</span>
-        <span className="text-[28px] font-bold tabular-nums text-hesya-navy-900">
+        <span className="text-[26px] font-semibold tabular-nums text-hesya-navy-900">
           {formattedAmount}
         </span>
       </div>
@@ -59,7 +59,7 @@ export function WeeklyGmv({ amountKrw, deltaPct, weekHeights, locale }: Props) {
       <div
         data-testid="dashboard-weekly-gmv-pill"
         className={
-          "kr mb-4 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium " +
+          "kr mb-4 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold " +
           (isPositive
             ? "bg-emerald-50 text-emerald-700"
             : "bg-red-50 text-red-700")
@@ -72,7 +72,7 @@ export function WeeklyGmv({ amountKrw, deltaPct, weekHeights, locale }: Props) {
       </div>
 
       <div
-        className="flex h-24 items-end gap-1.5"
+        className="flex h-[60px] items-end gap-1.5"
         role="img"
         aria-label={t("chartAria", { count: weekHeights.length })}
       >
@@ -82,7 +82,7 @@ export function WeeklyGmv({ amountKrw, deltaPct, weekHeights, locale }: Props) {
             className="flex flex-1 flex-col items-center gap-1.5"
           >
             <div
-              className="w-full rounded-t bg-gradient-to-t from-hesya-peach-200 to-hesya-amber-500 transition-all"
+              className="w-full rounded-t bg-gradient-to-t from-hesya-amber-500 to-hesya-peach-200 transition-all"
               style={{ height: `${Math.max(4, Math.min(100, h))}%` }}
               aria-hidden="true"
             />

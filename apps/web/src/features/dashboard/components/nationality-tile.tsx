@@ -47,11 +47,11 @@ export function NationalityTile({ segments, totalCount }: Props) {
     <section
       data-testid="dashboard-nationality-tile"
       aria-label={t("title")}
-      className="tile-reveal rounded-lg border border-hesya-peach-200 bg-white p-5"
+      className="tile-reveal rounded-[16px] border border-hesya-peach-100 bg-white px-[18px] py-4"
       style={{ animationDelay: "120ms" }}
     >
       <header className="mb-4 flex items-center justify-between">
-        <h3 className="kr text-[14px] font-semibold text-hesya-navy-900">
+        <h3 className="kr text-[12.5px] font-semibold text-gray-700">
           {t("title")}
         </h3>
         <span className="kr text-[11px] text-gray-500">
