@@ -66,6 +66,8 @@ export interface MockPaymentLabels {
   readonly summarySubtotal: string;
   readonly summaryDeposit: string;
   readonly summaryRemaining: string;
+  /** "Total today" 라벨 — 입금액 강조 행 (reference payment.css os-total). Optional fallback "Total today". */
+  readonly summaryTotalToday?: string;
   readonly approxLabel: string;
   readonly payNow: string;
   readonly termsNote: string;
@@ -320,16 +322,11 @@ export function MockPaymentForm({
               </span>
             </dd>
           </div>
-          <div className="flex justify-between border-t border-hesya-peach-100 pt-2">
-            <dt className="font-semibold text-hesya-navy-900">
-              {labels.summaryDeposit}
-            </dt>
+          <div className="flex justify-between">
+            <dt className="text-hesya-navy-900/65">{labels.summaryDeposit}</dt>
             <dd className="text-right">
-              <span className="font-mono font-semibold text-hesya-navy-900">
+              <span className="font-mono font-medium text-hesya-navy-900">
                 {depositPrimary}
-              </span>
-              <span className="ml-1.5 text-[11px] text-hesya-navy-900/45">
-                {labels.approxLabel} {depositSecondary}
               </span>
             </dd>
           </div>
@@ -337,8 +334,22 @@ export function MockPaymentForm({
             <dt className="text-hesya-navy-900/55">
               {labels.summaryRemaining}
             </dt>
-            <dd className="font-mono text-hesya-navy-900/65">
+            <dd className="font-mono text-hesya-navy-900/55">
               {remainingPrimary}
+            </dd>
+          </div>
+          {/* reference payment.css os-total — 입금액 강조 행 (Fraunces 24px bold + amber-600). */}
+          <div className="mt-2 flex items-baseline justify-between border-t border-hesya-peach-100 pt-3">
+            <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-hesya-navy-900">
+              {labels.summaryTotalToday ?? "Total today"}
+            </dt>
+            <dd className="text-right">
+              <span className="font-heading text-[24px] font-bold text-hesya-amber-600">
+                {depositPrimary}
+              </span>
+              <span className="ml-1.5 text-[11px] text-hesya-navy-900/45">
+                {labels.approxLabel} {depositSecondary}
+              </span>
             </dd>
           </div>
         </dl>
