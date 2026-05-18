@@ -61,6 +61,54 @@ interface Props {
 
 type TabKey = "profile" | "notes" | "history" | "tags";
 
+const HERO_AVATAR_BG = [
+  "bg-hesya-peach-200 text-hesya-navy-900",
+  "bg-hesya-amber-500 text-white",
+  "bg-hesya-navy-900 text-hesya-amber-500",
+] as const;
+function heroAvatarBg(seed: string): string {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
+  return HERO_AVATAR_BG[Math.abs(h) % HERO_AVATAR_BG.length]!;
+}
+function heroStatusOf(row: CustomerRow): { label: string; cls: string } {
+  const visits = row.totalVisits ?? 0;
+  const ltv = row.ltvKrw ?? 0;
+  if (visits >= 5 && ltv >= 300000)
+    return {
+      label: "VIP",
+      cls: "bg-hesya-navy-900 text-hesya-amber-500",
+    };
+  if (visits === 0)
+    return {
+      label: "NEW",
+      cls: "bg-hesya-peach-100 text-hesya-amber-600",
+    };
+  if (visits >= 2)
+    return {
+      label: "ACTIVE",
+      cls: "bg-[rgba(42,157,92,0.12)] text-[#2a9d5c]",
+    };
+  return {
+    label: "DORMANT",
+    cls: "bg-hesya-peach-50 text-hesya-navy-900/55",
+  };
+}
+const FLAG_BY_NATIONALITY: Record<string, string> = {
+  ko: "🇰🇷",
+  kr: "🇰🇷",
+  jp: "🇯🇵",
+  ja: "🇯🇵",
+  cn: "🇨🇳",
+  tw: "🇹🇼",
+  vn: "🇻🇳",
+  us: "🇺🇸",
+  en: "🇺🇸",
+};
+function flagOf(code: string): string {
+  return FLAG_BY_NATIONALITY[code.toLowerCase()] ?? "🌐";
+}
+
 const TABS: ReadonlyArray<{ key: TabKey; labelKey: keyof DetailSheetLabels }> =
   [
     { key: "profile", labelKey: "tabProfile" },
@@ -137,32 +185,58 @@ function DetailSheetInner({
           : "relative flex h-full w-full max-w-[480px] flex-col bg-white shadow-2xl"
       }
     >
-      <header className="flex items-center justify-between border-b border-hesya-peach-200 px-5 py-3">
-        <div className="flex items-center gap-3">
+      <header className="border-b border-hesya-peach-200 px-5 pt-4 pb-4">
+        {/* Reference customers-detail.jsx L21-88 .cu-detail-hero — 64px avatar + status + flag row */}
+        <div className="mb-3 flex items-start gap-3">
           <span
             aria-hidden="true"
-            className="grid h-10 w-10 place-items-center rounded-full bg-hesya-peach-100 text-sm font-semibold text-hesya-navy-900"
+            className={`grid h-16 w-16 flex-shrink-0 place-items-center rounded-full text-[22px] font-bold ${heroAvatarBg(row.id)}`}
           >
             {(row.name ?? "·").trim().charAt(0).toUpperCase() || "·"}
           </span>
-          <div>
-            <h2 className="font-heading text-lg font-semibold italic tracking-tight text-hesya-navy-900">
-              {row.name ?? labels.unknownName}
-            </h2>
-            <p className="text-[11px] text-hesya-navy-900/55">
-              {row.preferredLanguage?.toUpperCase() ?? labels.emptyDash} ·{" "}
-              {row.channel ?? labels.emptyDash}
-            </p>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <h2 className="font-heading text-lg font-semibold italic tracking-tight text-hesya-navy-900">
+                {row.name ?? labels.unknownName}
+              </h2>
+              <button
+                type="button"
+                onClick={close}
+                aria-label={labels.closeLabel}
+                className="grid h-7 w-7 place-items-center rounded-full text-hesya-navy-900/65 transition hover:bg-hesya-peach-50"
+              >
+                ✕
+              </button>
+            </div>
+            {(() => {
+              const status = heroStatusOf(row);
+              return (
+                <p className="mt-1 flex items-center gap-1.5 text-[11px] text-hesya-navy-900/65">
+                  <span
+                    className={`inline-flex items-center rounded-full px-1.5 py-px font-mono text-[9px] font-bold uppercase tracking-[0.06em] ${status.cls}`}
+                  >
+                    {status.label}
+                  </span>
+                  {row.nationality && (
+                    <>
+                      <span aria-hidden="true">{flagOf(row.nationality)}</span>
+                      <span className="uppercase">{row.nationality}</span>
+                      <span
+                        className="text-hesya-navy-900/30"
+                        aria-hidden="true"
+                      >
+                        ·
+                      </span>
+                    </>
+                  )}
+                  <span className="truncate">
+                    {row.channel ?? labels.emptyDash}
+                  </span>
+                </p>
+              );
+            })()}
           </div>
         </div>
-        <button
-          type="button"
-          onClick={close}
-          aria-label={labels.closeLabel}
-          className="grid h-8 w-8 place-items-center rounded-full text-hesya-navy-900/65 transition hover:bg-hesya-peach-50"
-        >
-          ✕
-        </button>
       </header>
 
       <KpiStrip row={row} labels={labels} />
