@@ -7,7 +7,7 @@
 /* Header peach-100 bg card + bottom rounded */
 .cm-header {
   flex-shrink: 0;
-  padding: 28px 18px 16px;
+  padding: 50px 18px 16px;
   background: var(--hesya-peach-100);
   border-bottom-left-radius: 24px;
   border-bottom-right-radius: 24px;
@@ -218,7 +218,7 @@
 
 /* Saved card heart + area + rating + price */
 .cm-saved-grid {
-  display: grid;
+  display: grid !important;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }

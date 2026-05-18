@@ -468,7 +468,7 @@ function pastRatingFromId(id: string): 4 | 5 {
  * 카드 개성 색 cycling — reference mypage-app.jsx의 booking/store별 다른 warm
  * color (peach / trust-rose / sage / cool-blue). booking.color 컬럼 도입 전 mock.
  */
-const WARM_PALETTE = ["#F5DDC8", "#E8C4D6", "#D6E8C9", "#C9D6E8"] as const;
+const WARM_PALETTE = ["#E8A97A", "#F8D7C8", "#D88B5B", "#E8C4D6"] as const;
 function pickWarmColor(seed: string): string {
   let h = 0;
   for (let i = 0; i < seed.length; i++) {
