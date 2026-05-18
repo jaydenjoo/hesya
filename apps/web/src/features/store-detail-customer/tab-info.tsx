@@ -11,6 +11,16 @@ import { KVerifiedBadge } from "@/features/customer-frame/badges/k-verified-badg
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 type Day = (typeof DAYS)[number];
 
+function todayDayKey(): Day {
+  // Asia/Seoul 기준 — 매장 운영 시간 표는 한국 시간대.
+  const seoul = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }),
+  );
+  // JS getDay(): 0=Sun, 1=Mon, ..., 6=Sat → DAYS 순서로 매핑.
+  const map: Day[] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+  return map[seoul.getDay()] ?? "mon";
+}
+
 interface Props {
   readonly hours: BusinessHours | null;
   readonly hoursTitle: string;
@@ -54,6 +64,7 @@ export function TabInfo({
   const openDayCount = hours
     ? DAYS.reduce((s, d) => s + (hours[d] ? 1 : 0), 0)
     : 0;
+  const today = todayDayKey();
   const displayAddress = addressText ?? addressFallback;
   return (
     <div className="space-y-4 px-5 py-4">
@@ -94,17 +105,36 @@ export function TabInfo({
           <ul className="space-y-1.5">
             {DAYS.map((d) => {
               const v = hours[d];
+              const isToday = d === today;
               return (
                 <li
                   key={d}
-                  className="flex items-center justify-between text-[13px]"
+                  className={`flex items-center justify-between text-[13px] ${isToday ? "font-semibold text-hesya-amber-600" : ""}`}
                 >
-                  <span className="text-hesya-navy-900/70">{dayLabels[d]}</span>
                   <span
                     className={
-                      v
-                        ? "font-mono text-hesya-navy-900"
-                        : "text-hesya-navy-900/40"
+                      isToday
+                        ? "text-hesya-amber-600"
+                        : "text-hesya-navy-900/70"
+                    }
+                  >
+                    {dayLabels[d]}
+                    {isToday && (
+                      <span
+                        aria-hidden="true"
+                        className="ml-1 text-[10px] font-mono uppercase tracking-[0.06em] text-hesya-amber-600/80"
+                      >
+                        · today
+                      </span>
+                    )}
+                  </span>
+                  <span
+                    className={
+                      isToday
+                        ? "font-mono text-hesya-amber-600"
+                        : v
+                          ? "font-mono text-hesya-navy-900"
+                          : "text-hesya-navy-900/40"
                     }
                   >
                     {v ? `${v.open}–${v.close}` : closedLabel}
