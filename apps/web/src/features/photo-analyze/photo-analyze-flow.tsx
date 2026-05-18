@@ -325,7 +325,9 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
         />
       )}
       <h2 className="mb-4 font-heading text-[22px] font-semibold italic leading-tight text-hesya-navy-900">
-        <span className="text-hesya-amber-600">{labels.result.heading}</span>
+        <span className="bg-[linear-gradient(transparent_70%,rgba(232,169,122,0.4)_70%)] px-1">
+          {labels.result.heading}
+        </span>
       </h2>
 
       <div className="grid grid-cols-2 gap-3">
@@ -341,9 +343,29 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
           <p className="text-[10px] uppercase tracking-[0.16em] text-hesya-navy-900/45">
             {labels.result.difficultyLabel}
           </p>
-          <p className="mt-1 text-[13px] font-semibold text-hesya-navy-900">
-            {difficultyLabel}
-          </p>
+          <div className="mt-1 flex items-center gap-2">
+            {/* dot-meter: 3 dots, filled by difficulty (easy=1 / medium=2 / hard=3) */}
+            <span aria-hidden="true" className="inline-flex items-center gap-1">
+              {[0, 1, 2].map((i) => {
+                const level =
+                  result.difficulty === "easy"
+                    ? 1
+                    : result.difficulty === "medium"
+                      ? 2
+                      : 3;
+                const on = i < level;
+                return (
+                  <span
+                    key={i}
+                    className={`inline-block h-2 w-2 rounded-full ${on ? "bg-hesya-amber-500" : "bg-hesya-peach-200"}`}
+                  />
+                );
+              })}
+            </span>
+            <p className="text-[13px] font-semibold text-hesya-navy-900">
+              {difficultyLabel}
+            </p>
+          </div>
         </div>
         <div className="rounded-2xl bg-white px-4 py-3 ring-1 ring-hesya-navy-900/10">
           <p className="text-[10px] uppercase tracking-[0.16em] text-hesya-navy-900/45">
