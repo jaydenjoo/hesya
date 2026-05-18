@@ -320,6 +320,7 @@ export type PublicStore = {
   region: string | null;
   address: unknown;
   businessHours: BusinessHours | null;
+  phone: string | null;
   /** avg(reviews.rating). 리뷰 0건 매장은 null → UI에서 rating bar 숨김. */
   rating: number | null;
   /** count(reviews.rating). 리뷰 0건이면 0. */
@@ -346,6 +347,7 @@ export async function getStorePublicById(
       region: stores.region,
       address: stores.address,
       businessHours: stores.businessHours,
+      phone: stores.phone,
       rating: sql<number | null>`avg(${reviews.rating})::float`.as("rating"),
       reviewCount: sql<number>`count(${reviews.rating})::int`.as(
         "review_count",
@@ -367,6 +369,7 @@ export async function getStorePublicById(
       stores.region,
       stores.address,
       stores.businessHours,
+      stores.phone,
     )
     .limit(1);
   return rows[0] ?? null;
@@ -407,6 +410,7 @@ export async function listPublicStores(
       region: stores.region,
       address: stores.address,
       businessHours: stores.businessHours,
+      phone: stores.phone,
       rating: sql<number | null>`avg(${reviews.rating})::float`.as("rating"),
       reviewCount: sql<number>`count(${reviews.rating})::int`.as(
         "review_count",
@@ -422,6 +426,7 @@ export async function listPublicStores(
       stores.region,
       stores.address,
       stores.businessHours,
+      stores.phone,
       stores.createdAt,
     )
     .orderBy(desc(stores.createdAt))

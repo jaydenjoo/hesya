@@ -298,6 +298,30 @@
   animation-delay: 0.6s;
 }
 
+/* Reference services.css L1031-1064 — AI 번역 제안 shimmer (thinking 상태).
+   amber-500 그라디언트를 좌→우로 흘려 "번역 중" 시각 신호. 3줄 가변 너비. */
+@keyframes svThinkShimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+.sv-think-line {
+  display: block;
+  height: 9px;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    rgba(232, 161, 23, 0.12) 0%,
+    rgba(232, 161, 23, 0.3) 50%,
+    rgba(232, 161, 23, 0.12) 100%
+  );
+  background-size: 200% 100%;
+  animation: svThinkShimmer 1.5s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
