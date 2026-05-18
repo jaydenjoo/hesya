@@ -65,7 +65,7 @@ describe("ThreadList", () => {
     render(
       <ThreadList conversations={convs} activeId={null} onSelect={() => {}} />,
     );
-    expect(screen.getByText("스레드")).toBeInTheDocument();
+    expect(screen.getByText("통합 인박스")).toBeInTheDocument();
     // unread > 0 인 thread 수 (메시지 수가 아닌 미답 thread 수). 2개.
     expect(screen.getByTestId("thread-list-unread-total")).toHaveTextContent(
       "2",
@@ -76,7 +76,7 @@ describe("ThreadList", () => {
     render(
       <ThreadList conversations={[]} activeId={null} onSelect={() => {}} />,
     );
-    expect(screen.getByText("스레드")).toBeInTheDocument();
+    expect(screen.getByText("통합 인박스")).toBeInTheDocument();
     expect(screen.getByTestId("thread-list-unread-total")).toHaveTextContent(
       "0",
     );

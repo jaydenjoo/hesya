@@ -66,7 +66,7 @@ export function ThreadList({
   onSelect: (id: string) => void;
   labels?: Labels;
 }) {
-  const title = labels?.title ?? "스레드";
+  const title = labels?.title ?? "통합 인박스";
   const unreadLabel = labels?.unread ?? "미답";
   const searchPlaceholder =
     labels?.searchPlaceholder ?? "이름 또는 메시지 검색";
@@ -140,13 +140,13 @@ export function ThreadList({
 
   return (
     <>
-      <header className="flex flex-shrink-0 items-center justify-between border-b border-hesya-peach-100 bg-white px-4 py-3.5">
-        <h2 className="text-[15px] font-semibold tracking-[-0.005em] text-hesya-navy-900">
+      <header className="flex flex-shrink-0 items-center justify-between border-b border-hesya-peach-100 bg-white px-4 pb-2.5 pt-4">
+        <h2 className="text-[16px] font-semibold tracking-[-0.005em] text-hesya-navy-900">
           {title}
         </h2>
         <span
           data-testid="thread-list-unread-total"
-          className="rounded-full bg-hesya-peach-100 px-2.5 py-1 font-mono text-[10.5px] font-bold uppercase tracking-[0.04em] text-hesya-amber-600"
+          className="rounded-full bg-hesya-peach-100 px-2.5 py-1 font-mono text-[11px] font-bold text-hesya-amber-600"
         >
           {unreadTotal} {unreadLabel}
         </span>

@@ -242,6 +242,24 @@
   animation: brightFade 0.4s ease;
 }
 
+/* Reference inbox.css L547 — AI Assist panel 진입 시 translateY 8→0 + fade-in.
+   sd-* tile-reveal과 유사 패턴이나 더 짧음 (220ms). owner 입장에서 AI 응답
+   준비됨 시각 신호 (메시지 thread 하단에 미끄러져 등장). */
+@keyframes assistIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.assist-in {
+  animation: assistIn 0.22s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

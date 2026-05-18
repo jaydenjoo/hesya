@@ -69,7 +69,7 @@ export function MessageBubble({ message }: { message: Message }) {
       >
         <div
           data-testid="message-bubble-body"
-          className={`kr rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed shadow-sm ${bubbleClass} ${
+          className={`kr rounded-[14px] px-3.5 py-2.5 text-[13px] leading-[1.55] shadow-sm ${bubbleClass} ${
             isFailed ? "ring-1 ring-red-500" : ""
           } ${isAIDraft ? "ring-1 ring-dashed ring-hesya-amber-500" : ""}`}
         >
