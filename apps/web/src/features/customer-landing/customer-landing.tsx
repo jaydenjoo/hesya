@@ -523,7 +523,7 @@ export function CustomerLanding({
             </div>
           </section>
 
-          {/* Stores grid */}
+          {/* Stores grid — reference .store-row horizontal scroll */}
           <div className="px-5 pt-6">
             {stores.length === 0 ? (
               <div className="rounded-3xl bg-white/60 px-6 py-16 text-center ring-1 ring-hesya-navy-900/10">
@@ -539,7 +539,7 @@ export function CustomerLanding({
                 <p className="mb-4 text-[12px] text-hesya-navy-900/55">
                   {labels.resultsCount}
                 </p>
-                <div className="grid grid-cols-1 justify-items-center gap-4">
+                <div className="c-store-row">
                   {stores.map((s) => (
                     <StoreCard
                       key={s.id}
