@@ -280,475 +280,466 @@ export function CustomerLanding({
   };
 
   return (
-    <div className="c-landing relative min-h-screen overflow-x-hidden bg-hesya-peach-50">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[60vh]"
-        style={{
-          background:
-            "radial-gradient(ellipse 1000px 600px at 50% -100px, var(--hesya-peach-200), transparent 55%)",
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[40vh]"
-        style={{
-          background:
-            "radial-gradient(ellipse 900px 500px at 50% 100%, var(--hesya-peach-100), transparent 60%)",
-        }}
-      />
-
-      {/* Sticky topbar — brand + lang pill */}
-      <header className="c-landing-topbar">
-        <div className="c-landing-topbar-inner mx-auto max-w-5xl">
-          <span className="c-landing-brand">Hesya</span>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="c-lang-pill"
-              onClick={() => setLangSheetOpen(true)}
-              aria-haspopup="dialog"
-              aria-expanded={langSheetOpen}
-            >
-              <span aria-hidden="true">🌐</span>
-              <span>{currentLang.display}</span>
-              <span aria-hidden="true" className="text-[10px] opacity-50">
-                ▾
-              </span>
-            </button>
-            <Link
-              href={isAuthed ? `/${locale}/c/mypage` : `/${locale}/c/sign-in`}
-              className="rounded-full bg-white/70 px-4 py-1.5 text-[12px] font-medium text-hesya-navy-900 ring-1 ring-hesya-navy-900/10 hover:bg-white"
-            >
-              {isAuthed ? labels.mypage : labels.signIn}
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <div className="c-landing-body mx-auto w-full max-w-5xl">
-        {/* Hero with HeroMotif + animated underline */}
-        <section className="c-hero">
-          <HeroMotif />
-          <p className="c-hero-eyebrow">{labels.eyebrow}</p>
-          <GreetingStack />
-          <div className="c-hero-underline" />
-          <p className="c-hero-sub">{labels.subtitle}</p>
-        </section>
-
-        {/* Search input + mic */}
-        <section className="c-search-zone">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              navigate(region, search);
-            }}
-            className="c-search-input"
-          >
-            <span className="c-lead" aria-hidden="true">
-              🔍
-            </span>
-            <input
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={rotatedPlaceholder}
-              data-testid="landing-search-input"
-              aria-label={labels.searchPlaceholder}
-            />
-            <button
-              type="button"
-              className="c-mic"
-              aria-label="Voice search"
-              onClick={() => {
-                /* Voice search UI mock — Web Speech API 베타 후 wire */
-              }}
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <rect x="9" y="2" width="6" height="13" rx="3" />
-                <path d="M19 10a7 7 0 0 1-14 0M12 19v3" />
-              </svg>
-            </button>
-          </form>
-        </section>
-
-        {/* Mood chips horizontal scroll */}
-        {labels.moods.length > 0 && (
-          <>
-            <div className="c-mood-cap">{labels.moodLabel}</div>
-            <div data-testid="landing-mood-row" className="c-mood-scroll">
-              {labels.moods.map((text, i) => {
-                const icon = MOOD_ICONS[i % MOOD_ICONS.length];
-                return (
-                  <button
-                    key={text}
-                    type="button"
-                    onClick={() => {
-                      setSearch(text);
-                      navigate(region, text);
-                    }}
-                    className="c-mood-chip"
-                  >
-                    <span aria-hidden="true">{icon}</span>
-                    {text}
-                  </button>
-                );
-              })}
-            </div>
-            {labels.liveRow && (
-              <div data-testid="landing-live-row" className="c-live-row">
-                <span aria-hidden="true" className="c-live-dot" />
-                {labels.liveRow}
-              </div>
-            )}
-          </>
-        )}
-
-        {/* AI photo entry — reference landing.css .ai-card 정합 */}
-        {labels.aiPhotoCta && labels.aiPhotoSubtitle && (
-          <Link
-            href={`/${locale}/c/photo-analyze`}
-            data-testid="landing-photo-cta"
-            className="c-ai-card"
-          >
-            <div>
-              <h4 className="c-ai-card-title">{labels.aiPhotoCta}</h4>
-              <p className="c-ai-card-sl">{labels.aiPhotoSubtitle}</p>
-              <span aria-hidden="true" className="c-ai-card-cta">
-                ✨ →
-              </span>
-            </div>
-            <CamIllust />
-          </Link>
-        )}
-
-        {/* Region chips horizontal scroll */}
-        <section className="c-region-row">
-          <div className="c-region-label">{labels.regionLabel}</div>
-          <div className="c-region-scroll">
-            <button
-              type="button"
-              className={"c-region-chip" + (!region ? " active" : "")}
-              onClick={() => {
-                setRegion("");
-                navigate("", search);
-              }}
-            >
-              {labels.regionAll}
-            </button>
-            {regions.map((r) => (
+    <div className="c-landing-stage">
+      <div className="c-landing">
+        {/* Sticky topbar — brand + lang pill */}
+        <header className="c-landing-topbar">
+          <div className="c-landing-topbar-inner">
+            <span className="c-landing-brand">Hesya</span>
+            <div className="flex items-center gap-2">
               <button
-                key={r}
                 type="button"
-                className={"c-region-chip" + (region === r ? " active" : "")}
+                className="c-lang-pill"
+                onClick={() => setLangSheetOpen(true)}
+                aria-haspopup="dialog"
+                aria-expanded={langSheetOpen}
+              >
+                <span aria-hidden="true">🌐</span>
+                <span>{currentLang.display}</span>
+                <span aria-hidden="true" className="text-[10px] opacity-50">
+                  ▾
+                </span>
+              </button>
+              <Link
+                href={isAuthed ? `/${locale}/c/mypage` : `/${locale}/c/sign-in`}
+                className="rounded-full bg-white/70 px-4 py-1.5 text-[12px] font-medium text-hesya-navy-900 ring-1 ring-hesya-navy-900/10 hover:bg-white"
+              >
+                {isAuthed ? labels.mypage : labels.signIn}
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        <div className="c-landing-body w-full">
+          {/* Hero with HeroMotif + animated underline */}
+          <section className="c-hero">
+            <HeroMotif />
+            <p className="c-hero-eyebrow">{labels.eyebrow}</p>
+            <GreetingStack />
+            <div className="c-hero-underline" />
+            <p className="c-hero-sub">{labels.subtitle}</p>
+          </section>
+
+          {/* Search input + mic */}
+          <section className="c-search-zone">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                navigate(region, search);
+              }}
+              className="c-search-input"
+            >
+              <span className="c-lead" aria-hidden="true">
+                🔍
+              </span>
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={rotatedPlaceholder}
+                data-testid="landing-search-input"
+                aria-label={labels.searchPlaceholder}
+              />
+              <button
+                type="button"
+                className="c-mic"
+                aria-label="Voice search"
                 onClick={() => {
-                  setRegion(r);
-                  navigate(r, search);
+                  /* Voice search UI mock — Web Speech API 베타 후 wire */
                 }}
               >
-                <span aria-hidden="true">📍</span>
-                {r}
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="9" y="2" width="6" height="13" rx="3" />
+                  <path d="M19 10a7 7 0 0 1-14 0M12 19v3" />
+                </svg>
               </button>
-            ))}
-          </div>
-        </section>
+            </form>
+          </section>
 
-        {/* Stores grid */}
-        <div className="px-5 pt-6">
-          {stores.length === 0 ? (
-            <div className="rounded-3xl bg-white/60 px-6 py-16 text-center ring-1 ring-hesya-navy-900/10">
-              <h2 className="font-heading text-[20px] font-semibold italic text-hesya-navy-900">
-                {labels.emptyTitle}
-              </h2>
-              <p className="mt-2 text-[13px] text-hesya-navy-900/55">
-                {labels.emptySubtitle}
-              </p>
-            </div>
-          ) : (
+          {/* Mood chips horizontal scroll */}
+          {labels.moods.length > 0 && (
             <>
-              <p className="mb-4 text-[12px] text-hesya-navy-900/55">
-                {labels.resultsCount}
-              </p>
-              <div className="grid grid-cols-1 justify-items-center gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {stores.map((s) => (
-                  <StoreCard
-                    key={s.id}
-                    store={s}
-                    locale={locale}
-                    verifiedBadge={labels.verifiedBadge}
-                    reviewCountSuffix={labels.reviewCountSuffix}
-                  />
-                ))}
+              <div className="c-mood-cap">{labels.moodLabel}</div>
+              <div data-testid="landing-mood-row" className="c-mood-scroll">
+                {labels.moods.map((text, i) => {
+                  const icon = MOOD_ICONS[i % MOOD_ICONS.length];
+                  return (
+                    <button
+                      key={text}
+                      type="button"
+                      onClick={() => {
+                        setSearch(text);
+                        navigate(region, text);
+                      }}
+                      className="c-mood-chip"
+                    >
+                      <span aria-hidden="true">{icon}</span>
+                      {text}
+                    </button>
+                  );
+                })}
               </div>
+              {labels.liveRow && (
+                <div data-testid="landing-live-row" className="c-live-row">
+                  <span aria-hidden="true" className="c-live-dot" />
+                  {labels.liveRow}
+                </div>
+              )}
             </>
           )}
-        </div>
 
-        {/* "Loved by travelers from your country" horizontal scroll */}
-        {stores.length > 0 && labels.countryTitle && (
-          <section data-testid="landing-country" className="c-country-section">
-            <header className="c-country-head">
-              <h3>{labels.countryTitle}</h3>
-              {labels.countrySubtitle && (
-                <span className="c-sub">{labels.countrySubtitle}</span>
-              )}
-            </header>
-            <div className="c-country-scroll">
-              {[...stores]
-                .sort((a, b) => b.reviewCount - a.reviewCount)
-                .slice(0, 8)
-                .map((s) => (
-                  <StoreCard
-                    key={`country-${s.id}`}
-                    store={s}
-                    locale={locale}
-                    verifiedBadge={labels.verifiedBadge}
-                    reviewCountSuffix={labels.reviewCountSuffix}
-                  />
-                ))}
-            </div>
-          </section>
-        )}
+          {/* AI photo entry — reference landing.css .ai-card 정합 */}
+          {labels.aiPhotoCta && labels.aiPhotoSubtitle && (
+            <Link
+              href={`/${locale}/c/photo-analyze`}
+              data-testid="landing-photo-cta"
+              className="c-ai-card"
+            >
+              <div>
+                <h4 className="c-ai-card-title">{labels.aiPhotoCta}</h4>
+                <p className="c-ai-card-sl">{labels.aiPhotoSubtitle}</p>
+                <span aria-hidden="true" className="c-ai-card-cta">
+                  ✨ →
+                </span>
+              </div>
+              <CamIllust />
+            </Link>
+          )}
 
-        {/* Trending */}
-        {mockTrending && mockTrending.length > 0 && labels.trendingTitle && (
-          <section data-testid="landing-trending" className="mt-12 px-5">
-            <header className="mb-3">
-              <h3 className="font-heading text-[18px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900 sm:text-[20px]">
-                {labels.trendingTitle}
-              </h3>
-              {labels.trendingSubtitle && (
-                <p className="mt-1 text-[12px] text-hesya-navy-900/55">
-                  {labels.trendingSubtitle}
-                </p>
-              )}
-            </header>
-            <div className="c-trend-chips">
-              {mockTrending.map((t) => (
+          {/* Region chips horizontal scroll */}
+          <section className="c-region-row">
+            <div className="c-region-label">{labels.regionLabel}</div>
+            <div className="c-region-scroll">
+              <button
+                type="button"
+                className={"c-region-chip" + (!region ? " active" : "")}
+                onClick={() => {
+                  setRegion("");
+                  navigate("", search);
+                }}
+              >
+                {labels.regionAll}
+              </button>
+              {regions.map((r) => (
                 <button
-                  key={t.rank}
+                  key={r}
                   type="button"
+                  className={"c-region-chip" + (region === r ? " active" : "")}
                   onClick={() => {
-                    setSearch(t.text);
-                    navigate(region, t.text);
+                    setRegion(r);
+                    navigate(r, search);
                   }}
-                  className="c-trend-chip"
                 >
-                  <span className="c-trend-rank">#{t.rank}</span>
-                  {t.text}
+                  <span aria-hidden="true">📍</span>
+                  {r}
                 </button>
               ))}
             </div>
           </section>
-        )}
 
-        {/* UGC + Show more dashed card */}
-        {mockUGCCards && mockUGCCards.length > 0 && labels.ugcTitle && (
-          <section data-testid="landing-ugc" className="mt-12 px-5">
-            <header className="mb-4">
-              <h3 className="font-heading text-[18px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900 sm:text-[20px]">
-                {labels.ugcTitle}
-              </h3>
-              {labels.ugcSubtitle && (
-                <p className="mt-1 text-[12px] text-hesya-navy-900/55">
-                  {labels.ugcSubtitle}
+          {/* Stores grid */}
+          <div className="px-5 pt-6">
+            {stores.length === 0 ? (
+              <div className="rounded-3xl bg-white/60 px-6 py-16 text-center ring-1 ring-hesya-navy-900/10">
+                <h2 className="font-heading text-[20px] font-semibold italic text-hesya-navy-900">
+                  {labels.emptyTitle}
+                </h2>
+                <p className="mt-2 text-[13px] text-hesya-navy-900/55">
+                  {labels.emptySubtitle}
                 </p>
-              )}
-            </header>
-            <div className="c-ugc-row -mx-5 sm:mx-0">
-              {mockUGCCards.map((c) => (
-                <article key={c.id} className="c-ugc-card">
-                  <div className="c-ugc-card-img">
-                    <Image
-                      src={c.imageUrl}
-                      alt={`${c.name} — ${c.quote}`}
-                      width={200}
-                      height={168}
-                      loading="lazy"
-                      sizes="200px"
-                      className="h-full w-full object-cover"
+              </div>
+            ) : (
+              <>
+                <p className="mb-4 text-[12px] text-hesya-navy-900/55">
+                  {labels.resultsCount}
+                </p>
+                <div className="grid grid-cols-1 justify-items-center gap-4">
+                  {stores.map((s) => (
+                    <StoreCard
+                      key={s.id}
+                      store={s}
+                      locale={locale}
+                      verifiedBadge={labels.verifiedBadge}
+                      reviewCountSuffix={labels.reviewCountSuffix}
                     />
-                    <span
-                      aria-label={
-                        c.source === "instagram" ? "Instagram" : "Xiaohongshu"
-                      }
-                      className="c-ugc-card-source"
-                      style={{
-                        color: c.source === "instagram" ? "#C13584" : "#FE2C55",
-                      }}
-                    >
-                      {c.source === "instagram" ? "◉" : "红"}
-                    </span>
-                  </div>
-                  <div className="c-ugc-card-meta">
-                    <div className="c-ugc-card-meta-top">
-                      <span aria-hidden="true">{c.flag}</span>
-                      <span className="c-ugc-card-name">{c.name}</span>
-                      <span
-                        aria-label={`${c.stars} stars`}
-                        className="c-ugc-card-stars"
-                      >
-                        {"★".repeat(c.stars)}
-                      </span>
-                    </div>
-                    <p className="c-ugc-card-quote">&ldquo;{c.quote}&rdquo;</p>
-                  </div>
-                </article>
-              ))}
-              {labels.ugcShowMore && (
-                <button
-                  type="button"
-                  className="c-ugc-more"
-                  data-testid="landing-ugc-more"
-                >
-                  <span aria-hidden="true" className="text-[20px]">
-                    ↗
-                  </span>
-                  <span>{labels.ugcShowMore}</span>
-                </button>
-              )}
-            </div>
-          </section>
-        )}
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
 
-        {/* Reviews — reference landing.css .reviews-l / .review-card 정합 */}
-        {mockReviews && mockReviews.length > 0 && labels.reviewsTitle && (
-          <section data-testid="landing-reviews" className="mt-12">
-            <header className="mb-2 px-5">
-              <h3 className="font-heading text-[18px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900 sm:text-[20px]">
-                {labels.reviewsTitle}
-              </h3>
-              {labels.reviewsSubtitle && (
-                <p className="mt-1 text-[12px] text-hesya-navy-900/55">
-                  {labels.reviewsSubtitle}
-                </p>
-              )}
-            </header>
-            <div className="c-reviews">
-              {mockReviews.map((r) => (
-                <article key={r.id} className="c-review-card">
-                  <div className="c-review-card-left">
-                    <span aria-hidden="true" className="c-review-card-flag">
-                      {r.flag}
-                    </span>
-                    <span
-                      aria-label={`${r.stars} stars`}
-                      className="c-review-card-stars"
-                    >
-                      {"★".repeat(r.stars)}
-                    </span>
-                  </div>
-                  <div className="c-review-card-body">
-                    <p className="c-review-card-quote">
-                      &ldquo;{r.quote}&rdquo;
-                    </p>
-                    <p className="c-review-card-trans">→ {r.translation}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Safety strip — reference landing.css .safety-strip 정합 */}
-        {labels.safetyTitle &&
-          labels.safetyStat1 &&
-          labels.safetyStat2 &&
-          labels.safetyStat3 &&
-          labels.safetyStat4 && (
-            <section data-testid="landing-safety" className="c-safety-strip">
-              <h3 className="c-safety-heading">{labels.safetyTitle}</h3>
-              <ul className="c-safety-stats">
-                {[
-                  ["🇰🇷", labels.safetyStat1],
-                  ["👥", labels.safetyStat2],
-                  ["📍", labels.safetyStat3],
-                  ["💬", labels.safetyStat4],
-                ].map(([icon, text], i) => (
-                  <li key={i} className="c-safety-stat">
-                    <span aria-hidden="true" className="c-safety-stat-ico">
-                      {icon}
-                    </span>
-                    <span>{text}</span>
-                  </li>
-                ))}
-              </ul>
-              {labels.safetySource && (
-                <p className="c-safety-source">{labels.safetySource}</p>
-              )}
+          {/* "Loved by travelers from your country" horizontal scroll */}
+          {stores.length > 0 && labels.countryTitle && (
+            <section
+              data-testid="landing-country"
+              className="c-country-section"
+            >
+              <header className="c-country-head">
+                <h3>{labels.countryTitle}</h3>
+                {labels.countrySubtitle && (
+                  <span className="c-sub">{labels.countrySubtitle}</span>
+                )}
+              </header>
+              <div className="c-country-scroll">
+                {[...stores]
+                  .sort((a, b) => b.reviewCount - a.reviewCount)
+                  .slice(0, 8)
+                  .map((s) => (
+                    <StoreCard
+                      key={`country-${s.id}`}
+                      store={s}
+                      locale={locale}
+                      verifiedBadge={labels.verifiedBadge}
+                      reviewCountSuffix={labels.reviewCountSuffix}
+                    />
+                  ))}
+              </div>
             </section>
           )}
-      </div>
 
-      {/* Tab bar (fixed bottom nav) */}
-      <nav className="c-tabbar" aria-label="Main navigation">
-        <TabbarItem
-          href={`/${locale}/c`}
-          active
-          label={labels.tabSearch ?? "Search"}
-          icon={<TabIconSearch />}
-        />
-        <TabbarItem
-          href={`/${locale}/c/mypage`}
-          label={labels.tabBookings ?? "Bookings"}
-          icon={<TabIconCalendar />}
-        />
-        <TabbarItem
-          href={`/${locale}/c/chat`}
-          label={labels.tabChat ?? "Chat"}
-          icon={<TabIconMessage />}
-        />
-        <TabbarItem
-          href={`/${locale}/c/mypage`}
-          label={labels.tabMypage ?? "MyPage"}
-          icon={<TabIconUser />}
-        />
-      </nav>
-
-      {/* Language bottom sheet */}
-      {langSheetOpen && (
-        <div
-          className="c-lang-sheet-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-label={labels.langSheetTitle ?? "Choose language"}
-          onClick={() => setLangSheetOpen(false)}
-        >
-          <div className="c-lang-sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="c-lang-sheet-handle" aria-hidden="true" />
-            <h3 className="c-lang-sheet-title">
-              {labels.langSheetTitle ?? "Choose language"}
-            </h3>
-            {LANG_OPTIONS.map((l) => (
-              <button
-                key={l.code}
-                type="button"
-                className={
-                  "c-lang-sheet-item" + (l.code === locale ? " active" : "")
-                }
-                onClick={() => handleLocaleChange(l.code)}
-              >
-                <span>{l.label}</span>
-                {l.code === locale && (
-                  <span className="c-lang-sheet-check" aria-hidden="true">
-                    ✓
-                  </span>
+          {/* Trending */}
+          {mockTrending && mockTrending.length > 0 && labels.trendingTitle && (
+            <section data-testid="landing-trending" className="mt-12 px-5">
+              <header className="mb-3">
+                <h3 className="font-heading text-[18px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900 sm:text-[20px]">
+                  {labels.trendingTitle}
+                </h3>
+                {labels.trendingSubtitle && (
+                  <p className="mt-1 text-[12px] text-hesya-navy-900/55">
+                    {labels.trendingSubtitle}
+                  </p>
                 )}
-              </button>
-            ))}
-          </div>
+              </header>
+              <div className="c-trend-chips">
+                {mockTrending.map((t) => (
+                  <button
+                    key={t.rank}
+                    type="button"
+                    onClick={() => {
+                      setSearch(t.text);
+                      navigate(region, t.text);
+                    }}
+                    className="c-trend-chip"
+                  >
+                    <span className="c-trend-rank">#{t.rank}</span>
+                    {t.text}
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* UGC + Show more dashed card */}
+          {mockUGCCards && mockUGCCards.length > 0 && labels.ugcTitle && (
+            <section data-testid="landing-ugc" className="mt-12 px-5">
+              <header className="mb-4">
+                <h3 className="font-heading text-[18px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900 sm:text-[20px]">
+                  {labels.ugcTitle}
+                </h3>
+                {labels.ugcSubtitle && (
+                  <p className="mt-1 text-[12px] text-hesya-navy-900/55">
+                    {labels.ugcSubtitle}
+                  </p>
+                )}
+              </header>
+              <div className="c-ugc-row -mx-5 sm:mx-0">
+                {mockUGCCards.map((c) => (
+                  <article key={c.id} className="c-ugc-card">
+                    <div className="c-ugc-card-img">
+                      <Image
+                        src={c.imageUrl}
+                        alt={`${c.name} — ${c.quote}`}
+                        width={200}
+                        height={168}
+                        loading="lazy"
+                        sizes="200px"
+                        className="h-full w-full object-cover"
+                      />
+                      <span
+                        aria-label={
+                          c.source === "instagram" ? "Instagram" : "Xiaohongshu"
+                        }
+                        className="c-ugc-card-source"
+                        style={{
+                          color:
+                            c.source === "instagram" ? "#C13584" : "#FE2C55",
+                        }}
+                      >
+                        {c.source === "instagram" ? "◉" : "红"}
+                      </span>
+                    </div>
+                    <div className="c-ugc-card-meta">
+                      <div className="c-ugc-card-meta-top">
+                        <span aria-hidden="true">{c.flag}</span>
+                        <span className="c-ugc-card-name">{c.name}</span>
+                        <span
+                          aria-label={`${c.stars} stars`}
+                          className="c-ugc-card-stars"
+                        >
+                          {"★".repeat(c.stars)}
+                        </span>
+                      </div>
+                      <p className="c-ugc-card-quote">
+                        &ldquo;{c.quote}&rdquo;
+                      </p>
+                    </div>
+                  </article>
+                ))}
+                {labels.ugcShowMore && (
+                  <button
+                    type="button"
+                    className="c-ugc-more"
+                    data-testid="landing-ugc-more"
+                  >
+                    <span aria-hidden="true" className="text-[20px]">
+                      ↗
+                    </span>
+                    <span>{labels.ugcShowMore}</span>
+                  </button>
+                )}
+              </div>
+            </section>
+          )}
+
+          {/* Reviews — reference landing.css .reviews-l / .review-card 정합 */}
+          {mockReviews && mockReviews.length > 0 && labels.reviewsTitle && (
+            <section data-testid="landing-reviews" className="mt-12">
+              <header className="mb-2 px-5">
+                <h3 className="font-heading text-[18px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900 sm:text-[20px]">
+                  {labels.reviewsTitle}
+                </h3>
+                {labels.reviewsSubtitle && (
+                  <p className="mt-1 text-[12px] text-hesya-navy-900/55">
+                    {labels.reviewsSubtitle}
+                  </p>
+                )}
+              </header>
+              <div className="c-reviews">
+                {mockReviews.map((r) => (
+                  <article key={r.id} className="c-review-card">
+                    <div className="c-review-card-left">
+                      <span aria-hidden="true" className="c-review-card-flag">
+                        {r.flag}
+                      </span>
+                      <span
+                        aria-label={`${r.stars} stars`}
+                        className="c-review-card-stars"
+                      >
+                        {"★".repeat(r.stars)}
+                      </span>
+                    </div>
+                    <div className="c-review-card-body">
+                      <p className="c-review-card-quote">
+                        &ldquo;{r.quote}&rdquo;
+                      </p>
+                      <p className="c-review-card-trans">→ {r.translation}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Safety strip — reference landing.css .safety-strip 정합 */}
+          {labels.safetyTitle &&
+            labels.safetyStat1 &&
+            labels.safetyStat2 &&
+            labels.safetyStat3 &&
+            labels.safetyStat4 && (
+              <section data-testid="landing-safety" className="c-safety-strip">
+                <h3 className="c-safety-heading">{labels.safetyTitle}</h3>
+                <ul className="c-safety-stats">
+                  {[
+                    ["🇰🇷", labels.safetyStat1],
+                    ["👥", labels.safetyStat2],
+                    ["📍", labels.safetyStat3],
+                    ["💬", labels.safetyStat4],
+                  ].map(([icon, text], i) => (
+                    <li key={i} className="c-safety-stat">
+                      <span aria-hidden="true" className="c-safety-stat-ico">
+                        {icon}
+                      </span>
+                      <span>{text}</span>
+                    </li>
+                  ))}
+                </ul>
+                {labels.safetySource && (
+                  <p className="c-safety-source">{labels.safetySource}</p>
+                )}
+              </section>
+            )}
         </div>
-      )}
+
+        {/* Tab bar (fixed bottom nav) */}
+        <nav className="c-tabbar" aria-label="Main navigation">
+          <TabbarItem
+            href={`/${locale}/c`}
+            active
+            label={labels.tabSearch ?? "Search"}
+            icon={<TabIconSearch />}
+          />
+          <TabbarItem
+            href={`/${locale}/c/mypage`}
+            label={labels.tabBookings ?? "Bookings"}
+            icon={<TabIconCalendar />}
+          />
+          <TabbarItem
+            href={`/${locale}/c/chat`}
+            label={labels.tabChat ?? "Chat"}
+            icon={<TabIconMessage />}
+          />
+          <TabbarItem
+            href={`/${locale}/c/mypage`}
+            label={labels.tabMypage ?? "MyPage"}
+            icon={<TabIconUser />}
+          />
+        </nav>
+
+        {/* Language bottom sheet */}
+        {langSheetOpen && (
+          <div
+            className="c-lang-sheet-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-label={labels.langSheetTitle ?? "Choose language"}
+            onClick={() => setLangSheetOpen(false)}
+          >
+            <div className="c-lang-sheet" onClick={(e) => e.stopPropagation()}>
+              <div className="c-lang-sheet-handle" aria-hidden="true" />
+              <h3 className="c-lang-sheet-title">
+                {labels.langSheetTitle ?? "Choose language"}
+              </h3>
+              {LANG_OPTIONS.map((l) => (
+                <button
+                  key={l.code}
+                  type="button"
+                  className={
+                    "c-lang-sheet-item" + (l.code === locale ? " active" : "")
+                  }
+                  onClick={() => handleLocaleChange(l.code)}
+                >
+                  <span>{l.label}</span>
+                  {l.code === locale && (
+                    <span className="c-lang-sheet-check" aria-hidden="true">
+                      ✓
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

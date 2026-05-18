@@ -2,13 +2,71 @@
  * Customer Landing — reference 정합 styles
  * 출처: docs/design/reference/landing.css (claude.ai/design)
  * scope: `.c-landing` 하위 (다른 c/ 페이지 영향 차단)
+ *
+ * 레이아웃:
+ *   .c-landing-stage  — full-viewport peach 배경 (양쪽 여백 채움)
+ *   .c-landing        — max-width 480 모바일 카드 (데스크탑 ≥1024에서 iPhone bezel mockup)
  */
+
+.c-landing-stage {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(
+      ellipse 1000px 600px at 50% -100px,
+      var(--hesya-peach-200, #fbd3b4),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 900px 500px at 50% 100%,
+      var(--hesya-peach-100, #fbe5d2),
+      transparent 60%
+    ),
+    var(--hesya-peach-50, #fdf8f1);
+}
 
 .c-landing {
   --duration-fast: 180ms;
   position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--hesya-peach-50, #fdf8f1);
   font-family: var(--font-kr);
   color: var(--hesya-navy-900);
+}
+
+/* Desktop ≥1024px — iPhone bezel mockup */
+@media (min-width: 1024px) {
+  .c-landing-stage {
+    min-height: 100vh;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .c-landing {
+    width: 430px;
+    max-width: 430px;
+    height: min(880px, calc(100vh - 80px));
+    min-height: 0;
+    margin: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: 48px;
+    box-shadow:
+      0 0 0 12px #1a1e24,
+      0 0 0 14px #2b3038,
+      0 30px 80px rgba(26, 34, 56, 0.25);
+    /* containing block for position:fixed children (e.g. .c-tabbar) */
+    transform: translateZ(0);
+  }
+  .c-landing::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Sticky topbar + blur */
