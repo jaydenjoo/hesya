@@ -537,11 +537,12 @@ export function BookScheduleForm({
           </section>
         ) : null}
 
-        <section className="rounded-2xl border border-hesya-peach-200 bg-white px-4 py-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+        <section className="rounded-[14px] border border-trust-rose bg-hesya-peach-100 px-4 py-3">
+          <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-hesya-navy-900/60">
+            <span aria-hidden="true">🛡️</span>
             {labels.depositTitle}
           </p>
-          <p className="mt-1 text-[12px] leading-relaxed text-hesya-navy-900/75">
+          <p className="mt-1 text-[12px] leading-[1.55] text-hesya-navy-900/75">
             {labels.depositBody}
           </p>
         </section>
@@ -549,10 +550,10 @@ export function BookScheduleForm({
 
       <div className="sticky bottom-0 z-20 -mx-5 flex items-center gap-3 border-t border-hesya-peach-200 bg-hesya-peach-50/95 px-5 py-3 backdrop-blur">
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/55">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">
             {labels.totalLabel}
           </p>
-          <p className="truncate font-mono text-[15px] font-semibold text-hesya-navy-900">
+          <p className="truncate font-heading text-[20px] font-medium text-hesya-navy-900">
             {selectedService ? selectedService.priceLabel : "—"}
           </p>
         </div>
