@@ -222,12 +222,18 @@ export default async function StoreDetailPage({
     };
   });
 
+  // Sticky mini header rating mock — meta row와 동일 시드 (DAL rating 확장 전).
+  const headerRatingMock = parseFloat(
+    (4.7 + (store.id.charCodeAt(0) % 30) / 100).toFixed(2),
+  );
+
   return (
     <CustomerFrame>
       <StickyMiniHeader
         storeName={store.name}
         bookHref={`/c/store/${store.id}/book/schedule`}
         bookLabel={t("bookCta")}
+        rating={headerRatingMock}
       />
 
       <HeroGallery
