@@ -94,7 +94,7 @@ export function TopBar({
   return (
     <header className="row-start-1 col-span-full z-50 flex h-16 items-center gap-6 border-b border-hesya-peach-100 bg-hesya-peach-50/95 px-6 shadow-[0_1px_2px_rgba(26,34,56,0.04)] backdrop-blur-[14px]">
       <div className="flex w-50 flex-shrink-0 items-baseline gap-2 pr-3">
-        <span className="font-heading text-[22px] font-semibold italic tracking-[-0.02em] text-hesya-navy-900">
+        <span className="font-heading text-[24px] font-semibold italic tracking-[-0.02em] text-hesya-navy-900">
           Hesya
         </span>
         <span className="kr rounded bg-hesya-peach-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-hesya-amber-600">
@@ -140,7 +140,7 @@ export function TopBar({
           type="button"
           onClick={handleLocaleCycle}
           aria-label={`${labels.localeToggleAlt}: ${currentBadge} → ${nextBadge}`}
-          className="inline-flex h-[34px] items-center gap-1 rounded-md border border-hesya-peach-200 bg-white px-3 text-[13px] font-medium text-hesya-navy-900 transition hover:border-hesya-amber-500"
+          className="inline-flex h-[38px] items-center gap-1 rounded-md border border-hesya-peach-200 bg-white px-3 text-[13px] font-medium text-hesya-navy-900 transition hover:border-hesya-amber-500"
         >
           <span aria-hidden="true">🌐</span>
           <span className="kr">{currentBadge}</span>

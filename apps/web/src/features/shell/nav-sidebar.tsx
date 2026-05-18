@@ -49,7 +49,7 @@ export function NavSidebar({ storeName, labels, counts }: Props) {
   const storeInitial = getStoreInitial(storeName);
 
   return (
-    <aside className="row-start-2 col-start-1 hidden border-r border-hesya-peach-200 bg-white px-3 py-5 lg:flex lg:flex-col">
+    <aside className="row-start-2 col-start-1 hidden w-[240px] border-r border-hesya-peach-200 bg-white px-3 pb-4 pt-5 lg:flex lg:flex-col">
       <nav className="flex flex-col gap-1">
         {NAV_ITEMS.map((item) => {
           const active =
@@ -60,9 +60,9 @@ export function NavSidebar({ storeName, labels, counts }: Props) {
               key={item.key}
               href={item.href}
               className={[
-                "relative flex items-center gap-3 rounded-md px-3 py-2.5 text-[13px] font-medium transition-colors",
+                "relative flex items-center gap-3 rounded-md px-3 py-2.5 text-[14px] font-medium transition-colors",
                 active
-                  ? "bg-hesya-peach-100 font-semibold text-hesya-navy-900 before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-r before:bg-hesya-amber-500"
+                  ? "bg-hesya-peach-100 font-semibold text-hesya-navy-900 before:absolute before:-left-3 before:top-2 before:bottom-2 before:w-[3px] before:rounded-r before:bg-hesya-amber-500"
                   : "text-gray-700 hover:bg-hesya-peach-50",
               ].join(" ")}
             >
