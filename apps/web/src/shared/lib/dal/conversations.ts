@@ -6,6 +6,8 @@ import {
   desc,
   eq,
   inArray,
+  isNotNull,
+  messages,
   sql,
   type Channel,
   type DbClient,
@@ -17,9 +19,14 @@ type Status = "open" | "closed" | "snoozed";
 /**
  * 인박스 thread list에서 사용. conversation row + `customers.name` 동봉으로
  * UI가 customer UUID 대신 이름 표시.
+ *
+ * `lastMessagePreviewKr`: conversation 마지막 메시지 중 translated_text가 NULL이
+ * 아닌 가장 최근 한 건 (외국어 → 한국어 번역본). UI thread row 2번째 줄에 표시.
+ * 매칭 메시지 없으면 null.
  */
 export interface ConversationListItem extends Conversation {
   customerName: string | null;
+  lastMessagePreviewKr: string | null;
 }
 
 export async function upsertConversation(
@@ -94,9 +101,33 @@ export async function listByStore(
     .where(inArray(customers.id, customerIds));
   const nameMap = new Map(customerRows.map((c) => [c.id, c.name]));
 
+  // lastMessagePreviewKr: 각 conversation의 translated_text NOT NULL 최신 메시지.
+  // 50 conversation x 인덱스(conversation_id, created_at desc) 활용. 메모리 dedup.
+  const conversationIds = rows.map((r) => r.id);
+  const krRows = await db
+    .select({
+      conversationId: messages.conversationId,
+      translatedText: messages.translatedText,
+    })
+    .from(messages)
+    .where(
+      and(
+        inArray(messages.conversationId, conversationIds),
+        isNotNull(messages.translatedText),
+      ),
+    )
+    .orderBy(desc(messages.createdAt));
+  const krMap = new Map<string, string>();
+  for (const r of krRows) {
+    if (r.conversationId && r.translatedText && !krMap.has(r.conversationId)) {
+      krMap.set(r.conversationId, r.translatedText);
+    }
+  }
+
   return rows.map((r) => ({
     ...r,
     customerName: nameMap.get(r.customerId) ?? null,
+    lastMessagePreviewKr: krMap.get(r.id) ?? null,
   }));
 }
 
