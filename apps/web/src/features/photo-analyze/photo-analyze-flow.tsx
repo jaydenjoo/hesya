@@ -10,7 +10,48 @@
  * Reduced-motion 존중 (애니메이션 step → 즉시 점프).
  */
 
-import { Camera, Image as ImageIcon, Sparkles } from "lucide-react";
+import { Camera, Image as ImageIcon } from "lucide-react";
+
+/**
+ * Reference ai-flow-app.jsx L5-33 CamSparkles — K-beauty camera 룩
+ * (body + lens 이중 원 + flash mount + 3 sparkles). 단순 lucide-react Sparkles
+ * 대신 reference identity 일치하는 커스텀 SVG.
+ */
+function CamSparkles({ size = 64 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 80 80"
+      fill="none"
+      aria-hidden="true"
+    >
+      <rect
+        x="10"
+        y="22"
+        width="60"
+        height="42"
+        rx="7"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <path
+        d="M28 22 32 14h16l4 8"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="none"
+        strokeLinejoin="round"
+      />
+      <circle cx="40" cy="44" r="11" stroke="currentColor" strokeWidth="2" />
+      <circle cx="40" cy="44" r="5" stroke="currentColor" strokeWidth="2" />
+      <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d="M62 14v6M59 17h6" />
+        <path d="M68 32v4M66 34h4" />
+        <path d="M14 14v4M12 16h4" />
+      </g>
+    </svg>
+  );
+}
 import { useRef, useState, useTransition } from "react";
 import { analyzePhotoAction } from "@/lib/photo-analysis/actions";
 
@@ -151,11 +192,9 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
           htmlFor="photo-upload-input"
           className="block cursor-pointer rounded-3xl border-2 border-dashed border-hesya-amber-600/40 bg-white/60 px-6 py-12 text-center transition hover:border-hesya-amber-600 hover:bg-white"
         >
-          <Sparkles
-            size={64}
-            strokeWidth={1.5}
-            className="mx-auto mb-4 text-hesya-amber-600"
-          />
+          <div className="mx-auto mb-4 flex justify-center text-hesya-amber-600">
+            <CamSparkles size={64} />
+          </div>
           <p className="text-[14px] text-hesya-navy-900/70">
             {labels.dropHint}
           </p>
@@ -315,7 +354,7 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
         : labels.result.difficultyHard;
 
   return (
-    <div className="mx-auto w-full max-w-md px-5 pt-6 pb-12">
+    <div className="slide-up-result mx-auto w-full max-w-md px-5 pt-6 pb-12">
       {previewUrl && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
