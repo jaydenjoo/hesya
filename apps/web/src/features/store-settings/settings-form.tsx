@@ -633,12 +633,12 @@ function SectionShell({
         ) : null}
       </header>
       {children ? (
-        <div className="rounded-md border border-hesya-peach-100 bg-white p-6">
+        <div className="rounded-sm border border-hesya-peach-100 bg-white p-6">
           {children}
         </div>
       ) : null}
       {placeholder ? (
-        <div className="rounded-md border border-dashed border-hesya-peach-200 bg-white/60 px-4 py-8 text-center text-[12px] text-hesya-navy-900/55">
+        <div className="rounded-sm border border-dashed border-hesya-peach-200 bg-white/60 px-4 py-8 text-center text-[12px] text-hesya-navy-900/55">
           {placeholder}
         </div>
       ) : null}
