@@ -32,8 +32,8 @@ const ALL_METHODS: ReadonlyArray<{
   readonly bg: string;
   readonly suggested?: boolean;
 }> = [
-  { value: "card", icon: "▭", bg: "bg-slate-100", suggested: true },
-  { value: "alipay", icon: "支", bg: "bg-blue-100" },
+  { value: "card", icon: "▭", bg: "bg-slate-100" },
+  { value: "alipay", icon: "支", bg: "bg-blue-100", suggested: true },
   { value: "wechat", icon: "微", bg: "bg-emerald-100" },
   { value: "linepay", icon: "L", bg: "bg-green-100" },
   { value: "paypay", icon: "P", bg: "bg-red-100" },
@@ -365,10 +365,10 @@ export function MockPaymentForm({
           type="submit"
           disabled={processing}
           className={[
-            "flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold transition",
+            "flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold transition shadow-[0_6px_16px_rgba(216,139,91,0.3)]",
             processing
-              ? "cursor-wait bg-hesya-navy-900/70 text-hesya-peach-50"
-              : "bg-hesya-navy-900 text-hesya-peach-50 hover:bg-hesya-navy-900/90",
+              ? "cursor-wait bg-hesya-amber-500/70 text-white"
+              : "bg-hesya-amber-500 text-white hover:bg-hesya-amber-600",
           ].join(" ")}
         >
           {processing ? (
@@ -377,7 +377,7 @@ export function MockPaymentForm({
             <>
               <span>{labels.payNow}</span>
               <span className="font-mono">{depositPrimary}</span>
-              <span className="text-[11px] text-hesya-peach-50/65">
+              <span className="text-[11px] text-white/75">
                 {labels.approxLabel} {depositSecondary}
               </span>
             </>

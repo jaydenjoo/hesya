@@ -200,6 +200,8 @@ export default async function StoreMockPayPage({
             payNow: t("payNow"),
             termsNote: t("termsNote"),
             errorGeneric: t("errorGeneric"),
+            serviceTitle: svcRow.nameKo,
+            serviceMeta: `${sp.date} · ${sp.time}`,
           }}
         />
       </div>
