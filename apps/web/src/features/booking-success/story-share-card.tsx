@@ -100,7 +100,7 @@ export function StoryShareCard({
             {handle}
           </div>
         </div>
-        <div className="flex w-full flex-col gap-2">
+        <div className="flex w-full flex-row gap-1.5">
           <ActionButton primary icon="📷" label={actions.save} />
           <ActionButton icon="💬" label={actions.send} />
           <ActionButton icon="🔗" label={actions.copy} />
@@ -124,8 +124,8 @@ function ActionButton({
       type="button"
       className={
         primary
-          ? "inline-flex w-full items-center justify-center gap-2 rounded-full bg-hesya-amber-500 px-4 py-2.5 text-[13px] font-semibold text-white shadow-[0_4px_12px_rgba(232,169,122,0.35)] transition hover:bg-hesya-amber-600"
-          : "inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-2.5 text-[13px] font-semibold text-hesya-navy-900 ring-1 ring-hesya-navy-900/10 transition hover:bg-hesya-peach-50"
+          ? "inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-hesya-amber-500 px-3 py-2 text-[12px] font-semibold text-white shadow-[0_4px_12px_rgba(232,169,122,0.35)] transition hover:bg-hesya-amber-600"
+          : "inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-white px-3 py-2 text-[12px] font-semibold text-hesya-navy-900 ring-1 ring-hesya-navy-900/10 transition hover:bg-hesya-peach-50"
       }
     >
       <span aria-hidden="true">{icon}</span>
