@@ -300,7 +300,7 @@ export function BookScheduleForm({
                     closed
                       ? "cursor-not-allowed border-hesya-peach-200 bg-hesya-peach-50/40 text-hesya-navy-900/35"
                       : active
-                        ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
+                        ? "border-hesya-amber-600 bg-hesya-amber-500 text-white shadow-[0_8px_20px_rgba(216,139,91,0.3),0_0_0_4px_rgba(232,169,122,0.15)]"
                         : "border-hesya-peach-200 bg-white text-hesya-navy-900 hover:border-hesya-amber-500",
                   ].join(" ")}
                 >
@@ -310,13 +310,13 @@ export function BookScheduleForm({
                       closed
                         ? "text-hesya-navy-900/40"
                         : active
-                          ? "text-hesya-peach-50/75"
+                          ? "text-white/85"
                           : "text-hesya-navy-900/55",
                     ].join(" ")}
                   >
                     {closed ? labels.closedLabel : label}
                   </span>
-                  <span className="font-mono text-[16px] font-semibold leading-none">
+                  <span className="font-heading text-[22px] font-medium leading-none">
                     {numPart}
                   </span>
                   <span
@@ -387,7 +387,7 @@ export function BookScheduleForm({
                   className={[
                     "relative rounded-lg border px-2 py-2 text-[12px] font-medium transition",
                     active
-                      ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
+                      ? "border-hesya-amber-600 bg-hesya-amber-500 text-white shadow-[0_6px_16px_rgba(216,139,91,0.3)]"
                       : disabled
                         ? "cursor-not-allowed border-hesya-peach-100 bg-hesya-peach-50/40 text-hesya-navy-900/30 line-through"
                         : "border-hesya-peach-200 bg-white text-hesya-navy-900 hover:border-hesya-amber-500",
@@ -561,10 +561,10 @@ export function BookScheduleForm({
           onClick={handleNext}
           disabled={!allSelected}
           className={[
-            "flex-shrink-0 rounded-full px-5 py-2.5 text-[13px] font-semibold transition",
+            "flex-shrink-0 rounded-[14px] px-[18px] py-[14px] text-[13px] font-semibold transition",
             allSelected
-              ? "bg-hesya-navy-900 text-hesya-peach-50 hover:bg-hesya-navy-900/90"
-              : "cursor-not-allowed bg-hesya-peach-200/60 text-hesya-navy-900/40",
+              ? "bg-hesya-amber-500 text-white shadow-[0_6px_16px_rgba(216,139,91,0.3)] hover:bg-hesya-amber-600"
+              : "cursor-not-allowed bg-gray-300 text-white/70",
           ].join(" ")}
         >
           {allSelected ? `${labels.next} →` : labels.incomplete}
