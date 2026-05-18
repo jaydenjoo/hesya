@@ -28,6 +28,8 @@ interface Review {
   flag: string;
   country: string;
   rating: number;
+  /** Reference detail.css L726-730 .review-item .top-r .date — 상대 시간. */
+  relativeDate: string;
 }
 
 function renderStars(rating: number): string {
@@ -60,6 +62,7 @@ export function TabReviews({
       flag: "🇯🇵",
       country: "JP",
       rating: 5,
+      relativeDate: "2일 전",
     },
     {
       author: sampleAuthor2,
@@ -68,6 +71,7 @@ export function TabReviews({
       flag: "🇺🇸",
       country: "US",
       rating: 5,
+      relativeDate: "1주 전",
     },
     {
       author: sampleAuthor3,
@@ -76,6 +80,7 @@ export function TabReviews({
       flag: "🇨🇳",
       country: "CN",
       rating: 4,
+      relativeDate: "3주 전",
     },
   ];
   const [filter, setFilter] = useState<string>("All");
@@ -164,29 +169,33 @@ function ReviewItem({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <li className="rounded-2xl border border-hesya-peach-200 bg-white px-4 py-3">
-      <div className="mb-1 flex items-center justify-between">
-        <p className="text-[13px] font-medium text-hesya-navy-900">
-          <span aria-hidden="true" className="mr-1.5">
-            {review.flag}
-          </span>
+    // Reference detail.css L701-758 .review-item — r-14px + 14px padding + quote 14px/1.55
+    <li className="rounded-[14px] border border-[rgba(26,34,56,0.06)] bg-white p-[14px]">
+      <div className="mb-2 flex items-center gap-2">
+        <span aria-hidden="true" className="text-[18px]">
+          {review.flag}
+        </span>
+        <span className="text-[13px] font-semibold text-hesya-navy-900">
           {review.author}
-        </p>
+        </span>
         <span
-          className="font-mono text-[11px] text-hesya-amber-500"
+          className="ml-auto font-mono text-[11px] text-hesya-amber-500"
           aria-label={`${review.rating} out of 5`}
         >
           {renderStars(review.rating)}
         </span>
+        <span className="ml-1.5 font-mono text-[11px] text-gray-500">
+          {review.relativeDate}
+        </span>
       </div>
-      <p className="text-[12px] leading-relaxed text-hesya-navy-900/75">
+      <p className="text-[14px] leading-[1.55] text-hesya-navy-900 [word-break:keep-all]">
         &ldquo;{review.quote}&rdquo;
       </p>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="mt-2 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em] text-hesya-amber-600 transition hover:text-hesya-amber-700"
+        className="mt-2 inline-flex items-center gap-1.5 text-[11px] tracking-[0.02em] text-gray-500 transition hover:text-gray-700"
       >
         <span
           aria-hidden="true"
