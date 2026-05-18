@@ -58,7 +58,7 @@
   flex-wrap: wrap;
   gap: 4px;
   font-size: 10px;
-  color: rgba(26, 34, 56, 0.65);
+  color: var(--gray-700, #5c6377);
   margin-top: 4px;
 }
 .cm-traveler .cm-dvd {
@@ -126,7 +126,7 @@
 .cm-tcount {
   font-size: 9px;
   background: var(--hesya-peach-100);
-  color: rgba(26, 34, 56, 0.7);
+  color: var(--gray-700, #5c6377);
   padding: 2px 6px;
   border-radius: 999px;
   font-weight: 700;
