@@ -57,6 +57,11 @@ export interface EditorPanelLabels {
   readonly aiSuggestLabel: string;
   readonly aiTranslateAllLabel: string;
   readonly aiSuggestNote: string;
+  readonly aiProposalThinking: string;
+  readonly aiProposalDisclaimer: string;
+  readonly aiProposalEdit: string;
+  readonly aiProposalDismiss: string;
+  readonly aiProposalApply: string;
   readonly priceKrwLabel: string;
   readonly durationLabel: string;
   readonly categoryLabel: string;
@@ -161,6 +166,11 @@ export function EditorPanel({
     useState<(typeof LANG_TABS)[number]["key"]>("nameKo");
   const [aiPending, startAiTransition] = useTransition();
   const [aiError, setAiError] = useState<string | null>(null);
+  const [aiProposal, setAiProposal] = useState<{
+    langKey: LangKey;
+    targetLang: TargetLang;
+    text: string;
+  } | null>(null);
 
   const close = useCallback(() => onClose(), [onClose]);
 
@@ -168,11 +178,21 @@ export function EditorPanel({
   const canSuggest =
     activeTab.targetLang !== null && value.nameKo.trim().length > 0;
 
+  // 활성 탭이 바뀌면 이전 탭의 proposal은 더 이상 유효하지 않음.
+  const switchLang = (key: LangKey) => {
+    if (key === activeLang) return;
+    setActiveLang(key);
+    setAiProposal(null);
+    setAiError(null);
+  };
+
   const handleAiSuggest = () => {
     if (!activeTab.targetLang || !value.nameKo.trim()) return;
     setAiError(null);
     const targetLang = activeTab.targetLang;
     const langKey = activeTab.key;
+    // proposal card 즉시 열어 shimmer(thinking) 상태 노출.
+    setAiProposal({ langKey, targetLang, text: "" });
     startAiTransition(async () => {
       const result = await suggestServiceTranslationAction({
         nameKo: value.nameKo,
@@ -180,10 +200,25 @@ export function EditorPanel({
       });
       if (!result.ok) {
         setAiError(result.message);
+        setAiProposal(null);
         return;
       }
-      onChange({ ...value, [langKey]: result.translation });
+      setAiProposal({ langKey, targetLang, text: result.translation });
     });
+  };
+
+  const handleProposalApply = () => {
+    if (!aiProposal) return;
+    onChange({ ...value, [aiProposal.langKey]: aiProposal.text });
+    setAiProposal(null);
+  };
+  const handleProposalEdit = () => {
+    if (!aiProposal) return;
+    onChange({ ...value, [aiProposal.langKey]: aiProposal.text });
+    setAiProposal(null);
+  };
+  const handleProposalDismiss = () => {
+    setAiProposal(null);
   };
 
   const handleAiTranslateAll = () => {
@@ -292,7 +327,7 @@ export function EditorPanel({
                 <button
                   key={tab.key}
                   type="button"
-                  onClick={() => setActiveLang(tab.key)}
+                  onClick={() => switchLang(tab.key)}
                   className={[
                     "relative flex flex-shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12px] transition",
                     isActive
@@ -367,6 +402,98 @@ export function EditorPanel({
                 <p className="mt-1 text-[10px] text-hesya-navy-900/50">
                   {labels.aiSuggestNote}
                 </p>
+              ) : null}
+
+              {/* Reference services-app.jsx L13-83 + services.css L969-1115 — AI 번역 제안 카드.
+                  shimmer(thinking) → content + 3 actions(직접 수정/버리기/적용) 흐름. */}
+              {aiProposal ? (
+                <div
+                  role="dialog"
+                  aria-label={labels.aiSuggestLabel}
+                  className="mt-3 rounded-xl border border-hesya-amber-500/40 bg-gradient-to-b from-hesya-amber-500/[0.08] to-hesya-amber-500/[0.02] p-3.5"
+                >
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.06em] text-hesya-amber-600">
+                      <span aria-hidden="true">✦</span>
+                      {labels.aiSuggestLabel}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleProposalDismiss}
+                      aria-label={labels.closeLabel}
+                      className="text-[16px] leading-none text-gray-500 hover:text-hesya-navy-900"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="mb-2.5 flex items-center gap-2 text-[11px] text-gray-700">
+                    <span className="font-semibold text-hesya-navy-900">
+                      {labels.langTabKo}
+                    </span>
+                    <span className="text-hesya-amber-500">→</span>
+                    <span className="font-semibold text-hesya-navy-900">
+                      {labels[activeTab.labelKey]}
+                    </span>
+                    <span className="ml-auto font-heading text-[10px] italic text-gray-500">
+                      {labels.aiProposalDisclaimer}
+                    </span>
+                  </div>
+                  {aiPending || !aiProposal.text ? (
+                    <div className="py-2">
+                      <div className="mb-3 flex flex-col gap-1.5">
+                        <span
+                          aria-hidden="true"
+                          className="sv-think-line"
+                          style={{ width: "80%" }}
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="sv-think-line"
+                          style={{ width: "95%" }}
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="sv-think-line"
+                          style={{ width: "60%" }}
+                        />
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[11px] font-medium text-hesya-amber-600">
+                        <span aria-hidden="true">✦</span>
+                        <span>{labels.aiProposalThinking}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="mb-2.5 rounded-md bg-white px-3.5 py-3 text-[13px] leading-[1.55] text-hesya-navy-900">
+                        {aiProposal.text}
+                      </div>
+                      <div className="flex gap-1.5">
+                        <button
+                          type="button"
+                          onClick={handleProposalEdit}
+                          className="rounded-md border border-hesya-peach-200 bg-transparent px-2.5 py-1.5 text-[11px] text-gray-700 transition hover:border-hesya-amber-500"
+                        >
+                          {labels.aiProposalEdit}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleProposalDismiss}
+                          className="rounded-md border border-hesya-peach-200 bg-transparent px-2.5 py-1.5 text-[11px] text-gray-700 transition hover:border-hesya-amber-500"
+                        >
+                          {labels.aiProposalDismiss}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleProposalApply}
+                          className="ml-auto inline-flex items-center gap-1 rounded-md bg-hesya-amber-500 px-3 py-1.5 text-[11.5px] font-semibold text-white transition hover:bg-hesya-amber-600"
+                        >
+                          <span aria-hidden="true">✓</span>
+                          <span>{labels.aiProposalApply}</span>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               ) : null}
             </div>
           ) : null}
