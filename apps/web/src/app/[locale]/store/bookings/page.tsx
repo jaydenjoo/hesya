@@ -4,6 +4,7 @@ import { createDbClient } from "@hesya/database";
 
 import { PageHeader } from "@/components/ui/page-header";
 import {
+  BookingsHeaderStrip,
   BookingsList,
   BookingsViewSwitcher,
   buildServiceLabels,
@@ -111,11 +112,20 @@ export default async function StoreBookingsPage({
 
   return (
     <div className="bg-hesya-peach-50">
-      <PageHeader
-        eyebrow="Operator · Bookings"
-        title={t("title")}
-        subtitle={t("subtitle")}
-      />
+      {useFixtures ? (
+        <PageHeader
+          eyebrow="Operator · Bookings"
+          title={t("title")}
+          subtitle={t("subtitle")}
+        />
+      ) : (
+        <BookingsHeaderStrip
+          title={t("title")}
+          totalCount={rows.length}
+          newBookingLabel={t("view.newBooking")}
+          locale={locale}
+        />
+      )}
       <div className="px-8 pb-10">
         {useFixtures ? (
           <BookingsViewSwitcher
