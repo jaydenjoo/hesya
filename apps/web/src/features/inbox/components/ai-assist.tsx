@@ -79,8 +79,8 @@ export function AIAssist({
   }
 
   return (
-    <div className="assist-in bg-hesya-peach-100 border-t border-hesya-amber-500 px-[18px] py-3">
-      <div className="mb-2 flex flex-wrap items-center gap-2">
+    <div className="assist-in relative bg-hesya-peach-100 border-t border-hesya-amber-500 px-[18px] py-3">
+      <div className="relative mb-2 flex flex-wrap items-center gap-2">
         <span className="kr text-[11px] font-semibold text-hesya-amber-600">
           <span aria-hidden="true">🤖 </span>AI가 답변을 준비했어요
         </span>
@@ -118,7 +118,7 @@ export function AIAssist({
           </span>
         )}
         {showWhy && activeVerify?.reason ? (
-          <span className="kr w-[280px] rounded-md border border-hesya-peach-200 bg-white px-3 py-2 text-[11px] leading-[1.55] text-gray-700 shadow-[var(--shadow-3)]">
+          <span className="kr absolute left-0 top-[calc(100%+6px)] z-20 w-[280px] rounded-md border border-hesya-peach-200 bg-white px-3 py-2 text-[11px] leading-[1.55] text-gray-700 shadow-[var(--shadow-3)]">
             {activeVerify.reason}
           </span>
         ) : null}
