@@ -36,7 +36,7 @@ export function MarketingTrending() {
               >
                 <span
                   aria-hidden="true"
-                  className="font-heading italic font-semibold text-hesya-amber-700"
+                  className="font-heading italic font-semibold text-hesya-amber-600"
                 >
                   #{i + 1}
                 </span>
