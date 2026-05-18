@@ -46,9 +46,9 @@ export function DashboardHeader({
       title={
         <>
           {greetingPrefix}
-          <em className="font-heading not-italic text-hesya-amber-600">
+          <em className="font-heading italic text-hesya-amber-600">
             {" "}
-            <span className="italic">{storeName}</span>{" "}
+            {storeName}{" "}
           </em>
           {greetingSuffix}
         </>

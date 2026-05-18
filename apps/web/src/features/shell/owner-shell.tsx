@@ -50,7 +50,7 @@ export async function OwnerShell({
   });
 
   return (
-    <div className="grid min-h-screen bg-[#fafbfc] lg:grid-cols-[240px_1fr_320px] lg:grid-rows-[64px_1fr]">
+    <div className="grid min-h-screen bg-hesya-peach-50 lg:grid-cols-[240px_1fr_320px] lg:grid-rows-[64px_1fr]">
       <TopBar
         currentLocale={currentLocale}
         locales={LOCALE_OPTIONS}
