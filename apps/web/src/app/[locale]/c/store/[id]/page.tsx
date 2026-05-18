@@ -415,6 +415,7 @@ export default async function StoreDetailPage({
             verificationTitle={t("infoVerificationTitle")}
             verificationBody={t("infoVerificationBody")}
             kVerifiedShort={t("kVerifiedShort")}
+            phone={store.phone ?? null}
             dayLabels={{
               mon: tSettings("dayMon"),
               tue: tSettings("dayTue"),
