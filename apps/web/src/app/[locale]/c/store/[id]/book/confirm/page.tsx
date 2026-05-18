@@ -127,13 +127,10 @@ export default async function StoreBookConfirmPage({
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
           {t("eyebrow")}
         </p>
-        <h1
-          className="text-3xl font-semibold text-hesya-navy-900"
-          style={{ fontFamily: "'Fraunces', serif", letterSpacing: "-0.02em" }}
-        >
+        <h1 className="font-heading text-3xl font-semibold tracking-[-0.02em] text-hesya-navy-900">
           {t("heading")}
         </h1>
-        <p className="text-sm text-hesya-navy-900/70">{t("subheading")}</p>
+        <p className="text-sm text-gray-700">{t("subheading")}</p>
         <Link
           href={`/c/store/${store.id}/book/schedule`}
           className="inline-block text-sm text-hesya-amber-600 hover:underline"
@@ -142,25 +139,25 @@ export default async function StoreBookConfirmPage({
         </Link>
       </header>
 
-      <section className="mb-8 rounded-2xl border border-hesya-peach-100 bg-hesya-peach-50/30 px-6 py-5">
+      <section className="mb-8 rounded-2xl border border-hesya-peach-100 bg-hesya-peach-50/30 px-6 py-5 shadow-[var(--shadow-2)]">
         <h2 className="mb-4 text-sm font-semibold text-hesya-navy-900">
           {t("summaryHeading")}
         </h2>
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between gap-4">
-            <dt className="text-hesya-navy-900/55">{t("service")}</dt>
+            <dt className="text-gray-500">{t("service")}</dt>
             <dd className="text-right font-medium text-hesya-navy-900">
               {serviceLabel} · {formatPriceForLocale(svcRow.priceKrw, locale)}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-hesya-navy-900/55">{t("staff")}</dt>
+            <dt className="text-gray-500">{t("staff")}</dt>
             <dd className="text-right font-medium text-hesya-navy-900">
               {stfRow.name}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-hesya-navy-900/55">{t("datetime")}</dt>
+            <dt className="text-gray-500">{t("datetime")}</dt>
             <dd className="text-right font-medium text-hesya-navy-900">
               {displayDateTime}
             </dd>
