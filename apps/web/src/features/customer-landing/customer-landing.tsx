@@ -282,6 +282,82 @@ export function CustomerLanding({
   return (
     <div className="c-landing-stage">
       <div className="c-landing">
+        {/*
+         * Desktop bezel mockup: iPhone notch + statusbar (9:41 + signal/wifi/battery).
+         * 모바일(<1024)에선 c-landing.css에서 display:none — 장식 전용.
+         * Reference: docs/design/reference/landing.css L29-61 + landing-app.jsx L194-260.
+         */}
+        <div className="c-landing-statusbar" aria-hidden="true">
+          <span className="c-landing-notch" />
+          <span>9:41</span>
+          <div className="c-landing-statusbar-icons">
+            {/* Signal bars */}
+            <svg width="16" height="10" viewBox="0 0 16 10" aria-hidden="true">
+              <rect
+                x="0"
+                y="6"
+                width="3"
+                height="4"
+                rx="0.5"
+                fill="currentColor"
+              />
+              <rect
+                x="4"
+                y="4"
+                width="3"
+                height="6"
+                rx="0.5"
+                fill="currentColor"
+              />
+              <rect
+                x="8"
+                y="2"
+                width="3"
+                height="8"
+                rx="0.5"
+                fill="currentColor"
+              />
+              <rect
+                x="12"
+                y="0"
+                width="3"
+                height="10"
+                rx="0.5"
+                fill="currentColor"
+              />
+            </svg>
+            {/* Wifi */}
+            <svg width="16" height="10" viewBox="0 0 16 10" aria-hidden="true">
+              <path
+                d="M8 3a6 6 0 0 1 4 1.5l1-1A8 8 0 0 0 8 1a8 8 0 0 0-5 2.5l1 1A6 6 0 0 1 8 3"
+                fill="currentColor"
+              />
+              <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+            </svg>
+            {/* Battery */}
+            <svg width="22" height="11" viewBox="0 0 22 11" aria-hidden="true">
+              <rect
+                x="0.5"
+                y="0.5"
+                width="18"
+                height="10"
+                rx="2.5"
+                stroke="currentColor"
+                fill="none"
+              />
+              <rect
+                x="2"
+                y="2"
+                width="15"
+                height="7"
+                rx="1"
+                fill="currentColor"
+              />
+              <path d="M20 4v3a1.5 1.5 0 0 0 0-3z" fill="currentColor" />
+            </svg>
+          </div>
+        </div>
+
         {/* Sticky topbar — brand + lang pill */}
         <header className="c-landing-topbar">
           <div className="c-landing-topbar-inner">

@@ -38,6 +38,15 @@
   color: var(--hesya-navy-900);
 }
 
+/*
+ * iPhone notch + statusbar — desktop bezel mockup decoration.
+ * 모바일 (<1024)에서는 hidden, 데스크탑에서만 표시. reference landing.css L29-61.
+ */
+.c-landing-notch,
+.c-landing-statusbar {
+  display: none;
+}
+
 /* Desktop ≥1024px — iPhone bezel mockup */
 @media (min-width: 1024px) {
   .c-landing-stage {
@@ -66,6 +75,46 @@
   }
   .c-landing::-webkit-scrollbar {
     display: none;
+  }
+  /* Statusbar — 9:41 + signal/wifi/battery icons. notch는 내부 absolute child. */
+  .c-landing-statusbar {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 35;
+    height: 50px;
+    padding: 18px 32px 0;
+    justify-content: space-between;
+    align-items: center;
+    font-family: -apple-system, "SF Pro", system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--hesya-navy-900);
+    background: rgba(253, 248, 241, 0.92);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+  }
+  /* Notch — statusbar 위에 절대배치, 가로 중앙 */
+  .c-landing-notch {
+    display: block;
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 32px;
+    background: #1a1e24;
+    border-radius: 999px;
+    z-index: 40;
+    pointer-events: none;
+  }
+  .c-landing-statusbar-icons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .c-landing-statusbar-icons svg {
+    color: var(--hesya-navy-900);
   }
 }
 
