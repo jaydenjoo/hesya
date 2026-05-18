@@ -13,7 +13,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Star } from "lucide-react";
+import { MapPin, MessageSquare, QrCode, Star } from "lucide-react";
 import type {
   CustomerBookingRow,
   PendingReviewRow,
@@ -336,21 +336,21 @@ function UpcomingPane({
                   type="button"
                   className="inline-flex items-center gap-1.5 rounded-full bg-hesya-amber-500 px-3 py-1.5 text-[11px] font-semibold text-white shadow-[0_4px_12px_rgba(232,169,122,0.35)] transition hover:bg-hesya-amber-600"
                 >
-                  <span aria-hidden="true">📱</span>
+                  <QrCode aria-hidden="true" className="h-3.5 w-3.5" />
                   {labels.upcomingExtras.showQr}
                 </button>
                 <button
                   type="button"
                   className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-medium text-hesya-navy-900 ring-1 ring-hesya-navy-900/10 transition hover:bg-hesya-peach-100"
                 >
-                  <span aria-hidden="true">📍</span>
+                  <MapPin aria-hidden="true" className="h-3.5 w-3.5" />
                   {labels.upcomingExtras.directions}
                 </button>
                 <Link
                   href={`/${locale}/c/chat`}
                   className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-medium text-hesya-navy-900 ring-1 ring-hesya-navy-900/10 transition hover:bg-hesya-peach-100"
                 >
-                  <span aria-hidden="true">💬</span>
+                  <MessageSquare aria-hidden="true" className="h-3.5 w-3.5" />
                   {labels.upcomingExtras.chat}
                 </Link>
               </div>
