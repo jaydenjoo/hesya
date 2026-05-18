@@ -268,9 +268,9 @@ export function ServicesManager({ initialRows, labels }: Props) {
         <button
           type="button"
           onClick={handleStartCreate}
-          className="rounded-full bg-hesya-amber-500 px-4 py-2 text-[13px] font-semibold text-hesya-navy-900 transition hover:bg-hesya-amber-600"
+          className="inline-flex items-center gap-1 rounded-md bg-hesya-amber-500 px-4 py-2 text-[13px] font-semibold text-white shadow-[0_1px_0_rgba(166,113,11,0.2)] transition hover:bg-hesya-amber-600"
         >
-          {labels.addButton}
+          <span aria-hidden="true">✨</span> {labels.addButton}
         </button>
       </div>
 

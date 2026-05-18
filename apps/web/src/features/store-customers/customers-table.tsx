@@ -163,8 +163,24 @@ export function CustomersTable({ rows, labels, onSelect, selectedId }: Props) {
               </span>
 
               <div className="min-w-0">
-                <p className="truncate font-medium text-hesya-navy-900">
-                  {row.name ?? labels.unknownName}
+                <p className="flex min-w-0 items-center gap-1.5 truncate font-medium text-hesya-navy-900">
+                  <span className="truncate">
+                    {row.name ?? labels.unknownName}
+                  </span>
+                  {deriveStatus(row) === "vip" && (
+                    <span className="inline-flex shrink-0 items-center rounded-full bg-hesya-navy-900 px-1.5 py-px font-mono text-[9px] font-bold uppercase tracking-[0.06em] text-hesya-amber-500">
+                      VIP
+                    </span>
+                  )}
+                  {row.allergyNote && (
+                    <span
+                      aria-label="allergy"
+                      title={row.allergyNote}
+                      className="shrink-0 text-[12px] text-[#e8a117]"
+                    >
+                      ⚠
+                    </span>
+                  )}
                 </p>
                 <p className="mt-0.5 truncate text-[10.5px] text-hesya-navy-900/55">
                   {row.channel ?? labels.emptyDash}

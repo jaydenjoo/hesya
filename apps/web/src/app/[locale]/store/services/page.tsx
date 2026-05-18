@@ -121,9 +121,9 @@ export default async function StoreServicesPage({
           ) : null}
           <a
             href="#service-add"
-            className="inline-flex items-center gap-1 rounded-md bg-hesya-navy-900 px-3 py-1.5 text-[12px] font-semibold text-hesya-peach-50 transition hover:bg-hesya-navy-900/90"
+            className="inline-flex items-center gap-1 rounded-md bg-hesya-amber-500 px-3 py-1.5 text-[12px] font-semibold text-white shadow-[0_1px_0_rgba(166,113,11,0.2)] transition hover:bg-hesya-amber-600"
           >
-            + {t("svPrimaryButton")}
+            <span aria-hidden="true">✨</span> + {t("svPrimaryButton")}
           </a>
         </div>
       </div>
