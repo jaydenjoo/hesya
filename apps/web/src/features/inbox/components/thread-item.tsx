@@ -190,6 +190,14 @@ export function ThreadItem({
         >
           {conversation.lastMessagePreview ?? ""}
         </p>
+        {conversation.lastMessagePreviewKr ? (
+          <p
+            data-testid="thread-preview-kr"
+            className="kr mt-0.5 truncate break-keep text-[11px] text-gray-500"
+          >
+            {conversation.lastMessagePreviewKr}
+          </p>
+        ) : null}
         <div className="mt-1 flex items-center gap-1.5">
           {(() => {
             if (tag === "urgent")

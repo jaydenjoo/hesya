@@ -79,7 +79,7 @@ export function AIAssist({
   }
 
   return (
-    <div className="bg-hesya-peach-100 border-t border-hesya-amber-500 px-[18px] py-3">
+    <div className="assist-in bg-hesya-peach-100 border-t border-hesya-amber-500 px-[18px] py-3">
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <span className="kr text-[11px] font-semibold text-hesya-amber-600">
           <span aria-hidden="true">🤖 </span>AI가 답변을 준비했어요
