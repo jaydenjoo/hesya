@@ -53,7 +53,7 @@ export function InboxTile({ unreadTotal, channels }: Props) {
       </header>
 
       <div className="mb-4 flex items-baseline gap-2">
-        <span className="mono text-[40px] font-bold leading-none tabular-nums text-hesya-navy-900">
+        <span className="font-heading text-[56px] font-medium italic leading-none tracking-[-0.04em] tabular-nums text-hesya-navy-900">
           {unreadTotal}
         </span>
         <span className="kr text-[13px] text-gray-500">
