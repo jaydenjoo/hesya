@@ -78,7 +78,7 @@ export function SectionNav({ items, sectionIds, head, foot }: Props) {
       className="flex flex-col border-b border-hesya-peach-100 bg-white md:sticky md:top-[64px] md:h-[calc(100vh-64px)] md:w-[240px] md:flex-shrink-0 md:border-b-0 md:border-r"
     >
       <div className="border-b border-hesya-peach-100 px-5 py-6">
-        <p className="mb-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-amber-600">
+        <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-amber-600">
           {head.eyebrow}
         </p>
         <h2 className="text-[19px] font-bold tracking-[-0.01em] text-hesya-navy-900">
@@ -132,7 +132,7 @@ export function SectionNav({ items, sectionIds, head, foot }: Props) {
           );
         })}
       </ul>
-      <div className="hidden border-t border-hesya-peach-100 px-5 py-4 font-mono text-[11px] leading-relaxed text-gray-500 md:block">
+      <div className="hidden border-t border-hesya-peach-100 px-5 py-4 text-[11px] leading-relaxed text-gray-500 md:block">
         <p className="font-semibold text-gray-700">{foot.storeName}</p>
         <p>{foot.savedLabel}</p>
         <p>
