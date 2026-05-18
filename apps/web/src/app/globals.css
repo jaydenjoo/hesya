@@ -207,7 +207,8 @@
   animation: photoAnalyzePulse 1.5s ease-in-out infinite;
 }
 
-/* Reference ai-flow.css L315-329 — result sheet 등장 (spring slide-up). */
+/* Reference ai-flow.css L315-329 + booking.css result-sheet — 등장 spring slide-up.
+   Photo Analyze result + Pay Success result-sheet 공용. */
 @keyframes slideUpResult {
   from {
     transform: translateY(40%);

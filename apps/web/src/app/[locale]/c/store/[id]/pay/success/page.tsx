@@ -161,7 +161,7 @@ export default async function StorePaySuccessPage({
         customerName={customerName}
       />
 
-      <div className="space-y-4 px-5 pb-8">
+      <div className="slide-up-result space-y-4 px-5 pb-8">
         <header className="text-center">
           <p className="text-[13px] text-hesya-navy-900/70 leading-relaxed">
             {t("subheading")}
