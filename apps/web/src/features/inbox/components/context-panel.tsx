@@ -419,8 +419,8 @@ function NotesForm({
 function RiskTab() {
   return (
     <div data-testid="ctx-risk" className="kr flex flex-col gap-2.5 text-sm">
-      <div className="flex items-start gap-2.5 rounded-md border border-yellow-200 bg-yellow-50 p-3">
-        <span aria-hidden="true" className="text-[16px] text-yellow-700">
+      <div className="flex items-start gap-2.5 rounded-md border border-[rgba(232,161,23,0.25)] bg-[rgba(232,161,23,0.08)] p-3">
+        <span aria-hidden="true" className="text-[16px] text-[#e8a117]">
           ⚠
         </span>
         <div className="flex-1">
@@ -444,8 +444,8 @@ function RiskTab() {
         </div>
       </div>
 
-      <div className="flex items-start gap-2.5 rounded-md border border-emerald-200 bg-emerald-50 p-3">
-        <span aria-hidden="true" className="text-[16px] text-emerald-700">
+      <div className="flex items-start gap-2.5 rounded-md border border-[rgba(42,157,92,0.18)] bg-[rgba(42,157,92,0.06)] p-3">
+        <span aria-hidden="true" className="text-[16px] text-[#2a9d5c]">
           ✓
         </span>
         <div className="flex-1">
