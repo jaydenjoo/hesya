@@ -7,6 +7,7 @@ import { staff as staffTable } from "@hesya/database";
 import { BookConfirmForm } from "@/features/booking-customer/book-confirm-form";
 import { formatPriceForLocale } from "@/features/booking-customer/currency";
 import { combineToIso } from "@/features/booking-customer/time-slots";
+import { BookingProgressStrip } from "@/features/customer-frame/booking-progress-strip";
 import { Link } from "@/i18n/navigation";
 import { env } from "@/shared/config/env";
 import { getStorePublicById } from "@/shared/lib/dal/stores";
@@ -111,6 +112,10 @@ export default async function StoreBookConfirmPage({
     locale,
     namespace: "StoreDetail",
   });
+  const tProgress = await getTranslations({
+    locale,
+    namespace: "BookingProgress",
+  });
 
   const isoDateTime = combineToIso(date, time);
   const displayDateTime = new Intl.DateTimeFormat(locale, {
@@ -123,6 +128,15 @@ export default async function StoreBookConfirmPage({
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
+      <BookingProgressStrip
+        current="confirm"
+        labels={{
+          schedule: tProgress("schedule"),
+          confirm: tProgress("confirm"),
+          pay: tProgress("pay"),
+          done: tProgress("done"),
+        }}
+      />
       <header className="mb-10 space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
           {t("eyebrow")}
