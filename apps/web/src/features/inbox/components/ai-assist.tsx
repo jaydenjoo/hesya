@@ -90,8 +90,8 @@ export function AIAssist({
             className={
               "kr inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold " +
               (activeVerify.state === "ok"
-                ? "bg-emerald-100 text-emerald-700"
-                : "bg-amber-100 text-amber-700")
+                ? "bg-[rgba(42,157,92,0.15)] text-[#2a9d5c]"
+                : "bg-[rgba(232,161,23,0.18)] text-[#8a5a00]")
             }
           >
             <span aria-hidden="true">
@@ -111,14 +111,14 @@ export function AIAssist({
         ) : (
           <span
             data-testid="ai-tone-pill-default"
-            className="kr inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700"
+            className="kr inline-flex items-center gap-1 rounded-full bg-[rgba(42,157,92,0.15)] px-2 py-0.5 text-[10px] font-semibold text-[#2a9d5c]"
           >
             <span aria-hidden="true">✓</span>
             <span>톤 검증됨</span>
           </span>
         )}
         {showWhy && activeVerify?.reason ? (
-          <span className="kr w-full rounded-md bg-white px-2 py-1 text-[11px] leading-[1.55] text-gray-700 ring-1 ring-amber-200">
+          <span className="kr w-[280px] rounded-md border border-hesya-peach-200 bg-white px-3 py-2 text-[11px] leading-[1.55] text-gray-700 shadow-[var(--shadow-3)]">
             {activeVerify.reason}
           </span>
         ) : null}
@@ -130,7 +130,7 @@ export function AIAssist({
         <div
           role="tablist"
           aria-label="답변 톤 선택"
-          className="mb-2 inline-flex gap-0.5 rounded-lg bg-white/70 p-0.5 ring-1 ring-hesya-amber-500/25 shadow-[0_1px_2px_rgba(26,34,56,0.04)]"
+          className="mb-2 inline-flex gap-1"
         >
           {TONE_TABS.map((t) => {
             const active = activeTone === t.id;
@@ -143,10 +143,10 @@ export function AIAssist({
                 onClick={() => handleToneChange(t.id)}
                 disabled={isAccepting}
                 className={
-                  "kr rounded-md px-3 py-1.5 text-[11px] transition-all not-disabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 " +
+                  "kr rounded-md border px-3 py-1.5 text-[11px] transition-all not-disabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 " +
                   (active
-                    ? "bg-hesya-amber-500 font-semibold text-white shadow-[0_1px_3px_rgba(232,169,122,0.45)]"
-                    : "font-medium text-gray-600 hover:bg-white hover:text-hesya-navy-900")
+                    ? "border-hesya-amber-500 bg-white font-semibold text-hesya-navy-900"
+                    : "border-transparent bg-transparent font-medium text-gray-600 hover:bg-white/60 hover:text-hesya-navy-900")
                 }
               >
                 {t.label}
