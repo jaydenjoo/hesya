@@ -119,22 +119,18 @@ function GreetingStack() {
 }
 
 /**
- * Store 카드 배경 4색 cycling (reference landing.css alt-1~4).
- * peach-amber / navy-cream radial / slate-amber / sage-amber.
+ * Store 카드 배경 4 variant cycling (reference landing.css .alt-1~4).
+ * c-landing.css의 .c-store-card-img.alt-1~4와 1:1 매핑.
  */
-const STORE_CARD_BGS = [
-  "linear-gradient(135deg, #F5DDC8, #D88B5B)",
-  "radial-gradient(circle at 30% 30%, #FAF4ED, #1A2238 80%)",
-  "linear-gradient(135deg, #C9D6E8, #D88B5B)",
-  "linear-gradient(135deg, #D6E8C9, #D88B5B)",
-] as const;
-function pickStoreCardBg(seed: string): string {
+const STORE_CARD_ALT_VARIANTS = ["alt-1", "alt-2", "alt-3", "alt-4"] as const;
+function pickStoreCardAlt(seed: string): string {
   let h = 0;
   for (let i = 0; i < seed.length; i++) {
     h = (h * 31 + seed.charCodeAt(i)) | 0;
   }
   return (
-    STORE_CARD_BGS[Math.abs(h) % STORE_CARD_BGS.length] ?? STORE_CARD_BGS[0]!
+    STORE_CARD_ALT_VARIANTS[Math.abs(h) % STORE_CARD_ALT_VARIANTS.length] ??
+    STORE_CARD_ALT_VARIANTS[0]!
   );
 }
 
@@ -200,7 +196,6 @@ export interface CustomerLandingLabels {
   emptySubtitle: string;
   signIn: string;
   mypage: string;
-  viewStore: string;
   reviewCountSuffix: string;
   verifiedBadge: string;
   aiPhotoCta?: string;
@@ -484,13 +479,12 @@ export function CustomerLanding({
               <p className="mb-4 text-[12px] text-hesya-navy-900/55">
                 {labels.resultsCount}
               </p>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 justify-items-center gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {stores.map((s) => (
                   <StoreCard
                     key={s.id}
                     store={s}
                     locale={locale}
-                    viewLabel={labels.viewStore}
                     verifiedBadge={labels.verifiedBadge}
                     reviewCountSuffix={labels.reviewCountSuffix}
                   />
@@ -518,7 +512,6 @@ export function CustomerLanding({
                     key={`country-${s.id}`}
                     store={s}
                     locale={locale}
-                    viewLabel={labels.viewStore}
                     verifiedBadge={labels.verifiedBadge}
                     reviewCountSuffix={labels.reviewCountSuffix}
                   />
@@ -540,7 +533,7 @@ export function CustomerLanding({
                 </p>
               )}
             </header>
-            <div className="flex flex-wrap gap-2">
+            <div className="c-trend-chips">
               {mockTrending.map((t) => (
                 <button
                   key={t.rank}
@@ -549,11 +542,9 @@ export function CustomerLanding({
                     setSearch(t.text);
                     navigate(region, t.text);
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-[13px] text-hesya-navy-900 ring-1 ring-hesya-peach-200 transition hover:bg-hesya-peach-100"
+                  className="c-trend-chip"
                 >
-                  <span className="font-mono text-[11px] font-bold text-hesya-amber-600">
-                    #{t.rank}
-                  </span>
+                  <span className="c-trend-rank">#{t.rank}</span>
                   {t.text}
                 </button>
               ))}
@@ -574,13 +565,10 @@ export function CustomerLanding({
                 </p>
               )}
             </header>
-            <div className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+            <div className="c-ugc-row -mx-5 sm:mx-0">
               {mockUGCCards.map((c) => (
-                <article
-                  key={c.id}
-                  className="flex h-[250px] w-[200px] flex-shrink-0 flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-hesya-navy-900/10"
-                >
-                  <div className="relative h-[168px] flex-shrink-0 bg-gradient-to-br from-hesya-peach-100 to-hesya-amber-200">
+                <article key={c.id} className="c-ugc-card">
+                  <div className="c-ugc-card-img">
                     <Image
                       src={c.imageUrl}
                       alt={`${c.name} — ${c.quote}`}
@@ -594,7 +582,7 @@ export function CustomerLanding({
                       aria-label={
                         c.source === "instagram" ? "Instagram" : "Xiaohongshu"
                       }
-                      className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/85 text-[10px] font-bold backdrop-blur"
+                      className="c-ugc-card-source"
                       style={{
                         color: c.source === "instagram" ? "#C13584" : "#FE2C55",
                       }}
@@ -602,22 +590,18 @@ export function CustomerLanding({
                       {c.source === "instagram" ? "◉" : "红"}
                     </span>
                   </div>
-                  <div className="flex flex-1 flex-col justify-between p-3">
-                    <div className="flex items-center gap-1.5 text-[12px]">
+                  <div className="c-ugc-card-meta">
+                    <div className="c-ugc-card-meta-top">
                       <span aria-hidden="true">{c.flag}</span>
-                      <span className="font-medium text-hesya-navy-900">
-                        {c.name}
-                      </span>
+                      <span className="c-ugc-card-name">{c.name}</span>
                       <span
                         aria-label={`${c.stars} stars`}
-                        className="ml-auto text-[11px] text-hesya-amber-500"
+                        className="c-ugc-card-stars"
                       >
                         {"★".repeat(c.stars)}
                       </span>
                     </div>
-                    <p className="text-[11px] leading-relaxed text-hesya-navy-900/80 [word-break:keep-all]">
-                      &ldquo;{c.quote}&rdquo;
-                    </p>
+                    <p className="c-ugc-card-quote">&ldquo;{c.quote}&rdquo;</p>
                   </div>
                 </article>
               ))}
@@ -865,36 +849,27 @@ function TabIconUser() {
 function StoreCard({
   store,
   locale,
-  viewLabel,
   verifiedBadge,
   reviewCountSuffix,
 }: {
   store: PublicStore;
   locale: string;
-  viewLabel: string;
   verifiedBadge: string;
   reviewCountSuffix: string;
 }) {
   const showRating = store.rating != null && store.reviewCount > 0;
-  // 인벤토리 item 8: 항상 표시 → 조건부. reviewCount 100건 이상 = 정착 매장.
-  // 실 verified 필드 도입은 후속 DAL 확장 task.
   const showVerified = store.reviewCount >= 100;
+  const altClass = pickStoreCardAlt(store.id);
   return (
     <Link
       href={`/${locale}/c/store/${store.id}`}
       prefetch
-      className="group block overflow-hidden rounded-3xl bg-white ring-1 ring-hesya-navy-900/10 transition hover:shadow-[0_8px_24px_-8px_rgba(26,34,56,0.15)]"
+      className="c-store-card"
     >
-      <div
-        aria-hidden="true"
-        style={{ background: pickStoreCardBg(store.id) }}
-        className="aspect-[5/4]"
-      />
-      <div className="p-4">
-        <h3 className="truncate font-heading text-[17px] font-semibold italic text-hesya-navy-900">
-          {store.name}
-        </h3>
-        <div className="mt-1 flex items-center gap-1.5 text-[12px] text-hesya-navy-900/55">
+      <div aria-hidden="true" className={`c-store-card-img ${altClass}`} />
+      <div className="c-store-card-pad">
+        <h4 className="c-store-card-h4">{store.name}</h4>
+        <div className="c-store-card-meta">
           {store.region && <span>📍 {store.region}</span>}
           {store.category && (
             <>
@@ -904,33 +879,27 @@ function StoreCard({
           )}
         </div>
         {(showRating || showVerified) && (
-          <div
-            data-testid="landing-store-rating"
-            className="mt-2 flex items-center gap-1.5 text-[12px]"
-          >
+          <div data-testid="landing-store-rating" className="c-store-card-row">
             {showRating && (
               <>
-                <span aria-hidden="true" className="text-hesya-amber-600">
+                <span aria-hidden="true" className="c-store-card-stars">
                   ★
                 </span>
-                <span className="font-semibold text-hesya-navy-900">
+                <span style={{ fontWeight: 600, color: "#1a2238" }}>
                   {store.rating!.toFixed(2)}
                 </span>
-                <span className="text-hesya-navy-900/55">
+                <span className="c-store-card-count">
                   {reviewCountSuffix.replace("{n}", String(store.reviewCount))}
                 </span>
               </>
             )}
             {showVerified && (
-              <span className="ml-auto rounded-full bg-hesya-peach-100 px-2 py-0.5 text-[10.5px] font-semibold text-hesya-amber-600 ring-1 ring-hesya-amber-600/20">
+              <span className="c-store-card-badge-kverified">
                 ★ {verifiedBadge}
               </span>
             )}
           </div>
         )}
-        <p className="mt-3 text-[11px] font-medium uppercase tracking-wide text-hesya-amber-600 group-hover:underline">
-          {viewLabel} →
-        </p>
       </div>
     </Link>
   );

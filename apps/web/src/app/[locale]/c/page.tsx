@@ -111,7 +111,6 @@ export default async function CustomerLandingPage({
         emptySubtitle: t("emptySubtitle"),
         signIn: t("signIn"),
         mypage: t("mypage"),
-        viewStore: t("viewStore"),
         // ICU 미사용 — review count 자체는 client 측 store.reviewCount로 채움.
         // suffix는 "({n})" 같은 wrapper text로 client에서 replace.
         reviewCountSuffix: t("reviewCountSuffix"),

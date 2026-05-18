@@ -675,3 +675,236 @@
   color: var(--gray-500);
   letter-spacing: 0.02em;
 }
+
+/* ─────────────────────────────────────────────
+ * Store cards — reference landing.css .store-card / .store-row (L393~530)
+ * 240×280 grid-rows 168px/1fr, scroll-snap-x, 4 gradient variants
+ * ───────────────────────────────────────────── */
+.c-store-row {
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.c-store-row::-webkit-scrollbar {
+  display: none;
+}
+.c-store-card {
+  flex-shrink: 0;
+  width: 240px;
+  height: 280px;
+  background: white;
+  border-radius: 16px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 1px 4px rgba(0, 0, 0, 0.03);
+  border: 1px solid #fbe5d2;
+  overflow: hidden;
+  scroll-snap-align: start;
+  display: grid;
+  grid-template-rows: 168px 1fr;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.c-store-card:hover {
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.03),
+    0 12px 32px rgba(0, 0, 0, 0.08);
+}
+.c-store-card-img {
+  background: linear-gradient(135deg, #f5ddc8, #e8a97a);
+  position: relative;
+}
+.c-store-card-img.alt-1 {
+  background: linear-gradient(160deg, #fdf8f1, #d88b5b);
+}
+.c-store-card-img.alt-2 {
+  background: radial-gradient(circle at 30% 30%, #f8e9d9, #1a2238);
+}
+.c-store-card-img.alt-3 {
+  background: linear-gradient(180deg, #f5ddc8, #3d4551);
+}
+.c-store-card-img.alt-4 {
+  background: linear-gradient(120deg, #f8e9d9 0%, #e8a97a 60%, #d88b5b 100%);
+}
+.c-store-card-pad {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.c-store-card-h4 {
+  font-family:
+    "Pretendard Variable",
+    Pretendard,
+    -apple-system,
+    system-ui,
+    sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--hesya-navy-900, #1a2238);
+  margin: 0;
+  word-break: keep-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.c-store-card-meta {
+  font-size: 12px;
+  color: var(--gray-500, #8a8e98);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.c-store-card-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  font-size: 12px;
+}
+.c-store-card-stars {
+  color: var(--hesya-amber-500, #f29c46);
+  font-size: 12px;
+}
+.c-store-card-count {
+  color: var(--gray-500, #8a8e98);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+}
+.c-store-card-badge-kverified {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 8px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: auto;
+  border-radius: 9999px;
+  background: var(--hesya-peach-100, #fbe5d2);
+  color: #8f4a1f;
+  border: 1px solid rgba(143, 74, 31, 0.2);
+}
+
+/* ─────────────────────────────────────────────
+ * UGC row — reference landing.css .ugc-l (L393~432) + components.css .ugc-card
+ * 200×250 scroll-snap-x, more-card 1.5px dashed amber
+ * ───────────────────────────────────────────── */
+.c-ugc-row {
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.c-ugc-row::-webkit-scrollbar {
+  display: none;
+}
+.c-ugc-card {
+  flex-shrink: 0;
+  width: 200px;
+  height: 250px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: white;
+  border: 1px solid rgba(26, 34, 56, 0.08);
+  display: grid;
+  grid-template-rows: 168px 1fr;
+  scroll-snap-align: start;
+}
+.c-ugc-card-img {
+  position: relative;
+  background: linear-gradient(135deg, #fbe5d2, #f29c46);
+}
+.c-ugc-card-source {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.92);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+}
+.c-ugc-card-meta {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 4px;
+}
+.c-ugc-card-meta-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.c-ugc-card-name {
+  font-weight: 500;
+  color: var(--hesya-navy-900, #1a2238);
+}
+.c-ugc-card-stars {
+  color: var(--hesya-amber-500, #f29c46);
+  margin-left: auto;
+  font-size: 11px;
+}
+.c-ugc-card-quote {
+  font-family:
+    "Pretendard Variable",
+    Pretendard,
+    -apple-system,
+    system-ui,
+    sans-serif;
+  font-size: 11px;
+  color: rgba(26, 34, 56, 0.8);
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+/* ─────────────────────────────────────────────
+ * Trending chips — reference landing.css .trend-chips / .trend-chip (L532~548)
+ * h-34 padding 0/14, peach-200 ring, mono rank fs-11 fw-700 amber-600
+ * ───────────────────────────────────────────── */
+.c-trend-chips {
+  padding: 12px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.c-trend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 9999px;
+  background: white;
+  border: 1px solid var(--hesya-peach-200, #fbd3b4);
+  font-size: 13px;
+  color: var(--hesya-navy-900, #1a2238);
+  cursor: pointer;
+  transition: background 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.c-trend-chip:hover {
+  background: var(--hesya-peach-100, #fbe5d2);
+}
+.c-trend-chip:focus-visible {
+  outline: 2px solid var(--hesya-amber-500, #f29c46);
+  outline-offset: 2px;
+}
+.c-trend-rank {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8f4a1f;
+  margin-right: 2px;
+}
