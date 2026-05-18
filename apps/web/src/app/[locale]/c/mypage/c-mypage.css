@@ -243,11 +243,8 @@
   align-items: flex-start;
   justify-content: flex-end;
   padding: 8px;
-  background: linear-gradient(
-    135deg,
-    var(--hesya-amber-200, #f5ddc8),
-    var(--hesya-amber-600)
-  );
+  /* background는 JSX inline style에서 pickWarmColor(s.id) 결과로 주입.
+   * reference mypage-app.jsx L238 — per-store 고유 색 + amber-600 gradient. */
 }
 .cm-heart {
   background: rgba(255, 255, 255, 0.92);

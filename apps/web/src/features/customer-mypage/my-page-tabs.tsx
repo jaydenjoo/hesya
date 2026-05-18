@@ -163,7 +163,7 @@ export function MyPageTabs({
       {perks && labels.perks && (
         <section
           data-testid="mypage-perks"
-          className="mt-6 rounded-2xl bg-hesya-peach-100 p-4"
+          className="mt-6 rounded-[16px] bg-hesya-peach-100 px-4 py-[14px]"
         >
           <div className="flex items-center gap-3">
             <span aria-hidden="true" className="text-[28px]">
@@ -179,7 +179,7 @@ export function MyPageTabs({
               />
             </div>
           </div>
-          <div className="relative mt-3 h-2 rounded-full bg-white/60">
+          <div className="relative mt-3 h-[6px] rounded-full bg-[rgba(26,34,56,0.08)]">
             <div
               className="h-full rounded-full bg-gradient-to-r from-hesya-amber-500 to-hesya-amber-600 transition-all"
               style={{
@@ -408,7 +408,7 @@ function PastPane({
             style={{
               background: `linear-gradient(135deg, ${pickWarmColor(b.id)}, var(--hesya-amber-600))`,
             }}
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-[18px] font-semibold text-white"
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[12px] text-[18px] font-semibold text-white"
           >
             {(b.storeName ?? "?").charAt(0).toUpperCase()}
           </div>
@@ -672,7 +672,7 @@ function ReviewCard({
           style={{
             background: `linear-gradient(135deg, ${pickWarmColor(row.bookingId)}, var(--hesya-amber-600))`,
           }}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[16px] font-semibold text-white"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] text-[16px] font-semibold text-white"
         >
           {(row.storeName ?? "?").charAt(0).toUpperCase()}
         </div>
