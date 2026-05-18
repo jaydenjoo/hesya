@@ -112,7 +112,7 @@ function reviewsFor(id: string): number {
 }
 
 const STYLIST_GRADIENTS = [
-  "from-hesya-peach-300 to-hesya-amber-600",
+  "from-hesya-peach-200 to-hesya-amber-600",
   "from-hesya-navy-900 to-hesya-amber-500",
   "from-hesya-amber-500 to-hesya-peach-200",
   "from-emerald-400 to-hesya-amber-600",
@@ -385,7 +385,7 @@ export function BookScheduleForm({
                   onClick={() => !disabled && setTime(slot.value)}
                   disabled={disabled}
                   className={[
-                    "relative rounded-lg border px-2 py-2 text-[12px] font-medium transition",
+                    "relative rounded-lg border px-2 py-2 font-mono text-[12px] font-medium transition",
                     active
                       ? "border-hesya-amber-600 bg-hesya-amber-500 text-white shadow-[0_6px_16px_rgba(216,139,91,0.3)]"
                       : disabled
