@@ -370,8 +370,19 @@ export default async function AdminDashboardPage({ params }: Props) {
                       : "",
                   ].join(" ")}
                 >
-                  {/* Reference parity: grid body | ts (timestamp top, kind badge below right-aligned, text-only no bg). FRESH chip 제거 — left amber bar로 fresh 신호 일원화. */}
-                  <div className="grid grid-cols-[1fr_auto] items-start gap-2">
+                  {/* Reference parity: 32px avatar | grid body | ts (admin-dashboard.css .ad-audit-row .av). */}
+                  <div className="grid grid-cols-[32px_1fr_auto] items-start gap-2">
+                    <span
+                      aria-hidden="true"
+                      className={[
+                        "grid h-8 w-8 place-items-center rounded-full font-mono text-[11px] font-semibold uppercase",
+                        row.kind === "kyc"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-[#faefec] text-[#c9483a]",
+                      ].join(" ")}
+                    >
+                      {(row.summary?.trim()[0] ?? "?").toUpperCase()}
+                    </span>
                     <div className="min-w-0">
                       <p className="text-[12.5px] leading-snug text-hesya-navy-900">
                         {row.summary}
@@ -580,7 +591,7 @@ function AlertChip({
         {clear ? "—" : count}
       </span>
       {!clear && meta && (
-        <span className="ml-1 font-mono text-[10.5px] text-hesya-navy-900/55">
+        <span className="ml-1 font-mono text-[10.5px] text-gray-500">
           · {meta}
         </span>
       )}
