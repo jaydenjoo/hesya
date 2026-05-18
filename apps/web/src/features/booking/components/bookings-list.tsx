@@ -137,17 +137,32 @@ export function BookingsList({
             f === "all"
               ? labels.filterAll
               : labels.filtersByStatus[f as BookingStatus];
+          const count =
+            f === "all"
+              ? total
+              : f === "scheduled"
+                ? scheduledN
+                : f === "completed"
+                  ? completedN
+                  : f === "no_show"
+                    ? noShowN
+                    : cancelledN;
           return (
             <Link
               key={f}
               href={href}
-              className={`rounded-md border px-3 py-1 text-sm transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors ${
                 active
-                  ? "border-hesya-navy-900 bg-hesya-navy-900 text-hesya-peach-50"
+                  ? "border-hesya-navy-900 bg-hesya-navy-900 text-white"
                   : "border-gray-200 bg-white text-hesya-navy-900 hover:border-hesya-navy-900"
               }`}
             >
               {label}
+              <span
+                className={`font-mono text-[10px] font-bold tabular-nums ${active ? "text-hesya-amber-500" : "text-gray-400"}`}
+              >
+                {count}
+              </span>
             </Link>
           );
         })}
