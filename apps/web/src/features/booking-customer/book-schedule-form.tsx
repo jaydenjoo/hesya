@@ -11,7 +11,7 @@
  * 체크는 M2.6 server action에서 atomic.
  */
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { useRouter } from "@/i18n/navigation";
 import {
@@ -131,6 +131,7 @@ export function BookScheduleForm({
   labels,
 }: Props) {
   const router = useRouter();
+  const dateStripRef = useRef<HTMLDivElement>(null);
   const [serviceId, setServiceId] = useState<string | null>(null);
   const [staffId, setStaffId] = useState<string | null>(null);
   const [date, setDate] = useState<string | null>(null);
@@ -267,10 +268,52 @@ export function BookScheduleForm({
         </section>
 
         <section>
-          <h2 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
-            {labels.step3}
-          </h2>
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h2 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/60">
+              {labels.step3}
+            </h2>
+            <div className="flex items-center gap-1.5">
+              <span className="font-heading text-[13px] italic text-hesya-navy-900/65">
+                {(() => {
+                  const ref = date ?? dateOptions[0]?.value;
+                  if (!ref) return "";
+                  return new Intl.DateTimeFormat(locale, {
+                    timeZone: "Asia/Seoul",
+                    month: "long",
+                    year: "numeric",
+                  }).format(new Date(`${ref}T00:00:00+09:00`));
+                })()}
+              </span>
+              <button
+                type="button"
+                aria-label="Previous week"
+                onClick={() =>
+                  dateStripRef.current?.scrollBy({
+                    left: -240,
+                    behavior: "smooth",
+                  })
+                }
+                className="grid h-7 w-7 place-items-center rounded-full border border-hesya-peach-200 bg-white text-hesya-navy-900 transition hover:border-hesya-amber-500 hover:text-hesya-amber-600"
+              >
+                <span aria-hidden="true">‹</span>
+              </button>
+              <button
+                type="button"
+                aria-label="Next week"
+                onClick={() =>
+                  dateStripRef.current?.scrollBy({
+                    left: 240,
+                    behavior: "smooth",
+                  })
+                }
+                className="grid h-7 w-7 place-items-center rounded-full border border-hesya-peach-200 bg-white text-hesya-navy-900 transition hover:border-hesya-amber-500 hover:text-hesya-amber-600"
+              >
+                <span aria-hidden="true">›</span>
+              </button>
+            </div>
+          </div>
           <div
+            ref={dateStripRef}
             className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1"
             style={{ scrollbarWidth: "none" }}
           >
