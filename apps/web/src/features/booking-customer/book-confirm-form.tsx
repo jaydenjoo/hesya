@@ -115,14 +115,14 @@ export function BookConfirmForm({ storeId, transit, labels }: Props) {
         />
       </div>
 
-      <p className="text-[11px] text-hesya-navy-900/55">{labels.privacyNote}</p>
+      <p className="text-[11px] text-gray-500">{labels.privacyNote}</p>
 
       <button
         type="submit"
         disabled={!valid}
         className={`w-full rounded-full px-6 py-3 text-sm font-semibold transition ${
           valid
-            ? "bg-hesya-navy-900 text-hesya-peach-50 hover:bg-hesya-navy-800"
+            ? "bg-hesya-navy-900 text-hesya-peach-50 hover:bg-hesya-navy-700"
             : "cursor-not-allowed bg-hesya-peach-200/60 text-hesya-navy-900/40"
         }`}
       >
