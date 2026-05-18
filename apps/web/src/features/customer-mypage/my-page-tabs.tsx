@@ -255,12 +255,12 @@ function UpcomingPane({
                 c.booked
                   ? "bg-hesya-amber-500 shadow-sm"
                   : c.today
-                    ? "bg-white ring-1 ring-hesya-amber-600 shadow-sm"
+                    ? "bg-[rgba(232,169,122,0.15)] shadow-sm"
                     : "bg-white/60"
               }`}
             >
               <span
-                className={`font-heading text-[15px] font-semibold italic ${
+                className={`font-heading text-[16px] font-medium not-italic ${
                   c.booked
                     ? "text-white"
                     : c.today
