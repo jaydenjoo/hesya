@@ -168,7 +168,7 @@ export default async function StorePaySuccessPage({
           </p>
         </header>
 
-        <section className="relative rounded-2xl bg-white px-5 py-5 shadow-[0_8px_24px_rgba(26,34,56,0.08)]">
+        <section className="relative rounded-[24px] bg-white px-5 py-5 shadow-[0_8px_24px_rgba(26,34,56,0.08)]">
           <button
             type="button"
             aria-label={t("shareAriaLabel")}

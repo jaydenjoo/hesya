@@ -16,7 +16,7 @@ interface Props {
 export function SafetyTips({ title, tip1, tip2, tip3, firstOnly }: Props) {
   return (
     <section className="rounded-2xl border border-[var(--trust-rose,#e8c4d6)] bg-hesya-peach-100 px-5 py-5">
-      <h4 className="mb-3 font-heading text-[15px] font-semibold italic text-hesya-navy-900 [word-break:keep-all]">
+      <h4 className="mb-3 text-[12px] font-bold uppercase tracking-[0.04em] text-hesya-navy-900 [word-break:keep-all]">
         {title}
       </h4>
       <ul className="space-y-2 text-[12px] leading-relaxed text-hesya-navy-900/80 [word-break:keep-all]">
