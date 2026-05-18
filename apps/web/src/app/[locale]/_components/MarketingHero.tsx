@@ -54,7 +54,15 @@ export function MarketingHero() {
       aria-labelledby="hero-h1"
       className="relative overflow-hidden bg-hesya-peach-50 px-6 pb-20 pt-32 md:pb-20 md:pt-40"
     >
-      <div className="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-[3fr_2fr] md:gap-16">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 800px 400px at 10% 0%, rgba(232,169,122,0.10), transparent 60%)",
+        }}
+      />
+      <div className="relative mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-[3fr_2fr] md:gap-16">
         <div>
           <MarketingEyebrow>
             {t("heroEyebrowEn")} <span aria-hidden="true">·</span>{" "}
@@ -83,6 +91,11 @@ export function MarketingHero() {
               </span>
             ))}
           </h1>
+          <div
+            aria-hidden="true"
+            className="mt-2 h-[3px] rounded-[2px] bg-hesya-amber-500 transition-[width] duration-[280ms] ease-out"
+            style={{ width: `${[36, 28, 28, 28, 36][idx] ?? 36}px` }}
+          />
 
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-hesya-navy-900/80">
             {t("heroSub")}
