@@ -351,7 +351,7 @@
   font-family: inherit;
 }
 .c-detail-chip-r.active {
-  background: var(--hesya-peach-100);
-  border-color: var(--hesya-amber-500);
-  color: var(--hesya-amber-600);
+  background: var(--hesya-navy-900);
+  border-color: var(--hesya-navy-900);
+  color: #ffffff;
 }
