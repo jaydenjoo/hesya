@@ -140,7 +140,7 @@ export function ThreadList({
 
   return (
     <>
-      <header className="flex flex-shrink-0 items-center justify-between border-b border-hesya-peach-100 bg-white px-4 pb-2.5 pt-4">
+      <header className="flex flex-shrink-0 items-center justify-between bg-white px-4 pb-2.5 pt-4">
         <h2 className="text-[16px] font-semibold tracking-[-0.005em] text-hesya-navy-900">
           {title}
         </h2>

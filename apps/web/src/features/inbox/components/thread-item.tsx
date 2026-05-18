@@ -185,9 +185,7 @@ export function ThreadItem({
             </span>
           ) : null}
         </div>
-        <p
-          className={`mt-0.5 truncate break-keep text-[12px] italic ${hasUnread ? "font-medium text-hesya-navy-900" : "text-gray-700"}`}
-        >
+        <p className="mt-0.5 truncate break-keep text-[12px] italic text-gray-700">
           {conversation.lastMessagePreview ?? ""}
         </p>
         {conversation.lastMessagePreviewKr ? (

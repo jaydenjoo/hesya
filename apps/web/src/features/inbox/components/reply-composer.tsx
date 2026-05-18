@@ -143,7 +143,7 @@ export function ReplyComposer({
         ))}
       </div>
       {/* `.ix-comp-input-wrap` 정합: peach-50 + peach-200 → focus-within amber+white */}
-      <div className="flex items-end gap-2.5 rounded-md border border-hesya-peach-200 bg-hesya-peach-50 px-3 py-2.5 transition-colors focus-within:border-hesya-amber-500 focus-within:bg-white">
+      <div className="flex items-end gap-2.5 rounded-[12px] border border-hesya-peach-200 bg-hesya-peach-50 px-3 py-2.5 transition-colors focus-within:border-hesya-amber-500 focus-within:bg-white">
         <textarea
           value={text}
           onChange={(e) => {
@@ -154,7 +154,7 @@ export function ReplyComposer({
           aria-label={t("label")}
           disabled={disabled || busy}
           rows={1}
-          className="kr min-h-[38px] max-h-[100px] flex-1 resize-none border-none bg-transparent text-[13px] leading-relaxed text-hesya-navy-900 outline-none placeholder:text-gray-400 disabled:cursor-not-allowed"
+          className="kr min-h-[38px] max-h-[100px] flex-1 resize-none border-none bg-transparent text-[13px] leading-[1.55] text-hesya-navy-900 outline-none placeholder:text-gray-400 disabled:cursor-not-allowed"
         />
         <button
           type="button"
