@@ -171,7 +171,7 @@ export default async function StoreAnalyticsPage({
                   className={
                     "rounded-full px-3 py-1 text-[11px] font-semibold transition " +
                     (p.active
-                      ? "bg-hesya-amber-500 text-white shadow-[0_2px_6px_rgba(232,169,122,0.35)]"
+                      ? "bg-hesya-navy-900 text-white"
                       : "text-hesya-navy-900/65 hover:bg-hesya-peach-50")
                   }
                 >
@@ -367,21 +367,23 @@ function KpiTile({
   return (
     <div className="rounded-2xl border border-hesya-peach-100 bg-white px-5 py-4 shadow-[0_2px_8px_rgba(26,34,56,0.04),0_4px_16px_rgba(26,34,56,0.06)]">
       <div className="flex items-baseline justify-between gap-2">
-        <p className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-hesya-navy-900/50">
+        <p className="text-[11.5px] font-medium tracking-[0.02em] text-gray-500">
           {label}
         </p>
         {trend !== undefined && trend !== 0 && (
           <span
             className={
-              "font-mono text-[10.5px] font-semibold " +
-              (trend > 0 ? "text-emerald-600" : "text-rose-600")
+              "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 font-mono text-[10.5px] font-semibold " +
+              (trend > 0
+                ? "bg-[rgba(42,157,92,0.12)] text-[#2a9d5c]"
+                : "bg-[rgba(220,53,69,0.10)] text-[#dc3545]")
             }
           >
             {trend > 0 ? "▲" : "▼"} {Math.abs(trend)}%
           </span>
         )}
       </div>
-      <p className="mt-1.5 font-display text-[22px] italic text-hesya-navy-900">
+      <p className="mt-1.5 font-display text-[26px] font-semibold italic text-hesya-navy-900">
         {value}
       </p>
       <div className="mt-1 flex items-end justify-between gap-3">
