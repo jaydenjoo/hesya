@@ -29,10 +29,10 @@ export function SafetyChip({
   clickAriaLabel,
 }: Props) {
   const className = [
-    "flex flex-1 min-w-[68px] flex-col items-center gap-1 rounded-xl border px-2 py-2.5 text-center transition",
+    "flex flex-1 min-w-[68px] flex-col items-center gap-1 rounded-xl border px-2 py-2.5 text-center transition shadow-[0_1px_2px_rgba(26,34,56,0.04)]",
     active
       ? "border-trust-rose bg-trust-rose/10"
-      : "border-hesya-peach-200 bg-white",
+      : "border-trust-rose bg-white",
     onClick
       ? "cursor-pointer hover:border-hesya-amber-500 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hesya-amber-500"
       : "",

@@ -70,7 +70,7 @@ export function SafetyProfileStrip({
         <span className="kr text-[12px] font-semibold uppercase tracking-[0.06em] text-hesya-navy-900/70">
           {sectionTitle}
         </span>
-        <span className="kr inline-flex items-center gap-1 rounded-full bg-hesya-peach-100 px-2 py-0.5 text-[10px] font-semibold text-hesya-amber-600">
+        <span className="kr inline-flex items-center gap-1 rounded-full bg-trust-rose px-2 py-0.5 text-[10px] font-semibold text-white">
           ✓ {sectionBadge}
         </span>
       </div>
