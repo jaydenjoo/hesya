@@ -184,13 +184,15 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
   if (phase === "upload") {
     return (
       <div className="mx-auto w-full max-w-md px-5 pt-6">
-        <h1 className="mb-6 text-center font-heading text-[24px] font-semibold italic tracking-[-0.02em] text-hesya-navy-900">
+        {/* Reference ai-flow.css L95-102 .bar-top .ttl — 22px / 600 / italic / -0.01em */}
+        <h1 className="mb-6 text-center font-heading text-[22px] font-semibold italic tracking-[-0.01em] text-hesya-navy-900">
           {labels.title}
         </h1>
 
+        {/* Reference ai-flow.css L113-125 .dropzone — amber-500 (no opacity) + r-2xl */}
         <label
           htmlFor="photo-upload-input"
-          className="block cursor-pointer rounded-3xl border-2 border-dashed border-hesya-amber-600/40 bg-white/60 px-6 py-12 text-center transition hover:border-hesya-amber-600 hover:bg-white"
+          className="block cursor-pointer rounded-3xl border-2 border-dashed border-hesya-amber-500 bg-white/60 px-6 py-12 text-center transition hover:border-hesya-amber-600 hover:bg-white"
         >
           <div className="mx-auto mb-4 flex justify-center text-hesya-amber-600">
             <CamSparkles size={64} />
@@ -370,7 +372,7 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
       </h2>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="col-span-2 rounded-2xl bg-white px-4 py-3 ring-1 ring-hesya-navy-900/10">
+        <div className="col-span-2 rounded-2xl bg-white px-4 py-3 shadow-[var(--shadow-2)]">
           <p className="text-[10px] uppercase tracking-[0.16em] text-hesya-navy-900/45">
             {labels.result.styleLabel}
           </p>
@@ -378,7 +380,7 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
             {result.styleName}
           </p>
         </div>
-        <div className="rounded-2xl bg-white px-4 py-3 ring-1 ring-hesya-navy-900/10">
+        <div className="rounded-2xl bg-white px-4 py-3 shadow-[var(--shadow-2)]">
           <p className="text-[10px] uppercase tracking-[0.16em] text-hesya-navy-900/45">
             {labels.result.difficultyLabel}
           </p>
@@ -406,7 +408,7 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
             </p>
           </div>
         </div>
-        <div className="rounded-2xl bg-white px-4 py-3 ring-1 ring-hesya-navy-900/10">
+        <div className="rounded-2xl bg-white px-4 py-3 shadow-[var(--shadow-2)]">
           <p className="text-[10px] uppercase tracking-[0.16em] text-hesya-navy-900/45">
             {labels.result.timeLabel}
           </p>
@@ -417,7 +419,7 @@ export function PhotoAnalyzeFlow({ labels }: { labels: PhotoAnalyzeLabels }) {
             )}
           </p>
         </div>
-        <div className="col-span-2 rounded-2xl bg-white px-4 py-3 ring-1 ring-hesya-navy-900/10">
+        <div className="col-span-2 rounded-2xl bg-white px-4 py-3 shadow-[var(--shadow-2)]">
           <p className="text-[10px] uppercase tracking-[0.16em] text-hesya-navy-900/45">
             {labels.result.compatibilityLabel}
           </p>
