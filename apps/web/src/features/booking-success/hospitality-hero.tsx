@@ -33,13 +33,19 @@ export function HospitalityHero({ headingTemplate, customerName }: Props) {
           strokeLinejoin="round"
           fill="none"
         >
-          <circle cx="100" cy="35" r="14" />
-          <path d="M86 28 Q88 18 100 18 Q112 18 114 28" />
-          <path d="M70 80 Q76 60 90 50 L110 50 Q124 60 130 80" />
-          <path d="M82 70 Q100 76 118 70" />
-          <path d="M40 30 v8 M36 34 h8" />
-          <path d="M160 50 v6 M157 53 h6" />
-          <path d="M50 80 v4 M48 82 h4" />
+          <circle cx="100" cy="35" r="14" className="bc-draw" />
+          <path
+            d="M86 28 Q88 18 100 18 Q112 18 114 28"
+            className="bc-draw bc-draw-2"
+          />
+          <path
+            d="M70 80 Q76 60 90 50 L110 50 Q124 60 130 80"
+            className="bc-draw bc-draw-3"
+          />
+          <path d="M82 70 Q100 76 118 70" className="bc-draw bc-draw-4" />
+          <path d="M40 30 v8 M36 34 h8" className="bc-draw bc-draw-4" />
+          <path d="M160 50 v6 M157 53 h6" className="bc-draw bc-draw-4" />
+          <path d="M50 80 v4 M48 82 h4" className="bc-draw bc-draw-4" />
         </g>
       </svg>
       <h1 className="font-heading text-[28px] font-semibold italic leading-tight tracking-[-0.02em] text-hesya-navy-900 [word-break:keep-all]">
