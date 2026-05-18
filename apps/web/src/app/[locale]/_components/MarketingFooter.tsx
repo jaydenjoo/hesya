@@ -48,11 +48,15 @@ export function MarketingFooter() {
   const t = useTranslations("MarketingLanding");
 
   return (
-    <footer className="bg-hesya-peach-100 px-6 py-16 text-hesya-navy-900">
+    // Reference Hesya Landing.html L1062 — padding 64px 32px 32px
+    <footer className="bg-hesya-peach-100 px-8 pb-8 pt-16 text-hesya-navy-900">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
-            <h3 className="font-heading text-3xl">{t("footerBrand")}</h3>
+            {/* Reference Hesya Landing.html L1073-1076 — h3 32px / -0.02em */}
+            <h3 className="font-heading text-[32px] tracking-[-0.02em]">
+              {t("footerBrand")}
+            </h3>
             <p className="mt-3 max-w-sm text-sm text-hesya-navy-900/70">
               {t("footerTagline")}
             </p>
@@ -100,7 +104,8 @@ export function MarketingFooter() {
           ))}
         </div>
 
-        <div className="mt-12 grid items-center gap-4 border-t border-hesya-navy-900/10 pt-6 md:grid-cols-[1fr_auto_1fr]">
+        {/* Reference Hesya Landing.html L1120 — border-top hesya-peach-200 */}
+        <div className="mt-12 grid items-center gap-4 border-t border-hesya-peach-200 pt-6 md:grid-cols-[1fr_auto_1fr]">
           <p className="text-xs text-hesya-navy-700">
             © 2026 Hesya, Inc. · ISO 27001 · GDPR
           </p>
