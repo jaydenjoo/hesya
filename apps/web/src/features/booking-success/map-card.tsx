@@ -54,9 +54,17 @@ export function MapCard({ title, addressText, labels }: Props) {
     <section className="overflow-hidden rounded-2xl bg-white shadow-[0_4px_16px_rgba(26,34,56,0.06)]">
       <div
         aria-hidden="true"
-        className="relative h-[140px] bg-gradient-to-br from-hesya-peach-100 via-hesya-peach-50 to-white"
+        className="relative h-[140px] overflow-hidden rounded-[14px] bg-gradient-to-br from-hesya-peach-200 to-hesya-amber-500"
       >
-        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[40px] drop-shadow-[0_2px_4px_rgba(232,169,122,0.35)]">
+        {/* reference booking.css L368-389 — radial spots + 45deg hatch pattern */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(circle at 30% 60%, rgba(26,34,56,0.18) 0%, transparent 30%), radial-gradient(circle at 70% 40%, rgba(26,34,56,0.12) 0%, transparent 25%), repeating-linear-gradient(45deg, transparent, transparent 14px, rgba(255,255,255,0.25) 14px, rgba(255,255,255,0.25) 16px)",
+          }}
+        />
+        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[100%] text-[28px] drop-shadow-[0_2px_4px_rgba(26,34,56,0.4)]">
           📍
         </span>
       </div>

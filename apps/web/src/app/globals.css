@@ -207,6 +207,22 @@
   animation: photoAnalyzePulse 1.5s ease-in-out infinite;
 }
 
+/* Reference ai-flow.css L315-329 + booking.css result-sheet — 등장 spring slide-up.
+   Photo Analyze result + Pay Success result-sheet 공용. */
+@keyframes slideUpResult {
+  from {
+    transform: translateY(40%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.slide-up-result {
+  animation: slideUpResult 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 /* Reference admin-dashboard.css 800~810 — audit row fresh entry slide-in.
    초기 진입 시 위에서 살짝 떨어지면서 등장 (운영자 새 활동 신호). */
 @keyframes adminAuditSlideIn {
