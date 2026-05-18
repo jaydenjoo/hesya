@@ -48,7 +48,7 @@ export function InboxShell({
       <ResizablePanel defaultSize={52} minSize={32}>
         <section
           aria-label="Message view"
-          className="flex h-full flex-col bg-hesya-peach-50/40"
+          className="flex h-full flex-col bg-hesya-peach-50"
         >
           {messageColumn}
         </section>
