@@ -287,7 +287,7 @@ function UpcomingPane({
           style={{
             ["--up-tint" as never]: pickWarmColor(b.id),
           }}
-          className="rounded-2xl bg-white p-4 shadow-[0_8px_24px_rgba(26,34,56,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(26,34,56,0.10)]"
+          className="rounded-[18px] bg-white p-4 shadow-[0_8px_24px_rgba(26,34,56,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(26,34,56,0.12)]"
         >
           <div className="cm-up-when">
             {(() => {
@@ -401,7 +401,7 @@ function PastPane({
       {rows.map((b) => (
         <article
           key={b.id}
-          className="flex items-start gap-3 rounded-2xl bg-white p-4 ring-1 ring-hesya-navy-900/10"
+          className="flex items-start gap-3 rounded-[14px] bg-white p-4 ring-1 ring-hesya-peach-100"
         >
           <div
             aria-hidden="true"
@@ -665,7 +665,7 @@ function ReviewCard({
   };
 
   return (
-    <article className="rounded-2xl bg-white p-4 ring-1 ring-hesya-navy-900/10">
+    <article className="rounded-[16px] bg-white p-4 ring-1 ring-hesya-peach-100">
       <div className="flex items-start gap-3">
         <div
           aria-hidden="true"
