@@ -142,7 +142,7 @@ export function MarketingUgcWall() {
                   const isXhs = r.src.toLowerCase().includes("xiaohongshu");
                   return (
                     <li key={`${r.nick}-${r.src}`}>
-                      <article className="relative rounded-2xl bg-white p-6 shadow-sm">
+                      <article className="relative rounded-2xl bg-white p-6 shadow-[0_1px_2px_rgba(26,34,56,0.04),_0_1px_3px_rgba(26,34,56,0.06)]">
                         <span
                           className={`absolute right-5 top-5 text-[10.5px] font-bold uppercase tracking-[0.04em] ${
                             isXhs ? "text-[#C71838]" : "text-[#C13584]"

@@ -67,7 +67,7 @@ export function MarketingSalonsGrid() {
             >
               <a
                 href="#"
-                className="group block overflow-hidden rounded-[18px] bg-white shadow-sm transition hover:-translate-y-2 hover:shadow-xl"
+                className="group block overflow-hidden rounded-[18px] bg-white shadow-[0_1px_2px_rgba(26,34,56,0.04),_0_1px_3px_rgba(26,34,56,0.06)] transition hover:-translate-y-2 hover:shadow-xl"
               >
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <Image

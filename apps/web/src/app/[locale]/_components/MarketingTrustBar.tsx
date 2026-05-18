@@ -87,7 +87,7 @@ export function MarketingTrustBar() {
   const sep = (
     <span
       aria-hidden="true"
-      className="hidden text-[11px] text-hesya-navy-700 sm:inline"
+      className="hidden text-[11px] text-gray-300 sm:inline"
     >
       ·
     </span>
