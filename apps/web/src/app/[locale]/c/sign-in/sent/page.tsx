@@ -22,26 +22,24 @@ export default async function SignInSentPage({ params, searchParams }: Props) {
   const displayEmail = email && email.includes("@") ? email : "your email";
 
   return (
-    <CustomerFrame framed={false}>
+    <CustomerFrame>
       <div className="px-5 pb-8 pt-16 text-center">
         <div
           aria-hidden="true"
-          className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-hesya-amber-100 text-2xl"
+          className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-hesya-peach-100 text-2xl"
         >
           ✉️
         </div>
-        <h1 className="font-heading text-[26px] font-semibold italic leading-tight tracking-[-0.02em] text-hesya-navy-900">
+        <h1 className="font-heading text-[32px] font-semibold leading-tight tracking-[-0.02em] text-hesya-navy-900">
           {t("sentTitle")}
         </h1>
-        <p className="mx-auto mt-3 max-w-xs text-[14px] leading-relaxed text-hesya-navy-900/65">
+        <p className="mx-auto mt-3 max-w-xs text-[14px] leading-relaxed text-gray-700">
           {t("sentDescription", { email: displayEmail })}
         </p>
-        <p className="mt-6 text-[12px] text-hesya-navy-900/55">
-          {t("securityNote")}
-        </p>
+        <p className="mt-6 text-[12px] text-gray-500">{t("securityNote")}</p>
         <Link
           href={`/${locale}`}
-          className="mt-10 inline-block text-[13px] text-hesya-amber-600 hover:underline"
+          className="mt-10 inline-block text-[13px] text-hesya-amber-600 transition hover:text-hesya-amber-500"
         >
           ← {t("backToHome")}
         </Link>
