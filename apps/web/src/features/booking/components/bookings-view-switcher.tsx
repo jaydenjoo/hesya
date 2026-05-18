@@ -87,7 +87,7 @@ export function BookingsViewSwitcher({
       {/* View toggle + new booking */}
       <div className="mb-4 flex items-center justify-between gap-3">
         <div
-          className="inline-flex items-center rounded-full bg-white p-1 ring-1 ring-hesya-navy-900/10"
+          className="inline-flex items-center rounded-xl bg-hesya-peach-100 p-0.5"
           data-testid="bookings-view-toggle"
         >
           {[
@@ -102,9 +102,9 @@ export function BookingsViewSwitcher({
               key={v.key}
               type="button"
               onClick={() => setView(v.key)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium transition ${
+              className={`inline-flex items-center gap-1.5 rounded-[10px] px-3 py-1.5 text-[12px] font-medium transition ${
                 view === v.key
-                  ? "bg-hesya-navy-900 text-hesya-peach-50"
+                  ? "bg-white text-hesya-navy-900 shadow-[0_1px_2px_rgba(26,34,56,0.06)]"
                   : "text-hesya-navy-900/55 hover:text-hesya-navy-900"
               }`}
             >
@@ -115,7 +115,7 @@ export function BookingsViewSwitcher({
         </div>
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-full bg-hesya-amber-500 px-3.5 py-1.5 text-[12px] font-semibold text-white shadow-[0_4px_10px_rgba(232,169,122,0.35)] transition hover:bg-hesya-amber-600"
+          className="inline-flex items-center gap-1.5 rounded-[8px] bg-hesya-amber-500 px-3.5 py-1.5 text-[12px] font-semibold text-white shadow-[0_1px_0_rgba(166,113,11,0.2)] transition hover:-translate-y-px hover:bg-hesya-amber-600"
         >
           <span aria-hidden="true">+</span>
           {switcherLabels.newBooking}
