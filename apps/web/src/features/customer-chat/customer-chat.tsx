@@ -131,7 +131,7 @@ export function CustomerChat({
         ) : (
           <>
             <div className="my-3 flex justify-center">
-              <span className="inline-flex rounded-full bg-hesya-peach-100 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-hesya-amber-600">
+              <span className="text-[10px] uppercase tracking-[0.06em] text-gray-500">
                 {day}
               </span>
             </div>
@@ -291,8 +291,8 @@ export function CustomerChat({
               <p
                 className={`rounded-xl px-3 py-2 text-[12.5px] ${
                   audit.confidence === "confident"
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-amber-50 text-amber-700"
+                    ? "bg-[rgba(74,121,87,0.1)] text-[#4a7957]"
+                    : "bg-hesya-peach-100 text-hesya-amber-600"
                 }`}
               >
                 {audit.confidence === "confident"
