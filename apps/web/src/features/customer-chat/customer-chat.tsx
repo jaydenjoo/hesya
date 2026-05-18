@@ -71,7 +71,7 @@ export function CustomerChat({
   return (
     <div className="relative flex h-full min-h-screen flex-col bg-hesya-peach-50/30 lg:min-h-[820px]">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-hesya-navy-900/5 bg-white/90 px-4 py-3 backdrop-blur-md">
+      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-hesya-navy-900/5 bg-hesya-peach-50/95 px-4 py-3 backdrop-blur-md">
         <button
           type="button"
           aria-label={labels.back}
@@ -80,7 +80,7 @@ export function CustomerChat({
         >
           ←
         </button>
-        <div className="relative inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-hesya-amber-200 to-hesya-amber-600 font-heading text-[16px] font-semibold italic text-white">
+        <div className="relative inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-hesya-amber-500 to-hesya-amber-600 font-heading text-[16px] font-semibold italic text-white">
           {storeInitial}
           <span
             aria-hidden="true"
@@ -104,7 +104,7 @@ export function CustomerChat({
           type="button"
           onClick={() => setTranslateOn((v) => !v)}
           aria-label={labels.translateLabel}
-          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-[0.05em] transition ${
             translateOn
               ? "bg-hesya-peach-100 text-hesya-amber-600"
               : "bg-hesya-navy-900/5 text-hesya-navy-900/50"
@@ -221,7 +221,7 @@ export function CustomerChat({
             className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition ${
               draft.length > 0
                 ? "bg-hesya-amber-500 text-white shadow-sm"
-                : "bg-hesya-navy-900/10 text-hesya-navy-900/30"
+                : "bg-hesya-peach-200 text-hesya-navy-900/55"
             }`}
           >
             <svg
@@ -253,7 +253,7 @@ export function CustomerChat({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="absolute inset-x-3 bottom-3 rounded-3xl bg-white p-5 shadow-2xl"
+            className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-hesya-peach-50 p-5 shadow-2xl"
           >
             <span
               aria-hidden="true"
