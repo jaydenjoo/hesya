@@ -179,9 +179,14 @@ export function CelebrationToasts() {
           <li
             key={toast.id}
             data-testid={`celebration-toast-${toast.kind}`}
-            className="flex items-start gap-3 rounded-lg border border-hesya-peach-200 bg-white p-3"
+            className="flex items-start gap-3 rounded-lg border border-hesya-peach-100 bg-gradient-to-br from-hesya-peach-100 to-hesya-peach-50 p-3 shadow-3"
           >
-            <Sketch kind={toast.kind} />
+            <span
+              aria-hidden="true"
+              className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-md bg-white/60"
+            >
+              <Sketch kind={toast.kind} />
+            </span>
             <div className="flex-1 min-w-0">
               <p className="kr truncate text-[12px] font-semibold text-hesya-navy-900">
                 {toast.title}
