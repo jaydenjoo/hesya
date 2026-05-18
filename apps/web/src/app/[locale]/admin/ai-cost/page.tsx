@@ -136,7 +136,7 @@ export default async function AdminAiCostPage({ params }: Props) {
                 </button>
               ))}
             </div>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-hesya-peach-100 px-3 py-1 text-[10.5px] font-semibold text-hesya-amber-600">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e8c9a6] bg-[#faeee0] px-3 py-1 font-mono text-[10.5px] font-semibold text-[#b86a2a]">
               <span aria-hidden="true">⚡</span>
               일일 예산 87% 사용
             </span>
@@ -241,6 +241,7 @@ export default async function AdminAiCostPage({ params }: Props) {
                 return summary.byModel.map((row, idx) => {
                   const pct = (row.estimatedKrw / maxKrw) * 100;
                   const lead = idx === 0;
+                  const isOpus = row.model.toLowerCase().includes("opus");
                   return (
                     <li key={row.model} className="space-y-1.5 px-5 py-3">
                       <div className="flex items-center gap-4">
@@ -268,7 +269,7 @@ export default async function AdminAiCostPage({ params }: Props) {
                         className="ml-9 h-1 overflow-hidden rounded-full bg-hesya-peach-50"
                       >
                         <div
-                          className={`h-full ${lead ? "bg-hesya-amber-500" : "bg-hesya-amber-500/55"}`}
+                          className={`h-full ${isOpus ? "bg-hesya-amber-600" : "bg-hesya-peach-200"}`}
                           style={{ width: `${pct}%` }}
                         />
                       </div>
