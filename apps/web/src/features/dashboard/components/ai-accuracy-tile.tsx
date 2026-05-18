@@ -28,11 +28,11 @@ export function AiAccuracyTile({ pct, processedCount }: Props) {
     <section
       data-testid="dashboard-ai-accuracy"
       aria-label={t("title")}
-      className="tile-reveal flex flex-col rounded-lg border border-hesya-peach-200 bg-white p-5"
+      className="tile-reveal flex flex-col rounded-[16px] border border-hesya-peach-100 bg-white px-[18px] py-4"
       style={{ animationDelay: "160ms" }}
     >
       <header className="mb-3">
-        <h3 className="kr text-[14px] font-semibold text-hesya-navy-900">
+        <h3 className="kr text-[12.5px] font-semibold text-gray-700">
           {t("title")}
         </h3>
       </header>
@@ -69,20 +69,20 @@ export function AiAccuracyTile({ pct, processedCount }: Props) {
           />
           <text
             x="80"
-            y="80"
+            y="78"
             textAnchor="middle"
-            className="font-mono fill-hesya-navy-900"
-            fontSize="36"
-            fontWeight="700"
+            className="font-heading italic fill-hesya-navy-900"
+            fontSize="42"
+            fontWeight="500"
           >
             {pct}
           </text>
           <text
             x="80"
-            y="100"
+            y="96"
             textAnchor="middle"
             className="font-mono fill-gray-500"
-            fontSize="14"
+            fontSize="12"
           >
             %
           </text>
