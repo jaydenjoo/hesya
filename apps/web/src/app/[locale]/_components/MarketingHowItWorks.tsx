@@ -146,10 +146,10 @@ export function MarketingHowItWorks() {
                   <span
                     aria-hidden="true"
                     role="presentation"
-                    className={`font-heading text-[120px] italic leading-[0.9] tracking-[-0.04em] text-transparent transition-[stroke] md:text-[200px] ${
+                    className={`font-heading text-[120px] italic leading-[0.9] tracking-[-0.04em] transition-[stroke] md:text-[200px] ${
                       isActive
-                        ? "[-webkit-text-stroke:2.5px_var(--color-hesya-amber-700)]"
-                        : "[-webkit-text-stroke:1.5px_var(--color-hesya-amber-700)]"
+                        ? "text-hesya-peach-100 [-webkit-text-stroke:2px_var(--color-hesya-amber-500)]"
+                        : "text-transparent [-webkit-text-stroke:1.5px_var(--color-hesya-amber-700)]"
                     }`}
                   >
                     {String(i + 1).padStart(2, "0")}
@@ -157,7 +157,7 @@ export function MarketingHowItWorks() {
                   <h3 className="mt-4 max-w-md font-heading text-3xl leading-tight text-hesya-navy-900 md:text-4xl">
                     {s.title}
                   </h3>
-                  <p className="mt-4 max-w-md text-base leading-relaxed text-hesya-navy-700 md:text-lg">
+                  <p className="mt-4 max-w-md text-base leading-relaxed text-gray-700 md:text-lg">
                     {s.body}
                   </p>
                   <span
