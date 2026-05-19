@@ -26,20 +26,28 @@ type PaymentMethod =
   | "applepay"
   | "googlepay";
 
+// Reference payment-app.jsx L292 — active 시 brand 색 border (style 인라인 호환).
 const ALL_METHODS: ReadonlyArray<{
   readonly value: PaymentMethod;
   readonly icon: string;
   readonly bg: string;
+  readonly brand: string;
   readonly suggested?: boolean;
 }> = [
-  { value: "card", icon: "▭", bg: "bg-slate-100" },
-  { value: "alipay", icon: "支", bg: "bg-blue-100", suggested: true },
-  { value: "wechat", icon: "微", bg: "bg-emerald-100" },
-  { value: "linepay", icon: "L", bg: "bg-green-100" },
-  { value: "paypay", icon: "P", bg: "bg-red-100" },
-  { value: "unionpay", icon: "U", bg: "bg-indigo-100" },
-  { value: "applepay", icon: "", bg: "bg-neutral-100" },
-  { value: "googlepay", icon: "G", bg: "bg-amber-100" },
+  { value: "card", icon: "▭", bg: "bg-slate-100", brand: "#1A2238" },
+  {
+    value: "alipay",
+    icon: "支",
+    bg: "bg-blue-100",
+    brand: "#1296DB",
+    suggested: true,
+  },
+  { value: "wechat", icon: "微", bg: "bg-emerald-100", brand: "#07C160" },
+  { value: "linepay", icon: "L", bg: "bg-green-100", brand: "#06C755" },
+  { value: "paypay", icon: "P", bg: "bg-red-100", brand: "#FF0033" },
+  { value: "unionpay", icon: "U", bg: "bg-indigo-100", brand: "#03509A" },
+  { value: "applepay", icon: "", bg: "bg-neutral-100", brand: "#000000" },
+  { value: "googlepay", icon: "G", bg: "bg-amber-100", brand: "#4285F4" },
 ];
 
 export interface MockPaymentLabels {
@@ -196,10 +204,11 @@ export function MockPaymentForm({
                 key={opt.value}
                 type="button"
                 onClick={() => setMethod(opt.value)}
+                style={active ? { borderColor: opt.brand } : undefined}
                 className={[
                   "relative flex w-[88px] flex-shrink-0 flex-col items-center gap-1.5 rounded-2xl border px-2 py-3 transition",
                   active
-                    ? "border-hesya-navy-900 bg-white shadow-[0_4px_12px_-4px_rgba(26,34,56,0.25)]"
+                    ? "bg-white shadow-[0_4px_12px_-4px_rgba(26,34,56,0.25)]"
                     : "border-hesya-peach-200 bg-white hover:border-hesya-amber-500",
                 ].join(" ")}
               >
@@ -372,11 +381,12 @@ export function MockPaymentForm({
       )}
 
       <div className="sticky bottom-0 z-20 -mx-5 flex flex-col gap-2 border-t border-hesya-peach-200 bg-hesya-peach-50/95 px-5 py-3 backdrop-blur">
+        {/* Reference payment.css .pay-cta — border-radius 14px (pill 아닌 둥근 사각형) */}
         <button
           type="submit"
           disabled={processing}
           className={[
-            "flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold transition shadow-[0_6px_16px_rgba(216,139,91,0.3)]",
+            "flex w-full items-center justify-center gap-2 rounded-[14px] px-5 py-3 text-[14px] font-semibold transition shadow-[0_6px_16px_rgba(216,139,91,0.3)]",
             processing
               ? "cursor-wait bg-hesya-amber-500/70 text-white"
               : "bg-hesya-amber-500 text-white hover:bg-hesya-amber-600",

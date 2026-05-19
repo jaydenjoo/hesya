@@ -182,8 +182,9 @@ export default async function StorePaySuccessPage({
             <p className="text-[12px] font-medium text-hesya-navy-900/70 [word-break:keep-all]">
               {storeName}
             </p>
-            <div className="mt-3 rounded-xl border-2 border-hesya-navy-900 p-2">
-              <MockQr bookingId={bookingRow.id} size={148} />
+            {/* Reference booking.css L129-136 .qr-box — 200×200 + r-16 */}
+            <div className="mt-3 rounded-2xl border-2 border-hesya-navy-900 p-2">
+              <MockQr bookingId={bookingRow.id} size={200} />
             </div>
             <p className="mono mt-3 text-[13px] tracking-[0.05em] text-hesya-navy-900">
               {bookingCode}
