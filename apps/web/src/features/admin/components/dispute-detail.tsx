@@ -10,8 +10,11 @@ import {
   setDisputeInReviewAction,
 } from "@/lib/disputes/actions";
 
+import "./dispute-detail.css";
+
 /**
  * Epic 12.4 — admin 분쟁 상세 + 처리 액션.
+ * Reference: docs/design/reference/Hesya Admin Disputes Detail.html
  *
  * 상태 머신:
  *   open → in_review (검토 시작)
@@ -20,6 +23,7 @@ import {
  *
  * 알림은 backend Server Action(`finalizeDispute`)이 자동 발송 (terminal 1회).
  */
+
 const STATUS_LABELS: Record<string, string> = {
   open: "접수",
   in_review: "검토 중",
@@ -34,40 +38,19 @@ const CATEGORY_LABELS: Record<string, string> = {
   complaint: "일반 컴플레인",
 };
 
+const STATUS_TONE: Record<string, string> = {
+  open: "open",
+  sla_exceeded: "sla",
+  in_review: "review",
+  resolved: "done",
+  rejected: "rejected",
+};
+
 type Props = {
   dispute: Dispute;
   /** Server-injected — purity 위반 회피 (admin/disputes/[id]/page.tsx). */
   nowMs: number;
 };
-
-const STATUS_TONE: Record<string, { chip: string; dot: string; ring: string }> =
-  {
-    open: {
-      chip: "bg-hesya-danger-100 text-hesya-danger-600",
-      dot: "bg-hesya-danger-600",
-      ring: "ring-hesya-danger-200",
-    },
-    sla_exceeded: {
-      chip: "bg-hesya-danger-100 text-hesya-danger-600",
-      dot: "bg-hesya-danger-600",
-      ring: "ring-hesya-danger-200",
-    },
-    in_review: {
-      chip: "bg-hesya-peach-100 text-hesya-amber-600",
-      dot: "bg-hesya-amber-500",
-      ring: "ring-hesya-peach-200",
-    },
-    resolved: {
-      chip: "bg-emerald-50 text-emerald-700",
-      dot: "bg-emerald-500",
-      ring: "ring-emerald-200",
-    },
-    rejected: {
-      chip: "bg-gray-100 text-gray-700",
-      dot: "bg-gray-400",
-      ring: "ring-gray-200",
-    },
-  };
 
 const TIMELINE_STEPS = ["open", "in_review", "resolved"] as const;
 const TIMELINE_LABELS: Record<(typeof TIMELINE_STEPS)[number], string> = {
@@ -80,11 +63,7 @@ function timelineState(
   step: (typeof TIMELINE_STEPS)[number],
   currentStatus: string,
 ): "done" | "current" | "todo" {
-  if (currentStatus === "rejected") {
-    if (step === "open" || step === "in_review") return "done";
-    return "todo";
-  }
-  if (currentStatus === "sla_exceeded") {
+  if (currentStatus === "rejected" || currentStatus === "sla_exceeded") {
     if (step === "open" || step === "in_review") return "done";
     return "todo";
   }
@@ -158,78 +137,63 @@ export function DisputeDetail({ dispute, nowMs }: Props) {
     : slaUrgent
       ? `초과 ${Math.abs(slaDays)}일`
       : `D-${slaDays}`;
-  const statusTone = STATUS_TONE[dispute.status] ?? STATUS_TONE.rejected!;
+  const slaTone = isTerminal
+    ? "muted"
+    : slaUrgent
+      ? "urgent"
+      : slaWarn
+        ? "warn"
+        : "";
+  const sevTone = STATUS_TONE[dispute.status] ?? "rejected";
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <section
-        className={`rounded-lg border bg-white p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)] ring-1 ring-inset ${statusTone.ring}`}
-      >
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0 space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12.5px] font-semibold ${statusTone.chip}`}
-              >
-                <span
-                  aria-hidden="true"
-                  className={`inline-block h-2 w-2 rounded-full ${statusTone.dot}`}
-                />
+    <div className="dispute-detail-page">
+      <section className="dd-header">
+        <div className="dd-header-row">
+          <div>
+            <h1 className="dd-title">
+              <span style={{ fontStyle: "italic" }}>Dispute</span>
+              <span className="ko" lang="ko">
+                분쟁 상세
+              </span>
+            </h1>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+                marginTop: 10,
+                alignItems: "center",
+              }}
+            >
+              <span className={`sev-pill ${sevTone}`} lang="ko">
                 {STATUS_LABELS[dispute.status] ?? dispute.status}
               </span>
-              <span className="rounded-full bg-hesya-peach-100 px-2.5 py-0.5 text-[11px] font-semibold text-hesya-navy-900/80">
+              <span className="cat-chip" lang="ko">
                 {CATEGORY_LABELS[dispute.category] ?? dispute.category}
               </span>
             </div>
-            <p className="font-mono text-[11px] text-hesya-navy-900/55">
+            <p className="dd-meta">
               접수 {dispute.createdAt.toISOString().slice(0, 10)} · 매장{" "}
-              <code className="text-hesya-navy-900/75">
-                {dispute.storeId.slice(0, 8)}
-              </code>
+              <code>{dispute.storeId.slice(0, 8)}</code>
             </p>
           </div>
-          <div className="text-right">
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-hesya-navy-900/55">
-              SLA 마감
-            </p>
-            <p
-              className={[
-                "mt-1 font-mono text-[20px] font-bold tabular-nums",
-                isTerminal
-                  ? "text-hesya-navy-900/40"
-                  : slaUrgent
-                    ? "text-hesya-danger-600"
-                    : slaWarn
-                      ? "text-hesya-amber-600"
-                      : "text-hesya-navy-900",
-              ].join(" ")}
-            >
-              {slaText}
-            </p>
-            <p className="font-mono text-[10px] text-hesya-navy-900/45">
+          <div className="sla-box">
+            <p className="lab">SLA 마감</p>
+            <p className={`v ${slaTone}`}>{slaText}</p>
+            <p className="when">
               {dispute.slaDueAt.toISOString().slice(0, 10)}
             </p>
           </div>
         </div>
 
-        <ol className="mt-5 grid grid-cols-3 gap-2">
+        <ol className="dd-tl">
           {TIMELINE_STEPS.map((step, i) => {
             const state = timelineState(step, dispute.status);
-            const stepStyles = {
-              done: { dot: "bg-emerald-500", text: "text-emerald-700" },
-              current: {
-                dot: "bg-hesya-amber-500 ring-4 ring-hesya-amber-500/20",
-                text: "text-hesya-amber-600 font-semibold",
-              },
-              todo: { dot: "bg-gray-300", text: "text-gray-500" },
-            }[state];
             return (
-              <li key={step} className="flex items-center gap-2">
-                <span
-                  aria-hidden="true"
-                  className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${stepStyles.dot}`}
-                />
-                <span className={`text-[11.5px] ${stepStyles.text}`}>
+              <li key={step} className={`dd-tl-step ${state}`}>
+                <span className="dot" aria-hidden="true" />
+                <span>
                   {i + 1}. {TIMELINE_LABELS[step]}
                 </span>
               </li>
@@ -238,11 +202,15 @@ export function DisputeDetail({ dispute, nowMs }: Props) {
         </ol>
       </section>
 
-      <section className="space-y-3">
-        <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
-          §02 · Metadata
-        </p>
-        <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-md border border-hesya-peach-100 bg-hesya-peach-100 text-[12.5px] sm:grid-cols-2">
+      <section className="section" aria-labelledby="meta-h">
+        <h2 className="section-h" id="meta-h">
+          <span style={{ fontStyle: "italic" }}>Metadata</span>
+          <span className="ko" lang="ko">
+            메타데이터
+          </span>
+          <span className="meta">§02 · CONTEXT</span>
+        </h2>
+        <dl className="meta-grid">
           <MetaCell k="매장 ID" v={dispute.storeId} mono />
           <MetaCell k="신고자 user_id" v={dispute.filedByUserId ?? "—"} mono />
           <MetaCell
@@ -274,40 +242,57 @@ export function DisputeDetail({ dispute, nowMs }: Props) {
         </dl>
       </section>
 
-      <section className="space-y-2">
-        <h2 className="text-sm font-medium text-hesya-navy-900">신고 내용</h2>
-        <p className="whitespace-pre-wrap rounded-md border border-hesya-peach-100 bg-hesya-peach-50/60 p-3 text-sm">
+      <section className="section" aria-labelledby="desc-h">
+        <h2 className="section-h" id="desc-h">
+          <span style={{ fontStyle: "italic" }}>Complaint</span>
+          <span className="ko" lang="ko">
+            신고 내용
+          </span>
+        </h2>
+        <div className="quote-box">
+          <span className="party">FILED BY</span>
           {dispute.description}
-        </p>
+        </div>
       </section>
 
       {isTerminal ? (
-        <section className="space-y-2">
-          <h2 className="text-sm font-medium text-hesya-navy-900">처리 결과</h2>
-          <p className="whitespace-pre-wrap rounded-md border border-hesya-peach-100 bg-hesya-peach-50/60 p-3 text-sm">
+        <section className="section" aria-labelledby="result-h">
+          <h2 className="section-h" id="result-h">
+            <span style={{ fontStyle: "italic" }}>Resolution</span>
+            <span className="ko" lang="ko">
+              처리 결과
+            </span>
+          </h2>
+          <div className="quote-box">
+            <span className="party">ADMIN RESOLUTION</span>
             {dispute.resolution ?? "(기록 없음)"}
-          </p>
+          </div>
         </section>
       ) : (
-        <div className="space-y-3 rounded-md border border-hesya-peach-200 bg-hesya-peach-50/40 p-4">
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-hesya-navy-900">
-              처리 결과 (5자 이상, resolved/rejected 시 사장에게 이메일 발송)
+        <section className="action-panel" aria-labelledby="action-h">
+          <h2 className="section-h" id="action-h" style={{ marginBottom: 12 }}>
+            <span style={{ fontStyle: "italic" }}>Resolve</span>
+            <span className="ko" lang="ko">
+              처리 결정
             </span>
-            <textarea
-              value={resolution}
-              onChange={(e) => setResolution(e.target.value)}
-              rows={4}
-              className="w-full rounded-md border border-hesya-peach-200 bg-white px-3 py-2 focus:border-hesya-amber-500 focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20"
-            />
+          </h2>
+          <label className="field-label" htmlFor="resolution" lang="ko">
+            처리 결과 (5자 이상, resolved/rejected 시 사장에게 이메일 발송)
           </label>
-          <div className="flex flex-wrap gap-2">
+          <textarea
+            id="resolution"
+            value={resolution}
+            onChange={(e) => setResolution(e.target.value)}
+            rows={4}
+          />
+          <div className="action-row">
             {dispute.status === "open" && (
               <button
                 type="button"
                 onClick={onSetInReview}
                 disabled={pending}
-                className="rounded-md border border-hesya-peach-200 bg-white px-4 py-2 text-hesya-navy-900 transition-colors hover:border-hesya-navy-900 disabled:opacity-40"
+                className="btn btn-ghost"
+                lang="ko"
               >
                 {pending ? "처리 중..." : "검토 시작"}
               </button>
@@ -316,7 +301,8 @@ export function DisputeDetail({ dispute, nowMs }: Props) {
               type="button"
               onClick={onResolve}
               disabled={pending || !resolutionOk}
-              className="rounded-md bg-hesya-amber-500 px-4 py-2 font-medium text-white transition-colors hover:bg-hesya-amber-600 disabled:opacity-40"
+              className="btn btn-primary"
+              lang="ko"
             >
               해결 처리
             </button>
@@ -324,12 +310,13 @@ export function DisputeDetail({ dispute, nowMs }: Props) {
               type="button"
               onClick={onReject}
               disabled={pending || !resolutionOk}
-              className="rounded-md border border-hesya-peach-200 bg-white px-4 py-2 text-hesya-navy-900 transition-colors hover:border-hesya-navy-900 disabled:opacity-40"
+              className="btn btn-ghost"
+              lang="ko"
             >
               거절 처리
             </button>
           </div>
-        </div>
+        </section>
       )}
     </div>
   );
@@ -347,19 +334,9 @@ function MetaCell({
   muted?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-1 bg-white px-3 py-2.5">
-      <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/55">
-        {k}
-      </dt>
-      <dd
-        className={[
-          "break-all text-[12.5px]",
-          mono ? "font-mono" : "kr",
-          muted ? "text-hesya-navy-900/45" : "text-hesya-navy-900",
-        ].join(" ")}
-      >
-        {v}
-      </dd>
+    <div className="meta-cell">
+      <dt className="k">{k}</dt>
+      <dd className={`v${mono ? " mono" : ""}${muted ? " muted" : ""}`}>{v}</dd>
     </div>
   );
 }

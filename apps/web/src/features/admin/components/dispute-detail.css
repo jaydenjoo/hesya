@@ -1,0 +1,375 @@
+/*
+ * Admin Dispute Detail — Reference 정합 압축 CSS.
+ * 원본: docs/design/reference/Hesya Admin Disputes Detail.html
+ * scope: .dispute-detail-page
+ */
+
+.dispute-detail-page {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: #1a1e24;
+  letter-spacing: -0.005em;
+}
+.dispute-detail-page [lang="ko"],
+.dispute-detail-page .kr {
+  font-family: var(--font-kr);
+  word-break: keep-all;
+  letter-spacing: 0;
+  line-height: 1.7;
+}
+.dispute-detail-page .mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum";
+}
+
+/* Header card */
+.dispute-detail-page .dd-header {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.dispute-detail-page .dd-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.dispute-detail-page .dd-title {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.dispute-detail-page .dd-title .ko {
+  font-family: var(--font-kr);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+  margin-left: 8px;
+}
+
+/* Sev pill */
+.dispute-detail-page .sev-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 11px;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.dispute-detail-page .sev-pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.dispute-detail-page .sev-pill.open,
+.dispute-detail-page .sev-pill.sla {
+  background: #f5ddd7;
+  color: #991b1b;
+}
+.dispute-detail-page .sev-pill.open::before,
+.dispute-detail-page .sev-pill.sla::before {
+  background: #b91c1c;
+}
+.dispute-detail-page .sev-pill.review {
+  background: #fef3c7;
+  color: #92400e;
+}
+.dispute-detail-page .sev-pill.review::before {
+  background: #92400e;
+}
+.dispute-detail-page .sev-pill.done {
+  background: #ecfdf5;
+  color: #065f46;
+}
+.dispute-detail-page .sev-pill.done::before {
+  background: #10b981;
+}
+.dispute-detail-page .sev-pill.rejected {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+.dispute-detail-page .sev-pill.rejected::before {
+  background: #6b7280;
+}
+
+/* Cat chip */
+.dispute-detail-page .cat-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 9px;
+  background: #faefe2;
+  border-radius: 9999px;
+  font-family: var(--font-kr);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1a1e24;
+}
+
+/* SLA box */
+.dispute-detail-page .sla-box {
+  text-align: right;
+}
+.dispute-detail-page .sla-box .lab {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6c757d;
+  font-weight: 600;
+}
+.dispute-detail-page .sla-box .v {
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 700;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.01em;
+}
+.dispute-detail-page .sla-box .v.urgent {
+  color: #b91c1c;
+}
+.dispute-detail-page .sla-box .v.warn {
+  color: #d4956a;
+}
+.dispute-detail-page .sla-box .v.muted {
+  color: rgba(26, 30, 36, 0.4);
+}
+.dispute-detail-page .sla-box .when {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(26, 30, 36, 0.45);
+}
+
+/* Header meta */
+.dispute-detail-page .dd-meta {
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(26, 30, 36, 0.55);
+}
+
+/* Timeline */
+.dispute-detail-page .dd-tl {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.dispute-detail-page .dd-tl-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+}
+.dispute-detail-page .dd-tl-step .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dispute-detail-page .dd-tl-step.done .dot {
+  background: #10b981;
+}
+.dispute-detail-page .dd-tl-step.done {
+  color: #065f46;
+}
+.dispute-detail-page .dd-tl-step.current .dot {
+  background: #e8a97a;
+  box-shadow: 0 0 0 4px rgba(232, 169, 122, 0.2);
+}
+.dispute-detail-page .dd-tl-step.current {
+  color: #92400e;
+  font-weight: 600;
+}
+.dispute-detail-page .dd-tl-step.todo .dot {
+  background: #d1d5db;
+}
+.dispute-detail-page .dd-tl-step.todo {
+  color: #6c757d;
+}
+
+/* Section */
+.dispute-detail-page .section {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.dispute-detail-page .section-h {
+  margin: 0 0 14px;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 18px;
+  letter-spacing: -0.015em;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.dispute-detail-page .section-h .ko {
+  font-family: var(--font-kr);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+}
+.dispute-detail-page .section-h .meta {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #6c757d;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Metadata grid */
+.dispute-detail-page .meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: #faefe2;
+  border: 1px solid #faefe2;
+  border-radius: 10px;
+  overflow: hidden;
+}
+@media (max-width: 600px) {
+  .dispute-detail-page .meta-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.dispute-detail-page .meta-cell {
+  background: #ffffff;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dispute-detail-page .meta-cell .k {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(26, 30, 36, 0.55);
+}
+.dispute-detail-page .meta-cell .v {
+  font-size: 12.5px;
+  color: #1a1e24;
+  word-break: break-all;
+}
+.dispute-detail-page .meta-cell .v.mono {
+  font-family: var(--font-mono);
+}
+.dispute-detail-page .meta-cell .v.muted {
+  color: rgba(26, 30, 36, 0.45);
+}
+
+/* Quote box */
+.dispute-detail-page .quote-box {
+  background: #fdf8f1;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-family: var(--font-kr);
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  color: #1a1e24;
+}
+.dispute-detail-page .quote-box .party {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #6c757d;
+}
+
+/* Action panel */
+.dispute-detail-page .action-panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.dispute-detail-page .action-panel .field-label {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--font-kr);
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1e24;
+}
+.dispute-detail-page .action-panel textarea {
+  width: 100%;
+  background: #fafbfc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 14px;
+  min-height: 88px;
+  font-family: var(--font-kr);
+  font-size: 14px;
+  color: #1a1e24;
+  line-height: 1.6;
+  resize: vertical;
+  outline: 0;
+}
+.dispute-detail-page .action-panel textarea:focus {
+  border-color: #1a1e24;
+  background: #ffffff;
+}
+.dispute-detail-page .action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.dispute-detail-page .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-family: var(--font-kr);
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  border: 0;
+}
+.dispute-detail-page .btn-ghost {
+  background: transparent;
+  color: #1a1e24;
+  border: 1px solid #d1d5db;
+}
+.dispute-detail-page .btn-ghost:hover {
+  background: #fafbfc;
+}
+.dispute-detail-page .btn-primary {
+  background: #e8a97a;
+  color: #1a2238;
+}
+.dispute-detail-page .btn-primary:hover {
+  background: #d4956a;
+}
+.dispute-detail-page .btn[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
