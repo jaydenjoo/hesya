@@ -133,8 +133,17 @@ export function BookingDetail({
       <section
         className={`rounded-lg border bg-white p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)] ring-1 ring-inset ${tone.ring}`}
       >
+        <p className="mb-2 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/55">
+          Booking · {booking.id.slice(0, 8).toUpperCase()}
+        </p>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-2">
+            <h1 className="flex flex-wrap items-baseline gap-2 font-display text-[24px] italic text-hesya-navy-900">
+              <span>Booking</span>
+              <span className="kr text-[20px] font-bold not-italic">
+                예약 상세
+              </span>
+            </h1>
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12.5px] font-semibold ${tone.chip}`}
@@ -182,14 +191,15 @@ export function BookingDetail({
       </section>
 
       <section className="space-y-4">
-        <div>
-          <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
-            §01 · Info
-          </p>
-          <h2 className="mt-1.5 font-display text-[20px] italic text-hesya-navy-900">
+        <h2 className="flex items-baseline gap-2 font-display text-[20px] italic text-hesya-navy-900">
+          <span>Booking info</span>
+          <span className="kr text-[16px] font-bold not-italic text-hesya-navy-900">
             {labels.headers.info}
-          </h2>
-        </div>
+          </span>
+          <span className="ml-auto font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/55">
+            §01 · DETAILS
+          </span>
+        </h2>
         <div className="flex flex-col gap-2.5">
           <InfoBlock
             label={labels.fields.scheduled}
@@ -229,14 +239,15 @@ export function BookingDetail({
       </section>
 
       <section className="space-y-4">
-        <div>
-          <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-amber-600">
-            §02 · Actions
-          </p>
-          <h2 className="mt-1.5 font-display text-[20px] italic text-hesya-navy-900">
+        <h2 className="flex items-baseline gap-2 font-display text-[20px] italic text-hesya-navy-900">
+          <span>Actions</span>
+          <span className="kr text-[16px] font-bold not-italic text-hesya-navy-900">
             {labels.headers.actions}
-          </h2>
-        </div>
+          </span>
+          <span className="ml-auto font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-navy-900/55">
+            §02 · STATUS
+          </span>
+        </h2>
         {isTerminal ? (
           <p className="kr break-keep rounded-md bg-hesya-peach-50 px-4 py-3 text-[13px] text-gray-700">
             {labels.actions.terminalNote}
