@@ -10,7 +10,7 @@ import { DisputesList } from "./disputes-list";
  * - filter pill active: amber-500 border + bg-white + navy
  * - filter pill inactive: peach-200 border + white/50 + gray
  * - table row: peach-100 border + peach-50 hover
- * - SLA urgent: bg-[#fbeae5] + text-[#c9483a]
+ * - SLA urgent: bg-hesya-danger-100 + text-hesya-danger-600
  * - SLA warn: amber-600
  * - 상세 링크: amber-600 + hover underline
  */
@@ -73,7 +73,7 @@ describe("DisputesList — M6.9b 디자인 정합성", () => {
     expect(row).toBeTruthy();
   });
 
-  it("SLA urgent (초과) — crit token (#fbeae5 + #c9483a)", () => {
+  it("SLA urgent (초과) — crit token (hesya-danger-100 + hesya-danger-600)", () => {
     const slaDueAt = new Date("2026-05-09T00:00:00Z"); // 어제
     const now = new Date("2026-05-10T00:00:00Z").getTime();
     const { container } = render(
@@ -85,7 +85,7 @@ describe("DisputesList — M6.9b 디자인 정합성", () => {
     );
     // SLA pill은 mono + crit token. 상태 pill (open=접수)와 구별되는 .mono class로 식별.
     const urgent = container.querySelector(
-      "span.mono.bg-\\[\\#fbeae5\\].text-\\[\\#c9483a\\]",
+      "span.mono.bg-hesya-danger-100.text-hesya-danger-600",
     );
     expect(urgent).toBeTruthy();
     expect(urgent?.textContent).toMatch(/초과/);

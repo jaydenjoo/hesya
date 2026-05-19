@@ -68,7 +68,7 @@ export function DraftReviewPanel({
           data-testid="draft-edit-state"
           className={`ml-auto inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] ${
             empty
-              ? "bg-[#fbeae5] text-[#c9483a]"
+              ? "bg-hesya-danger-100 text-hesya-danger-600"
               : unchanged
                 ? "bg-emerald-50 text-emerald-700"
                 : "bg-hesya-amber-500/15 text-hesya-amber-700"

@@ -553,12 +553,12 @@ export function SettingsForm({
             </span>
             <span
               aria-hidden="true"
-              className="ml-auto rounded-full bg-[#c9483a]/12 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#c9483a]"
+              className="ml-auto rounded-full bg-hesya-danger-600/12 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-hesya-danger-600"
             >
               {labels.riskBadge}
             </span>
           </header>
-          <div className="rounded-md border border-[#c9483a]/30 bg-[#c9483a]/5 px-5 py-4">
+          <div className="rounded-md border border-hesya-danger-600/30 bg-hesya-danger-600/5 px-5 py-4">
             <p className="text-[12.5px] leading-relaxed text-hesya-navy-900/85">
               {labels.riskBody}
             </p>

@@ -8,7 +8,7 @@ import type { Dispute } from "@hesya/database";
  * `text` 컬럼이라 `Dispute["status"]`가 `string`으로 추론되기 때문.
  *
  * STATUS_TONE — 상태별 시각 강도:
- *   - open / sla_exceeded: crit (#c9483a accent)
+ *   - open / sla_exceeded: crit (hesya-danger-600 accent)
  *   - in_review: warn (amber)
  *   - resolved: ok (emerald)
  *   - rejected: neutral
@@ -22,8 +22,8 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_TONE: Record<string, string> = {
-  open: "bg-[#fbeae5] text-[#c9483a]",
-  sla_exceeded: "bg-[#fbeae5] text-[#c9483a]",
+  open: "bg-hesya-danger-100 text-hesya-danger-600",
+  sla_exceeded: "bg-hesya-danger-100 text-hesya-danger-600",
   in_review: "bg-hesya-peach-100 text-hesya-amber-600",
   resolved: "bg-emerald-50 text-emerald-700",
   rejected: "bg-gray-100 text-gray-600",
@@ -178,7 +178,7 @@ function SlaCell({
   }
   if (urgent) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-[#fbeae5] px-2 py-0.5 font-mono text-[10.5px] font-bold text-[#c9483a]">
+      <span className="inline-flex items-center gap-1 rounded-full bg-hesya-danger-100 px-2 py-0.5 font-mono text-[10.5px] font-bold text-hesya-danger-600">
         <span aria-hidden="true">⚠</span>초과 {Math.abs(days)}일
       </span>
     );
@@ -216,10 +216,10 @@ function DisputeKpiTile({
       note: "text-hesya-navy-900/55",
     },
     danger: {
-      border: "border-[#e5c0ba]",
-      bg: "bg-[#faefec]",
-      text: "text-[#c9483a]",
-      note: "text-[#c9483a]",
+      border: "border-hesya-danger-200",
+      bg: "bg-hesya-danger-50",
+      text: "text-hesya-danger-600",
+      note: "text-hesya-danger-600",
     },
     warn: {
       border: "border-hesya-peach-200",

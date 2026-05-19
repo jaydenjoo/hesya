@@ -85,7 +85,7 @@ export default async function ConnectPage({
         {errorCode ? (
           <div
             role="alert"
-            className="kr mb-4 rounded-md border border-[#c9483a] bg-[#fbeae5] px-4 py-3 text-[13px] text-[#c9483a]"
+            className="kr mb-4 rounded-md border border-hesya-danger-600 bg-hesya-danger-100 px-4 py-3 text-[13px] text-hesya-danger-600"
           >
             {tFailed("failed", { reason: errorCode })}
           </div>

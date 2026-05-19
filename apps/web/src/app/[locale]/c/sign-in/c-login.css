@@ -407,7 +407,7 @@
 .c-email-error {
   font-size: 12px;
   font-weight: 600;
-  color: #c9483a;
+  color: var(--hesya-danger-600);
   margin: 0;
 }
 

@@ -276,8 +276,8 @@ const BOOKINGS_KPI_TONE: Record<
     chip: "bg-emerald-50 text-emerald-700",
   },
   warn: {
-    num: "text-[#c9483a]",
-    chip: "bg-[#fbeae5] text-[#c9483a]",
+    num: "text-hesya-danger-600",
+    chip: "bg-hesya-danger-100 text-hesya-danger-600",
   },
   neutral: {
     num: "text-hesya-navy-900/75",

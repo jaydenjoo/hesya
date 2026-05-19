@@ -140,7 +140,10 @@ function OnboardingRoadmap({ status }: { status: Status }) {
         const current = i === currentIdx;
         const tone =
           failed && i === 2
-            ? { dot: "bg-[#c9483a]", text: "text-[#c9483a] font-semibold" }
+            ? {
+                dot: "bg-hesya-danger-600",
+                text: "text-hesya-danger-600 font-semibold",
+              }
             : done
               ? { dot: "bg-emerald-500", text: "text-emerald-700" }
               : current
@@ -186,8 +189,8 @@ const TONE_STYLES: Record<
     pulse: false,
   },
   error: {
-    card: "border-[#c9483a] bg-[#fbeae5]",
-    icon: "bg-[#c9483a] text-white",
+    card: "border-hesya-danger-600 bg-hesya-danger-100",
+    icon: "bg-hesya-danger-600 text-white",
     pulse: false,
   },
   neutral: {

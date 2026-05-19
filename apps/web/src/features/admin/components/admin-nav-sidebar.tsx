@@ -82,7 +82,7 @@ export function AdminNavSidebar({
             className={[
               "inline-flex min-w-[20px] items-center justify-center rounded-full px-1.5 font-mono text-[10px] font-bold leading-none",
               badge.urgent
-                ? "bg-[#c9483a] text-white"
+                ? "bg-hesya-danger-600 text-white"
                 : active
                   ? "bg-hesya-amber-500 text-hesya-navy-900"
                   : "bg-hesya-peach-200 text-hesya-navy-900",
