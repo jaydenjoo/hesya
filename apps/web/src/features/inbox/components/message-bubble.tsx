@@ -67,9 +67,10 @@ export function MessageBubble({ message }: { message: Message }) {
           isOutbound ? "items-end" : "items-start"
         }`}
       >
+        {/* Reference inbox.css L459-477 .ix-bubble — no shadow + .ix-bubble-orig font-weight 500 */}
         <div
           data-testid="message-bubble-body"
-          className={`kr rounded-[14px] px-3.5 py-2.5 text-[13px] leading-[1.55] shadow-sm ${bubbleClass} ${
+          className={`kr rounded-[14px] px-3.5 py-2.5 text-[13px] leading-[1.55] ${bubbleClass} ${
             isFailed ? "ring-1 ring-red-500" : ""
           } ${isAIDraft ? "ring-1 ring-dashed ring-hesya-amber-500" : ""}`}
         >
@@ -78,7 +79,7 @@ export function MessageBubble({ message }: { message: Message }) {
               🤖 AI 초안
             </div>
           ) : null}
-          <p className="whitespace-pre-wrap break-keep">
+          <p className="whitespace-pre-wrap break-keep font-medium">
             {message.originalText}
           </p>
           {message.translatedText ? (
@@ -91,30 +92,37 @@ export function MessageBubble({ message }: { message: Message }) {
               {message.translatedText}
             </p>
           ) : null}
+          {/* Reference inbox.css L510-531 .ix-bubble-audit — dashed border-top + 80px key col */}
           {auditOpen && hasTranslation ? (
-            <div data-testid="bubble-audit" className="ix-bubble-audit kr">
-              <div className="ix-audit-row">
-                <span className="ix-audit-key">감지 언어</span>
-                <span className="ix-audit-val">{detectedLangLabel}</span>
+            <div
+              data-testid="bubble-audit"
+              className={`kr mt-2 flex flex-col gap-1 border-t border-dashed pt-2 text-[11px] ${
+                isOutbound ? "border-white/30" : "border-[rgba(26,34,56,0.15)]"
+              }`}
+            >
+              <div className="flex items-start gap-2">
+                <span className="w-20 flex-shrink-0 opacity-70">감지 언어</span>
+                <span>{detectedLangLabel}</span>
               </div>
-              <div className="ix-audit-row">
-                <span className="ix-audit-key">번역 신뢰도</span>
-                <span className={`ix-audit-val ${confidence}`}>
-                  {confidenceLabel}
+              <div className="flex items-start gap-2">
+                <span className="w-20 flex-shrink-0 opacity-70">
+                  번역 신뢰도
                 </span>
+                <span>{confidenceLabel}</span>
               </div>
-              <div className="ix-audit-row">
-                <span className="ix-audit-key">원문 보기</span>
-                <span className="ix-audit-val">{message.originalText}</span>
+              <div className="flex items-start gap-2">
+                <span className="w-20 flex-shrink-0 opacity-70">원문 보기</span>
+                <span>{message.originalText}</span>
               </div>
             </div>
           ) : null}
+          {/* Reference inbox.css L500-509 .ix-bubble-more — opacity 0.6, underline, pt-1 */}
           {hasTranslation ? (
             <button
               type="button"
               data-testid="bubble-audit-toggle"
               onClick={() => setAuditOpen((v) => !v)}
-              className="ix-bubble-more kr"
+              className="kr cursor-pointer pt-1 text-[11px] underline decoration-current/30 opacity-60 hover:opacity-90"
             >
               {auditOpen ? "닫기" : "원문 / 신뢰도 보기"}
             </button>
