@@ -35,6 +35,7 @@ import {
   getTopCategoriesByGmv,
 } from "@/shared/lib/dal/admin-dashboard";
 import { getCurrentMonthRange } from "@/shared/lib/dal/dashboard";
+import { mockAdminDashboard } from "@/lib/mock-fixtures/admin-dashboard";
 
 import { DashboardBarChart } from "@/features/admin/components/dashboard-bar-chart";
 import { DashboardSpark } from "@/features/admin/components/dashboard-spark";
@@ -109,6 +110,9 @@ export default async function AdminDashboardPage({ params }: Props) {
 
   const monthRange = getCurrentMonthRange();
   const monthKey = `${monthRange.fromDate.toISOString()}|${monthRange.toDate.toISOString()}`;
+  // Mock 데이터 단계 (`MOCK_FIXTURES=true`) — 8 DAL 묶음 대신 fixture 사용.
+  // 외부 데모에서 admin UI 첫인상을 풍부한 데이터로 보장. 베타 매장 모집 후
+  // env 토글하면 실 DB DAL 자동 fallback (위 `getAdminDashboardCached`).
   const {
     alerts,
     kpi,
@@ -118,7 +122,9 @@ export default async function AdminDashboardPage({ params }: Props) {
     slaResolution,
     regionDist,
     topCategories,
-  } = await getAdminDashboardCached(monthKey);
+  } = env.MOCK_FIXTURES
+    ? mockAdminDashboard
+    : await getAdminDashboardCached(monthKey);
 
   const t = await getTranslations({ locale, namespace: "AdminDashboard" });
 
