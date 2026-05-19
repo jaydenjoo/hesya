@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>취소 및 환불 정책 · Hesya</title>
+<meta name="description" content="Hesya 예약 취소 및 환불 정책 — 손님과 매장 모두에게 공정한 룰."/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Source+Sans+3:wght@400..700&family=JetBrains+Mono:wght@500..700&display=swap"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"/>
+<link rel="stylesheet" href="tokens.css"/>
+
+<style>
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: #FDF8F1; color: #1A2238;
+  font-family: 'Source Sans 3', 'Pretendard Variable', sans-serif;
+  font-size: 16px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.005em;
+}
+img, svg { display: block; max-width: 100%; }
+[lang="ko"], .kr {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7; text-transform: none;
+}
+.mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "tnum"; letter-spacing: 0; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid #E8A97A; outline-offset: 4px; border-radius: 4px; }
+
+/* Top bar */
+.topbar { position: sticky; top: 0; z-index: 50; height: 64px;
+  background: rgba(253,248,241,0.86); backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid rgba(26,34,56,0.06); }
+.topbar-inner { max-width: 1280px; margin: 0 auto; height: 100%; padding: 0 20px;
+  display: flex; align-items: center; gap: 24px; }
+.brand { font-family: 'Fraunces', serif; font-style: italic; font-weight: 600;
+  font-size: 24px; color: #1A2238; letter-spacing: -0.02em; }
+.brand-pill { font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  font-weight: 600; letter-spacing: 0.08em; color: #D4956A; margin-left: 4px; }
+.top-links { display: none; margin-left: 24px; gap: 24px; }
+@media (min-width: 720px) { .top-links { display: flex; } }
+.top-links a { font-size: 14px; color: #2B3450; }
+.top-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.lang-pill { height: 36px; padding: 0 14px; border-radius: 9999px;
+  background: rgba(255,255,255,0.7); border: 1px solid rgba(26,34,56,0.08);
+  font-size: 13px; font-weight: 600; color: #1A2238;
+  display: inline-flex; align-items: center; gap: 6px; }
+
+/* Eyebrow */
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #E8A97A; margin-bottom: 14px;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.eyebrow.small { font-size: 11px; }
+
+/* §1 Hero — compact */
+.hero { background: #FDF8F1; padding: 48px 20px 40px; }
+@media (min-width: 720px) { .hero { padding: 72px 32px 56px; } }
+.hero-wrap { max-width: 720px; margin: 0 auto; }
+.hero h1 {
+  margin: 0 0 12px;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 28px; line-height: 1.15; color: #1A2238;
+  letter-spacing: -0.025em;
+  font-variation-settings: "opsz" 144, "wght" 500;
+}
+.hero h1 .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 24px; display: block;
+  letter-spacing: 0; line-height: 1.3;
+}
+@media (min-width: 720px) { .hero h1 { font-size: 36px; } .hero h1 .ko { font-size: 30px; } }
+.hero .sub {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 15px; color: #2B3450;
+  line-height: 1.7; word-break: keep-all; letter-spacing: 0;
+  max-width: 420px; margin: 0;
+}
+.hero .meta {
+  margin-top: 16px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: #6C757D; letter-spacing: 0;
+}
+
+/* §2 Refund table */
+.refund { background: #FFFFFF; padding: 64px 20px; }
+@media (min-width: 720px) { .refund { padding: 96px 32px; } }
+.section-wrap { max-width: 980px; margin: 0 auto; }
+.section-h {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 24px; color: #1A2238;
+  letter-spacing: -0.02em; margin: 0 0 28px;
+}
+.section-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 22px; display: block;
+  letter-spacing: 0; line-height: 1.3;
+}
+
+/* Desktop: real table */
+.refund-table { display: none; }
+@media (min-width: 720px) {
+  .refund-table { display: table; width: 100%; border-collapse: separate;
+    border-spacing: 0; border: 1px solid #FAEFE2; border-radius: 16px;
+    overflow: hidden; }
+  .refund-table thead th {
+    background: #FAEFE2; padding: 14px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: #6C757D; text-align: left;
+  }
+  .refund-table tbody td {
+    padding: 28px 24px; border-top: 1px solid #FAEFE2;
+    vertical-align: middle;
+  }
+  .refund-table tbody tr:first-child td { border-top: 0; }
+  .refund-table tbody tr { transition: background 120ms cubic-bezier(0.4,0,0.2,1); }
+  .refund-table tbody tr:hover { background: #FDF8F1; }
+  .col-when { width: 36%; }
+  .col-rate { width: 28%; }
+  .col-how  { width: 36%; }
+}
+.col-when .when-main {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 16px; font-weight: 600; color: #1A2238;
+  letter-spacing: 0; word-break: keep-all;
+}
+.col-when .when-sub {
+  margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: #6C757D;
+}
+.col-rate .rate-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px; font-weight: 700; letter-spacing: 0;
+}
+.col-rate .rate-num.full { color: #10B981; }
+.col-rate .rate-num.half { color: #E8A97A; }
+.col-rate .rate-num.none { color: #2B3450; }
+.col-rate .rate-label {
+  margin-top: 2px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; color: #6C757D; letter-spacing: 0;
+}
+.col-how {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #2B3450;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.6;
+}
+
+/* Mobile: stack as cards */
+.refund-cards { display: flex; flex-direction: column; gap: 12px; }
+@media (min-width: 720px) { .refund-cards { display: none; } }
+.refund-card {
+  background: #FFFFFF; border: 1px solid #FAEFE2;
+  border-radius: 16px; padding: 20px;
+  display: grid; grid-template-columns: 1fr auto; gap: 12px;
+}
+.refund-card .left .when-main {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 15px; font-weight: 600; color: #1A2238;
+  word-break: keep-all; letter-spacing: 0;
+}
+.refund-card .left .when-sub {
+  margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #6C757D;
+}
+.refund-card .left .how {
+  margin-top: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #2B3450;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.6;
+}
+.refund-card .right { text-align: right; }
+.refund-card .right .rate-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px; font-weight: 700; letter-spacing: 0;
+  line-height: 1;
+}
+.refund-card .right .rate-num.full { color: #10B981; }
+.refund-card .right .rate-num.half { color: #E8A97A; }
+.refund-card .right .rate-num.none { color: #2B3450; }
+.refund-card .right .rate-label {
+  margin-top: 4px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 11px; color: #6C757D; letter-spacing: 0;
+}
+
+/* §3 How refunds work */
+.how { background: #FDF8F1; padding: 64px 20px; }
+@media (min-width: 720px) { .how { padding: 96px 32px; } }
+.how-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+  .how-grid { grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+}
+.how-card {
+  background: #FFFFFF; border: 1px solid #F5DDC8;
+  border-radius: 16px; padding: 24px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.how-card .icon {
+  width: 40px; height: 40px;
+  border-radius: 10px; background: #FAEFE2;
+  display: flex; align-items: center; justify-content: center;
+  color: #E8A97A;
+}
+.how-card .icon svg { width: 22px; height: 22px; }
+.how-card h3 {
+  margin: 0;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 700; font-size: 16px; color: #1A2238;
+  word-break: keep-all; letter-spacing: 0;
+}
+.how-card h3 .step {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: #D4956A;
+  margin-right: 8px;
+}
+.how-card p {
+  margin: 0;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #2B3450;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7;
+}
+
+/* §4 No-show warning */
+.noshow { background: #FAEFEC; padding: 64px 20px; }
+@media (min-width: 720px) { .noshow { padding: 96px 32px; } }
+.noshow-wrap {
+  max-width: 720px; margin: 0 auto;
+  padding: 28px 24px;
+  background: rgba(253,248,241,0.5);
+  border-left: 4px solid #F5DDD7;
+  border-radius: 4px 16px 16px 4px;
+}
+@media (min-width: 720px) { .noshow-wrap { padding: 32px 36px; } }
+.noshow-h {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 22px; color: #1A2238;
+  letter-spacing: -0.02em; margin: 0 0 14px;
+}
+.noshow-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 20px; display: block;
+  letter-spacing: 0; line-height: 1.3;
+}
+.noshow-body {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #2B3450;
+  line-height: 1.8; word-break: keep-all; letter-spacing: 0;
+  margin: 0;
+}
+.noshow-body a {
+  color: #1A2238; text-decoration: underline;
+  text-decoration-color: #2B3450; text-underline-offset: 3px;
+  transition: color 120ms cubic-bezier(0.4,0,0.2,1),
+              text-decoration-color 120ms cubic-bezier(0.4,0,0.2,1);
+}
+.noshow-body a:hover { color: #E8A97A; text-decoration-color: #E8A97A; }
+
+/* §5 FAQ */
+.faq { background: #FFFFFF; padding: 64px 20px; }
+@media (min-width: 720px) { .faq { padding: 96px 32px; } }
+.faq-wrap { max-width: 720px; margin: 0 auto; }
+.faq-item { border-bottom: 1px solid #F5DDC8; }
+.faq-item button {
+  width: 100%; min-height: 64px;
+  padding: 16px 0;
+  background: transparent; border: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; text-align: left;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 15px; color: #1A2238;
+  letter-spacing: -0.01em;
+  transition: color 120ms cubic-bezier(0.4,0,0.2,1);
+}
+.faq-item button .q-ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 600; font-size: 15px; color: #1A2238;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.5;
+  flex: 1;
+}
+.faq-item button:hover { color: #E8A97A; }
+.faq-item button .chev {
+  flex-shrink: 0; width: 20px; height: 20px;
+  color: #6C757D;
+  transition: transform 220ms cubic-bezier(0.4,0,0.2,1),
+              color 120ms cubic-bezier(0.4,0,0.2,1);
+}
+.faq-item button[aria-expanded="true"] .chev {
+  transform: rotate(180deg); color: #1A2238;
+}
+.faq-answer {
+  display: none;
+  padding: 0 0 20px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #2B3450;
+  line-height: 1.8; word-break: keep-all; letter-spacing: 0;
+}
+.faq-item button[aria-expanded="true"] + .faq-answer { display: block; }
+
+/* §6 Footer CTA */
+.cta-foot { background: #FAEFE2; padding: 80px 20px; text-align: center; }
+.cta-foot p {
+  margin: 0 0 24px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 16px; color: #2B3450;
+  word-break: keep-all; letter-spacing: 0;
+}
+.cta-row {
+  display: flex; flex-direction: column;
+  gap: 10px; align-items: center;
+  max-width: 380px; margin: 0 auto;
+}
+@media (min-width: 720px) {
+  .cta-row { flex-direction: row; justify-content: center; max-width: none; }
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; min-height: 48px; padding: 0 22px;
+  border-radius: 12px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 14.5px;
+  letter-spacing: 0; word-break: keep-all; border: 0;
+  transition: transform 120ms cubic-bezier(0.4,0,0.2,1),
+              background 120ms cubic-bezier(0.4,0,0.2,1),
+              box-shadow 120ms cubic-bezier(0.4,0,0.2,1);
+}
+.btn.primary {
+  background: #E8A97A; color: #1A2238;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+}
+.btn.primary:hover {
+  background: #D4956A; transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.08);
+}
+.btn.ghost {
+  background: transparent; color: #1A2238;
+  border: 1px solid #2B3450;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+}
+.btn.ghost:hover { background: #FAEFE2; }
+.btn svg { width: 18px; height: 18px; }
+
+/* Footer */
+.footer { background: #FDF8F1; padding: 32px 20px;
+  border-top: 1px solid #FAEFE2; }
+.footer-wrap {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: #6C757D; letter-spacing: 0;
+}
+.footer-wrap a { color: #6C757D; }
+.footer-wrap a:hover { color: #D4956A; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
+  .faq-item button .chev { transition: none; }
+}
+
+/* Print friendly */
+@media print {
+  body { background: #FFFFFF; }
+  .topbar, .cta-foot, .footer { display: none; }
+  .refund-cards { display: none; }
+  .refund-table { display: table !important; }
+  .faq-answer { display: block !important; padding-bottom: 16px; }
+  .faq-item button .chev { display: none; }
+  section { padding: 24px 20px !important; break-inside: avoid; }
+  a { color: #1A2238; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar" role="banner">
+  <div class="topbar-inner">
+    <a href="Hesya Landing.html" class="brand" aria-label="Hesya — 홈으로">
+      Hesya<span class="brand-pill">·KR</span>
+    </a>
+    <nav class="top-links" aria-label="주 메뉴">
+      <a href="Hesya Trending Looks.html">Trending</a>
+      <a href="#">매장 찾기</a>
+      <a href="#">예약</a>
+    </nav>
+    <div class="top-right">
+      <button class="lang-pill" type="button" aria-label="언어 변경 — 현재 한국어">
+        <span aria-hidden="true">🌐</span> KO
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- §1 Hero -->
+<section class="hero" aria-labelledby="hero-h">
+  <div class="hero-wrap">
+    <div class="eyebrow" aria-hidden="true">POLICY</div>
+    <h1 id="hero-h"><span class="ko" lang="ko">취소 및 환불 정책</span></h1>
+    <p class="sub" lang="ko">예약 전 꼭 한번 확인해주세요. 손님과 매장 모두에게 공정합니다.</p>
+    <p class="meta">Last updated · 2026-05-12 · v3.2</p>
+  </div>
+</section>
+
+<!-- §2 Refund table -->
+<section class="refund" aria-labelledby="refund-h">
+  <div class="section-wrap">
+    <h2 class="section-h" id="refund-h">
+      <span class="ko" lang="ko">취소 시점별 환불</span>
+    </h2>
+
+    <table class="refund-table">
+      <thead>
+        <tr>
+          <th scope="col" class="col-when">취소 시점</th>
+          <th scope="col" class="col-rate">환불 비율</th>
+          <th scope="col" class="col-how">환불 방식</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-when">
+            <div class="when-main" lang="ko">예약 24시간 이전</div>
+            <div class="when-sub">More than 24h before</div>
+          </td>
+          <td class="col-rate">
+            <div class="rate-num full">100%</div>
+            <div class="rate-label" lang="ko">전액 환불</div>
+          </td>
+          <td class="col-how" lang="ko">자동 환불 — 카드사 기준 약 3 영업일 소요</td>
+        </tr>
+        <tr>
+          <td class="col-when">
+            <div class="when-main" lang="ko">예약 12시간 이전</div>
+            <div class="when-sub">12h to 24h before</div>
+          </td>
+          <td class="col-rate">
+            <div class="rate-num half">50%</div>
+            <div class="rate-label" lang="ko">절반 환불</div>
+          </td>
+          <td class="col-how" lang="ko">자동 환불 — 카드사 기준 약 3 영업일 소요</td>
+        </tr>
+        <tr>
+          <td class="col-when">
+            <div class="when-main" lang="ko">예약 당일</div>
+            <div class="when-sub">Less than 12h before</div>
+          </td>
+          <td class="col-rate">
+            <div class="rate-num none">0%</div>
+            <div class="rate-label" lang="ko">환불 없음</div>
+          </td>
+          <td class="col-how" lang="ko">노쇼 정책이 적용됩니다 (아래 참조)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="refund-cards" aria-hidden="false">
+      <article class="refund-card">
+        <div class="left">
+          <div class="when-main" lang="ko">예약 24시간 이전</div>
+          <div class="when-sub">More than 24h before</div>
+          <p class="how" lang="ko">자동 환불 — 카드사 기준 약 3 영업일</p>
+        </div>
+        <div class="right">
+          <div class="rate-num full">100%</div>
+          <div class="rate-label" lang="ko">전액 환불</div>
+        </div>
+      </article>
+      <article class="refund-card">
+        <div class="left">
+          <div class="when-main" lang="ko">예약 12시간 이전</div>
+          <div class="when-sub">12h to 24h before</div>
+          <p class="how" lang="ko">자동 환불 — 카드사 기준 약 3 영업일</p>
+        </div>
+        <div class="right">
+          <div class="rate-num half">50%</div>
+          <div class="rate-label" lang="ko">절반 환불</div>
+        </div>
+      </article>
+      <article class="refund-card">
+        <div class="left">
+          <div class="when-main" lang="ko">예약 당일</div>
+          <div class="when-sub">Less than 12h before</div>
+          <p class="how" lang="ko">노쇼 정책이 적용됩니다 (아래 참조)</p>
+        </div>
+        <div class="right">
+          <div class="rate-num none">0%</div>
+          <div class="rate-label" lang="ko">환불 없음</div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- §3 How refunds work -->
+<section class="how" aria-labelledby="how-h">
+  <div class="section-wrap">
+    <h2 class="section-h" id="how-h">
+      <span class="ko" lang="ko">환불은 이렇게 진행돼요</span>
+    </h2>
+    <div class="how-grid">
+      <article class="how-card">
+        <div class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+            <line x1="1" y1="10" x2="23" y2="10"/>
+          </svg>
+        </div>
+        <h3 lang="ko"><span class="step">01</span>자동 처리</h3>
+        <p lang="ko">Hesya가 카드사로 자동 환불 요청을 전송합니다.</p>
+      </article>
+      <article class="how-card">
+        <div class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18"/>
+            <path d="M6 12H4a2 2 0 0 0-2 2v8h20v-8a2 2 0 0 0-2-2h-2"/>
+            <path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>
+          </svg>
+        </div>
+        <h3 lang="ko"><span class="step">02</span>카드사 정산</h3>
+        <p lang="ko">카드사에서 결제 취소 후 약 3 영업일 내 환불이 표시됩니다.</p>
+      </article>
+      <article class="how-card">
+        <div class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <h3 lang="ko"><span class="step">03</span>알림</h3>
+        <p lang="ko">환불 완료 시 이메일과 앱 알림으로 안내드립니다.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- §4 No-show warning -->
+<section class="noshow" aria-labelledby="noshow-h">
+  <div class="noshow-wrap">
+    <h2 class="noshow-h" id="noshow-h">
+      <span class="ko" lang="ko">노쇼 (예약 후 미방문)</span>
+    </h2>
+    <p class="noshow-body" lang="ko">
+      예약 후 연락 없이 방문하지 않으시면 결제 금액의 100%가 차감되며, 계정에 1회 노쇼가 기록됩니다. 3회 누적 시 예약이 제한됩니다.
+      사유가 있으시면 매장 또는 Hesya <a href="#contact">고객센터 →</a> 로 연락주세요. 가능한 한 양쪽 모두에게 공정한 해결을 도와드립니다.
+    </p>
+  </div>
+</section>
+
+<!-- §5 FAQ -->
+<section class="faq" aria-labelledby="faq-h">
+  <div class="faq-wrap">
+    <h2 class="section-h" id="faq-h">
+      <span class="ko" lang="ko">자주 묻는 질문</span>
+    </h2>
+
+    <div class="faq-item">
+      <button type="button" aria-expanded="false" aria-controls="a1" id="q1">
+        <span class="q-ko" lang="ko">예약을 변경할 수 있나요?</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer" id="a1" role="region" aria-labelledby="q1" lang="ko">
+        결제 완료 후 24시간 이전엔 매장 메시지로 변경 요청이 가능합니다. 매장이 확정하면 추가 결제 없이 일정만 바뀝니다.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button type="button" aria-expanded="false" aria-controls="a2" id="q2">
+        <span class="q-ko" lang="ko">다른 카드로 결제 변경할 수 있나요?</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer" id="a2" role="region" aria-labelledby="q2" lang="ko">
+        먼저 기존 결제를 환불받은 뒤, 새 결제수단으로 다시 예약하는 방식만 가능합니다. 직접 카드 교체는 지원하지 않습니다.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button type="button" aria-expanded="false" aria-controls="a3" id="q3">
+        <span class="q-ko" lang="ko">외국 카드는 환불도 가능한가요?</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer" id="a3" role="region" aria-labelledby="q3" lang="ko">
+        네, Stripe / Alipay / WeChat Pay 모두 자동 환불을 지원합니다. 결제 시 사용한 동일 수단으로만 환불됩니다.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button type="button" aria-expanded="false" aria-controls="a4" id="q4">
+        <span class="q-ko" lang="ko">환불이 늦어지면 어떻게 하나요?</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer" id="a4" role="region" aria-labelledby="q4" lang="ko">
+        5 영업일을 초과하시면 고객센터로 연락주시면 카드사 컨택을 도와드립니다. 환불 ID를 함께 알려주시면 더 빨라요.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button type="button" aria-expanded="false" aria-controls="a5" id="q5">
+        <span class="q-ko" lang="ko">매장이 일방적으로 취소하면 어떻게 되나요?</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer" id="a5" role="region" aria-labelledby="q5" lang="ko">
+        100% 즉시 환불됩니다. 같은 동네에서 비슷한 시술을 하는 다른 K-Verified 매장 추천도 함께 받으실 수 있습니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §6 CTA -->
+<section class="cta-foot" id="contact" aria-labelledby="cta-h">
+  <p id="cta-h" lang="ko">더 궁금하신 점이 있으세요?</p>
+  <div class="cta-row">
+    <a href="#" class="btn primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span lang="ko">고객센터 채팅</span>
+    </a>
+    <a href="tel:+82212345678" class="btn ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      +82 2 1234 5678
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer-wrap">
+    <span>© 2026 Hesya · KR · GDPR · 개인정보보호법 준수</span>
+    <a href="Hesya Admin Login.html">Internal · Operations →</a>
+  </div>
+</footer>
+
+<script>
+(function() {
+  document.querySelectorAll('.faq-item button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', !expanded);
+    });
+  });
+})();
+</script>
+</body>
+</html>

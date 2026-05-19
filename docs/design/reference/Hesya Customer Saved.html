@@ -1,0 +1,1021 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>저장한 매장 · Hesya</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Source+Sans+3:wght@400..700&family=JetBrains+Mono:wght@500..700&display=swap"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"/>
+<link rel="stylesheet" href="tokens.css"/>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: #FDF8F1; color: #1A2238;
+  font-family: 'Source Sans 3', 'Pretendard Variable', sans-serif;
+  font-size: 16px; -webkit-font-smoothing: antialiased; letter-spacing: -0.005em;
+}
+[lang="ko"], .kr {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7; text-transform: none;
+}
+.mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "tnum"; letter-spacing: 0; }
+button { font: inherit; cursor: pointer; border: 0; background: transparent; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid #E8A97A; outline-offset: 4px; border-radius: 4px; }
+.skip {
+  position: absolute; left: -9999px; top: 0;
+  background: #1A2238; color: #FDF8F1; padding: 12px 16px;
+  border-radius: 0 0 8px 0; z-index: 100;
+}
+.skip:focus { left: 0; }
+
+/* Topbar */
+.topbar {
+  position: sticky; top: 0; z-index: 30; min-height: 56px;
+  background: #FDF8F1; border-bottom: 1px solid #F5DDC8;
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+  transition: background 220ms cubic-bezier(0.4,0,0.2,1);
+}
+.topbar.is-selection { background: #1A2238; color: #FDF8F1; }
+.back-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: inherit; transition: background 120ms;
+}
+.back-btn:hover { background: rgba(245,221,200,0.5); }
+.topbar.is-selection .back-btn:hover { background: rgba(253,248,241,0.12); }
+.back-btn svg { width: 18px; height: 18px; }
+
+.topbar-title {
+  display: flex; align-items: baseline; gap: 10px;
+  flex: 1; min-width: 0;
+}
+.topbar h1 {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 20px; color: #1A2238; letter-spacing: -0.018em;
+  margin: 0;
+}
+.topbar h1 .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 18px; letter-spacing: 0;
+}
+.topbar.is-selection h1, .topbar.is-selection .count { color: #FDF8F1; }
+.topbar .count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; color: #6C757D; letter-spacing: 0;
+}
+
+.sort-wrap { margin-left: auto; position: relative; }
+.sort-wrap label {
+  position: absolute; left: -9999px;
+}
+.sort-wrap select {
+  appearance: none; -webkit-appearance: none;
+  height: 36px; padding: 0 32px 0 14px;
+  background: #FFFFFF; border: 1px solid #F5DDC8; border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #1A2238; letter-spacing: 0;
+  cursor: pointer;
+}
+.sort-wrap select:hover { border-color: #E8A97A; }
+.sort-wrap::after {
+  content: ""; position: absolute; right: 12px; top: 50%;
+  width: 0; height: 0;
+  border-left: 4px solid transparent; border-right: 4px solid transparent;
+  border-top: 5px solid #1A2238;
+  pointer-events: none; transform: translateY(-2px);
+}
+.sel-actions {
+  margin-left: auto;
+  display: none; align-items: center; gap: 8px;
+}
+.topbar.is-selection .sort-wrap { display: none; }
+.topbar.is-selection .sel-actions { display: flex; }
+.sel-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 36px; padding: 0 14px;
+  background: rgba(253,248,241,0.12); color: #FDF8F1;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 0; word-break: keep-all;
+  transition: background 120ms;
+}
+.sel-btn:hover { background: rgba(253,248,241,0.2); }
+.sel-btn.primary {
+  background: #E8A97A; color: #1A2238;
+}
+.sel-btn.primary:hover { background: #D4956A; }
+.sel-btn.cancel { background: transparent; }
+.sel-btn.cancel:hover { background: rgba(253,248,241,0.08); }
+
+/* Filter bar */
+.filter-bar {
+  background: #FFFFFF; border-bottom: 1px solid #F5DDC8;
+  padding: 12px 16px;
+  display: flex; gap: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@media (min-width: 720px) { .filter-bar { padding: 12px 32px; flex-wrap: wrap; } }
+.filter-chip {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 36px; padding: 0 14px;
+  background: #FAEFE2;
+  border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #2B3450; letter-spacing: 0; word-break: keep-all;
+  transition: background 120ms, color 120ms;
+}
+.filter-chip:hover { background: #F5DDC8; }
+.filter-chip[aria-pressed="true"] {
+  background: #E8A97A; color: #1A2238; font-weight: 600;
+}
+.filter-chip .ct {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: #6C757D; letter-spacing: 0;
+}
+.filter-chip[aria-pressed="true"] .ct { color: #2B3450; }
+.filter-action {
+  margin-left: auto;
+  display: none;
+}
+@media (min-width: 720px) {
+  .filter-action {
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+}
+.filter-action button {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 36px; padding: 0 14px;
+  background: transparent;
+  border: 1px solid #2B3450;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #1A2238; letter-spacing: 0;
+  transition: background 120ms;
+}
+.filter-action button:hover { background: #FAEFE2; }
+.filter-action button[disabled] {
+  opacity: 1; color: #ADB5BD; border-color: #F5DDC8; cursor: not-allowed;
+}
+.filter-action button svg { width: 14px; height: 14px; }
+
+/* Grid */
+.grid-wrap {
+  background: #FDF8F1;
+  padding: 24px 16px 80px;
+}
+@media (min-width: 720px) { .grid-wrap { padding: 32px 32px 96px; } }
+.grid {
+  display: grid; gap: 16px;
+  grid-template-columns: 1fr;
+  max-width: 1280px; margin: 0 auto;
+}
+@media (min-width: 720px) { .grid { grid-template-columns: 1fr 1fr; gap: 20px; } }
+@media (min-width: 980px) { .grid { grid-template-columns: 1fr 1fr 1fr; gap: 24px; } }
+
+/* Card */
+.card {
+  position: relative;
+  background: #FFFFFF;
+  border: 1px solid #F8D7C8;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: transform 220ms cubic-bezier(0.4,0,0.2,1),
+              box-shadow 220ms cubic-bezier(0.4,0,0.2,1),
+              border-color 120ms cubic-bezier(0.4,0,0.2,1),
+              outline-color 120ms;
+  outline: 1px solid transparent; outline-offset: -1px;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 8px rgba(26,34,56,.08), 0 12px 32px rgba(26,34,56,.12);
+  outline-color: #E8A97A;
+}
+.card.is-selected {
+  outline: 2px solid #E8A97A; outline-offset: -2px;
+  background: #FEF8F0;
+}
+.cover {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background-size: cover; background-position: center;
+}
+@media (min-width: 720px) {
+  .cover { aspect-ratio: 4 / 5; }
+}
+.cover::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(26,34,56,0.18) 100%);
+  pointer-events: none;
+}
+.heart {
+  position: absolute; top: 12px; right: 12px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: #E8A97A;
+  color: #FFFFFF;
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 2px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.18);
+  transition: background 120ms, transform 120ms, color 120ms;
+  z-index: 2;
+}
+.heart:hover { background: #D4956A; transform: scale(1.08); }
+.heart svg { width: 16px; height: 16px; }
+.heart.is-unsaved {
+  background: rgba(253,248,241,0.85); color: #1A2238;
+  backdrop-filter: blur(6px);
+}
+
+.cover-badges {
+  position: absolute; left: 12px; bottom: 12px;
+  display: flex; gap: 6px; flex-wrap: wrap;
+  z-index: 1;
+}
+.k-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #D4AF37; color: #FFFFFF;
+  border-radius: 9999px;
+  padding: 3px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+}
+.k-badge svg { width: 10px; height: 10px; }
+.dot-rose {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(253,248,241,0.85);
+  backdrop-filter: blur(6px);
+  border-radius: 9999px;
+  padding: 3px 9px 3px 7px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 11px; color: #1A2238; letter-spacing: 0;
+  word-break: keep-all;
+}
+.dot-rose::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: #E8C4D6;
+}
+
+/* Selection checkbox (hidden by default) */
+.check-pip {
+  position: absolute; top: 12px; left: 12px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: rgba(253,248,241,0.85);
+  backdrop-filter: blur(6px);
+  border: 2px solid #FFFFFF;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #1A2238;
+  display: none;
+  z-index: 2;
+}
+body.selection-mode .check-pip { display: inline-flex; }
+.card.is-selected .check-pip {
+  background: #E8A97A; color: #1A2238; border-color: #E8A97A;
+}
+.check-pip svg { width: 14px; height: 14px; }
+.check-pip svg.tick { display: none; }
+.card.is-selected .check-pip svg.tick { display: block; }
+.card.is-selected .check-pip svg.empty { display: none; }
+body.selection-mode .heart { display: none; }
+
+.body {
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 8px;
+  flex: 1;
+}
+.body h2 {
+  margin: 0;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 700; font-size: 17px; color: #1A2238;
+  letter-spacing: 0; word-break: keep-all; line-height: 1.3;
+}
+.body h2 .en {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 500;
+  color: #6C757D; letter-spacing: 0.04em;
+  margin-left: 6px;
+  vertical-align: 1px;
+}
+.meta-line {
+  display: flex; flex-wrap: wrap; gap: 4px 8px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #2B3450; letter-spacing: 0;
+  word-break: keep-all;
+}
+.meta-line .sep { color: #ADB5BD; }
+.meta-line .range {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; color: #1A2238;
+}
+.meta-line .range .fade { color: #ADB5BD; }
+
+.stat-line {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: #2B3450; letter-spacing: 0;
+}
+.stat-line .star { color: #D4AF37; width: 13px; height: 13px; }
+.stat-line .num { font-weight: 700; color: #1A2238; }
+.stat-line .sub { color: #6C757D; }
+.stat-line .sep { color: #ADB5BD; }
+.stat-line .resp { color: #10B981; }
+.stat-line svg.icon { width: 12px; height: 12px; color: #10B981; }
+
+.tag-row { display: flex; flex-wrap: wrap; gap: 4px; }
+.tag {
+  display: inline-flex; align-items: center;
+  height: 22px; padding: 0 8px; border-radius: 9999px;
+  background: #FAEFE2;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 11px; color: #2B3450; letter-spacing: 0; word-break: keep-all;
+}
+
+.card-cta {
+  margin-top: auto;
+  padding-top: 4px;
+  display: flex; gap: 8px;
+}
+.btn {
+  flex: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  min-height: 44px; padding: 0 12px;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 13.5px; letter-spacing: 0; word-break: keep-all;
+  transition: background 120ms, transform 120ms, box-shadow 120ms;
+}
+.btn.primary {
+  background: #E8A97A; color: #1A2238;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+}
+.btn.primary:hover {
+  background: #D4956A; transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.08);
+}
+.btn.ghost {
+  background: transparent; color: #1A2238; border: 1px solid #2B3450;
+}
+.btn.ghost:hover { background: #FAEFE2; }
+.btn svg { width: 14px; height: 14px; }
+
+/* Mobile floating bottom bar (selection mode) */
+.fab-bar {
+  display: none;
+  position: fixed; bottom: 16px; left: 16px; right: 16px;
+  z-index: 40;
+  background: #1A2238;
+  padding: 12px;
+  border-radius: 14px;
+  box-shadow: 0 8px 16px rgba(26,34,56,.10), 0 24px 64px rgba(26,34,56,.16);
+  gap: 8px;
+  align-items: center;
+}
+body.selection-mode .fab-bar {
+  display: flex;
+}
+@media (min-width: 720px) { body.selection-mode .fab-bar { display: none; } }
+.fab-bar .ct {
+  flex: 1;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; font-weight: 600; color: #FDF8F1;
+  letter-spacing: 0;
+}
+.fab-bar .ct .num {
+  font-family: 'JetBrains Mono', monospace; margin-right: 4px;
+}
+.fab-bar button.cmp {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #E8A97A; color: #1A2238;
+  border-radius: 10px; min-height: 44px; padding: 0 14px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 13.5px; letter-spacing: 0;
+}
+.fab-bar button.cmp:hover { background: #D4956A; }
+.fab-bar button.cmp svg { width: 14px; height: 14px; }
+.fab-bar button.cmp[disabled] { opacity: 0.5; cursor: not-allowed; }
+.fab-bar button.del {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 10px;
+  background: rgba(253,248,241,0.12); color: #FDF8F1;
+}
+.fab-bar button.del:hover { background: rgba(253,248,241,0.22); }
+.fab-bar button.del svg { width: 16px; height: 16px; }
+
+/* Toast (undo) */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #1A2238; color: #FDF8F1;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; letter-spacing: 0; word-break: keep-all;
+  display: inline-flex; align-items: center; gap: 12px;
+  box-shadow: 0 4px 8px rgba(26,34,56,.08), 0 12px 32px rgba(26,34,56,.12);
+  opacity: 0; pointer-events: none;
+  transition: opacity 220ms cubic-bezier(0.4,0,0.2,1), transform 220ms cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 50;
+  max-width: calc(100vw - 32px);
+}
+.toast.open { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.toast button {
+  background: transparent; color: #E8A97A;
+  font-weight: 700; font-size: 13px;
+  padding: 2px 6px; border-radius: 6px;
+}
+.toast button:hover { background: rgba(232,169,122,0.12); }
+
+/* Footer */
+.footer { background: #FAEFE2; padding: 28px 24px; border-top: 1px solid #F5DDC8; }
+.footer-wrap {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: #6C757D; letter-spacing: 0;
+}
+.footer-wrap a:hover { color: #D4956A; }
+
+/* Cover gradient placeholders */
+.bg-1 { background: linear-gradient(150deg, #F5DDC8 0%, #D4956A 50%, #2B3450 130%); }
+.bg-2 { background: linear-gradient(180deg, #FAEFE2 0%, #1A2238 100%); }
+.bg-3 { background: linear-gradient(150deg, #FDF8F1 0%, #E8C4D6 50%, #D4956A 100%); }
+.bg-4 { background: linear-gradient(170deg, #E8C4D6 0%, #D4AF37 100%); }
+.bg-5 { background: linear-gradient(160deg, #FAEFE2 0%, #D4956A 50%, #1A2238 130%); }
+.bg-6 { background: linear-gradient(140deg, #F5DDC8 0%, #2B3450 130%); }
+.bg-7 { background: linear-gradient(180deg, #FDF8F1 0%, #D4956A 100%); }
+.bg-8 { background: linear-gradient(150deg, #E8C4D6 0%, #FAEFE2 100%); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+}
+</style>
+</head>
+<body>
+
+<a href="#grid" class="skip">본문으로 건너뛰기</a>
+
+<!-- Topbar -->
+<header class="topbar" role="banner" id="topbar">
+  <button class="back-btn" type="button" aria-label="뒤로 가기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+  </button>
+  <div class="topbar-title" id="ttlNormal">
+    <h1><span class="ko" lang="ko">저장한 매장</span></h1>
+    <span class="count" id="savedCount">8 saved</span>
+  </div>
+  <div class="topbar-title" id="ttlSelection" style="display:none;">
+    <h1><span class="mono" id="selCount">0</span><span class="ko" lang="ko" style="margin-left:6px;">개 선택됨</span></h1>
+  </div>
+  <div class="sort-wrap">
+    <label for="sort">정렬</label>
+    <select id="sort" aria-label="정렬 기준">
+      <option value="recent">최근 저장순</option>
+      <option value="distance">거리 가까운 순</option>
+      <option value="price">가격 낮은 순</option>
+      <option value="rating">평점 높은 순</option>
+    </select>
+  </div>
+  <div class="sel-actions">
+    <button class="sel-btn cancel" type="button" id="selCancel" lang="ko">취소</button>
+    <button class="sel-btn" type="button" id="selDel" lang="ko">전체 삭제</button>
+    <button class="sel-btn primary" type="button" id="selCompare" lang="ko">비교하기 →</button>
+  </div>
+</header>
+
+<!-- Filter + action bar -->
+<section class="filter-bar" aria-label="카테고리 필터">
+  <button class="filter-chip" type="button" aria-pressed="true" data-cat="all">
+    <span lang="ko">전체</span><span class="ct">8</span>
+  </button>
+  <button class="filter-chip" type="button" aria-pressed="false" data-cat="hair">
+    <span lang="ko">헤어</span><span class="ct">4</span>
+  </button>
+  <button class="filter-chip" type="button" aria-pressed="false" data-cat="nail">
+    <span lang="ko">네일</span><span class="ct">1</span>
+  </button>
+  <button class="filter-chip" type="button" aria-pressed="false" data-cat="makeup">
+    <span lang="ko">메이크업</span><span class="ct">2</span>
+  </button>
+  <button class="filter-chip" type="button" aria-pressed="false" data-cat="skin">
+    <span lang="ko">스킨</span><span class="ct">1</span>
+  </button>
+  <div class="filter-action">
+    <button type="button" id="bulkToggle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span lang="ko">선택</span>
+    </button>
+    <button type="button" disabled aria-disabled="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <span lang="ko">선택한 매장 비교</span>
+    </button>
+  </div>
+</section>
+
+<!-- Grid -->
+<main id="grid" class="grid-wrap">
+  <div class="grid">
+
+    <!-- 1 -->
+    <article class="card" data-cat="hair" aria-labelledby="s1">
+      <div class="cover bg-1" role="img" aria-label="Stylista 홍대 — K-드라마 헤어 시술">
+        <button class="heart" type="button" aria-pressed="true" aria-label="Stylista 홍대 저장 해제">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <button class="check-pip" type="button" aria-pressed="false" aria-label="선택 토글">
+          <svg class="empty" viewBox="0 0 24 24" fill="none" aria-hidden="true"></svg>
+          <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <div class="cover-badges">
+          <span class="k-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            K-Verified
+          </span>
+          <span class="dot-rose" lang="ko">여성 친화</span>
+        </div>
+      </div>
+      <div class="body">
+        <h2 id="s1"><span class="ko" lang="ko">Stylista 홍대</span><span class="en">HONGDAE</span></h2>
+        <p class="meta-line" lang="ko">
+          헤어<span class="sep">·</span>홍대입구역<span class="sep">·</span>
+          <span class="range">₩₩₩<span class="fade">₩</span></span>
+        </p>
+        <p class="stat-line">
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span class="num">4.9</span><span class="sub">· 312 reviews</span>
+          <span class="sep">·</span><span class="resp">2 min</span>
+        </p>
+        <div class="tag-row">
+          <span class="tag" lang="ko">K-드라마 컷</span>
+          <span class="tag" lang="ko">영어 응대</span>
+        </div>
+        <div class="card-cta">
+          <button class="btn ghost" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span lang="ko">비교</span>
+          </button>
+          <a href="#" class="btn primary" lang="ko">예약하기 →</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- 2 -->
+    <article class="card" data-cat="hair" aria-labelledby="s2">
+      <div class="cover bg-2" role="img" aria-label="Mirror Glass 성수 — 헤어 시술">
+        <button class="heart" type="button" aria-pressed="true" aria-label="Mirror Glass 성수 저장 해제">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <button class="check-pip" type="button" aria-pressed="false" aria-label="선택 토글">
+          <svg class="empty" viewBox="0 0 24 24" fill="none" aria-hidden="true"></svg>
+          <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </div>
+      <div class="body">
+        <h2 id="s2"><span class="ko" lang="ko">Mirror Glass 성수</span><span class="en">SEONGSU</span></h2>
+        <p class="meta-line" lang="ko">
+          헤어<span class="sep">·</span>성수역<span class="sep">·</span>
+          <span class="range">₩₩<span class="fade">₩₩</span></span>
+        </p>
+        <p class="stat-line">
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span class="num">4.7</span><span class="sub">· 184 reviews</span>
+          <span class="sep">·</span><span class="resp">8 min</span>
+        </p>
+        <div class="tag-row">
+          <span class="tag" lang="ko">남성 컷 전문</span>
+          <span class="tag" lang="ko">당일 예약</span>
+        </div>
+        <div class="card-cta">
+          <button class="btn ghost" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span lang="ko">비교</span>
+          </button>
+          <a href="#" class="btn primary" lang="ko">예약하기 →</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- 3 -->
+    <article class="card" data-cat="hair" aria-labelledby="s3">
+      <div class="cover bg-3" role="img" aria-label="Color Lab 강남 — 발레아쥬 컬러">
+        <button class="heart" type="button" aria-pressed="true" aria-label="Color Lab 강남 저장 해제">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <button class="check-pip" type="button" aria-pressed="false" aria-label="선택 토글">
+          <svg class="empty" viewBox="0 0 24 24" fill="none" aria-hidden="true"></svg>
+          <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <div class="cover-badges">
+          <span class="k-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            K-Verified
+          </span>
+          <span class="dot-rose" lang="ko">여성 친화</span>
+        </div>
+      </div>
+      <div class="body">
+        <h2 id="s3"><span class="ko" lang="ko">Color Lab 강남</span><span class="en">SINSA</span></h2>
+        <p class="meta-line" lang="ko">
+          헤어<span class="sep">·</span>신사역<span class="sep">·</span>
+          <span class="range">₩₩₩₩</span>
+        </p>
+        <p class="stat-line">
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span class="num">4.8</span><span class="sub">· 256 reviews</span>
+          <span class="sep">·</span><span class="resp">3 min</span>
+        </p>
+        <div class="tag-row">
+          <span class="tag" lang="ko">발레아쥬 전문</span>
+          <span class="tag">EN · JA · ZH</span>
+        </div>
+        <div class="card-cta">
+          <button class="btn ghost" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span lang="ko">비교</span>
+          </button>
+          <a href="#" class="btn primary" lang="ko">예약하기 →</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- 4 -->
+    <article class="card" data-cat="nail" aria-labelledby="s4">
+      <div class="cover bg-4" role="img" aria-label="Nail Atelier 청담 — 젤리 네일">
+        <button class="heart" type="button" aria-pressed="true" aria-label="Nail Atelier 청담 저장 해제">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <button class="check-pip" type="button" aria-pressed="false" aria-label="선택 토글">
+          <svg class="empty" viewBox="0 0 24 24" fill="none" aria-hidden="true"></svg>
+          <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <div class="cover-badges">
+          <span class="k-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            K-Verified
+          </span>
+        </div>
+      </div>
+      <div class="body">
+        <h2 id="s4"><span class="ko" lang="ko">Nail Atelier 청담</span><span class="en">CHEONGDAM</span></h2>
+        <p class="meta-line" lang="ko">
+          네일<span class="sep">·</span>청담역<span class="sep">·</span>
+          <span class="range">₩₩₩<span class="fade">₩</span></span>
+        </p>
+        <p class="stat-line">
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span class="num">4.9</span><span class="sub">· 428 reviews</span>
+          <span class="sep">·</span><span class="resp">5 min</span>
+        </p>
+        <div class="tag-row">
+          <span class="tag" lang="ko">젤리 네일</span>
+          <span class="tag" lang="ko">매그넷 디자인</span>
+        </div>
+        <div class="card-cta">
+          <button class="btn ghost" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span lang="ko">비교</span>
+          </button>
+          <a href="#" class="btn primary" lang="ko">예약하기 →</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- 5 -->
+    <article class="card" data-cat="skin" aria-labelledby="s5">
+      <div class="cover bg-5" role="img" aria-label="Glass Skin 이태원 — 산 필링">
+        <button class="heart" type="button" aria-pressed="true" aria-label="Glass Skin 이태원 저장 해제">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <button class="check-pip" type="button" aria-pressed="false" aria-label="선택 토글">
+          <svg class="empty" viewBox="0 0 24 24" fill="none" aria-hidden="true"></svg>
+          <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <div class="cover-badges">
+          <span class="dot-rose" lang="ko">여성 친화</span>
+        </div>
+      </div>
+      <div class="body">
+        <h2 id="s5"><span class="ko" lang="ko">Glass Skin 이태원</span><span class="en">ITAEWON</span></h2>
+        <p class="meta-line" lang="ko">
+          스킨<span class="sep">·</span>이태원역<span class="sep">·</span>
+          <span class="range">₩₩₩<span class="fade">₩</span></span>
+        </p>
+        <p class="stat-line">
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span class="num">4.6</span><span class="sub">· 142 reviews</span>
+          <span class="sep">·</span><span class="resp">12 min</span>
+        </p>
+        <div class="tag-row">
+          <span class="tag" lang="ko">산 필링</span>
+          <span class="tag" lang="ko">한방 케어</span>
+        </div>
+        <div class="card-cta">
+          <button class="btn ghost" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span lang="ko">비교</span>
+          </button>
+          <a href="#" class="btn primary" lang="ko">예약하기 →</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- 6 -->
+    <article class="card" data-cat="makeup" aria-labelledby="s6">
+      <div class="cover bg-6" role="img" aria-label="Lash &amp; Brow 명동 — 래쉬 리프트">
+        <button class="heart" type="button" aria-pressed="true" aria-label="Lash &amp; Brow 명동 저장 해제">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <button class="check-pip" type="button" aria-pressed="false" aria-label="선택 토글">
+          <svg class="empty" viewBox="0 0 24 24" fill="none" aria-hidden="true"></svg>
+          <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </div>
+      <div class="body">
+        <h2 id="s6"><span class="ko" lang="ko">Lash &amp; Brow 명동</span><span class="en">MYEONGDONG</span></h2>
+        <p class="meta-line" lang="ko">
+          메이크업<span class="sep">·</span>명동역<span class="sep">·</span>
+          <span class="range">₩₩<span class="fade">₩₩</span></span>
+        </p>
+        <p class="stat-line">
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span class="num">4.8</span><span class="sub">· 318 reviews</span>
+          <span class="sep">·</span><span class="resp">4 min</span>
+        </p>
+        <div class="tag-row">
+          <span class="tag" lang="ko">래쉬 리프트</span>
+          <span class="tag">JA · EN</span>
+        </div>
+        <div class="card-cta">
+          <button class="btn ghost" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span lang="ko">비교</span>
+          </button>
+          <a href="#" class="btn primary" lang="ko">예약하기 →</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- 7 -->
+    <article class="card" data-cat="hair" aria-labelledby="s7">
+      <div class="cover bg-7" role="img" aria-label="Tonic 성수 — 히메컷">
+        <button class="heart" type="button" aria-pressed="true" aria-label="Tonic 성수 저장 해제">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <button class="check-pip" type="button" aria-pressed="false" aria-label="선택 토글">
+          <svg class="empty" viewBox="0 0 24 24" fill="none" aria-hidden="true"></svg>
+          <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <div class="cover-badges">
+          <span class="k-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            K-Verified
+          </span>
+        </div>
+      </div>
+      <div class="body">
+        <h2 id="s7"><span class="ko" lang="ko">Tonic 성수</span><span class="en">SEONGSU</span></h2>
+        <p class="meta-line" lang="ko">
+          헤어<span class="sep">·</span>뚝섬역<span class="sep">·</span>
+          <span class="range">₩₩₩<span class="fade">₩</span></span>
+        </p>
+        <p class="stat-line">
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span class="num">4.7</span><span class="sub">· 96 reviews</span>
+          <span class="sep">·</span><span class="resp">3 min</span>
+        </p>
+        <div class="tag-row">
+          <span class="tag" lang="ko">히메컷</span>
+          <span class="tag" lang="ko">디지털 펌</span>
+        </div>
+        <div class="card-cta">
+          <button class="btn ghost" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span lang="ko">비교</span>
+          </button>
+          <a href="#" class="btn primary" lang="ko">예약하기 →</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- 8 -->
+    <article class="card" data-cat="makeup" aria-labelledby="s8">
+      <div class="cover bg-8" role="img" aria-label="Soft Studio 한남 — 자연 눈썹 정리">
+        <button class="heart" type="button" aria-pressed="true" aria-label="Soft Studio 한남 저장 해제">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <button class="check-pip" type="button" aria-pressed="false" aria-label="선택 토글">
+          <svg class="empty" viewBox="0 0 24 24" fill="none" aria-hidden="true"></svg>
+          <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <div class="cover-badges">
+          <span class="dot-rose" lang="ko">여성 친화</span>
+        </div>
+      </div>
+      <div class="body">
+        <h2 id="s8"><span class="ko" lang="ko">Soft Studio 한남</span><span class="en">HANNAM</span></h2>
+        <p class="meta-line" lang="ko">
+          메이크업<span class="sep">·</span>한강진역<span class="sep">·</span>
+          <span class="range">₩₩₩<span class="fade">₩</span></span>
+        </p>
+        <p class="stat-line">
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span class="num">4.9</span><span class="sub">· 204 reviews</span>
+          <span class="sep">·</span><span class="resp">6 min</span>
+        </p>
+        <div class="tag-row">
+          <span class="tag" lang="ko">자연 눈썹</span>
+          <span class="tag" lang="ko">글래스 메이크업</span>
+        </div>
+        <div class="card-cta">
+          <button class="btn ghost" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span lang="ko">비교</span>
+          </button>
+          <a href="#" class="btn primary" lang="ko">예약하기 →</a>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</main>
+
+<!-- Mobile floating bottom bar (selection mode) -->
+<div class="fab-bar" role="region" aria-label="선택한 매장 작업">
+  <span class="ct"><span class="num" id="fabCt">0</span><span lang="ko">개 선택</span></span>
+  <button class="del" type="button" aria-label="선택한 매장 삭제" id="fabDel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+  </button>
+  <button class="cmp" type="button" id="fabCmp" disabled>
+    <span lang="ko">비교하기</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+  </button>
+</div>
+
+<!-- Toast (undo) -->
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span id="toastMsg" lang="ko">매장 저장 해제됨</span>
+  <button type="button" id="toastUndo" lang="ko">복원</button>
+</div>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer-wrap">
+    <span>© 2026 Hesya · KR · GDPR · 개인정보보호법 준수</span>
+    <a href="Hesya Admin Login.html">Internal · Operations →</a>
+  </div>
+</footer>
+
+<script>
+(function() {
+  // ─── Category filter ───
+  const chips = document.querySelectorAll('.filter-chip');
+  const cards = document.querySelectorAll('.card');
+  chips.forEach(c => {
+    c.addEventListener('click', () => {
+      chips.forEach(x => x.setAttribute('aria-pressed', 'false'));
+      c.setAttribute('aria-pressed', 'true');
+      const cat = c.getAttribute('data-cat');
+      cards.forEach(card => {
+        card.style.display = (cat === 'all' || card.getAttribute('data-cat') === cat) ? '' : 'none';
+      });
+    });
+  });
+
+  // ─── Heart unsave + toast ───
+  const toast = document.getElementById('toast');
+  const toastMsg = document.getElementById('toastMsg');
+  const toastUndo = document.getElementById('toastUndo');
+  let lastCard = null;
+  let toastT = null;
+  document.querySelectorAll('.heart').forEach(h => {
+    h.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const card = h.closest('.card');
+      const name = card.querySelector('h2 .ko').textContent;
+      card.style.display = 'none';
+      lastCard = card;
+      h.setAttribute('aria-pressed', 'false');
+      h.setAttribute('aria-label', name + ' 저장하기');
+      toastMsg.textContent = name + ' 저장 해제됨';
+      toast.classList.add('open');
+      if (toastT) clearTimeout(toastT);
+      toastT = setTimeout(() => toast.classList.remove('open'), 5000);
+      updateCount();
+    });
+  });
+  toastUndo.addEventListener('click', () => {
+    if (lastCard) {
+      lastCard.style.display = '';
+      const heart = lastCard.querySelector('.heart');
+      const name = lastCard.querySelector('h2 .ko').textContent;
+      heart.setAttribute('aria-pressed', 'true');
+      heart.setAttribute('aria-label', name + ' 저장 해제');
+      lastCard = null;
+      updateCount();
+    }
+    toast.classList.remove('open');
+  });
+
+  function updateCount() {
+    const visible = Array.from(cards).filter(c => c.style.display !== 'none').length;
+    document.getElementById('savedCount').textContent = visible + ' saved';
+  }
+
+  // ─── Selection mode ───
+  const body = document.body;
+  const topbar = document.getElementById('topbar');
+  const ttlNormal = document.getElementById('ttlNormal');
+  const ttlSelection = document.getElementById('ttlSelection');
+  const selCount = document.getElementById('selCount');
+  const fabCt = document.getElementById('fabCt');
+  const fabCmp = document.getElementById('fabCmp');
+
+  function enterSelection() {
+    body.classList.add('selection-mode');
+    topbar.classList.add('is-selection');
+    ttlNormal.style.display = 'none';
+    ttlSelection.style.display = 'flex';
+    updateSelCount();
+  }
+  function exitSelection() {
+    body.classList.remove('selection-mode');
+    topbar.classList.remove('is-selection');
+    ttlNormal.style.display = 'flex';
+    ttlSelection.style.display = 'none';
+    document.querySelectorAll('.card.is-selected').forEach(c => c.classList.remove('is-selected'));
+    document.querySelectorAll('.check-pip').forEach(p => p.setAttribute('aria-pressed', 'false'));
+    updateSelCount();
+  }
+  function updateSelCount() {
+    const n = document.querySelectorAll('.card.is-selected').length;
+    selCount.textContent = n;
+    fabCt.textContent = n;
+    fabCmp.disabled = n < 2;
+  }
+
+  document.getElementById('bulkToggle').addEventListener('click', () => {
+    if (body.classList.contains('selection-mode')) exitSelection(); else enterSelection();
+  });
+  document.getElementById('selCancel').addEventListener('click', exitSelection);
+
+  // Click check-pip OR card in selection mode
+  document.querySelectorAll('.card').forEach(card => {
+    const pip = card.querySelector('.check-pip');
+    pip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const sel = !card.classList.contains('is-selected');
+      card.classList.toggle('is-selected', sel);
+      pip.setAttribute('aria-pressed', sel);
+      updateSelCount();
+    });
+    card.addEventListener('click', (e) => {
+      if (!body.classList.contains('selection-mode')) return;
+      if (e.target.closest('.btn, .heart')) return;
+      pip.click();
+    });
+    // Long-press on mobile to enter selection mode
+    let pressT = null;
+    card.addEventListener('touchstart', () => {
+      pressT = setTimeout(() => {
+        if (!body.classList.contains('selection-mode')) {
+          enterSelection();
+          card.classList.add('is-selected');
+          card.querySelector('.check-pip').setAttribute('aria-pressed', 'true');
+          updateSelCount();
+        }
+      }, 500);
+    }, { passive: true });
+    card.addEventListener('touchend', () => clearTimeout(pressT));
+    card.addEventListener('touchmove', () => clearTimeout(pressT));
+    // Shift+click on desktop
+    card.addEventListener('click', (e) => {
+      if (e.shiftKey && !body.classList.contains('selection-mode')) {
+        enterSelection();
+        card.classList.add('is-selected');
+        card.querySelector('.check-pip').setAttribute('aria-pressed', 'true');
+        updateSelCount();
+      }
+    });
+  });
+
+  document.getElementById('selDel').addEventListener('click', () => {
+    document.querySelectorAll('.card.is-selected').forEach(c => c.style.display = 'none');
+    exitSelection();
+    updateCount();
+  });
+  document.getElementById('fabDel').addEventListener('click', () => {
+    document.querySelectorAll('.card.is-selected').forEach(c => c.style.display = 'none');
+    exitSelection();
+    updateCount();
+  });
+})();
+</script>
+</body>
+</html>

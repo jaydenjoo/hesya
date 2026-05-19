@@ -1,0 +1,1109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>휴무일 관리 · Hesya Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Source+Sans+3:wght@400..700&family=JetBrains+Mono:wght@500..700&display=swap"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"/>
+<link rel="stylesheet" href="tokens.css"/>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: #FDF8F1; color: #1A2238;
+  font-family: 'Source Sans 3', 'Pretendard Variable', sans-serif;
+  font-size: 15px; -webkit-font-smoothing: antialiased; letter-spacing: -0.005em;
+}
+[lang="ko"], .kr {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7; text-transform: none;
+}
+.mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "tnum"; letter-spacing: 0; }
+button { font: inherit; cursor: pointer; border: 0; background: transparent; color: inherit; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid #E8A97A; outline-offset: 4px; border-radius: 4px; }
+
+/* ─── Top bar ─── */
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  background: #FFFFFF; border-bottom: 1px solid #F5DDC8;
+  height: 64px; padding: 0 24px;
+  display: flex; align-items: center; gap: 16px;
+}
+.back-btn { width: 36px; height: 36px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; color: #1A2238; }
+.back-btn:hover { background: #FAEFE2; }
+.back-btn svg { width: 18px; height: 18px; }
+.crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #2B3450; }
+.crumb svg { width: 13px; height: 13px; color: #6C757D; }
+.crumb .cur { color: #1A2238; font-weight: 600; }
+.topbar h1 {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 22px; color: #1A2238; letter-spacing: -0.02em;
+  margin: 0 auto; padding-left: 12px;
+}
+.topbar h1 .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 18px; letter-spacing: 0;
+}
+.save-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 30px; padding: 0 10px;
+  background: #ECFDF5; color: #065F46;
+  border-radius: 9999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+}
+.save-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #10B981; }
+
+.shell { max-width: 1180px; margin: 0 auto; padding: 24px 24px 80px; }
+
+/* ─── Settings-page navigation context (mini sidebar) ─── */
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+.side-nav {
+  background: #FFFFFF;
+  border: 1px solid #F5DDC8;
+  border-radius: 14px;
+  padding: 14px;
+  position: sticky; top: 80px;
+}
+@media (max-width: 980px) { .side-nav { position: static; } }
+.side-nav-h {
+  margin: 0 8px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #6C757D;
+  letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+}
+.side-nav a, .side-nav .item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #2B3450; letter-spacing: 0;
+  word-break: keep-all;
+  transition: background 120ms;
+}
+.side-nav a:hover { background: #FAEFE2; color: #1A2238; }
+.side-nav .item.active {
+  background: #FAEFE2; color: #1A2238; font-weight: 700;
+  position: relative;
+}
+.side-nav .item.active::before {
+  content: ""; position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 3px; background: #E8A97A; border-radius: 0 2px 2px 0;
+}
+
+/* ─── Hours preview (existing context, brief) ─── */
+.hours-strip {
+  background: #FDF8F1; border: 1px solid #F5DDC8;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.hours-strip .lab {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: #6C757D;
+  letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+}
+.hours-strip .v {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; color: #1A2238; font-weight: 600; letter-spacing: 0;
+}
+.hours-strip .ctx-link {
+  margin-left: auto;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12.5px; color: #D4956A;
+  letter-spacing: 0; word-break: keep-all;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.hours-strip .ctx-link:hover { color: #B97A52; }
+.hours-strip .sep { color: #ADB5BD; }
+
+/* ─── Section header ─── */
+.section-h {
+  background: #FAEFE2;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.section-h h2 {
+  margin: 0 0 6px;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 22px; color: #1A2238; letter-spacing: -0.02em;
+}
+.section-h h2 .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 20px; letter-spacing: 0;
+}
+.section-h p {
+  margin: 0;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #2B3450;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7;
+}
+
+/* ─── Card ─── */
+.card {
+  background: #FFFFFF;
+  border: 1px solid #F5DDC8;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.card-h {
+  margin: 0 0 16px;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 18px; color: #1A2238; letter-spacing: -0.015em;
+  display: flex; align-items: baseline; gap: 8px;
+}
+.card-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 16px; letter-spacing: 0;
+}
+.card-h .meta {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #6C757D; letter-spacing: 0; font-weight: 500;
+}
+
+/* ─── §2 Toggle row ─── */
+.toggle-row {
+  display: flex; align-items: center; gap: 16px;
+}
+.toggle-row .copy { flex: 1; min-width: 0; }
+.toggle-row .copy .title {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 15px; color: #1A2238;
+  letter-spacing: 0; word-break: keep-all; line-height: 1.4;
+}
+.toggle-row .copy .sub {
+  margin-top: 4px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #6C757D;
+  letter-spacing: 0; word-break: keep-all; line-height: 1.6;
+}
+.pill-toggle {
+  flex-shrink: 0;
+  width: 56px; height: 32px;
+  background: #FAEFE2;
+  border-radius: 9999px;
+  position: relative;
+  transition: background 220ms cubic-bezier(0.4,0,0.2,1);
+  cursor: pointer;
+}
+.pill-toggle::after {
+  content: ""; position: absolute; top: 3px; left: 3px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 1px 2px rgba(26,34,56,.06), 0 1px 3px rgba(26,34,56,.08);
+  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pill-toggle[aria-pressed="true"] { background: #E8A97A; }
+.pill-toggle[aria-pressed="true"]::after { transform: translateX(24px); }
+
+.auto-list {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #F5DDC8;
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.auto-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 30px; padding: 0 12px;
+  background: #FAEFE2;
+  border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12.5px; color: #1A2238; letter-spacing: 0;
+  word-break: keep-all;
+}
+.auto-chip .date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #6C757D;
+}
+.auto-chip .gold { color: #8B7113; }
+.auto-chip svg { width: 11px; height: 11px; color: #D4AF37; }
+.auto-foot {
+  margin-top: 14px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12.5px; color: #6C757D; letter-spacing: 0;
+}
+.auto-foot a {
+  color: #2B3450;
+  text-decoration: underline; text-underline-offset: 3px;
+  text-decoration-color: #ADB5BD;
+}
+.auto-foot a:hover { color: #1A2238; text-decoration-color: #1A2238; }
+
+/* ─── §3 Calendar ─── */
+.cal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px; gap: 12px;
+}
+.cal-nav { display: flex; align-items: center; gap: 8px; }
+.cal-nav button {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #1A2238;
+  border: 1px solid #F5DDC8;
+  background: #FFFFFF;
+  transition: background 120ms, border-color 120ms;
+}
+.cal-nav button:hover { background: #FAEFE2; border-color: #E8A97A; }
+.cal-nav button svg { width: 16px; height: 16px; }
+.cal-month {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 22px; color: #1A2238; letter-spacing: -0.015em;
+  min-width: 200px; text-align: center;
+}
+.cal-month .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 18px; letter-spacing: 0;
+}
+.cal-today-btn {
+  height: 36px; padding: 0 14px;
+  border: 1px solid #2B3450; border-radius: 10px;
+  background: transparent;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #1A2238; font-weight: 600; letter-spacing: 0;
+  transition: background 120ms;
+}
+.cal-today-btn:hover { background: #FAEFE2; }
+.add-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 40px; padding: 0 16px;
+  background: #E8A97A; color: #1A2238;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 700; font-size: 14px; letter-spacing: 0; word-break: keep-all;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+  transition: background 120ms, transform 120ms, box-shadow 120ms;
+}
+.add-btn:hover { background: #D4956A; transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.08); }
+.add-btn svg { width: 14px; height: 14px; }
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.cal-dow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  color: #6C757D; letter-spacing: 0.08em; text-transform: uppercase;
+  text-align: center;
+  padding: 6px 0;
+}
+.cal-dow.sun { color: #B91C1C; }
+.cal-dow.sat { color: #1E40AF; }
+.cal-day {
+  position: relative;
+  min-height: 64px;
+  padding: 6px 8px 8px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  display: flex; flex-direction: column;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; color: #1A2238; letter-spacing: 0;
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms;
+  outline-offset: -2px;
+}
+.cal-day:hover { background: #FAEFE2; }
+.cal-day .num { font-weight: 600; }
+.cal-day.muted { color: #ADB5BD; }
+.cal-day.sun .num { color: #B91C1C; }
+.cal-day.sat .num { color: #1E40AF; }
+.cal-day.today { border-color: #E8A97A; box-shadow: 0 0 0 1px #E8A97A inset; }
+.cal-day.today .num { color: #D4956A; font-weight: 700; }
+.cal-day.holiday-auto { background: #FDF3D5; }
+.cal-day.holiday-auto .num { color: #8B7113; }
+.cal-day.holiday-auto .gold-dot {
+  position: absolute; top: 6px; right: 6px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #D4AF37;
+}
+.cal-day.holiday-custom { background: #F5DDC8; border-color: #E8A97A; }
+.cal-day.holiday-custom .num { color: #1A2238; font-weight: 700; }
+.cal-day.holiday-custom .small-icon {
+  position: absolute; top: 6px; right: 6px;
+  color: #D4956A;
+}
+.cal-day.holiday-custom .small-icon svg { width: 11px; height: 11px; }
+.cal-day .label {
+  margin-top: auto;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 10.5px; color: #6C757D;
+  letter-spacing: 0; word-break: keep-all; line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cal-day.holiday-auto .label { color: #8B7113; }
+.cal-day.holiday-custom .label { color: #1A2238; font-weight: 600; }
+.cal-day.has-bookings::after {
+  content: ""; position: absolute; bottom: 4px; right: 6px;
+  width: 4px; height: 4px; border-radius: 50%; background: #2B3450;
+}
+
+/* Calendar legend */
+.cal-legend {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed #F5DDC8;
+  display: flex; flex-wrap: wrap; gap: 14px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; color: #6C757D; letter-spacing: 0;
+}
+.cal-legend .item { display: inline-flex; align-items: center; gap: 6px; }
+.cal-legend .swatch {
+  display: inline-block; width: 14px; height: 14px; border-radius: 4px;
+}
+.cal-legend .swatch.auto { background: #FDF3D5; }
+.cal-legend .swatch.custom { background: #F5DDC8; border: 1px solid #E8A97A; }
+.cal-legend .swatch.today { background: transparent; border: 1.5px solid #E8A97A; }
+.cal-legend .swatch.bk {
+  background: transparent; position: relative;
+}
+.cal-legend .swatch.bk::after {
+  content: ""; position: absolute; bottom: 1px; right: 1px;
+  width: 4px; height: 4px; border-radius: 50%; background: #2B3450;
+}
+
+/* ─── §5 Holidays list ─── */
+.holiday-list { display: flex; flex-direction: column; }
+.holiday-row {
+  display: grid;
+  grid-template-columns: 100px 50px 1fr auto auto;
+  align-items: center;
+  padding: 12px 4px;
+  gap: 14px;
+  border-bottom: 1px solid #FAEFE2;
+}
+.holiday-row:last-child { border-bottom: 0; }
+.holiday-row:hover { background: #FDF8F1; }
+.holiday-row:hover .tools { opacity: 1; }
+.holiday-row .date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 700; color: #1A2238; letter-spacing: 0;
+}
+.holiday-row .dow {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 22px; padding: 0 8px;
+  border-radius: 9999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  background: #FAEFE2; color: #2B3450;
+}
+.holiday-row .dow.sun { background: #FAEFEC; color: #B91C1C; }
+.holiday-row .dow.sat { background: #EFF6FF; color: #1E40AF; }
+.holiday-row .reason {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #1A2238; letter-spacing: 0;
+  word-break: keep-all;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.holiday-row .source {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 3px 7px; border-radius: 4px;
+}
+.holiday-row .source.auto { background: #FDF3D5; color: #8B7113; }
+.holiday-row .source.manual { background: #FEF3C7; color: #92400E; }
+.holiday-row .vis {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 11px; color: #6C757D; letter-spacing: 0;
+}
+.holiday-row .tools {
+  display: flex; gap: 4px;
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.icon-btn {
+  width: 28px; height: 28px; border-radius: 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #2B3450;
+}
+.icon-btn:hover { background: #FAEFE2; }
+.icon-btn.danger:hover { background: #FAEFEC; color: #B91C1C; }
+.icon-btn svg { width: 14px; height: 14px; }
+
+.empty {
+  padding: 60px 24px; text-align: center;
+}
+.empty h3 {
+  margin: 0 0 6px;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 18px; color: #1A2238; letter-spacing: -0.015em;
+}
+.empty p {
+  margin: 0;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #6C757D; letter-spacing: 0; line-height: 1.6;
+}
+
+/* ─── §6 Conflict warning ─── */
+.conflict {
+  background: #FAEFEC;
+  border: 1px solid #F5DDD7;
+  border-left: 4px solid #DC2626;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.conflict svg.tri { width: 18px; height: 18px; color: #B91C1C; flex-shrink: 0; margin-top: 1px; }
+.conflict .copy {
+  flex: 1;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13.5px; color: #991B1B;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.6;
+}
+.conflict .copy .strong { font-weight: 700; }
+.conflict .copy .mono-d { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+.conflict-cta {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12.5px; font-weight: 600; color: #991B1B;
+  text-decoration: underline; text-underline-offset: 3px;
+  margin-left: 6px;
+}
+.conflict-cta:hover { color: #7F1D1D; }
+.conflict-cta svg { width: 10px; height: 10px; }
+
+/* ─── Modal ─── */
+.modal-bg {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(26,34,56,0.5);
+  display: none; align-items: center; justify-content: center; padding: 16px;
+}
+.modal-bg[data-open="true"] { display: flex; }
+.modal {
+  background: #FFFFFF;
+  border-radius: 16px;
+  max-width: 480px; width: 100%;
+  box-shadow: 0 8px 16px rgba(26,34,56,.10), 0 24px 64px rgba(26,34,56,.16);
+}
+.modal-head {
+  background: #FDF8F1;
+  padding: 20px 24px;
+  border-radius: 16px 16px 0 0;
+  border-bottom: 1px solid #F5DDC8;
+}
+.modal-h {
+  margin: 0;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 22px; color: #1A2238; letter-spacing: -0.02em;
+}
+.modal-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 20px; letter-spacing: 0;
+}
+.modal-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 18px; }
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field .lab {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700; color: #2B3450;
+  letter-spacing: 0.06em;
+}
+.field .lab .opt {
+  margin-left: 6px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 11px; font-weight: 500; color: #6C757D;
+  letter-spacing: 0;
+}
+.seg-pill {
+  display: inline-flex; padding: 4px;
+  background: #FAEFE2; border-radius: 9999px;
+  gap: 0;
+}
+.seg-pill button {
+  height: 36px; padding: 0 16px;
+  border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #2B3450; font-weight: 600; letter-spacing: 0;
+  word-break: keep-all;
+  transition: background 120ms, color 120ms, box-shadow 120ms;
+}
+.seg-pill button[aria-pressed="true"] {
+  background: #E8A97A; color: #1A2238;
+  box-shadow: 0 1px 2px rgba(26,34,56,.06);
+}
+.date-row { display: flex; align-items: center; gap: 10px; }
+.date-row input[type="date"] {
+  flex: 1;
+  height: 48px; padding: 0 14px;
+  background: #FDF8F1;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; color: #1A2238;
+  outline: 0;
+  transition: background 120ms, border-color 120ms;
+}
+.date-row input[type="date"]:focus { background: #FFFFFF; border-color: #E8A97A; }
+.date-row .arrow { color: #6C757D; }
+.date-row .arrow svg { width: 16px; height: 16px; }
+.reason-input {
+  width: 100%;
+  height: 48px; padding: 0 14px;
+  background: #FDF8F1; border: 1px solid transparent;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #1A2238; letter-spacing: 0;
+  outline: 0;
+  transition: background 120ms, border-color 120ms;
+}
+.reason-input:focus { background: #FFFFFF; border-color: #E8A97A; }
+.reason-input::placeholder { color: #6C757D; }
+.counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: #6C757D; letter-spacing: 0;
+  text-align: right;
+}
+.modal-foot {
+  padding: 16px 24px;
+  border-top: 1px solid #F5DDC8;
+  display: flex; gap: 8px; justify-content: flex-end;
+}
+.btn-ghost, .btn-primary {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  min-height: 44px; padding: 0 18px;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 700; font-size: 14px; letter-spacing: 0; word-break: keep-all;
+  transition: background 120ms, transform 120ms, box-shadow 120ms;
+}
+.btn-ghost { background: transparent; color: #1A2238; border: 1px solid #2B3450; }
+.btn-ghost:hover { background: #FAEFE2; }
+.btn-primary {
+  background: #E8A97A; color: #1A2238;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+}
+.btn-primary:hover {
+  background: #D4956A; transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar" role="banner">
+  <button class="back-btn" type="button" aria-label="설정 메뉴로">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+  </button>
+  <nav class="crumb" aria-label="이동 경로">
+    <a href="#">매장 설정</a>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+    <span class="cur" lang="ko">영업시간 + 휴무</span>
+  </nav>
+  <h1><span class="ko" lang="ko">영업시간 + 휴무</span></h1>
+  <span class="save-pill" aria-live="polite">SAVED · 자동 저장</span>
+</header>
+
+<div class="shell">
+  <div class="layout">
+
+    <!-- Mini sidebar (settings context) -->
+    <nav class="side-nav" aria-label="매장 설정 메뉴">
+      <p class="side-nav-h">매장 설정</p>
+      <a href="#">매장 정보</a>
+      <a href="#">스타일리스트</a>
+      <a href="#">시술 메뉴</a>
+      <span class="item active" aria-current="page" lang="ko">영업시간 + 휴무</span>
+      <a href="Hesya Store Knowledge Base.html">지식 베이스</a>
+      <a href="#">결제 + 정산</a>
+      <a href="#">알림</a>
+    </nav>
+
+    <main>
+
+      <!-- Hours preview (existing context) -->
+      <div class="hours-strip" aria-label="현재 영업시간 요약">
+        <span class="lab">CURRENT HOURS</span>
+        <span class="v" lang="ko">평일 <span class="mono">10:00 – 21:00</span></span>
+        <span class="sep">·</span>
+        <span class="v" lang="ko">주말 <span class="mono">10:00 – 19:00</span></span>
+        <span class="sep">·</span>
+        <span class="v" lang="ko">월요일 <span style="color:#B91C1C;">정기휴무</span></span>
+        <a class="ctx-link" href="#" lang="ko">영업시간 변경 →</a>
+      </div>
+
+      <!-- §1 Section header -->
+      <section class="section-h" aria-labelledby="hl-h">
+        <h2 id="hl-h"><span class="ko" lang="ko">휴무일 관리</span></h2>
+        <p lang="ko">공휴일, 임시휴무, 정기휴무를 설정해주세요. 손님에게 자동으로 안내됩니다.</p>
+      </section>
+
+      <!-- §6 Conflict warning (live example) -->
+      <div class="conflict" role="alert">
+        <svg class="tri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span class="copy">
+          <span class="mono-d">2026-02-16</span>(<span lang="ko">설날 연휴 시작일</span>)에 <span class="strong" lang="ko">예약 3건</span>이 있어요. 휴무로 설정하면 손님에게 자동 안내됩니다.
+          <a href="#" class="conflict-cta" lang="ko">예약 보기
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </span>
+      </div>
+
+      <!-- §2 Auto-import -->
+      <section class="card" aria-labelledby="auto-h">
+        <h2 class="card-h" id="auto-h">
+          <span class="ko" lang="ko">한국 공휴일 자동 휴무</span>
+          <span class="meta">KOREA HOLIDAYS · 2026</span>
+        </h2>
+        <div class="toggle-row">
+          <div class="copy">
+            <div class="title" lang="ko">매년 공휴일 자동 휴무 처리</div>
+            <div class="sub" lang="ko">신정, 설날, 삼일절, 어린이날, 추석, 한글날 등 — 매년 1월 자동 업데이트됩니다.</div>
+          </div>
+          <button class="pill-toggle" type="button" role="switch" aria-pressed="true" aria-label="공휴일 자동 휴무"></button>
+        </div>
+        <div class="auto-list">
+          <span class="auto-chip">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span class="date">2025-12-25</span> <span class="gold" lang="ko">크리스마스</span>
+          </span>
+          <span class="auto-chip">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span class="date">2026-01-01</span> <span class="gold" lang="ko">신정</span>
+          </span>
+          <span class="auto-chip">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span class="date">2026-02-16 → 18</span> <span class="gold" lang="ko">설날 연휴 (3일)</span>
+          </span>
+          <span class="auto-chip">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span class="date">2026-03-01</span> <span class="gold" lang="ko">삼일절</span>
+          </span>
+          <span class="auto-chip">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span class="date">2026-05-05</span> <span class="gold" lang="ko">어린이날</span>
+          </span>
+          <span class="auto-chip">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span class="date">2026-09-24 → 26</span> <span class="gold" lang="ko">추석 연휴 (3일)</span>
+          </span>
+        </div>
+        <p class="auto-foot">
+          <a href="#" lang="ko">전체 공휴일 캘린더 보기 →</a>
+        </p>
+      </section>
+
+      <!-- §3 Custom calendar -->
+      <section class="card" aria-labelledby="cal-h">
+        <h2 class="card-h" id="cal-h">
+          <span class="ko" lang="ko">직접 추가한 휴무일</span>
+        </h2>
+
+        <div class="cal-head">
+          <div class="cal-nav">
+            <button type="button" aria-label="이전 달">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span class="cal-month"><span class="ko" lang="ko">2026년 2월</span> · February</span>
+            <button type="button" aria-label="다음 달">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <button class="cal-today-btn" type="button" lang="ko">오늘</button>
+          </div>
+          <button class="add-btn" type="button" id="openAdd">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span lang="ko">휴무일 추가</span>
+          </button>
+        </div>
+
+        <div class="cal-grid" role="grid" aria-label="2026년 2월">
+          <span class="cal-dow sun">SUN</span>
+          <span class="cal-dow">MON</span>
+          <span class="cal-dow">TUE</span>
+          <span class="cal-dow">WED</span>
+          <span class="cal-dow">THU</span>
+          <span class="cal-dow">FRI</span>
+          <span class="cal-dow sat">SAT</span>
+
+          <!-- Week 1: Jan 25 (Sun) – Jan 31 (Sat) — muted -->
+          <button class="cal-day muted sun" role="gridcell" aria-label="2026년 1월 25일">
+            <span class="num">25</span>
+          </button>
+          <button class="cal-day muted" role="gridcell" aria-label="2026년 1월 26일">
+            <span class="num">26</span>
+          </button>
+          <button class="cal-day muted" role="gridcell" aria-label="2026년 1월 27일">
+            <span class="num">27</span>
+          </button>
+          <button class="cal-day muted" role="gridcell" aria-label="2026년 1월 28일">
+            <span class="num">28</span>
+          </button>
+          <button class="cal-day muted" role="gridcell" aria-label="2026년 1월 29일">
+            <span class="num">29</span>
+          </button>
+          <button class="cal-day muted" role="gridcell" aria-label="2026년 1월 30일">
+            <span class="num">30</span>
+          </button>
+          <button class="cal-day muted sat" role="gridcell" aria-label="2026년 1월 31일">
+            <span class="num">31</span>
+          </button>
+
+          <!-- Week 2: Feb 1 (Sun) - Feb 7 (Sat) -->
+          <button class="cal-day sun has-bookings" role="gridcell" aria-label="2026년 2월 1일, 일요일, 예약 있음">
+            <span class="num">1</span>
+            <span class="label" lang="ko">5건</span>
+          </button>
+          <button class="cal-day" role="gridcell" aria-label="2026년 2월 2일, 정기 휴무">
+            <span class="num">2</span>
+            <span class="label" lang="ko">정기 휴무</span>
+          </button>
+          <button class="cal-day has-bookings" role="gridcell" aria-label="2026년 2월 3일, 예약 있음">
+            <span class="num">3</span>
+            <span class="label" lang="ko">8건</span>
+          </button>
+          <button class="cal-day has-bookings" role="gridcell" aria-label="2026년 2월 4일, 예약 있음">
+            <span class="num">4</span>
+            <span class="label" lang="ko">12건</span>
+          </button>
+          <button class="cal-day has-bookings" role="gridcell" aria-label="2026년 2월 5일, 예약 있음">
+            <span class="num">5</span>
+            <span class="label" lang="ko">9건</span>
+          </button>
+          <button class="cal-day has-bookings" role="gridcell" aria-label="2026년 2월 6일, 예약 있음">
+            <span class="num">6</span>
+            <span class="label" lang="ko">14건</span>
+          </button>
+          <button class="cal-day sat has-bookings" role="gridcell" aria-label="2026년 2월 7일, 토요일, 예약 있음">
+            <span class="num">7</span>
+            <span class="label" lang="ko">11건</span>
+          </button>
+
+          <!-- Week 3: Feb 8-14 — today on Feb 13 -->
+          <button class="cal-day sun has-bookings" role="gridcell">
+            <span class="num">8</span>
+            <span class="label" lang="ko">6건</span>
+          </button>
+          <button class="cal-day" role="gridcell">
+            <span class="num">9</span>
+            <span class="label" lang="ko">정기 휴무</span>
+          </button>
+          <button class="cal-day has-bookings" role="gridcell">
+            <span class="num">10</span>
+            <span class="label" lang="ko">7건</span>
+          </button>
+          <button class="cal-day has-bookings" role="gridcell">
+            <span class="num">11</span>
+            <span class="label" lang="ko">10건</span>
+          </button>
+          <button class="cal-day has-bookings" role="gridcell">
+            <span class="num">12</span>
+            <span class="label" lang="ko">8건</span>
+          </button>
+          <button class="cal-day today has-bookings" role="gridcell" aria-current="date" aria-label="오늘, 2026년 2월 13일, 예약 있음">
+            <span class="num">13</span>
+            <span class="label" lang="ko">오늘 · 6건</span>
+          </button>
+          <button class="cal-day sat has-bookings" role="gridcell">
+            <span class="num">14</span>
+            <span class="label" lang="ko">발렌타인</span>
+          </button>
+
+          <!-- Week 4: Feb 15-21 -->
+          <button class="cal-day sun has-bookings" role="gridcell">
+            <span class="num">15</span>
+            <span class="label" lang="ko">8건</span>
+          </button>
+          <button class="cal-day holiday-auto has-bookings" role="gridcell" aria-label="2026년 2월 16일, 설날 연휴, 공휴일, 예약 충돌 3건">
+            <span class="gold-dot" aria-hidden="true"></span>
+            <span class="num">16</span>
+            <span class="label" lang="ko">설날 연휴 ⚠ 3건</span>
+          </button>
+          <button class="cal-day holiday-auto" role="gridcell" aria-label="2026년 2월 17일, 설날, 공휴일">
+            <span class="gold-dot" aria-hidden="true"></span>
+            <span class="num">17</span>
+            <span class="label" lang="ko">설날</span>
+          </button>
+          <button class="cal-day holiday-auto" role="gridcell" aria-label="2026년 2월 18일, 설날 연휴, 공휴일">
+            <span class="gold-dot" aria-hidden="true"></span>
+            <span class="num">18</span>
+            <span class="label" lang="ko">설날 연휴</span>
+          </button>
+          <button class="cal-day holiday-custom" role="gridcell" aria-label="2026년 2월 19일, 직접 추가한 휴무: 직원 단합대회">
+            <span class="small-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+            </span>
+            <span class="num">19</span>
+            <span class="label" lang="ko">직원 단합대회</span>
+          </button>
+          <button class="cal-day has-bookings" role="gridcell">
+            <span class="num">20</span>
+            <span class="label" lang="ko">9건</span>
+          </button>
+          <button class="cal-day sat has-bookings" role="gridcell">
+            <span class="num">21</span>
+            <span class="label" lang="ko">11건</span>
+          </button>
+
+          <!-- Week 5: Feb 22-28 -->
+          <button class="cal-day sun has-bookings" role="gridcell">
+            <span class="num">22</span>
+            <span class="label" lang="ko">7건</span>
+          </button>
+          <button class="cal-day" role="gridcell">
+            <span class="num">23</span>
+            <span class="label" lang="ko">정기 휴무</span>
+          </button>
+          <button class="cal-day has-bookings" role="gridcell">
+            <span class="num">24</span>
+            <span class="label" lang="ko">8건</span>
+          </button>
+          <button class="cal-day has-bookings" role="gridcell">
+            <span class="num">25</span>
+            <span class="label" lang="ko">10건</span>
+          </button>
+          <button class="cal-day has-bookings" role="gridcell">
+            <span class="num">26</span>
+            <span class="label" lang="ko">9건</span>
+          </button>
+          <button class="cal-day has-bookings" role="gridcell">
+            <span class="num">27</span>
+            <span class="label" lang="ko">12건</span>
+          </button>
+          <button class="cal-day sat holiday-custom" role="gridcell" aria-label="2026년 2월 28일, 직접 추가한 휴무: 시설 점검">
+            <span class="small-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+            </span>
+            <span class="num">28</span>
+            <span class="label" lang="ko">시설 점검</span>
+          </button>
+        </div>
+
+        <div class="cal-legend">
+          <span class="item"><span class="swatch today" aria-hidden="true"></span><span lang="ko">오늘</span></span>
+          <span class="item"><span class="swatch auto" aria-hidden="true"></span><span lang="ko">공휴일 자동</span></span>
+          <span class="item"><span class="swatch custom" aria-hidden="true"></span><span lang="ko">직접 추가</span></span>
+          <span class="item"><span class="swatch bk" aria-hidden="true"></span><span lang="ko">예약 있음</span></span>
+        </div>
+      </section>
+
+      <!-- §5 Holidays list -->
+      <section class="card" aria-labelledby="list-h">
+        <h2 class="card-h" id="list-h">
+          <span class="ko" lang="ko">전체 휴무일 목록</span>
+          <span class="meta">8 ITEMS · SORTED BY DATE</span>
+        </h2>
+        <div class="holiday-list">
+          <div class="holiday-row">
+            <span class="date">2026-02-16</span>
+            <span class="dow">MON</span>
+            <span class="reason" lang="ko">설날 연휴 시작</span>
+            <span class="source auto">AUTO</span>
+            <div class="tools">
+              <button class="icon-btn" type="button" aria-label="휴무일 편집"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            </div>
+          </div>
+          <div class="holiday-row">
+            <span class="date">2026-02-17</span>
+            <span class="dow">TUE</span>
+            <span class="reason" lang="ko">설날</span>
+            <span class="source auto">AUTO</span>
+            <div class="tools">
+              <button class="icon-btn" type="button" aria-label="휴무일 편집"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            </div>
+          </div>
+          <div class="holiday-row">
+            <span class="date">2026-02-18</span>
+            <span class="dow">WED</span>
+            <span class="reason" lang="ko">설날 연휴 마지막날</span>
+            <span class="source auto">AUTO</span>
+            <div class="tools">
+              <button class="icon-btn" type="button" aria-label="휴무일 편집"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            </div>
+          </div>
+          <div class="holiday-row">
+            <span class="date">2026-02-19</span>
+            <span class="dow">THU</span>
+            <span class="reason" lang="ko">직원 단합대회 (전 직원 워크샵)</span>
+            <span class="source manual">직접</span>
+            <div class="tools">
+              <button class="icon-btn" type="button" aria-label="휴무일 편집"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+              <button class="icon-btn danger" type="button" aria-label="휴무일 삭제"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+            </div>
+          </div>
+          <div class="holiday-row">
+            <span class="date">2026-02-28</span>
+            <span class="dow sat">SAT</span>
+            <span class="reason" lang="ko">시설 점검 — 에어컨 청소</span>
+            <span class="source manual">직접</span>
+            <div class="tools">
+              <button class="icon-btn" type="button" aria-label="휴무일 편집"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+              <button class="icon-btn danger" type="button" aria-label="휴무일 삭제"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+            </div>
+          </div>
+          <div class="holiday-row">
+            <span class="date">2026-03-01</span>
+            <span class="dow sun">SUN</span>
+            <span class="reason" lang="ko">삼일절</span>
+            <span class="source auto">AUTO</span>
+            <div class="tools">
+              <button class="icon-btn" type="button" aria-label="휴무일 편집"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            </div>
+          </div>
+          <div class="holiday-row">
+            <span class="date">2026-05-05</span>
+            <span class="dow">TUE</span>
+            <span class="reason" lang="ko">어린이날</span>
+            <span class="source auto">AUTO</span>
+            <div class="tools">
+              <button class="icon-btn" type="button" aria-label="휴무일 편집"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            </div>
+          </div>
+          <div class="holiday-row">
+            <span class="date">2026-06-15</span>
+            <span class="dow">MON</span>
+            <span class="reason" lang="ko">사장님 휴가 (제주도)</span>
+            <span class="source manual">직접</span>
+            <div class="tools">
+              <button class="icon-btn" type="button" aria-label="휴무일 편집"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+              <button class="icon-btn danger" type="button" aria-label="휴무일 삭제"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- §4 Add modal -->
+<div class="modal-bg" id="addModal" role="dialog" aria-modal="true" aria-labelledby="modal-h">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 class="modal-h" id="modal-h"><span class="ko" lang="ko">휴무일 추가</span></h2>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <span class="lab">DATE TYPE</span>
+        <div class="seg-pill" role="radiogroup" aria-label="날짜 유형">
+          <button type="button" role="radio" aria-pressed="true" data-type="single" lang="ko">단일 날짜</button>
+          <button type="button" role="radio" aria-pressed="false" data-type="range" lang="ko">기간 (시작 – 끝)</button>
+        </div>
+      </div>
+
+      <div class="field" id="dateSingle">
+        <span class="lab">DATE</span>
+        <div class="date-row">
+          <input type="date" value="2026-02-19" aria-label="휴무 날짜"/>
+        </div>
+      </div>
+
+      <div class="field" id="dateRange" style="display:none;">
+        <span class="lab">DATE RANGE</span>
+        <div class="date-row">
+          <input type="date" value="2026-02-19" aria-label="시작일"/>
+          <span class="arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+          <input type="date" value="2026-02-19" aria-label="종료일"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="lab">REASON <span class="opt" lang="ko">선택</span></span>
+        <input class="reason-input" type="text" placeholder="예: 추석 연휴, 직원 단합대회, 시설 점검 등" maxlength="50" id="reasonInput" lang="ko"/>
+        <div class="counter"><span id="rc">0</span> / 50</div>
+      </div>
+
+      <div class="field">
+        <span class="lab">VISIBILITY</span>
+        <div class="seg-pill" role="radiogroup" aria-label="공개 설정">
+          <button type="button" role="radio" aria-pressed="true" lang="ko">공개 (손님에 표시)</button>
+          <button type="button" role="radio" aria-pressed="false" lang="ko">비공개 (내부만)</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" type="button" id="modalCancel" lang="ko">취소</button>
+      <button class="btn-primary" type="button" lang="ko">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+        저장
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Pill toggle
+  document.querySelectorAll('.pill-toggle').forEach(p => {
+    p.addEventListener('click', () => {
+      const pressed = p.getAttribute('aria-pressed') === 'true';
+      p.setAttribute('aria-pressed', !pressed);
+    });
+  });
+
+  // Segmented pill (radio)
+  document.querySelectorAll('.seg-pill').forEach(group => {
+    group.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', 'false'));
+        btn.setAttribute('aria-pressed', 'true');
+        // Toggle single vs range date fields
+        if (btn.dataset.type) {
+          const single = document.getElementById('dateSingle');
+          const range = document.getElementById('dateRange');
+          if (btn.dataset.type === 'single') {
+            single.style.display = '';
+            range.style.display = 'none';
+          } else {
+            single.style.display = 'none';
+            range.style.display = '';
+          }
+        }
+      });
+    });
+  });
+
+  // Modal open/close
+  const modal = document.getElementById('addModal');
+  const openBtn = document.getElementById('openAdd');
+  const cancelBtn = document.getElementById('modalCancel');
+  openBtn.addEventListener('click', () => {
+    modal.setAttribute('data-open', 'true');
+    setTimeout(() => cancelBtn.focus(), 50);
+  });
+  cancelBtn.addEventListener('click', () => modal.removeAttribute('data-open'));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.getAttribute('data-open') === 'true') modal.removeAttribute('data-open');
+  });
+
+  // Reason counter
+  const r = document.getElementById('reasonInput');
+  const rc = document.getElementById('rc');
+  r.addEventListener('input', () => rc.textContent = r.value.length);
+
+  // Calendar day click → open modal pre-filled (demo)
+  document.querySelectorAll('.cal-day').forEach(d => {
+    d.addEventListener('click', () => {
+      modal.setAttribute('data-open', 'true');
+      setTimeout(() => cancelBtn.focus(), 50);
+    });
+  });
+})();
+</script>
+</body>
+</html>

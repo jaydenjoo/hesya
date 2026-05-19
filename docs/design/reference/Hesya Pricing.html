@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>요금제 · Hesya — 외국인 손님 응대를 자동으로</title>
+<meta name="description" content="베타 매장 6개월 무료, Pro 월 ₩49,000부터. 외국인 손님 응대를 자동화하세요."/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Source+Sans+3:wght@400..700&family=JetBrains+Mono:wght@500..700&display=swap"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"/>
+<link rel="stylesheet" href="tokens.css"/>
+
+<style>
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: #FDF8F1; color: #1A2238;
+  font-family: 'Source Sans 3', 'Pretendard Variable', sans-serif;
+  font-size: 16px; line-height: 1.55; letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+}
+img, svg { display: block; max-width: 100%; }
+[lang="ko"], .kr {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7; text-transform: none;
+}
+.mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "tnum"; letter-spacing: 0; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid #E8A97A; outline-offset: 4px; border-radius: 4px; }
+
+/* Topbar */
+.topbar { position: sticky; top: 0; z-index: 50; height: 64px;
+  background: rgba(253,248,241,0.86); backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid rgba(26,34,56,0.06); }
+.topbar-inner { max-width: 1280px; margin: 0 auto; height: 100%; padding: 0 20px;
+  display: flex; align-items: center; gap: 24px; }
+.brand { font-family: 'Fraunces', serif; font-style: italic; font-weight: 600;
+  font-size: 24px; color: #1A2238; letter-spacing: -0.02em; }
+.brand-pill { font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  font-weight: 600; letter-spacing: 0.08em; color: #D4956A; margin-left: 4px; }
+.top-links { display: none; margin-left: 24px; gap: 24px; }
+@media (min-width: 720px) { .top-links { display: flex; } }
+.top-links a { font-size: 14px; color: #2B3450; }
+.top-links a:hover { color: #1A2238; }
+.top-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.lang-pill { height: 36px; padding: 0 14px; border-radius: 9999px;
+  background: rgba(255,255,255,0.7); border: 1px solid rgba(26,34,56,0.08);
+  font-size: 13px; font-weight: 600; color: #1A2238;
+  display: inline-flex; align-items: center; gap: 6px; }
+
+/* Eyebrow */
+.eyebrow { font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #E8A97A; margin-bottom: 16px;
+  display: inline-flex; align-items: center; gap: 10px; }
+.eyebrow::after { content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: #E8A97A; animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+/* §1 Hero */
+.hero { background: #FDF8F1; padding: 56px 20px 80px; text-align: center; }
+@media (min-width: 720px) { .hero { padding: 96px 32px 120px; } }
+.hero-wrap { max-width: 720px; margin: 0 auto; }
+.hero .eyebrow { justify-content: center; }
+.hero h1 {
+  margin: 0 0 16px;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 36px; line-height: 1.1; color: #1A2238;
+  letter-spacing: -0.028em;
+  font-variation-settings: "opsz" 144, "wght" 500;
+}
+.hero h1 .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 30px; display: block;
+  letter-spacing: 0; line-height: 1.25;
+}
+@media (min-width: 720px) {
+  .hero h1 { font-size: 48px; }
+  .hero h1 .ko { font-size: 40px; }
+}
+.hero .sub {
+  margin: 0 auto;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 16px; color: #2B3450;
+  line-height: 1.7; word-break: keep-all; letter-spacing: 0;
+  max-width: 560px;
+}
+@media (min-width: 720px) { .hero .sub { font-size: 18px; } }
+.trust-strip {
+  margin-top: 32px;
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 12px 28px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #6C757D; letter-spacing: 0;
+}
+.trust-strip .num { font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; color: #1A2238; margin-right: 6px; }
+
+/* §2 Tier Cards */
+.tiers { background: #FDF8F1; padding: 0 20px 80px; }
+@media (min-width: 720px) { .tiers { padding: 0 32px 120px; } }
+.tiers-wrap { max-width: 1180px; margin: 0 auto; }
+.tier-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 980px) {
+  .tier-grid { grid-template-columns: 1fr 1.08fr 1fr; gap: 24px; align-items: stretch; }
+}
+.tier {
+  background: #FFFFFF; border: 1px solid #F5DDC8;
+  border-radius: 24px; padding: 32px;
+  display: flex; flex-direction: column;
+  position: relative;
+  min-height: 540px;
+}
+.tier.pro {
+  background: #FEF8F0;
+  border: 2px solid #E8A97A;
+  box-shadow: 0 4px 8px rgba(26,34,56,.08), 0 12px 32px rgba(26,34,56,.12);
+  order: -1;
+}
+@media (min-width: 980px) { .tier.pro { order: 0; } }
+.tier-recommended {
+  position: absolute; top: -12px; right: 24px;
+  background: #E8A97A; color: #FFFFFF;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 6px 12px; border-radius: 9999px;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+}
+.tier-name {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 22px; color: #1A2238;
+  letter-spacing: -0.02em; margin: 0;
+}
+.tier-sub {
+  margin-top: 4px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 11px; color: #6C757D; letter-spacing: 0;
+  word-break: keep-all; line-height: 1.5;
+}
+.tier-sub.amber { color: #D4956A; font-weight: 600; }
+.tier-price {
+  margin-top: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 40px; font-weight: 700; color: #1A2238;
+  letter-spacing: -0.01em; line-height: 1;
+}
+.tier-price.enterprise {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 36px;
+}
+.tier-price-sub {
+  margin-top: 6px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; color: #6C757D; letter-spacing: 0;
+}
+.tier-features {
+  margin: 24px 0 24px; padding: 0;
+  list-style: none;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.tier-features li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #1A2238;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.5;
+}
+.tier-features li svg {
+  width: 16px; height: 16px; flex-shrink: 0;
+  color: #10B981; margin-top: 2px;
+}
+.tier-cta {
+  margin-top: auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; min-height: 48px; padding: 0 22px;
+  border-radius: 12px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 14.5px;
+  letter-spacing: 0; word-break: keep-all; border: 0;
+  transition: transform 120ms cubic-bezier(0.4,0,0.2,1),
+              background 120ms cubic-bezier(0.4,0,0.2,1),
+              box-shadow 120ms cubic-bezier(0.4,0,0.2,1);
+}
+.tier-cta.primary {
+  background: #E8A97A; color: #1A2238;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+}
+.tier-cta.primary:hover {
+  background: #D4956A; transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.08);
+}
+.tier-cta.ghost {
+  background: transparent; color: #1A2238;
+  border: 1px solid #2B3450;
+}
+.tier-cta.ghost:hover { background: #FAEFE2; }
+.tier-cta-foot {
+  margin-top: 10px; text-align: center;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 11px; color: #6C757D; letter-spacing: 0;
+}
+
+/* §3 Comparison Table */
+.compare { background: #FFFFFF; padding: 80px 20px; }
+@media (min-width: 720px) { .compare { padding: 120px 32px; } }
+.compare-wrap { max-width: 1180px; margin: 0 auto; }
+.section-h {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 28px; color: #1A2238;
+  letter-spacing: -0.02em; margin: 0 0 32px;
+}
+.section-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 24px; display: block;
+  letter-spacing: 0; line-height: 1.3;
+}
+.compare-table { display: none; }
+@media (min-width: 980px) {
+  .compare-table { display: table; width: 100%; border-collapse: separate;
+    border-spacing: 0; }
+  .compare-table th, .compare-table td {
+    padding: 16px 20px; text-align: left;
+    border-bottom: 1px solid #FAEFE2;
+    vertical-align: middle;
+  }
+  .compare-table thead th {
+    background: #FDF8F1;
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+    font-size: 16px; color: #1A2238;
+    border-bottom: 1px solid #F5DDC8;
+  }
+  .compare-table thead th:first-child {
+    font-family: 'JetBrains Mono', monospace; font-style: normal;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: #6C757D;
+  }
+  .compare-table th.pro-col { background: #FEF8F0; color: #D4956A; }
+  .compare-table td.pro-col { background: rgba(254,248,240,0.5); }
+  .compare-table tbody td {
+    font-family: 'Pretendard Variable', sans-serif;
+    font-size: 14px; color: #2B3450;
+    word-break: keep-all; letter-spacing: 0;
+  }
+  .compare-table tbody td:first-child { color: #1A2238; font-weight: 500; }
+  .compare-table tbody td:not(:first-child) { text-align: center; }
+  .compare-table .grp td {
+    background: #FAEFE2;
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 16px; color: #1A2238;
+    padding: 14px 20px;
+  }
+  .compare-table .check { color: #10B981; }
+  .compare-table .miss { color: #ADB5BD; }
+  .compare-table .mono { font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; color: #2B3450; }
+}
+.compare-table .check svg, .compare-table .miss svg {
+  width: 18px; height: 18px; display: inline-block; vertical-align: middle;
+}
+
+/* Mobile: tier selector + simplified 2-col */
+.compare-mobile { display: block; }
+@media (min-width: 980px) { .compare-mobile { display: none; } }
+.tier-selector {
+  display: flex; gap: 6px; padding: 4px;
+  background: #FAEFE2; border-radius: 9999px;
+  margin-bottom: 24px;
+}
+.tier-selector button {
+  flex: 1; min-height: 40px;
+  background: transparent; border: 0; border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; font-weight: 600; color: #2B3450;
+  letter-spacing: 0;
+  transition: background 120ms, color 120ms, box-shadow 120ms;
+}
+.tier-selector button[aria-selected="true"] {
+  background: #E8A97A; color: #1A2238;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+}
+.compare-list { display: flex; flex-direction: column; }
+.compare-grp {
+  padding: 12px 0 8px;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 15px; color: #1A2238; letter-spacing: -0.01em;
+  border-bottom: 1px solid #FAEFE2;
+}
+.compare-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 0; border-bottom: 1px solid #FAEFE2;
+  gap: 16px;
+}
+.compare-row .k {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #1A2238;
+  word-break: keep-all; letter-spacing: 0;
+}
+.compare-row .v {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #2B3450; letter-spacing: 0;
+  flex-shrink: 0;
+}
+.compare-row .v.mono { font-family: 'JetBrains Mono', monospace; }
+.compare-row .v.check { color: #10B981; }
+.compare-row .v.miss { color: #ADB5BD; }
+.compare-row .v svg { width: 18px; height: 18px; }
+
+/* §4 FAQ */
+.faq-section { background: #FDF8F1; padding: 80px 20px; }
+@media (min-width: 720px) { .faq-section { padding: 120px 32px; } }
+.faq-wrap { max-width: 1180px; margin: 0 auto; }
+.faq-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
+@media (min-width: 720px) { .faq-grid { grid-template-columns: 1fr 1fr; column-gap: 48px; } }
+.faq-item { border-bottom: 1px solid #F5DDC8; }
+.faq-item button {
+  width: 100%; min-height: 64px; padding: 16px 0;
+  background: transparent; border: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; text-align: left;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 15px; color: #1A2238;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.5;
+  transition: color 120ms;
+}
+.faq-item button:hover { color: #D4956A; }
+.faq-item button .chev {
+  flex-shrink: 0; width: 20px; height: 20px; color: #6C757D;
+  transition: transform 220ms cubic-bezier(0.4,0,0.2,1), color 120ms;
+}
+.faq-item button[aria-expanded="true"] .chev { transform: rotate(180deg); color: #1A2238; }
+.faq-answer {
+  display: none;
+  padding: 0 0 20px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #2B3450;
+  line-height: 1.8; word-break: keep-all; letter-spacing: 0;
+}
+.faq-item button[aria-expanded="true"] + .faq-answer { display: block; }
+
+/* §5 Trust + Final CTA */
+.trust-final { background: #F5DDC8; padding: 80px 20px; }
+@media (min-width: 720px) { .trust-final { padding: 120px 32px; } }
+.trust-final-wrap { max-width: 980px; margin: 0 auto; text-align: center; }
+.trust-final .eyebrow { justify-content: center; }
+.trust-final h2 {
+  margin: 0 0 40px;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 32px; color: #1A2238;
+  letter-spacing: -0.025em;
+}
+.trust-final h2 .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 28px; display: block;
+  letter-spacing: 0; line-height: 1.3;
+}
+.trust-mini {
+  display: grid; gap: 24px;
+  grid-template-columns: 1fr;
+  margin-bottom: 40px;
+}
+@media (min-width: 720px) { .trust-mini { grid-template-columns: 1fr 1fr 1fr; gap: 32px; } }
+.trust-mini .item {
+  padding: 24px;
+  background: rgba(253,248,241,0.6);
+  border-radius: 16px;
+}
+.trust-mini .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px; font-weight: 700; color: #1A2238;
+  letter-spacing: -0.01em;
+}
+.trust-mini .cap {
+  margin-top: 6px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #2B3450;
+  word-break: keep-all; letter-spacing: 0;
+}
+.final-cta-row {
+  display: flex; flex-direction: column; gap: 12px;
+  max-width: 380px; margin: 0 auto;
+}
+@media (min-width: 720px) {
+  .final-cta-row { flex-direction: row; justify-content: center; max-width: none; }
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; min-height: 52px; padding: 0 24px;
+  border-radius: 12px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 15px;
+  letter-spacing: 0; word-break: keep-all; border: 0;
+  transition: transform 120ms cubic-bezier(0.4,0,0.2,1),
+              background 120ms cubic-bezier(0.4,0,0.2,1),
+              box-shadow 120ms cubic-bezier(0.4,0,0.2,1);
+}
+.btn.primary {
+  background: #E8A97A; color: #1A2238;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+}
+.btn.primary:hover {
+  background: #D4956A; transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.08);
+}
+.btn.ghost {
+  background: transparent; color: #1A2238;
+  border: 1px solid #2B3450;
+}
+.btn.ghost:hover { background: #FAEFE2; }
+
+/* Footer */
+.footer { background: #FAEFE2; padding: 40px 20px;
+  border-top: 1px solid #F5DDC8; }
+.footer-wrap {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: #6C757D; letter-spacing: 0;
+}
+.footer-wrap a { color: #6C757D; }
+.footer-wrap a:hover { color: #D4956A; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar" role="banner">
+  <div class="topbar-inner">
+    <a href="Hesya Landing.html" class="brand" aria-label="Hesya — 홈으로">
+      Hesya<span class="brand-pill">·KR</span>
+    </a>
+    <nav class="top-links" aria-label="주 메뉴">
+      <a href="#">제품</a>
+      <a href="#" style="color:#1A2238;font-weight:600;">요금제</a>
+      <a href="Hesya Trending Looks.html">Trending</a>
+      <a href="#">고객 사례</a>
+    </nav>
+    <div class="top-right">
+      <button class="lang-pill" type="button" aria-label="언어 변경 — 현재 한국어">
+        <span aria-hidden="true">🌐</span> KO
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- §1 Hero -->
+<section class="hero" aria-labelledby="hero-h">
+  <div class="hero-wrap">
+    <div class="eyebrow" aria-hidden="true">PRICING</div>
+    <h1 id="hero-h">
+      <span class="ko" lang="ko">외국인 손님 응대를</span>
+      <span class="ko" lang="ko">자동으로</span>
+    </h1>
+    <p class="sub" lang="ko">베타 매장은 6개월간 무료. 그 다음엔 ₩49,000부터. 사장님이 가장 잘 하시는 일에 집중하세요.</p>
+    <div class="trust-strip">
+      <span><span class="num">5</span><span lang="ko">베타 매장</span></span>
+      <span><span class="num">95%</span><span lang="ko">응답률</span></span>
+      <span><span class="num">3분</span><span lang="ko">평균 응답 시간</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- §2 Tier Cards -->
+<section class="tiers" aria-labelledby="tiers-h">
+  <h2 id="tiers-h" class="mono" style="position:absolute;left:-9999px;">요금제</h2>
+  <div class="tiers-wrap">
+    <div class="tier-grid">
+
+      <article class="tier" aria-labelledby="t1-h">
+        <h3 class="tier-name" id="t1-h">Free</h3>
+        <p class="tier-sub" lang="ko">베타 매장 한정 · 6개월</p>
+        <div class="tier-price"><span class="mono">₩0</span></div>
+        <p class="tier-price-sub" lang="ko">/월</p>
+        <ul class="tier-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">외국인 메시지 <span class="mono">100건</span>/월</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">채널 <span class="mono">1개</span> (WhatsApp 또는 Instagram)</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">AI 자동 응답</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko"><span class="mono">5개</span> 언어 지원</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">이메일 지원</span></li>
+        </ul>
+        <a href="#" class="tier-cta ghost" aria-label="Free 플랜 베타 신청">베타 신청 →</a>
+      </article>
+
+      <article class="tier pro" aria-labelledby="t2-h">
+        <span class="tier-recommended" aria-label="Recommended plan">RECOMMENDED</span>
+        <h3 class="tier-name" id="t2-h">Pro</h3>
+        <p class="tier-sub amber" lang="ko">가장 많이 선택하시는 플랜</p>
+        <div class="tier-price"><span class="mono">₩49,000</span></div>
+        <p class="tier-price-sub" lang="ko">/월 · 부가세 별도</p>
+        <ul class="tier-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">무제한 외국인 메시지</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko"><span class="mono">4개</span> 채널 (WhatsApp / Instagram / 카카오 / Naver)</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">AI 학습 (매장 톤 반영)</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">매장 대시보드 + 분석</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">결제 통합 (Stripe / Alipay / WeChat)</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">우선 응답 SLA</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">채팅 지원 (<span class="mono">3분</span> 응답)</span></li>
+        </ul>
+        <a href="#" class="tier-cta primary" aria-label="Pro 플랜 14일 무료 시작">Pro 14일 무료 시작</a>
+        <p class="tier-cta-foot" lang="ko">신용카드 불필요 · 언제든 취소</p>
+      </article>
+
+      <article class="tier" aria-labelledby="t3-h">
+        <h3 class="tier-name" id="t3-h">Enterprise</h3>
+        <p class="tier-sub" lang="ko">다매장 · 프랜차이즈</p>
+        <div class="tier-price enterprise" lang="ko">문의</div>
+        <p class="tier-price-sub" lang="ko">맞춤 견적</p>
+        <ul class="tier-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">모든 Pro 기능</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">다매장 통합 관리</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">Custom 통합 (POS / CRM)</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko"><span class="mono">99.9%</span> SLA</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">전담 매니저</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">사용량 무제한</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span lang="ko">API 액세스</span></li>
+        </ul>
+        <a href="#" class="tier-cta ghost" aria-label="Enterprise 영업팀 연락">영업팀 연락 →</a>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- §3 Comparison -->
+<section class="compare" aria-labelledby="compare-h">
+  <div class="compare-wrap">
+    <h2 class="section-h" id="compare-h">
+      <span class="ko" lang="ko">전체 기능 비교</span>
+    </h2>
+
+    <table class="compare-table">
+      <caption class="mono" style="position:absolute;left:-9999px;">Hesya 요금제별 전체 기능 비교</caption>
+      <thead>
+        <tr>
+          <th scope="col">기능</th>
+          <th scope="col">Free</th>
+          <th scope="col" class="pro-col">Pro</th>
+          <th scope="col">Enterprise</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="grp"><td colspan="4" lang="ko">응답 자동화</td></tr>
+        <tr><td lang="ko">영업시간 외 자동 응답</td><td class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td><td class="pro-col check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td><td class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td></tr>
+        <tr><td lang="ko">AI 톤 학습</td><td class="miss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></td><td class="pro-col check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td><td class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td></tr>
+        <tr><td lang="ko">메시지 수</td><td><span class="mono">100건/월</span></td><td class="pro-col"><span class="mono">무제한</span></td><td><span class="mono">무제한</span></td></tr>
+
+        <tr class="grp"><td colspan="4" lang="ko">다국어 + 결제</td></tr>
+        <tr><td lang="ko">다국어 (5개)</td><td class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td><td class="pro-col check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td><td class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td></tr>
+        <tr><td lang="ko">채널 수</td><td><span class="mono">1개</span></td><td class="pro-col"><span class="mono">4개</span></td><td><span class="mono">무제한</span></td></tr>
+        <tr><td lang="ko">결제 통합 (Stripe / Alipay / WeChat)</td><td class="miss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></td><td class="pro-col check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td><td class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td></tr>
+
+        <tr class="grp"><td colspan="4" lang="ko">매장 운영 도구</td></tr>
+        <tr><td lang="ko">매장 대시보드</td><td class="miss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></td><td class="pro-col check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td><td class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td></tr>
+        <tr><td lang="ko">다매장 통합</td><td class="miss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></td><td class="pro-col miss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></td><td class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td></tr>
+
+        <tr class="grp"><td colspan="4" lang="ko">분석 + API</td></tr>
+        <tr><td lang="ko">API 액세스</td><td class="miss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></td><td class="pro-col miss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></td><td class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td></tr>
+
+        <tr class="grp"><td colspan="4" lang="ko">지원</td></tr>
+        <tr><td lang="ko">SLA</td><td lang="ko">이메일</td><td class="pro-col"><span class="mono">3분</span></td><td><span class="mono">99.9%</span></td></tr>
+        <tr><td lang="ko">전담 매니저</td><td class="miss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></td><td class="pro-col miss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></td><td class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></td></tr>
+      </tbody>
+    </table>
+
+    <!-- Mobile -->
+    <div class="compare-mobile">
+      <div class="tier-selector" role="tablist" aria-label="비교할 플랜">
+        <button role="tab" data-tier="free" aria-selected="false">Free</button>
+        <button role="tab" data-tier="pro" aria-selected="true">Pro</button>
+        <button role="tab" data-tier="ent" aria-selected="false">Enterprise</button>
+      </div>
+      <div class="compare-list" id="compare-list">
+        <div class="compare-grp" lang="ko">응답 자동화</div>
+        <div class="compare-row"><span class="k" lang="ko">영업시간 외 자동 응답</span><span class="v check" data-free="check" data-pro="check" data-ent="check"></span></div>
+        <div class="compare-row"><span class="k" lang="ko">AI 톤 학습</span><span class="v" data-free="miss" data-pro="check" data-ent="check"></span></div>
+        <div class="compare-row"><span class="k" lang="ko">메시지 수</span><span class="v mono" data-free="100건/월" data-pro="무제한" data-ent="무제한"></span></div>
+
+        <div class="compare-grp" lang="ko">다국어 + 결제</div>
+        <div class="compare-row"><span class="k" lang="ko">다국어 (5개)</span><span class="v" data-free="check" data-pro="check" data-ent="check"></span></div>
+        <div class="compare-row"><span class="k" lang="ko">채널 수</span><span class="v mono" data-free="1개" data-pro="4개" data-ent="무제한"></span></div>
+        <div class="compare-row"><span class="k" lang="ko">결제 통합</span><span class="v" data-free="miss" data-pro="check" data-ent="check"></span></div>
+
+        <div class="compare-grp" lang="ko">매장 운영 도구</div>
+        <div class="compare-row"><span class="k" lang="ko">매장 대시보드</span><span class="v" data-free="miss" data-pro="check" data-ent="check"></span></div>
+        <div class="compare-row"><span class="k" lang="ko">다매장 통합</span><span class="v" data-free="miss" data-pro="miss" data-ent="check"></span></div>
+
+        <div class="compare-grp" lang="ko">분석 + API</div>
+        <div class="compare-row"><span class="k" lang="ko">API 액세스</span><span class="v" data-free="miss" data-pro="miss" data-ent="check"></span></div>
+
+        <div class="compare-grp" lang="ko">지원</div>
+        <div class="compare-row"><span class="k" lang="ko">SLA</span><span class="v" data-free="이메일" data-pro="3분 응답" data-ent="99.9%"></span></div>
+        <div class="compare-row"><span class="k" lang="ko">전담 매니저</span><span class="v" data-free="miss" data-pro="miss" data-ent="check"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §4 FAQ -->
+<section class="faq-section" aria-labelledby="faq-h">
+  <div class="faq-wrap">
+    <h2 class="section-h" id="faq-h">
+      <span class="ko" lang="ko">자주 묻는 질문</span>
+    </h2>
+    <div class="faq-grid">
+      <div>
+        <div class="faq-item">
+          <button type="button" aria-expanded="false" aria-controls="a1" id="q1" lang="ko">
+            <span>베타가 끝나면 자동으로 유료 전환되나요?</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer" id="a1" role="region" aria-labelledby="q1" lang="ko">
+            아니요. 베타 종료 30일 전 안내를 드리고, 사장님이 직접 Pro로 업그레이드하셔야 합니다. 자동 결제는 절대 없습니다.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button type="button" aria-expanded="false" aria-controls="a2" id="q2" lang="ko">
+            <span>신용카드 등록 없이 시작할 수 있나요?</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer" id="a2" role="region" aria-labelledby="q2" lang="ko">
+            네, Pro 14일 무료 체험은 카드 등록 없이 시작하실 수 있습니다. 체험 종료 후 결제 의사를 다시 확인드립니다.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button type="button" aria-expanded="false" aria-controls="a3" id="q3" lang="ko">
+            <span>Pro에서 메시지가 100건 이하라면 다운그레이드 가능한가요?</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer" id="a3" role="region" aria-labelledby="q3" lang="ko">
+            베타 매장 종료 후엔 Free 플랜이 사라집니다. 사용량이 적으시면 영업팀에 문의해주세요 — 사용량 기반 할인 플랜을 제안드립니다.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="faq-item">
+          <button type="button" aria-expanded="false" aria-controls="a4" id="q4" lang="ko">
+            <span>환불 정책은 어떻게 되나요?</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer" id="a4" role="region" aria-labelledby="q4" lang="ko">
+            결제일로부터 7일 이내엔 100% 환불해드립니다. 그 이후엔 사용한 기간만큼 차감한 prorated 환불이 적용됩니다.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button type="button" aria-expanded="false" aria-controls="a5" id="q5" lang="ko">
+            <span>여러 매장을 운영하면 어떻게 하나요?</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer" id="a5" role="region" aria-labelledby="q5" lang="ko">
+            2~3개 매장이라면 각각 Pro로 개별 가입을 추천드립니다. 4개 이상부터는 Enterprise 문의 시 다매장 할인을 적용해드립니다.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button type="button" aria-expanded="false" aria-controls="a6" id="q6" lang="ko">
+            <span>결제는 어떻게 이뤄지나요?</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer" id="a6" role="region" aria-labelledby="q6" lang="ko">
+            국내 신용카드, 계좌이체, 세금계산서 발행 모두 지원합니다. 매월 자동 결제 또는 연간 일시불 (10% 할인) 선택 가능합니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §5 Trust + Final CTA -->
+<section class="trust-final" aria-labelledby="trust-h">
+  <div class="trust-final-wrap">
+    <div class="eyebrow" aria-hidden="true">WHY HESYA</div>
+    <h2 id="trust-h">
+      <span class="ko" lang="ko">외국인 손님 응대, 더 이상 부담이 아니에요.</span>
+    </h2>
+    <div class="trust-mini">
+      <div class="item">
+        <div class="num">5</div>
+        <div class="cap" lang="ko">베타 매장 · 평균 매출 30% 증가</div>
+      </div>
+      <div class="item">
+        <div class="num">95%</div>
+        <div class="cap" lang="ko">응답률 · AI + 사장님 함께</div>
+      </div>
+      <div class="item">
+        <div class="num">3분</div>
+        <div class="cap" lang="ko">평균 응답 시간</div>
+      </div>
+    </div>
+    <div class="final-cta-row">
+      <a href="#" class="btn primary">Pro 14일 무료 시작</a>
+      <a href="#" class="btn ghost" lang="ko">데모 보기 (15분)</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer-wrap">
+    <span>© 2026 Hesya · KR · GDPR · 개인정보보호법 준수</span>
+    <a href="Hesya Admin Login.html">Internal · Operations →</a>
+  </div>
+</footer>
+
+<script>
+(function() {
+  // FAQ
+  document.querySelectorAll('.faq-item button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', !expanded);
+    });
+  });
+
+  // Mobile tier selector
+  const sel = document.querySelectorAll('.tier-selector button');
+  const list = document.getElementById('compare-list');
+  function applyTier(tier) {
+    list.querySelectorAll('.compare-row .v').forEach(v => {
+      const val = v.getAttribute('data-' + tier);
+      v.classList.remove('check', 'miss', 'mono');
+      v.innerHTML = '';
+      if (val === 'check') {
+        v.classList.add('check');
+        v.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-label="포함"><polyline points="20 6 9 17 4 12"/></svg>';
+      } else if (val === 'miss') {
+        v.classList.add('miss');
+        v.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-label="미포함"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>';
+      } else {
+        if (/[0-9%]/.test(val)) v.classList.add('mono');
+        v.textContent = val;
+      }
+    });
+  }
+  applyTier('pro');
+  sel.forEach(b => {
+    b.addEventListener('click', () => {
+      sel.forEach(x => x.setAttribute('aria-selected', 'false'));
+      b.setAttribute('aria-selected', 'true');
+      applyTier(b.getAttribute('data-tier'));
+    });
+  });
+})();
+</script>
+</body>
+</html>

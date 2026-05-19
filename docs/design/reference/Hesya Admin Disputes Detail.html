@@ -1,0 +1,1198 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>분쟁 #DSP-20251128-007 · Hesya Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Source+Sans+3:wght@400..700&family=JetBrains+Mono:wght@500..700&family=Noto+Sans+JP:wght@400..700&display=swap"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"/>
+<link rel="stylesheet" href="tokens.css"/>
+
+<style>
+:root {
+  --bg: #FAFBFC;
+  --surface: #FFFFFF;
+  --ink: #1A1E24;
+  --ink-2: #2B3450;
+  --muted: #6C757D;
+  --line: #E5E7EB;
+  --line-2: #D1D5DB;
+
+  --amber-500: #E8A97A;
+  --amber-600: #D4956A;
+  --amber-50: #FEF8F0;
+  --amber-100: #FEF3C7;
+  --amber-700: #92400E;
+
+  --emerald-50: #ECFDF5;
+  --emerald-500: #10B981;
+  --emerald-700: #065F46;
+
+  --rose: #E8C4D6;
+  --danger-50: #FAEFEC;
+  --danger-100: #F5DDD7;
+  --danger-500: #DC2626;
+  --danger-600: #B91C1C;
+  --danger-700: #991B1B;
+
+  --peach-50: #FDF8F1;
+  --peach-100: #FAEFE2;
+  --peach-200: #F5DDC8;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: 'Source Sans 3', 'Pretendard Variable', sans-serif;
+  font-size: 15px; -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.005em;
+}
+[lang="ko"], .kr {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7; text-transform: none;
+}
+[lang="ja"] {
+  font-family: 'Noto Sans JP', 'Pretendard Variable', sans-serif;
+  letter-spacing: 0;
+}
+.mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "tnum"; letter-spacing: 0; }
+button { font: inherit; cursor: pointer; border: 0; background: transparent; color: inherit; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid var(--amber-500); outline-offset: 4px; border-radius: 4px; }
+
+/* ─── Topbar ─── */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  height: 64px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  padding: 0 24px;
+  display: flex; align-items: center; gap: 16px;
+}
+.topbar-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.back-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--ink); margin-right: 4px;
+}
+.back-btn:hover { background: var(--bg); }
+.back-btn svg { width: 16px; height: 16px; }
+.crumb {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--muted); letter-spacing: 0.04em;
+}
+.crumb a:hover { color: var(--ink); }
+.crumb svg { width: 11px; height: 11px; color: var(--line-2); }
+.crumb .id { color: var(--ink); font-weight: 700; }
+.topbar-sub {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: var(--ink-2); letter-spacing: 0;
+}
+.topbar-sub .vs { color: var(--muted); margin: 0 6px; }
+.topbar-sub .amt {
+  font-family: 'JetBrains Mono', monospace; color: var(--ink);
+  font-weight: 700; margin-left: 8px;
+}
+.topbar-row-left {
+  display: flex; align-items: center; gap: 12px;
+}
+.topbar-right {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 10px;
+}
+.assign-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 34px; padding: 0 12px;
+  background: transparent; border: 1px solid var(--line-2); border-radius: 8px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12.5px; color: var(--ink); letter-spacing: 0; word-break: keep-all;
+  font-weight: 500;
+  transition: background 120ms, border-color 120ms;
+}
+.assign-btn:hover { background: var(--bg); border-color: var(--ink); }
+.assign-btn svg { width: 13px; height: 13px; }
+.kebab { width: 34px; height: 34px; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center; color: var(--ink-2); }
+.kebab:hover { background: var(--bg); color: var(--ink); }
+.kebab svg { width: 16px; height: 16px; }
+
+/* Status pills */
+.status-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 11px;
+  border-radius: 9999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600; font-size: 11px; letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.status-pill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+}
+.status-pill.in_review { background: var(--amber-100); color: var(--amber-700); }
+.status-pill.in_review::before { background: var(--amber-700); }
+.status-pill.open { background: var(--danger-100); color: var(--danger-700); }
+.status-pill.open::before { background: var(--danger-600); }
+.status-pill.resolved { background: var(--emerald-50); color: var(--emerald-700); }
+.status-pill.resolved::before { background: var(--emerald-500); }
+.status-pill.escalated { background: #DBEAFE; color: #1E40AF; }
+.status-pill.rejected { background: #F3F4F6; color: #4B5563; }
+
+/* ─── SLA strip ─── */
+.sla-warning {
+  background: var(--danger-50);
+  border-bottom: 1px solid var(--danger-100);
+  padding: 12px 24px;
+  display: flex; align-items: center; gap: 12px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13.5px; color: var(--danger-700);
+  letter-spacing: 0; word-break: keep-all;
+}
+.sla-warning .lab {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 11px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--danger-700);
+  padding: 2px 8px;
+  background: var(--danger-100);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.sla-warning svg { width: 16px; height: 16px; color: var(--danger-600); flex-shrink: 0; }
+.sla-warning .countdown {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 13px; color: var(--danger-700);
+  letter-spacing: 0;
+}
+
+/* ─── Shell ─── */
+.shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1440px; margin: 0 auto;
+  align-items: start;
+}
+@media (max-width: 1100px) { .shell { grid-template-columns: 1fr; } }
+
+/* ─── Card ─── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.card-h {
+  margin: 0 0 16px;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 18px; color: var(--ink); letter-spacing: -0.015em;
+  display: flex; align-items: baseline; gap: 8px;
+}
+.card-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 16px; color: var(--ink); letter-spacing: 0;
+}
+.card-h .meta {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--muted); letter-spacing: 0; font-weight: 500;
+}
+
+/* ─── §2 SLA Timeline ─── */
+.sla-timeline {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  position: relative;
+  padding: 12px 8px 4px;
+}
+.sla-node {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  position: relative; z-index: 2;
+}
+.sla-node .dot {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--line-2);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+}
+.sla-node .dot svg { width: 14px; height: 14px; }
+.sla-node.done .dot { background: var(--emerald-500); border-color: var(--emerald-500); color: #fff; }
+.sla-node.overdue .dot {
+  background: var(--danger-50); border-color: var(--danger-600); color: var(--danger-600);
+  box-shadow: 0 0 0 4px rgba(220,38,38,0.12);
+}
+.sla-node.pending .dot { background: var(--surface); border-color: var(--line-2); color: var(--muted); }
+.sla-node .lab {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; color: var(--ink); letter-spacing: 0; word-break: keep-all;
+  text-align: center;
+  font-weight: 500;
+}
+.sla-node.overdue .lab { color: var(--danger-700); font-weight: 700; }
+.sla-node.done .lab { color: var(--ink); }
+.sla-node .when {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--muted); letter-spacing: 0;
+  text-align: center;
+}
+.sla-node.overdue .when { color: var(--danger-600); font-weight: 700; }
+
+/* Connectors */
+.sla-conn {
+  position: absolute;
+  top: 28px; height: 2px;
+  z-index: 1;
+}
+.sla-conn.c1 { left: 10%; right: 70%; background: var(--emerald-500); }
+.sla-conn.c2 { left: 30%; right: 50%; background: var(--emerald-500); }
+.sla-conn.c3 { left: 50%; right: 30%; background: linear-gradient(90deg, var(--emerald-500), var(--danger-500)); }
+.sla-conn.c4 { left: 70%; right: 10%; background: var(--line-2); }
+
+/* ─── Summary ─── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 24px;
+  margin-bottom: 20px;
+}
+.summary-grid > div {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.summary-grid .k {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--muted);
+  letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+}
+.summary-grid .v {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: var(--ink); letter-spacing: 0; word-break: keep-all;
+  display: flex; align-items: center; gap: 8px;
+}
+.party-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 10px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: var(--ink); letter-spacing: 0;
+}
+.party-chip .av {
+  width: 18px; height: 18px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 10px; color: var(--ink);
+}
+.party-chip.cust .av { background: var(--peach-200); }
+.party-chip.store .av { background: var(--rose); }
+.amount-big {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em;
+}
+.amount-big .sub {
+  margin-left: 6px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; font-weight: 500;
+  color: var(--muted); letter-spacing: 0;
+}
+.type-chip {
+  display: inline-flex; align-items: center; height: 26px; padding: 0 10px;
+  background: var(--amber-100); color: var(--amber-700);
+  border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; font-weight: 600; letter-spacing: 0; word-break: keep-all;
+}
+.booking-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; color: var(--ink);
+  text-decoration: underline; text-underline-offset: 3px;
+  text-decoration-color: var(--line-2);
+}
+.booking-link:hover { text-decoration-color: var(--ink); }
+.booking-link svg { width: 11px; height: 11px; display: inline; vertical-align: -1px; margin-left: 2px; }
+
+/* Claim blocks */
+.claim {
+  position: relative;
+  padding: 16px 16px 16px 44px;
+  border-radius: 12px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: var(--ink);
+  word-break: keep-all; letter-spacing: 0; line-height: 1.6;
+  margin-bottom: 12px;
+}
+.claim::before {
+  content: ""; position: absolute; left: 14px; top: 14px;
+  width: 18px; height: 18px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d='M7.17 17q-.92 0-1.55-.62Q5 15.75 5 14.83V13l1.5-4H10v6.92q0 .42-.29.71-.29.29-.71.29zm9 0q-.92 0-1.55-.62Q14 15.75 14 14.83V13l1.5-4H19v6.92q0 .42-.29.71-.29.29-.71.29z'/></svg>") no-repeat center / contain;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'><path d='M7.17 17q-.92 0-1.55-.62Q5 15.75 5 14.83V13l1.5-4H10v6.92q0 .42-.29.71-.29.29-.71.29zm9 0q-.92 0-1.55-.62Q14 15.75 14 14.83V13l1.5-4H19v6.92q0 .42-.29.71-.29.29-.71.29z'/></svg>") no-repeat center / contain;
+  opacity: 0.5;
+}
+.claim.customer { background: var(--peach-50); }
+.claim.customer::before { color: var(--amber-600); }
+.claim.store { background: var(--peach-100); }
+.claim.store::before { color: var(--ink-2); }
+.claim .party {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--muted);
+  letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+  margin-bottom: 6px;
+}
+.claim .orig {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px; line-height: 1.6;
+  margin: 0 0 6px;
+}
+.claim .tr {
+  display: block;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(26,30,36,0.15);
+  font-size: 13px; color: var(--ink-2);
+  word-break: keep-all; line-height: 1.6;
+}
+
+/* ─── §3.2 Chat timeline ─── */
+.tl-thread {
+  position: relative;
+  padding-left: 32px;
+}
+.tl-thread::before {
+  content: "";
+  position: absolute; left: 16px; top: 4px; bottom: 4px;
+  width: 1px;
+  background: var(--line);
+}
+.tl-msg {
+  position: relative;
+  margin-bottom: 16px;
+}
+.tl-msg::before {
+  content: "";
+  position: absolute; left: -24px; top: 8px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--line-2);
+}
+.tl-msg.customer::before { border-color: var(--amber-600); background: var(--amber-50); }
+.tl-msg.store::before { border-color: var(--ink-2); background: var(--peach-100); }
+.tl-msg.ai::before { border-color: var(--muted); }
+.tl-msg.system::before { border-color: var(--emerald-500); background: var(--emerald-50); }
+.tl-head {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 6px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12.5px; color: var(--ink);
+  letter-spacing: 0;
+}
+.tl-head .name { font-weight: 700; }
+.tl-head .party-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 4px;
+}
+.tl-head .party-tag.cust { background: var(--peach-100); color: var(--ink-2); }
+.tl-head .party-tag.str { background: var(--rose); color: var(--ink); }
+.tl-head .party-tag.ai { background: var(--ink); color: var(--surface); }
+.tl-head .when {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--muted); letter-spacing: 0;
+}
+.tl-bubble {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13.5px; color: var(--ink);
+  word-break: keep-all; letter-spacing: 0; line-height: 1.6;
+}
+.tl-msg.customer .tl-bubble { background: var(--peach-50); border-color: var(--peach-200); }
+.tl-msg.store .tl-bubble { background: var(--peach-100); border-color: var(--peach-200); }
+.tl-msg.ai .tl-bubble { background: var(--bg); }
+.tl-bubble .orig { font-family: 'Noto Sans JP', sans-serif; margin-bottom: 6px; }
+.tl-bubble .tr {
+  display: block; padding-top: 6px;
+  border-top: 1px dashed rgba(26,30,36,0.12);
+  font-size: 12.5px; color: var(--ink-2);
+}
+.tl-system {
+  margin: 16px 0 16px -32px;
+  padding-left: 32px;
+  position: relative;
+}
+.tl-system::before {
+  display: none;
+}
+.tl-system .text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--muted);
+  letter-spacing: 0.04em; text-transform: uppercase;
+  text-align: center;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: 6px;
+  display: inline-block;
+}
+.expand-all {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: var(--ink); letter-spacing: 0;
+  margin-top: 12px;
+}
+.expand-all:hover { background: var(--surface); border-color: var(--line-2); }
+.expand-all svg { width: 13px; height: 13px; }
+
+/* ─── §3.3 Attachments ─── */
+.attach-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+@media (max-width: 720px) { .attach-grid { grid-template-columns: 1fr 1fr; } }
+.attach-card {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: border-color 120ms, transform 120ms, box-shadow 120ms;
+}
+.attach-card:hover {
+  border-color: var(--ink); transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(26,30,36,.06), 0 4px 12px rgba(26,30,36,.08);
+}
+.attach-thumb {
+  aspect-ratio: 4 / 3;
+  background-size: cover; background-position: center;
+  position: relative;
+}
+.attach-thumb .type {
+  position: absolute; top: 8px; left: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 3px 6px; border-radius: 4px;
+  background: rgba(26,30,36,0.85); color: #fff;
+}
+.attach-meta {
+  padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.attach-meta .fname {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--ink); letter-spacing: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.attach-meta .row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 6px;
+}
+.attach-meta .from {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 4px;
+}
+.attach-meta .from.cust { background: var(--peach-100); color: var(--ink-2); }
+.attach-meta .from.str { background: var(--rose); color: var(--ink); }
+.attach-meta .when {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--muted); letter-spacing: 0;
+}
+
+/* Placeholder thumb gradients */
+.t-hair-1 { background: linear-gradient(150deg, var(--peach-200) 0%, var(--amber-600) 100%); }
+.t-hair-2 { background: linear-gradient(160deg, var(--peach-100) 0%, var(--ink) 130%); }
+.t-receipt { background: linear-gradient(170deg, #FFFFFF 0%, var(--bg) 100%); position: relative; }
+.t-receipt::after {
+  content: "PDF"; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700;
+  color: var(--ink-2); letter-spacing: 0.1em;
+}
+.t-photo-3 { background: linear-gradient(180deg, var(--rose) 0%, var(--peach-200) 100%); }
+
+/* ─── §4 Decision panel ─── */
+.decision {
+  position: sticky; top: 88px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  max-height: calc(100vh - 112px);
+  overflow-y: auto;
+}
+@media (max-width: 1100px) { .decision { position: static; max-height: none; } }
+.decision-h {
+  margin: 0 0 4px;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 20px; color: var(--ink); letter-spacing: -0.018em;
+}
+.decision-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 18px; letter-spacing: 0;
+}
+.decision-sub {
+  margin: 0 0 20px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: var(--ink-2);
+  word-break: keep-all; letter-spacing: 0; line-height: 1.6;
+}
+
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt {
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms, box-shadow 120ms;
+  position: relative;
+}
+.opt:hover { background: var(--bg); }
+.opt input[type="radio"] {
+  position: absolute; left: -9999px;
+}
+.opt .opt-row {
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.opt .pip {
+  flex-shrink: 0;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--line-2);
+  margin-top: 1px;
+  background: var(--surface);
+  position: relative;
+  transition: border-color 120ms;
+}
+.opt .copy { flex: 1; min-width: 0; }
+.opt .title {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 14px; color: var(--ink);
+  letter-spacing: 0; word-break: keep-all; line-height: 1.4;
+}
+.opt .title .amt {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 13px;
+}
+.opt .sub {
+  margin-top: 4px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; color: var(--muted);
+  letter-spacing: 0; word-break: keep-all; line-height: 1.5;
+}
+
+/* Selected state per option color */
+.opt.a.is-selected { background: var(--emerald-50); border-color: var(--emerald-500); box-shadow: 0 0 0 1px var(--emerald-500); }
+.opt.a.is-selected .pip { border-color: var(--emerald-500); background: var(--emerald-500); }
+.opt.a.is-selected .pip::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #fff; }
+.opt.a .title .amt { color: var(--emerald-700); }
+
+.opt.b.is-selected { background: var(--amber-50); border-color: var(--amber-500); box-shadow: 0 0 0 1px var(--amber-500); }
+.opt.b.is-selected .pip { border-color: var(--amber-500); background: var(--amber-500); }
+.opt.b.is-selected .pip::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #fff; }
+.opt.b .title .amt { color: var(--amber-600); }
+
+.opt.c.is-selected { background: var(--danger-50); border-color: var(--danger-500); box-shadow: 0 0 0 1px var(--danger-500); }
+.opt.c.is-selected .pip { border-color: var(--danger-500); background: var(--danger-500); }
+.opt.c.is-selected .pip::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #fff; }
+.opt.c .title .amt { color: var(--danger-600); }
+
+.opt.d.is-selected { background: #F3F4F6; border-color: var(--ink-2); box-shadow: 0 0 0 1px var(--ink-2); }
+.opt.d.is-selected .pip { border-color: var(--ink-2); background: var(--ink-2); }
+.opt.d.is-selected .pip::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #fff; }
+
+.opt.e.is-selected { background: #EFF6FF; border-color: #1E40AF; box-shadow: 0 0 0 1px #1E40AF; }
+.opt.e.is-selected .pip { border-color: #1E40AF; background: #1E40AF; }
+.opt.e.is-selected .pip::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #fff; }
+
+/* Textareas */
+.dec-field { margin-top: 18px; }
+.dec-field label {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 8px; gap: 8px;
+}
+.dec-field label .lab {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--ink);
+  letter-spacing: 0.04em; font-weight: 600;
+}
+.dec-field label .lab .req { color: var(--danger-600); margin-left: 2px; }
+.dec-field label .ct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--muted); letter-spacing: 0;
+}
+.dec-field textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  min-height: 88px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: var(--ink);
+  letter-spacing: 0; word-break: keep-all; line-height: 1.6;
+  resize: vertical; outline: 0;
+  transition: border-color 120ms, background 120ms;
+}
+.dec-field textarea:focus { border-color: var(--ink); background: var(--surface); }
+.dec-field textarea::placeholder { color: var(--muted); }
+.dec-field.internal label .lab { display: inline-flex; align-items: center; gap: 4px; }
+.dec-field.internal label .lab svg { width: 11px; height: 11px; }
+
+/* Footer */
+.dec-foot {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  display: flex; gap: 8px;
+}
+.btn-ghost, .btn-final {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; min-height: 44px; padding: 0 16px;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 14px; letter-spacing: 0; word-break: keep-all;
+  transition: background 120ms, transform 120ms, box-shadow 120ms;
+}
+.btn-ghost {
+  flex: 1;
+  background: transparent; color: var(--ink); border: 1px solid var(--line-2);
+}
+.btn-ghost:hover { background: var(--bg); }
+.btn-final {
+  flex: 2;
+  background: var(--ink); color: var(--surface);
+  box-shadow: 0 1px 2px rgba(26,30,36,.06), 0 1px 3px rgba(26,30,36,.08);
+}
+.btn-final:hover { background: #000; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,.08), 0 6px 16px rgba(0,0,0,.16); }
+.btn-final[disabled] { background: var(--line-2); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-final svg { width: 14px; height: 14px; }
+
+/* Modal */
+.modal-bg {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(26,30,36,0.5);
+  display: none; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.modal-bg[data-open="true"] { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: 16px;
+  max-width: 520px; width: 100%;
+  box-shadow: 0 8px 16px rgba(26,30,36,.10), 0 24px 64px rgba(26,30,36,.16);
+}
+.modal-h {
+  padding: 24px 24px 0;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 22px; color: var(--ink); letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+.modal-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 20px; letter-spacing: 0;
+}
+.modal-body { padding: 0 24px; }
+.modal-summary {
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 8px;
+  margin-bottom: 16px;
+}
+.modal-summary .row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: var(--ink); letter-spacing: 0;
+}
+.modal-summary .k { color: var(--muted); }
+.modal-summary .v { font-weight: 600; }
+.modal-summary .v.mono { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+.modal-note {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; color: var(--muted);
+  word-break: keep-all; letter-spacing: 0; line-height: 1.6;
+  margin: 0 0 18px;
+}
+.modal-foot {
+  padding: 18px 24px 24px;
+  display: flex; gap: 8px; justify-content: flex-end;
+  border-top: 1px solid var(--line);
+}
+.modal-foot .btn-ghost, .modal-foot .btn-final { flex: 0 0 auto; padding: 0 18px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<header class="topbar" role="banner">
+  <button class="back-btn" type="button" aria-label="목록으로 돌아가기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+  </button>
+  <div class="topbar-left">
+    <nav class="crumb" aria-label="이동 경로">
+      <a href="#">DISPUTES</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      <a href="#">OPEN</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      <span class="id">#DSP-20251128-007</span>
+    </nav>
+    <span class="topbar-sub">
+      <strong lang="ko">Stylista 홍대</strong> <span class="vs">vs</span> Sakura T. <span class="amt mono">₩87,000</span>
+    </span>
+  </div>
+  <div class="topbar-right">
+    <span class="status-pill in_review" aria-label="상태: 검토 중">In review</span>
+    <button class="assign-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+      <span lang="ko">담당자 지정</span>
+    </button>
+    <button class="kebab" type="button" aria-label="추가 작업">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- SLA warning strip (overdue) -->
+<div class="sla-warning" role="alert">
+  <span class="lab">SLA</span>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <span lang="ko">SLA 마감 D+2 초과 · 즉시 처리 필요</span>
+  <span class="countdown" aria-label="SLA 초과 시간">+2d 4h 12m</span>
+</div>
+
+<div class="shell">
+
+  <!-- LEFT MAIN -->
+  <main>
+
+    <!-- SLA Timeline -->
+    <section class="card" aria-labelledby="sla-h">
+      <h2 class="card-h" id="sla-h">
+        <span class="ko" lang="ko">처리 단계</span>
+        <span class="meta">SLA 3-DAY TARGET</span>
+      </h2>
+      <div class="sla-timeline" role="list">
+        <div class="sla-conn c1" aria-hidden="true"></div>
+        <div class="sla-conn c2" aria-hidden="true"></div>
+        <div class="sla-conn c3" aria-hidden="true"></div>
+        <div class="sla-conn c4" aria-hidden="true"></div>
+
+        <div class="sla-node done" role="listitem">
+          <span class="dot" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <span class="lab" lang="ko">접수</span>
+          <span class="when">11-28 14:32</span>
+        </div>
+        <div class="sla-node done" role="listitem">
+          <span class="dot" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <span class="lab" lang="ko">선별 완료</span>
+          <span class="when">11-28 15:01</span>
+        </div>
+        <div class="sla-node done" role="listitem">
+          <span class="dot" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <span class="lab" lang="ko">SLA 마감</span>
+          <span class="when">12-01 14:32</span>
+        </div>
+        <div class="sla-node overdue" role="listitem">
+          <span class="dot" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </span>
+          <span class="lab" lang="ko">현재 (초과)</span>
+          <span class="when">+2d 4h 12m</span>
+        </div>
+        <div class="sla-node pending" role="listitem">
+          <span class="dot" aria-hidden="true"></span>
+          <span class="lab" lang="ko">결정 통보</span>
+          <span class="when">PENDING</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dispute summary -->
+    <section class="card" aria-labelledby="sum-h">
+      <h2 class="card-h" id="sum-h">
+        <span class="ko" lang="ko">분쟁 요약</span>
+        <span class="meta">CASE #DSP-20251128-007</span>
+      </h2>
+      <div class="summary-grid">
+        <div>
+          <span class="k">Submitted by</span>
+          <span class="v">
+            <span class="party-chip cust">
+              <span class="av" aria-hidden="true">ST</span>
+              <span>Sakura Tanaka</span>
+              <span class="mono" style="color:var(--muted);font-size:11px;">CUSTOMER</span>
+            </span>
+          </span>
+        </div>
+        <div>
+          <span class="k">Against</span>
+          <span class="v">
+            <span class="party-chip store">
+              <span class="av" aria-hidden="true">S홍</span>
+              <span lang="ko">Stylista 홍대</span>
+              <span class="mono" style="color:var(--muted);font-size:11px;">STORE</span>
+            </span>
+          </span>
+        </div>
+        <div>
+          <span class="k">Type</span>
+          <span class="v"><span class="type-chip" lang="ko">시술 품질 분쟁</span></span>
+        </div>
+        <div>
+          <span class="k">Disputed amount</span>
+          <span class="v"><span class="amount-big">₩87,000<span class="sub" lang="ko">(전액)</span></span></span>
+        </div>
+        <div>
+          <span class="k">Booking</span>
+          <span class="v">
+            <a href="Hesya Store Booking Detail.html" class="booking-link" target="_blank" rel="noopener">
+              #HSY-20251128-042
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+          </span>
+        </div>
+        <div>
+          <span class="k">Submitted at</span>
+          <span class="v mono" style="font-size:13px;">2025-11-28 14:32:07 KST</span>
+        </div>
+      </div>
+
+      <div class="claim customer">
+        <span class="party">Customer's claim</span>
+        <p class="orig" lang="ja">施術後、髪が思っていたよりかなり短く切られました。希望した長さと違います。返金してほしいです。</p>
+        <span class="tr" lang="ko">번역: 시술 후 머리가 생각보다 너무 짧게 잘렸어요. 요청한 길이와 다릅니다. 환불 부탁드려요.</span>
+      </div>
+
+      <div class="claim store">
+        <span class="party">Store's response</span>
+        <p lang="ko">고객이 채팅에서 요청한 길이(쇄골 위 2cm)대로 시술했으며, 시술 전/후 사진 증빙을 보유하고 있습니다. 시술 중 고객 컨펌도 받았습니다. 환불은 어렵습니다.</p>
+      </div>
+    </section>
+
+    <!-- Chat timeline -->
+    <section class="card" aria-labelledby="chat-h">
+      <h2 class="card-h" id="chat-h">
+        <span class="ko" lang="ko">대화 이력</span>
+        <span class="meta">47 MESSAGES · NOV 28 – DEC 03</span>
+      </h2>
+
+      <div class="tl-thread" role="log">
+
+        <article class="tl-msg customer">
+          <div class="tl-head">
+            <span class="name">Sakura Tanaka</span>
+            <span class="party-tag cust">CUST</span>
+            <span class="when">11-28 14:28</span>
+          </div>
+          <div class="tl-bubble">
+            <p class="orig" lang="ja">こんにちは!12月5日の15時、空いていますか?Kドラマっぽいヘアにしたいです。長さは鎖骨の少し上くらいで。</p>
+            <span class="tr" lang="ko">번역: 안녕하세요! 12월 5일 15시 비어있나요? K-드라마 느낌 헤어 원해요. 길이는 쇄골 살짝 위쯤으로.</span>
+          </div>
+        </article>
+
+        <article class="tl-msg store">
+          <div class="tl-head">
+            <span class="name" lang="ko">박지원 (Stylista 홍대)</span>
+            <span class="party-tag str">STR</span>
+            <span class="when">11-28 14:35</span>
+          </div>
+          <div class="tl-bubble">
+            <p lang="ko">안녕하세요! 12월 5일 15시 가능합니다. 쇄골 살짝 위로 컷, 알겠습니다. 정확히는 쇄골 위 2cm 정도로 진행하면 될까요?</p>
+          </div>
+        </article>
+
+        <article class="tl-msg customer">
+          <div class="tl-head">
+            <span class="name">Sakura Tanaka</span>
+            <span class="party-tag cust">CUST</span>
+            <span class="when">11-28 14:38</span>
+          </div>
+          <div class="tl-bubble">
+            <p class="orig" lang="ja">はい、それでお願いします!</p>
+            <span class="tr" lang="ko">번역: 네, 그렇게 부탁드려요!</span>
+          </div>
+        </article>
+
+        <div class="tl-system">
+          <span class="text" lang="ko">결제 완료 · ₩87,000 · Stripe Visa ****1234 · 11-28 14:33</span>
+        </div>
+
+        <div class="tl-system">
+          <span class="text" lang="ko">시술 시작 · 12-05 15:02 · 담당 박지원</span>
+        </div>
+
+        <article class="tl-msg customer">
+          <div class="tl-head">
+            <span class="name">Sakura Tanaka</span>
+            <span class="party-tag cust">CUST</span>
+            <span class="when">12-05 17:48</span>
+          </div>
+          <div class="tl-bubble">
+            <p class="orig" lang="ja">施術が終わりました。。。でも、思ったよりかなり短いです。これは私の想像と違います。</p>
+            <span class="tr" lang="ko">번역: 시술 끝났어요... 근데 생각보다 너무 짧아요. 제가 상상한 것과 달라요.</span>
+          </div>
+        </article>
+
+        <article class="tl-msg ai">
+          <div class="tl-head">
+            <span class="name">Hesya AI</span>
+            <span class="party-tag ai">AI</span>
+            <span class="when">12-05 17:50</span>
+          </div>
+          <div class="tl-bubble" lang="ko">
+            손님 우려가 접수되었습니다. 매장 사장님께 알림 전송 중. 답변은 보통 10분 이내에 도착해요.
+          </div>
+        </article>
+
+        <button class="expand-all" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          <span lang="ko">나머지 41개 메시지 보기</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Attachments -->
+    <section class="card" aria-labelledby="att-h">
+      <h2 class="card-h" id="att-h">
+        <span class="ko" lang="ko">증빙 자료</span>
+        <span class="meta">4 ITEMS</span>
+      </h2>
+      <div class="attach-grid">
+        <article class="attach-card">
+          <div class="attach-thumb t-hair-1">
+            <span class="type">IMG</span>
+          </div>
+          <div class="attach-meta">
+            <span class="fname">before-cut-1205.jpg</span>
+            <div class="row">
+              <span class="from str">STORE</span>
+              <span class="when">12-05 15:00</span>
+            </div>
+          </div>
+        </article>
+        <article class="attach-card">
+          <div class="attach-thumb t-hair-2">
+            <span class="type">IMG</span>
+          </div>
+          <div class="attach-meta">
+            <span class="fname">after-cut-1205.jpg</span>
+            <div class="row">
+              <span class="from str">STORE</span>
+              <span class="when">12-05 17:35</span>
+            </div>
+          </div>
+        </article>
+        <article class="attach-card">
+          <div class="attach-thumb t-photo-3">
+            <span class="type">IMG</span>
+          </div>
+          <div class="attach-meta">
+            <span class="fname">customer-mirror.jpg</span>
+            <div class="row">
+              <span class="from cust">CUST</span>
+              <span class="when">12-05 17:52</span>
+            </div>
+          </div>
+        </article>
+        <article class="attach-card">
+          <div class="attach-thumb t-receipt">
+            <span class="type">PDF</span>
+          </div>
+          <div class="attach-meta">
+            <span class="fname">stripe-receipt.pdf</span>
+            <div class="row">
+              <span class="from cust">CUST</span>
+              <span class="when">11-28 14:33</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RIGHT DECISION PANEL -->
+  <aside class="decision" aria-label="결정 패널">
+    <h2 class="decision-h"><span class="ko" lang="ko">결정</span></h2>
+    <p class="decision-sub" lang="ko">이 분쟁에 대한 결정을 내려주세요. 결정 후 양측에 즉시 통보되며 감사 로그에 영구 기록됩니다.</p>
+
+    <div class="opts" role="radiogroup" aria-labelledby="opts-h" id="opts">
+      <h3 id="opts-h" class="mono" style="position:absolute;left:-9999px;">결정 옵션</h3>
+
+      <label class="opt a">
+        <input type="radio" name="decision" value="full"/>
+        <span class="opt-row">
+          <span class="pip" aria-hidden="true"></span>
+          <span class="copy">
+            <span class="title"><span lang="ko">전액 환불</span> <span class="amt">₩87,000</span></span>
+            <span class="sub" lang="ko">손님이 시술 품질 불만 입증 / 매장 책임</span>
+          </span>
+        </span>
+      </label>
+
+      <label class="opt b is-selected">
+        <input type="radio" name="decision" value="half" checked/>
+        <span class="opt-row">
+          <span class="pip" aria-hidden="true"></span>
+          <span class="copy">
+            <span class="title"><span lang="ko">부분 환불 50%</span> <span class="amt">₩43,500</span></span>
+            <span class="sub" lang="ko">쌍방 과실 — 컨펌은 있었으나 길이 차이 시각적으로 인정됨</span>
+          </span>
+        </span>
+      </label>
+
+      <label class="opt c">
+        <input type="radio" name="decision" value="store"/>
+        <span class="opt-row">
+          <span class="pip" aria-hidden="true"></span>
+          <span class="copy">
+            <span class="title"><span lang="ko">매장 손 들기</span> <span class="amt">₩0</span></span>
+            <span class="sub" lang="ko">매장이 컨펌받고 진행 / 환불 없음</span>
+          </span>
+        </span>
+      </label>
+
+      <label class="opt d">
+        <input type="radio" name="decision" value="reject"/>
+        <span class="opt-row">
+          <span class="pip" aria-hidden="true"></span>
+          <span class="copy">
+            <span class="title"><span lang="ko">이의제기 기각</span></span>
+            <span class="sub" lang="ko">증빙 불충분 또는 약관 위반</span>
+          </span>
+        </span>
+      </label>
+
+      <label class="opt e">
+        <input type="radio" name="decision" value="more"/>
+        <span class="opt-row">
+          <span class="pip" aria-hidden="true"></span>
+          <span class="copy">
+            <span class="title"><span lang="ko">추가 조사 필요</span> <span class="amt" style="color:#1E40AF;">+5d</span></span>
+            <span class="sub" lang="ko">양측에 추가 증빙 요청 + SLA 5일 연장</span>
+          </span>
+        </span>
+      </label>
+    </div>
+
+    <div class="dec-field">
+      <label for="reason">
+        <span class="lab" lang="ko">결정 사유<span class="req" aria-label="필수 입력">*</span> <span style="color:var(--muted);font-weight:500;letter-spacing:0;">· 양측에 공개</span></span>
+        <span class="ct"><span id="rc">0</span> / 800</span>
+      </label>
+      <textarea id="reason" placeholder="결정의 근거를 자세히 적어주세요. 양측이 읽고 이해할 수 있어야 합니다. (최소 50자)" lang="ko"></textarea>
+    </div>
+
+    <div class="dec-field internal">
+      <label for="internal">
+        <span class="lab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span lang="ko">내부 메모</span>
+          <span style="color:var(--muted);font-weight:500;letter-spacing:0;">· admin only</span>
+        </span>
+      </label>
+      <textarea id="internal" placeholder="운영자만 볼 수 있는 메모..." lang="ko"></textarea>
+    </div>
+
+    <div class="dec-foot">
+      <button class="btn-ghost" type="button" lang="ko">임시 저장</button>
+      <button class="btn-final" type="button" id="finalBtn" disabled>
+        <span lang="ko">최종 확정</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+  </aside>
+</div>
+
+<!-- Confirmation modal -->
+<div class="modal-bg" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="mh">
+  <div class="modal">
+    <h2 class="modal-h" id="mh"><span class="ko" lang="ko">결정을 확정하시겠습니까?</span></h2>
+    <div class="modal-body">
+      <div class="modal-summary">
+        <div class="row"><span class="k" lang="ko">결정</span><span class="v" lang="ko">부분 환불 50%</span></div>
+        <div class="row"><span class="k" lang="ko">환불 금액</span><span class="v mono">₩43,500</span></div>
+        <div class="row"><span class="k" lang="ko">양측 통보</span><span class="v" lang="ko">Sakura T. + Stylista 홍대</span></div>
+        <div class="row"><span class="k" lang="ko">처리 시각</span><span class="v mono">즉시</span></div>
+      </div>
+      <p class="modal-note" lang="ko">이 결정은 즉시 양측에 통보되며 <strong style="color:var(--ink);">7일 후 자동 종결</strong>됩니다. 결정 사유는 양측이 볼 수 있고, 감사 로그에 영구 기록됩니다.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" type="button" id="modalCancel" lang="ko">다시 검토</button>
+      <button class="btn-final" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span lang="ko">확정 + 통보</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Radio cards: keep aria + selected style in sync
+  const opts = document.querySelectorAll('.opt');
+  opts.forEach(opt => {
+    opt.addEventListener('click', () => {
+      opts.forEach(o => o.classList.remove('is-selected'));
+      opt.classList.add('is-selected');
+      const inp = opt.querySelector('input');
+      if (inp) inp.checked = true;
+    });
+  });
+
+  // Reason counter + final-btn enable
+  const reason = document.getElementById('reason');
+  const rc = document.getElementById('rc');
+  const finalBtn = document.getElementById('finalBtn');
+  reason.addEventListener('input', () => {
+    rc.textContent = reason.value.length;
+    finalBtn.disabled = reason.value.length < 50;
+  });
+
+  // Modal
+  const modal = document.getElementById('confirmModal');
+  finalBtn.addEventListener('click', () => {
+    if (finalBtn.disabled) return;
+    modal.setAttribute('data-open', 'true');
+    setTimeout(() => document.getElementById('modalCancel').focus(), 50);
+  });
+  document.getElementById('modalCancel').addEventListener('click', () => modal.removeAttribute('data-open'));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.getAttribute('data-open') === 'true') {
+      modal.removeAttribute('data-open');
+    }
+  });
+})();
+</script>
+</body>
+</html>

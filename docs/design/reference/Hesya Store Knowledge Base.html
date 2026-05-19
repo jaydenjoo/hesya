@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>지식 베이스 · Hesya Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Source+Sans+3:wght@400..700&family=JetBrains+Mono:wght@500..700&display=swap"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"/>
+<link rel="stylesheet" href="tokens.css"/>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: #FDF8F1; color: #1A2238;
+  font-family: 'Source Sans 3', 'Pretendard Variable', sans-serif;
+  font-size: 16px; -webkit-font-smoothing: antialiased; letter-spacing: -0.005em;
+}
+[lang="ko"], .kr {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7; text-transform: none;
+}
+.mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "tnum"; letter-spacing: 0; }
+button { font: inherit; cursor: pointer; border: 0; background: transparent; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid #E8A97A; outline-offset: 2px; border-radius: 4px; }
+
+/* Top bar */
+.topbar {
+  position: sticky; top: 0; z-index: 30; height: 64px;
+  background: #FFFFFF; border-bottom: 1px solid #F5DDC8;
+  display: flex; align-items: center; padding: 0 24px; gap: 16px;
+}
+.crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #2B3450; min-width: 240px; }
+.crumb a { color: #2B3450; } .crumb a:hover { color: #1A2238; }
+.crumb svg { width: 14px; height: 14px; color: #6C757D; }
+.crumb .cur { color: #1A2238; font-weight: 600; }
+.page-title {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 24px; color: #1A2238; letter-spacing: -0.02em;
+  margin: 0 auto; padding-left: 12px;
+}
+.top-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.search-input {
+  position: relative; width: 240px;
+}
+.search-input input {
+  height: 40px; width: 100%;
+  padding: 0 12px 0 36px;
+  background: #FAEFE2; border: 1px solid transparent;
+  border-radius: 12px;
+  font-family: 'Pretendard Variable', sans-serif; font-size: 13px; color: #1A2238;
+  outline: none;
+  transition: border-color 120ms cubic-bezier(0.4,0,0.2,1), background 120ms;
+}
+.search-input input::placeholder { color: #6C757D; }
+.search-input input:focus { background: #FFFFFF; border-color: #E8A97A; }
+.search-input svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #6C757D; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 0 16px;
+  border-radius: 12px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 14px; letter-spacing: 0;
+  transition: background 120ms cubic-bezier(0.4,0,0.2,1),
+              transform 120ms cubic-bezier(0.4,0,0.2,1),
+              box-shadow 120ms cubic-bezier(0.4,0,0.2,1);
+}
+.btn svg { width: 16px; height: 16px; }
+.btn.primary {
+  background: #E8A97A; color: #1A2238;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+}
+.btn.primary:hover {
+  background: #D4956A; transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.08);
+}
+.btn.ghost {
+  background: transparent; color: #1A2238; border: 1px solid #2B3450;
+}
+.btn.ghost:hover { background: #FAEFE2; }
+.btn.danger-ghost { background: transparent; color: #C9483A; border: 1px solid transparent; }
+.btn.danger-ghost:hover { background: #FAEFEC; }
+
+/* Layout */
+.shell {
+  display: grid;
+  grid-template-columns: 260px 1fr 320px;
+  min-height: calc(100vh - 64px);
+}
+@media (max-width: 1100px) {
+  .shell { grid-template-columns: 220px 1fr; }
+  .inspector { display: none; }
+}
+
+/* Sidebar */
+.sidebar {
+  background: #FDF8F1; padding: 24px 12px;
+  border-right: 1px solid #F5DDC8;
+}
+.sidebar-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  color: #2B3450; padding: 0 12px 12px;
+}
+.cat-list { display: flex; flex-direction: column; gap: 2px; }
+.cat {
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 40px; padding: 0 12px;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #1A2238;
+  word-break: keep-all; letter-spacing: 0;
+  position: relative;
+  transition: background 120ms cubic-bezier(0.4,0,0.2,1);
+}
+.cat:hover { background: #FAEFE2; }
+.cat[aria-current="page"] {
+  background: #E8A97A; color: #1A2238; font-weight: 600;
+}
+.cat[aria-current="page"]::before {
+  content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px;
+  width: 3px; background: #E8A97A; border-radius: 0 2px 2px 0;
+}
+.cat .count {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: #6C757D; letter-spacing: 0;
+}
+.cat[aria-current="page"] .count { color: #2B3450; }
+.sidebar-foot {
+  margin-top: 16px; padding: 0 4px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.sidebar-foot .new-cat {
+  width: 100%; min-height: 36px; padding: 0 12px;
+  border: 1px dashed #2B3450; border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif; font-size: 13px;
+  color: #2B3450; text-align: left;
+}
+.sidebar-foot .new-cat:hover { background: #FAEFE2; }
+.sidebar-foot .limit {
+  font-size: 11px; color: #6C757D; padding: 0 12px;
+}
+
+/* Main */
+.main { background: #FFFFFF; padding: 32px; }
+.main-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 24px;
+}
+.main-h {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 20px; color: #1A2238; letter-spacing: -0.015em;
+  margin: 0;
+}
+.main-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 18px; letter-spacing: 0;
+}
+.sort {
+  height: 36px; padding: 0 12px;
+  border: 1px solid #F5DDC8; border-radius: 10px;
+  background: #FFFFFF;
+  font-family: 'Pretendard Variable', sans-serif; font-size: 13px; color: #1A2238;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.sort:hover { border-color: #E8A97A; }
+
+/* Card list */
+.cards { display: flex; flex-direction: column; gap: 16px; max-width: 720px; }
+.card {
+  background: #FFFFFF; border: 1px solid #F5DDC8;
+  border-radius: 12px; padding: 20px;
+  position: relative;
+  transition: box-shadow 220ms cubic-bezier(0.4,0,0.2,1),
+              border-color 120ms cubic-bezier(0.4,0,0.2,1);
+}
+.card:hover, .card.selected {
+  border-color: #E8A97A;
+  box-shadow: 0 2px 4px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.08);
+}
+.card-q {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 12px; margin-bottom: 12px;
+}
+.card-q .q {
+  font-family: 'Fraunces', serif; font-style: italic;
+  font-size: 16px; color: #1A2238; letter-spacing: -0.01em;
+  flex: 1;
+}
+.card-q .q .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 600; font-size: 15px; letter-spacing: 0;
+}
+.card-q .q::before {
+  content: "Q"; font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 700; color: #D4956A;
+  margin-right: 8px; vertical-align: 1px;
+}
+.card-tools { display: flex; gap: 4px; opacity: 0; transition: opacity 120ms; }
+.card:hover .card-tools, .card:focus-within .card-tools { opacity: 1; }
+.icon-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #2B3450;
+  transition: background 120ms;
+}
+.icon-btn:hover { background: #FAEFE2; }
+.icon-btn.danger:hover { background: #FAEFEC; color: #C9483A; }
+.icon-btn svg { width: 16px; height: 16px; }
+.card-a {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #2B3450;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding-bottom: 14px; border-bottom: 1px solid #FAEFE2;
+}
+.card-a::before {
+  content: "A"; font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 700; color: #10B981;
+  margin-right: 8px;
+}
+.card-foot {
+  margin-top: 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+}
+.card-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip {
+  display: inline-flex; align-items: center; height: 22px;
+  padding: 0 8px; border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 11px; color: #2B3450;
+  background: #FAEFE2; letter-spacing: 0;
+}
+.card-stat {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: #6C757D; letter-spacing: 0;
+  display: inline-flex; align-items: center; gap: 6px;
+  white-space: nowrap;
+}
+.card-stat svg { width: 13px; height: 13px; color: #D4956A; }
+
+/* Empty state */
+.empty {
+  text-align: center; padding: 120px 32px;
+}
+.empty-icon {
+  width: 80px; height: 80px; margin: 0 auto 20px;
+  background: #FAEFE2; border-radius: 9999px;
+  display: flex; align-items: center; justify-content: center;
+  color: #E8A97A;
+}
+.empty-icon svg { width: 40px; height: 40px; }
+.empty-h {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 22px; color: #1A2238; letter-spacing: -0.015em;
+  margin: 0 0 8px;
+}
+.empty-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 20px; letter-spacing: 0;
+}
+.empty-sub {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #2B3450;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7;
+  max-width: 360px; margin: 0 auto 28px;
+}
+.suggest-row {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+  max-width: 520px; margin: 0 auto 24px;
+}
+.suggest {
+  height: 36px; padding: 0 14px;
+  background: #FEF4E8; color: #D4956A;
+  border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; font-weight: 500; letter-spacing: 0;
+  transition: background 120ms;
+}
+.suggest:hover { background: #FAE0C2; }
+
+/* Inspector */
+.inspector {
+  background: #FFFFFF; border-left: 1px solid #F5DDC8;
+  display: flex; flex-direction: column;
+}
+.insp-head {
+  padding: 20px 24px; border-bottom: 1px solid #F5DDC8;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.insp-head h2 {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 18px; color: #1A2238; letter-spacing: -0.015em; margin: 0;
+}
+.insp-head h2 .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; letter-spacing: 0;
+}
+.insp-body {
+  flex: 1; padding: 20px 24px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 18px;
+}
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: #2B3450; font-weight: 600; letter-spacing: 0;
+}
+.field-input, .field-textarea {
+  width: 100%;
+  background: #FDF8F1; border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #1A2238;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.6;
+  outline: none;
+  transition: background 120ms cubic-bezier(0.4,0,0.2,1),
+              border-color 120ms cubic-bezier(0.4,0,0.2,1);
+  resize: vertical;
+}
+.field-input::placeholder, .field-textarea::placeholder { color: #6C757D; }
+.field-input:focus, .field-textarea:focus {
+  background: #FFFFFF; border-color: #E8A97A;
+}
+.field-textarea { min-height: 72px; }
+.field-textarea.tall { min-height: 144px; }
+.counter {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: #6C757D; letter-spacing: 0; text-align: right;
+}
+.pill-select { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill {
+  height: 32px; padding: 0 12px; border-radius: 9999px;
+  background: #FAEFE2; color: #2B3450;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; letter-spacing: 0;
+  transition: background 120ms, color 120ms;
+}
+.pill:hover { background: #F5DDC8; }
+.pill[aria-pressed="true"] {
+  background: #E8A97A; color: #1A2238; font-weight: 600;
+}
+.tag-input { display: flex; flex-wrap: wrap; gap: 6px;
+  background: #FDF8F1; border-radius: 12px; padding: 8px 10px;
+  min-height: 44px; align-items: center;
+}
+.tag-input .chip {
+  background: #FFFFFF; border: 1px solid #F5DDC8;
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 26px; padding: 0 6px 0 10px;
+}
+.tag-input .chip button {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 9999px;
+  color: #6C757D;
+}
+.tag-input .chip button:hover { background: #FAEFE2; color: #1A2238; }
+.tag-input input {
+  flex: 1; min-width: 80px;
+  border: 0; outline: 0; background: transparent;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #1A2238; letter-spacing: 0;
+}
+.tag-suggest {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 11px; color: #6C757D; letter-spacing: 0;
+}
+.tag-suggest button {
+  margin-left: 4px; padding: 2px 6px; border-radius: 4px;
+  background: #FAEFE2; color: #D4956A; font-size: 11px;
+}
+
+/* AI preview */
+.ai-preview-trigger {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 36px; padding: 0 14px;
+  border: 1px solid #2B3450; border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; font-weight: 500; color: #1A2238;
+  letter-spacing: 0;
+  align-self: flex-start;
+}
+.ai-preview-trigger:hover { background: #FAEFE2; }
+.ai-preview-trigger svg { width: 14px; height: 14px; color: #D4956A; }
+.ai-preview-trigger .ai-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: #D4956A; padding: 2px 6px; background: #FEF4E8; border-radius: 4px;
+}
+
+.ai-preview {
+  background: #FDF8F1; border-radius: 12px; padding: 16px;
+}
+.ai-tabs {
+  display: flex; gap: 4px; margin-bottom: 12px;
+  border-bottom: 1px solid #F5DDC8;
+}
+.ai-tab {
+  height: 32px; padding: 0 10px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: #6C757D; letter-spacing: 0.04em;
+  border-bottom: 2px solid transparent;
+  transition: color 120ms, border-color 120ms;
+}
+.ai-tab[aria-selected="true"] {
+  color: #1A2238; border-bottom-color: #E8A97A;
+}
+.ai-tab:hover { color: #1A2238; }
+.ai-pane {
+  background: #FFFFFF; border: 1px solid #F5DDC8;
+  border-radius: 10px; padding: 14px 16px;
+  font-size: 13.5px; color: #2B3450; line-height: 1.7;
+  word-break: keep-all; letter-spacing: 0;
+}
+
+/* Insp foot */
+.insp-foot {
+  padding: 16px 24px; border-top: 1px solid #F5DDC8;
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  background: #FFFFFF;
+}
+.insp-foot-right { display: flex; gap: 8px; }
+.insp-foot .btn { min-height: 40px; padding: 0 18px; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<header class="topbar" role="banner">
+  <nav class="crumb" aria-label="이동 경로">
+    <a href="Hesya Store Dashboard.html">매장 설정</a>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+    <span class="cur" lang="ko">지식 베이스</span>
+  </nav>
+  <h1 class="page-title"><span class="ko" lang="ko">지식 베이스</span></h1>
+  <div class="top-right">
+    <label class="search-input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" placeholder="질문 검색…" aria-label="질문 검색"/>
+    </label>
+    <button class="btn primary" aria-label="새 질문 추가" id="newQBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span lang="ko">새 질문 추가</span>
+    </button>
+  </div>
+</header>
+
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" role="navigation" aria-label="카테고리">
+    <p class="sidebar-title">카테고리</p>
+    <div class="cat-list">
+      <a href="#" class="cat"><span lang="ko">영업시간</span><span class="count">12</span></a>
+      <a href="#" class="cat"><span lang="ko">가격</span><span class="count">8</span></a>
+      <a href="#" class="cat" aria-current="page"><span lang="ko">시술</span><span class="count">24</span></a>
+      <a href="#" class="cat"><span lang="ko">예약</span><span class="count">9</span></a>
+      <a href="#" class="cat"><span lang="ko">교통</span><span class="count">4</span></a>
+      <a href="#" class="cat"><span lang="ko">결제</span><span class="count">6</span></a>
+      <a href="#" class="cat"><span lang="ko">기타</span><span class="count">3</span></a>
+    </div>
+    <div class="sidebar-foot">
+      <button class="new-cat" type="button">
+        <span lang="ko">+ 새 카테고리</span>
+      </button>
+      <p class="limit" lang="ko">최대 10개</p>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="main-head">
+      <h2 class="main-h">
+        <span class="ko" lang="ko">시술</span> · <span class="mono">24</span><span lang="ko">개 질문</span>
+      </h2>
+      <button class="sort" type="button" aria-label="정렬 변경">
+        <span lang="ko">AI 사용 빈도순</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+
+    <div class="cards">
+      <article class="card selected" tabindex="0">
+        <div class="card-q">
+          <div class="q"><span class="ko" lang="ko">단발 컷 가능한가요?</span></div>
+          <div class="card-tools">
+            <button class="icon-btn" aria-label="질문 편집">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="icon-btn danger" aria-label="질문 삭제">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            </button>
+          </div>
+        </div>
+        <p class="card-a" lang="ko">네, 단발(short cut) 시술 가능합니다. 평균 1시간 소요되며 ₩45,000부터 시작합니다. 디자이너 김민지 / 박서연 모두 단발 전문이에요.</p>
+        <div class="card-foot">
+          <div class="card-chips">
+            <span class="chip" lang="ko">시술</span>
+            <span class="chip" lang="ko">헤어</span>
+          </div>
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6m11-11h-6M7 12H1m17.07-7.07l-4.24 4.24M9.17 14.83l-4.24 4.24m13.14 0l-4.24-4.24M9.17 9.17L4.93 4.93"/></svg>
+            AI 142회 사용
+          </span>
+        </div>
+      </article>
+
+      <article class="card" tabindex="0">
+        <div class="card-q">
+          <div class="q"><span class="ko" lang="ko">디지털 펌이 한국식 펌인가요?</span></div>
+          <div class="card-tools">
+            <button class="icon-btn" aria-label="질문 편집"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="icon-btn danger" aria-label="질문 삭제"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+          </div>
+        </div>
+        <p class="card-a" lang="ko">맞습니다. 디지털 펌(Digital Perm)은 열을 사용한 굵은 컬을 만드는 한국식 펌 기법입니다. 2~3시간 소요, ₩180,000부터.</p>
+        <div class="card-foot">
+          <div class="card-chips">
+            <span class="chip" lang="ko">시술</span>
+            <span class="chip" lang="ko">펌</span>
+          </div>
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/></svg>
+            AI 89회 사용
+          </span>
+        </div>
+      </article>
+
+      <article class="card" tabindex="0">
+        <div class="card-q">
+          <div class="q"><span class="ko" lang="ko">발레아쥬와 옴브레 차이가 뭐예요?</span></div>
+          <div class="card-tools">
+            <button class="icon-btn" aria-label="질문 편집"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="icon-btn danger" aria-label="질문 삭제"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+          </div>
+        </div>
+        <p class="card-a" lang="ko">발레아쥬는 손으로 페인팅하듯 자연스러운 하이라이트를 넣는 기법이고, 옴브레는 뿌리는 어둡고 끝으로 갈수록 밝아지는 그라데이션 기법입니다. 모발 길이와 톤에 따라 추천 드려요.</p>
+        <div class="card-foot">
+          <div class="card-chips">
+            <span class="chip" lang="ko">시술</span>
+            <span class="chip" lang="ko">컬러</span>
+          </div>
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/></svg>
+            AI 67회 사용
+          </span>
+        </div>
+      </article>
+
+      <article class="card" tabindex="0">
+        <div class="card-q">
+          <div class="q"><span class="ko" lang="ko">시술 시간은 얼마나 걸리나요?</span></div>
+          <div class="card-tools">
+            <button class="icon-btn" aria-label="질문 편집"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="icon-btn danger" aria-label="질문 삭제"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+          </div>
+        </div>
+        <p class="card-a" lang="ko">컷 1시간, 컬러 2~3시간, 펌 2~3시간 정도입니다. 사진을 보내주시면 더 정확하게 안내해드려요.</p>
+        <div class="card-foot">
+          <div class="card-chips">
+            <span class="chip" lang="ko">시술</span>
+            <span class="chip" lang="ko">시간</span>
+          </div>
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/></svg>
+            AI 54회 사용
+          </span>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <!-- Inspector -->
+  <aside class="inspector" aria-label="질문 편집">
+    <div class="insp-head">
+      <h2><span class="ko" lang="ko">질문 편집</span></h2>
+      <button class="icon-btn" aria-label="닫기">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="6"/></svg>
+      </button>
+    </div>
+    <div class="insp-body">
+
+      <div class="field">
+        <label class="field-label" for="f-q" lang="ko">질문</label>
+        <textarea id="f-q" class="field-textarea" lang="ko" placeholder="외국인 손님이 어떻게 물어볼지 적어주세요">단발 컷 가능한가요?</textarea>
+        <div class="counter"><span id="qCount">11</span> / 200</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-a" lang="ko">답변</label>
+        <textarea id="f-a" class="field-textarea tall" lang="ko" placeholder="매장의 정확한 답변을 한국어로 적으세요. AI가 5개 언어로 번역해 응답합니다.">네, 단발(short cut) 시술 가능합니다. 평균 1시간 소요되며 ₩45,000부터 시작합니다. 디자이너 김민지 / 박서연 모두 단발 전문이에요.</textarea>
+        <div class="counter"><span id="aCount">82</span> / 800</div>
+      </div>
+
+      <div class="field">
+        <span class="field-label" lang="ko">카테고리</span>
+        <div class="pill-select" role="radiogroup" aria-label="카테고리">
+          <button class="pill" type="button" role="radio" aria-checked="false" lang="ko">영업시간</button>
+          <button class="pill" type="button" role="radio" aria-checked="false" lang="ko">가격</button>
+          <button class="pill" type="button" role="radio" aria-checked="true" aria-pressed="true" lang="ko">시술</button>
+          <button class="pill" type="button" role="radio" aria-checked="false" lang="ko">예약</button>
+          <button class="pill" type="button" role="radio" aria-checked="false" lang="ko">교통</button>
+          <button class="pill" type="button" role="radio" aria-checked="false" lang="ko">결제</button>
+          <button class="pill" type="button" role="radio" aria-checked="false" lang="ko">기타</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="field-label" lang="ko">태그 (선택)</span>
+        <div class="tag-input">
+          <span class="chip" lang="ko">헤어 <button aria-label="헤어 태그 제거">✕</button></span>
+          <span class="chip" lang="ko">컷 <button aria-label="컷 태그 제거">✕</button></span>
+          <input type="text" placeholder="태그 입력 후 Enter" lang="ko" aria-label="새 태그 입력"/>
+        </div>
+        <p class="tag-suggest" lang="ko">추천:
+          <button type="button">단발</button>
+          <button type="button">초보자</button>
+          <button type="button">외국인</button>
+        </p>
+      </div>
+
+      <button class="ai-preview-trigger" type="button" aria-expanded="true" aria-controls="ai-preview-panel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+        <span lang="ko">AI 응답 미리보기</span>
+        <span class="ai-tag">PREVIEW</span>
+      </button>
+
+      <div class="ai-preview" id="ai-preview-panel" role="region" aria-label="다국어 AI 응답 미리보기">
+        <div class="ai-tabs" role="tablist" aria-label="언어">
+          <button class="ai-tab" role="tab" aria-selected="true" id="t-en">EN</button>
+          <button class="ai-tab" role="tab" aria-selected="false" id="t-ja">JA</button>
+          <button class="ai-tab" role="tab" aria-selected="false" id="t-cn">ZH-CN</button>
+          <button class="ai-tab" role="tab" aria-selected="false" id="t-tw">ZH-TW</button>
+          <button class="ai-tab" role="tab" aria-selected="false" id="t-vi">VI</button>
+        </div>
+        <div class="ai-pane" role="tabpanel" aria-labelledby="t-en">
+          Yes, we offer short-cut styling. It takes about an hour and starts from ₩45,000. Both designers Minji and Seoyeon specialize in short cuts.
+        </div>
+      </div>
+
+    </div>
+    <div class="insp-foot">
+      <button class="btn danger-ghost" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        <span lang="ko">삭제</span>
+      </button>
+      <div class="insp-foot-right">
+        <button class="btn ghost" type="button" lang="ko">취소</button>
+        <button class="btn primary" type="button" lang="ko">저장</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+(function() {
+  // Counter
+  const q = document.getElementById('f-q');
+  const a = document.getElementById('f-a');
+  const qC = document.getElementById('qCount');
+  const aC = document.getElementById('aCount');
+  if (q && qC) q.addEventListener('input', () => qC.textContent = q.value.length);
+  if (a && aC) a.addEventListener('input', () => aC.textContent = a.value.length);
+
+  // Category pills (radio)
+  document.querySelectorAll('.pill-select .pill').forEach(p => {
+    p.addEventListener('click', () => {
+      p.closest('.pill-select').querySelectorAll('.pill').forEach(x => {
+        x.setAttribute('aria-checked', 'false');
+        x.removeAttribute('aria-pressed');
+      });
+      p.setAttribute('aria-checked', 'true');
+      p.setAttribute('aria-pressed', 'true');
+    });
+  });
+
+  // AI tabs
+  const previews = {
+    't-en': 'Yes, we offer short-cut styling. It takes about an hour and starts from ₩45,000. Both designers Minji and Seoyeon specialize in short cuts.',
+    't-ja': 'はい、ショートカット可能です。所要時間は約1時間、料金は₩45,000〜。デザイナーのミンジさんとソヨンさんがショート専門です。',
+    't-cn': '可以的，我们提供短发剪发服务。耗时约1小时,价格从 ₩45,000 起。设计师民智和瑞妍都擅长短发。',
+    't-tw': '可以的，我們提供短髮剪髮服務。約需1小時，價格從 ₩45,000 起。設計師閔智和瑞妍都擅長短髮造型。',
+    't-vi': 'Vâng, chúng tôi cung cấp dịch vụ cắt tóc ngắn. Mất khoảng 1 tiếng, giá từ ₩45,000. Cả hai nhà tạo mẫu Minji và Seoyeon đều chuyên về tóc ngắn.'
+  };
+  const pane = document.querySelector('.ai-pane');
+  document.querySelectorAll('.ai-tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.ai-tab').forEach(x => x.setAttribute('aria-selected', 'false'));
+      t.setAttribute('aria-selected', 'true');
+      pane.setAttribute('aria-labelledby', t.id);
+      pane.textContent = previews[t.id];
+    });
+  });
+
+  // Card click → toggle selected
+  document.querySelectorAll('.card').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('.card').forEach(x => x.classList.remove('selected'));
+      c.classList.add('selected');
+    });
+  });
+})();
+</script>
+</body>
+</html>

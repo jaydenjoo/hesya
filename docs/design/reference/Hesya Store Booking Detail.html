@@ -1,0 +1,867 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>예약 상세 · HSY-20251128-042 · Hesya Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Source+Sans+3:wght@400..700&family=JetBrains+Mono:wght@500..700&family=Noto+Sans+JP:wght@400..700&display=swap"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"/>
+<link rel="stylesheet" href="tokens.css"/>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: #FDF8F1; color: #1A2238;
+  font-family: 'Source Sans 3', 'Pretendard Variable', sans-serif;
+  font-size: 15px; -webkit-font-smoothing: antialiased; letter-spacing: -0.005em;
+}
+[lang="ko"], .kr {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7; text-transform: none;
+}
+[lang="ja"] {
+  font-family: 'Noto Sans JP', 'Pretendard Variable', sans-serif;
+  letter-spacing: 0;
+}
+.mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "tnum"; letter-spacing: 0; }
+button { font: inherit; cursor: pointer; border: 0; background: transparent; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid #E8A97A; outline-offset: 4px; border-radius: 4px; }
+
+/* ─── Top header ─── */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  background: #FFFFFF; border-bottom: 1px solid #F5DDC8;
+  padding: 16px 32px;
+}
+.topbar-row { display: flex; align-items: center; gap: 16px; }
+.topbar-row.crumb-row { margin-bottom: 10px; }
+.crumb { display: flex; align-items: center; gap: 6px; }
+.crumb a, .crumb span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: #6C757D; letter-spacing: 0;
+}
+.crumb a:hover { color: #1A2238; }
+.crumb svg { width: 12px; height: 12px; color: #ADB5BD; }
+.crumb .id { color: #1A2238; font-weight: 700; }
+.kebab-wrap { margin-left: auto; }
+.kebab {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #2B3450;
+}
+.kebab:hover { background: #FAEFE2; color: #1A2238; }
+.kebab svg { width: 16px; height: 16px; }
+
+.topbar h1 {
+  margin: 0;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 24px; color: #1A2238; letter-spacing: -0.02em;
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px;
+}
+.topbar h1 .name {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 20px; letter-spacing: 0;
+}
+.topbar h1 .sep { color: #ADB5BD; font-style: normal; }
+.topbar h1 .ja {
+  font-family: 'Noto Sans JP', sans-serif; font-style: normal;
+  font-size: 16px; color: #6C757D; font-weight: 400;
+  margin-left: 4px;
+}
+
+.status-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 30px; padding: 0 12px;
+  border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 13px; letter-spacing: 0;
+  word-break: keep-all;
+  margin-left: auto;
+}
+.status-pill svg { width: 12px; height: 12px; }
+.status-pill.confirmed { background: #D1FAE5; color: #065F46; }
+.status-pill.pending { background: #FEF3C7; color: #92400E; }
+.status-pill.progress { background: #F5DDC8; color: #1A2238; }
+.status-pill.completed { background: #E5E7EB; color: #1A2238; }
+.status-pill.cancelled { background: #F3F4F6; color: #6C757D; }
+.status-pill.noshow { background: #F5DDD7; color: #B91C1C; }
+
+/* ─── Shell ─── */
+.shell {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 32px 80px;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 980px) {
+  .shell { grid-template-columns: 1fr; padding: 16px 16px 120px; }
+  .topbar { padding: 14px 16px; }
+}
+
+/* ─── Card style ─── */
+.card {
+  background: #FFFFFF;
+  border: 1px solid #F5DDC8;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.card-h {
+  margin: 0 0 16px;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 18px; color: #1A2238; letter-spacing: -0.015em;
+  display: flex; align-items: baseline; gap: 8px;
+}
+.card-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 16px; letter-spacing: 0;
+}
+.card-h .meta {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #6C757D; letter-spacing: 0;
+  font-weight: 500;
+}
+
+/* ─── §2 Customer ─── */
+.customer-grid {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .customer-grid { grid-template-columns: 64px 1fr; }
+  .customer-grid .right { grid-column: 1 / -1; padding-top: 4px; border-top: 1px solid #FAEFE2; margin-top: 4px; padding-top: 12px; }
+}
+.avatar {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: #F5DDC8; color: #1A2238;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif; font-style: italic;
+  font-weight: 500; font-size: 24px; letter-spacing: -0.02em;
+}
+.cust-name {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 700; font-size: 17px; color: #1A2238; letter-spacing: 0;
+}
+.cust-name .ja {
+  font-family: 'Noto Sans JP', sans-serif; font-weight: 400;
+  font-size: 14px; color: #6C757D; margin-left: 6px;
+}
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 26px; padding: 0 10px;
+  background: #FAEFE2;
+  color: #2B3450;
+  border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; letter-spacing: 0; word-break: keep-all;
+}
+.chip.flag { background: #FFFFFF; border: 1px solid #F5DDC8; }
+.chip.vip {
+  background: #E8A97A; color: #1A2238; font-weight: 600;
+  font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em;
+  font-size: 11px;
+}
+.chip.allergy {
+  background: #FAEFEC; color: #B91C1C;
+  border: 1px solid #F5DDD7;
+}
+.chip.allergy::before { content: "⚠"; font-size: 11px; }
+
+.right {
+  text-align: right;
+}
+.contact-line {
+  display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: #2B3450; letter-spacing: 0;
+  margin-bottom: 4px;
+}
+.contact-line svg { width: 12px; height: 12px; color: #6C757D; }
+@media (max-width: 720px) { .right, .contact-line { text-align: left; justify-content: flex-start; } }
+.history-link {
+  margin-top: 6px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; color: #D4956A;
+  text-decoration: underline; text-underline-offset: 2px;
+  letter-spacing: 0; cursor: pointer;
+}
+.history-link:hover { color: #B97A52; }
+.privacy {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid #FAEFE2;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 11px; color: #6C757D;
+  letter-spacing: 0; line-height: 1.5;
+}
+.privacy svg { width: 11px; height: 11px; display: inline-block; vertical-align: -1px; margin-right: 4px; }
+
+/* ─── Info rows (service info) ─── */
+.info-row {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid #FAEFE2;
+  align-items: baseline;
+}
+.info-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.info-row .k {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #6C757D; letter-spacing: 0; font-weight: 500;
+}
+.info-row .v {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #1A2238; letter-spacing: 0;
+  word-break: keep-all; line-height: 1.6;
+}
+.info-row .v .mono { color: #1A2238; }
+.info-row .v .sub { color: #6C757D; font-size: 13px; }
+.map-link {
+  color: #D4956A; text-decoration: underline; text-underline-offset: 2px;
+}
+.map-link:hover { color: #B97A52; }
+.memo {
+  margin-top: 8px;
+  background: #FAEFE2;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #1A2238;
+  line-height: 1.7; word-break: keep-all; letter-spacing: 0;
+}
+
+/* ─── Payment ─── */
+.pay-amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 32px; font-weight: 700; color: #1A2238;
+  letter-spacing: -0.01em;
+}
+.pay-method {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #2B3450; letter-spacing: 0;
+  margin-bottom: 16px;
+}
+.pay-method .badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 24px; padding: 0 8px;
+  background: #1A2238; color: #FDF8F1;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+}
+.pay-breakdown {
+  margin-top: 12px;
+  border-top: 1px solid #FAEFE2;
+  padding-top: 12px;
+}
+.pay-breakdown-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #2B3450; letter-spacing: 0;
+}
+.pay-breakdown-row .num { font-family: 'JetBrains Mono', monospace; color: #1A2238; }
+.pay-breakdown-row .num.zero { color: #ADB5BD; }
+.pay-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 16px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #065F46; letter-spacing: 0;
+}
+.pay-status::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%; background: #10B981;
+}
+.pay-action {
+  margin-top: 16px;
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 36px; padding: 0 14px;
+  border: 1px solid #2B3450; border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #1A2238; letter-spacing: 0;
+}
+.pay-action:hover { background: #FAEFE2; }
+.pay-action svg { width: 14px; height: 14px; }
+
+/* ─── §5 Chat ─── */
+.chat-card {
+  background: #FDF8F1;
+  border: 1px solid #F5DDC8;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.chat-card .card-h { color: #1A2238; }
+.chat-card .sub {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; color: #6C757D;
+  word-break: keep-all; letter-spacing: 0;
+  margin-top: -8px; margin-bottom: 16px;
+}
+.chat {
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid #FAEFE2;
+  max-height: 480px;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+.msg { display: flex; flex-direction: column; gap: 4px; max-width: 72%; }
+.msg.cust { align-self: flex-start; }
+.msg.store { align-self: flex-end; align-items: flex-end; }
+.bubble {
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.55;
+  letter-spacing: 0;
+  position: relative;
+}
+.msg.cust .bubble {
+  background: #FFFFFF; border: 1px solid #F5DDC8;
+  border-bottom-left-radius: 4px;
+  color: #1A2238;
+}
+.msg.store .bubble {
+  background: #F5DDC8; color: #1A2238;
+  border-bottom-right-radius: 4px;
+}
+.bubble .orig {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px; line-height: 1.6;
+}
+.bubble .tr {
+  display: block;
+  margin-top: 6px; padding-top: 6px;
+  border-top: 1px dashed rgba(26,34,56,0.18);
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; color: #6C757D;
+  word-break: keep-all; line-height: 1.6;
+}
+.msg.store .bubble .tr { border-color: rgba(26,34,56,0.22); color: #2B3450; }
+.tag-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 18px; padding: 0 6px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+}
+.tag-badge.ai { background: #1A2238; color: #FDF8F1; }
+.tag-badge.owner { background: #E8A97A; color: #1A2238; }
+.msg-meta {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #6C757D; letter-spacing: 0;
+}
+.msg.cust .msg-meta { justify-content: flex-start; }
+.msg.store .msg-meta { justify-content: flex-end; flex-direction: row-reverse; }
+.chat-input {
+  margin-top: 14px;
+  background: #FFFFFF;
+  border: 1px solid #F5DDC8;
+  border-radius: 12px;
+  padding: 8px 8px 8px 14px;
+  display: flex; align-items: flex-end; gap: 8px;
+  transition: border-color 120ms;
+}
+.chat-input:focus-within { border-color: #E8A97A; }
+.chat-input textarea {
+  flex: 1; min-height: 44px; max-height: 120px;
+  border: 0; outline: 0; background: transparent;
+  resize: none;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #1A2238;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.6;
+  padding: 10px 0;
+}
+.chat-input textarea::placeholder { color: #6C757D; }
+.chat-tools { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.tr-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 32px; padding: 0 10px;
+  border-radius: 8px;
+  background: #FAEFE2;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #2B3450; letter-spacing: 0.04em;
+  font-weight: 600;
+}
+.tr-toggle::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%; background: #10B981;
+}
+.send-btn {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: #E8A97A; color: #1A2238;
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+  transition: background 120ms, transform 120ms;
+}
+.send-btn:hover { background: #D4956A; transform: translateY(-1px); }
+.send-btn svg { width: 16px; height: 16px; }
+
+/* ─── §6 Action Panel ─── */
+.action-panel {
+  position: sticky;
+  top: 120px;
+  background: #FFFFFF;
+  border: 1px solid #F5DDC8;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+@media (max-width: 980px) { .action-panel { position: static; } }
+.ap-status { display: flex; align-items: center; gap: 10px; }
+.ap-status .pill {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 13px;
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 30px; padding: 0 12px; border-radius: 9999px;
+}
+.ap-status .pill.confirmed { background: #D1FAE5; color: #065F46; }
+.ap-status .pill svg { width: 12px; height: 12px; }
+.ap-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #6C757D; letter-spacing: 0;
+  margin-left: auto;
+}
+
+/* SLA timeline */
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.tl-item {
+  display: grid; grid-template-columns: 18px 1fr auto;
+  align-items: center;
+  padding: 10px 0;
+  gap: 12px;
+}
+.tl-item:not(:last-child) { border-bottom: 1px dashed #F5DDC8; }
+.tl-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #F5DDC8;
+  position: relative; justify-self: center;
+}
+.tl-dot.done { background: #10B981; }
+.tl-dot.now { background: #E8A97A; box-shadow: 0 0 0 4px rgba(232,169,122,0.2); }
+.tl-label {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #1A2238; letter-spacing: 0;
+}
+.tl-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #6C757D; letter-spacing: 0;
+}
+.tl-item.now .tl-label { font-weight: 700; }
+.tl-item.now .tl-time { color: #D4956A; font-weight: 700; }
+
+/* Action buttons */
+.actions { display: flex; flex-direction: column; gap: 8px; }
+.btn-row {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px;
+  min-height: 44px; padding: 0 16px;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 14px; letter-spacing: 0;
+  word-break: keep-all;
+  transition: background 120ms, transform 120ms, box-shadow 120ms;
+}
+.btn-row.primary {
+  background: #E8A97A; color: #1A2238;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+}
+.btn-row.primary:hover {
+  background: #D4956A; transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.08);
+}
+.btn-row.ghost { background: transparent; color: #1A2238; border: 1px solid #2B3450; }
+.btn-row.ghost:hover { background: #FAEFE2; }
+.btn-row.danger-ghost {
+  background: transparent; color: #B91C1C;
+  border: 1px solid #F5DDD7;
+}
+.btn-row.danger-ghost:hover { background: #FAEFEC; }
+.btn-row svg { width: 14px; height: 14px; }
+
+.more-toggle {
+  margin-top: 4px;
+  width: 100%;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; min-height: 36px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #6C757D; letter-spacing: 0;
+  border-radius: 8px;
+  transition: background 120ms, color 120ms;
+}
+.more-toggle:hover { background: #FAEFE2; color: #1A2238; }
+.more-toggle svg { width: 12px; height: 12px; transition: transform 220ms cubic-bezier(0.4,0,0.2,1); }
+.more-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.more-actions { display: none; flex-direction: column; gap: 6px; padding-top: 6px; }
+.more-toggle[aria-expanded="true"] + .more-actions { display: flex; }
+.more-actions .btn-row { min-height: 40px; font-size: 13px; }
+
+/* ─── §7 Internal Notes ─── */
+.notes-card {
+  background: #FAFBFC;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+}
+.notes-h {
+  margin: 0 0 12px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 700; font-size: 13px; color: #1A2238;
+  display: flex; align-items: center; gap: 6px;
+  letter-spacing: 0;
+}
+.notes-h svg { width: 13px; height: 13px; color: #6C757D; }
+.notes-h .lock-tag {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: #6C757D; letter-spacing: 0.04em;
+  font-weight: 500;
+}
+.notes-card textarea {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 10px 12px;
+  min-height: 60px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #1A2238;
+  letter-spacing: 0; word-break: keep-all; line-height: 1.6;
+  resize: vertical;
+  outline: 0;
+  transition: border-color 120ms;
+}
+.notes-card textarea:focus { border-color: #E8A97A; }
+.notes-card textarea::placeholder { color: #6C757D; }
+.note-item {
+  padding: 8px 0;
+  border-top: 1px dashed #E5E7EB;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #2B3450;
+  letter-spacing: 0; word-break: keep-all; line-height: 1.6;
+}
+.note-item .meta {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: #6C757D; letter-spacing: 0;
+  margin-bottom: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<header class="topbar" role="banner">
+  <div class="topbar-row crumb-row">
+    <nav class="crumb" aria-label="이동 경로">
+      <a href="#">예약</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      <a href="#">2025-11</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      <span class="id">#HSY-20251128-042</span>
+    </nav>
+    <div class="kebab-wrap">
+      <button class="kebab" type="button" aria-label="추가 작업 메뉴">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="topbar-row">
+    <h1>
+      <span class="name">Sakura Tanaka</span>
+      <span class="ja" lang="ja">田中 さくら</span>
+      <span class="sep">·</span>
+      <span lang="ko" style="font-style:normal;font-family:'Pretendard Variable',sans-serif;font-weight:700;font-size:20px;letter-spacing:0;">투명 윤곽 컷 + 퍼스널 컬러</span>
+    </h1>
+    <span class="status-pill confirmed" aria-label="상태: 예약 확정">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      <span lang="ko">예약 확정</span>
+    </span>
+  </div>
+</header>
+
+<div class="shell">
+
+  <!-- LEFT MAIN -->
+  <main>
+
+    <!-- §2 Customer -->
+    <section class="card" aria-labelledby="cust-h">
+      <h2 class="card-h" id="cust-h"><span class="ko" lang="ko">손님 정보</span></h2>
+      <div class="customer-grid">
+        <div class="avatar" aria-hidden="true">ST</div>
+        <div>
+          <div class="cust-name">Sakura Tanaka<span class="ja" lang="ja">(田中 さくら)</span></div>
+          <div class="chip-row">
+            <span class="chip flag"><span aria-hidden="true">🇯🇵</span> Japanese · English OK</span>
+            <span class="chip vip">VIP · 3RD VISIT</span>
+            <span class="chip allergy" lang="ko">PPD 민감</span>
+          </div>
+        </div>
+        <div class="right">
+          <div class="contact-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Phone — masked"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            +82 10-****-1234
+          </div>
+          <div class="contact-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Email — masked"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            sakura***@gmail.com
+          </div>
+          <a class="history-link" href="#" lang="ko">예약 이력 3회 →</a>
+        </div>
+      </div>
+      <p class="privacy" lang="ko">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        손님 정보는 매장 운영 목적 외 사용 불가. 전화/이메일은 Hesya를 통해 연락하세요.
+      </p>
+    </section>
+
+    <!-- §3 Service -->
+    <section class="card" aria-labelledby="svc-h">
+      <h2 class="card-h" id="svc-h">
+        <span class="ko" lang="ko">시술 정보</span>
+        <span class="meta">2h 30min</span>
+      </h2>
+      <div class="info-row">
+        <span class="k" lang="ko">일시</span>
+        <span class="v">
+          <span class="mono">2025-12-05 (Tue) · 15:00 – 17:30</span>
+          <span class="sub" lang="ko">· 5일 후</span>
+        </span>
+      </div>
+      <div class="info-row">
+        <span class="k" lang="ko">시술</span>
+        <span class="v">
+          <span lang="ko">투명 윤곽 컷 (Soft Layered Cut)</span>
+          <span class="sub">· Personal Color Bronze</span>
+        </span>
+      </div>
+      <div class="info-row">
+        <span class="k" lang="ko">담당 스타일리스트</span>
+        <span class="v" lang="ko">박지원 <span class="sub">· Park Jiwon</span></span>
+      </div>
+      <div class="info-row">
+        <span class="k" lang="ko">매장 위치</span>
+        <span class="v" lang="ko">홍대점 (Hongdae) <a class="map-link" href="#">지도 보기 →</a></span>
+      </div>
+      <div class="info-row">
+        <span class="k" lang="ko">손님 메모</span>
+        <span class="v">
+          <div class="memo" lang="ko">"한국 가발 처음. 머리 길이는 가슴 아래까지 유지하고 싶고, K-드라마 여주인공 느낌으로 부탁드려요. 알레르기 때문에 PPD 없는 컬러로 부탁드립니다."</div>
+        </span>
+      </div>
+    </section>
+
+    <!-- §4 Payment -->
+    <section class="card" aria-labelledby="pay-h">
+      <h2 class="card-h" id="pay-h">
+        <span class="ko" lang="ko">결제</span>
+        <span class="meta">2025-11-28 14:32:11</span>
+      </h2>
+      <div class="pay-method">
+        <span class="badge">STRIPE</span>
+        <span class="mono">Visa **** 1234</span>
+      </div>
+      <div class="pay-amount mono">₩87,000</div>
+      <div class="pay-breakdown">
+        <div class="pay-breakdown-row">
+          <span lang="ko">시술비 (컷 + 컬러)</span>
+          <span class="num">₩72,000</span>
+        </div>
+        <div class="pay-breakdown-row">
+          <span lang="ko">부가서비스 (퍼스널 컬러 진단)</span>
+          <span class="num">₩15,000</span>
+        </div>
+        <div class="pay-breakdown-row">
+          <span lang="ko">할인</span>
+          <span class="num zero">−₩0</span>
+        </div>
+      </div>
+      <p class="pay-status" lang="ko">결제 완료</p>
+      <button class="pay-action" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span lang="ko">영수증 다운로드</span>
+      </button>
+    </section>
+
+    <!-- §5 Chat -->
+    <section class="chat-card" aria-labelledby="chat-h">
+      <h2 class="card-h" id="chat-h">
+        <span class="ko" lang="ko">대화</span>
+      </h2>
+      <p class="sub" lang="ko">AI + 사장님 함께 응답 · 손님 언어로 자동 번역</p>
+
+      <div class="chat" role="log" aria-live="polite" aria-label="예약 채팅 내역">
+
+        <article class="msg cust">
+          <div class="bubble">
+            <p class="orig" lang="ja">こんにちは!12月5日の15時、空いていますか?Kドラマっぽいヘアにしたいです。</p>
+            <span class="tr" lang="ko">번역: 안녕하세요! 12월 5일 15시 비어있나요? K-드라마 느낌 헤어 원해요.</span>
+          </div>
+          <div class="msg-meta"><span>11-28 14:28</span></div>
+        </article>
+
+        <article class="msg store">
+          <div class="bubble">
+            <p lang="ja">こんにちは!はい、12月5日(火)15:00空いています。担当はパクジウォン、所要時間2時間30分です。よろしければ予約に進みますか?</p>
+            <span class="tr" lang="ko">원문: 네, 12월 5일 화요일 15시 가능합니다. 담당 박지원, 2시간 30분 소요. 예약 진행할까요?</span>
+          </div>
+          <div class="msg-meta"><span class="tag-badge ai">🤖 AI</span><span>11-28 14:30</span></div>
+        </article>
+
+        <article class="msg cust">
+          <div class="bubble">
+            <p class="orig" lang="ja">予約します。PPDアレルギーがあります。大丈夫ですか?</p>
+            <span class="tr" lang="ko">번역: 예약합니다. PPD 알레르기 있는데 괜찮나요?</span>
+          </div>
+          <div class="msg-meta"><span>11-28 14:31</span></div>
+        </article>
+
+        <article class="msg store">
+          <div class="bubble">
+            <p lang="ja">アレルギーのご連絡ありがとうございます。PPDフリーのカラー剤(ハーブカラー)を使用いたします。事前にパッチテストをご希望ですか?</p>
+            <span class="tr" lang="ko">원문: 알레르기 알려주셔서 감사합니다. PPD-free 컬러(허브 컬러)로 사용 예정. 사전 패치 테스트 원하시나요?</span>
+          </div>
+          <div class="msg-meta"><span class="tag-badge owner" lang="ko">💇 사장님</span><span>11-28 14:35</span></div>
+        </article>
+
+        <article class="msg cust">
+          <div class="bubble">
+            <p class="orig" lang="ja">はい、お願いします!当日10分早めに伺えば大丈夫ですか?</p>
+            <span class="tr" lang="ko">번역: 네, 부탁드려요! 당일 10분 일찍 가면 될까요?</span>
+          </div>
+          <div class="msg-meta"><span>11-28 14:38</span></div>
+        </article>
+
+      </div>
+
+      <div class="chat-input">
+        <textarea placeholder="메시지 입력…" lang="ko" aria-label="메시지 작성"></textarea>
+        <div class="chat-tools">
+          <span class="tr-toggle" aria-label="자동 번역 활성: 일본어로 전송">JA AUTO</span>
+          <button class="send-btn" type="button" aria-label="메시지 전송">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- §7 Internal Notes -->
+    <section class="notes-card" aria-labelledby="notes-h">
+      <h3 class="notes-h" id="notes-h">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span lang="ko">내부 메모</span>
+        <span class="lock-tag" lang="ko">손님 비공개</span>
+      </h3>
+      <textarea placeholder="매장 직원만 보이는 메모 작성…" lang="ko" aria-label="내부 메모 작성"></textarea>
+      <div class="note-item" lang="ko">
+        <span class="meta">박지원 · 2025-11-28 16:02</span>
+        PPD-free 컬러 재고 확인됨 (베이지, 브론즈, 애쉬 3종 가능). 패치 테스트 10분 일찍 진행 예정.
+      </div>
+      <div class="note-item" lang="ko">
+        <span class="meta">김매니저 · 2025-11-28 14:45</span>
+        VIP 3회차 — 시술 후 K-뷰티 샘플 키트 증정 메모.
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RIGHT ACTION PANEL -->
+  <aside class="action-panel" aria-label="예약 작업">
+    <div class="ap-status">
+      <span class="pill confirmed">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span lang="ko">예약 확정</span>
+      </span>
+      <span class="ap-meta">5d 4h 12m</span>
+    </div>
+
+    <div class="timeline" role="list" aria-label="예약 진행 단계">
+      <div class="tl-item" role="listitem">
+        <span class="tl-dot done" aria-hidden="true"></span>
+        <span class="tl-label" lang="ko">접수</span>
+        <span class="tl-time">11-28 14:28</span>
+      </div>
+      <div class="tl-item" role="listitem">
+        <span class="tl-dot done" aria-hidden="true"></span>
+        <span class="tl-label" lang="ko">결제 완료</span>
+        <span class="tl-time">11-28 14:33</span>
+      </div>
+      <div class="tl-item now" role="listitem">
+        <span class="tl-dot now" aria-hidden="true"></span>
+        <span class="tl-label" lang="ko">현재</span>
+        <span class="tl-time">5일 후</span>
+      </div>
+      <div class="tl-item" role="listitem">
+        <span class="tl-dot" aria-hidden="true"></span>
+        <span class="tl-label" lang="ko">시술 예정</span>
+        <span class="tl-time">12-05 15:00</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-row primary" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg>
+        <span lang="ko">체크인 처리</span>
+      </button>
+      <button class="btn-row ghost" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <span lang="ko">리마인더 전송</span>
+      </button>
+      <button class="btn-row ghost" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span lang="ko">예약 변경 제안</span>
+      </button>
+      <button class="btn-row danger-ghost" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <span lang="ko">취소 처리</span>
+      </button>
+    </div>
+
+    <button class="more-toggle" type="button" aria-expanded="false" id="moreToggle">
+      <span lang="ko">더 보기</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="more-actions">
+      <button class="btn-row ghost" type="button"><span lang="ko">환불 처리</span></button>
+      <button class="btn-row ghost" type="button"><span lang="ko">노쇼 처리</span></button>
+      <button class="btn-row ghost" type="button"><span lang="ko">분쟁 신고</span></button>
+      <button class="btn-row ghost" type="button"><span lang="ko">VIP 등급 변경</span></button>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+(function() {
+  const mt = document.getElementById('moreToggle');
+  if (mt) mt.addEventListener('click', () => {
+    const exp = mt.getAttribute('aria-expanded') === 'true';
+    mt.setAttribute('aria-expanded', !exp);
+  });
+
+  // Chat scroll to bottom on load
+  const chat = document.querySelector('.chat');
+  if (chat) chat.scrollTop = chat.scrollHeight;
+})();
+</script>
+</body>
+</html>
