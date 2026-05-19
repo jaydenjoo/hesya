@@ -411,29 +411,31 @@ export async function getDisputeSlaResolution(
 }
 
 /**
- * 17 시도 코드 (KOSIS).
+ * 17 시도 코드 (KOSIS) + Korea heatmap SVG dot 위치.
  *
- * x/y는 100×100 viewBox 정규화 좌표 — Korea heatmap SVG에서 dot 위치.
- * dashboard-korea-map.tsx의 기존 hardcoded 좌표와 동일하게 유지.
+ * x/y는 viewBox 14-86 × 12-102 범위 (dashboard-korea-map.tsx와 정합). 한반도 + 제주의
+ * 실제 지리적 배치(서울 북서/부산 남동/제주 남섬)를 단순화한 dot map. 2026-05-19 갱신
+ * — 이전 좌표는 viewBox의 좁은 영역(x=30~66)에만 집중돼 tile 좌측 절반이 빔 + 서울/경기
+ * /인천 도트 overlap. 신 좌표는 18~70 x축, 22~88 y축 분포로 한국 모양 인지성 향상.
  */
 const KOREA_REGIONS = [
-  { code: "11", name: "서울", x: 38, y: 32 },
-  { code: "26", name: "부산", x: 64, y: 70 },
-  { code: "27", name: "대구", x: 56, y: 58 },
-  { code: "28", name: "인천", x: 30, y: 33 },
-  { code: "29", name: "광주", x: 40, y: 70 },
-  { code: "30", name: "대전", x: 44, y: 50 },
-  { code: "31", name: "울산", x: 66, y: 62 },
-  { code: "36", name: "세종", x: 42, y: 46 },
-  { code: "41", name: "경기", x: 42, y: 35 },
-  { code: "42", name: "강원", x: 56, y: 26 },
-  { code: "43", name: "충북", x: 48, y: 44 },
-  { code: "44", name: "충남", x: 36, y: 47 },
-  { code: "45", name: "전북", x: 38, y: 60 },
-  { code: "46", name: "전남", x: 36, y: 72 },
-  { code: "47", name: "경북", x: 58, y: 50 },
-  { code: "48", name: "경남", x: 54, y: 68 },
-  { code: "50", name: "제주", x: 32, y: 88 },
+  { code: "11", name: "서울", x: 38, y: 22 },
+  { code: "26", name: "부산", x: 66, y: 78 },
+  { code: "27", name: "대구", x: 58, y: 60 },
+  { code: "28", name: "인천", x: 22, y: 26 },
+  { code: "29", name: "광주", x: 34, y: 72 },
+  { code: "30", name: "대전", x: 38, y: 54 },
+  { code: "31", name: "울산", x: 70, y: 66 },
+  { code: "36", name: "세종", x: 38, y: 44 },
+  { code: "41", name: "경기", x: 46, y: 30 },
+  { code: "42", name: "강원", x: 68, y: 22 },
+  { code: "43", name: "충북", x: 50, y: 42 },
+  { code: "44", name: "충남", x: 24, y: 44 },
+  { code: "45", name: "전북", x: 26, y: 60 },
+  { code: "46", name: "전남", x: 24, y: 74 },
+  { code: "47", name: "경북", x: 62, y: 46 },
+  { code: "48", name: "경남", x: 50, y: 72 },
+  { code: "50", name: "제주", x: 28, y: 88 },
 ] as const;
 
 /**

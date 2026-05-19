@@ -37,13 +37,17 @@ export function DashboardKoreaMap({ data }: Props) {
       className="relative w-full"
       style={{ aspectRatio: "4 / 5", maxHeight: 340 }}
     >
+      {/* viewBox는 KOREA_REGIONS 좌표(x 18~70, y 22~88) + 라벨 여유에 맞춰 crop.
+          aspect 72:90 = 0.8 이 container aspect 4:5 (0.8)와 일치 → letterbox 0,
+          tile 전체를 한국 지도가 채움. 2026-05-19 이전: viewBox="0 0 100 100"
+          + 좌표가 우측 1/3에 집중 → tile 좌측 절반이 비어있었음. */}
       <svg
-        viewBox="0 0 100 100"
+        viewBox="14 12 72 90"
         preserveAspectRatio="xMidYMid meet"
         className="absolute inset-0 h-full w-full"
         aria-label="한국 시도별 매장 분포 heatmap"
       >
-        <rect width="100" height="100" fill="transparent" />
+        <rect x="14" y="12" width="72" height="90" fill="transparent" />
         {data.regions.map((r) => {
           const intensity = r.stores / maxStores;
           const radius = 2.5 + intensity * 5.5;
