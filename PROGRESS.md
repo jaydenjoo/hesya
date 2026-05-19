@@ -3,6 +3,79 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
+## 세션 49 종료 요약 (2026-05-19) — Phase Z-2 토큰 단위 정합 R7~R19 + hesya-danger 도입 + raw hex sweep (62 PR)
+
+세션 48 종료 직후 동일 트랙 진입. 24+ reference 페이지 audit/fix loop (R7~R19) + 누적 발견된 raw hex 패턴 일괄 정리 = `hesya-danger-*` 토큰 패밀리 도입 + sweep. 누적 **203 PR** (세션 48: 141 → +62).
+
+PR 범위: [#366 ~ #427](https://github.com/jaydenjoo/hesya/pulls?q=is%3Apr+is%3Aclosed+%23366..%23427).
+
+### 라운드별 산출 요약
+
+| 라운드  | PR 범위         | 영역                                                                                                     |
+| ------- | --------------- | -------------------------------------------------------------------------------------------------------- |
+| R7~R8   | #366, #368~#371 | Customer Landing 잔여 (Store/UGC/Trending) + Store Dashboard L-104 재검증 + Inbox L-104 P0/P1            |
+| R9      | #372~#373       | Customer Landing iPhone bezel + statusbar (mobile 480 frame, desktop bezel)                              |
+| R10~R11 | #374~#380       | Customer MyPage + Store Detail (review chips/sticky/safety badge/booking deposit) + Inbox composer       |
+| R12     | #381~#391       | Customer Pay/Pay-Success/Photo-Analyze/Sign-in/Booking-Schedule/Booking-Confirm reference 정합           |
+| R13     | #392~#402       | Store Settings/Photos/Dashboard hero + Admin Dashboard/AI-Cost + Analytics + Inbox Risk + Marketing Hero |
+| R14     | #403~#409       | Store Bookings/Services Customers + Customer MyPage padding + C-Landing store-row/country + HIW/Trending |
+| R15~R16 | #410~#414       | Customer Booking Confirm/MyPage Lucide icons/Store Detail today amber/Booking Schedule progress strip    |
+| R17     | #415~#418       | Customers detail sheet + Services AI 번역 카드 + Bookings 비-MOCK strip + Photo-Analyze dropzone         |
+| R18     | #419~#424       | Store Detail Reviews/Marketing FAQ-Footer/Settings pill toggle/Compare cell/Customer Pay/Booking Detail  |
+| R19     | #425~#426       | Inbox message-bubble (dangling CSS bug fix) + Admin Disputes/Verifications hesya-danger 토큰 도입        |
+| Sweep   | #427            | Repo-wide raw hex (fbeae5/faefec/e5c0ba/c9483a/b03d31) → `hesya-danger-{50,100,200,600,700}` 22 files    |
+
+### Phase Z 트랙 인프라 추가
+
+- **`@hesya/design-tokens`에 danger 팔레트 추가** — `--hesya-danger-{50,100,200,600,700}` 5단계. admin/owner warning surface 전용. `globals.css` `@theme inline` 노출로 Tailwind className 사용 가능 (`bg-hesya-danger-100`, `text-hesya-danger-600` 등).
+- **AI proposal shimmer 키프레임** — `@keyframes svThinkShimmer` + `.sv-think-line` (services editor AI 번역 thinking 상태).
+- **DAL 보강** — `PublicStore` 타입에 `phone: string | null` 추가, `getStorePublicById` + `listPublicStores` select에 `stores.phone` 포함 + `groupBy` 보강 (Build error fix 동봉).
+
+### 발견된 숨겨진 버그 3건 (audit 없었으면 못 봤을)
+
+1. **`message-bubble.tsx` dangling CSS classes** (#425) — `ix-bubble-audit`, `ix-audit-row` 등이 reference inbox.css에만 정의되어 있고 live app 글로벌엔 없어 audit 패널이 보이지 않던 회귀. PR에서 클래스 제거 + Tailwind 토큰으로 교체.
+2. **PublicStore `phone` 컬럼 누락** (R14 leftover, #416에 동봉) — `c/store/[id]/page.tsx:418`에서 `store.phone` 참조하나 select에서 누락 → Vercel build fail. DAL select + 타입 동시 보강.
+3. **`react-hooks/set-state-in-effect` ESLint 위반** (services editor) — `useEffect(() => setAiProposal(null), [activeLang])` 패턴. `switchLang(key)` 핸들러로 변환하여 탭 변경 시 동기 reset.
+
+### Sweep PR #427 — 22 files / 60+ raw hex 인스턴스 교체
+
+| Before (raw hex 패턴) | After (semantic token)      |
+| --------------------- | --------------------------- |
+| `bg-[#fbeae5]`        | `bg-hesya-danger-100`       |
+| `bg-[#faefec]`        | `bg-hesya-danger-50`        |
+| `border-[#e5c0ba]`    | `border-hesya-danger-200`   |
+| `text-[#c9483a]`      | `text-hesya-danger-600`     |
+| `bg-[#c9483a]`        | `bg-hesya-danger-600`       |
+| `hover:bg-[#b03d31]`  | `hover:bg-hesya-danger-700` |
+| `ring-[#e5c0ba]`      | `ring-hesya-danger-200`     |
+| `accent-[#c9483a]`    | `accent-hesya-danger-600`   |
+
+`thread-list.tsx`의 `dotColor="#c9483a"` → `dotColor="var(--hesya-danger-600)"`, `c-login.css` raw `color: #c9483a;` → `color: var(--hesya-danger-600);` 까지 정리. 테스트 selector도 동기화 (`disputes-list.test.tsx`, `pending-status.test.tsx`).
+
+**검증**: `grep -rE 'fbeae5|faefec|e5c0ba|c9483a|b03d31' apps/` → **0 인스턴스**. `pnpm --filter @hesya/web test` → **767 cases passing**.
+
+### 자기평가 (L-082 e2e 기준 + 객관 측정)
+
+- **코드 머지**: 62 PR (R7~R19 + sweep) 모두 main 머지 + Vercel prod 반영. 767 vitest cases passing.
+- **시각 정합 (토큰 단위)**: Customer/Store/Admin/Marketing 24+ 페이지 reference parity ~95% 추정 (L-104 protocol 적용 후 객관 측정 가능). 잔여 5%는 (1) reference 없는 페이지 (Option C), (2) audit P1/P2 잔여 (font-weight 500 격차 등 diminishing-returns 영역).
+- **사용자 e2e 시연**: Customer 흐름 (landing → store detail → book → pay) **시연 가능**. Store/Owner 흐름은 fixture 의존 — preview 환경 한정 시연 가능. Admin 흐름은 권한 + fixture 의존.
+- **숨겨진 회귀**: audit 없었으면 message-bubble dangling CSS 무한 잔존 가능. PR #425 fix 직전까지 보이지 않던 영역.
+
+### 발견된 diminishing-returns 패턴
+
+R15-R16: "missing components / wrong tokens" (high impact) 발견 빈도 ↑
+R18-R19: "font-weight 500 vs 600" / "shadow vs shadow-md" (low impact) 발견 빈도 ↑
+
+→ audit 라운드 8회+ 이후 발견은 cosmetic polish 위주. P0 차단 사항 없음 + Jayden 시각 OK 시 audit 트랙 종료 시점.
+
+### 다음 세션 후보
+
+1. **Phase ζ 베타 매장 매칭 트랙 시작** — Plan v2 scenario-B 마지막 단계. PRD 확장 + 매장 outreach 기준 정의. 디자인 정합은 더 이상 차단 요인 아님.
+2. **Reference 없는 페이지 시안 (Jayden 단독 작업)** — Trending 단독 / Knowledge 편집기 / Marketing Pricing / 첫 방문 walkthrough / Compare 단독 / Wishlist 단독 / Admin Disputes detail / Admin Store Reports detail / Booking Detail full page / Hours holiday list / Settings Address+Basic. claude.ai/design 프롬프트 가이드는 본 세션 마지막 응답에 포함.
+3. **Phase Z-3 P2/P3 12 페이지** — Store 운영 (Photos detail / Knowledge / Schedule template) + Customer 결제 (Refund / Cancel) + Admin 잔여. diminishing-returns 영역이라 일괄 진행이 효율적.
+
+---
+
 ## 세션 48 종료 요약 (2026-05-17) — Marketing Landing 정합 + UGC/BA 비디오 + design-tokens 패키지 + AI 검증 protocol (27 PR)
 
 세션 47 Phase A+B 문서 산출 직후 동일 트랙 진입. Plan v1 T1~T10 + Hesya Landing.html reference 정합 (3-wave) + Lighthouse + perf/a11y + 3 persona CTA + Nav/TrustBar/HIW i18n + Pretendard 통일 + UGC/BA 비디오 + **근본 원인 진단 + design-tokens 패키지 + AI 검증 protocol HTML + Customer Landing 3섹션 정합**. 누적 **141 PR** (세션 47: 114 → +27).

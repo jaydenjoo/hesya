@@ -3843,3 +3843,90 @@ B. **사람 protocol 차단** — `docs/ai-collaboration-protocol.html` 신규
 **확인**: 본 세션 48 PR [#363](https://github.com/jaydenjoo/hesya/pull/363) (Fraunces fix) + [#364](https://github.com/jaydenjoo/hesya/pull/364) (design-tokens 패키지) + [#365](https://github.com/jaydenjoo/hesya/pull/365) (Customer Landing 3섹션 14개 토큰 차이 fix). Lighthouse Mobile Perf 81 → **88**, A11y 97 → **100**.
 
 **연관**: L-082 (e2e 시연 기준 자기평가 — "코드 머지 완료" ≠ "기능/디자인 정합 완료"). 본 L-104는 디자인 정합 영역에서 같은 정직성 결함 사례. 다음 페이지 작업 (Phase Z-1 P0 Customer Landing 잔여 + Store Dashboard + Phase Z-2/Z-3 24 페이지)부터 design-tokens single source + AI 검증 protocol 의무 적용.
+
+### [2026-05-19] L-105 — Raw hex 누적 패턴 발견 시 즉시 토큰 패밀리 신설 + sweep, 매번 신규 token 정의 미루지 말 것
+
+**증상**: 세션 49 Phase Z-2 R7~R19 audit 진행 중 `#c9483a`(danger 메인)·`#fbeae5`(danger 소프트 배경)·`#faefec`(아주 옅은 danger)·`#e5c0ba`(danger 보더)·`#b03d31`(danger hover) 5개 raw hex가 admin/owner warning surface 22 파일에 누적 60+ 인스턴스 분산. 매 audit PR마다 "여기만 토큰화" 식으로 일부씩 교체 → 매 라운드마다 동일 hex가 다른 파일에서 재등장. R17까지 8 PR이 같은 색을 반복 교체.
+
+**원인**:
+
+1. **"이번 PR 범위 밖이라 토큰화 보류"** — 라운드별 단일 페이지 audit + fix만 진행. 누적 패턴 인지 후에도 "다음 라운드에 정리"로 미룸 → 매 라운드 동일 hex 신규 발견.
+2. **`@hesya/design-tokens`의 danger 팔레트 부재** — peach/amber/navy는 정의되어 있으나 danger는 reference admin-kyc.css (L319-334 + L229-235 KYC fail surface) 외 정의 안 됨. 라운드별 audit이 fail/warning surface 영역에 도달할 때만 raw hex 등장.
+3. **누적 패턴 검출 trigger 부재** — `grep -rE '#[0-9a-f]{6}' apps/` 같은 raw hex 정기 검사 없음. 라운드별 PR diff에서만 시각적으로 인지 → 5개 hex가 다른 라운드에 분산 머지되어 "한 PR 안에 다수" 임계가 발동 안 함.
+
+**해결**:
+
+- PR [#426](https://github.com/jaydenjoo/hesya/pull/426) — `packages/design-tokens/src/tokens.css`에 `--hesya-danger-{50,100,200,600,700}` 5단계 정의 + `globals.css` `@theme inline`에 `--color-hesya-danger-*` 노출.
+- PR [#427](https://github.com/jaydenjoo/hesya/pull/427) — Repo-wide sweep. 22 files / 60+ 인스턴스 일괄 교체. `thread-list.tsx`의 prop value (`dotColor="#c9483a"` → `var(--hesya-danger-600)`) + `c-login.css` raw CSS (`color: #c9483a;` → `color: var(--hesya-danger-600);`)까지 포함. 테스트 selector 동기화.
+- 검증: `grep -rE 'fbeae5|faefec|e5c0ba|c9483a|b03d31' apps/` → **0 인스턴스**. 767 vitest cases passing.
+
+**규칙** ⭐:
+
+- **raw hex 3+ 인스턴스 누적 시 즉시 토큰 패밀리 신설 + sweep**: 라운드 미루지 말 것. "다음 PR" 미루는 순간 동일 hex가 다른 파일에서 신규 등장.
+- **신규 surface(warning/info/success 등)에 raw hex 등장 = `@hesya/design-tokens` 누락 시그널**: 라운드 시작 전 `grep '#[0-9a-f]{6}' <작업 파일>` 1회 + 매칭되면 design-tokens 검토.
+- **sweep PR 분리**: token 정의 PR + sweep PR을 분리 (PR #426 정의 → #427 sweep). 정의 PR이 main 머지된 후 sweep 시작 (의존 순서 유지).
+- **테스트 selector 동기화 의무**: `disputes-list.test.tsx` 등 className selector를 토큰명 (`bg-hesya-danger-100`)으로 동기화. 안 하면 PR이 CI에서 fail.
+
+**확인**: 본 세션 49 R7~R19 매 라운드 raw hex 등장 패턴 → R19에서 hesya-danger 도입 + sweep 후 잔여 0. 다음 세션부터 새 surface (info / success 등) 도입 시 동일 protocol 자동 적용.
+
+**연관**: L-104 (design-tokens single source 영구 차단 — danger 팔레트 추가도 같은 정신). L-082 (audit % 객관화 — 라운드 미루는 사이 누적 분량 증가).
+
+### [2026-05-19] L-106 — Reference HTML/CSS에만 정의된 클래스를 Tailwind className에 그대로 적어두면 live app에서 silent 무효화
+
+**증상**: Inbox `message-bubble.tsx`에 `<div className="ix-bubble-audit ix-audit-row ...">` 패턴이 audit 패널 영역에 적용됨. live app에선 audit 패널이 **시각적으로 보이지 않음** (Jayden이 chat 흐름 시연 중 발견). 코드 추적:
+
+- `docs/design/reference/inbox.css`에 `.ix-bubble-audit { background: ...; padding: ...; border-radius: ...; }` 정의 존재
+- live app `apps/web/src/app/globals.css` 또는 컴포넌트 CSS 어디에도 `.ix-bubble-audit` 클래스 정의 없음
+- Tailwind className으로 적었지만 매칭되는 utility 없음 → 브라우저에서 unknown class로 무시 → bg/padding/radius 모두 적용 안 됨
+
+**원인**:
+
+1. **Reference HTML/CSS의 자유 클래스를 Tailwind 모드에서 그대로 사용**: 디자인 reference는 plain HTML + custom CSS. Tailwind utility-only 환경에서는 custom CSS를 미리 정의하지 않으면 className 자체가 dead code.
+2. **dev에서 시각적으로 보이지 않아도 빌드/테스트 pass**: ESLint·tsc·vitest 모두 className 문자열 자체엔 관여 안 함. 시각 확인 없이 머지 가능.
+3. **"클래스 이름이 reference와 동일하면 정합"이라는 추론 함정**: 토큰 검증 protocol (L-104)이 클래스명까지는 cover 못 함. className 매칭 = 정합 추론은 L-104 "Tailwind 인라인 검증 부실" 변종.
+
+**해결**:
+
+- PR [#425](https://github.com/jaydenjoo/hesya/pull/425) — `ix-bubble-audit` / `ix-audit-row` 등 dangling 클래스 제거 + Tailwind 토큰 (`bg-hesya-peach-100`, `text-hesya-navy-700`, `rounded-md` 등)으로 교체. 시각 정합 + font-medium 동시 적용.
+- 검증: 시각적으로 audit 패널이 보임. 클래스명에 의존하지 않고 utility 조합만으로 동일 시각 결과.
+
+**규칙** ⭐:
+
+- **Reference의 custom 클래스명을 Tailwind className에 그대로 적지 말 것**: Tailwind utility-only 환경. 클래스 정의가 globals.css나 컴포넌트 CSS에 없으면 dead. 토큰화 + utility 조합으로 재구성.
+- **dev 시각 확인을 PR description "Test plan"에 항목으로**: "이 영역이 실제로 보이는가?"를 명시. CI green ≠ 시각적으로 동작.
+- **dangling 클래스 검출 grep**: 라운드 마무리 시 `grep -rE 'className="[a-z-]+ ix-|sd-bubble|sv-' apps/web/src` 등으로 reference prefix 식별 + globals.css에 정의 있는지 cross-check.
+- **컴포넌트 CSS 파일 도입 시 명시**: 어떤 컴포넌트는 utility만으론 부족해 컴포넌트 CSS가 필요 (예: `.sv-think-line` shimmer keyframe). 그땐 globals.css `@layer components` 명시 + 라운드 description에 기록.
+
+**확인**: 본 세션 49 R19 #425 발견. 이전 R7~R18에서 audit 패널이 보이지 않았는데 "디자인이 minimal하니까 빈 영역이 정상" 추론으로 넘어감 → R19에서 비로소 dangling 클래스 발견.
+
+**연관**: L-104 (토큰 단위 정합 검증 — 본 L-106는 같은 정신을 className 영역으로 확장). L-082 (시각 시연 게이트 — CI green ≠ 시각 OK, dev 시각 확인 의무).
+
+### [2026-05-19] L-107 — Audit 라운드 diminishing-returns 곡선: R15+ 이후 발견은 cosmetic polish, 종료 시점 판단
+
+**증상**: 세션 49에서 Phase Z-2 reference parity audit을 R7~R19 (총 13 라운드) 진행. 라운드별 발견 impact 추적:
+
+- **R7~R10 (early)**: missing component (Status badge / progress strip / map preview), wrong color family (peach-300 → peach-200), missing icons (emoji → Lucide), reference에 없는 zone 추가 — **high impact**, 1 PR로 시각 차이 큼.
+- **R11~R14 (mid)**: 토큰 미세 차이 (gray-700 ↔ gray-900), padding 1단계 차이 (px-3 → px-4), border-color shift — **medium impact**, 시각 차이 보임.
+- **R15~R18 (late)**: font-weight 500 vs 600, shadow vs shadow-md, line-height 1.4 vs 1.5, mono vs Fraunces 단일 영역 교체 — **low impact**, 시각 차이 미세.
+- **R19 (final)**: dangling CSS bug (L-106) + raw hex 누적 패턴 (L-105) — high impact이지만 audit이 아니라 누적 패턴 인지에서 발견.
+
+**원인**:
+
+1. **Audit 도구의 P0/P1/P2 우선순위는 첫 N 라운드에서 발견 비율 높음**: P0 (시각 차단)·P1 (시각 강조 차이) 발견이 R7~R10에 집중. R10 이후엔 P1 잔여 + P2 (cosmetic polish) 영역에 진입.
+2. **Subagent audit이 자동으로 "찾을 수 있는 만큼 찾기"** — diminishing-returns 곡선을 모르므로 매 라운드 동일 노력 투입.
+3. **Audit과 누적 패턴 인지는 별개**: L-105 (raw hex 누적) / L-106 (dangling 클래스)는 라운드별 audit이 아닌 R19에 누적 인지로 발견. audit만 돌리면 영원히 못 잡음.
+
+**해결**: R19 종료 시점에서 audit 라운드 종료 + 누적 패턴 정리 PR (#426 + #427)로 전환. 다음 세션은 Phase ζ 또는 reference 없는 페이지 시안 트랙으로 이동.
+
+**규칙** ⭐:
+
+- **Audit 라운드 6~8회 후 발견 impact 평가**: high → medium → low 곡선 확인. R8 이후 PR diff가 cosmetic polish 위주면 audit 종료 신호.
+- **Audit 종료 trigger**: (a) P0/P1 발견이 2 라운드 연속 0 또는 (b) PR 시각 diff가 줌인 비교 필요 수준이면 종료. "더 찾으면 더 나옴" 함정 차단.
+- **누적 패턴 정리 PR을 audit 종료 시점에 의무**: L-105 raw hex / L-106 dangling 클래스 같은 cross-cutting 이슈는 라운드별 audit으로 못 잡음. audit 종료 직후 별도 sweep PR로 정리.
+- **L-082 자기평가에 반영**: "audit ~95% 완료"는 "P0/P1 100% + P2 partial" 의미. P2 100%는 비용 대비 효과 낮음. 시연 가능 + Jayden 시각 OK면 audit 트랙 종료 + 다음 트랙 이동.
+
+**확인**: 세션 49 R7 (1st) → R19 (last). R15부터 PR description의 P0 항목이 1~2건으로 감소, P1만 5~10건 (cosmetic). R19 종료 후 sweep PR #427로 누적 패턴 0 인스턴스 달성 → audit 트랙 자연 종료. 다음 세션 Phase ζ 진입.
+
+**비유**: 화가가 그림 그릴 때 첫 5번 수정은 구도/색 (high impact), 다음 10번 수정은 디테일 강조 (medium), 그 다음은 머리카락 한 올 굵기 (low). 머리카락 한 올 작업은 가치 있지만 "전시 시작 전 마무리"가 더 가치 큼. 같은 시간을 다음 그림 시작에 쓰는 게 효율적.
+
+**연관**: L-104 (audit protocol — 본 L-107은 audit 종료 판단). L-082 (자기평가 객관화 — audit % 추정 시 diminishing-returns 반영). L-101/L-102 (fast track 가속 — audit도 동일 곡선).
