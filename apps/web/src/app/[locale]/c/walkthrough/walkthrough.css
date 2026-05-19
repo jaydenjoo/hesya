@@ -1,0 +1,283 @@
+/*
+ * First-Visit Walkthrough — Reference 정합 CSS (영문 기본, 3 step + skip).
+ * 원본: docs/design/reference/Hesya First-Visit Walkthrough.html
+ * 베타 압축 버전 — iPhone frame illustration + 5 locale 동적 전환은 후속 PR.
+ */
+
+.wt-page {
+  background: var(--hesya-peach-50);
+  color: var(--hesya-navy-900);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.wt-page button {
+  font: inherit;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+}
+.wt-page :focus-visible {
+  outline: 2px solid #e8a97a;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* Demo host (background) */
+.wt-page .host {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px;
+}
+.wt-page .host-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+.wt-page .host-brand {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 24px;
+  color: #1a2238;
+  letter-spacing: -0.02em;
+}
+.wt-page .host-brand .pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #d4956a;
+  margin-left: 4px;
+}
+.wt-page .host-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wt-page .host-card {
+  max-width: 520px;
+  padding: 32px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid #f5ddc8;
+  border-radius: 16px;
+  text-align: center;
+}
+.wt-page .host-card h1 {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 30px;
+  color: #1a2238;
+  letter-spacing: -0.025em;
+  margin: 0 0 12px;
+}
+.wt-page .host-card p {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: #2b3450;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+.wt-page .demo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  background: #1a2238;
+  color: #fdf8f1;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition:
+    background 120ms,
+    transform 120ms;
+}
+.wt-page .demo-btn:hover {
+  background: #2b3450;
+  transform: translateY(-1px);
+}
+
+/* Walkthrough overlay */
+.wt-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 34, 56, 0.55);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 100;
+}
+.wt-backdrop.open {
+  display: flex;
+}
+.wt-card {
+  max-width: 480px;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow:
+    0 20px 60px rgba(26, 34, 56, 0.2),
+    0 4px 12px rgba(26, 34, 56, 0.1);
+  position: relative;
+}
+.wt-step {
+  display: none;
+}
+.wt-step[data-active="true"] {
+  display: block;
+}
+.wt-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #d4956a;
+  margin-bottom: 16px;
+}
+.wt-h {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 28px;
+  color: #1a2238;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+  line-height: 1.2;
+}
+.wt-sub {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: #2b3450;
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+.wt-illu {
+  margin: 16px 0 24px;
+  height: 160px;
+  background: linear-gradient(140deg, #faefe2 0%, #f5ddc8 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d4956a;
+}
+.wt-illu svg {
+  width: 64px;
+  height: 64px;
+}
+
+.wt-dots {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+}
+.wt-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f5ddc8;
+  transition: background 220ms;
+}
+.wt-dot.active {
+  background: #e8a97a;
+  width: 24px;
+  border-radius: 9999px;
+}
+.wt-dot.visited {
+  background: #d4956a;
+}
+
+.wt-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.wt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14.5px;
+}
+.wt-btn.primary {
+  background: #e8a97a;
+  color: #1a2238;
+  flex: 1;
+}
+.wt-btn.primary:hover {
+  background: #d4956a;
+}
+.wt-btn.skip {
+  background: transparent;
+  color: #6c757d;
+}
+.wt-btn.skip:hover {
+  color: #1a2238;
+}
+
+/* Confirm dialog */
+.wt-confirm {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 34, 56, 0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 110;
+  padding: 24px;
+}
+.wt-confirm[data-open="true"] {
+  display: flex;
+}
+.wt-confirm-card {
+  max-width: 400px;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+}
+.wt-confirm-card h3 {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 22px;
+  color: #1a2238;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+}
+.wt-confirm-card p {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+.wt-confirm-card .row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.sr {
+  position: absolute;
+  left: -9999px;
+}
