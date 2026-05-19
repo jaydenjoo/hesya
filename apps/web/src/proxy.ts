@@ -19,7 +19,7 @@ const intlMiddleware = createMiddleware(routing);
  * 2. next-intl: 그 외 모든 요청은 i18n routing 미들웨어로 위임.
  */
 const AUTH_REQUIRED_PATH =
-  /^\/(en|ko|ja|zh-CN|zh-TW|vi)\/(admin|store)(?:\/|$)/;
+  /^\/(en|ko|ja|zh-CN|zh-TW|vi)\/(admin|store|onboarding)(?:\/|$)/;
 const SESSION_COOKIE_NAMES = [
   "better-auth.session_token",
   "__Secure-better-auth.session_token",
