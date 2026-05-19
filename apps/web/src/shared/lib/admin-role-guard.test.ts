@@ -47,6 +47,8 @@ afterEach(() => {
   delete process.env.E2E_ADMIN_EMAIL;
   delete process.env.E2E_AUTH_USER_ID;
   env.NODE_ENV = "test";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (env as any).MOCK_FIXTURES = false;
 });
 
 describe("requireAdminRole", () => {
@@ -177,6 +179,49 @@ describe("requireAdminRole — E2E/데모 bypass", () => {
     if (result.ok) return;
     expect(result.error).toBe("unauthorized");
     expect(getSessionMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("requireAdminRole — MOCK_FIXTURES bypass (외부 데모 단계)", () => {
+  it("MOCK_FIXTURES=true → ok (Better Auth+DB 우회, 무로그인 admin 진입)", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (env as any).MOCK_FIXTURES = true;
+
+    const result = await requireAdminRole();
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.userId).toBe("mock-admin");
+    expect(result.email).toBe("demo@hesya.com");
+    expect(result.role).toBe("admin");
+    expect(getSessionMock).not.toHaveBeenCalled();
+    expect(findRoleMock).not.toHaveBeenCalled();
+  });
+
+  it("MOCK_FIXTURES=true는 prod NODE_ENV에서도 의도적으로 작동 (외부 데모 URL이 prod 빌드)", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (env as any).MOCK_FIXTURES = true;
+    env.NODE_ENV = "production";
+
+    const result = await requireAdminRole();
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.email).toBe("demo@hesya.com");
+    expect(getSessionMock).not.toHaveBeenCalled();
+  });
+
+  it("MOCK_FIXTURES=false → 정식 Better Auth + DB 가드 작동", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (env as any).MOCK_FIXTURES = false;
+    getSessionMock.mockResolvedValueOnce(null);
+
+    const result = await requireAdminRole();
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toBe("unauthorized");
+    expect(getSessionMock).toHaveBeenCalled();
   });
 });
 
