@@ -43,14 +43,14 @@ type Props = {
 const STATUS_TONE: Record<string, { chip: string; dot: string; ring: string }> =
   {
     open: {
-      chip: "bg-[#fbeae5] text-[#c9483a]",
-      dot: "bg-[#c9483a]",
-      ring: "ring-[#e5c0ba]",
+      chip: "bg-hesya-danger-100 text-hesya-danger-600",
+      dot: "bg-hesya-danger-600",
+      ring: "ring-hesya-danger-200",
     },
     sla_exceeded: {
-      chip: "bg-[#fbeae5] text-[#c9483a]",
-      dot: "bg-[#c9483a]",
-      ring: "ring-[#e5c0ba]",
+      chip: "bg-hesya-danger-100 text-hesya-danger-600",
+      dot: "bg-hesya-danger-600",
+      ring: "ring-hesya-danger-200",
     },
     in_review: {
       chip: "bg-hesya-peach-100 text-hesya-amber-600",
@@ -198,7 +198,7 @@ export function DisputeDetail({ dispute, nowMs }: Props) {
                 isTerminal
                   ? "text-hesya-navy-900/40"
                   : slaUrgent
-                    ? "text-[#c9483a]"
+                    ? "text-hesya-danger-600"
                     : slaWarn
                       ? "text-hesya-amber-600"
                       : "text-hesya-navy-900",

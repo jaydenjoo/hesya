@@ -378,7 +378,7 @@ export default async function AdminDashboardPage({ params }: Props) {
                         "grid h-8 w-8 place-items-center rounded-full font-mono text-[11px] font-semibold uppercase",
                         row.kind === "kyc"
                           ? "bg-emerald-100 text-emerald-700"
-                          : "bg-[#faefec] text-[#c9483a]",
+                          : "bg-hesya-danger-50 text-hesya-danger-600",
                       ].join(" ")}
                     >
                       {(row.summary?.trim()[0] ?? "?").toUpperCase()}
@@ -408,7 +408,7 @@ export default async function AdminDashboardPage({ params }: Props) {
                           "font-body-en text-[9px] font-bold uppercase tracking-[0.18em]",
                           row.kind === "kyc"
                             ? "text-emerald-700"
-                            : "text-[#c9483a]",
+                            : "text-hesya-danger-600",
                         ].join(" ")}
                       >
                         {row.kind === "kyc" ? "KYC" : "DIS"}
@@ -540,9 +540,9 @@ function AlertChip({
       }
     : {
         crit: {
-          border: "border-[#e5c0ba]",
-          bg: "bg-[#faefec]",
-          count: "text-[#c9483a]",
+          border: "border-hesya-danger-200",
+          bg: "bg-hesya-danger-50",
+          count: "text-hesya-danger-600",
         },
         warn: {
           border: "border-hesya-peach-200",
@@ -555,9 +555,9 @@ function AlertChip({
           count: "text-hesya-amber-700",
         },
         flag: {
-          border: "border-[#e5c0ba]",
-          bg: "bg-[#faefec]",
-          count: "text-[#c9483a]",
+          border: "border-hesya-danger-200",
+          bg: "bg-hesya-danger-50",
+          count: "text-hesya-danger-600",
         },
       }[level];
 
@@ -585,7 +585,7 @@ function AlertChip({
         {urgent && (
           <span
             aria-hidden="true"
-            className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#c9483a]"
+            className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-hesya-danger-600"
           />
         )}
         {clear ? "—" : count}

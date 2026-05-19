@@ -27,7 +27,7 @@ const STATUS_LABELS: Record<ApiPolicyAlertStatus, string> = {
 };
 
 const STATUS_BADGE_COLORS: Record<ApiPolicyAlertStatus, string> = {
-  new: "bg-[#fbeae5] text-[#c9483a]",
+  new: "bg-hesya-danger-100 text-hesya-danger-600",
   reviewed: "bg-hesya-peach-100 text-hesya-amber-600",
   resolved: "bg-emerald-50 text-emerald-700",
   ignored: "bg-gray-100 text-gray-600",
