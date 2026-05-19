@@ -10,6 +10,7 @@ import {
 } from "@hesya/database";
 import { auth } from "@/lib/auth";
 import { env } from "@/shared/config/env";
+import { shortId, track } from "@/shared/lib/analytics";
 import { KycApplicationSchema } from "../schema";
 
 /**
@@ -90,6 +91,9 @@ export async function submitKycApplication(
         userId,
         storeId: store.id,
         role: "owner",
+      });
+      await track("kyc_submitted", shortId(userId), {
+        storeId: shortId(store.id),
       });
       return {
         ok: true as const,

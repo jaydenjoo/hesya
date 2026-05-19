@@ -20,6 +20,7 @@ import { captureServerActionError } from "@/instrumentation";
 import { requireStoreOwnerAuth } from "@/shared/lib/store-owner-guard";
 import { findMessageById, updateDraftStatus } from "@/shared/lib/dal/messages";
 import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
+import { shortId, track } from "@/shared/lib/analytics";
 
 const inputSchema = z.object({
   messageId: z.uuid(),
@@ -72,6 +73,9 @@ export async function skipDraft(input: {
     });
 
     revalidatePath(`/[locale]/store/inbox`, "page");
+    await track("ai_draft_skipped", shortId(session.storeId), {
+      userId: shortId(session.userId),
+    });
     return { ok: true };
   } catch (err) {
     captureServerActionError(err, {

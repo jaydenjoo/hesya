@@ -37,6 +37,7 @@ import {
 import { getExternalIdByCustomerId } from "@/shared/lib/dal/customers";
 import { getIntegration } from "@/shared/lib/dal/store-integrations";
 import { ForbiddenError, UnauthorizedError } from "@/shared/lib/errors";
+import { shortId, track } from "@/shared/lib/analytics";
 
 const adapter = createInstagramAdapter(fetchInstagramApiClient, {
   appId: env.IG_APP_ID,
@@ -156,6 +157,15 @@ export async function editAndSend(input: {
       });
 
       revalidatePath(`/[locale]/store/inbox`, "page");
+      await track("ai_draft_edited", shortId(session.storeId), {
+        userId: shortId(session.userId),
+        chars: newText.length,
+      });
+      await track("message_sent", shortId(session.storeId), {
+        userId: shortId(session.userId),
+        source: "ai_draft_edit",
+        chars: newText.length,
+      });
       return { ok: true };
     } catch (innerErr) {
       await safeRevert(db, messageId, session);
