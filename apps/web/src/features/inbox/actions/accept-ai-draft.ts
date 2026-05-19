@@ -54,6 +54,7 @@ import {
 import { getExternalIdByCustomerId } from "@/shared/lib/dal/customers";
 import { getIntegration } from "@/shared/lib/dal/store-integrations";
 import { ValidationError, WindowClosedError } from "@/shared/lib/errors";
+import { shortId, track } from "@/shared/lib/analytics";
 import { acceptAiDraftInputSchema } from "../schema";
 
 // 모듈 로드 시 1회. send-outbound.ts와 동일 — IG_APP_SECRET 변경 시 재시작 필요.
@@ -176,6 +177,15 @@ export async function acceptAiDraft(input: {
       // 동적 세그먼트 [locale]을 리터럴로 전달 — Next.js App Router는 해당 패턴
       // 전체(ko/en/...)를 무효화. send-outbound.ts와 동일 컨벤션.
       revalidatePath(`/[locale]/store/inbox`, "page");
+      await track("ai_draft_accepted", shortId(session.storeId), {
+        userId: shortId(session.userId),
+        chars: draftText.length,
+      });
+      await track("message_sent", shortId(session.storeId), {
+        userId: shortId(session.userId),
+        source: "ai_draft_accept",
+        chars: draftText.length,
+      });
       return { ok: true as const, externalMessageId: sent.externalMessageId };
     } catch (innerErr) {
       // window expired / integration 없음 / IG send 실패 등 — claim 복원으로 사장 재시도 가능

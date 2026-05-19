@@ -19,6 +19,7 @@ import {
   ValidationError,
   WindowClosedError,
 } from "@/shared/lib/errors";
+import { shortId, track } from "@/shared/lib/analytics";
 import { sendOutboundInputSchema } from "../schema";
 
 // 모듈 로드 시 1회. IG_APP_SECRET 변경 시 서버 재시작 필요.
@@ -91,6 +92,12 @@ export async function sendOutbound(input: {
     });
 
     revalidatePath(`/[locale]/store/inbox`, "page");
+    await track("message_sent", shortId(session.storeId), {
+      userId: shortId(session.userId),
+      channel,
+      source: "manual",
+      chars: parsed.data.text.length,
+    });
     return { ok: true as const, messageId: sent.externalMessageId };
   } catch (err) {
     captureServerActionError(err, {

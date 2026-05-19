@@ -5,6 +5,7 @@ import { createDbClient } from "@hesya/database";
 import { env } from "@/shared/config/env";
 import { captureServerActionError } from "@/instrumentation";
 import { sendKycNotification } from "@/lib/notifications/kyc-result";
+import { shortId, track } from "@/shared/lib/analytics";
 import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 import { findOwnerNotifyTargetByStoreId } from "@/shared/lib/dal/store-owners";
 import { approveStore } from "@/shared/lib/dal/stores";
@@ -51,6 +52,10 @@ export async function approveStoreKyc(input: {
       reviewerId: guard.userId,
     });
     revalidatePath("/admin/store-verifications");
+
+    await track("kyc_approved", shortId(guard.userId), {
+      storeId: shortId(input.storeId),
+    });
 
     // Phase 1-γ.1: owner에게 승인 알림. 실패는 silent — 승인은 성공으로 응답.
     // Locale "ko" hardcoded — Phase 1 owner는 한국 사업자 (외국인 owner는 Phase 2).

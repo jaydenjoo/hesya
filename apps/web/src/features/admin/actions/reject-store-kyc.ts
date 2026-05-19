@@ -5,6 +5,7 @@ import { createDbClient } from "@hesya/database";
 import { env } from "@/shared/config/env";
 import { captureServerActionError } from "@/instrumentation";
 import { sendKycNotification } from "@/lib/notifications/kyc-result";
+import { shortId, track } from "@/shared/lib/analytics";
 import { requireAdminRole } from "@/shared/lib/admin-role-guard";
 import { findOwnerNotifyTargetByStoreId } from "@/shared/lib/dal/store-owners";
 import { rejectStore } from "@/shared/lib/dal/stores";
@@ -67,6 +68,11 @@ export async function rejectStoreKyc(input: {
       reason,
     });
     revalidatePath("/admin/store-verifications");
+
+    await track("kyc_rejected", shortId(guard.userId), {
+      storeId: shortId(input.storeId),
+      reasonLen: reason.length,
+    });
 
     // Phase 1-γ.1: owner에게 거절 알림 (사유 + 재신청 URL 포함). 실패는 silent.
     // Locale "ko" hardcoded — approve-store-kyc.ts와 동일 사유.

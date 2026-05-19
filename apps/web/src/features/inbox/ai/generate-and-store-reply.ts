@@ -57,6 +57,7 @@ import {
 import { getCustomerPreferredLanguage } from "@/shared/lib/dal/customers";
 import { searchSimilarKnowledge as defaultSearchSimilarKnowledge } from "@/shared/lib/dal/store-knowledge";
 import { listRecentToneExamples as defaultListRecentToneExamples } from "@/shared/lib/dal/store-tone-examples";
+import { shortId, track } from "@/shared/lib/analytics";
 
 // 모듈 수명 동안 단일 DbClient 유지 — fire-and-forget 동시 호출 폭주 시
 // connection pool 누수 방어. 테스트는 deps.db 주입으로 격리되므로 영향 없음.
@@ -312,6 +313,19 @@ export async function generateAndStoreReply(
   if (!stored) {
     return { stored: false, reason: "insert_failed" };
   }
+
+  await track(
+    "ai_draft_generated",
+    msg.storeId ? shortId(msg.storeId) : shortId(msg.conversationId),
+    {
+      channel,
+      botMode,
+      customerLanguage,
+      tokensInput: result.tokensUsed.input,
+      tokensOutput: result.tokensUsed.output,
+      replyChars: result.reply.length,
+    },
+  );
 
   // B-3a 자동 번역. customerLanguage가 'ko'이면 translateReply 자체가 no-op이지만
   // markTranslated 호출도 불필요하므로 caller에서 분기. 번역/저장 실패는 silent skip
