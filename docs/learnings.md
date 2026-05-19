@@ -3930,3 +3930,28 @@ B. **사람 protocol 차단** — `docs/ai-collaboration-protocol.html` 신규
 **비유**: 화가가 그림 그릴 때 첫 5번 수정은 구도/색 (high impact), 다음 10번 수정은 디테일 강조 (medium), 그 다음은 머리카락 한 올 굵기 (low). 머리카락 한 올 작업은 가치 있지만 "전시 시작 전 마무리"가 더 가치 큼. 같은 시간을 다음 그림 시작에 쓰는 게 효율적.
 
 **연관**: L-104 (audit protocol — 본 L-107은 audit 종료 판단). L-082 (자기평가 객관화 — audit % 추정 시 diminishing-returns 반영). L-101/L-102 (fast track 가속 — audit도 동일 곡선).
+
+### [2026-05-19] L-108 — `auto-merge` 라벨은 CI workflow가 활성화되어 있을 때만 동작, GitHub Actions Free 한도 소진 기간엔 효과 없음
+
+**증상**: PR #440~#444 5개에 `auto-merge` 라벨 부착 후 대기. 30분+ 경과 후에도 모두 OPEN, mergeable=CLEAN, 단지 머지만 안 됨. Vercel Preview Comments 체크만 SUCCESS, 다른 체크 0건.
+
+**근본 원인**:
+
+1. `.github/workflows/auto-merge.yml`이 `on: workflow_run` + `workflows: [CI]` + `types: [completed]` 트리거 사용 → CI workflow가 성공으로 끝나야 fire.
+2. CI workflow (`.github/workflows/ci.yml`)는 2026-05-11부터 GitHub Actions Free 한도 (Private repo 2000분/월) 소진 → `pull_request` / `push` 자동 트리거 주석 처리, `workflow_dispatch`만 활성화.
+3. PR push 시 CI 안 돌면 auto-merge.yml의 `workflow_run` 이벤트가 영원히 발생 안 함 → `auto-merge` 라벨은 효과 0.
+
+**해결**: 5개 PR 모두 수동 `gh pr merge <num> --squash --delete-branch` 실행으로 머지 완료 (07:12 UTC, 5초 간격). 머지 자체엔 branch protection 없으니 즉시 가능.
+
+**규칙** ⭐:
+
+- **`auto-merge` 라벨 부착 전 CI workflow trigger 상태 확인 의무**: `.github/workflows/ci.yml` head에서 `on: pull_request` / `on: push`가 활성화되어 있는지 grep. workflow_dispatch만 있으면 라벨은 무효.
+- **2026-06-01 이전엔 라벨 의존 금지**: GitHub Actions Free 한도 리셋 (매월 1일 UTC) 전까지 CI 수동 트리거 OR 즉시 squash 두 옵션만 유효. "라벨 붙이고 기다리면 됨" 가정 차단.
+- **PR 머지 검증 의무화**: 라벨 의존 시 30분 후 `gh pr view <n> --json state` 확인. state=OPEN이면 즉시 수동 머지 전환 (대기 비용 vs 즉시 처리 비용 비교).
+- **(2026-06-01 이후) CI workflow 재활성화 시 docs/learnings.md 본 L-108 deprecation 표기**: `on: pull_request: branches: [main]` 복원 + paths-ignore (docs-only skip) + e2e-integration nightly 분리 후 본 L-108 함정 해소. 그때까지는 라벨 무용.
+
+**확인**: `gh run list --workflow=ci.yml --limit 10` → 모두 `workflow_dispatch` 트리거. `gh run list --workflow=auto-merge.yml --limit 5` → 모두 `skipped` 상태 (트리거 조건 미달). 5개 PR 수동 머지 후 main에 모두 반영 확인.
+
+**비유**: 자동문 센서가 작동 중이라고 가정하고 손을 펼친 채 다가갔는데, 전기가 끊겨 센서가 동작 안 함. 옆에 수동 손잡이가 있는 줄 모르고 5분 서 있는 격. 자동문 의존 전엔 전기 들어와 있는지 확인 필수.
+
+**연관**: L-091 (Claude Code shell이 ANTHROPIC_API_KEY="" inject — 환경 가정 깨짐 패턴). L-082 (e2e 시연 baseline — "코드 머지 완료 + 라벨 부착"은 시연 게이트 아님, 실제 main 반영 + 시연 가능성까지 검증).

@@ -3,6 +3,65 @@
 > **세션 시작 시 첫 번째로 읽는 파일** (settings.json SessionStart hook).
 > ⚠️ **자기평가 갱신 규칙 (L-082)**: % 표시는 "코드 머지 완료"가 아닌 **"사용자 입장 e2e 시연 가능 여부"**로만 정의. AI 자체 평가 → 객관적 측정(grep / test count / subagent 진단 / 실제 시연)으로 교차 검증 의무.
 
+## 세션 50 종료 요약 (2026-05-19, 동일일 후속) — claude.ai/design 12 신규 페이지 + Fraunces fix + e2e/analytics (17 PR)
+
+세션 49 종료 직후 동일일 후속 진입. Jayden이 claude.ai/design에서 디자인한 12 페이지 zip 전달 (`hesya (14).zip`, 95 reference HTML files) → 신규 9 + reference 정합 3 = **12 페이지 일괄 구현 + Fraunces 폰트 회귀 수정 + e2e 38 spec + PostHog analytics**. 누적 **220 PR** (세션 49: 203 → +17).
+
+PR 범위: [#428 ~ #444](https://github.com/jaydenjoo/hesya/pulls?q=is%3Apr+is%3Aclosed+%23428..%23444).
+
+### 라운드별 산출 요약
+
+| 라운드               | PR 범위   | 영역                                                                                        |
+| -------------------- | --------- | ------------------------------------------------------------------------------------------- |
+| 사전                 | #428~#430 | ζ.5 PostHog 서버 이벤트 + 이상행동 38 e2e + robots/noindex P0 fix                           |
+| Font fix             | #431~#432 | Fraunces 500 italic + amber-600 (marketing) + design-tokens root literal 제거 (회귀 fix)    |
+| A (마케팅 신규)      | #433~#434 | Pricing + Cancellation Policy 신규                                                          |
+| B (Customer 신규)    | #435~#438 | Saved + Compare + First-Visit Walkthrough + Trending Looks (/trending + /c/trending shared) |
+| C (Store owner 신규) | #439~#440 | Holidays + Settings Basic                                                                   |
+| D (신규 1 + 정합 3)  | #441~#444 | Admin Reports Detail 신규 + Disputes Detail / Booking Detail / Knowledge FAQ card 정합      |
+
+### 신규 9 페이지 핵심 패턴
+
+- **Scope-prefixed CSS** (`.pricing-page`, `.cancel-page`, `.saved-page`, `.compare-page`, `.wt-page`, `.trending-page`, `.holidays-page`, `.settings-basic-page`, `.report-detail-page`) — 페이지간 스타일 leak 차단.
+- **Mock data in-memory** — saved stores 8개, holidays 8개 (한국 공휴일 2026), settings basic 폼, reports 3건 + actions A~F. DB 테이블 미존재 (`saved_stores`, `store_holidays`, `admin_actions`) — Server Action 도입 시 swap.
+- **Server 가드**: 매장 owner pages → `requireStoreOwnerAuth`, admin pages → `requireAdminRole`, 모든 personalized pages → `robots: { index: false, follow: false }`.
+- **Bilingual handling**: `<span lang="ko">` + `[lang="ko"]` CSS for `word-break: keep-all`. Fraunces italic English + Pretendard Korean 혼용.
+- **Shared component for dual routes**: Trending Looks → `features/trending/TrendingLooksView` 사용 (`/trending` 마케팅 + `/c/trending` 고객 양쪽).
+
+### 정합 3 페이지 visual upgrade
+
+| 페이지                   | 변경                                                                                                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Admin Disputes Detail    | Tailwind utility → scoped `.dispute-detail-page` CSS, Fraunces 24 italic 'Dispute' + ko 700, sev-pill 5색, meta-grid 2-col, quote-box, Server Action 워크플로 유지 |
+| Store Booking Detail     | Fraunces 24px italic 'Booking' + ko 700 헤더, booking id 첫 8자 mono uppercase chip, 섹션 헤더 italic + ko + meta tag                                              |
+| Store Knowledge FAQ Card | Q/A 동그라미 badge → question heading + answer paragraph, 수정/삭제 icon-only 32px square, rounded-[14px] hover border amber-500                                   |
+
+### Fraunces 폰트 회귀 fix (#432)
+
+- 증상: `--font-heading: "Fraunces Variable", ...` literal이 design-tokens `tokens.css` :root에 박혀 있어 layout.tsx의 `next/font` variable이 덮어쓰이지 못함.
+- 수정: tokens.css에서 `--font-heading` literal 제거 (layout.tsx의 CSS variable이 권한 가짐), `next/font/google` `fallback: ["Pretendard", "Georgia", "ui-serif", "serif"]` 추가.
+- 영향: 12 신규 페이지 모두 Fraunces 정상 로드.
+
+### Auto-merge 함정 (L-108)
+
+PR #440~#444 5개에 `auto-merge` 라벨 부착했으나 자동 머지 안 됨. 원인: `.github/workflows/auto-merge.yml`이 CI workflow 성공을 `workflow_run` 트리거로 의존하지만, CI workflow는 GitHub Actions Free 한도 소진 (2026-05-11~) 으로 `workflow_dispatch`만 활성화. PR push 시 CI 안 돌면 auto-merge 영원히 fire 안 함. → 수동 `gh pr merge --squash --delete-branch` 5회 실행으로 완료. **2026-06-01 한도 리셋 전까지** auto-merge 라벨은 효과 없음. 상세: docs/learnings.md L-108.
+
+### 자기평가 (L-082 e2e 기준)
+
+- **코드 머지**: 17 PR 모두 main 머지 + Vercel prod 반영.
+- **시각 시연**: 12 신규 페이지 — 본인 컴퓨터 dev server에서 `/[locale]/<path>` 직접 접근 가능, mock state로 인터랙션 가능. 외부 데모 환경 baseline (L-082 확장)은 RED 프로젝트 prod 1곳 미정.
+- **DB 미존재**: `saved_stores`, `store_holidays`, `admin_actions` 테이블 도입 시 in-memory → Server Action swap 필요. 현재는 새로고침 시 state 소실.
+- **D.3 (Booking) / D.4 (Knowledge) 미커버**: customer info / payment / chat preview / category sidebar는 DAL 확장 필요. visual 정합만 적용, 데이터 영역은 후속 PR.
+
+### 다음 세션 후보
+
+1. **DB 마이그 후속** — saved_stores / store_holidays / admin_actions 테이블 + DAL + Server Action. 신규 페이지의 in-memory → persistent.
+2. **Knowledge Base category sidebar** — store_knowledge.category 컬럼 마이그 + DAL 확장 + sidebar UI.
+3. **Booking Detail full data** — customer info + payment + chat preview 섹션 (DAL 확장 필요).
+4. **Phase ζ 베타 매장 매칭 트랙** — Plan v2 scenario-B 마지막 단계. 매장 outreach 기준 정의. 디자인 정합 더 이상 차단 요인 아님.
+
+---
+
 ## 세션 49 종료 요약 (2026-05-19) — Phase Z-2 토큰 단위 정합 R7~R19 + hesya-danger 도입 + raw hex sweep (62 PR)
 
 세션 48 종료 직후 동일 트랙 진입. 24+ reference 페이지 audit/fix loop (R7~R19) + 누적 발견된 raw hex 패턴 일괄 정리 = `hesya-danger-*` 토큰 패밀리 도입 + sweep. 누적 **203 PR** (세션 48: 141 → +62).
