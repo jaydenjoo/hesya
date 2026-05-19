@@ -34,12 +34,18 @@ describe("KnowledgeClient (B-4c)", () => {
     expect(screen.getByText("200")).toBeInTheDocument();
   });
 
-  it("FAQ 있음 → 질문/답변 + 수정/삭제 버튼 표시", () => {
+  it("FAQ 있음 → 질문/답변 + 편집/삭제 icon 버튼 표시 (aria-label로 식별)", () => {
+    // PR #444에서 text label("수정"/"삭제") → 32px icon-only square로 변경.
+    // 식별은 aria-label("질문 편집" / "질문 삭제")으로 (a11y baseline).
     render(<KnowledgeClient initialFAQs={[baseFAQ]} maxFAQs={200} />);
     expect(screen.getByText(/단발 가능\?/)).toBeInTheDocument();
     expect(screen.getByText(/네 가능합니다/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "수정" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "삭제" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "질문 편집" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "질문 삭제" }),
+    ).toBeInTheDocument();
   });
 
   it("hasEmbedding=false → '임베딩 미생성' 경고 표시", () => {
