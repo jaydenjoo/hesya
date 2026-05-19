@@ -19,6 +19,7 @@ const fraunces = Fraunces({
   style: ["normal", "italic"],
   variable: "--font-heading",
   display: "swap",
+  fallback: ["Pretendard", "Georgia", "ui-serif", "serif"],
 });
 
 const jetbrainsMono = JetBrains_Mono({

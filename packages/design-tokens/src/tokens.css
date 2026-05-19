@@ -74,8 +74,12 @@
 
   /* === Type stacks ========================================= */
   /* 변수 이름은 apps/web 컨벤션 (font-heading/sans/kr) 따름.
-     reference HTML 변수 (--font-display 등) 는 호환용 alias. */
-  --font-heading: "Fraunces Variable", "Pretendard", ui-serif, Georgia, serif;
+     reference HTML 변수 (--font-display 등) 는 호환용 alias.
+     ⚠️ --font-heading 은 의도적으로 정의하지 않음. Next.js의
+        `Fraunces({ variable: "--font-heading" })`가 html className으로
+        동적 이름(`__fraunces_xxx, fallback`)을 주입한다. 여기서 literal
+        정의하면 같은 specificity 충돌로 동적 값을 덮어써 폰트 로드 실패
+        (L-108, 세션 50). 필요 시 layout.tsx 의 `fallback` 옵션으로 통제. */
   --font-sans: "Pretendard", ui-sans-serif, system-ui, sans-serif;
   --font-kr: "Pretendard", ui-sans-serif, sans-serif;
   --font-mono:
