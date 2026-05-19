@@ -316,6 +316,7 @@ export default async function AdminDashboardPage({ params }: Props) {
             <TileHead
               labelEn="REGIONAL DISTRIBUTION"
               labelKr="지역별 활성 매장 분포"
+              menuText={`전체 ${regionDist.regions.reduce((s, r) => s + r.stores, 0) + regionDist.unknown}개`}
             />
             <DashboardKoreaMap data={regionDist} />
           </Tile>
@@ -464,7 +465,16 @@ function Tile({ span, children }: { span: number; children: React.ReactNode }) {
   );
 }
 
-function TileHead({ labelEn, labelKr }: { labelEn: string; labelKr: string }) {
+function TileHead({
+  labelEn,
+  labelKr,
+  menuText,
+}: {
+  labelEn: string;
+  labelKr: string;
+  /** 우측 메뉴 자리 텍스트. 지정 시 ⋯ button 대신 정적 라벨 (ref `.ad-tile-menu`). */
+  menuText?: string;
+}) {
   return (
     <div className="mb-3.5 flex items-start justify-between gap-2">
       <div>
@@ -475,13 +485,19 @@ function TileHead({ labelEn, labelKr }: { labelEn: string; labelKr: string }) {
           {labelKr}
         </div>
       </div>
-      <button
-        type="button"
-        aria-label="More"
-        className="font-mono text-[11px] text-gray-400 transition hover:text-hesya-navy-900"
-      >
-        ⋯
-      </button>
+      {menuText ? (
+        <span className="font-body-kr text-[11px] font-medium text-gray-500">
+          {menuText}
+        </span>
+      ) : (
+        <button
+          type="button"
+          aria-label="More"
+          className="font-mono text-[11px] text-gray-400 transition hover:text-hesya-navy-900"
+        >
+          ⋯
+        </button>
+      )}
     </div>
   );
 }

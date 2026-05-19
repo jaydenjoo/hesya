@@ -27,21 +27,21 @@ export const mockAdminAlertCounts: AdminAlertCounts = {
   pendingStoreDeletions: 1,
 };
 
-/* ─── 4 KPI tile (이번 달 기준) ─── */
+/* ─── 4 KPI tile (이번 달 기준) — 디자인 ref 정합 ─── */
 export const mockAdminKpiSummary: AdminKpiSummary = {
-  activeStores: 142,
-  totalRegistered: 168,
+  activeStores: 624,
+  totalRegistered: 712,
   newStoresToday: 4,
-  foreignGmvMtdKrw: 38_420_000,
-  foreignBookingsMtd: 218,
+  foreignGmvMtdKrw: 184_320_000,
+  foreignBookingsMtd: 1_180,
   foreignBookingsByNationality: [
-    { nationality: "Japan", count: 72 },
-    { nationality: "China", count: 48 },
-    { nationality: "Taiwan", count: 31 },
-    { nationality: "USA", count: 24 },
-    { nationality: "Vietnam", count: 18 },
-    { nationality: "Thailand", count: 14 },
-    { nationality: "Singapore", count: 11 },
+    { nationality: "Japan", count: 412 },
+    { nationality: "China", count: 248 },
+    { nationality: "Taiwan", count: 168 },
+    { nationality: "USA", count: 124 },
+    { nationality: "Vietnam", count: 96 },
+    { nationality: "Thailand", count: 74 },
+    { nationality: "Singapore", count: 58 },
   ],
 };
 
@@ -171,26 +171,30 @@ export const mockDisputeSlaResolution: DisputeSlaResolution = {
   empty: false,
 };
 
-/* ─── 지역별 활성 매장 분포 (17 시도) — KOREA_REGIONS 좌표와 정합 ─── */
+/* ─── 지역별 활성 매장 분포 (17 시도, 6 그룹 합산 ref 정합) ─── *
+ * 6 그룹 합계: 서울·경기 298 / 강원 38 / 충청 52 / 경상 142 / 전라 68 / 제주 26 = 624
+ * (ref `docs/design/reference/Hesya Admin Dashboard.html` REGIONAL DISTRIBUTION).
+ * x/y 좌표는 호환성 유지용 (현 component는 미사용, group polygon 자체 좌표).
+ */
 export const mockStoreRegionDistribution: StoreRegionDistribution = {
   regions: [
-    { code: "11", name: "서울", stores: 58, x: 38, y: 22 },
-    { code: "26", name: "부산", stores: 18, x: 66, y: 78 },
-    { code: "27", name: "대구", stores: 9, x: 58, y: 60 },
-    { code: "28", name: "인천", stores: 8, x: 22, y: 26 },
-    { code: "29", name: "광주", stores: 5, x: 34, y: 72 },
-    { code: "30", name: "대전", stores: 6, x: 38, y: 54 },
-    { code: "31", name: "울산", stores: 4, x: 70, y: 66 },
-    { code: "36", name: "세종", stores: 1, x: 38, y: 44 },
-    { code: "41", name: "경기", stores: 21, x: 46, y: 30 },
-    { code: "42", name: "강원", stores: 3, x: 68, y: 22 },
-    { code: "43", name: "충북", stores: 2, x: 50, y: 42 },
-    { code: "44", name: "충남", stores: 3, x: 24, y: 44 },
-    { code: "45", name: "전북", stores: 1, x: 26, y: 60 },
-    { code: "46", name: "전남", stores: 1, x: 24, y: 74 },
-    { code: "47", name: "경북", stores: 1, x: 62, y: 46 },
-    { code: "48", name: "경남", stores: 1, x: 50, y: 72 },
-    { code: "50", name: "제주", stores: 0, x: 28, y: 88 },
+    { code: "11", name: "서울", stores: 188, x: 38, y: 22 }, // 서울·경기 group
+    { code: "28", name: "인천", stores: 28, x: 22, y: 26 },
+    { code: "41", name: "경기", stores: 82, x: 46, y: 30 },
+    { code: "42", name: "강원", stores: 38, x: 68, y: 22 }, // 강원
+    { code: "30", name: "대전", stores: 18, x: 38, y: 54 }, // 충청 group
+    { code: "36", name: "세종", stores: 4, x: 38, y: 44 },
+    { code: "43", name: "충북", stores: 12, x: 50, y: 42 },
+    { code: "44", name: "충남", stores: 18, x: 24, y: 44 },
+    { code: "26", name: "부산", stores: 48, x: 66, y: 78 }, // 경상 group
+    { code: "27", name: "대구", stores: 32, x: 58, y: 60 },
+    { code: "31", name: "울산", stores: 12, x: 70, y: 66 },
+    { code: "47", name: "경북", stores: 22, x: 62, y: 46 },
+    { code: "48", name: "경남", stores: 28, x: 50, y: 72 },
+    { code: "29", name: "광주", stores: 14, x: 34, y: 72 }, // 전라 group
+    { code: "45", name: "전북", stores: 22, x: 26, y: 60 },
+    { code: "46", name: "전남", stores: 32, x: 24, y: 74 },
+    { code: "50", name: "제주", stores: 26, x: 28, y: 88 }, // 제주
   ],
   unknown: 0,
   empty: false,
