@@ -415,18 +415,31 @@ export function SettingsForm({
                     >
                       {labels.days[d]}
                     </span>
-                    <label className="flex items-center gap-1 text-[10.5px] text-hesya-navy-900/55">
-                      <input
-                        type="checkbox"
-                        checked={s.closed}
-                        onChange={(e) =>
-                          updateDay(d, { closed: e.target.checked })
-                        }
-                        className="accent-hesya-amber-500"
+                    {/* Reference settings.css L597-623 .set-toggle — 32×18 pill, amber-500 on, gray-300 off */}
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={s.closed}
+                      aria-label={labels.hoursClosed}
+                      onClick={() => updateDay(d, { closed: !s.closed })}
+                      className={[
+                        "relative h-[18px] w-8 flex-shrink-0 rounded-full transition-colors duration-200",
+                        s.closed ? "bg-hesya-amber-500" : "bg-gray-300",
+                      ].join(" ")}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={[
+                          "absolute top-[2px] h-[14px] w-[14px] rounded-full bg-white transition-[left] duration-200",
+                          s.closed ? "left-4" : "left-[2px]",
+                        ].join(" ")}
                       />
+                    </button>
+                    <span className="text-[10.5px] text-hesya-navy-900/55">
                       {labels.hoursClosed}
-                    </label>
+                    </span>
                   </div>
+                  {/* Reference settings.css L625-641 .set-time — 60px wide / r-4 / 500 / center */}
                   <input
                     type="time"
                     value={s.open}
@@ -434,7 +447,7 @@ export function SettingsForm({
                     onChange={(e) => updateDay(d, { open: e.target.value })}
                     aria-label={labels.hoursOpen}
                     className={[
-                      "w-full rounded-md border bg-white px-2 py-1.5 font-mono text-[12px] transition focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20 disabled:bg-hesya-peach-50/60 disabled:text-hesya-navy-900/30 disabled:line-through",
+                      "w-[60px] rounded-[4px] border bg-white px-2 py-1.5 text-center font-mono text-[12px] font-medium transition focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20 disabled:bg-hesya-peach-50/60 disabled:text-hesya-navy-900/30 disabled:line-through",
                       s.closed
                         ? "border-hesya-peach-100"
                         : "border-hesya-peach-200 focus:border-hesya-amber-500",
@@ -447,7 +460,7 @@ export function SettingsForm({
                     onChange={(e) => updateDay(d, { close: e.target.value })}
                     aria-label={labels.hoursClose}
                     className={[
-                      "w-full rounded-md border bg-white px-2 py-1.5 font-mono text-[12px] transition focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20 disabled:bg-hesya-peach-50/60 disabled:text-hesya-navy-900/30 disabled:line-through",
+                      "w-[60px] rounded-[4px] border bg-white px-2 py-1.5 text-center font-mono text-[12px] font-medium transition focus:outline-none focus:ring-2 focus:ring-hesya-amber-500/20 disabled:bg-hesya-peach-50/60 disabled:text-hesya-navy-900/30 disabled:line-through",
                       s.closed
                         ? "border-hesya-peach-100"
                         : "border-hesya-peach-200 focus:border-hesya-amber-500",
