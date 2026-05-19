@@ -136,7 +136,8 @@ export function BookingDetailPanel({
               {booking.kr}
             </h2>
             {booking.vip && (
-              <span className="inline-flex items-center rounded-full bg-hesya-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
+              // Reference bookings.css .bk-panel-vip — amber-600 text on amber-tint bg
+              <span className="inline-flex items-center rounded-full bg-[rgba(232,161,23,0.15)] px-2 py-0.5 text-[10px] font-bold text-hesya-amber-600">
                 ★ {labels.vipBadge}
               </span>
             )}
@@ -192,7 +193,7 @@ export function BookingDetailPanel({
             <button
               type="button"
               onClick={() => alert(labels.reschedule)}
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-hesya-peach-100 px-3 py-2.5 text-[12.5px] font-medium text-hesya-navy-900 transition hover:bg-hesya-peach-200"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-hesya-peach-200 bg-transparent px-3 py-2.5 text-[12.5px] font-medium text-hesya-navy-900 transition hover:border-hesya-amber-500"
             >
               🗓 {labels.reschedule}
             </button>
@@ -200,7 +201,7 @@ export function BookingDetailPanel({
               type="button"
               onClick={() => setShowCancelConfirm((v) => !v)}
               aria-expanded={showCancelConfirm}
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-hesya-peach-100 px-3 py-2.5 text-[12.5px] font-medium text-hesya-navy-900 transition hover:bg-hesya-peach-200"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-hesya-peach-200 bg-transparent px-3 py-2.5 text-[12.5px] font-medium text-hesya-navy-900 transition hover:border-hesya-amber-500"
             >
               × {labels.cancel}
             </button>
@@ -230,10 +231,11 @@ export function BookingDetailPanel({
           </div>
         </div>
 
-        {/* Cancel inline confirm — refund preview */}
+        {/* Cancel inline confirm — refund preview.
+            Reference bookings.css .bk-refund-preview — amber tint (warning, not danger). */}
         {showCancelConfirm && (
-          <section className="rounded-2xl border border-rose-200 bg-rose-50/60 p-4">
-            <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-rose-700">
+          <section className="rounded-2xl border border-[rgba(232,161,23,0.3)] bg-[rgba(232,161,23,0.06)] p-4">
+            <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-hesya-amber-600">
               {labels.cancelConfirmTitle ?? "취소 시 환불 안내"}
             </p>
             <p className="mt-1.5 text-[12px] leading-relaxed text-hesya-navy-900/75 [word-break:keep-all]">
