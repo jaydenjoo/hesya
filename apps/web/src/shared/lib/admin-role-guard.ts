@@ -49,6 +49,20 @@ export const requireAdminRole = cache(
       };
     }
 
+    // Mock 데이터 단계 bypass — `MOCK_FIXTURES=true`이면 외부 시연용으로 admin
+    // 무로그인 진입. proxy.ts middleware도 같은 env에서 admin 가드를 skip하므로
+    // 둘이 정합. 베타 매장 모집 후 `MOCK_FIXTURES=false`로 토글하면 정식 DB
+    // role 검증 복원. NODE_ENV='production'에서도 의도적으로 작동 — 외부 데모
+    // URL이 prod 빌드이기 때문 (L-082 외부 시연 baseline).
+    if (env.MOCK_FIXTURES) {
+      return {
+        ok: true,
+        userId: "mock-admin",
+        email: "demo@hesya.com",
+        role: "admin",
+      };
+    }
+
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user) {
       return {
