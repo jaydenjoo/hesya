@@ -146,10 +146,10 @@ export function MarketingHowItWorks() {
                   <span
                     aria-hidden="true"
                     role="presentation"
-                    className={`font-heading text-[120px] italic leading-[0.9] tracking-[-0.04em] transition-[stroke] md:text-[200px] ${
+                    className={`font-heading text-[120px] font-medium italic leading-[0.9] tracking-[-0.04em] transition-[stroke] md:text-[200px] ${
                       isActive
                         ? "text-hesya-peach-100 [-webkit-text-stroke:2px_var(--color-hesya-amber-500)]"
-                        : "text-transparent [-webkit-text-stroke:1.5px_var(--color-hesya-amber-700)]"
+                        : "text-transparent [-webkit-text-stroke:1.5px_var(--color-hesya-amber-600)]"
                     }`}
                   >
                     {String(i + 1).padStart(2, "0")}
