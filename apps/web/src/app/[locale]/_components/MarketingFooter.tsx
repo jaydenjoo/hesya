@@ -18,28 +18,28 @@ const LINK_COLS = [
       { label: "Featured salons", href: "#salons" },
       { label: "Reviews", href: "#reviews" },
       { label: "Safety guide", href: "#safety" },
-      { label: "Get the app", href: "#cta-traveler" },
+      { label: "Trending looks", href: "/trending" },
     ],
   },
   {
     header: "For salons",
     links: [
       { label: "Become a partner", href: "#salons" },
-      { label: "Pricing", href: "#" },
+      { label: "Pricing", href: "/pricing" },
       { label: "Store dashboard sign-in", href: "/sign-in" },
-      { label: "Onboarding guide", href: "#" },
-      { label: "Help center", href: "#" },
+      { label: "Onboarding guide", href: "/onboarding/kyc" },
+      { label: "Cancellation policy", href: "/cancellation-policy" },
     ],
   },
   {
     header: "Company",
     links: [
-      { label: "About us", href: "#" },
-      { label: "Press kit", href: "#" },
-      { label: "Careers", href: "#" },
-      { label: "Contact", href: "#" },
-      { label: "Privacy policy", href: "#" },
-      { label: "Terms of service", href: "#" },
+      { label: "About us", href: "#about" },
+      { label: "Pricing", href: "/pricing" },
+      { label: "Trending", href: "/trending" },
+      { label: "Cancellation policy", href: "/cancellation-policy" },
+      { label: "Sign in", href: "/sign-in" },
+      { label: "Find salon", href: "/c" },
     ],
   },
 ] as const;
@@ -89,16 +89,27 @@ export function MarketingFooter() {
                 role="list"
                 className="mt-4 space-y-1 text-sm text-hesya-navy-700"
               >
-                {col.links.map((link) => (
-                  <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="block py-1 transition hover:text-hesya-navy-900"
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
+                {col.links.map((link) =>
+                  link.href.startsWith("#") ? (
+                    <li key={link.label}>
+                      <a
+                        href={link.href}
+                        className="block py-1 transition hover:text-hesya-navy-900"
+                      >
+                        {link.label}
+                      </a>
+                    </li>
+                  ) : (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
+                        className="block py-1 transition hover:text-hesya-navy-900"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ),
+                )}
               </ul>
             </div>
           ))}
