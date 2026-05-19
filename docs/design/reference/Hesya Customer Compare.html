@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>매장 비교 · Hesya</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Source+Sans+3:wght@400..700&family=JetBrains+Mono:wght@500..700&display=swap"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"/>
+<link rel="stylesheet" href="tokens.css"/>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: #FDF8F1; color: #1A2238;
+  font-family: 'Source Sans 3', 'Pretendard Variable', sans-serif;
+  font-size: 16px; -webkit-font-smoothing: antialiased; letter-spacing: -0.005em;
+}
+[lang="ko"], .kr {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7; text-transform: none;
+}
+.mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "tnum"; letter-spacing: 0; }
+button { font: inherit; cursor: pointer; border: 0; background: transparent; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid #E8A97A; outline-offset: 4px; border-radius: 4px; }
+
+/* ─── Topbar ─── */
+.topbar {
+  position: sticky; top: 0; z-index: 30; height: 64px;
+  background: #FFFFFF; border-bottom: 1px solid #F5DDC8;
+  display: flex; align-items: center; padding: 0 24px; gap: 16px;
+}
+.back-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #1A2238; transition: background 120ms;
+}
+.back-btn:hover { background: #FAEFE2; }
+.back-btn svg { width: 18px; height: 18px; }
+.crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #2B3450; }
+.crumb a:hover { color: #1A2238; }
+.crumb svg { width: 13px; height: 13px; color: #6C757D; }
+.crumb .cur { color: #1A2238; font-weight: 600; }
+.topbar h1 {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 22px; color: #1A2238; letter-spacing: -0.02em;
+  margin: 0 auto; padding-left: 12px;
+}
+.topbar h1 .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 18px; letter-spacing: 0;
+}
+.share-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 36px; padding: 0 14px;
+  border: 1px solid #2B3450; border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #1A2238; letter-spacing: 0;
+  transition: background 120ms;
+}
+.share-btn:hover { background: #FAEFE2; }
+.share-btn svg { width: 14px; height: 14px; }
+
+/* ─── §2 Store Selector ─── */
+.selector-bar {
+  background: #FDF8F1;
+  padding: 16px 32px;
+  border-bottom: 1px solid #F5DDC8;
+}
+.selector-bar-inner {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; gap: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.store-chip {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 12px;
+  width: 220px; height: 64px;
+  background: #FFFFFF;
+  border: 1px solid #F8D7C8;
+  border-radius: 12px;
+  padding: 8px;
+  position: relative;
+  transition: border-color 120ms, box-shadow 120ms;
+}
+.store-chip:hover { border-color: #E8A97A;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06); }
+.store-chip .thumb {
+  width: 48px; height: 48px;
+  border-radius: 8px;
+  border: 1px solid #F5DDC8;
+  flex-shrink: 0;
+  background-size: cover; background-position: center;
+}
+.store-chip .meta { flex: 1; min-width: 0; }
+.store-chip .name {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 14px; color: #1A2238;
+  letter-spacing: 0; line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.store-chip .loc {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #6C757D; letter-spacing: 0;
+  margin-top: 2px;
+}
+.store-chip .rm {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #FEF4E8; color: #2B3450;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 120ms, color 120ms;
+}
+.store-chip .rm:hover { background: #FAE0C2; color: #1A2238; }
+.store-chip .rm svg { width: 12px; height: 12px; }
+
+.add-slot {
+  flex-shrink: 0;
+  width: 220px; height: 64px;
+  border: 1px dashed #F5DDC8;
+  border-radius: 12px;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #D4956A; letter-spacing: 0;
+  transition: background 120ms, border-color 120ms;
+}
+.add-slot:hover { background: #FAEFE2; border-color: #E8A97A; }
+.add-slot svg { width: 14px; height: 14px; }
+
+/* ─── §3 Compare Table ─── */
+.compare {
+  padding: 32px;
+  background: #FFFFFF;
+}
+.compare-wrap { max-width: 1280px; margin: 0 auto; }
+.compare-h {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 24px; gap: 16px;
+}
+.compare-h h2 {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 22px; color: #1A2238; letter-spacing: -0.02em;
+  margin: 0;
+}
+.compare-h h2 .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 18px; letter-spacing: 0;
+}
+.compare-h .meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: #6C757D; letter-spacing: 0;
+}
+
+/* Table — Desktop */
+.cmp-table { display: none; }
+@media (min-width: 980px) {
+  .cmp-table {
+    display: grid;
+    grid-template-columns: 240px repeat(3, 1fr);
+    border: 1px solid #F5DDC8;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #FFFFFF;
+  }
+  .cmp-table .cell {
+    padding: 16px 18px;
+    border-bottom: 1px solid #FAEFE2;
+    font-family: 'Pretendard Variable', sans-serif;
+    font-size: 14px; color: #1A2238;
+    letter-spacing: 0; word-break: keep-all;
+    min-height: 64px;
+    display: flex; align-items: center; gap: 8px;
+    transition: background 120ms cubic-bezier(0.4,0,0.2,1);
+  }
+  .cmp-table .cell.label {
+    background: #FDF8F1;
+    font-size: 13px; color: #2B3450; font-weight: 500;
+  }
+  .cmp-table .cell.group {
+    grid-column: 1 / -1;
+    background: #FAEFE2;
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+    font-size: 14px; color: #1A2238; letter-spacing: 0;
+    min-height: 44px;
+    padding: 10px 18px;
+  }
+  .cmp-table .cell.group .ko {
+    font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+    font-weight: 700; font-size: 13px; letter-spacing: 0;
+  }
+  .cmp-table .cell.group::before {
+    content: ""; width: 4px; height: 14px;
+    background: #E8A97A; border-radius: 2px; margin-right: 8px;
+  }
+  /* Hover row highlight via JS-applied attr */
+  .cmp-table[data-row-hover="1"] .row-1,
+  .cmp-table[data-row-hover="2"] .row-2,
+  .cmp-table[data-row-hover="3"] .row-3,
+  .cmp-table[data-row-hover="4"] .row-4,
+  .cmp-table[data-row-hover="5"] .row-5,
+  .cmp-table[data-row-hover="6"] .row-6,
+  .cmp-table[data-row-hover="7"] .row-7,
+  .cmp-table[data-row-hover="8"] .row-8,
+  .cmp-table[data-row-hover="9"] .row-9,
+  .cmp-table[data-row-hover="10"] .row-10,
+  .cmp-table[data-row-hover="11"] .row-11,
+  .cmp-table[data-row-hover="12"] .row-12,
+  .cmp-table[data-row-hover="13"] .row-13 { background: #FDF8F1; }
+  /* Column hover */
+  .cmp-table[data-col-hover="1"] .col-1,
+  .cmp-table[data-col-hover="2"] .col-2,
+  .cmp-table[data-col-hover="3"] .col-3 { background: #FEF4E8; }
+}
+
+/* Header row — store cards */
+.cmp-table .head-label {
+  background: #FDF8F1;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600; color: #6C757D;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  min-height: 100px;
+}
+.cmp-table .head {
+  padding: 16px 18px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #FAEFE2;
+  min-height: 100px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 64px; z-index: 5;
+}
+.cmp-table .head .thumb {
+  width: 56px; height: 56px;
+  border-radius: 10px;
+  border: 1px solid #F5DDC8;
+  flex-shrink: 0;
+  background-size: cover; background-position: center;
+}
+.cmp-table .head .info { flex: 1; min-width: 0; }
+.cmp-table .head .name {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 16px; color: #1A2238; letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.cmp-table .head .name .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 15px; letter-spacing: 0;
+  display: block;
+}
+.cmp-table .head .stars {
+  display: flex; align-items: center; gap: 4px;
+  margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #6C757D; letter-spacing: 0;
+}
+.cmp-table .head .stars svg { width: 12px; height: 12px; color: #D4AF37; }
+
+/* Cell content types */
+.check { color: #10B981; }
+.check svg { width: 18px; height: 18px; }
+.miss { color: #ADB5BD; }
+.miss svg { width: 18px; height: 18px; }
+.half { color: #E8A97A; }
+.half svg { width: 18px; height: 18px; }
+.sr { position: absolute; left: -9999px; }
+
+.chip {
+  display: inline-flex; align-items: center; height: 22px;
+  padding: 0 8px; border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 11px; color: #2B3450; letter-spacing: 0;
+  background: #FAEFE2;
+  word-break: keep-all;
+}
+.chip.gold {
+  background: #FDF3D5; color: #8B7113;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.chip-row { display: flex; flex-wrap: wrap; gap: 4px; }
+.dot-rose {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: #2B3450;
+}
+.dot-rose::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%;
+  background: #E8C4D6;
+}
+.range-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 14px; letter-spacing: 0;
+}
+.range-mono.low { color: #10B981; }
+.range-mono.mid { color: #1A2238; }
+.range-mono.high { color: #2B3450; }
+.range-mono .fade { color: #ADB5BD; }
+.metro {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px;
+}
+.metro .line {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700; color: #FFFFFF;
+}
+.metro .line.l2 { background: #00A84D; }
+.metro .line.l3 { background: #EF7C1C; }
+.metro .line.l5 { background: #996CAC; }
+.rating {
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.rating .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 14px; color: #1A2238;
+}
+.rating .count { color: #6C757D; font-size: 11px; }
+.stars-row { display: inline-flex; gap: 2px; }
+.stars-row svg { width: 13px; height: 13px; color: #D4AF37; }
+.k-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #D4AF37; color: #FFFFFF;
+  border-radius: 9999px;
+  padding: 3px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.k-badge svg { width: 11px; height: 11px; }
+
+/* ─── §4 Per-store CTA footer ─── */
+.cta-strip {
+  display: none;
+}
+@media (min-width: 980px) {
+  .cta-strip {
+    display: grid;
+    grid-template-columns: 240px repeat(3, 1fr);
+    background: #FDF8F1;
+    border: 1px solid #F5DDC8;
+    border-top: 0;
+    border-radius: 0 0 16px 16px;
+    margin-top: -1px;
+  }
+  .cta-strip .cell {
+    padding: 16px 18px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .cta-strip .cell.label {
+    background: #FAEFE2;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600; color: #6C757D;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    align-items: flex-start; justify-content: center;
+  }
+}
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; min-height: 40px; padding: 0 16px;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 13.5px; letter-spacing: 0;
+  word-break: keep-all;
+  transition: background 120ms, transform 120ms, box-shadow 120ms;
+}
+.btn.primary {
+  background: #E8A97A; color: #1A2238;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+}
+.btn.primary:hover {
+  background: #D4956A; transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.08);
+}
+.btn.ghost {
+  background: transparent; color: #1A2238; border: 1px solid #2B3450;
+}
+.btn.ghost:hover { background: #FAEFE2; }
+.btn svg { width: 14px; height: 14px; }
+
+/* ─── Mobile cards ─── */
+.cmp-mobile { display: block; }
+@media (min-width: 980px) { .cmp-mobile { display: none; } }
+.mob-tabs {
+  position: sticky; top: 64px; z-index: 5;
+  background: #FDF8F1;
+  display: flex; gap: 8px;
+  padding: 12px 20px;
+  overflow-x: auto;
+  border-bottom: 1px solid #F5DDC8;
+}
+.mob-tabs button {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 10px 6px 6px;
+  background: #FFFFFF;
+  border: 1px solid #F5DDC8;
+  border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #2B3450; letter-spacing: 0;
+}
+.mob-tabs button[aria-selected="true"] {
+  background: #1A2238; color: #FDF8F1; border-color: #1A2238;
+}
+.mob-tabs button .thumb {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background-size: cover; background-position: center;
+}
+.mob-tabs button[aria-selected="true"] .thumb {
+  outline: 2px solid #E8A97A; outline-offset: 1px;
+}
+.mob-card {
+  display: none;
+  padding: 20px;
+}
+.mob-card[data-active="true"] { display: block; }
+.mob-store-head {
+  display: flex; gap: 12px; align-items: center;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #F5DDC8;
+}
+.mob-store-head .thumb {
+  width: 56px; height: 56px;
+  border-radius: 12px;
+  background-size: cover; background-position: center;
+  border: 1px solid #F5DDC8;
+}
+.mob-store-head .info { flex: 1; }
+.mob-store-head .name {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 700; font-size: 16px; color: #1A2238; letter-spacing: 0;
+}
+.mob-store-head .stars {
+  margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: #6C757D; letter-spacing: 0;
+}
+.mob-section-h {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 14px; color: #1A2238;
+  margin: 16px 0 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.mob-section-h::before {
+  content: ""; width: 3px; height: 12px; background: #E8A97A; border-radius: 2px;
+}
+.mob-section-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 13px; letter-spacing: 0;
+}
+.mob-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #FAEFE2;
+  gap: 16px;
+}
+.mob-row .k {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #6C757D; letter-spacing: 0;
+}
+.mob-row .v {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13.5px; color: #1A2238; text-align: right; letter-spacing: 0;
+}
+.mob-cta-row {
+  margin-top: 20px;
+  display: flex; gap: 8px;
+}
+.mob-cta-row .btn { flex: 1; }
+
+/* ─── §5 Trust footer ─── */
+.trust-foot {
+  background: #FAEFE2;
+  padding: 28px 32px;
+  text-align: center;
+}
+.trust-foot p {
+  margin: 0; max-width: 720px; margin: 0 auto;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #6C757D;
+  line-height: 1.7; word-break: keep-all; letter-spacing: 0;
+}
+
+/* Footer */
+.footer { background: #FDF8F1; padding: 28px 24px;
+  border-top: 1px solid #F5DDC8; }
+.footer-wrap {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: #6C757D; letter-spacing: 0;
+}
+.footer-wrap a:hover { color: #D4956A; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+}
+
+/* Thumb backgrounds (placeholder) */
+.t-styl { background: linear-gradient(140deg, #F5DDC8 0%, #D4956A 100%); }
+.t-mirr { background: linear-gradient(140deg, #FAEFE2 0%, #2B3450 130%); }
+.t-colo { background: linear-gradient(140deg, #E8C4D6 0%, #D4956A 100%); }
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<header class="topbar" role="banner">
+  <button class="back-btn" type="button" aria-label="뒤로 가기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+  </button>
+  <nav class="crumb" aria-label="이동 경로">
+    <a href="#" lang="ko">검색</a>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+    <span class="cur" lang="ko">비교</span>
+  </nav>
+  <h1><span class="ko" lang="ko">매장 비교</span></h1>
+  <button class="share-btn" type="button" aria-label="비교 페이지 URL 공유">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    <span lang="ko">공유</span>
+  </button>
+</header>
+
+<!-- §2 Store selector -->
+<section class="selector-bar" aria-label="비교할 매장">
+  <div class="selector-bar-inner">
+    <div class="store-chip">
+      <div class="thumb t-styl" aria-hidden="true"></div>
+      <div class="meta">
+        <div class="name" lang="ko">Stylista 홍대</div>
+        <div class="loc">Hongdae</div>
+      </div>
+      <button class="rm" type="button" aria-label="Stylista 홍대 비교에서 제거">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="store-chip">
+      <div class="thumb t-mirr" aria-hidden="true"></div>
+      <div class="meta">
+        <div class="name" lang="ko">Mirror Glass 성수</div>
+        <div class="loc">Seongsu</div>
+      </div>
+      <button class="rm" type="button" aria-label="Mirror Glass 성수 비교에서 제거">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="store-chip">
+      <div class="thumb t-colo" aria-hidden="true"></div>
+      <div class="meta">
+        <div class="name" lang="ko">Color Lab 강남</div>
+        <div class="loc">Gangnam</div>
+      </div>
+      <button class="rm" type="button" aria-label="Color Lab 강남 비교에서 제거">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <button class="add-slot" type="button" aria-label="비교할 매장 추가">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span lang="ko">매장 추가</span>
+    </button>
+  </div>
+</section>
+
+<!-- §3 Compare table -->
+<main class="compare">
+  <div class="compare-wrap">
+    <div class="compare-h">
+      <h2><span class="ko" lang="ko">시술 / 결제 / 신뢰 비교</span></h2>
+      <span class="meta">3 stores · Updated 2 days ago</span>
+    </div>
+
+    <!-- Desktop table (grid-based, semantic table mirror in mob-cmp) -->
+    <div class="cmp-table" id="cmpTable" role="table" aria-label="매장 비교표">
+      <!-- header row -->
+      <div class="cell head-label" role="rowheader" aria-hidden="true">매장</div>
+      <div class="cell head col-1" role="columnheader">
+        <div class="thumb t-styl" aria-hidden="true"></div>
+        <div class="info">
+          <div class="name"><span class="ko" lang="ko">Stylista 홍대</span></div>
+          <div class="stars">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>4.9 · 312 reviews</span>
+          </div>
+        </div>
+      </div>
+      <div class="cell head col-2" role="columnheader">
+        <div class="thumb t-mirr" aria-hidden="true"></div>
+        <div class="info">
+          <div class="name"><span class="ko" lang="ko">Mirror Glass 성수</span></div>
+          <div class="stars">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>4.7 · 184 reviews</span>
+          </div>
+        </div>
+      </div>
+      <div class="cell head col-3" role="columnheader">
+        <div class="thumb t-colo" aria-hidden="true"></div>
+        <div class="info">
+          <div class="name"><span class="ko" lang="ko">Color Lab 강남</span></div>
+          <div class="stars">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>4.8 · 256 reviews</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Group A -->
+      <div class="cell group"><span class="ko" lang="ko">기본 정보</span></div>
+
+      <div class="cell label row-1" lang="ko">가격대</div>
+      <div class="cell row-1 col-1"><span class="range-mono mid">₩₩₩<span class="fade">₩</span></span></div>
+      <div class="cell row-1 col-2"><span class="range-mono low">₩₩<span class="fade">₩₩</span></span></div>
+      <div class="cell row-1 col-3"><span class="range-mono high">₩₩₩₩</span></div>
+
+      <div class="cell label row-2" lang="ko">외국인 응대</div>
+      <div class="cell row-2 col-1 check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span class="sr">전체 지원</span><span lang="ko">전체 지원</span>
+      </div>
+      <div class="cell row-2 col-2 half">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10V2z"/><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        <span lang="ko">부분 지원</span>
+      </div>
+      <div class="cell row-2 col-3 check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span lang="ko">전체 지원</span>
+      </div>
+
+      <div class="cell label row-3" lang="ko">시술 시간</div>
+      <div class="cell row-3 col-1"><span class="mono">60–90 min</span></div>
+      <div class="cell row-3 col-2"><span class="mono">45–60 min</span></div>
+      <div class="cell row-3 col-3"><span class="mono">120–180 min</span></div>
+
+      <div class="cell label row-4" lang="ko">위치</div>
+      <div class="cell row-4 col-1">
+        <span class="metro"><span class="line l2">2</span><span lang="ko">홍대입구</span></span>
+      </div>
+      <div class="cell row-4 col-2">
+        <span class="metro"><span class="line l2">2</span><span lang="ko">성수</span></span>
+      </div>
+      <div class="cell row-4 col-3">
+        <span class="metro"><span class="line l3">3</span><span lang="ko">신사</span></span>
+      </div>
+
+      <div class="cell label row-5" lang="ko">평점</div>
+      <div class="cell row-5 col-1">
+        <span class="rating">
+          <span class="num">4.9</span>
+          <span class="stars-row">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
+          <span class="count">312</span>
+        </span>
+      </div>
+      <div class="cell row-5 col-2">
+        <span class="rating">
+          <span class="num">4.7</span>
+          <span class="stars-row">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
+          <span class="count">184</span>
+        </span>
+      </div>
+      <div class="cell row-5 col-3">
+        <span class="rating">
+          <span class="num">4.8</span>
+          <span class="stars-row">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
+          <span class="count">256</span>
+        </span>
+      </div>
+
+      <!-- Group B -->
+      <div class="cell group"><span class="ko" lang="ko">신뢰 + 인증</span></div>
+
+      <div class="cell label row-6" lang="ko">인증</div>
+      <div class="cell row-6 col-1">
+        <span class="k-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          K-Verified
+        </span>
+      </div>
+      <div class="cell row-6 col-2 miss">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+        <span lang="ko">미인증</span>
+      </div>
+      <div class="cell row-6 col-3">
+        <span class="k-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          K-Verified
+        </span>
+      </div>
+
+      <div class="cell label row-7" lang="ko">보험</div>
+      <div class="cell row-7 col-1 check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span lang="ko">가입</span>
+      </div>
+      <div class="cell row-7 col-2 check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span lang="ko">가입</span>
+      </div>
+      <div class="cell row-7 col-3 check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span lang="ko">가입</span>
+      </div>
+
+      <div class="cell label row-8" lang="ko">Female-Friendly</div>
+      <div class="cell row-8 col-1"><span class="dot-rose" lang="ko">여성 친화</span></div>
+      <div class="cell row-8 col-2 miss">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+      </div>
+      <div class="cell row-8 col-3"><span class="dot-rose" lang="ko">여성 친화</span></div>
+
+      <!-- Group C -->
+      <div class="cell group"><span class="ko" lang="ko">결제 + 예약</span></div>
+
+      <div class="cell label row-9" lang="ko">결제 수단</div>
+      <div class="cell row-9 col-1">
+        <div class="chip-row">
+          <span class="chip">Stripe</span>
+          <span class="chip">Alipay</span>
+          <span class="chip">WeChat</span>
+        </div>
+      </div>
+      <div class="cell row-9 col-2">
+        <div class="chip-row">
+          <span class="chip">Stripe</span>
+          <span class="chip" lang="ko">현금</span>
+        </div>
+      </div>
+      <div class="cell row-9 col-3">
+        <div class="chip-row">
+          <span class="chip">Stripe</span>
+          <span class="chip">Alipay</span>
+          <span class="chip">WeChat</span>
+          <span class="chip" lang="ko">현금</span>
+        </div>
+      </div>
+
+      <div class="cell label row-10" lang="ko">영업시간</div>
+      <div class="cell row-10 col-1"><span class="mono">10:00 – 21:00</span></div>
+      <div class="cell row-10 col-2"><span class="mono">11:00 – 20:00</span></div>
+      <div class="cell row-10 col-3"><span class="mono">10:00 – 22:00</span></div>
+
+      <div class="cell label row-11" lang="ko">외국어 응대</div>
+      <div class="cell row-11 col-1">
+        <div class="chip-row">
+          <span class="chip">EN</span><span class="chip">JA</span><span class="chip">ZH</span>
+        </div>
+      </div>
+      <div class="cell row-11 col-2">
+        <div class="chip-row">
+          <span class="chip">EN</span>
+        </div>
+      </div>
+      <div class="cell row-11 col-3">
+        <div class="chip-row">
+          <span class="chip">EN</span><span class="chip">JA</span><span class="chip">ZH</span><span class="chip">VI</span>
+        </div>
+      </div>
+
+      <div class="cell label row-12" lang="ko">당일 예약</div>
+      <div class="cell row-12 col-1 check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span lang="ko">가능</span>
+      </div>
+      <div class="cell row-12 col-2 check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <span lang="ko">가능</span>
+      </div>
+      <div class="cell row-12 col-3 miss">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+        <span lang="ko">48h 전 예약</span>
+      </div>
+
+      <!-- Group D -->
+      <div class="cell group"><span class="ko" lang="ko">기타</span></div>
+
+      <div class="cell label row-13" lang="ko">평균 응답 시간</div>
+      <div class="cell row-13 col-1"><span class="mono">2 min</span></div>
+      <div class="cell row-13 col-2"><span class="mono">8 min</span></div>
+      <div class="cell row-13 col-3"><span class="mono">3 min</span></div>
+
+      <div class="cell label" lang="ko">시술 메뉴 수</div>
+      <div class="cell col-1"><span class="mono">24 services</span></div>
+      <div class="cell col-2"><span class="mono">11 services</span></div>
+      <div class="cell col-3"><span class="mono">38 services</span></div>
+    </div>
+
+    <!-- §4 CTA strip -->
+    <div class="cta-strip" aria-label="매장별 예약">
+      <div class="cell label" lang="ko">예약하기</div>
+      <div class="cell">
+        <a href="#" class="btn primary" lang="ko">이 매장 예약 →</a>
+        <a href="#" class="btn ghost" lang="ko">상세 보기</a>
+      </div>
+      <div class="cell">
+        <a href="#" class="btn primary" lang="ko">이 매장 예약 →</a>
+        <a href="#" class="btn ghost" lang="ko">상세 보기</a>
+      </div>
+      <div class="cell">
+        <a href="#" class="btn primary" lang="ko">이 매장 예약 →</a>
+        <a href="#" class="btn ghost" lang="ko">상세 보기</a>
+      </div>
+    </div>
+
+    <!-- Mobile cards -->
+    <div class="cmp-mobile">
+      <div class="mob-tabs" role="tablist" aria-label="비교할 매장 전환">
+        <button role="tab" aria-selected="true" data-mob="1">
+          <span class="thumb t-styl" aria-hidden="true"></span>
+          <span lang="ko">Stylista 홍대</span>
+        </button>
+        <button role="tab" aria-selected="false" data-mob="2">
+          <span class="thumb t-mirr" aria-hidden="true"></span>
+          <span lang="ko">Mirror 성수</span>
+        </button>
+        <button role="tab" aria-selected="false" data-mob="3">
+          <span class="thumb t-colo" aria-hidden="true"></span>
+          <span lang="ko">Color Lab 강남</span>
+        </button>
+      </div>
+
+      <div class="mob-card" data-mob-card="1" data-active="true">
+        <div class="mob-store-head">
+          <div class="thumb t-styl" aria-hidden="true"></div>
+          <div class="info">
+            <div class="name" lang="ko">Stylista 홍대</div>
+            <div class="stars">4.9 · 312 reviews · K-Verified</div>
+          </div>
+        </div>
+        <h3 class="mob-section-h"><span class="ko" lang="ko">기본 정보</span></h3>
+        <div class="mob-row"><span class="k" lang="ko">가격대</span><span class="v"><span class="range-mono mid">₩₩₩<span class="fade">₩</span></span></span></div>
+        <div class="mob-row"><span class="k" lang="ko">외국인 응대</span><span class="v" lang="ko">전체 지원</span></div>
+        <div class="mob-row"><span class="k" lang="ko">시술 시간</span><span class="v"><span class="mono">60–90 min</span></span></div>
+        <div class="mob-row"><span class="k" lang="ko">위치</span><span class="v" lang="ko">홍대입구역 (2호선)</span></div>
+        <div class="mob-row"><span class="k" lang="ko">평점</span><span class="v"><span class="mono">4.9</span> · 312</span></div>
+        <h3 class="mob-section-h"><span class="ko" lang="ko">신뢰 + 인증</span></h3>
+        <div class="mob-row"><span class="k" lang="ko">인증</span><span class="v"><span class="k-badge">K-Verified</span></span></div>
+        <div class="mob-row"><span class="k" lang="ko">보험</span><span class="v" lang="ko">가입</span></div>
+        <div class="mob-row"><span class="k" lang="ko">Female-Friendly</span><span class="v"><span class="dot-rose" lang="ko">여성 친화</span></span></div>
+        <h3 class="mob-section-h"><span class="ko" lang="ko">결제 + 예약</span></h3>
+        <div class="mob-row"><span class="k" lang="ko">결제 수단</span><span class="v">Stripe · Alipay · WeChat</span></div>
+        <div class="mob-row"><span class="k" lang="ko">영업시간</span><span class="v"><span class="mono">10:00 – 21:00</span></span></div>
+        <div class="mob-row"><span class="k" lang="ko">외국어</span><span class="v">EN · JA · ZH</span></div>
+        <div class="mob-row"><span class="k" lang="ko">당일 예약</span><span class="v" lang="ko">가능</span></div>
+        <div class="mob-row"><span class="k" lang="ko">평균 응답</span><span class="v"><span class="mono">2 min</span></span></div>
+        <div class="mob-row"><span class="k" lang="ko">시술 메뉴</span><span class="v"><span class="mono">24 services</span></span></div>
+        <div class="mob-cta-row">
+          <a href="#" class="btn primary" lang="ko">이 매장 예약 →</a>
+          <a href="#" class="btn ghost" lang="ko">상세</a>
+        </div>
+      </div>
+
+      <div class="mob-card" data-mob-card="2">
+        <div class="mob-store-head">
+          <div class="thumb t-mirr" aria-hidden="true"></div>
+          <div class="info">
+            <div class="name" lang="ko">Mirror Glass 성수</div>
+            <div class="stars">4.7 · 184 reviews</div>
+          </div>
+        </div>
+        <h3 class="mob-section-h"><span class="ko" lang="ko">기본 정보</span></h3>
+        <div class="mob-row"><span class="k" lang="ko">가격대</span><span class="v"><span class="range-mono low">₩₩<span class="fade">₩₩</span></span></span></div>
+        <div class="mob-row"><span class="k" lang="ko">외국인 응대</span><span class="v" lang="ko">부분 지원</span></div>
+        <div class="mob-row"><span class="k" lang="ko">시술 시간</span><span class="v"><span class="mono">45–60 min</span></span></div>
+        <div class="mob-row"><span class="k" lang="ko">위치</span><span class="v" lang="ko">성수역 (2호선)</span></div>
+        <div class="mob-row"><span class="k" lang="ko">평점</span><span class="v"><span class="mono">4.7</span> · 184</span></div>
+        <h3 class="mob-section-h"><span class="ko" lang="ko">신뢰 + 인증</span></h3>
+        <div class="mob-row"><span class="k" lang="ko">인증</span><span class="v" lang="ko">미인증</span></div>
+        <div class="mob-row"><span class="k" lang="ko">보험</span><span class="v" lang="ko">가입</span></div>
+        <div class="mob-row"><span class="k" lang="ko">Female-Friendly</span><span class="v" lang="ko">—</span></div>
+        <h3 class="mob-section-h"><span class="ko" lang="ko">결제 + 예약</span></h3>
+        <div class="mob-row"><span class="k" lang="ko">결제 수단</span><span class="v">Stripe · 현금</span></div>
+        <div class="mob-row"><span class="k" lang="ko">영업시간</span><span class="v"><span class="mono">11:00 – 20:00</span></span></div>
+        <div class="mob-row"><span class="k" lang="ko">외국어</span><span class="v">EN</span></div>
+        <div class="mob-row"><span class="k" lang="ko">당일 예약</span><span class="v" lang="ko">가능</span></div>
+        <div class="mob-row"><span class="k" lang="ko">평균 응답</span><span class="v"><span class="mono">8 min</span></span></div>
+        <div class="mob-row"><span class="k" lang="ko">시술 메뉴</span><span class="v"><span class="mono">11 services</span></span></div>
+        <div class="mob-cta-row">
+          <a href="#" class="btn primary" lang="ko">이 매장 예약 →</a>
+          <a href="#" class="btn ghost" lang="ko">상세</a>
+        </div>
+      </div>
+
+      <div class="mob-card" data-mob-card="3">
+        <div class="mob-store-head">
+          <div class="thumb t-colo" aria-hidden="true"></div>
+          <div class="info">
+            <div class="name" lang="ko">Color Lab 강남</div>
+            <div class="stars">4.8 · 256 reviews · K-Verified</div>
+          </div>
+        </div>
+        <h3 class="mob-section-h"><span class="ko" lang="ko">기본 정보</span></h3>
+        <div class="mob-row"><span class="k" lang="ko">가격대</span><span class="v"><span class="range-mono high">₩₩₩₩</span></span></div>
+        <div class="mob-row"><span class="k" lang="ko">외국인 응대</span><span class="v" lang="ko">전체 지원</span></div>
+        <div class="mob-row"><span class="k" lang="ko">시술 시간</span><span class="v"><span class="mono">120–180 min</span></span></div>
+        <div class="mob-row"><span class="k" lang="ko">위치</span><span class="v" lang="ko">신사역 (3호선)</span></div>
+        <div class="mob-row"><span class="k" lang="ko">평점</span><span class="v"><span class="mono">4.8</span> · 256</span></div>
+        <h3 class="mob-section-h"><span class="ko" lang="ko">신뢰 + 인증</span></h3>
+        <div class="mob-row"><span class="k" lang="ko">인증</span><span class="v"><span class="k-badge">K-Verified</span></span></div>
+        <div class="mob-row"><span class="k" lang="ko">보험</span><span class="v" lang="ko">가입</span></div>
+        <div class="mob-row"><span class="k" lang="ko">Female-Friendly</span><span class="v"><span class="dot-rose" lang="ko">여성 친화</span></span></div>
+        <h3 class="mob-section-h"><span class="ko" lang="ko">결제 + 예약</span></h3>
+        <div class="mob-row"><span class="k" lang="ko">결제 수단</span><span class="v">Stripe · Alipay · WeChat · 현금</span></div>
+        <div class="mob-row"><span class="k" lang="ko">영업시간</span><span class="v"><span class="mono">10:00 – 22:00</span></span></div>
+        <div class="mob-row"><span class="k" lang="ko">외국어</span><span class="v">EN · JA · ZH · VI</span></div>
+        <div class="mob-row"><span class="k" lang="ko">당일 예약</span><span class="v" lang="ko">48h 전 예약</span></div>
+        <div class="mob-row"><span class="k" lang="ko">평균 응답</span><span class="v"><span class="mono">3 min</span></span></div>
+        <div class="mob-row"><span class="k" lang="ko">시술 메뉴</span><span class="v"><span class="mono">38 services</span></span></div>
+        <div class="mob-cta-row">
+          <a href="#" class="btn primary" lang="ko">이 매장 예약 →</a>
+          <a href="#" class="btn ghost" lang="ko">상세</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- §5 Trust footer -->
+<section class="trust-foot" aria-label="비교 데이터 출처 안내">
+  <p lang="ko">비교 데이터는 매장 자체 입력 기준입니다. 실제 시술 시간과 가격은 매장 컨펌 후 확정됩니다. <a href="Hesya Cancellation Policy.html" style="color:#D4956A;text-decoration:underline;text-underline-offset:3px;">취소 정책</a>도 함께 확인해주세요.</p>
+</section>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer-wrap">
+    <span>© 2026 Hesya · KR · GDPR · 개인정보보호법 준수</span>
+    <a href="Hesya Admin Login.html">Internal · Operations →</a>
+  </div>
+</footer>
+
+<script>
+(function() {
+  // Column hover (desktop)
+  const tbl = document.getElementById('cmpTable');
+  if (tbl) {
+    tbl.querySelectorAll('.cell').forEach(c => {
+      c.addEventListener('mouseenter', () => {
+        const col = ['col-1','col-2','col-3'].find(x => c.classList.contains(x));
+        const rowMatch = Array.from(c.classList).find(x => x.startsWith('row-'));
+        if (col) tbl.setAttribute('data-col-hover', col.replace('col-',''));
+        if (rowMatch) tbl.setAttribute('data-row-hover', rowMatch.replace('row-',''));
+      });
+      c.addEventListener('mouseleave', () => {
+        tbl.removeAttribute('data-col-hover');
+        tbl.removeAttribute('data-row-hover');
+      });
+    });
+  }
+
+  // Mobile tab switch
+  document.querySelectorAll('.mob-tabs button').forEach(b => {
+    b.addEventListener('click', () => {
+      const idx = b.getAttribute('data-mob');
+      document.querySelectorAll('.mob-tabs button').forEach(x => x.setAttribute('aria-selected', 'false'));
+      b.setAttribute('aria-selected', 'true');
+      document.querySelectorAll('.mob-card').forEach(c => c.removeAttribute('data-active'));
+      const card = document.querySelector('[data-mob-card="' + idx + '"]');
+      if (card) card.setAttribute('data-active', 'true');
+    });
+  });
+
+  // Remove store (demo)
+  document.querySelectorAll('.store-chip .rm').forEach(b => {
+    b.addEventListener('click', () => {
+      const chip = b.closest('.store-chip');
+      if (chip) chip.style.display = 'none';
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>기본 정보 · Hesya Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Source+Sans+3:wght@400..700&family=JetBrains+Mono:wght@500..700&family=Noto+Sans+JP:wght@400..700&family=Noto+Sans+SC:wght@400..700&family=Noto+Sans+TC:wght@400..700&display=swap"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"/>
+<link rel="stylesheet" href="tokens.css"/>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: #FDF8F1; color: #1A2238;
+  font-family: 'Source Sans 3', 'Pretendard Variable', sans-serif;
+  font-size: 15px; -webkit-font-smoothing: antialiased; letter-spacing: -0.005em;
+}
+[lang="ko"], .kr {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7; text-transform: none;
+}
+[lang="ja"] { font-family: 'Noto Sans JP', 'Pretendard Variable', sans-serif; letter-spacing: 0; }
+[lang="zh-CN"] { font-family: 'Noto Sans SC', 'Pretendard Variable', sans-serif; letter-spacing: 0; }
+[lang="zh-TW"] { font-family: 'Noto Sans TC', 'Pretendard Variable', sans-serif; letter-spacing: 0; }
+[lang="vi"] { font-family: 'Source Sans 3', sans-serif; }
+.mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "tnum"; letter-spacing: 0; }
+button { font: inherit; cursor: pointer; border: 0; background: transparent; color: inherit; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid #E8A97A; outline-offset: 4px; border-radius: 4px; }
+
+/* Topbar */
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  background: #FFFFFF; border-bottom: 1px solid #F5DDC8;
+  height: 64px; padding: 0 24px;
+  display: flex; align-items: center; gap: 16px;
+}
+.back-btn { width: 36px; height: 36px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; color: #1A2238; }
+.back-btn:hover { background: #FAEFE2; }
+.back-btn svg { width: 18px; height: 18px; }
+.crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #2B3450; }
+.crumb svg { width: 13px; height: 13px; color: #6C757D; }
+.crumb .cur { color: #1A2238; font-weight: 600; }
+.topbar h1 {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 22px; color: #1A2238; letter-spacing: -0.02em;
+  margin: 0 auto; padding-left: 12px;
+}
+.topbar h1 .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 18px; letter-spacing: 0;
+}
+.dirty-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 10px;
+  background: #FEF3C7; color: #92400E;
+  border-radius: 9999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+}
+.dirty-pill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%; background: #92400E;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.shell { max-width: 720px; margin: 0 auto; padding: 24px 24px 120px; }
+
+/* Section header */
+.section-h {
+  background: #FAEFE2;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.section-h h2 {
+  margin: 0 0 6px;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 22px; color: #1A2238; letter-spacing: -0.02em;
+}
+.section-h h2 .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 20px; letter-spacing: 0;
+}
+.section-h p {
+  margin: 0;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: #2B3450;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7;
+}
+
+/* Cards */
+.card {
+  background: #FFFFFF;
+  border: 1px solid #F5DDC8;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.card-h {
+  margin: 0 0 16px;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 18px; color: #1A2238; letter-spacing: -0.015em;
+  display: flex; align-items: baseline; gap: 8px;
+}
+.card-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 16px; letter-spacing: 0;
+}
+.card-h .meta {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #6C757D; letter-spacing: 0; font-weight: 500;
+}
+
+/* Form field */
+.field {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-bottom: 18px;
+}
+.field:last-child { margin-bottom: 0; }
+.field-label-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 8px;
+}
+.field-label {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 700; font-size: 14px; color: #1A2238;
+  letter-spacing: 0; word-break: keep-all;
+}
+.field-label .req {
+  color: #E8A97A; margin-left: 4px; font-weight: 700;
+}
+.field-counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #6C757D; letter-spacing: 0;
+}
+.field-sub {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12.5px; color: #6C757D;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.6;
+}
+.field-error {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12.5px; color: #B91C1C; letter-spacing: 0;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.field-error svg { width: 12px; height: 12px; }
+.input, .textarea {
+  width: 100%;
+  height: 56px; padding: 0 16px;
+  background: #FDF8F1;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 16px; color: #1A2238;
+  letter-spacing: 0; word-break: keep-all;
+  outline: 0;
+  transition: background 120ms cubic-bezier(0.4,0,0.2,1),
+              border-color 120ms cubic-bezier(0.4,0,0.2,1);
+}
+.input:focus, .textarea:focus { background: #FFFFFF; border-color: #E8A97A; }
+.input::placeholder, .textarea::placeholder { color: #6C757D; }
+.input.mono { font-family: 'JetBrains Mono', monospace; font-size: 15px; letter-spacing: 0; }
+.input.readonly { background: #FAEFE2; color: #2B3450; cursor: not-allowed; }
+.textarea {
+  height: auto; min-height: 144px;
+  padding: 14px 16px;
+  line-height: 1.7;
+  resize: vertical;
+  font-size: 14.5px;
+}
+
+/* Inline button (like 주소 검색) */
+.inline-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 44px; padding: 0 18px;
+  background: #E8A97A; color: #1A2238;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 700; font-size: 13.5px; letter-spacing: 0; word-break: keep-all;
+  flex-shrink: 0;
+  transition: background 120ms, transform 120ms, box-shadow 120ms;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+}
+.inline-btn:hover { background: #D4956A; transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.08); }
+.inline-btn svg { width: 14px; height: 14px; }
+
+/* Multi-select category pills */
+.cat-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.cat-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 40px; padding: 0 16px;
+  background: #FAEFE2;
+  border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; font-weight: 600; color: #2B3450;
+  letter-spacing: 0; word-break: keep-all;
+  transition: background 120ms, color 120ms;
+}
+.cat-pill:hover { background: #F5DDC8; }
+.cat-pill[aria-pressed="true"] {
+  background: #E8A97A; color: #1A2238;
+}
+.cat-pill[aria-pressed="true"]::before {
+  content: ""; width: 10px; height: 10px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>") no-repeat center / contain;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>") no-repeat center / contain;
+}
+.cat-meta {
+  margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #6C757D; letter-spacing: 0;
+}
+
+/* Address rows */
+.zip-row { display: flex; gap: 8px; align-items: stretch; }
+.zip-row .input { flex: 0 0 140px; }
+
+/* Map */
+.map {
+  margin-top: 8px;
+  position: relative;
+  height: 240px;
+  border-radius: 16px;
+  border: 1px solid #F5DDC8;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(45deg, transparent 0 12px, rgba(245,221,200,0.35) 12px 14px),
+    linear-gradient(135deg, #FDF8F1 0%, #FAEFE2 100%);
+}
+.map::before {
+  content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 30% 60%, rgba(232,196,214,0.35), transparent 70%),
+    radial-gradient(ellipse 50% 30% at 70% 40%, rgba(245,221,200,0.5), transparent 70%);
+}
+.map .roads {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, transparent 30%, #FFFFFF 30.5%, #FFFFFF 32%, transparent 32.5%),
+    linear-gradient(0deg, transparent 50%, #FFFFFF 50.5%, #FFFFFF 52%, transparent 52.5%),
+    linear-gradient(50deg, transparent 60%, rgba(255,255,255,0.7) 60.5%, rgba(255,255,255,0.7) 62%, transparent 62.5%);
+  opacity: 0.8;
+}
+.map .pin {
+  position: absolute; top: 48%; left: 50%;
+  transform: translate(-50%, -100%);
+  color: #E8A97A;
+}
+.map .pin svg { width: 36px; height: 36px; filter: drop-shadow(0 2px 4px rgba(26,34,56,0.3)); }
+.map .pin::after {
+  content: ""; position: absolute; bottom: -4px; left: 50%;
+  transform: translateX(-50%);
+  width: 12px; height: 4px; border-radius: 50%;
+  background: rgba(26,34,56,0.2);
+  filter: blur(2px);
+}
+.map .adj-link {
+  position: absolute; bottom: 12px; right: 12px;
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 30px; padding: 0 10px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(6px);
+  border: 1px solid #F5DDC8;
+  border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; color: #1A2238; font-weight: 600; letter-spacing: 0;
+}
+.map .adj-link:hover { background: #FFFFFF; border-color: #E8A97A; }
+.map .adj-link svg { width: 11px; height: 11px; }
+.map .credit {
+  position: absolute; bottom: 6px; left: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; color: rgba(43,52,80,0.6); letter-spacing: 0.04em;
+}
+
+/* Transport row */
+.transport-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 600px) { .transport-row { grid-template-columns: 1.4fr 1fr; } }
+.seg-pill {
+  display: flex; padding: 4px;
+  background: #FAEFE2; border-radius: 12px;
+  gap: 0;
+}
+.seg-pill button {
+  flex: 1;
+  height: 44px; padding: 0 12px;
+  border-radius: 8px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12.5px; color: #2B3450; font-weight: 600; letter-spacing: 0;
+  word-break: keep-all;
+  transition: background 120ms, color 120ms, box-shadow 120ms;
+}
+.seg-pill button[aria-pressed="true"] {
+  background: #E8A97A; color: #1A2238;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04);
+}
+
+/* Photos */
+.photo-main {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  border: 1px solid #F8D7C8;
+  background:
+    linear-gradient(140deg, #F5DDC8 0%, #D4956A 60%, #1A2238 130%);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.photo-main .tag {
+  position: absolute; top: 12px; left: 12px;
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 24px; padding: 0 10px;
+  background: rgba(26,34,56,0.7);
+  backdrop-filter: blur(8px);
+  color: #FDF8F1;
+  border-radius: 9999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+}
+.photo-tools {
+  position: absolute; top: 10px; right: 10px;
+  display: flex; gap: 6px;
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.photo-main:hover .photo-tools, .photo-slot:hover .photo-tools { opacity: 1; }
+.photo-tools button {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(253,248,241,0.92);
+  color: #1A2238;
+  backdrop-filter: blur(6px);
+}
+.photo-tools button:hover { background: #FFFFFF; }
+.photo-tools button.danger:hover { color: #B91C1C; }
+.photo-tools svg { width: 14px; height: 14px; }
+.photo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.photo-slot {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  border: 1px solid #F8D7C8;
+  overflow: hidden;
+}
+.photo-slot.filled { background: linear-gradient(150deg, var(--from, #FAEFE2), var(--to, #D4956A)); }
+.photo-slot.empty {
+  background: #FDF8F1;
+  border: 1px dashed #F5DDC8;
+  display: flex; align-items: center; justify-content: center;
+}
+.photo-slot.empty .add {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: #D4956A;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 0;
+}
+.photo-slot.empty .add svg { width: 14px; height: 14px; }
+.photo-slot.empty:hover {
+  background: #FAEFE2; border-color: #E8A97A;
+}
+.photo-slot.empty:hover .add { color: #1A2238; }
+
+/* Guidelines */
+.guide-toggle {
+  margin-top: 14px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #2B3450; letter-spacing: 0;
+  padding: 6px 8px; border-radius: 6px;
+  background: transparent;
+}
+.guide-toggle:hover { background: #FAEFE2; }
+.guide-toggle svg { width: 12px; height: 12px; transition: transform 220ms cubic-bezier(0.4,0,0.2,1); }
+.guide-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.guide-list {
+  display: none;
+  margin-top: 10px;
+  padding: 14px 16px;
+  background: #FDF8F1;
+  border-radius: 10px;
+}
+.guide-toggle[aria-expanded="true"] + .guide-list { display: block; }
+.guide-list ul {
+  margin: 0; padding-left: 20px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #2B3450;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.8;
+}
+.guide-list li.bad { color: #B91C1C; }
+
+/* Locale tabs */
+.locale-tabs {
+  display: flex; gap: 0;
+  border-bottom: 1px solid #F5DDC8;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.locale-tabs button {
+  position: relative;
+  flex-shrink: 0;
+  height: 44px; padding: 0 14px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13.5px; color: #6C757D; font-weight: 600;
+  letter-spacing: 0; word-break: keep-all;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  transition: color 120ms, border-color 120ms;
+}
+.locale-tabs button:hover { color: #2B3450; }
+.locale-tabs button[aria-selected="true"] {
+  color: #1A2238; border-bottom-color: #E8A97A;
+}
+.locale-tabs button .req-dot {
+  margin-left: 4px;
+  color: #E8A97A; font-weight: 700;
+}
+.locale-tabs button .opt-dot {
+  margin-left: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; color: #ADB5BD;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  font-weight: 500;
+}
+.locale-pane { display: none; }
+.locale-pane[data-active="true"] { display: block; }
+.locale-pane .ai-helper-row {
+  margin-top: 10px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.ai-helper {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 36px; padding: 0 12px;
+  border: 1px solid #2B3450; border-radius: 8px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12.5px; color: #1A2238; letter-spacing: 0; word-break: keep-all;
+  transition: background 120ms;
+}
+.ai-helper:hover { background: #FAEFE2; }
+.ai-helper svg { width: 13px; height: 13px; color: #D4956A; }
+.ai-helper .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 700;
+  background: #FEF4E8; color: #D4956A;
+  padding: 2px 6px; border-radius: 4px;
+  letter-spacing: 0.06em;
+}
+.ai-note {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 11.5px; color: #6C757D; letter-spacing: 0; word-break: keep-all;
+}
+
+/* Sticky save footer */
+.save-foot {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 25;
+  background: #FFFFFF;
+  border-top: 1px solid #F5DDC8;
+  padding: 14px 24px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 -4px 12px rgba(26,34,56,0.04);
+}
+.save-foot .dirty-msg {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: #D4956A; font-weight: 600; letter-spacing: 0;
+  word-break: keep-all;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.save-foot .dirty-msg::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%; background: #D4956A;
+  animation: pulse 2s ease-in-out infinite;
+}
+.save-foot .right {
+  margin-left: auto;
+  display: flex; gap: 8px;
+}
+.btn-ghost, .btn-primary {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  min-height: 44px; padding: 0 20px;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 700; font-size: 14px; letter-spacing: 0; word-break: keep-all;
+  transition: background 120ms, transform 120ms, box-shadow 120ms;
+}
+.btn-ghost { background: transparent; color: #1A2238; border: 1px solid #2B3450; }
+.btn-ghost:hover { background: #FAEFE2; }
+.btn-primary {
+  background: #E8A97A; color: #1A2238;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+}
+.btn-primary:hover {
+  background: #D4956A; transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.08);
+}
+.btn-primary[disabled] {
+  background: #F5DDC8; color: #B97A52; cursor: not-allowed; transform: none; box-shadow: none;
+}
+.btn-primary svg { width: 14px; height: 14px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar" role="banner">
+  <button class="back-btn" type="button" aria-label="설정 메뉴로">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+  </button>
+  <nav class="crumb" aria-label="이동 경로">
+    <a href="#">매장 설정</a>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+    <span class="cur" lang="ko">기본 정보</span>
+  </nav>
+  <h1><span class="ko" lang="ko">기본 정보</span></h1>
+  <span class="dirty-pill" aria-live="polite">UNSAVED · 변경사항 있음</span>
+</header>
+
+<form class="shell" aria-label="매장 기본 정보">
+
+  <!-- §1 Section header -->
+  <section class="section-h" aria-labelledby="basic-h">
+    <h2 id="basic-h"><span class="ko" lang="ko">기본 정보</span></h2>
+    <p lang="ko">손님에게 노출되는 매장 정보입니다. 검색과 매칭에 사용되니 정확히 입력해주세요.</p>
+  </section>
+
+  <!-- §2 Identity -->
+  <section class="card" aria-labelledby="id-h">
+    <h2 class="card-h" id="id-h">
+      <span class="ko" lang="ko">매장 식별</span>
+      <span class="meta">REQUIRED · 필수</span>
+    </h2>
+
+    <div class="field">
+      <div class="field-label-row">
+        <label class="field-label" for="name-ko">
+          <span lang="ko">매장명 (한국어)</span><span class="req" aria-label="필수">*</span>
+        </label>
+        <span class="field-counter"><span id="kct">8</span> / 40</span>
+      </div>
+      <input class="input" type="text" id="name-ko" value="Stylista 홍대" lang="ko" required aria-required="true" maxlength="40"/>
+      <span class="field-sub" lang="ko">손님 검색에 사용됩니다. 점포명 + 지점명 권장.</span>
+    </div>
+
+    <div class="field">
+      <div class="field-label-row">
+        <label class="field-label" for="name-en">
+          <span lang="ko">매장명 (영어, 선택)</span>
+        </label>
+        <span class="field-counter"><span id="ect">14</span> / 40</span>
+      </div>
+      <input class="input" type="text" id="name-en" value="Stylista Hongdae" maxlength="40"/>
+      <span class="field-sub" lang="ko">비워두면 한글명으로 자동 표시됩니다.</span>
+    </div>
+
+    <div class="field">
+      <div class="field-label-row">
+        <span class="field-label">
+          <span lang="ko">카테고리</span><span class="req" aria-label="필수">*</span>
+        </span>
+      </div>
+      <div class="cat-pills" role="group" aria-label="시술 카테고리 (최대 3개)">
+        <button type="button" class="cat-pill" aria-pressed="true" lang="ko">헤어</button>
+        <button type="button" class="cat-pill" aria-pressed="false" lang="ko">네일</button>
+        <button type="button" class="cat-pill" aria-pressed="false" lang="ko">래쉬</button>
+        <button type="button" class="cat-pill" aria-pressed="true" lang="ko">메이크업</button>
+        <button type="button" class="cat-pill" aria-pressed="false" lang="ko">스킨</button>
+        <button type="button" class="cat-pill" aria-pressed="false" lang="ko">왁싱</button>
+        <button type="button" class="cat-pill" aria-pressed="false" lang="ko">마사지</button>
+      </div>
+      <p class="cat-meta"><span id="catCt">2</span> / 3 SELECTED</p>
+    </div>
+
+    <div class="field">
+      <div class="field-label-row">
+        <label class="field-label" for="phone">
+          <span lang="ko">대표 전화번호</span><span class="req" aria-label="필수">*</span>
+        </label>
+      </div>
+      <input class="input mono" type="tel" id="phone" value="+82-2-3142-5678" placeholder="+82-XX-XXXX-XXXX" required aria-required="true"/>
+      <span class="field-sub" lang="ko">한국 번호 형식. Hesya가 손님 통화 자동 연결을 지원합니다.</span>
+    </div>
+
+    <div class="field">
+      <div class="field-label-row">
+        <label class="field-label" for="email">
+          <span lang="ko">이메일 (선택)</span>
+        </label>
+      </div>
+      <input class="input" type="email" id="email" placeholder="stylista.hongdae@example.com"/>
+      <span class="field-sub" lang="ko">손님 문의는 chat으로 전달됩니다 — 이메일은 직접 노출되지 않습니다.</span>
+    </div>
+  </section>
+
+  <!-- §3 Address -->
+  <section class="card" aria-labelledby="addr-h">
+    <h2 class="card-h" id="addr-h">
+      <span class="ko" lang="ko">주소</span>
+      <span class="meta">DAUM POSTCODE API</span>
+    </h2>
+
+    <div class="field">
+      <div class="field-label-row">
+        <label class="field-label" for="zip"><span lang="ko">우편번호</span><span class="req" aria-label="필수">*</span></label>
+      </div>
+      <div class="zip-row">
+        <input class="input mono readonly" type="text" id="zip" value="04055" readonly aria-readonly="true"/>
+        <button type="button" class="inline-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span lang="ko">주소 검색</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label-row">
+        <label class="field-label" for="road"><span lang="ko">도로명 주소</span></label>
+      </div>
+      <input class="input readonly" type="text" id="road" value="서울 마포구 와우산로 94" readonly aria-readonly="true" lang="ko"/>
+    </div>
+
+    <div class="field">
+      <div class="field-label-row">
+        <label class="field-label" for="detail">
+          <span lang="ko">상세 주소</span><span class="req" aria-label="필수">*</span>
+        </label>
+      </div>
+      <input class="input" type="text" id="detail" value="3층 (홍대입구역 9번 출구 도보 3분)" placeholder="예: 3층, 5호" lang="ko" required aria-required="true"/>
+    </div>
+
+    <!-- Map preview -->
+    <div class="map" role="img" aria-label="지도 미리보기 — Stylista 홍대 위치">
+      <div class="roads" aria-hidden="true"></div>
+      <div class="pin" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+      </div>
+      <a class="adj-link" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        <span lang="ko">지도에서 위치 조정</span>
+      </a>
+      <span class="credit">KAKAO MAPS</span>
+    </div>
+
+    <!-- Transport hints -->
+    <div class="transport-row" style="margin-top: 16px;">
+      <div class="field" style="margin-bottom:0;">
+        <div class="field-label-row">
+          <label class="field-label" for="station"><span lang="ko">가장 가까운 지하철역</span></label>
+        </div>
+        <input class="input" type="text" id="station" value="홍대입구역 (2호선) · 도보 3분" lang="ko"/>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <span class="field-label" lang="ko">주차</span>
+        <div class="seg-pill" role="radiogroup" aria-label="주차 가능 여부">
+          <button type="button" role="radio" aria-pressed="false" lang="ko">가능</button>
+          <button type="button" role="radio" aria-pressed="false" lang="ko">불가능</button>
+          <button type="button" role="radio" aria-pressed="true" lang="ko">근처 유료</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- §4 Photos -->
+  <section class="card" aria-labelledby="ph-h">
+    <h2 class="card-h" id="ph-h">
+      <span class="ko" lang="ko">매장 사진</span>
+      <span class="meta">3 / 5 UPLOADED</span>
+    </h2>
+    <p class="field-sub" style="margin-bottom:16px;" lang="ko">대표 사진 1장 + 추가 사진 최대 4장. 검색 결과 노출에 사용됩니다.</p>
+
+    <!-- Main photo -->
+    <div class="photo-main">
+      <span class="tag">MAIN · 대표</span>
+      <div class="photo-tools">
+        <button type="button" aria-label="대표 사진 변경">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </button>
+        <button type="button" class="danger" aria-label="대표 사진 삭제">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 4 additional slots -->
+    <div class="photo-grid">
+      <div class="photo-slot filled" style="--from:#FAEFE2; --to:#1A2238;" role="img" aria-label="추가 사진 1">
+        <div class="photo-tools">
+          <button type="button" aria-label="사진 변경"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
+          <button type="button" class="danger" aria-label="사진 삭제"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+        </div>
+      </div>
+      <div class="photo-slot filled" style="--from:#E8C4D6; --to:#D4956A;" role="img" aria-label="추가 사진 2">
+        <div class="photo-tools">
+          <button type="button" aria-label="사진 변경"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
+          <button type="button" class="danger" aria-label="사진 삭제"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+        </div>
+      </div>
+      <button type="button" class="photo-slot empty" aria-label="추가 사진 업로드 (슬롯 3)">
+        <span class="add">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span lang="ko">사진 추가</span>
+        </span>
+      </button>
+      <button type="button" class="photo-slot empty" aria-label="추가 사진 업로드 (슬롯 4)">
+        <span class="add">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span lang="ko">사진 추가</span>
+        </span>
+      </button>
+    </div>
+
+    <button class="guide-toggle" type="button" aria-expanded="false" id="guideToggle">
+      <span lang="ko">가이드 보기</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="guide-list" lang="ko">
+      <ul>
+        <li>밝은 자연광에서 촬영 (인공조명만 사용 시 색상 왜곡)</li>
+        <li>정면 + 측면 + 시술 공간 + 대기 공간 골고루</li>
+        <li>스타일리스트 또는 사장 모습 (선택, 신뢰도 ↑)</li>
+        <li>해상도 1200px 이상 권장, 최대 5MB</li>
+        <li class="bad">음식점·식당·관련 없는 사진 X (위반 시 자동 거부)</li>
+        <li class="bad">타 매장 사진 무단 사용 X</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- §5 Multi-locale description -->
+  <section class="card" aria-labelledby="desc-h">
+    <h2 class="card-h" id="desc-h">
+      <span class="ko" lang="ko">매장 소개</span>
+      <span class="meta">6 LOCALES</span>
+    </h2>
+    <p class="field-sub" style="margin-bottom:16px;" lang="ko">각 언어로 작성하시면 손님 언어에 맞게 표시됩니다. AI 번역으로 빠르게 시작하고 직접 검토하세요.</p>
+
+    <div class="locale-tabs" role="tablist" aria-label="언어 선택">
+      <button role="tab" aria-selected="true" data-loc="ko" id="tab-ko">한국어<span class="req-dot" aria-label="필수">*</span></button>
+      <button role="tab" aria-selected="false" data-loc="en" id="tab-en">English<span class="req-dot" aria-label="필수">*</span></button>
+      <button role="tab" aria-selected="false" data-loc="ja" id="tab-ja">日本語<span class="opt-dot">OPT</span></button>
+      <button role="tab" aria-selected="false" data-loc="zh-CN" id="tab-zh-cn">中文 (简)<span class="opt-dot">OPT</span></button>
+      <button role="tab" aria-selected="false" data-loc="zh-TW" id="tab-zh-tw">中文 (繁)<span class="opt-dot">OPT</span></button>
+      <button role="tab" aria-selected="false" data-loc="vi" id="tab-vi">Tiếng Việt<span class="opt-dot">OPT</span></button>
+    </div>
+
+    <!-- Korean (active) -->
+    <div class="locale-pane" data-active="true" data-loc="ko" role="tabpanel" aria-labelledby="tab-ko">
+      <div class="field" style="margin-bottom:0;">
+        <div class="field-label-row">
+          <span class="field-label" lang="ko">한국어 소개</span>
+          <span class="field-counter"><span class="lc">142</span> / 500</span>
+        </div>
+        <textarea class="textarea" lang="ko" placeholder="외국인 손님에게 매장을 소개해주세요">홍대 입구역에서 도보 3분, K-드라마 헤어를 전문으로 하는 스타일리스트가 영어/일본어/중국어로 응대하는 매장입니다. PPD-free 컬러, 비건 헤어 케어 제품을 사용하며, 외국인 손님을 위한 사진 매칭 시스템도 운영합니다.</textarea>
+      </div>
+    </div>
+
+    <!-- English -->
+    <div class="locale-pane" data-loc="en" role="tabpanel" aria-labelledby="tab-en">
+      <div class="field" style="margin-bottom:0;">
+        <div class="field-label-row">
+          <span class="field-label">English description</span>
+          <span class="field-counter"><span class="lc">98</span> / 500</span>
+        </div>
+        <textarea class="textarea" placeholder="Introduce your salon to foreign visitors">3 minutes from Hongdae Station. K-drama hair specialists with English/Japanese/Chinese-speaking staff. PPD-free color, vegan hair care products. Photo-matching system for international guests.</textarea>
+        <div class="ai-helper-row">
+          <button class="ai-helper" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+            <span lang="ko">한국어로 자동 번역</span>
+            <span class="tag">AI</span>
+          </button>
+          <span class="ai-note" lang="ko">AI 번역 후 직접 검토 / 수정 권장</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Japanese -->
+    <div class="locale-pane" data-loc="ja" role="tabpanel" aria-labelledby="tab-ja">
+      <div class="field" style="margin-bottom:0;">
+        <div class="field-label-row">
+          <span class="field-label">日本語紹介</span>
+          <span class="field-counter"><span class="lc">0</span> / 500</span>
+        </div>
+        <textarea class="textarea" lang="ja" placeholder="外国人のお客様にサロンを紹介してください"></textarea>
+        <div class="ai-helper-row">
+          <button class="ai-helper" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+            <span lang="ko">한국어로 자동 번역</span>
+            <span class="tag">AI</span>
+          </button>
+          <span class="ai-note" lang="ko">한국어 본문 기반 AI 자동 번역</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ZH-CN -->
+    <div class="locale-pane" data-loc="zh-CN" role="tabpanel" aria-labelledby="tab-zh-cn">
+      <div class="field" style="margin-bottom:0;">
+        <div class="field-label-row">
+          <span class="field-label">中文介绍</span>
+          <span class="field-counter"><span class="lc">0</span> / 500</span>
+        </div>
+        <textarea class="textarea" lang="zh-CN" placeholder="向外国客人介绍您的沙龙"></textarea>
+        <div class="ai-helper-row">
+          <button class="ai-helper" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+            <span lang="ko">한국어로 자동 번역</span>
+            <span class="tag">AI</span>
+          </button>
+          <span class="ai-note" lang="ko">한국어 본문 기반 AI 자동 번역</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ZH-TW -->
+    <div class="locale-pane" data-loc="zh-TW" role="tabpanel" aria-labelledby="tab-zh-tw">
+      <div class="field" style="margin-bottom:0;">
+        <div class="field-label-row">
+          <span class="field-label">中文介紹</span>
+          <span class="field-counter"><span class="lc">0</span> / 500</span>
+        </div>
+        <textarea class="textarea" lang="zh-TW" placeholder="向外國客人介紹您的沙龍"></textarea>
+        <div class="ai-helper-row">
+          <button class="ai-helper" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+            <span lang="ko">한국어로 자동 번역</span>
+            <span class="tag">AI</span>
+          </button>
+          <span class="ai-note" lang="ko">한국어 본문 기반 AI 자동 번역</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vietnamese -->
+    <div class="locale-pane" data-loc="vi" role="tabpanel" aria-labelledby="tab-vi">
+      <div class="field" style="margin-bottom:0;">
+        <div class="field-label-row">
+          <span class="field-label">Giới thiệu</span>
+          <span class="field-counter"><span class="lc">0</span> / 500</span>
+        </div>
+        <textarea class="textarea" lang="vi" placeholder="Giới thiệu salon đến khách hàng nước ngoài"></textarea>
+        <div class="ai-helper-row">
+          <button class="ai-helper" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+            <span lang="ko">한국어로 자동 번역</span>
+            <span class="tag">AI</span>
+          </button>
+          <span class="ai-note" lang="ko">한국어 본문 기반 AI 자동 번역</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</form>
+
+<!-- §6 Sticky save footer -->
+<div class="save-foot" role="region" aria-label="저장 작업">
+  <span class="dirty-msg" lang="ko">3개 필드 변경됨</span>
+  <div class="right">
+    <button class="btn-ghost" type="button" lang="ko">취소</button>
+    <button class="btn-primary" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      <span lang="ko">저장</span>
+    </button>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Counters
+  const koInp = document.getElementById('name-ko');
+  const koCt = document.getElementById('kct');
+  if (koInp && koCt) koInp.addEventListener('input', () => koCt.textContent = koInp.value.length);
+  const enInp = document.getElementById('name-en');
+  const enCt = document.getElementById('ect');
+  if (enInp && enCt) enInp.addEventListener('input', () => enCt.textContent = enInp.value.length);
+
+  // Description counters per textarea
+  document.querySelectorAll('.locale-pane textarea').forEach(t => {
+    const c = t.closest('.field').querySelector('.lc');
+    if (c) {
+      t.addEventListener('input', () => c.textContent = t.value.length);
+    }
+  });
+
+  // Category multi-select (max 3)
+  const catPills = document.querySelectorAll('.cat-pill');
+  const catCt = document.getElementById('catCt');
+  catPills.forEach(p => {
+    p.addEventListener('click', () => {
+      const pressed = p.getAttribute('aria-pressed') === 'true';
+      const selected = document.querySelectorAll('.cat-pill[aria-pressed="true"]').length;
+      if (!pressed && selected >= 3) return;
+      p.setAttribute('aria-pressed', !pressed);
+      catCt.textContent = document.querySelectorAll('.cat-pill[aria-pressed="true"]').length;
+    });
+  });
+
+  // Segmented pills (radio)
+  document.querySelectorAll('.seg-pill').forEach(group => {
+    group.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', 'false'));
+        btn.setAttribute('aria-pressed', 'true');
+      });
+    });
+  });
+
+  // Locale tabs
+  document.querySelectorAll('.locale-tabs button').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.locale-tabs button').forEach(x => x.setAttribute('aria-selected', 'false'));
+      t.setAttribute('aria-selected', 'true');
+      const loc = t.getAttribute('data-loc');
+      document.querySelectorAll('.locale-pane').forEach(p => {
+        p.setAttribute('data-active', p.getAttribute('data-loc') === loc ? 'true' : 'false');
+      });
+    });
+  });
+
+  // Photo guide toggle
+  const gt = document.getElementById('guideToggle');
+  if (gt) gt.addEventListener('click', () => {
+    const exp = gt.getAttribute('aria-expanded') === 'true';
+    gt.setAttribute('aria-expanded', !exp);
+  });
+})();
+</script>
+</body>
+</html>

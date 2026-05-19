@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>First-Visit Walkthrough · Hesya</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Source+Sans+3:wght@400..700&family=JetBrains+Mono:wght@500..700&display=swap"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400..700&family=Noto+Sans+SC:wght@400..700&family=Noto+Sans+TC:wght@400..700&display=swap"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"/>
+<link rel="stylesheet" href="tokens.css"/>
+
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: #FDF8F1; color: #1A2238;
+  font-family: 'Source Sans 3', 'Pretendard Variable', sans-serif;
+  font-size: 16px; -webkit-font-smoothing: antialiased; letter-spacing: -0.005em;
+}
+[lang="ja"] { font-family: 'Noto Sans JP', 'Pretendard Variable', sans-serif; }
+[lang="zh-CN"] { font-family: 'Noto Sans SC', 'Pretendard Variable', sans-serif; }
+[lang="zh-TW"] { font-family: 'Noto Sans TC', 'Pretendard Variable', sans-serif; }
+[lang="vi"] { font-family: 'Source Sans 3', sans-serif; }
+.mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "tnum"; letter-spacing: 0; }
+button { font: inherit; cursor: pointer; border: 0; background: transparent; }
+:focus-visible { outline: 2px solid #E8A97A; outline-offset: 4px; border-radius: 4px; }
+
+/* ─── Demo host (mock customer page) ─── */
+.host {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  padding: 24px 20px;
+}
+.host-bar {
+  display: flex; align-items: center; gap: 16px;
+  padding-bottom: 24px;
+}
+.host-brand {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 600;
+  font-size: 24px; color: #1A2238; letter-spacing: -0.02em;
+}
+.host-brand .pill {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  font-weight: 600; letter-spacing: 0.08em; color: #D4956A; margin-left: 4px;
+}
+.host-main {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.host-card {
+  max-width: 520px; padding: 32px;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid #F5DDC8;
+  border-radius: 16px;
+  text-align: center;
+}
+.host-card h1 {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 30px; color: #1A2238; letter-spacing: -0.025em;
+  margin: 0 0 12px;
+}
+.host-card p {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 15px; color: #2B3450; line-height: 1.6;
+  margin: 0 0 20px;
+}
+.host-card .demo-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 44px; padding: 0 20px;
+  background: #1A2238; color: #FDF8F1;
+  border-radius: 9999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  transition: background 120ms, transform 120ms;
+}
+.host-card .demo-btn:hover { background: #2B3450; transform: translateY(-1px); }
+.host-card .demo-btn svg { width: 14px; height: 14px; }
+.host-locale {
+  margin-top: 16px;
+  display: inline-flex; gap: 4px;
+  background: #FAEFE2; padding: 4px;
+  border-radius: 9999px;
+}
+.host-locale button {
+  min-height: 32px; padding: 0 12px;
+  border-radius: 9999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #2B3450; letter-spacing: 0.04em;
+  transition: background 120ms, color 120ms;
+}
+.host-locale button[aria-pressed="true"] {
+  background: #E8A97A; color: #1A2238; font-weight: 600;
+}
+.host-locale button:hover:not([aria-pressed="true"]) { background: #F5DDC8; }
+
+/* ─── Overlay ─── */
+.wt-backdrop {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(253, 248, 241, 0.95);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 280ms cubic-bezier(0.4,0,0.2,1);
+}
+.wt-backdrop.open {
+  opacity: 1; pointer-events: auto;
+}
+.wt-card {
+  position: relative;
+  width: 100%; max-width: 480px;
+  background: #FAEFE2;
+  border: 1px solid #F8D7C8;
+  border-radius: 24px;
+  box-shadow: 0 8px 16px rgba(26,34,56,.10), 0 24px 64px rgba(26,34,56,.16);
+  padding: 24px;
+  transform: scale(0.95);
+  transition: transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.wt-backdrop.open .wt-card { transform: scale(1); }
+@media (min-width: 480px) {
+  .wt-card { padding: 40px; }
+}
+
+/* Step inner */
+.wt-step { display: none; }
+.wt-step[data-active="true"] { display: block; }
+.wt-step.fading-out { animation: stepOut 220ms cubic-bezier(0.4,0,0.2,1) forwards; }
+.wt-step.fading-in  { animation: stepIn 220ms cubic-bezier(0.4,0,0.2,1) forwards; }
+@keyframes stepOut { to { opacity: 0; transform: translateX(-20px); } }
+@keyframes stepIn  { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+.wt-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #E8A97A; margin-bottom: 20px;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.wt-eyebrow .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #E8A97A;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.wt-illu {
+  width: 100%; height: 160px;
+  margin-bottom: 24px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+@media (min-width: 480px) {
+  .wt-illu { height: 180px; }
+}
+
+.wt-h {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 28px; line-height: 1.15; color: #1A2238;
+  letter-spacing: -0.025em;
+  font-variation-settings: "opsz" 144, "wght" 500;
+  margin: 0 0 12px;
+  text-wrap: pretty;
+}
+@media (min-width: 480px) {
+  .wt-h { font-size: 36px; }
+}
+.wt-sub {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 16px; color: #2B3450;
+  line-height: 1.7; letter-spacing: 0;
+  margin: 0;
+  text-wrap: pretty;
+}
+[lang="ja"] .wt-h, [lang="zh-CN"] .wt-h, [lang="zh-TW"] .wt-h {
+  font-style: normal; font-weight: 700;
+  font-family: 'Noto Sans JP', sans-serif;
+  letter-spacing: 0; line-height: 1.3;
+  font-size: 26px;
+}
+[lang="zh-CN"] .wt-h { font-family: 'Noto Sans SC', sans-serif; }
+[lang="zh-TW"] .wt-h { font-family: 'Noto Sans TC', sans-serif; }
+@media (min-width: 480px) {
+  [lang="ja"] .wt-h, [lang="zh-CN"] .wt-h, [lang="zh-TW"] .wt-h { font-size: 32px; }
+}
+[lang="ja"] .wt-sub, [lang="zh-CN"] .wt-sub, [lang="zh-TW"] .wt-sub {
+  line-height: 1.7;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+[lang="zh-CN"] .wt-sub { font-family: 'Noto Sans SC', sans-serif; }
+[lang="zh-TW"] .wt-sub { font-family: 'Noto Sans TC', sans-serif; }
+
+/* Bottom row */
+.wt-foot {
+  margin-top: 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+}
+.wt-skip {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 36px; padding: 0 8px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 14px; color: #2B3450; letter-spacing: 0;
+  border-radius: 8px;
+  transition: background 120ms, color 120ms;
+}
+.wt-skip:hover { background: rgba(245,221,200,0.6); color: #1A2238; }
+.wt-skip svg { width: 14px; height: 14px; }
+
+.wt-dots {
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.wt-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #F5DDC8;
+  transition: background 220ms cubic-bezier(0.4,0,0.2,1),
+              width 220ms cubic-bezier(0.4,0,0.2,1);
+}
+.wt-dot.visited { background: #2B3450; }
+.wt-dot.active { background: #E8A97A; width: 22px; border-radius: 4px; }
+
+.wt-next {
+  width: 48px; height: 48px;
+  border-radius: 9999px;
+  background: #E8A97A; color: #1A2238;
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+  transition: background 120ms, transform 120ms, box-shadow 120ms;
+}
+.wt-next:hover {
+  background: #D4956A; transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.08);
+}
+.wt-next svg { width: 22px; height: 22px; }
+
+.wt-finish {
+  flex: 1; min-width: 0;
+  height: 48px; padding: 0 22px;
+  border-radius: 9999px;
+  background: #E8A97A; color: #1A2238;
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600; font-size: 14.5px;
+  letter-spacing: 0;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04), 0 1px 3px rgba(26,34,56,.06);
+  transition: background 120ms, transform 120ms, box-shadow 120ms;
+  margin-left: 12px;
+}
+.wt-finish:hover {
+  background: #D4956A; transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(26,34,56,.06), 0 4px 12px rgba(26,34,56,.08);
+}
+.wt-finish svg { width: 18px; height: 18px; }
+[lang="ja"] .wt-finish, [lang="zh-CN"] .wt-finish, [lang="zh-TW"] .wt-finish {
+  font-family: 'Noto Sans JP', sans-serif; font-weight: 700;
+}
+[lang="zh-CN"] .wt-finish { font-family: 'Noto Sans SC', sans-serif; }
+[lang="zh-TW"] .wt-finish { font-family: 'Noto Sans TC', sans-serif; }
+
+/* ─── Illustration 1 — chat bubbles ─── */
+.illu-chat {
+  width: 100%; height: 100%;
+  position: relative;
+}
+.illu-chat .bubble {
+  position: absolute;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  line-height: 1.4;
+  word-break: keep-all;
+  max-width: 70%;
+  box-shadow: 0 1px 2px rgba(26,34,56,.06);
+  opacity: 0;
+  animation: bubbleIn 600ms cubic-bezier(0.4,0,0.2,1) forwards;
+}
+.illu-chat .bubble.b1 {
+  top: 14%; left: 8%;
+  background: #F5DDC8; color: #1A2238;
+  border-bottom-left-radius: 4px;
+  animation-delay: 0ms;
+  font-family: 'Pretendard Variable', sans-serif;
+  letter-spacing: 0;
+}
+.illu-chat .bubble.b2 {
+  bottom: 12%; right: 6%;
+  background: #FFFFFF; color: #1A2238;
+  border-bottom-right-radius: 4px;
+  border: 1px solid #FAEFE2;
+  animation-delay: 1000ms;
+}
+.illu-chat .arrow {
+  position: absolute;
+  top: 48%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: #E8A97A;
+  opacity: 0;
+  animation: arrowPulse 1.6s ease-in-out infinite 700ms;
+}
+.illu-chat .arrow svg { width: 28px; height: 28px; }
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes arrowPulse {
+  0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.92); }
+  50%      { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+}
+
+/* ─── Illustration 2 — phone mock ─── */
+.illu-phone {
+  position: relative;
+  width: 180px; height: 100%;
+  margin: 0 auto;
+}
+.illu-phone .frame {
+  position: absolute; inset: 0;
+  background: #1A2238;
+  border-radius: 24px;
+  padding: 6px;
+  box-shadow: 0 4px 8px rgba(26,34,56,.08), 0 12px 32px rgba(26,34,56,.12);
+}
+.illu-phone .screen {
+  width: 100%; height: 100%;
+  background: #FDF8F1;
+  border-radius: 18px;
+  padding: 14px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.illu-phone .price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px; font-weight: 700; color: #1A2238;
+  text-align: center; margin-top: 8px;
+  letter-spacing: 0;
+}
+.illu-phone .label {
+  text-align: center;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 10px; color: #6C757D; letter-spacing: 0;
+}
+.illu-phone .confirm {
+  margin-top: 6px;
+  background: #E8A97A;
+  color: #1A2238;
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0;
+}
+.illu-phone .pays {
+  position: absolute;
+  left: -34px; right: -34px;
+  bottom: 6px;
+  display: flex; justify-content: space-between; gap: 4px;
+}
+.illu-phone .pay {
+  flex: 1; min-width: 0;
+  background: #FFFFFF;
+  border: 1px solid #F5DDC8;
+  border-radius: 8px;
+  padding: 6px 4px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px; color: #2B3450;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  box-shadow: 0 1px 2px rgba(26,34,56,.04);
+}
+.illu-phone .pay.alipay { color: #1677FF; }
+.illu-phone .pay.wechat { color: #07C160; }
+
+/* ─── Illustration 3 — clock + chat ─── */
+.illu-clock {
+  width: 100%; height: 100%;
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+.illu-clock .clock {
+  position: relative;
+  width: 84px; height: 84px;
+  border: 2px solid #1A2238;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #FDF8F1;
+}
+.illu-clock .clock .time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px; font-weight: 700; color: #E8A97A;
+  letter-spacing: 0;
+}
+.illu-clock .clock::before, .illu-clock .clock::after {
+  content: ""; position: absolute;
+  background: #1A2238;
+  transform-origin: center bottom;
+  bottom: 50%; left: 50%;
+}
+.illu-clock .clock .pivot {
+  position: absolute;
+  width: 6px; height: 6px;
+  background: #E8A97A;
+  border-radius: 50%;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.illu-clock .pair {
+  display: flex; gap: 8px; align-items: center;
+}
+.illu-clock .mini-bubble {
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  background: #FFFFFF;
+  border: 1px solid #FAEFE2;
+  color: #1A2238;
+  display: inline-flex; align-items: center; gap: 6px;
+  box-shadow: 0 1px 2px rgba(26,34,56,.06);
+}
+.illu-clock .mini-bubble.salon { background: #F5DDC8; border: 0; }
+.illu-clock .mini-bubble svg {
+  width: 12px; height: 12px; color: #10B981;
+  animation: checkPop 1.6s ease-in-out infinite 400ms;
+}
+@keyframes checkPop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* Confirm dialog */
+.confirm-dialog {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(26,34,56,0.4);
+  display: none; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.confirm-dialog[data-open="true"] { display: flex; }
+.confirm-dialog-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 8px 16px rgba(26,34,56,.10), 0 24px 64px rgba(26,34,56,.16);
+}
+.confirm-dialog h3 {
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 20px; color: #1A2238; letter-spacing: -0.015em;
+  margin: 0 0 8px;
+}
+.confirm-dialog p {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 14px; color: #2B3450; line-height: 1.55;
+  margin: 0 0 20px;
+}
+.confirm-dialog .actions {
+  display: flex; gap: 8px; justify-content: flex-end;
+}
+.confirm-dialog button {
+  min-height: 40px; padding: 0 16px;
+  border-radius: 10px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600; font-size: 14px;
+  transition: background 120ms;
+}
+.confirm-dialog button.cancel { color: #2B3450; }
+.confirm-dialog button.cancel:hover { background: #FAEFE2; }
+.confirm-dialog button.skip { background: #E8A97A; color: #1A2238; }
+.confirm-dialog button.skip:hover { background: #D4956A; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+  .wt-step.fading-out, .wt-step.fading-in { animation: none; }
+  .illu-chat .arrow { opacity: 1; }
+  .illu-chat .bubble { opacity: 1; }
+  .illu-clock .mini-bubble svg { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Demo host page -->
+<div class="host" aria-hidden="false">
+  <div class="host-bar">
+    <span class="host-brand">Hesya<span class="pill">·KR</span></span>
+  </div>
+  <main class="host-main">
+    <div class="host-card">
+      <h1>Demo host page</h1>
+      <p>This page demonstrates the <strong>First-Visit Walkthrough</strong> overlay component. It auto-shows when <code>localStorage.hesya_walkthrough_done</code> is not set. Reset below to replay.</p>
+      <button class="demo-btn" type="button" id="resetBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Reset &amp; replay
+      </button>
+      <div class="host-locale" role="radiogroup" aria-label="Preview locale">
+        <button type="button" role="radio" aria-pressed="true" data-loc="en">EN</button>
+        <button type="button" role="radio" aria-pressed="false" data-loc="ja">JA</button>
+        <button type="button" role="radio" aria-pressed="false" data-loc="zh-CN">ZH-CN</button>
+        <button type="button" role="radio" aria-pressed="false" data-loc="zh-TW">ZH-TW</button>
+        <button type="button" role="radio" aria-pressed="false" data-loc="vi">VI</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Walkthrough overlay -->
+<div class="wt-backdrop" id="wtBackdrop" role="dialog" aria-modal="true" aria-labelledby="wtH" aria-describedby="wtSub">
+  <article class="wt-card">
+    <div aria-live="polite" aria-atomic="true" id="wtAnnounce" class="mono" style="position:absolute;left:-9999px;"></div>
+
+    <!-- Step 1 -->
+    <section class="wt-step" data-step="1" data-active="true">
+      <div class="wt-eyebrow"><span class="dot" aria-hidden="true"></span><span data-key="eyebrow1">STEP 1 OF 3</span></div>
+      <div class="wt-illu" aria-hidden="true">
+        <div class="illu-chat" id="illuChat">
+          <span class="bubble b1" lang="ko">안녕하세요, 예약 가능하신가요?</span>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span>
+          <span class="bubble b2" data-key="bubble2_en">Hi! Yes, I have a 3pm slot tomorrow.</span>
+        </div>
+      </div>
+      <h2 class="wt-h" id="wtH" data-key="h1">Korean salons, your language.</h2>
+      <p class="wt-sub" id="wtSub" data-key="sub1">Message any verified salon in English, Japanese, or Chinese. We translate both ways.</p>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="wt-step" data-step="2">
+      <div class="wt-eyebrow"><span class="dot" aria-hidden="true"></span><span data-key="eyebrow2">STEP 2 OF 3</span></div>
+      <div class="wt-illu" aria-hidden="true">
+        <div class="illu-phone">
+          <div class="frame">
+            <div class="screen">
+              <div class="label" data-key="phone_total">Total</div>
+              <div class="price">₩45,000</div>
+              <div class="label" data-key="phone_when">Tomorrow · 15:00 · 60min</div>
+              <div class="confirm" data-key="phone_btn">Confirm Booking</div>
+            </div>
+          </div>
+          <div class="pays">
+            <div class="pay">VISA</div>
+            <div class="pay alipay">ALI</div>
+            <div class="pay wechat">WeChat</div>
+          </div>
+        </div>
+      </div>
+      <h2 class="wt-h" data-key="h2">Book + pay in one flow.</h2>
+      <p class="wt-sub" data-key="sub2">Foreign cards work. Stripe, Alipay, WeChat Pay all accepted.</p>
+    </section>
+
+    <!-- Step 3 -->
+    <section class="wt-step" data-step="3">
+      <div class="wt-eyebrow"><span class="dot" aria-hidden="true"></span><span data-key="eyebrow3">STEP 3 OF 3</span></div>
+      <div class="wt-illu" aria-hidden="true">
+        <div class="illu-clock">
+          <div class="clock">
+            <span class="time">3:00</span>
+            <span class="pivot"></span>
+          </div>
+          <div class="pair">
+            <span class="mini-bubble salon" data-key="clock_salon">Salon</span>
+            <span class="mini-bubble" data-key="clock_ai">AI<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </div>
+        </div>
+      </div>
+      <h2 class="wt-h" data-key="h3">Replies in 3 minutes. Day or night.</h2>
+      <p class="wt-sub" data-key="sub3">Salons and AI work together so you always get a fast reply.</p>
+    </section>
+
+    <!-- Footer -->
+    <div class="wt-foot">
+      <button class="wt-skip" type="button" id="wtSkip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <span data-key="skip">Skip</span>
+      </button>
+      <div class="wt-dots" id="wtDots" aria-hidden="true">
+        <span class="wt-dot active"></span>
+        <span class="wt-dot"></span>
+        <span class="wt-dot"></span>
+      </div>
+      <button class="wt-next" type="button" id="wtNext" aria-label="Next step">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="wt-finish" type="button" id="wtFinish" style="display:none;">
+        <span data-key="finish">Get started</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+  </article>
+</div>
+
+<!-- Skip confirm dialog -->
+<div class="confirm-dialog" id="confirmDlg" role="alertdialog" aria-modal="true" aria-labelledby="cdH" aria-describedby="cdP">
+  <div class="confirm-dialog-card">
+    <h3 id="cdH" data-key="confirm_h">Skip the tour?</h3>
+    <p id="cdP" data-key="confirm_p">You can replay it anytime from Settings.</p>
+    <div class="actions">
+      <button class="cancel" type="button" id="cdCancel" data-key="confirm_cancel">Keep going</button>
+      <button class="skip" type="button" id="cdSkip" data-key="confirm_skip">Skip tour</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // ─── Locale strings ───
+  const L = {
+    en: {
+      eyebrow1: 'STEP 1 OF 3', eyebrow2: 'STEP 2 OF 3', eyebrow3: 'STEP 3 OF 3',
+      h1: 'Korean salons, your language.',
+      sub1: 'Message any verified salon in English, Japanese, or Chinese. We translate both ways.',
+      bubble2_en: 'Hi! Yes, I have a 3pm slot tomorrow.',
+      h2: 'Book + pay in one flow.',
+      sub2: 'Foreign cards work. Stripe, Alipay, WeChat Pay all accepted.',
+      h3: 'Replies in 3 minutes. Day or night.',
+      sub3: 'Salons and AI work together so you always get a fast reply.',
+      skip: 'Skip', finish: 'Get started',
+      phone_total: 'Total', phone_when: 'Tomorrow · 15:00 · 60min', phone_btn: 'Confirm Booking',
+      clock_salon: 'Salon', clock_ai: 'AI',
+      announce: 'Step {N} of 3',
+      confirm_h: 'Skip the tour?', confirm_p: 'You can replay it anytime from Settings.',
+      confirm_cancel: 'Keep going', confirm_skip: 'Skip tour'
+    },
+    ja: {
+      eyebrow1: 'STEP 1 / 3', eyebrow2: 'STEP 2 / 3', eyebrow3: 'STEP 3 / 3',
+      h1: '韓国のサロンを、あなたの言葉で。',
+      sub1: '認定サロンに英語・日本語・中国語でメッセージ。双方向翻訳。',
+      bubble2_en: 'はい!明日15時、空いています。',
+      h2: '予約と支払い、まとめて。',
+      sub2: '海外カード対応。Stripe / Alipay / WeChat Pay すべて利用可能。',
+      h3: '3分以内に返信。24時間。',
+      sub3: 'サロンとAIが連携。いつでも素早く返信。',
+      skip: 'スキップ', finish: '始める',
+      phone_total: '合計', phone_when: '明日 · 15:00 · 60分', phone_btn: '予約を確定',
+      clock_salon: 'サロン', clock_ai: 'AI',
+      announce: '{N} / 3 ステップ',
+      confirm_h: 'チュートリアルをスキップしますか?', confirm_p: '設定からいつでも再生できます。',
+      confirm_cancel: '続ける', confirm_skip: 'スキップ'
+    },
+    'zh-CN': {
+      eyebrow1: '步骤 1 / 3', eyebrow2: '步骤 2 / 3', eyebrow3: '步骤 3 / 3',
+      h1: '韩国美容院,用你的语言。',
+      sub1: '用英语、日语、中文给认证沙龙发消息。双向翻译。',
+      bubble2_en: '您好!明天下午3点有空。',
+      h2: '预约+付款,一步搞定。',
+      sub2: '支持外国卡。Stripe / 支付宝 / 微信支付都可用。',
+      h3: '3分钟内回复。24小时。',
+      sub3: '沙龙和AI协同工作。随时快速回复。',
+      skip: '跳过', finish: '开始体验',
+      phone_total: '总计', phone_when: '明天 · 15:00 · 60分钟', phone_btn: '确认预约',
+      clock_salon: '沙龙', clock_ai: 'AI',
+      announce: '步骤 {N} / 3',
+      confirm_h: '跳过教程?', confirm_p: '随时可以在设置中重新观看。',
+      confirm_cancel: '继续', confirm_skip: '跳过'
+    },
+    'zh-TW': {
+      eyebrow1: '步驟 1 / 3', eyebrow2: '步驟 2 / 3', eyebrow3: '步驟 3 / 3',
+      h1: '韓國美容院,用你的語言。',
+      sub1: '用英語、日語、中文給認證沙龍發訊息。雙向翻譯。',
+      bubble2_en: '您好!明天下午3點有空。',
+      h2: '預約+付款,一步搞定。',
+      sub2: '支持外國卡。Stripe / 支付寶 / 微信支付都可用。',
+      h3: '3分鐘內回覆。24小時。',
+      sub3: '沙龍和AI協同工作。隨時快速回覆。',
+      skip: '跳過', finish: '開始體驗',
+      phone_total: '總計', phone_when: '明天 · 15:00 · 60分鐘', phone_btn: '確認預約',
+      clock_salon: '沙龍', clock_ai: 'AI',
+      announce: '步驟 {N} / 3',
+      confirm_h: '跳過教程?', confirm_p: '可以隨時在設定中重新觀看。',
+      confirm_cancel: '繼續', confirm_skip: '跳過'
+    },
+    vi: {
+      eyebrow1: 'BƯỚC 1 / 3', eyebrow2: 'BƯỚC 2 / 3', eyebrow3: 'BƯỚC 3 / 3',
+      h1: 'Salon Hàn Quốc, ngôn ngữ của bạn.',
+      sub1: 'Nhắn tin với salon đã xác minh bằng tiếng Anh, Nhật, Trung. Dịch hai chiều.',
+      bubble2_en: 'Vâng! 15:00 ngày mai còn trống.',
+      h2: 'Đặt và thanh toán cùng lúc.',
+      sub2: 'Hỗ trợ thẻ nước ngoài. Stripe / Alipay / WeChat Pay đều dùng được.',
+      h3: 'Trả lời trong 3 phút. Bất kể giờ nào.',
+      sub3: 'Salon và AI cùng làm việc. Trả lời nhanh mọi lúc.',
+      skip: 'Bỏ qua', finish: 'Bắt đầu',
+      phone_total: 'Tổng', phone_when: 'Ngày mai · 15:00 · 60 phút', phone_btn: 'Xác nhận đặt',
+      clock_salon: 'Salon', clock_ai: 'AI',
+      announce: 'Bước {N} / 3',
+      confirm_h: 'Bỏ qua hướng dẫn?', confirm_p: 'Bạn có thể xem lại trong Cài đặt bất cứ lúc nào.',
+      confirm_cancel: 'Tiếp tục', confirm_skip: 'Bỏ qua'
+    }
+  };
+
+  // ─── State ───
+  let locale = 'en';
+  let step = 1;
+  const totalSteps = 3;
+  const STORAGE_KEY = 'hesya_walkthrough_done';
+
+  const backdrop = document.getElementById('wtBackdrop');
+  const dots = document.querySelectorAll('.wt-dot');
+  const nextBtn = document.getElementById('wtNext');
+  const finishBtn = document.getElementById('wtFinish');
+  const skipBtn = document.getElementById('wtSkip');
+  const announce = document.getElementById('wtAnnounce');
+  const confirmDlg = document.getElementById('confirmDlg');
+
+  function applyLocale(loc) {
+    locale = loc;
+    document.documentElement.lang = loc;
+    const strings = L[loc];
+    document.querySelectorAll('[data-key]').forEach(el => {
+      const k = el.getAttribute('data-key');
+      if (strings[k]) el.textContent = strings[k];
+    });
+    // Apply lang attribute to step h/sub for font swap
+    document.querySelectorAll('.wt-step .wt-h, .wt-step .wt-sub').forEach(el => {
+      el.setAttribute('lang', loc);
+    });
+    document.querySelectorAll('.wt-finish').forEach(el => el.setAttribute('lang', loc));
+  }
+
+  function setStep(n, dir) {
+    const cur = document.querySelector(`.wt-step[data-step="${step}"]`);
+    const nxt = document.querySelector(`.wt-step[data-step="${n}"]`);
+    if (!cur || !nxt || cur === nxt) return;
+
+    cur.classList.add('fading-out');
+    setTimeout(() => {
+      cur.removeAttribute('data-active');
+      cur.classList.remove('fading-out');
+      nxt.setAttribute('data-active', 'true');
+      nxt.classList.add('fading-in');
+      setTimeout(() => nxt.classList.remove('fading-in'), 240);
+
+      step = n;
+      // Update dots
+      dots.forEach((d, i) => {
+        d.classList.remove('active', 'visited');
+        if (i + 1 < step) d.classList.add('visited');
+        if (i + 1 === step) d.classList.add('active');
+      });
+      // Toggle next vs finish
+      if (step === totalSteps) {
+        nextBtn.style.display = 'none';
+        finishBtn.style.display = 'inline-flex';
+      } else {
+        nextBtn.style.display = 'inline-flex';
+        finishBtn.style.display = 'none';
+      }
+      // Update aria-labelledby/describedby targets
+      const h = nxt.querySelector('.wt-h');
+      const s = nxt.querySelector('.wt-sub');
+      if (h) { h.id = 'wtH'; backdrop.setAttribute('aria-labelledby', 'wtH'); }
+      if (s) { s.id = 'wtSub'; backdrop.setAttribute('aria-describedby', 'wtSub'); }
+      // Announce
+      announce.textContent = L[locale].announce.replace('{N}', step);
+      // Focus first focusable
+      skipBtn.focus({ preventScroll: true });
+    }, 200);
+  }
+
+  function open() {
+    backdrop.classList.add('open');
+    step = 1;
+    dots.forEach((d, i) => {
+      d.classList.remove('active', 'visited');
+      if (i === 0) d.classList.add('active');
+    });
+    document.querySelectorAll('.wt-step').forEach(s => s.removeAttribute('data-active'));
+    document.querySelector('.wt-step[data-step="1"]').setAttribute('data-active', 'true');
+    nextBtn.style.display = 'inline-flex';
+    finishBtn.style.display = 'none';
+    setTimeout(() => skipBtn.focus({ preventScroll: true }), 280);
+    announce.textContent = L[locale].announce.replace('{N}', 1);
+    // Focus trap
+    document.addEventListener('keydown', onKey);
+    backdrop.addEventListener('keydown', trapFocus);
+  }
+  function close() {
+    backdrop.classList.remove('open');
+    try { localStorage.setItem(STORAGE_KEY, 'true'); }
+    catch (e) { sessionStorage.setItem(STORAGE_KEY, 'true'); }
+    document.removeEventListener('keydown', onKey);
+    backdrop.removeEventListener('keydown', trapFocus);
+  }
+
+  function trapFocus(e) {
+    if (e.key !== 'Tab') return;
+    const focusables = backdrop.querySelectorAll('button:not([style*="display: none"])');
+    const list = Array.from(focusables).filter(el => el.offsetParent !== null);
+    if (list.length === 0) return;
+    const first = list[0], last = list[list.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+
+  function onKey(e) {
+    if (!backdrop.classList.contains('open')) return;
+    if (e.key === 'ArrowRight') {
+      if (step < totalSteps) setStep(step + 1, 'next');
+      else close();
+    } else if (e.key === 'ArrowLeft') {
+      if (step > 1) setStep(step - 1, 'prev');
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      promptSkip();
+    }
+  }
+
+  function promptSkip() {
+    confirmDlg.setAttribute('data-open', 'true');
+    setTimeout(() => document.getElementById('cdCancel').focus(), 50);
+  }
+
+  // ─── Wire up ───
+  nextBtn.addEventListener('click', () => { if (step < totalSteps) setStep(step + 1, 'next'); });
+  finishBtn.addEventListener('click', close);
+  skipBtn.addEventListener('click', promptSkip);
+  document.getElementById('cdCancel').addEventListener('click', () => {
+    confirmDlg.removeAttribute('data-open');
+    skipBtn.focus({ preventScroll: true });
+  });
+  document.getElementById('cdSkip').addEventListener('click', () => {
+    confirmDlg.removeAttribute('data-open');
+    close();
+  });
+
+  // Swipe (mobile)
+  let touchStart = null;
+  backdrop.addEventListener('touchstart', e => touchStart = e.touches[0].clientX, { passive: true });
+  backdrop.addEventListener('touchend', e => {
+    if (touchStart == null) return;
+    const dx = e.changedTouches[0].clientX - touchStart;
+    if (Math.abs(dx) > 50) {
+      if (dx < 0 && step < totalSteps) setStep(step + 1, 'next');
+      else if (dx > 0 && step > 1) setStep(step - 1, 'prev');
+    }
+    touchStart = null;
+  });
+
+  // Locale picker (demo host)
+  document.querySelectorAll('.host-locale button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.host-locale button').forEach(x => x.setAttribute('aria-pressed', 'false'));
+      b.setAttribute('aria-pressed', 'true');
+      applyLocale(b.getAttribute('data-loc'));
+      // Reset bubble animations on step 1 by reflowing
+      const il = document.getElementById('illuChat');
+      if (il) { il.style.display = 'none'; void il.offsetHeight; il.style.display = ''; }
+    });
+  });
+
+  // Reset & replay button
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    open();
+  });
+
+  // ─── Initial render ───
+  applyLocale('en');
+  let done = false;
+  try { done = localStorage.getItem(STORAGE_KEY) === 'true'; }
+  catch (e) {
+    try { done = sessionStorage.getItem(STORAGE_KEY) === 'true'; } catch (e2) { done = false; }
+  }
+  if (!done) open();
+})();
+</script>
+</body>
+</html>

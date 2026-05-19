@@ -1,0 +1,1156 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>매장 신고 · Stylista 홍대 · Hesya Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Source+Sans+3:wght@400..700&family=JetBrains+Mono:wght@500..700&family=Noto+Sans+JP:wght@400..700&display=swap"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"/>
+<link rel="stylesheet" href="tokens.css"/>
+
+<style>
+:root {
+  --bg: #FAFBFC;
+  --surface: #FFFFFF;
+  --ink: #1A1E24;
+  --ink-2: #2B3450;
+  --muted: #6C757D;
+  --line: #E5E7EB;
+  --line-2: #D1D5DB;
+
+  --amber-500: #E8A97A;
+  --amber-600: #D4956A;
+  --amber-50: #FEF8F0;
+  --amber-100: #FEF3C7;
+  --amber-700: #92400E;
+
+  --emerald-50: #ECFDF5;
+  --emerald-500: #10B981;
+  --emerald-700: #065F46;
+
+  --rose: #E8C4D6;
+  --danger-50: #FAEFEC;
+  --danger-100: #F5DDD7;
+  --danger-200: #FBC2BB;
+  --danger-500: #DC2626;
+  --danger-600: #B91C1C;
+  --danger-700: #991B1B;
+
+  --peach-50: #FDF8F1;
+  --peach-100: #FAEFE2;
+  --peach-200: #F5DDC8;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: 'Source Sans 3', 'Pretendard Variable', sans-serif;
+  font-size: 15px; -webkit-font-smoothing: antialiased; letter-spacing: -0.005em;
+}
+[lang="ko"], .kr {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  word-break: keep-all; letter-spacing: 0; line-height: 1.7; text-transform: none;
+}
+[lang="ja"] { font-family: 'Noto Sans JP', 'Pretendard Variable', sans-serif; letter-spacing: 0; }
+.mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "tnum"; letter-spacing: 0; }
+button { font: inherit; cursor: pointer; border: 0; background: transparent; color: inherit; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid var(--amber-500); outline-offset: 4px; border-radius: 4px; }
+
+/* ─── Topbar ─── */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  height: 64px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  padding: 0 24px;
+  display: flex; align-items: center; gap: 16px;
+}
+.back-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--ink); margin-right: 4px;
+}
+.back-btn:hover { background: var(--bg); }
+.back-btn svg { width: 16px; height: 16px; }
+.topbar-left { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.crumb {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--muted); letter-spacing: 0.04em;
+}
+.crumb a:hover { color: var(--ink); }
+.crumb svg { width: 11px; height: 11px; color: var(--line-2); }
+.crumb .cur { color: var(--ink); font-weight: 700; }
+.topbar-title {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14.5px; color: var(--ink); font-weight: 700; letter-spacing: 0;
+}
+.topbar-right {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 10px;
+}
+.assign-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 34px; padding: 0 12px;
+  background: transparent; border: 1px solid var(--line-2); border-radius: 8px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12.5px; color: var(--ink); font-weight: 500;
+  letter-spacing: 0; word-break: keep-all;
+  transition: background 120ms, border-color 120ms;
+}
+.assign-btn:hover { background: var(--bg); border-color: var(--ink); }
+.assign-btn svg { width: 13px; height: 13px; }
+.kebab {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center; color: var(--ink-2);
+}
+.kebab:hover { background: var(--bg); color: var(--ink); }
+.kebab svg { width: 16px; height: 16px; }
+
+/* Severity badge */
+.sev-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 11px;
+  border-radius: 9999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 11px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.sev-pill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+}
+.sev-pill.gyeongmi { background: #F3F4F6; color: #4B5563; }
+.sev-pill.gyeongmi::before { background: #6B7280; }
+.sev-pill.juui { background: var(--amber-100); color: var(--amber-700); }
+.sev-pill.juui::before { background: var(--amber-700); }
+.sev-pill.simgak { background: var(--danger-100); color: var(--danger-700); }
+.sev-pill.simgak::before { background: var(--danger-600); }
+.sev-pill.urgent { background: var(--danger-200); color: var(--danger-700); }
+.sev-pill.urgent::before {
+  background: var(--danger-600);
+  animation: blink 1.2s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(220,38,38,0.5);
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(220,38,38,0.5); }
+  50% { opacity: 0.4; box-shadow: 0 0 0 4px rgba(220,38,38,0); }
+}
+
+/* ─── Severity warning strip (top, for 심각/긴급) ─── */
+.sev-strip {
+  background: var(--danger-50);
+  border-bottom: 1px solid var(--danger-100);
+  padding: 12px 24px;
+  display: flex; align-items: center; gap: 12px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13.5px; color: var(--danger-700);
+  letter-spacing: 0; word-break: keep-all;
+}
+.sev-strip .lab {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 11px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--danger-700);
+  padding: 2px 8px; background: var(--danger-100); border-radius: 4px;
+  flex-shrink: 0;
+}
+.sev-strip svg { width: 16px; height: 16px; color: var(--danger-600); flex-shrink: 0; }
+.sev-strip .count {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 13px; color: var(--danger-700);
+}
+
+/* ─── Shell ─── */
+.shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1440px; margin: 0 auto;
+  align-items: start;
+}
+@media (max-width: 1100px) { .shell { grid-template-columns: 1fr; } }
+
+/* ─── Card base ─── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.card-h {
+  margin: 0 0 16px;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 18px; color: var(--ink); letter-spacing: -0.015em;
+  display: flex; align-items: baseline; gap: 8px;
+}
+.card-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 16px; color: var(--ink); letter-spacing: 0;
+}
+.card-h .meta {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--muted); letter-spacing: 0; font-weight: 500;
+}
+
+/* ─── §2 Store profile (4-col) ─── */
+.store-profile {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+@media (max-width: 980px) { .store-profile { grid-template-columns: 1fr 1fr; } }
+.sp-store {
+  display: flex; align-items: center; gap: 14px;
+  min-width: 0;
+}
+.sp-thumb {
+  width: 80px; height: 80px;
+  border-radius: 14px;
+  background: linear-gradient(140deg, var(--peach-200) 0%, var(--amber-600) 100%);
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.sp-store .info { min-width: 0; }
+.sp-store .name {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 700; font-size: 17px; color: var(--ink);
+  letter-spacing: 0; line-height: 1.3;
+}
+.sp-store .joined {
+  margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--muted); letter-spacing: 0;
+}
+.sp-store .loc {
+  margin-top: 2px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; color: var(--ink-2); letter-spacing: 0;
+}
+.sp-stat {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.sp-stat .k {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--muted);
+  letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+}
+.sp-stat .v {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px; font-weight: 700; color: var(--ink);
+  letter-spacing: -0.01em; line-height: 1;
+}
+.sp-stat .v.warn { color: var(--danger-600); }
+.sp-stat .v.warn::after {
+  content: "↑"; font-size: 18px; margin-left: 4px; vertical-align: 4px;
+}
+.sp-stat .stars {
+  display: inline-flex; gap: 1px; margin-top: 4px;
+}
+.sp-stat .stars svg { width: 12px; height: 12px; color: #D4AF37; }
+.sp-stat .sub {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 11px; color: var(--muted); letter-spacing: 0;
+}
+
+/* ─── §3 Reports timeline ─── */
+.reports-list { display: flex; flex-direction: column; gap: 14px; }
+.report-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 20px;
+  background: var(--surface);
+  position: relative;
+  transition: border-color 120ms, box-shadow 120ms;
+}
+.report-card:hover {
+  border-color: var(--line-2);
+  box-shadow: 0 1px 2px rgba(26,30,36,.04), 0 1px 3px rgba(26,30,36,.06);
+}
+.report-card.recent { border-left: 3px solid var(--danger-500); }
+.report-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 12px; flex-wrap: wrap;
+}
+.report-meta { display: flex; align-items: center; gap: 10px; }
+.report-when {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--ink); font-weight: 700; letter-spacing: 0;
+}
+.report-by {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12.5px; color: var(--ink-2); letter-spacing: 0;
+}
+.report-by .masked { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.cat-chip {
+  display: inline-flex; align-items: center; height: 24px;
+  padding: 0 9px;
+  background: var(--peach-100);
+  border-radius: 9999px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 11.5px; font-weight: 600; color: var(--ink);
+  letter-spacing: 0; word-break: keep-all;
+}
+.cat-chip.warn { background: var(--amber-100); color: var(--amber-700); }
+.cat-chip.danger { background: var(--danger-100); color: var(--danger-700); }
+.report-status {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 24px; padding: 0 10px;
+  border-radius: 9999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.report-status.review { background: var(--amber-100); color: var(--amber-700); }
+.report-status.review::before { content: ""; width: 5px; height: 5px; background: var(--amber-700); border-radius: 50%; }
+.report-status.warned { background: #FEF3C7; color: var(--amber-700); }
+.report-status.warned::before { content: "⚠"; font-size: 10px; }
+.report-status.closed { background: var(--emerald-50); color: var(--emerald-700); }
+.report-status.closed::before { content: ""; width: 5px; height: 5px; background: var(--emerald-500); border-radius: 50%; }
+.report-status.nocase { background: #F3F4F6; color: #4B5563; }
+.report-status.nocase::before { content: ""; width: 5px; height: 5px; background: #6B7280; border-radius: 50%; }
+
+.quote-box {
+  position: relative;
+  padding: 12px 14px 12px 36px;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13.5px; color: var(--ink);
+  word-break: keep-all; letter-spacing: 0; line-height: 1.6;
+  margin: 8px 0;
+}
+.quote-box::before {
+  content: ""; position: absolute; left: 12px; top: 12px;
+  width: 14px; height: 14px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M7.17 17q-.92 0-1.55-.62Q5 15.75 5 14.83V13l1.5-4H10v6.92q0 .42-.29.71-.29.29-.71.29zm9 0q-.92 0-1.55-.62Q14 15.75 14 14.83V13l1.5-4H19v6.92q0 .42-.29.71-.29.29-.71.29z'/></svg>") no-repeat center / contain;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M7.17 17q-.92 0-1.55-.62Q5 15.75 5 14.83V13l1.5-4H10v6.92q0 .42-.29.71-.29.29-.71.29zm9 0q-.92 0-1.55-.62Q14 15.75 14 14.83V13l1.5-4H19v6.92q0 .42-.29.71-.29.29-.71.29z'/></svg>") no-repeat center / contain;
+  opacity: 0.55;
+}
+.quote-box.customer { background: var(--peach-50); }
+.quote-box.customer::before { color: var(--amber-600); }
+.quote-box.store { background: var(--peach-100); }
+.quote-box.store::before { color: var(--ink-2); }
+.quote-box .party {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px; color: var(--muted);
+  letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+  margin-bottom: 4px;
+}
+.quote-box .orig {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13.5px; line-height: 1.6;
+  margin: 0 0 6px;
+}
+.quote-box .tr {
+  padding-top: 6px;
+  border-top: 1px dashed rgba(26,30,36,0.14);
+  font-size: 12.5px; color: var(--ink-2);
+}
+
+.report-foot {
+  display: flex; justify-content: flex-end; margin-top: 8px;
+}
+.view-all-link {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12.5px; color: var(--ink-2); letter-spacing: 0;
+  text-decoration: underline; text-underline-offset: 3px;
+  text-decoration-color: var(--line-2);
+}
+.view-all-link:hover { color: var(--ink); text-decoration-color: var(--ink); }
+.view-all-link svg { width: 11px; height: 11px; }
+
+/* ─── §4 Action history ─── */
+.action-tl { display: flex; flex-direction: column; }
+.action-row {
+  display: grid;
+  grid-template-columns: 96px 28px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.action-row:last-child { border-bottom: 0; }
+.action-row .date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--ink); font-weight: 600; letter-spacing: 0;
+}
+.action-row .dot {
+  justify-self: center;
+  width: 12px; height: 12px; border-radius: 50%;
+}
+.action-row.l1 .dot { background: var(--amber-500); }
+.action-row.l2 .dot { background: var(--amber-600); }
+.action-row.now .dot {
+  background: var(--danger-500);
+  box-shadow: 0 0 0 4px rgba(220,38,38,0.18);
+}
+.action-row .what {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: var(--ink); letter-spacing: 0; word-break: keep-all;
+}
+.action-row .what .strong { font-weight: 700; }
+.action-row .what .sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px; color: var(--muted);
+  letter-spacing: 0; line-height: 1.5;
+}
+.action-row .admin-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted); letter-spacing: 0;
+  background: var(--bg);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+}
+.action-row.now .what .strong { color: var(--danger-700); }
+.action-row.now .admin-tag {
+  background: var(--danger-50); color: var(--danger-700); border-color: var(--danger-100);
+}
+
+/* ─── §5 Decision panel (sticky) ─── */
+.decision {
+  position: sticky; top: 88px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  max-height: calc(100vh - 112px);
+  overflow-y: auto;
+}
+@media (max-width: 1100px) { .decision { position: static; max-height: none; } }
+.decision-h {
+  margin: 0 0 4px;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 20px; color: var(--ink); letter-spacing: -0.018em;
+}
+.decision-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 18px; letter-spacing: 0;
+}
+.decision-sub {
+  margin: 0 0 18px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: var(--ink-2);
+  word-break: keep-all; letter-spacing: 0; line-height: 1.6;
+}
+
+/* Severity matrix aside */
+.matrix {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 18px;
+}
+.matrix-h {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700; color: var(--ink);
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.matrix-h svg { width: 11px; height: 11px; color: var(--amber-600); }
+.matrix-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 6px 0;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; color: var(--ink-2); letter-spacing: 0;
+  word-break: keep-all;
+  border-bottom: 1px dashed var(--line);
+}
+.matrix-row:last-child { border-bottom: 0; }
+.matrix-row .rec {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 11px; color: var(--ink);
+  white-space: nowrap;
+}
+.matrix-row.active {
+  margin: 0 -14px; padding: 8px 14px;
+  background: var(--amber-50);
+  border-bottom: 0;
+  border-radius: 8px;
+}
+.matrix-row.active .rec { color: var(--amber-700); }
+
+/* Options */
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt {
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms, box-shadow 120ms;
+  position: relative;
+}
+.opt:hover { background: var(--bg); }
+.opt input[type="radio"] { position: absolute; left: -9999px; }
+.opt .opt-row { display: flex; align-items: flex-start; gap: 12px; }
+.opt .pip {
+  flex-shrink: 0;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--line-2);
+  background: var(--surface);
+  margin-top: 1px;
+  position: relative;
+  transition: border-color 120ms;
+}
+.opt .copy { flex: 1; min-width: 0; }
+.opt .title {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 14px; color: var(--ink);
+  letter-spacing: 0; word-break: keep-all; line-height: 1.4;
+}
+.opt .title .badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 6px; border-radius: 4px;
+}
+.opt .sub {
+  margin-top: 4px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; color: var(--muted);
+  letter-spacing: 0; word-break: keep-all; line-height: 1.5;
+}
+.opt .reco {
+  display: inline-block;
+  margin-left: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 700;
+  background: var(--amber-100); color: var(--amber-700);
+  padding: 2px 6px; border-radius: 4px;
+  letter-spacing: 0.08em;
+}
+
+/* Selected per option */
+.opt.a.is-selected { background: var(--emerald-50); border-color: var(--emerald-500); box-shadow: 0 0 0 1px var(--emerald-500); }
+.opt.a.is-selected .pip { border-color: var(--emerald-500); background: var(--emerald-500); }
+.opt.a.is-selected .pip::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #fff; }
+
+.opt.b.is-selected { background: var(--amber-50); border-color: var(--amber-500); box-shadow: 0 0 0 1px var(--amber-500); }
+.opt.b.is-selected .pip { border-color: var(--amber-500); background: var(--amber-500); }
+.opt.b.is-selected .pip::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #fff; }
+
+.opt.c.is-selected { background: var(--amber-50); border-color: var(--amber-600); box-shadow: 0 0 0 1px var(--amber-600); }
+.opt.c.is-selected .pip { border-color: var(--amber-600); background: var(--amber-600); }
+.opt.c.is-selected .pip::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #fff; }
+.opt.c .title .badge { background: var(--amber-100); color: var(--amber-700); }
+
+.opt.d.is-selected { background: var(--danger-50); border-color: var(--danger-500); box-shadow: 0 0 0 1px var(--danger-500); }
+.opt.d.is-selected .pip { border-color: var(--danger-500); background: var(--danger-500); }
+.opt.d.is-selected .pip::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #fff; }
+.opt.d .title .badge { background: var(--danger-100); color: var(--danger-700); }
+
+.opt.e.is-selected { background: #1A1E24; border-color: #1A1E24; box-shadow: 0 0 0 1px #1A1E24; color: #FDF8F1; }
+.opt.e.is-selected .title, .opt.e.is-selected .sub { color: #FDF8F1; }
+.opt.e.is-selected .sub { color: rgba(253,248,241,0.7); }
+.opt.e.is-selected .pip { border-color: #FDF8F1; background: #FDF8F1; }
+.opt.e.is-selected .pip::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #1A1E24; }
+.opt.e .title .badge { background: #1A1E24; color: #FDF8F1; }
+
+.opt.f.is-selected { background: #EFF6FF; border-color: #1E40AF; box-shadow: 0 0 0 1px #1E40AF; }
+.opt.f.is-selected .pip { border-color: #1E40AF; background: #1E40AF; }
+.opt.f.is-selected .pip::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #fff; }
+
+/* Suspension days sub-select (D only, when active) */
+.susp-days {
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px dashed rgba(220,38,38,0.3);
+  display: none;
+  gap: 6px;
+}
+.opt.d.is-selected .susp-days { display: flex; }
+.susp-days button {
+  flex: 1;
+  height: 34px;
+  border: 1px solid var(--danger-100); background: var(--surface);
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700; color: var(--danger-700);
+  letter-spacing: 0.04em;
+  transition: background 120ms;
+}
+.susp-days button:hover { background: var(--danger-50); }
+.susp-days button[aria-pressed="true"] {
+  background: var(--danger-500); color: #fff; border-color: var(--danger-500);
+}
+
+/* Co-sign indicator for E */
+.cosign {
+  margin-top: 12px; padding: 8px 12px;
+  background: rgba(253,248,241,0.08);
+  border: 1px solid rgba(253,248,241,0.18);
+  border-radius: 8px;
+  display: none;
+  align-items: center; gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: #FDF8F1;
+  letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600;
+}
+.opt.e.is-selected .cosign { display: flex; }
+.cosign svg { width: 11px; height: 11px; }
+
+.dec-field { margin-top: 18px; }
+.dec-field label {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 8px; gap: 8px;
+}
+.dec-field label .lab {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--ink); letter-spacing: 0.04em; font-weight: 600;
+}
+.dec-field label .lab .req { color: var(--danger-600); margin-left: 2px; }
+.dec-field label .ct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--muted); letter-spacing: 0;
+}
+.dec-field textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  min-height: 80px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 14px; color: var(--ink);
+  letter-spacing: 0; word-break: keep-all; line-height: 1.6;
+  resize: vertical; outline: 0;
+  transition: border-color 120ms, background 120ms;
+}
+.dec-field textarea:focus { border-color: var(--ink); background: var(--surface); }
+.dec-field textarea::placeholder { color: var(--muted); }
+.dec-field.internal label .lab svg { width: 11px; height: 11px; margin-right: 2px; vertical-align: -1px; }
+
+.dec-foot {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  display: flex; gap: 8px;
+}
+.btn-ghost, .btn-final {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; min-height: 44px; padding: 0 16px;
+  border-radius: 10px;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-weight: 600; font-size: 14px; letter-spacing: 0; word-break: keep-all;
+  transition: background 120ms, transform 120ms, box-shadow 120ms;
+}
+.btn-ghost {
+  flex: 1;
+  background: transparent; color: var(--ink); border: 1px solid var(--line-2);
+}
+.btn-ghost:hover { background: var(--bg); }
+.btn-final {
+  flex: 2;
+  background: var(--ink); color: var(--surface);
+  box-shadow: 0 1px 2px rgba(26,30,36,.06), 0 1px 3px rgba(26,30,36,.08);
+}
+.btn-final:hover { background: #000; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,.08), 0 6px 16px rgba(0,0,0,.16); }
+.btn-final[disabled] { background: var(--line-2); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-final svg { width: 14px; height: 14px; }
+
+/* Modal */
+.modal-bg {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(26,30,36,0.5);
+  display: none; align-items: center; justify-content: center; padding: 16px;
+}
+.modal-bg[data-open="true"] { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: 16px;
+  max-width: 520px; width: 100%;
+  box-shadow: 0 8px 16px rgba(26,30,36,.10), 0 24px 64px rgba(26,30,36,.16);
+}
+.modal-h {
+  padding: 24px 24px 0;
+  font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+  font-size: 22px; color: var(--ink); letter-spacing: -0.02em; margin: 0 0 14px;
+}
+.modal-h .ko {
+  font-family: 'Pretendard Variable', sans-serif; font-style: normal;
+  font-weight: 700; font-size: 20px; letter-spacing: 0;
+}
+.modal-body { padding: 0 24px; }
+.modal-summary {
+  background: var(--bg); border-radius: 12px; padding: 16px;
+  display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;
+}
+.modal-summary .row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 13px; color: var(--ink); letter-spacing: 0;
+}
+.modal-summary .k { color: var(--muted); }
+.modal-summary .v { font-weight: 600; }
+.modal-summary .v.mono { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+.modal-note {
+  font-family: 'Pretendard Variable', sans-serif;
+  font-size: 12px; color: var(--muted);
+  word-break: keep-all; letter-spacing: 0; line-height: 1.6;
+  margin: 0 0 18px;
+}
+.modal-foot {
+  padding: 18px 24px 24px;
+  display: flex; gap: 8px; justify-content: flex-end;
+  border-top: 1px solid var(--line);
+}
+.modal-foot .btn-ghost, .modal-foot .btn-final { flex: 0 0 auto; padding: 0 18px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+  .sev-pill.urgent::before { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<header class="topbar" role="banner">
+  <button class="back-btn" type="button" aria-label="목록으로 돌아가기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+  </button>
+  <div class="topbar-left">
+    <nav class="crumb" aria-label="이동 경로">
+      <a href="#">STORE REPORTS</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      <a href="#" lang="ko">활성</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      <span class="cur" lang="ko">Stylista 홍대</span>
+    </nav>
+    <div class="topbar-title">
+      <span lang="ko">Stylista 홍대</span>
+      <span class="sev-pill simgak" aria-label="심각도: 심각">SEVERE · 심각</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="assign-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+      <span lang="ko">담당자 지정</span>
+    </button>
+    <button class="kebab" type="button" aria-label="추가 작업">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- Severity strip (severe → 누적 3건) -->
+<div class="sev-strip" role="alert">
+  <span class="lab">THRESHOLD</span>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <span lang="ko">누적 신고 3건 도달 · 서면 경고 권장 기준</span>
+  <span class="count">3 / 3 reports</span>
+</div>
+
+<div class="shell">
+
+  <!-- LEFT MAIN -->
+  <main>
+
+    <!-- §2 Store Profile -->
+    <section class="card" aria-labelledby="prof-h">
+      <h2 class="card-h" id="prof-h">
+        <span class="ko" lang="ko">매장 프로필</span>
+        <span class="meta">STORE_ID · STY-HD-001</span>
+      </h2>
+      <div class="store-profile">
+        <div class="sp-store">
+          <div class="sp-thumb" aria-hidden="true"></div>
+          <div class="info">
+            <div class="name" lang="ko">Stylista 홍대</div>
+            <div class="loc" lang="ko">홍대입구역 · Hongdae</div>
+            <div class="joined">Joined 2024-03-12 · K-Verified</div>
+          </div>
+        </div>
+        <div class="sp-stat">
+          <span class="k">Total bookings</span>
+          <span class="v">1,284</span>
+          <span class="sub" lang="ko">최근 12개월</span>
+        </div>
+        <div class="sp-stat">
+          <span class="k">Rating</span>
+          <span class="v">4.6</span>
+          <span class="stars" aria-label="평점 5점 중 4.6점">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
+        </div>
+        <div class="sp-stat">
+          <span class="k">Reports (cumulative)</span>
+          <span class="v warn">3</span>
+          <span class="sub" lang="ko">전 분기 대비 +2</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- §3 Reports timeline -->
+    <section class="card" aria-labelledby="rep-h">
+      <h2 class="card-h" id="rep-h">
+        <span class="ko" lang="ko">신고 이력</span>
+        <span class="meta">3 REPORTS · NEWEST FIRST</span>
+      </h2>
+
+      <div class="reports-list">
+
+        <!-- Report 3 (most recent) -->
+        <article class="report-card recent">
+          <div class="report-head">
+            <div class="report-meta">
+              <span class="report-when">2025-11-28</span>
+              <span class="report-by">
+                <span lang="ko">신고자</span> · Sakura T.
+                <span class="masked">(****@gmail.com)</span>
+              </span>
+            </div>
+            <span class="cat-chip danger" lang="ko">시술 품질</span>
+            <span class="report-status review" lang="ko">검토 중</span>
+          </div>
+          <div class="quote-box customer">
+            <span class="party">CUSTOMER · JA</span>
+            <p class="orig" lang="ja">施術後、髪が思っていたよりかなり短く切られました。希望した長さと違います。</p>
+            <p class="tr" lang="ko">번역: 시술 후 머리가 생각보다 너무 짧게 잘렸어요. 요청한 길이와 다릅니다.</p>
+          </div>
+          <div class="quote-box store">
+            <span class="party">STORE RESPONSE</span>
+            <p lang="ko">고객이 채팅에서 요청한 길이(쇄골 위 2cm)대로 시술했으며, 시술 전/후 사진 증빙 보유. 시술 중 컨펌도 받았습니다.</p>
+          </div>
+          <div class="report-foot">
+            <a href="Hesya Admin Disputes Detail.html" class="view-all-link">
+              <span lang="ko">분쟁 상세 보기 (#DSP-20251128-007)</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+          </div>
+        </article>
+
+        <!-- Report 2 -->
+        <article class="report-card">
+          <div class="report-head">
+            <div class="report-meta">
+              <span class="report-when">2025-10-22</span>
+              <span class="report-by">
+                <span lang="ko">신고자</span> · Mei Ling C.
+                <span class="masked">(meil***@yahoo.com)</span>
+              </span>
+            </div>
+            <span class="cat-chip warn" lang="ko">시술 품질</span>
+            <span class="report-status warned" lang="ko">서면 경고</span>
+          </div>
+          <div class="quote-box customer">
+            <span class="party">CUSTOMER · EN</span>
+            <p lang="ko" style="font-family:'Pretendard Variable',sans-serif;">Color came out completely different from the reference photo. Staff insisted it was correct. Did not feel respected.</p>
+            <p class="tr" lang="ko">번역: 컬러가 레퍼런스 사진과 완전히 다르게 나왔어요. 직원이 맞다고 우겨서 존중받지 못한다는 느낌.</p>
+          </div>
+          <div class="quote-box store">
+            <span class="party">STORE RESPONSE</span>
+            <p lang="ko">사용한 컬러 톤은 요청 사진 기준 가장 유사한 것이었으나, 모발 베이스 차이를 사전 설명하지 못한 점 인정. 재시술 50% 할인 제안했으나 거절.</p>
+          </div>
+          <div class="report-foot">
+            <a href="#" class="view-all-link">
+              <span lang="ko">전체 보기 (#RPT-20251022-014)</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+          </div>
+        </article>
+
+        <!-- Report 1 -->
+        <article class="report-card">
+          <div class="report-head">
+            <div class="report-meta">
+              <span class="report-when">2025-09-15</span>
+              <span class="report-by">
+                <span lang="ko">신고자</span> · Aoi T.
+                <span class="masked">(aoi***@docomo.ne.jp)</span>
+              </span>
+            </div>
+            <span class="cat-chip" lang="ko">응답 지연</span>
+            <span class="report-status warned" lang="ko">구두 경고</span>
+          </div>
+          <div class="quote-box customer">
+            <span class="party">CUSTOMER · JA</span>
+            <p class="orig" lang="ja">予約のメッセージを送って3日以上返事がありませんでした。結局他のサロンを予約しました。</p>
+            <p class="tr" lang="ko">번역: 예약 메시지 보내고 3일 넘게 답장이 없었어요. 결국 다른 매장 예약했습니다.</p>
+          </div>
+          <div class="report-foot">
+            <a href="#" class="view-all-link">
+              <span lang="ko">전체 보기 (#RPT-20250915-029)</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- §4 Action history -->
+    <section class="card" aria-labelledby="act-h">
+      <h2 class="card-h" id="act-h">
+        <span class="ko" lang="ko">조치 이력</span>
+        <span class="meta">HESYA HQ · STORE TIMELINE</span>
+      </h2>
+      <div class="action-tl" role="list">
+        <div class="action-row l1" role="listitem">
+          <span class="date">2025-09-15</span>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="what">
+            <span class="strong" lang="ko">구두 경고 1차</span>
+            <span class="sub" lang="ko">응답 지연 누적 · 매장 응답 시간 SLA 위반</span>
+          </span>
+          <span class="admin-tag">@kim_jisoo</span>
+        </div>
+        <div class="action-row l2" role="listitem">
+          <span class="date">2025-10-22</span>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="what">
+            <span class="strong" lang="ko">서면 경고 2차</span>
+            <span class="sub" lang="ko">시술 품질 불만 · 정지 임계치까지 1건 남음</span>
+          </span>
+          <span class="admin-tag">@park_minseong</span>
+        </div>
+        <div class="action-row now" role="listitem">
+          <span class="date">2025-11-28</span>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="what">
+            <span class="strong" lang="ko">현재 검토 중</span>
+            <span class="sub" lang="ko">누적 3건 도달 · 서면 경고 또는 일시 정지 결정 필요</span>
+          </span>
+          <span class="admin-tag">@you</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RIGHT DECISION PANEL -->
+  <aside class="decision" aria-label="조치 결정 패널">
+    <h2 class="decision-h"><span class="ko" lang="ko">조치 결정</span></h2>
+    <p class="decision-sub" lang="ko">매장에 대한 운영 조치를 선택해주세요. 결정은 매장에 통보되며 감사 로그에 영구 기록됩니다.</p>
+
+    <!-- Severity matrix -->
+    <div class="matrix" role="region" aria-label="권장 조치 매트릭스">
+      <p class="matrix-h">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/><circle cx="12" cy="12" r="10"/></svg>
+        Severity matrix · 권장 조치
+      </p>
+      <div class="matrix-row active">
+        <span lang="ko">누적 신고 3건 도달</span>
+        <span class="rec">→ C 권장</span>
+      </div>
+      <div class="matrix-row">
+        <span lang="ko">누적 5건 또는 심각 신고 1건</span>
+        <span class="rec">→ D 권장</span>
+      </div>
+      <div class="matrix-row">
+        <span lang="ko">결제 사기 / 안전 사고</span>
+        <span class="rec">→ E (즉시)</span>
+      </div>
+    </div>
+
+    <div class="opts" role="radiogroup" aria-label="조치 옵션" id="opts">
+
+      <label class="opt a">
+        <input type="radio" name="action" value="none"/>
+        <span class="opt-row">
+          <span class="pip" aria-hidden="true"></span>
+          <span class="copy">
+            <span class="title"><span lang="ko">A. 무혐의 종결</span></span>
+            <span class="sub" lang="ko">조치 없음 · 신고 기각 · 매장 통보 없음</span>
+          </span>
+        </span>
+      </label>
+
+      <label class="opt b">
+        <input type="radio" name="action" value="verbal"/>
+        <span class="opt-row">
+          <span class="pip" aria-hidden="true"></span>
+          <span class="copy">
+            <span class="title"><span lang="ko">B. 구두 경고</span></span>
+            <span class="sub" lang="ko">매장 대시보드 알림만 발송 · 정지 임계 누적 안 됨</span>
+          </span>
+        </span>
+      </label>
+
+      <label class="opt c is-selected">
+        <input type="radio" name="action" value="written" checked/>
+        <span class="opt-row">
+          <span class="pip" aria-hidden="true"></span>
+          <span class="copy">
+            <span class="title">
+              <span lang="ko">C. 서면 경고</span>
+              <span class="badge">+1 STRIKE</span>
+              <span class="reco">RECOMMENDED</span>
+            </span>
+            <span class="sub" lang="ko">정식 경고 발송 · 누적 시 정지 임계치 산정 · 30일 추적</span>
+          </span>
+        </span>
+      </label>
+
+      <label class="opt d">
+        <input type="radio" name="action" value="suspend"/>
+        <span class="opt-row">
+          <span class="pip" aria-hidden="true"></span>
+          <span class="copy">
+            <span class="title">
+              <span lang="ko">D. 일시 정지</span>
+              <span class="badge">SUSPEND</span>
+            </span>
+            <span class="sub" lang="ko">신규 예약 차단 · 기존 예약은 유지 · 기간 선택</span>
+            <div class="susp-days" role="radiogroup" aria-label="정지 기간">
+              <button type="button" role="radio" aria-pressed="false">7d</button>
+              <button type="button" role="radio" aria-pressed="true">14d</button>
+              <button type="button" role="radio" aria-pressed="false">30d</button>
+            </div>
+          </span>
+        </span>
+      </label>
+
+      <label class="opt e">
+        <input type="radio" name="action" value="remove"/>
+        <span class="opt-row">
+          <span class="pip" aria-hidden="true"></span>
+          <span class="copy">
+            <span class="title">
+              <span lang="ko">E. 영구 제거</span>
+              <span class="badge">PERMANENT</span>
+            </span>
+            <span class="sub" lang="ko">계정 영구 차단 · 검색 노출 제외 · 운영자 2명 동시 서명 필요</span>
+            <div class="cosign">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span lang="ko">2-of-2 admin co-sign 필요 · 다음 단계에서 동료 운영자 지정</span>
+            </div>
+          </span>
+        </span>
+      </label>
+
+      <label class="opt f">
+        <input type="radio" name="action" value="more"/>
+        <span class="opt-row">
+          <span class="pip" aria-hidden="true"></span>
+          <span class="copy">
+            <span class="title"><span lang="ko">F. 추가 조사 필요</span> <span class="badge" style="background:#DBEAFE;color:#1E40AF;">+7D</span></span>
+            <span class="sub" lang="ko">양측에 추가 증빙 요청 · SLA 7일 연장 · 조사 완료 후 재결정</span>
+          </span>
+        </span>
+      </label>
+    </div>
+
+    <div class="dec-field">
+      <label for="reason">
+        <span class="lab" lang="ko">결정 사유<span class="req" aria-label="필수 입력">*</span> <span style="color:var(--muted);font-weight:500;letter-spacing:0;">· 매장에 공개</span></span>
+        <span class="ct"><span id="rc">0</span> / 800</span>
+      </label>
+      <textarea id="reason" placeholder="이 조치의 근거를 자세히 적어주세요. 매장이 읽고 이해할 수 있어야 합니다. (최소 50자)" lang="ko"></textarea>
+    </div>
+
+    <div class="dec-field internal">
+      <label for="internal">
+        <span class="lab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span lang="ko">내부 메모</span>
+          <span style="color:var(--muted);font-weight:500;letter-spacing:0;">· admin only</span>
+        </span>
+      </label>
+      <textarea id="internal" placeholder="운영자만 볼 수 있는 메모..." lang="ko"></textarea>
+    </div>
+
+    <div class="dec-foot">
+      <button class="btn-ghost" type="button" lang="ko">임시 저장</button>
+      <button class="btn-final" type="button" id="finalBtn" disabled>
+        <span lang="ko">조치 확정</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+  </aside>
+</div>
+
+<!-- Confirmation modal -->
+<div class="modal-bg" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="mh">
+  <div class="modal">
+    <h2 class="modal-h" id="mh"><span class="ko" lang="ko">조치를 확정하시겠습니까?</span></h2>
+    <div class="modal-body">
+      <div class="modal-summary">
+        <div class="row"><span class="k" lang="ko">조치</span><span class="v" lang="ko">서면 경고 (+1 STRIKE)</span></div>
+        <div class="row"><span class="k" lang="ko">대상 매장</span><span class="v" lang="ko">Stylista 홍대</span></div>
+        <div class="row"><span class="k" lang="ko">누적 경고</span><span class="v mono">2 → 3</span></div>
+        <div class="row"><span class="k" lang="ko">통보</span><span class="v" lang="ko">즉시</span></div>
+      </div>
+      <p class="modal-note" lang="ko">이 조치는 매장 대시보드 알림 및 이메일로 즉시 통보됩니다. 누적 5건 도달 시 자동으로 <strong style="color:var(--danger-700);">일시 정지</strong> 임계 도달 알림이 운영팀에 전송됩니다. 감사 로그에 영구 기록.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" type="button" id="modalCancel" lang="ko">다시 검토</button>
+      <button class="btn-final" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span lang="ko">확정 + 통보</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const opts = document.querySelectorAll('.opt');
+  opts.forEach(opt => {
+    opt.addEventListener('click', (e) => {
+      // Avoid double-toggle when clicking the days sub-radio
+      if (e.target.closest('.susp-days')) return;
+      opts.forEach(o => o.classList.remove('is-selected'));
+      opt.classList.add('is-selected');
+      const inp = opt.querySelector('input[type="radio"]');
+      if (inp) inp.checked = true;
+    });
+  });
+
+  // Suspension days sub-select
+  document.querySelectorAll('.susp-days button').forEach(b => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', 'false'));
+      b.setAttribute('aria-pressed', 'true');
+    });
+  });
+
+  const reason = document.getElementById('reason');
+  const rc = document.getElementById('rc');
+  const finalBtn = document.getElementById('finalBtn');
+  reason.addEventListener('input', () => {
+    rc.textContent = reason.value.length;
+    finalBtn.disabled = reason.value.length < 50;
+  });
+
+  const modal = document.getElementById('confirmModal');
+  finalBtn.addEventListener('click', () => {
+    if (finalBtn.disabled) return;
+    modal.setAttribute('data-open', 'true');
+    setTimeout(() => document.getElementById('modalCancel').focus(), 50);
+  });
+  document.getElementById('modalCancel').addEventListener('click', () => modal.removeAttribute('data-open'));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.getAttribute('data-open') === 'true') {
+      modal.removeAttribute('data-open');
+    }
+  });
+})();
+</script>
+</body>
+</html>
