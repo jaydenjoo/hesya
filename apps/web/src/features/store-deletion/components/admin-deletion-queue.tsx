@@ -53,7 +53,7 @@ const SOURCE_LABELS: Record<string, string> = {
 
 const SOURCE_BADGE_COLORS: Record<string, string> = {
   owner: "bg-hesya-peach-100 text-hesya-navy-900 border-hesya-peach-200",
-  admin: "bg-[#fbeae5] text-[#c9483a] border-[#e5c0ba]",
+  admin: "bg-hesya-danger-100 text-hesya-danger-600 border-hesya-danger-200",
 };
 
 function daysUntil(target: Date, from = new Date()): number {
@@ -106,8 +106,8 @@ export function AdminDeletionQueue({
 
   return (
     <div className="space-y-8">
-      <section className="rounded-2xl border border-[#e5c0ba] bg-white p-6 shadow-[0_1px_2px_rgba(26,34,56,0.04)] ring-1 ring-inset ring-[#e5c0ba]">
-        <p className="mb-2 font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#c9483a]">
+      <section className="rounded-2xl border border-hesya-danger-200 bg-white p-6 shadow-[0_1px_2px_rgba(26,34,56,0.04)] ring-1 ring-inset ring-hesya-danger-200">
+        <p className="mb-2 font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-danger-600">
           §01 · Force Deletion
         </p>
         <h2 className="mb-2 font-display text-[20px] italic tracking-tight text-hesya-navy-900">
@@ -150,12 +150,12 @@ export function AdminDeletionQueue({
             <button
               type="submit"
               disabled={pending || !forceStoreId.trim() || !forceReason.trim()}
-              className="rounded-md bg-[#c9483a] px-5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#b03d31] disabled:opacity-40"
+              className="rounded-md bg-hesya-danger-600 px-5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-hesya-danger-700 disabled:opacity-40"
             >
               {pending && !actingRowId ? "신청 중..." : "강제 해지 신청"}
             </button>
             {result && !result.ok && !actingRowId && (
-              <span className="text-[12px] text-[#c9483a]">
+              <span className="text-[12px] text-hesya-danger-600">
                 {result.message}
               </span>
             )}
@@ -220,7 +220,7 @@ export function AdminDeletionQueue({
                       <span
                         className={`rounded-full px-2 py-0.5 font-mono text-[10.5px] font-semibold tabular-nums ${
                           remaining <= 7
-                            ? "bg-[#fbeae5] text-[#c9483a]"
+                            ? "bg-hesya-danger-100 text-hesya-danger-600"
                             : remaining <= 14
                               ? "bg-hesya-peach-100 text-hesya-amber-600"
                               : "bg-hesya-peach-50 text-hesya-navy-900/70"
@@ -282,7 +282,7 @@ export function AdminDeletionQueue({
                           : "해지 취소"}
                       </button>
                       {result && actingRowId === row.id && !result.ok && (
-                        <span className="text-[12px] text-[#c9483a]">
+                        <span className="text-[12px] text-hesya-danger-600">
                           {result.message}
                         </span>
                       )}
@@ -344,7 +344,7 @@ function GraceBar({
       </span>
       <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-hesya-peach-50">
         <div
-          className={`h-full ${danger ? "bg-[#c9483a]" : "bg-hesya-amber-500"}`}
+          className={`h-full ${danger ? "bg-hesya-danger-600" : "bg-hesya-amber-500"}`}
           style={{ width: `${pct}%` }}
         />
       </div>

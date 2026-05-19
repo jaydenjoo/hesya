@@ -16,7 +16,7 @@ import {
  * 활성 요청 있으면: D-N일 카운터 + 취소 버튼.
  *
  * Phase 1-ε 디자인 정합 (2026-05-16): disputes/onboarding 패턴 일치 적용 —
- * crit token (#c9483a / #fbeae5 / #e5c0ba) + peach card + mono eyebrow +
+ * crit token (hesya-danger-600 / 100 / 200) + peach card + mono eyebrow +
  * D-N large number + grace progress bar.
  */
 export interface OwnerDeletionPanelProps {
@@ -76,18 +76,18 @@ export function OwnerDeletionPanel({ active }: OwnerDeletionPanelProps) {
 
     return (
       <section
-        className={`max-w-2xl space-y-5 rounded-2xl border bg-white p-6 shadow-[0_1px_2px_rgba(26,34,56,0.04)] ring-1 ring-inset ${urgent ? "border-[#e5c0ba] ring-[#e5c0ba]" : "border-hesya-peach-200 ring-hesya-peach-200"}`}
+        className={`max-w-2xl space-y-5 rounded-2xl border bg-white p-6 shadow-[0_1px_2px_rgba(26,34,56,0.04)] ring-1 ring-inset ${urgent ? "border-hesya-danger-200 ring-hesya-danger-200" : "border-hesya-peach-200 ring-hesya-peach-200"}`}
       >
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 space-y-1.5">
-            <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#c9483a]">
+            <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.18em] text-hesya-danger-600">
               §01 · Deletion In Progress
             </p>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#fbeae5] px-3 py-1 text-[12.5px] font-semibold text-[#c9483a]">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-hesya-danger-100 px-3 py-1 text-[12.5px] font-semibold text-hesya-danger-600">
                 <span
                   aria-hidden="true"
-                  className="inline-block h-2 w-2 rounded-full bg-[#c9483a]"
+                  className="inline-block h-2 w-2 rounded-full bg-hesya-danger-600"
                 />
                 해지 진행 중
               </span>
@@ -101,7 +101,7 @@ export function OwnerDeletionPanel({ active }: OwnerDeletionPanelProps) {
               예정 삭제일
             </p>
             <p
-              className={`mt-1 font-mono text-[20px] font-bold tabular-nums ${urgent ? "text-[#c9483a]" : "text-hesya-navy-900"}`}
+              className={`mt-1 font-mono text-[20px] font-bold tabular-nums ${urgent ? "text-hesya-danger-600" : "text-hesya-navy-900"}`}
             >
               D-{remaining}일
             </p>
@@ -120,7 +120,7 @@ export function OwnerDeletionPanel({ active }: OwnerDeletionPanelProps) {
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-hesya-peach-50">
             <div
-              className={`h-full ${urgent ? "bg-[#c9483a]" : "bg-hesya-amber-500"}`}
+              className={`h-full ${urgent ? "bg-hesya-danger-600" : "bg-hesya-amber-500"}`}
               style={{ width: `${Math.min(100, elapsedPct)}%` }}
             />
           </div>
@@ -155,7 +155,7 @@ export function OwnerDeletionPanel({ active }: OwnerDeletionPanelProps) {
               <span>예정일 전까지는 언제든 취소할 수 있습니다.</span>
             </li>
             <li className="flex gap-2">
-              <span aria-hidden="true" className="text-[#c9483a]">
+              <span aria-hidden="true" className="text-hesya-danger-600">
                 ⚠
               </span>
               <span>
@@ -176,7 +176,9 @@ export function OwnerDeletionPanel({ active }: OwnerDeletionPanelProps) {
             {pending ? "취소 중..." : "해지 취소"}
           </button>
           {result && !result.ok && (
-            <span className="text-[12px] text-[#c9483a]">{result.message}</span>
+            <span className="text-[12px] text-hesya-danger-600">
+              {result.message}
+            </span>
           )}
         </div>
       </section>
@@ -205,7 +207,7 @@ export function OwnerDeletionPanel({ active }: OwnerDeletionPanelProps) {
             <span>grace 기간 동안 매장 인박스/AI 응답은 일시 정지됩니다.</span>
           </li>
           <li className="flex gap-2">
-            <span aria-hidden="true" className="text-[#c9483a]">
+            <span aria-hidden="true" className="text-hesya-danger-600">
               ⚠
             </span>
             <span>
@@ -242,7 +244,7 @@ export function OwnerDeletionPanel({ active }: OwnerDeletionPanelProps) {
           type="checkbox"
           checked={confirmed}
           onChange={(e) => setConfirmed(e.target.checked)}
-          className="mt-0.5 accent-[#c9483a]"
+          className="mt-0.5 accent-hesya-danger-600"
         />
         <span className="text-hesya-navy-900/85">
           30일 grace 종료 후 매장 데이터가 영구 삭제됨을 이해하며, 해지를
@@ -254,12 +256,14 @@ export function OwnerDeletionPanel({ active }: OwnerDeletionPanelProps) {
         <button
           type="submit"
           disabled={pending || !confirmed}
-          className="rounded-md bg-[#c9483a] px-5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#b03d31] disabled:opacity-40"
+          className="rounded-md bg-hesya-danger-600 px-5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-hesya-danger-700 disabled:opacity-40"
         >
           {pending ? "신청 중..." : "매장 해지 신청"}
         </button>
         {result && !result.ok && (
-          <span className="text-[12px] text-[#c9483a]">{result.message}</span>
+          <span className="text-[12px] text-hesya-danger-600">
+            {result.message}
+          </span>
         )}
       </div>
     </form>

@@ -90,7 +90,7 @@ export function SectionNav({ items, sectionIds, head, foot }: Props) {
           const isActive = item.id === activeId;
           const borderClass = isActive
             ? item.danger
-              ? "border-l-[#c9483a]"
+              ? "border-l-hesya-danger-600"
               : "border-l-hesya-amber-500"
             : "border-l-transparent";
           return (
@@ -124,7 +124,7 @@ export function SectionNav({ items, sectionIds, head, foot }: Props) {
                 {item.danger ? (
                   <span
                     aria-hidden="true"
-                    className="ml-auto h-1.5 w-1.5 rounded-full bg-[#c9483a]"
+                    className="ml-auto h-1.5 w-1.5 rounded-full bg-hesya-danger-600"
                   />
                 ) : null}
               </button>

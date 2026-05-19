@@ -129,7 +129,7 @@ export function TopBar({
           {notificationCount > 0 ? (
             <span
               data-testid="topbar-notification-badge"
-              className="absolute right-0.5 top-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 border-hesya-peach-50 bg-[#c9483a] px-1 font-mono text-[9px] font-bold leading-none text-white animate-[pulse_2.4s_ease-in-out_infinite]"
+              className="absolute right-0.5 top-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 border-hesya-peach-50 bg-hesya-danger-600 px-1 font-mono text-[9px] font-bold leading-none text-white animate-[pulse_2.4s_ease-in-out_infinite]"
             >
               {notificationCount > 99 ? "99+" : notificationCount}
             </span>

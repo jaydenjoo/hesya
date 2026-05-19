@@ -83,7 +83,7 @@ export function NavSidebar({ storeName, labels, counts }: Props) {
                   className={[
                     "inline-flex min-w-[20px] items-center justify-center rounded-full px-1.5 font-mono text-[10px] font-bold leading-none",
                     badge.urgent
-                      ? "bg-[#c9483a] text-white"
+                      ? "bg-hesya-danger-600 text-white"
                       : "bg-hesya-amber-500 text-white",
                   ].join(" ")}
                 >

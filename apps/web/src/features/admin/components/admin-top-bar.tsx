@@ -132,7 +132,7 @@ export function AdminTopBar({
             🔔
           </span>
           {notificationCount > 0 ? (
-            <span className="absolute -right-1 -top-1 inline-flex min-w-[16px] items-center justify-center rounded-full border-2 border-white bg-[#c9483a] px-1 font-mono text-[9.5px] font-bold leading-none text-white">
+            <span className="absolute -right-1 -top-1 inline-flex min-w-[16px] items-center justify-center rounded-full border-2 border-white bg-hesya-danger-600 px-1 font-mono text-[9.5px] font-bold leading-none text-white">
               {notificationCount > 99 ? "99+" : notificationCount}
             </span>
           ) : null}

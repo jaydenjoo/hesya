@@ -435,11 +435,11 @@ function FAQStatTile({
       note: "text-hesya-amber-600",
     },
     danger: {
-      border: "border-[#e5c0ba]",
-      bg: "bg-[#faefec]",
-      text: "text-[#c9483a]",
-      bar: "bg-[#c9483a]",
-      note: "text-[#c9483a]",
+      border: "border-hesya-danger-200",
+      bg: "bg-hesya-danger-50",
+      text: "text-hesya-danger-600",
+      bar: "bg-hesya-danger-600",
+      note: "text-hesya-danger-600",
     },
     ok: {
       border: "border-emerald-200",

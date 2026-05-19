@@ -41,8 +41,8 @@ type Props = {
 };
 
 const STATUS_TONE: Record<string, string> = {
-  open: "bg-[#fbeae5] text-[#c9483a]",
-  sla_exceeded: "bg-[#fbeae5] text-[#c9483a]",
+  open: "bg-hesya-danger-100 text-hesya-danger-600",
+  sla_exceeded: "bg-hesya-danger-100 text-hesya-danger-600",
   in_review: "bg-hesya-peach-100 text-hesya-amber-600",
   resolved: "bg-emerald-50 text-emerald-700",
   rejected: "bg-gray-100 text-gray-600",
@@ -168,7 +168,7 @@ export function DisputesList({ rows, activeFilter, nowMs }: Props) {
                     </td>
                     <td className="px-4 py-3">
                       {slaUrgent ? (
-                        <span className="mono inline-flex rounded bg-[#fbeae5] px-2 py-0.5 font-bold text-[#c9483a]">
+                        <span className="mono inline-flex rounded bg-hesya-danger-100 px-2 py-0.5 font-bold text-hesya-danger-600">
                           초과 {Math.abs(slaDays)}일
                         </span>
                       ) : slaWarn ? (
@@ -203,16 +203,16 @@ const KPI_TONE: Record<
   { num: string; chip: string }
 > = {
   open: {
-    num: "text-[#c9483a]",
-    chip: "bg-[#fbeae5] text-[#c9483a]",
+    num: "text-hesya-danger-600",
+    chip: "bg-hesya-danger-100 text-hesya-danger-600",
   },
   review: {
     num: "text-hesya-amber-600",
     chip: "bg-hesya-peach-100 text-hesya-amber-600",
   },
   urgent: {
-    num: "text-[#c9483a]",
-    chip: "bg-[#fbeae5] text-[#c9483a]",
+    num: "text-hesya-danger-600",
+    chip: "bg-hesya-danger-100 text-hesya-danger-600",
   },
   ok: {
     num: "text-emerald-700",

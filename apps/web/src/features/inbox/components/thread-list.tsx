@@ -205,7 +205,7 @@ export function ThreadList({
           onClick={() =>
             setActiveFilter(activeFilter === "unread" ? null : "unread")
           }
-          dotColor="#c9483a"
+          dotColor="var(--hesya-danger-600)"
           label={filterUnreadLabel}
           count={filterCounts.unread}
         />
