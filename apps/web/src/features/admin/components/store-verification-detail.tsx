@@ -110,7 +110,7 @@ export function StoreVerificationDetail(props: Props) {
                 ? "bg-emerald-50 text-emerald-700"
                 : declMissing
                   ? "bg-gray-100 text-gray-600"
-                  : "bg-[#fbeae5] text-[#c9483a]",
+                  : "bg-hesya-danger-100 text-hesya-danger-600",
             ].join(" ")}
           >
             {declAllOk
@@ -133,9 +133,9 @@ export function StoreVerificationDetail(props: Props) {
                   }
                 : d.value === false
                   ? {
-                      bg: "bg-[#fbeae5]",
-                      border: "border-[#e5c0ba]",
-                      text: "text-[#c9483a]",
+                      bg: "bg-hesya-danger-100",
+                      border: "border-hesya-danger-200",
+                      text: "text-hesya-danger-600",
                       icon: "✗",
                     }
                   : {
@@ -178,7 +178,7 @@ export function StoreVerificationDetail(props: Props) {
             </a>
           </div>
         ) : (
-          <div className="mt-4 rounded-md border border-[#e5c0ba] bg-[#faefec] px-3 py-2 text-[11.5px] text-[#c9483a]">
+          <div className="mt-4 rounded-md border border-hesya-danger-200 bg-hesya-danger-50 px-3 py-2 text-[11.5px] text-hesya-danger-600">
             <span aria-hidden="true">⚠ </span>영업신고증 미첨부 — 거절 사유 후보
           </div>
         )}
@@ -266,7 +266,7 @@ function Row({ k, v, mono = false }: { k: string; v: string; mono?: boolean }) {
       </dt>
       <dd
         className={
-          (mono ? "mono " : "kr ") + "break-all text-[13px] text-gray-700"
+          (mono ? "mono " : "kr ") + "break-all text-[13px] text-hesya-navy-900"
         }
       >
         {v}

@@ -273,19 +273,19 @@ function MetricCard({
   tone?: "ok" | "warn" | "danger" | "muted";
 }) {
   const barTone = alert
-    ? "bg-[#c9483a]"
+    ? "bg-hesya-danger-600"
     : tone === "ok"
       ? "bg-emerald-500"
       : tone === "warn"
         ? "bg-hesya-amber-500"
         : tone === "danger"
-          ? "bg-[#c9483a]"
+          ? "bg-hesya-danger-600"
           : "bg-hesya-navy-900/30";
   return (
     <div
       className={`rounded-md border p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)] transition ${
         alert
-          ? "border-[#e5c0ba] bg-[#faefec]"
+          ? "border-hesya-danger-200 bg-hesya-danger-50"
           : "border-gray-200 bg-white hover:border-hesya-amber-500/40"
       }`}
     >
@@ -295,7 +295,7 @@ function MetricCard({
       <div className="mt-2 flex items-baseline gap-1.5">
         <span
           className={`font-heading text-[28px] font-medium italic leading-none tracking-[-0.02em] ${
-            alert ? "text-[#c9483a]" : "text-hesya-navy-900"
+            alert ? "text-hesya-danger-600" : "text-hesya-navy-900"
           }`}
         >
           {value}
@@ -323,7 +323,7 @@ function MetricCard({
         </div>
       )}
       {alert && alertReason && (
-        <div className="mt-2 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[#c9483a]">
+        <div className="mt-2 font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-hesya-danger-600">
           ⚠ {alertReason}
         </div>
       )}

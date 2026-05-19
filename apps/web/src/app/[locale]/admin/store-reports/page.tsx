@@ -241,16 +241,16 @@ function ResultBlock({ result }: { result: SubmitStoreReportActionResult }) {
     );
   }
   return (
-    <section className="space-y-2 rounded-2xl border border-[#e5c0ba] bg-white p-5 ring-1 ring-inset ring-[#fbeae5] shadow-[0_1px_2px_rgba(26,34,56,0.04)]">
+    <section className="space-y-2 rounded-2xl border border-hesya-danger-200 bg-white p-5 ring-1 ring-inset ring-hesya-danger-100 shadow-[0_1px_2px_rgba(26,34,56,0.04)]">
       <div className="flex items-center gap-2">
         <span
           aria-hidden="true"
-          className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#c9483a] text-[14px] font-bold text-white"
+          className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-hesya-danger-600 text-[14px] font-bold text-white"
         >
           ⚠
         </span>
         <div>
-          <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[#c9483a]">
+          <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-hesya-danger-600">
             §02 · Failed
           </p>
           <h2 className="font-display text-[17px] italic text-hesya-navy-900">
@@ -258,7 +258,7 @@ function ResultBlock({ result }: { result: SubmitStoreReportActionResult }) {
           </h2>
         </div>
       </div>
-      <p className="whitespace-pre-wrap rounded-md border border-[#e5c0ba] bg-[#fbeae5]/60 px-3 py-2 text-[12.5px] text-hesya-navy-900/80">
+      <p className="whitespace-pre-wrap rounded-md border border-hesya-danger-200 bg-hesya-danger-100/60 px-3 py-2 text-[12.5px] text-hesya-navy-900/80">
         {result.message}
       </p>
     </section>

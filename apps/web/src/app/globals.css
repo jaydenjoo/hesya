@@ -24,6 +24,10 @@
   --color-hesya-amber-700: var(--hesya-amber-700);
   --color-hesya-navy-700: var(--hesya-navy-700);
   --color-hesya-navy-900: var(--hesya-navy-900);
+  --color-hesya-danger-50: var(--hesya-danger-50);
+  --color-hesya-danger-100: var(--hesya-danger-100);
+  --color-hesya-danger-200: var(--hesya-danger-200);
+  --color-hesya-danger-600: var(--hesya-danger-600);
 
   /* Trust layer — PRD § 6.5 K-Verified visual trust system */
   --color-kverified-gold: var(--kverified-gold);

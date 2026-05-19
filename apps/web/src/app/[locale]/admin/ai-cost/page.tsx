@@ -161,7 +161,7 @@ export default async function AdminAiCostPage({ params }: Props) {
             <div
               className={`rounded-md border p-5 shadow-[0_1px_2px_rgba(26,34,56,0.04)] ${
                 overBudget
-                  ? "border-[#e5c0ba] bg-[#faefec]"
+                  ? "border-hesya-danger-200 bg-hesya-danger-50"
                   : nearBudget
                     ? "border-hesya-peach-200 bg-[#fbf1e6]"
                     : "border-gray-200 bg-white"
