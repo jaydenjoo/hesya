@@ -337,7 +337,8 @@
 }
 
 /* Marketing landing — fixed header (80px) anchor scroll offset.
- * MarketingNav h-20 (80px) + h-16 (64px scrolled). 96px 안전 마진.
+ * MarketingNav h-20 (80px) + h-16 (64px scrolled). 128px 안전 마진
+ * (Playwright 검증: 96px는 section top -30px로 가려짐, 128px는 여유).
  */
 html {
   scroll-behavior: smooth;
@@ -348,5 +349,5 @@ html {
 #safety,
 #about,
 #trending {
-  scroll-margin-top: 96px;
+  scroll-margin-top: 128px;
 }
