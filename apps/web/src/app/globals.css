@@ -335,3 +335,18 @@
     transition-duration: 0ms !important;
   }
 }
+
+/* Marketing landing — fixed header (80px) anchor scroll offset.
+ * MarketingNav h-20 (80px) + h-16 (64px scrolled). 96px 안전 마진.
+ */
+html {
+  scroll-behavior: smooth;
+}
+#travelers,
+#salons,
+#reviews,
+#safety,
+#about,
+#trending {
+  scroll-margin-top: 96px;
+}
