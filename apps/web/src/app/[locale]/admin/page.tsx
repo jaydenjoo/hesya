@@ -1,12 +1,11 @@
 import { redirect } from "next/navigation";
 
-import { requireAdminRole } from "@/shared/lib/admin-role-guard";
-
 /**
- * /[locale]/admin — root redirect.
- * 비로그인/non-admin → /sign-in. admin → /admin/dashboard.
+ * /[locale]/admin — root redirect to /admin/dashboard.
  *
- * 이 page.tsx가 없으면 Next.js App Router는 notFound() 발생 → 404 → 가드 redirect 무효.
+ * 가드는 admin-shell-layout이 이미 처리 (requireAdminRole 실패 → /sign-in).
+ * 여기서 또 가드를 호출하면 layout + page 이중 redirect()로 RSC stream이 깨져
+ * "Application error: a client-side exception" 발생. 가드 중복 제거 + redirect만.
  */
 export default async function AdminRootPage({
   params,
@@ -14,9 +13,5 @@ export default async function AdminRootPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const guard = await requireAdminRole();
-  if (!guard.ok) {
-    redirect(`/${locale}/sign-in`);
-  }
   redirect(`/${locale}/admin/dashboard`);
 }
