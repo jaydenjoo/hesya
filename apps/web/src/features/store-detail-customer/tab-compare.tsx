@@ -47,22 +47,24 @@ export function TabCompare({
       <p className="pb-3 pt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-hesya-navy-900/55">
         {comingSoonLabel}
       </p>
-      <div className="overflow-hidden rounded-2xl border border-hesya-peach-200 bg-white">
-        <table className="w-full table-fixed text-[11.5px]">
+      {/* Reference detail.css L867-916 .compare-table — r-12 + border rgba(26,34,56,0.08) */}
+      <div className="overflow-hidden rounded-[12px] border border-[rgba(26,34,56,0.08)] bg-white">
+        <table className="w-full table-fixed">
           <thead>
-            <tr className="border-b border-hesya-peach-100 bg-hesya-peach-50/60 text-left">
-              <th className="w-[34%] px-2.5 py-2 font-mono text-[9.5px] uppercase tracking-[0.1em] text-hesya-navy-900/55">
+            {/* Reference .ch — bg gray-100 + 12px / 600 / navy-900 */}
+            <tr className="border-b border-[rgba(26,34,56,0.08)] bg-gray-100 text-left">
+              <th className="w-[34%] px-2.5 py-2.5 text-[12px] font-semibold text-hesya-navy-900 [word-break:keep-all]">
                 항목
               </th>
-              <th className="w-[26%] bg-hesya-peach-100/70 px-2.5 py-2 text-center text-[11px] font-semibold text-hesya-navy-900">
+              <th className="w-[26%] bg-hesya-peach-100 px-2.5 py-2.5 text-center text-[12px] font-semibold text-hesya-navy-900">
                 <span className="block max-w-[90px] truncate" title={storeName}>
                   {storeName}
                 </span>
               </th>
-              <th className="w-[20%] px-2.5 py-2 text-center text-[11px] text-hesya-navy-900/70">
+              <th className="w-[20%] px-2.5 py-2.5 text-center text-[12px] font-semibold text-hesya-navy-900">
                 Salon A
               </th>
-              <th className="w-[20%] px-2.5 py-2 text-center text-[11px] text-hesya-navy-900/70">
+              <th className="w-[20%] px-2.5 py-2.5 text-center text-[12px] font-semibold text-hesya-navy-900">
                 Salon B
               </th>
             </tr>
@@ -70,19 +72,23 @@ export function TabCompare({
           <tbody>
             {COMPARE_ROWS.map((r, i) => {
               const last = i === COMPARE_ROWS.length - 1;
-              const border = last ? "" : "border-b border-hesya-peach-100";
+              const border = last
+                ? ""
+                : "border-b border-[rgba(26,34,56,0.06)]";
               return (
                 <tr key={r.label} className={border}>
-                  <td className="px-2.5 py-1.5 text-[11px] text-hesya-navy-900/70 [word-break:keep-all]">
+                  {/* Reference .rh — bg gray-100 + 11px / gray-700 + border-right */}
+                  <td className="border-r border-[rgba(26,34,56,0.08)] bg-gray-100 px-2.5 py-2.5 text-[11px] text-gray-700 [word-break:keep-all]">
                     {r.label}
                   </td>
-                  <td className="bg-hesya-peach-50/40 px-2.5 py-1.5 text-center font-mono text-[11px] font-semibold text-hesya-navy-900">
+                  {/* Reference .cell.this-col — peach-100 bg + 13px mono + 600 */}
+                  <td className="bg-hesya-peach-100 px-2.5 py-2.5 text-center font-mono text-[13px] font-semibold text-hesya-navy-900">
                     {r.self}
                   </td>
-                  <td className="px-2.5 py-1.5 text-center font-mono text-[11px] text-hesya-navy-900/65">
+                  <td className="px-2.5 py-2.5 text-center font-mono text-[13px] text-hesya-navy-900">
                     {r.a}
                   </td>
-                  <td className="px-2.5 py-1.5 text-center font-mono text-[11px] text-hesya-navy-900/65">
+                  <td className="px-2.5 py-2.5 text-center font-mono text-[13px] text-hesya-navy-900">
                     {r.b}
                   </td>
                 </tr>
