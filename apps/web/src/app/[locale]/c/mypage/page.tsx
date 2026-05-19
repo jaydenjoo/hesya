@@ -6,10 +6,18 @@
  *
  * 데이터 로딩은 서버 측에서 4개 DAL 호출 → tabs Client 컴포넌트로 props 주입.
  * tab 전환은 클라이언트 useState (URL 쿼리 ?tab=... 분기 안 함 — 단일 페이지).
+ *
+ * Phase ζ.5 — 개인정보 영역 검색엔진 인덱싱 차단. `generateMetadata` +
+ * `robots.ts` 2중 방어. `customer-abuse.spec.ts` K-3 검증.
  */
+import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { createDbClient } from "@hesya/database";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 import { CustomerFrame } from "@/features/customer-frame/customer-frame";
 import { MyPageTabs } from "@/features/customer-mypage/my-page-tabs";
 import {
