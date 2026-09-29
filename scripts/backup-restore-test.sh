@@ -56,12 +56,16 @@ echo "  restore stdout: $(wc -l < /tmp/restore-stdout.log) lines"
 echo "  restore stderr: $(wc -l < /tmp/restore-stderr.log) lines (warnings/notices expected)"
 
 echo
-echo "Step 5: row counts (public schema)"
+echo "Step 5: row counts (public schema, exact count(*))"
+# n_live_tup is a stats estimate and reads 0 right after restore — count(*) instead.
 docker exec "$CONTAINER" psql -U postgres -d "$DB" -c "
-SELECT relname AS table, n_live_tup AS rows
-FROM pg_stat_user_tables
-WHERE schemaname = 'public'
-ORDER BY relname;
+SELECT table_name AS table,
+       (xpath('/row/c/text()',
+              query_to_xml(format('SELECT count(*) AS c FROM public.%I', table_name),
+                           false, true, '')))[1]::text::bigint AS rows
+FROM information_schema.tables
+WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+ORDER BY table_name;
 "
 
 echo

@@ -66,3 +66,34 @@ jobs:
           echo "- File: \`$BACKUP_FILE\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Size: $(du -h "$BACKUP_FILE" | cut -f1)" >> "$GITHUB_STEP_SUMMARY"
           echo "- Bucket: \`${{ secrets.R2_BUCKET }}\`" >> "$GITHUB_STEP_SUMMARY"
+
+      # Backups failed silently for 4+ months (2026-05-09 → 07-18) — alert by
+      # email via Resend (same provider as the app's notifications).
+      - name: Alert on failure (Resend email)
+        if: failure()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+          BACKUP_ALERT_EMAIL: ${{ secrets.BACKUP_ALERT_EMAIL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          IDEMPOTENCY_KEY: hesya-backup-alert-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          for v in RESEND_API_KEY RESEND_FROM_EMAIL BACKUP_ALERT_EMAIL; do
+            if [[ -z "${!v}" ]]; then
+              echo "::error::Alert not sent — repo secret $v is not set"
+              exit 1
+            fi
+          done
+          BODY=$(jq -n \
+            --arg from "$RESEND_FROM_EMAIL" \
+            --arg to "$BACKUP_ALERT_EMAIL" \
+            --arg subject "[Hesya] 주간 DB 백업 실패 ($(date -u +%Y-%m-%d))" \
+            --arg text "주간 DB 백업 워크플로가 실패했습니다. R2에 새 백업이 올라가지 않았습니다.
+          실행 로그: $RUN_URL" \
+            '{from: $from, to: [$to], subject: $subject, text: $text}')
+          curl -fsS --retry 2 -o /dev/null -w "Resend HTTP %{http_code}\n" \
+            https://api.resend.com/emails \
+            -H "Authorization: Bearer $RESEND_API_KEY" \
+            -H "Content-Type: application/json" \
+            -H "Idempotency-Key: $IDEMPOTENCY_KEY" \
+            -d "$BODY"
