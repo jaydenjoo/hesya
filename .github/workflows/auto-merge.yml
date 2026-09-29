@@ -12,10 +12,11 @@ name: Auto-merge
 #   - 라벨 누락 PR은 자동 머지 X (명시적 opt-in)
 #   - --squash --delete-branch로 history 정리
 
+# 2026-09-29 비활성화: 병합은 Claude 훅(결제 파일 판별)을 거친 `gh pr merge`로만 한다.
+# 수동 실행(workflow_dispatch)만 남겨 두었지만, 아래 job 조건이 workflow_run 이벤트일 때만 참이라 병합은 일어나지 않는다.
+# 되돌리기: 아래 on: 을 workflow_run(workflows: [CI], types: [completed])으로 복구.
 on:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
+  workflow_dispatch:
 
 permissions:
   contents: write
